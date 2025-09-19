@@ -807,6 +807,138 @@
 
     <span class="k">return</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">beta</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">precision</span> <span class="o">*</span> <span class="n">recall</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">beta</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">precision</span> <span class="o">+</span> <span class="n">recall</span><span class="p">)</span></div>
 
+
+
+<div class="viewcode-block" id="riqd">
+<a class="viewcode-back" href="../../../api/generated/openstef_beam.metrics.riqd.html#openstef_beam.metrics.riqd">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">riqd</span><span class="p">(</span>
+    <span class="n">y_true</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
+    <span class="n">y_pred_lower_q</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
+    <span class="n">y_pred_upper_q</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">measurement_range_lower_q</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span>
+    <span class="n">measurement_range_upper_q</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.95</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate the relative Inter Quantile Distance (rIQD).</span>
+
+<span class="sd">    rIQD measures the average distance between two quantiles, normalized by the measurement range.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        y_true: Ground truth values with shape (num_samples,).</span>
+<span class="sd">        y_pred_lower_q: Predicted values of lower quantile with shape (num_samples,).</span>
+<span class="sd">        y_pred_upper_q: Predicted values of upper quantile with shape (num_samples,).</span>
+<span class="sd">        measurement_range_lower_q: Lower quantile for range calculation. Must be in [0, 1].</span>
+<span class="sd">        measurement_range_upper_q: Upper quantile for range calculation. Must be in [0, 1]</span>
+<span class="sd">            and greater than measurement_range_lower_q.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The relative Inter Quantile Distance (rIQD) as a float. Returns NaN if the measurement</span>
+<span class="sd">            range is zero.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        Basic usage with energy load data:</span>
+
+<span class="sd">        &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">        &gt;&gt;&gt; y_true = np.array([100, 120, 110, 130, 105])</span>
+<span class="sd">        &gt;&gt;&gt; y_pred_lower_q = np.array([90, 100, 105, 95, 85])</span>
+<span class="sd">        &gt;&gt;&gt; y_pred_upper_q = np.array([110, 125, 140, 135, 90])</span>
+<span class="sd">        &gt;&gt;&gt; riqd = riqd(y_true, y_pred_lower_q, y_pred_upper_q)</span>
+<span class="sd">        &gt;&gt;&gt; round(riqd, 4)</span>
+<span class="sd">        0.9259</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Ensure inputs are numpy arrays</span>
+    <span class="n">y_true</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y_true</span><span class="p">)</span>
+    <span class="n">y_pred_lower_q</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y_pred_lower_q</span><span class="p">)</span>
+    <span class="n">y_pred_upper_q</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y_pred_upper_q</span><span class="p">)</span>
+
+    <span class="n">y_range</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="n">measurement_range_upper_q</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="n">measurement_range_lower_q</span><span class="p">)</span>
+
+    <span class="c1"># Calculate IQD</span>
+    <span class="n">iqd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">y_pred_upper_q</span> <span class="o">-</span> <span class="n">y_pred_lower_q</span><span class="p">)</span>
+
+    <span class="c1"># Avoid division by zero if range is zero</span>
+    <span class="k">if</span> <span class="n">y_range</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;NaN&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Calculate rIQD</span>
+    <span class="n">riqd</span> <span class="o">=</span> <span class="n">iqd</span> <span class="o">/</span> <span class="n">y_range</span>
+
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">riqd</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="relative_pinball_loss">
+<a class="viewcode-back" href="../../../api/generated/openstef_beam.metrics.relative_pinball_loss.html#openstef_beam.metrics.relative_pinball_loss">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">relative_pinball_loss</span><span class="p">(</span>
+    <span class="n">y_true</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
+    <span class="n">y_pred</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">quantile</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">measurement_range_lower_q</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span>
+    <span class="n">measurement_range_upper_q</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.95</span><span class="p">,</span>
+    <span class="n">sample_weights</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate the relative Pinball Loss (also known as relative Quantile Loss).</span>
+
+<span class="sd">    The relative pinball loss normalizes the pinball loss by the range of true values,</span>
+<span class="sd">    making it scale-invariant and suitable for comparing quantile prediction errors</span>
+<span class="sd">    across different datasets or time periods. The pinball loss can be used to quantify</span>
+<span class="sd">    the accuracy of a single quantile.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        y_true: Ground truth values with shape (num_samples,).</span>
+<span class="sd">        y_pred: Predicted quantile values with shape (num_samples,).</span>
+<span class="sd">        quantile: The quantile level being predicted (e.g., 0.1, 0.5, 0.9).</span>
+<span class="sd">            Must be in [0, 1].</span>
+<span class="sd">        measurement_range_lower_q: Lower quantile for range calculation. Must be in [0, 1].</span>
+<span class="sd">        measurement_range_upper_q: Upper quantile for range calculation. Must be in [0, 1]</span>
+<span class="sd">            and greater than measurement_range_lower_q.</span>
+<span class="sd">        sample_weights: Optional weights for each sample with shape (num_samples,).</span>
+<span class="sd">            If None, all samples are weighted equally.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The relative Pinball Loss as a float. Returns NaN if the measurement range</span>
+<span class="sd">        is zero.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        Basic usage for 10th percentile predictions:</span>
+
+<span class="sd">        &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">        &gt;&gt;&gt; y_true = np.array([100, 120, 110, 130, 105])</span>
+<span class="sd">        &gt;&gt;&gt; y_pred = np.array([95, 115, 105, 125, 100])  # 10th percentile predictions</span>
+<span class="sd">        &gt;&gt;&gt; rpbl = relative_pinball_loss(y_true, y_pred, quantile=0.1, measurement_range_lower_q=0.0,</span>
+<span class="sd">        ...                               measurement_range_upper_q=1.0)</span>
+<span class="sd">        &gt;&gt;&gt; round(rpbl, 4)</span>
+<span class="sd">        0.0167</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Ensure inputs are numpy arrays</span>
+    <span class="n">y_true</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y_true</span><span class="p">)</span>
+    <span class="n">y_pred</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y_pred</span><span class="p">)</span>
+
+    <span class="c1"># Calculate pinball loss for each sample</span>
+    <span class="n">errors</span> <span class="o">=</span> <span class="n">y_true</span> <span class="o">-</span> <span class="n">y_pred</span>
+    <span class="n">pinball_losses</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+        <span class="n">errors</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">quantile</span> <span class="o">*</span> <span class="n">errors</span><span class="p">,</span>  <span class="c1"># Under-prediction</span>
+        <span class="p">(</span><span class="n">quantile</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">errors</span><span class="p">,</span>  <span class="c1"># Over-prediction</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Calculate mean pinball loss (weighted if weights provided)</span>
+    <span class="n">mean_pinball_loss</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">pinball_losses</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">sample_weights</span><span class="p">)</span>
+
+    <span class="c1"># Calculate measurement range for normalization</span>
+    <span class="n">y_range</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="n">measurement_range_upper_q</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="n">measurement_range_lower_q</span><span class="p">)</span>
+
+    <span class="c1"># Avoid division by zero if range is zero</span>
+    <span class="k">if</span> <span class="n">y_range</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;NaN&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Calculate relative pinball loss</span>
+    <span class="n">relative_pinball_loss</span> <span class="o">=</span> <span class="n">mean_pinball_loss</span> <span class="o">/</span> <span class="n">y_range</span>
+
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">relative_pinball_loss</span><span class="p">)</span></div>
+
 </pre></div>
 
                 </article>

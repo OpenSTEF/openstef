@@ -35,6 +35,8 @@ Functions
    observed_probability
    precision_recall
    rcrps
+   relative_pinball_loss
+   riqd
    rmae
 
 
