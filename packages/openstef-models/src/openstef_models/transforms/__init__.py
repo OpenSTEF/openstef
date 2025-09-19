@@ -16,13 +16,11 @@ from openstef_models.transforms import (
     validation,
     weather_domain,
 )
-from openstef_models.transforms.feature_pipeline import FeaturePipeline
-from openstef_models.transforms.forecast_transform_pipeline import ForecastTransformPipeline
+from openstef_models.transforms.feature_engineering_pipeline import FeatureEngineeringPipeline
 from openstef_models.transforms.horizon_split_transform import HorizonSplitTransform
 
 __all__ = [
-    "FeaturePipeline",
-    "ForecastTransformPipeline",
+    "FeatureEngineeringPipeline",
     "HorizonSplitTransform",
     "energy_domain",
     "general",

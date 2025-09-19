@@ -47,6 +47,7 @@ class ForecastingWorkflow:
         ... )
         >>> from openstef_models.models.forecasting_model import ForecastingModel
         >>> from openstef_models.integrations.callbacks import ForecastingCallback
+        >>> from openstef_models.transforms import FeatureEngineeringPipeline
         >>>
         >>> # Create sample data
         >>> dataset = VersionedTimeSeriesDataset.from_dataframe(
@@ -59,11 +60,12 @@ class ForecastingWorkflow:
         ... )
         >>>
         >>> # Create model and workflow
+        >>> horizons = [LeadTime.from_string("PT24H")]
         >>> model = ForecastingModel(
+        ...     preprocessing=FeatureEngineeringPipeline(horizons=horizons),
         ...     forecaster=ConstantMedianForecaster(
         ...         config=ConstantMedianForecasterConfig(
-        ...             horizons=[LeadTime.from_string("PT24H")],
-        ...             quantiles=[Q(0.5)]
+        ...             horizons=horizons, quantiles=[Q(0.5)]
         ...         )
         ...     )
         ... )

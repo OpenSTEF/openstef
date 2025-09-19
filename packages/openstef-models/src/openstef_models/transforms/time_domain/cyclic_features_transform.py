@@ -18,7 +18,7 @@ from pydantic import Field
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.datasets.transforms import TimeSeriesTransform
+from openstef_core.datasets.timeseries_transform import TimeSeriesTransform
 
 NUM_DAYS_IN_YEAR = 365.25
 NUM_MONTHS_IN_YEAR = 12

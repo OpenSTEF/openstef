@@ -19,13 +19,13 @@ from pydantic import Field
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.datasets.transforms import TimeSeriesTransform
+from openstef_core.datasets.timeseries_transform import TimeSeriesTransform
 from openstef_core.exceptions import FlatlinerDetectedError, MissingColumnsError
 
 _logger = logging.getLogger(__name__)
 
 
-class FlatlinerCheckTransform(TimeSeriesTransform, BaseConfig):
+class FlatlinerCheckTransform(BaseConfig, TimeSeriesTransform):
     """Transformer to detect flatliner patterns in time series load data.
 
     A flatliner is a period where the load remains constant for a specified duration.

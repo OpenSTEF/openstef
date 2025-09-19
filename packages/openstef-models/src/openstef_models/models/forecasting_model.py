@@ -10,16 +10,21 @@ data transformation and validation.
 """
 
 from datetime import datetime
+from typing import Self
 
+from pydantic import Field, model_validator
+
+from openstef_core.base_model import BaseModel
 from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesDataset
+from openstef_core.datasets.transforms import TransformPipeline
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import ConfigurationError, NotFittedError, UnreachableStateError
 from openstef_core.types import LeadTime
 from openstef_models.models.forecasting import BaseForecaster, BaseHorizonForecaster
-from openstef_models.transforms import FeaturePipeline, ForecastTransformPipeline
+from openstef_models.transforms import FeatureEngineeringPipeline
 
 
-class ForecastingModel:
+class ForecastingModel(BaseModel):
     """Complete forecasting pipeline combining preprocessing, prediction, and postprocessing.
 
     Orchestrates the full forecasting workflow by managing feature engineering,
@@ -34,69 +39,61 @@ class ForecastingModel:
     Example:
         Basic forecasting workflow:
 
-        >>> from openstef_models.models.forecasting import BaseForecaster
-        >>> from openstef_models.transforms import FeaturePipeline
+        >>> from openstef_models.models.forecasting.constant_median_forecaster import ConstantMedianForecaster, ConstantMedianForecasterConfig
+        >>> from openstef_models.transforms import FeatureEngineeringPipeline
         >>>
         >>> # Note: This is a conceptual example showing the API structure
         >>> # Real usage requires implemented forecaster classes
-        >>> # forecaster = MyForecaster(config=ForecasterConfig(...))
-        >>> # preprocessing = FeaturePipeline(horizons=forecaster.config.horizons)
-        >>> #
+        >>> forecaster = ConstantMedianForecaster(
+        ...     config=ConstantMedianForecasterConfig(horizons=[LeadTime.from_string("PT36H")])
+        ... )
+        >>> preprocessing = FeatureEngineeringPipeline(horizons=forecaster.config.horizons)
+        >>>
         >>> # Create and train model
-        >>> # model = ForecastingModel(
-        >>> #     forecaster=forecaster,
-        >>> #     preprocessing=preprocessing
-        >>> # )
+        >>> model = ForecastingModel(
+        ...     forecaster=forecaster,
+        ...     preprocessing=preprocessing
+        ... )
         >>> # model.fit(training_data)
         >>> #
         >>> # Generate forecasts
         >>> # forecasts = model.predict(new_data)
     """
 
-    preprocessing: FeaturePipeline
-    forecaster: BaseForecaster | BaseHorizonForecaster
-    postprocessing: ForecastTransformPipeline
-    target_column: str
+    preprocessing: FeatureEngineeringPipeline = Field(
+        default=...,
+        description="Feature engineering pipeline for transforming raw input data into model-ready features.",
+    )
+    forecaster: BaseForecaster | BaseHorizonForecaster = Field(
+        default=...,
+        description="Underlying forecasting algorithm, either single-horizon or multi-horizon.",
+    )
+    postprocessing: TransformPipeline[ForecastDataset] = Field(
+        default_factory=TransformPipeline[ForecastDataset],
+        description="Postprocessing pipeline for transforming model outputs into final forecasts.",
+    )
+    target_column: str = Field(
+        default="load",
+        description="Name of the target variable column in datasets.",
+    )
 
-    def __init__(
-        self,
-        forecaster: BaseForecaster | BaseHorizonForecaster,
-        preprocessing: FeaturePipeline | None = None,
-        postprocessing: ForecastTransformPipeline | None = None,
-        target_column: str = "load",
-    ):
-        """Initialize the forecasting model with required and optional components.
-
-        Args:
-            forecaster: The underlying forecasting algorithm (single or multi-horizon).
-            preprocessing: Feature engineering pipeline. If None, creates default pipeline
-                matching forecaster horizons.
-            postprocessing: Result transformation pipeline. If None, creates empty pipeline.
-            target_column: Name of the target variable column in datasets.
-
-        Raises:
-            ConfigurationError: If forecaster and preprocessing configurations are incompatible.
-        """
-        preprocessing = preprocessing or FeaturePipeline(horizons=forecaster.config.horizons)
-
-        if forecaster.config.horizons != preprocessing.horizons:
+    @model_validator(mode="after")
+    def validate_horizons_match(self) -> Self:
+        if self.forecaster.config.horizons != self.preprocessing.horizons:
             message = (
-                f"The forecaster horizons ({forecaster.config.horizons}) do not match the "
-                f"preprocessing horizons ({preprocessing.horizons})."
+                f"The forecaster horizons ({self.forecaster.config.horizons}) do not match the "
+                f"preprocessing horizons ({self.preprocessing.horizons})."
             )
             raise ConfigurationError(message)
 
-        self.preprocessing = preprocessing
-        self.forecaster = forecaster
-        self.postprocessing = postprocessing or ForecastTransformPipeline()
-        self.target_column = target_column
+        return self
 
     def _prepare_input_data(
         self,
         dataset: VersionedTimeSeriesDataset | TimeSeriesDataset,
         forecast_start: datetime | None = None,
     ) -> dict[LeadTime, ForecastInputDataset]:
-        input_data = self.preprocessing.transform(dataset=dataset)
+        input_data = self.preprocessing.transform(data=dataset)
         return {
             lead_time: ForecastInputDataset.from_timeseries_dataset(
                 dataset=timeseries_dataset,
@@ -129,7 +126,7 @@ class ForecastingModel:
                 indicating a violated invariant in the preprocessing pipeline.
         """
         # Fit the feature engineering transforms
-        self.preprocessing.fit(dataset=dataset)
+        self.preprocessing.fit(data=dataset)
 
         # Transform the input data to a valid forecast input
         input_data = self._prepare_input_data(dataset=dataset)

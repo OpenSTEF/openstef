@@ -15,11 +15,11 @@ from pydantic import Field
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.datasets.transforms import TimeSeriesTransform
+from openstef_core.datasets.timeseries_transform import TimeSeriesTransform
 from openstef_core.exceptions import InsufficientlyCompleteError
 
 
-class CompletenessCheckTransform(TimeSeriesTransform, BaseConfig):
+class CompletenessCheckTransform(BaseConfig, TimeSeriesTransform):
     """Transformer to check the completeness of time series load data.
 
     Completeness is defined as the ratio of non-missing values to the total number of values in a given time series.

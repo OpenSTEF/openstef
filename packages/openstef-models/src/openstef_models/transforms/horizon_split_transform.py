@@ -9,15 +9,20 @@ resolves timestamps to create clean time series datasets for each forecast horiz
 This enables efficient processing of multi-horizon forecasting models.
 """
 
-import pandas as pd
+from typing import override
+
 from pydantic import Field
 
 from openstef_core.base_model import BaseConfig
-from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesDataset
+from openstef_core.datasets import (
+    MultiHorizonTimeSeriesDataset,
+    Transform,
+    VersionedTimeSeriesDataset,
+)
 from openstef_core.types import LeadTime
 
 
-class HorizonSplitTransform(BaseConfig):
+class HorizonSplitTransform(BaseConfig, Transform[VersionedTimeSeriesDataset, MultiHorizonTimeSeriesDataset]):
     """Transform that splits versioned datasets into horizon-specific time series.
 
     This transform is a key component in multi-horizon forecasting pipelines. It takes
@@ -61,35 +66,26 @@ class HorizonSplitTransform(BaseConfig):
         description="List of forecast horizons to prepare / split the dataset for.",
     )
 
-    def transform(self, dataset: VersionedTimeSeriesDataset) -> dict[LeadTime, TimeSeriesDataset]:
+    @property
+    @override
+    def is_fitted(self) -> bool:
+        return True
+
+    @override
+    def fit(self, data: VersionedTimeSeriesDataset) -> None:
+        pass
+
+    @override
+    def transform(self, data: VersionedTimeSeriesDataset) -> MultiHorizonTimeSeriesDataset:
         """Split versioned dataset into horizon-specific time series datasets.
 
         For each configured horizon, filters the versioned data and resolves timestamps
         to create clean time series datasets suitable for standard processing.
 
         Args:
-            dataset: Versioned time series dataset with forecast validity timestamps.
+            data: Versioned time series dataset with forecast validity timestamps.
 
         Returns:
             Dictionary mapping each LeadTime to its corresponding TimeSeriesDataset.
         """
-        return {horizon: dataset.filter_by_lead_time(lead_time=horizon).select_version() for horizon in self.horizons}
-
-
-def concat_horizon_datasets_rowwise(horizon_datasets: dict[LeadTime, TimeSeriesDataset]) -> TimeSeriesDataset:
-    """Concatenate multiple horizon datasets into a single dataset.
-
-    This function takes a dictionary of horizon datasets, each corresponding to a specific lead time,
-    and concatenates them row-wise into a single TimeSeriesDataset. The resulting dataset contains all
-    the data from the input datasets, with the same sample interval as the first dataset in the input.
-
-    Args:
-        horizon_datasets: A dictionary where keys are LeadTime objects and values are TimeSeriesDataset instances.
-
-    Returns:
-        A single TimeSeriesDataset containing all rows from the input datasets.
-    """
-    return TimeSeriesDataset(
-        data=pd.concat([horizon_data.data for horizon_data in horizon_datasets.values()]),
-        sample_interval=horizon_datasets[next(iter(horizon_datasets))].sample_interval,
-    )
+        return {horizon: data.filter_by_lead_time(lead_time=horizon).select_version() for horizon in self.horizons}

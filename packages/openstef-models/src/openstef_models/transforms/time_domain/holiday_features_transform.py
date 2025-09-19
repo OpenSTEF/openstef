@@ -21,7 +21,7 @@ from pydantic_extra_types.country import CountryAlpha2
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.datasets.transforms import TimeSeriesTransform
+from openstef_core.datasets.timeseries_transform import TimeSeriesTransform
 
 
 class HolidayFeaturesTransform(BaseConfig, TimeSeriesTransform):

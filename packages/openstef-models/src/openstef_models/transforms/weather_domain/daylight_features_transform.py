@@ -17,7 +17,7 @@ from pydantic_extra_types.coordinate import Coordinate, Latitude, Longitude
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.datasets.transforms import TimeSeriesTransform
+from openstef_core.datasets.timeseries_transform import TimeSeriesTransform
 from openstef_core.exceptions import MissingExtraError
 
 

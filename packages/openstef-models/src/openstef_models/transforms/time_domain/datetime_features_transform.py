@@ -16,7 +16,7 @@ from pydantic import Field
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.datasets.transforms import TimeSeriesTransform
+from openstef_core.datasets.timeseries_transform import TimeSeriesTransform
 
 MIN_WEEKEND_IDX: int = 5  # Saturday
 SUNDAY_IDX: int = 6

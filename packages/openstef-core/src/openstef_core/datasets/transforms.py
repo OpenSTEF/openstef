@@ -9,31 +9,34 @@ on both simple and versioned time series datasets. Transforms follow the
 scikit-learn pattern with separate fit and transform phases.
 """
 
-from abc import abstractmethod
+from abc import ABC, abstractmethod
+from collections.abc import Sequence
+from typing import override
 
-from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.datasets.validated_datasets import ForecastDataset
-from openstef_core.datasets.versioned_timeseries import VersionedTimeSeriesDataset
-from openstef_core.types import LeadTime
+from pydantic import Field
 
-type MultiHorizonTimeSeriesDataset = dict[LeadTime, TimeSeriesDataset]
+from openstef_core.base_model import BaseModel
+from openstef_core.exceptions import NotFittedError
 
 
-class TimeSeriesTransform:
-    """Abstract base class for transforming regular time series datasets.
+class Transform[I, O](ABC):
+    """Abstract base class for data transformations.
 
-    This class defines the interface for data transformations that operate on
-    TimeSeriesDataset instances. Transforms follow the scikit-learn pattern
-    with separate fit and transform phases, allowing for stateful transformations
-    that learn parameters from training data.
+    This class provides the basic interface for transforms that can be fitted to data
+    of type I and then applied to transform it to type O. It follows the scikit-learn pattern
+    with separate fit and transform phases.
 
-    Subclasses must implement the transform method and optionally override
-    the fit method if the transformation requires learning parameters from data.
+    Type parameters:
+        I: The input data type.
+        O: The output data type.
+
+    Subclasses must implement the is_fitted property, fit method, and transform method.
 
     Example:
-        Implement a simple scaling transform:
+        Implementing a simple scaling transform:
 
-        >>> class ScaleTransform(TimeSeriesTransform):
+        >>> from openstef_core.datasets import TimeSeriesDataset
+        >>> class ScaleTransform(Transform[TimeSeriesDataset, TimeSeriesDataset]):
         ...     def __init__(self):
         ...         self.scale_factor = None
         ...
@@ -41,273 +44,140 @@ class TimeSeriesTransform:
         ...     def is_fitted(self) -> bool:
         ...         return self.scale_factor is not None
         ...
-        ...     def fit(self, data):
+        ...     def fit(self, data: TimeSeriesDataset) -> None:
         ...         self.scale_factor = data.data.max().max()
         ...
-        ...     def transform(self, data):
+        ...     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
         ...         scaled_data = data.data / self.scale_factor
         ...         return TimeSeriesDataset(scaled_data, data.sample_interval)
     """
 
     @property
+    @abstractmethod
     def is_fitted(self) -> bool:
-        """Check if the transform has been fitted.
+        """Check if the transform has been fitted."""
 
-        Returns:
-            True if the transform is ready for use. Base implementation returns True
-            since most forecast transforms are stateless.
-        """
-        return True
-
-    def fit(self, data: TimeSeriesDataset) -> None:
-        """Fit the transform to the input time series data.
+    @abstractmethod
+    def fit(self, data: I) -> None:
+        """Fit the transform to the input data.
 
         This method should be called before applying the transform to the data.
         It allows the transform to learn any necessary parameters from the data.
 
         Args:
-            data: The input time series data to fit the transform on.
+            data: The input data to fit the transform on.
         """
 
     @abstractmethod
-    def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
-        """Transform the input time series data.
+    def transform(self, data: I) -> O:
+        """Transform the input data.
 
-        This method should apply a transformation to the input data and return a new instance of TimeSeriesDataset.
+        This method should apply a transformation to the input data and return a new instance.
 
         Args:
-            data: The input time series data to be transformed.
+            data: The input data to be transformed.
 
         Returns:
-            A new instance of TimeSeriesDataset containing the transformed data.
-        """
-        raise NotImplementedError
+            A new instance of the same type as the input data containing the transformed data.
 
-    def fit_transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
+        Raises:
+            NotFittedError: If the transform has not been fitted yet.
+        """
+
+    def fit_transform(self, data: I) -> O:
         """Fit the transform to the data and then transform it.
 
         This method combines fitting and transforming into a single step.
 
         Args:
-            data: The input time series data to fit and transform.
+            data: The input data to fit and transform.
 
         Returns:
-            A new instance of TimeSeriesDataset containing the transformed data.
+            A new instance of the same type as the input data containing the transformed data.
         """
         self.fit(data)
         return self.transform(data)
 
-    def fit_horizons(self, data: dict[LeadTime, TimeSeriesDataset]) -> None:
-        """Fit the transform to multiple horizons of time series data.
 
-        This method allows fitting the transform on a dictionary of datasets,
-        each corresponding to a different lead time (horizon). It is useful
-        for transforms that need to learn parameters across multiple horizons.
+class SelfTransform[I](Transform[I, I]):
+    """Abstract base class for self-transforming data.
 
-        Args:
-            data: A dictionary mapping lead times to their corresponding
-                  TimeSeriesDataset instances.
-        """
+    This class is a specialization of Transform where the input and output types are the same.
+    It is useful for transforms that modify data in-place or return the same type.
 
-    def transform_horizons(self, data: MultiHorizonTimeSeriesDataset) -> MultiHorizonTimeSeriesDataset:
-        """Transform multiple horizons of time series data.
-
-        This method applies the transformation to each dataset in the input
-        dictionary, returning a new dictionary with the transformed datasets.
-
-        Args:
-            data: A dictionary mapping lead times to their corresponding
-                  TimeSeriesDataset instances.
-
-        Returns:
-            A new dictionary mapping lead times to their transformed
-            TimeSeriesDataset instances.
-        """
-        transformed_data: MultiHorizonTimeSeriesDataset = {}
-        for horizon, dataset in data.items():
-            transformed_data[horizon] = self.transform(dataset)
-
-        return transformed_data
-
-    def fit_transform_horizons(self, data: MultiHorizonTimeSeriesDataset) -> MultiHorizonTimeSeriesDataset:
-        """Fit the transform to multiple horizons and then transform them.
-
-        This method combines fitting and transforming for multiple horizons
-        into a single step.
-
-        Args:
-            data: A dictionary mapping lead times to their corresponding
-                  TimeSeriesDataset instances.
-
-        Returns:
-            A new dictionary mapping lead times to their transformed
-            TimeSeriesDataset instances.
-        """
-        self.fit_horizons(data)
-        return self.transform_horizons(data)
-
-
-class VersionedTimeSeriesTransform:
-    """Abstract base class for transforming versioned time series datasets.
-
-    This class defines the interface for data transformations that operate on
-    VersionedTimeSeriesDataset instances. Like TimeSeriesTransform, it follows
-    the scikit-learn pattern but handles datasets with versioning information.
-
-    Transforms on versioned datasets must preserve the timestamp and availability
-    columns while transforming the feature data. This ensures that the versioning
-    semantics are maintained through the transformation pipeline.
-
-    Subclasses must implement the transform method and optionally override
-    the fit method if the transformation requires learning parameters from data.
+    Type parameter:
+        I: The data type for both input and output.
 
     Example:
-        Implement a normalization transform for versioned data:
+        Implementing a simple scaling transform:
 
-        >>> class VersionedNormalizeTransform(VersionedTimeSeriesTransform):
+        >>> from openstef_core.datasets import TimeSeriesDataset
+        >>> class ScaleTransform(SelfTransform[TimeSeriesDataset]):
         ...     def __init__(self):
-        ...         self.mean = None
-        ...         self.std = None
+        ...         self.scale_factor = None
         ...
-        ...     def fit(self, data):
-        ...         feature_data = data.data[data.feature_names]
-        ...         self.mean = feature_data.mean()
-        ...         self.std = feature_data.std()
+        ...     @property
+        ...     def is_fitted(self) -> bool:
+        ...         return self.scale_factor is not None
         ...
-        ...     def transform(self, data):
-        ...         normalized_data = data.data.copy()
-        ...         normalized_data[data.feature_names] = (
-        ...             (data.data[data.feature_names] - self.mean) / self.std
-        ...         )
-        ...         return VersionedTimeSeriesDataset(
-        ...             normalized_data, data.sample_interval
-        ...         )
+        ...     def fit(self, data: TimeSeriesDataset) -> None:
+        ...         self.scale_factor = data.data.max().max()
+        ...
+        ...     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
+        ...         scaled_data = data.data / self.scale_factor
+        ...         return TimeSeriesDataset(scaled_data, data.sample_interval)
     """
 
-    @property
-    def is_fitted(self) -> bool:
-        """Check if the transform has been fitted.
 
-        Returns:
-            True if the transform is ready for use. Base implementation returns True
-            since most forecast transforms are stateless.
-        """
-        return True
+class TransformPipeline[T](BaseModel, Transform[T, T]):
+    """Sequential pipeline of transformations.
 
-    def fit(self, data: VersionedTimeSeriesDataset) -> None:
-        """Fit the transform to the input versioned time series data.
-
-        This method should be called before applying the transform to the data.
-        It allows the transform to learn any necessary parameters from the data.
-
-        Args:
-            data: The input versioned time series data to fit the transform on.
-        """
-
-    @abstractmethod
-    def transform(self, data: VersionedTimeSeriesDataset) -> VersionedTimeSeriesDataset:
-        """Transform the input versioned time series data.
-
-        This method should apply a transformation to the input data and return
-        a new instance of VersionedTimeSeriesDataset.
-
-        Args:
-            data: The input versioned time series data to be transformed.
-
-        Returns:
-            A new instance of VersionedTimeSeriesDataset containing the
-            transformed data.
-        """
-        raise NotImplementedError
-
-    def fit_transform(self, data: VersionedTimeSeriesDataset) -> VersionedTimeSeriesDataset:
-        """Fit the transform to the data and then transform it.
-
-        This method combines fitting and transforming into a single step.
-
-        Args:
-            data: The input versioned time series data to fit and transform.
-
-        Returns:
-            A new instance of VersionedTimeSeriesDataset containing the transformed data.
-        """
-        self.fit(data)
-        return self.transform(data)
-
-
-class ForecastTransform:
-    """Base class for forecast transformations.
-
-    Provides the interface for all forecast postprocessing operations that enhance
-    or correct forecast results. Common use cases include forecast calibration to
-    reduce bias, conformalization for uncertainty quantification, quantile sorting
-    to ensure monotonicity, and extrapolating additional quantiles from existing ones.
+    Applies multiple transforms in order, fitting each transform
+    on the intermediate outputs of the previous transforms. Ensures proper
+    error handling and state management across the pipeline.
 
     Invariants:
-        - fit() must be called before transform() for stateful transforms,
-          and is_fitted must return True, otherwise NotFittedError will be raised
+        - Transforms are called in order, receiving the output of the previous transform.
+        - Pipeline is considered fitted only when all transforms are fitted
 
     Example:
-        Implementing a quantile sorting transform to ensure monotonicity:
+        Creating and using a transformation pipeline:
 
-        >>> import numpy as np
-        >>> class QuantileSortingTransform(ForecastTransform):
-        ...     def transform(self, data: ForecastDataset) -> ForecastDataset:
-        ...         # Ensure quantiles are monotonically increasing across columns
-        ...         sorted_data = data.copy()
-        ...         quantile_cols = [col for col in data.forecast_columns if 'quantile' in col]
-        ...         if quantile_cols:
-        ...             sorted_data.data[quantile_cols] = np.sort(sorted_data.data[quantile_cols], axis=1)
-        ...         return sorted_data
+        >>> from openstef_core.datasets import TimeSeriesDataset
+        >>> # Create an empty pipeline
+        >>> pipeline = TransformPipeline[TimeSeriesDataset]()
+        >>>
+        >>> # The pipeline can be used even when empty
+        >>> # processed_data = pipeline.transform(data)
     """
 
+    transforms: Sequence[Transform[T, T]] = Field(
+        default=[],
+        description="Sequence of transforms to apply in sequence. If empty, the pipeline is a nop.",
+    )
+
     @property
+    @override
     def is_fitted(self) -> bool:
-        """Check if the transform has been fitted.
+        return all(transform.is_fitted for transform in self.transforms)
 
-        Returns:
-            True if the transform is ready for use. Base implementation returns True
-            since most forecast transforms are stateless.
-        """
-        return True
+    @override
+    def fit(self, data: T) -> None:
+        for transform in self.transforms:
+            data = transform.fit_transform(data)
 
-    def fit(self, data: ForecastDataset) -> None:
-        """Fit the transform to forecast data.
+    @override
+    def transform(self, data: T) -> T:
+        if not self.is_fitted:
+            raise NotFittedError(self.__class__.__name__)
 
-        For stateful transforms, this method learns parameters from the data.
-        Base implementation is a no-op since most forecast transforms are stateless.
-
-        Args:
-            data: Forecast dataset to fit the transform on.
-        """
-
-    @abstractmethod
-    def transform(self, data: ForecastDataset) -> ForecastDataset:
-        """Transform forecast data.
-
-        Args:
-            data: Input forecast dataset to transform.
-
-        Returns:
-            Transformed forecast dataset with the same structure as input.
-        """
-        raise NotImplementedError
-
-    def fit_transform(self, data: ForecastDataset) -> ForecastDataset:
-        """Fit the transform and apply it to the data in one step.
-
-        Args:
-            data: Forecast dataset to fit and transform.
-
-        Returns:
-            Transformed forecast dataset.
-        """
-        self.fit(data)
-        return self.transform(data)
+        for transform in self.transforms:
+            data = transform.transform(data)
+        return data
 
 
 __all__ = [
-    "ForecastTransform",
-    "TimeSeriesTransform",
-    "VersionedTimeSeriesTransform",
+    "SelfTransform",
+    "Transform",
+    "TransformPipeline",
 ]

@@ -17,7 +17,7 @@ from pydantic import Field
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.datasets.transforms import TimeSeriesTransform
+from openstef_core.datasets.timeseries_transform import TimeSeriesTransform
 from openstef_core.datasets.validation import validate_required_columns
 from openstef_core.utils import timedelta_to_isoformat
 

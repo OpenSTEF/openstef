@@ -17,10 +17,8 @@ from sklearn.impute import SimpleImputer
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.datasets.mixins import LeadTime
-from openstef_core.datasets.transforms import TimeSeriesTransform
+from openstef_core.datasets.timeseries_transform import TimeSeriesTransform
 from openstef_core.exceptions import TransformNotFittedError
-from openstef_models.transforms.horizon_split_transform import concat_horizon_datasets_rowwise
 
 type ImputationStrategy = Literal["mean", "median", "most_frequent", "constant"]
 
@@ -149,12 +147,6 @@ class ImputationTransform(BaseConfig, TimeSeriesTransform):
     @override
     def is_fitted(self) -> bool:
         return self._is_fitted
-
-    @override
-    def fit_horizons(self, data: dict[LeadTime, TimeSeriesDataset]) -> None:
-        # Because the imputation computes a global statistic, we fit on the concatenated data
-        flat_data = concat_horizon_datasets_rowwise(data)
-        return self.fit(flat_data)
 
     @override
     def fit(self, data: TimeSeriesDataset) -> None:

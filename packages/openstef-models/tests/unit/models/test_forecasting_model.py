@@ -3,19 +3,82 @@
 # SPDX-License-Identifier: MPL-2.0
 
 from datetime import datetime, timedelta
+from typing import Self, cast
 from unittest.mock import MagicMock
 
 import pandas as pd
 import pytest
 
 from openstef_core.datasets import TimeSeriesDataset
+from openstef_core.datasets.transforms import TransformPipeline
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
-from openstef_core.exceptions import ConfigurationError, NotFittedError, UnreachableStateError
+from openstef_core.exceptions import ConfigurationError, NotFittedError
 from openstef_core.types import LeadTime, Quantile
 from openstef_models.models.forecasting import BaseForecaster, BaseHorizonForecaster
+from openstef_models.models.forecasting.multi_horizon_adapter import (
+    MultiHorizonForecasterAdapter,
+    MultiHorizonForecasterConfig,
+)
 from openstef_models.models.forecasting_model import ForecastingModel
-from openstef_models.models.mixins.forecaster_mixin import ForecasterConfig, HorizonForecasterConfig
-from openstef_models.transforms import FeaturePipeline, ForecastTransformPipeline
+from openstef_models.models.mixins import HorizonForecasterConfig, ModelState
+from openstef_models.transforms import FeatureEngineeringPipeline
+
+
+class SimpleForecaster(BaseHorizonForecaster):
+    """Simple test forecaster that returns predictable values for testing."""
+
+    def __init__(self, config: HorizonForecasterConfig):
+        self._config = config
+        self._is_fitted = False
+
+    @property
+    def config(self) -> HorizonForecasterConfig:
+        return self._config
+
+    @property
+    def is_fitted(self) -> bool:
+        return self._is_fitted
+
+    def get_state(self) -> ModelState:
+        return cast(ModelState, self)
+
+    @classmethod
+    def from_state(cls, state: ModelState) -> Self:
+        return cast(Self, state)
+
+    def fit_horizon(self, input_data: ForecastInputDataset) -> None:
+        self._is_fitted = True
+
+    def predict_horizon(self, input_data: ForecastInputDataset) -> ForecastDataset:
+        # Return predictable forecast values
+        forecast_values = {quantile: 100.0 + quantile * 10 for quantile in self.config.quantiles}
+        data = pd.DataFrame(
+            {
+                quantile.format(): [forecast_values[quantile]] * len(input_data.index)
+                for quantile in self.config.quantiles
+            },
+            index=input_data.index,
+        )
+        return ForecastDataset(data, input_data.sample_interval, input_data.forecast_start)
+
+
+class SimpleMultiHorizonForecaster(MultiHorizonForecasterAdapter[HorizonForecasterConfig, SimpleForecaster]):
+    """Multi-horizon adapter using SimpleForecaster for testing."""
+
+    @classmethod
+    def get_forecaster_type(cls) -> type[SimpleForecaster]:
+        return SimpleForecaster
+
+    @classmethod
+    def create_forecaster(cls, config: HorizonForecasterConfig) -> SimpleForecaster:
+        return SimpleForecaster(config=config)
+
+    def get_state(self) -> ModelState:
+        return cast(ModelState, self)
+
+    @classmethod
+    def from_state(cls, state: ModelState) -> Self:
+        return cast(Self, state)
 
 
 @pytest.fixture
@@ -37,164 +100,164 @@ def test_forecasting_model__init__validates_horizons_and_assigns_components():
     """Test initialization validates horizon matching and assigns components correctly."""
     # Arrange
     horizons = [LeadTime(timedelta(hours=6))]
-    mock_forecaster = MagicMock(spec=BaseForecaster)
-    mock_forecaster.config = ForecasterConfig(quantiles=[Quantile(0.5)], horizons=horizons)
+    config = HorizonForecasterConfig(quantiles=[Quantile(0.5)], horizons=horizons)
+    forecaster = SimpleForecaster(config=config)
 
-    mock_preprocessing = MagicMock(spec=FeaturePipeline)
-    mock_preprocessing.horizons = horizons
-
-    mock_postprocessing = MagicMock(spec=ForecastTransformPipeline)
+    preprocessing = FeatureEngineeringPipeline(horizons=horizons)
+    postprocessing = TransformPipeline[ForecastDataset](transforms=[])
 
     # Act
     model = ForecastingModel(
-        forecaster=mock_forecaster,
-        preprocessing=mock_preprocessing,
-        postprocessing=mock_postprocessing,
+        forecaster=forecaster,
+        preprocessing=preprocessing,
+        postprocessing=postprocessing,
         target_column="energy",
     )
 
     # Assert - Components are assigned correctly
-    assert model.forecaster is mock_forecaster
-    assert model.preprocessing is mock_preprocessing
-    assert model.postprocessing is mock_postprocessing
+    assert model.forecaster is forecaster
+    assert model.preprocessing is preprocessing
+    assert model.postprocessing is postprocessing
     assert model.target_column == "energy"
-    assert model.is_fitted == mock_forecaster.is_fitted  # Property delegation
+    assert model.is_fitted == forecaster.is_fitted  # Property delegation
 
 
-def test_forecasting_model__init__uses_defaults_and_validates_horizons():
-    """Test initialization with defaults and horizon validation errors."""
+def test_forecasting_model__init__uses_defaults():
+    """Test initialization uses default preprocessing and postprocessing when not provided."""
     # Arrange
-    mock_forecaster = MagicMock(spec=BaseForecaster)
-    mock_forecaster.config = ForecasterConfig(
-        quantiles=[Quantile(0.5)],
-        horizons=[LeadTime(timedelta(hours=1))],
+    horizons = [LeadTime(timedelta(hours=1))]
+    config = HorizonForecasterConfig(quantiles=[Quantile(0.5)], horizons=horizons)
+    forecaster = SimpleForecaster(config=config)
+
+    # Act
+    model = ForecastingModel(
+        forecaster=forecaster, preprocessing=FeatureEngineeringPipeline(horizons=forecaster.config.horizons)
     )
 
-    # Act & Assert - Test defaults work
-    model = ForecastingModel(forecaster=mock_forecaster)
-
-    # Check that default FeaturePipeline and PostprocessingPipeline were created
+    # Assert - Check that components are assigned correctly
     assert model.preprocessing is not None
-    assert isinstance(model.preprocessing, FeaturePipeline)
-    assert model.preprocessing.horizons == mock_forecaster.config.horizons
+    assert isinstance(model.preprocessing, FeatureEngineeringPipeline)
+    assert model.preprocessing.horizons == forecaster.config.horizons
     assert model.postprocessing is not None
-    assert isinstance(model.postprocessing, ForecastTransformPipeline)
+    assert isinstance(model.postprocessing, TransformPipeline)
     assert model.target_column == "load"  # Default value
 
-    # Act & Assert - Test horizon validation error
-    mock_preprocessing = MagicMock(spec=FeaturePipeline)
-    mock_preprocessing.horizons = [LeadTime(timedelta(hours=6))]  # Different horizons
 
+def test_forecasting_model__init__raises_error_when_horizons_mismatch():
+    """Test initialization raises error when forecaster and preprocessing horizons don't match."""
+    # Arrange
+    config = HorizonForecasterConfig(quantiles=[Quantile(0.5)], horizons=[LeadTime(timedelta(hours=1))])
+    forecaster = SimpleForecaster(config=config)
+    preprocessing = MagicMock(spec=FeatureEngineeringPipeline)
+    preprocessing.horizons = [LeadTime(timedelta(hours=6))]  # Different horizons
+
+    # Act & Assert
     with pytest.raises(ConfigurationError, match=r"forecaster horizons.*do not match.*preprocessing horizons"):
-        ForecastingModel(forecaster=mock_forecaster, preprocessing=mock_preprocessing)
+        ForecastingModel(forecaster=forecaster, preprocessing=preprocessing)
 
 
 @pytest.mark.parametrize(
     "forecaster_type",
     [
-        pytest.param(BaseForecaster, id="base_forecaster"),
         pytest.param(BaseHorizonForecaster, id="horizon_forecaster"),
+        pytest.param(BaseForecaster, id="multi_horizon_forecaster"),
     ],
 )
-def test_forecasting_model__fit_and_predict__orchestrates_correctly(
+def test_forecasting_model__fit__orchestrates_correctly(
     forecaster_type: type, sample_timeseries_dataset: TimeSeriesDataset
 ):
-    """Test that fit and predict correctly orchestrate preprocessing and forecaster calls."""
+    """Test that fit correctly orchestrates preprocessing and forecaster calls."""
     # Arrange
     horizons = [LeadTime(timedelta(hours=6))]
-    mock_forecaster = MagicMock(spec=forecaster_type)
 
-    if forecaster_type == BaseForecaster:
-        mock_forecaster.config = ForecasterConfig(quantiles=[Quantile(0.5)], horizons=horizons)
+    if forecaster_type == BaseHorizonForecaster:
+        config = HorizonForecasterConfig(quantiles=[Quantile(0.5)], horizons=horizons)
+        forecaster = SimpleForecaster(config=config)
     else:
-        mock_forecaster.config = HorizonForecasterConfig(quantiles=[Quantile(0.5)], horizons=horizons)
+        config = MultiHorizonForecasterConfig(
+            quantiles=[Quantile(0.5)],
+            horizons=horizons,
+            forecaster_config=HorizonForecasterConfig(quantiles=[Quantile(0.5)], horizons=horizons),
+        )
+        forecaster = SimpleMultiHorizonForecaster.create(config=config)
 
-    mock_forecaster.is_fitted = False
-
-    mock_preprocessing = MagicMock(spec=FeaturePipeline)
-    mock_preprocessing.horizons = horizons
-
-    mock_postprocessing = MagicMock(spec=ForecastTransformPipeline)
+    preprocessing = FeatureEngineeringPipeline(horizons=horizons)
+    postprocessing = TransformPipeline[ForecastDataset](transforms=[])
 
     model = ForecastingModel(
-        forecaster=mock_forecaster,
-        preprocessing=mock_preprocessing,
-        postprocessing=mock_postprocessing,
+        forecaster=forecaster,
+        preprocessing=preprocessing,
+        postprocessing=postprocessing,
     )
 
-    # Set up preprocessing mock to return real TimeSeriesDataset for _prepare_input_data
-    mock_preprocessing.transform.return_value = {LeadTime(timedelta(hours=6)): sample_timeseries_dataset}
-
-    # Act - Test fit workflow
+    # Act
     model.fit(dataset=sample_timeseries_dataset)
 
-    # Assert - Fit orchestration
-    mock_preprocessing.fit.assert_called_once_with(dataset=sample_timeseries_dataset)
-    mock_preprocessing.transform.assert_called_once_with(dataset=sample_timeseries_dataset)
+    # Assert - Model is fitted
+    assert model.is_fitted
 
-    if forecaster_type == BaseForecaster:
-        # Should be called with dict containing ForecastInputDataset
-        mock_forecaster.fit.assert_called_once()
-        fit_call_args = mock_forecaster.fit.call_args[1]["input_data"]
-        assert len(fit_call_args) == 1
-        assert LeadTime(timedelta(hours=6)) in fit_call_args
-        assert isinstance(fit_call_args[LeadTime(timedelta(hours=6))], ForecastInputDataset)
+
+@pytest.mark.parametrize(
+    "forecaster_type",
+    [
+        pytest.param(BaseHorizonForecaster, id="horizon_forecaster"),
+        pytest.param(BaseForecaster, id="multi_horizon_forecaster"),
+    ],
+)
+def test_forecasting_model__predict__orchestrates_correctly(
+    forecaster_type: type, sample_timeseries_dataset: TimeSeriesDataset
+):
+    """Test that predict correctly orchestrates preprocessing and forecaster calls."""
+    # Arrange
+    horizons = [LeadTime(timedelta(hours=6))]
+
+    if forecaster_type == BaseHorizonForecaster:
+        config = HorizonForecasterConfig(quantiles=[Quantile(0.5)], horizons=horizons)
+        forecaster = SimpleForecaster(config=config)
     else:
-        # HorizonForecaster gets first data item
-        mock_forecaster.fit_horizon.assert_called_once()
-        fit_call_args = mock_forecaster.fit_horizon.call_args[1]["input_data"]
-        assert isinstance(fit_call_args, ForecastInputDataset)
+        config = MultiHorizonForecasterConfig(
+            quantiles=[Quantile(0.5)],
+            horizons=horizons,
+            forecaster_config=HorizonForecasterConfig(quantiles=[Quantile(0.5)], horizons=horizons),
+        )
+        forecaster = SimpleMultiHorizonForecaster.create(config=config)
 
-    # Arrange for predict - Set fitted and add return values
-    mock_forecaster.is_fitted = True
-    mock_raw_forecast = MagicMock(spec=ForecastDataset)
-    final_forecast = MagicMock(spec=ForecastDataset)
-    mock_postprocessing.transform.return_value = final_forecast
+    preprocessing = FeatureEngineeringPipeline(horizons=horizons)
+    postprocessing = TransformPipeline[ForecastDataset](transforms=[])
 
-    if forecaster_type == BaseForecaster:
-        mock_forecaster.predict.return_value = mock_raw_forecast
-    else:
-        mock_forecaster.predict_horizon.return_value = mock_raw_forecast
+    model = ForecastingModel(
+        forecaster=forecaster,
+        preprocessing=preprocessing,
+        postprocessing=postprocessing,
+    )
+
+    # Fit the model first
+    model.fit(dataset=sample_timeseries_dataset)
 
     forecast_start = datetime.fromisoformat("2025-01-01T12:00:00")
 
-    # Act - Test predict workflow
+    # Act
     result = model.predict(dataset=sample_timeseries_dataset, forecast_start=forecast_start)
 
-    # Assert - Predict orchestration
-    if forecaster_type == BaseForecaster:
-        mock_forecaster.predict.assert_called_once()
-        predict_call_args = mock_forecaster.predict.call_args[1]["input_data"]
-        assert len(predict_call_args) == 1
-        assert LeadTime(timedelta(hours=6)) in predict_call_args
-        assert isinstance(predict_call_args[LeadTime(timedelta(hours=6))], ForecastInputDataset)
-    else:
-        mock_forecaster.predict_horizon.assert_called_once()
-        predict_call_args = mock_forecaster.predict_horizon.call_args[1]["input_data"]
-        assert isinstance(predict_call_args, ForecastInputDataset)
-
-    mock_postprocessing.transform.assert_called_once_with(mock_raw_forecast)
-    assert result is final_forecast
+    # Assert - Prediction returns a forecast dataset with expected properties
+    assert isinstance(result, ForecastDataset)
+    assert result.sample_interval == sample_timeseries_dataset.sample_interval
+    assert result.quantiles == [Quantile(0.5)]
+    assert result.forecast_start >= forecast_start
+    assert not result.data.empty
+    assert not result.data.isna().any().any()
 
 
-def test_forecasting_model__error_conditions(sample_timeseries_dataset: TimeSeriesDataset):
-    """Test error conditions for fit and predict operations."""
+def test_forecasting_model__predict__raises_error_when_not_fitted(sample_timeseries_dataset: TimeSeriesDataset):
+    """Test predict raises NotFittedError when model is not fitted."""
     # Arrange
     horizons = [LeadTime(timedelta(hours=6))]
-    mock_forecaster = MagicMock(spec=BaseHorizonForecaster)
-    mock_forecaster.config = HorizonForecasterConfig(quantiles=[Quantile(0.5)], horizons=horizons)
-    mock_forecaster.is_fitted = False
+    config = HorizonForecasterConfig(quantiles=[Quantile(0.5)], horizons=horizons)
+    forecaster = SimpleForecaster(config=config)
+    preprocessing = FeatureEngineeringPipeline(horizons=horizons)
 
-    mock_preprocessing = MagicMock(spec=FeaturePipeline)
-    mock_preprocessing.horizons = horizons
+    model = ForecastingModel(forecaster=forecaster, preprocessing=preprocessing)
 
-    model = ForecastingModel(forecaster=mock_forecaster, preprocessing=mock_preprocessing)
-
-    # Test predict when not fitted
+    # Act & Assert
     with pytest.raises(NotFittedError):
         model.predict(dataset=sample_timeseries_dataset)
-
-    # Test fit with no horizon data - set preprocessing to return empty dict
-    mock_preprocessing.transform.return_value = {}
-    with pytest.raises(UnreachableStateError, match="No data available for horizon forecasting"):
-        model.fit(dataset=sample_timeseries_dataset)

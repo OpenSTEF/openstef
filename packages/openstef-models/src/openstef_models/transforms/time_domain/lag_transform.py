@@ -15,14 +15,13 @@ from typing import override
 from pydantic import Field
 
 from openstef_core.base_model import BaseConfig
-from openstef_core.datasets import VersionedTimeSeriesPart
-from openstef_core.datasets.transforms import VersionedTimeSeriesTransform
+from openstef_core.datasets import SelfTransform, VersionedTimeSeriesPart
 from openstef_core.datasets.versioned_timeseries.dataset import VersionedTimeSeriesDataset
 from openstef_core.exceptions import MissingColumnsError
 from openstef_core.utils import timedelta_to_isoformat
 
 
-class VersionedLagTransform(BaseConfig, VersionedTimeSeriesTransform):
+class VersionedLagTransform(BaseConfig, SelfTransform[VersionedTimeSeriesDataset]):
     """Create lag features while preserving data availability constraints.
 
     This transform creates lagged versions of a column for capturing temporal dependencies
@@ -95,6 +94,15 @@ class VersionedLagTransform(BaseConfig, VersionedTimeSeriesTransform):
         description="List of lags to apply to the time series data. Negative values indicate look back.",
         min_length=1,
     )
+
+    @property
+    @override
+    def is_fitted(self) -> bool:
+        return True  # Stateless transform, always considered fitted
+
+    @override
+    def fit(self, data: VersionedTimeSeriesDataset) -> None:
+        pass
 
     @override
     def transform(self, data: VersionedTimeSeriesDataset) -> VersionedTimeSeriesDataset:

@@ -16,10 +16,8 @@ from pydantic import Field, PrivateAttr
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.datasets.transforms import TimeSeriesTransform
+from openstef_core.datasets.timeseries_transform import TimeSeriesTransform
 from openstef_core.exceptions import TransformNotFittedError
-from openstef_core.types import LeadTime
-from openstef_models.transforms.horizon_split_transform import concat_horizon_datasets_rowwise
 
 
 class ClippingTransform(BaseConfig, TimeSeriesTransform):
@@ -71,11 +69,6 @@ class ClippingTransform(BaseConfig, TimeSeriesTransform):
     @override
     def is_fitted(self) -> bool:
         return self._is_fitted
-
-    @override
-    def fit_horizons(self, data: dict[LeadTime, TimeSeriesDataset]) -> None:
-        flat_data = concat_horizon_datasets_rowwise(data)
-        return self.fit(flat_data)
 
     @override
     def fit(self, data: TimeSeriesDataset) -> None:
