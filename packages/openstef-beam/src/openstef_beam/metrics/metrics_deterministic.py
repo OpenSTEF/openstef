@@ -360,8 +360,7 @@ def riqd(
     rIQD measures the average distance between two quantiles, normalized by the measurement range.
 
     Args:
-        y_true: Ground truth values with shape (num_samples,). Should not contain
-            values close to zero to avoid division issues.
+        y_true: Ground truth values with shape (num_samples,).
         y_pred_lower_q: Predicted values of lower quantile with shape (num_samples,).
         y_pred_upper_q: Predicted values of upper quantile with shape (num_samples,).
         measurement_range_lower_q: Lower quantile for range calculation. Must be in [0, 1].
