@@ -46,6 +46,8 @@ class TimeSeriesVisualization(VisualizationProvider):
         ... )
     """
 
+    connect_gaps: bool = True
+
     @property
     @override
     def supported_aggregations(self) -> set[AnalysisAggregation]:
@@ -90,7 +92,7 @@ class TimeSeriesVisualization(VisualizationProvider):
         report: EvaluationSubsetReport,
         metadata: TargetMetadata,
     ) -> VisualizationOutput:
-        plotter = ForecastTimeSeriesPlotter()
+        plotter = ForecastTimeSeriesPlotter(connect_gaps=self.connect_gaps)
 
         # Add measurements as the baseline
         plotter.add_measurements(report.subset.ground_truth)
@@ -112,7 +114,7 @@ class TimeSeriesVisualization(VisualizationProvider):
         self,
         reports: dict[RunName, list[ReportTuple]],
     ) -> VisualizationOutput:
-        plotter = ForecastTimeSeriesPlotter()
+        plotter = ForecastTimeSeriesPlotter(connect_gaps=self.connect_gaps)
 
         # Get reference data from the first target (all targets expected to be the same)
         first_metadata, first_report = TimeSeriesVisualization._get_first_target_data(reports)

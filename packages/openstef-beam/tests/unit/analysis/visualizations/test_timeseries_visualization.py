@@ -132,3 +132,31 @@ def test_create_by_run_generates_multi_run_comparison(
     mock_plot.assert_called_once_with(title="Forecast Time Series Comparison")
     assert result.name == viz.name
     assert result.figure == mock_plotly_figure
+
+
+@pytest.mark.parametrize("connect_gaps_value", [True, False])
+def test_connect_gaps_parameter_integration(
+    connect_gaps_value: bool,
+    sample_evaluation_report: EvaluationSubsetReport,
+    simple_target_metadata: TargetMetadata,
+    mock_plotly_figure: MockFigure,
+):
+    """Test that connect_gaps parameter works end-to-end for both True and False values."""
+    # Arrange
+    viz = TimeSeriesVisualization(name="test_viz")
+    viz.connect_gaps = connect_gaps_value
+
+    # Act
+    with (
+        patch.object(ForecastTimeSeriesPlotter, "__init__", return_value=None) as mock_init,
+        patch.object(ForecastTimeSeriesPlotter, "plot", return_value=mock_plotly_figure),
+        patch.object(ForecastTimeSeriesPlotter, "add_measurements"),
+        patch.object(ForecastTimeSeriesPlotter, "add_model"),
+        patch.object(ForecastTimeSeriesPlotter, "add_limit"),
+    ):
+        result = viz.create_by_none(sample_evaluation_report, simple_target_metadata)
+
+    # Assert
+    mock_init.assert_called_once_with(connect_gaps=connect_gaps_value)
+    assert result.name == viz.name
+    assert result.figure == mock_plotly_figure
