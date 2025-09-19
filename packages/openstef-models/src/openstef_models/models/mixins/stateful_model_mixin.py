@@ -2,6 +2,14 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+"""State management utilities for machine learning models.
+
+Provides the foundation for model persistence and serialization across the
+OpenSTEF ecosystem. Enables models to save their trained state and restore
+it later, supporting use cases like model deployment, and distributed training
+scenarios.
+"""
+
 from abc import ABC, abstractmethod
 from typing import Self
 

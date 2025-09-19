@@ -20,13 +20,13 @@ from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastI
 from openstef_core.datasets.validation import validate_same_sample_intervals
 from openstef_core.types import LeadTime
 from openstef_core.utils.pandas import unsafe_sorted_range_slice_idxs
-from openstef_models.models.mixins import (
+from openstef_models.models.mixins.forecaster_mixin import (
     BaseForecaster,
     BaseHorizonForecaster,
     ForecasterConfig,
     HorizonForecasterConfig,
-    ModelState,
 )
+from openstef_models.models.mixins.stateful_model_mixin import ModelState
 
 
 class MultiHorizonForecasterConfig[FC: ForecasterConfig](ForecasterConfig):

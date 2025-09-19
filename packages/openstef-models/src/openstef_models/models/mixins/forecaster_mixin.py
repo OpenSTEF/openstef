@@ -297,6 +297,7 @@ class BaseHorizonForecaster(BaseForecasterMixin, StatefulModelMixin, ABC):
         MultiHorizonForecasterAdapter: Adapter that combines multiple horizon forecasters.
     """
 
+    @abstractmethod
     def fit_horizon(self, input_data: ForecastInputDataset) -> None:
         """Train the model for a specific prediction horizon.
 
@@ -324,7 +325,22 @@ class BaseHorizonForecaster(BaseForecasterMixin, StatefulModelMixin, ABC):
         Raises:
             ModelNotFittedError: If the model hasn't been trained yet.
         """
-        raise NotImplementedError("Subclasses must implement predict_horizon")
+
+    def fit_predict_horizon(self, input_data: ForecastInputDataset) -> ForecastDataset:
+        """Convenience method to fit and predict in one step.
+
+        Combines training and prediction for scenarios where immediate forecasts
+        are needed without separate training steps. Only called when is_fitted
+        returns False.
+
+        Args:
+            input_data: Data for both training and generating predictions.
+
+        Returns:
+            Forecasts containing predictions for all configured quantiles.
+        """
+        self.fit_horizon(input_data=input_data)
+        return self.predict_horizon(input_data=input_data)
 
     def predict_horizon_batch(self, input_data: list[ForecastInputDataset]) -> BatchResult[ForecastDataset]:
         """Generate forecasts for multiple input datasets efficiently.
@@ -401,6 +417,7 @@ class BaseForecaster(BaseForecasterMixin, StatefulModelMixin, ABC):
         MultiHorizonForecasterAdapter: Implementation that uses horizon forecasters.
     """
 
+    @abstractmethod
     def fit(self, input_data: dict[LeadTime, ForecastInputDataset]) -> None:
         """Train the model using data for multiple horizons.
 
@@ -436,6 +453,22 @@ class BaseForecaster(BaseForecasterMixin, StatefulModelMixin, ABC):
             ModelNotFittedError: If the model hasn't been trained yet.
         """
         raise NotImplementedError
+
+    def fit_predict(self, input_data: dict[LeadTime, ForecastInputDataset]) -> ForecastDataset:
+        """Convenience method to fit and predict in one step.
+
+        Combines training and prediction for scenarios where immediate forecasts
+        are needed without separate training steps. Only called when is_fitted
+        returns False.
+
+        Args:
+            input_data: Data for both training and generating predictions.
+
+        Returns:
+            Forecasts containing predictions for all configured quantiles.
+        """
+        self.fit(input_data=input_data)
+        return self.predict(input_data=input_data)
 
     def predict_batch(self, input_data: list[dict[LeadTime, ForecastInputDataset]]) -> BatchResult[ForecastDataset]:
         """Generate forecasts for multiple multi-horizon input datasets.

@@ -20,7 +20,7 @@ from openstef_core.datasets.transforms import TransformPipeline
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import ConfigurationError, NotFittedError, UnreachableStateError
 from openstef_core.types import LeadTime
-from openstef_models.models.forecasting import BaseForecaster, BaseHorizonForecaster
+from openstef_models.models.mixins import BaseForecaster, BaseHorizonForecaster
 from openstef_models.transforms import FeatureEngineeringPipeline
 
 
@@ -114,37 +114,40 @@ class ForecastingModel(BaseModel):
         """
         return self.forecaster.is_fitted
 
-    def fit(self, dataset: VersionedTimeSeriesDataset | TimeSeriesDataset):
+    def fit(self, data: VersionedTimeSeriesDataset | TimeSeriesDataset):
         """Train the forecasting model on the provided dataset.
 
         Fits the preprocessing pipeline and underlying forecaster. Handles both
         single-horizon and multi-horizon forecasters appropriately.
 
         Args:
-            dataset: Historical time series data with features and target values.
+            data: Historical time series data with features and target values.
 
         Raises:
             UnreachableStateError: If no data is available for horizon forecasting,
                 indicating a violated invariant in the preprocessing pipeline.
         """
         # Fit the feature engineering transforms
-        self.preprocessing.fit(data=dataset)
+        self.preprocessing.fit(data=data)
 
         # Transform the input data to a valid forecast input
-        input_data = self._prepare_input_data(dataset=dataset)
+        input_data = self._prepare_input_data(dataset=data)
 
         # Fit the model
         if isinstance(self.forecaster, BaseForecaster):
-            self.forecaster.fit(input_data=input_data)
+            prediction = self.forecaster.fit_predict(input_data=input_data)
         else:
             horizon_input_data = next(iter(input_data.values()), None)
             if horizon_input_data is None:
                 raise UnreachableStateError("No data available for horizon forecasting.")
 
-            self.forecaster.fit_horizon(input_data=horizon_input_data)
+            prediction = self.forecaster.fit_predict_horizon(input_data=horizon_input_data)
+
+        # Fit the postprocessing transforms
+        self.postprocessing.fit(data=prediction)
 
     def predict(
-        self, dataset: VersionedTimeSeriesDataset | TimeSeriesDataset, forecast_start: datetime | None = None
+        self, data: VersionedTimeSeriesDataset | TimeSeriesDataset, forecast_start: datetime | None = None
     ) -> ForecastDataset:
         """Generate forecasts using the trained model.
 
@@ -152,8 +155,8 @@ class ForecastingModel(BaseModel):
         using the underlying forecaster, and applies postprocessing transformations.
 
         Args:
-            dataset: Input time series data for generating forecasts.
-            forecast_start: Starting time for forecasts. If None, uses dataset end time.
+            data: Input time series data for generating forecasts.
+            forecast_start: Starting time for forecasts. If None, uses data end time.
 
         Returns:
             Processed forecast dataset with predictions and uncertainty estimates.
@@ -167,7 +170,7 @@ class ForecastingModel(BaseModel):
             raise NotFittedError(type(self.forecaster).__name__)
 
         # Transform the input data to a valid forecast input
-        input_data = self._prepare_input_data(dataset=dataset, forecast_start=forecast_start)
+        input_data = self._prepare_input_data(dataset=data, forecast_start=forecast_start)
 
         # Generate predictions
         if isinstance(self.forecaster, BaseForecaster):

@@ -127,7 +127,7 @@ class ForecastingWorkflow:
         """
         self.callbacks.on_fit_start(pipeline=self, dataset=dataset)
 
-        self.model.fit(dataset=dataset)
+        self.model.fit(data=dataset)
 
         self.callbacks.on_fit_end(pipeline=self, dataset=dataset)
 
@@ -154,7 +154,7 @@ class ForecastingWorkflow:
 
         self.callbacks.on_predict_start(pipeline=self, dataset=dataset)
 
-        forecasts = self.model.predict(dataset=dataset, forecast_start=forecast_start)
+        forecasts = self.model.predict(data=dataset, forecast_start=forecast_start)
 
         self.callbacks.on_predict_end(pipeline=self, dataset=dataset, forecasts=forecasts)
 

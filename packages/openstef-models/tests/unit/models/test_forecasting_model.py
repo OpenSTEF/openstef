@@ -14,13 +14,12 @@ from openstef_core.datasets.transforms import TransformPipeline
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import ConfigurationError, NotFittedError
 from openstef_core.types import LeadTime, Quantile
-from openstef_models.models.forecasting import BaseForecaster, BaseHorizonForecaster
 from openstef_models.models.forecasting.multi_horizon_adapter import (
     MultiHorizonForecasterAdapter,
     MultiHorizonForecasterConfig,
 )
 from openstef_models.models.forecasting_model import ForecastingModel
-from openstef_models.models.mixins import HorizonForecasterConfig, ModelState
+from openstef_models.models.mixins import BaseForecaster, BaseHorizonForecaster, HorizonForecasterConfig, ModelState
 from openstef_models.transforms import FeatureEngineeringPipeline
 
 
@@ -191,7 +190,7 @@ def test_forecasting_model__fit__orchestrates_correctly(
     )
 
     # Act
-    model.fit(dataset=sample_timeseries_dataset)
+    model.fit(data=sample_timeseries_dataset)
 
     # Assert - Model is fitted
     assert model.is_fitted
@@ -232,12 +231,12 @@ def test_forecasting_model__predict__orchestrates_correctly(
     )
 
     # Fit the model first
-    model.fit(dataset=sample_timeseries_dataset)
+    model.fit(data=sample_timeseries_dataset)
 
     forecast_start = datetime.fromisoformat("2025-01-01T12:00:00")
 
     # Act
-    result = model.predict(dataset=sample_timeseries_dataset, forecast_start=forecast_start)
+    result = model.predict(data=sample_timeseries_dataset, forecast_start=forecast_start)
 
     # Assert - Prediction returns a forecast dataset with expected properties
     assert isinstance(result, ForecastDataset)
@@ -260,4 +259,4 @@ def test_forecasting_model__predict__raises_error_when_not_fitted(sample_timeser
 
     # Act & Assert
     with pytest.raises(NotFittedError):
-        model.predict(dataset=sample_timeseries_dataset)
+        model.predict(data=sample_timeseries_dataset)
