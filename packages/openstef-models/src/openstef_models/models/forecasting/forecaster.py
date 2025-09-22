@@ -262,7 +262,7 @@ class HorizonForecaster(BatchPredictor[ForecastInputDataset, ForecastDataset], C
         ...         instance._model_params = state["params"]
         ...         return instance
         ...
-        ...     def fit(self, data):
+        ...     def fit(self, data, data_val=None):
         ...         # Train model for the specific horizon
         ...         self._model_params = "trained"
         ...

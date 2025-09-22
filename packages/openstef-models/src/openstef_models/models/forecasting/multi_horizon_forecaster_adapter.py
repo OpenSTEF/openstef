@@ -74,7 +74,7 @@ class MultiHorizonForecasterAdapter(Forecaster):
         ...     model_factory=lambda cfg: MySingleHorizonForecaster(cfg),
         ... )
         >>> # adapter can now be used for multi-horizon forecasting
-        >>> adapter.fit(train_data)  # doctest: +SKIP
+        >>> adapter.fit(data_train)  # doctest: +SKIP
         >>> predictions = adapter.predict(test_data) # doctest: +SKIP
     """
 
@@ -164,9 +164,11 @@ class MultiHorizonForecasterAdapter(Forecaster):
         )
 
     @override
-    def fit(self, data: dict[LeadTime, ForecastInputDataset]) -> None:
+    def fit(
+        self, data: dict[LeadTime, ForecastInputDataset], data_val: dict[LeadTime, ForecastInputDataset] | None = None
+    ) -> None:
         for lead_time, forecaster in self._horizon_forecasters.items():
-            forecaster.fit(data=data[lead_time])
+            forecaster.fit(data=data[lead_time], data_val=data_val[lead_time] if data_val else None)
 
     @override
     def predict(self, data: dict[LeadTime, ForecastInputDataset]) -> ForecastDataset:

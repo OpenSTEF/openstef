@@ -68,7 +68,7 @@ class Predictor[I, O](Stateful):
         """Check if the predictor has been fitted."""
 
     @abstractmethod
-    def fit(self, data: I) -> None:
+    def fit(self, data: I, data_val: I | None = None) -> None:
         """Fit the predictor to the input data.
 
         This method should be called before generating predictions.
@@ -76,6 +76,7 @@ class Predictor[I, O](Stateful):
 
         Args:
             data: The training data to fit the predictor on.
+            data_val: The validation data to evaluate and tune the predictor on (optional).
         """
 
     @abstractmethod
@@ -94,20 +95,22 @@ class Predictor[I, O](Stateful):
             NotFittedError: If the predictor has not been fitted yet.
         """
 
-    def fit_predict(self, data: I) -> O:
+    def fit_predict(self, data: I, data_val: I | None = None) -> O:
         """Fit the predictor to the data and then generate predictions.
 
         This method combines fitting and prediction into a single step.
 
         Args:
             data: The input data to fit and generate predictions for.
+            data_val: The validation data to evaluate and tune the predictor on (optional).
 
         Returns:
             Predictions for the input data.
         """
         if not self.is_fitted:
-            self.fit(data)
-        return self.predict(data)
+            self.fit(data=data, data_val=data_val)
+
+        return self.predict(data=data)
 
 
 type BatchResult[T] = list[T | PredictError]

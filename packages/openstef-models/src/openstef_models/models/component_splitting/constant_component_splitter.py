@@ -106,7 +106,7 @@ class ConstantComponentSplitter(ComponentSplitter):
         return True
 
     @override
-    def fit(self, data: TimeSeriesDataset) -> None:
+    def fit(self, data: TimeSeriesDataset, data_val: TimeSeriesDataset | None = None) -> None:
         pass
 
     @override

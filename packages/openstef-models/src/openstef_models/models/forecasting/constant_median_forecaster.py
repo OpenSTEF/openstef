@@ -118,7 +118,7 @@ class ConstantMedianForecaster(HorizonForecaster):
         return len(self._quantile_values) > 0
 
     @override
-    def fit(self, data: ForecastInputDataset) -> None:
+    def fit(self, data: ForecastInputDataset, data_val: ForecastInputDataset | None = None) -> None:
         self._quantile_values = {
             quantile: data.target_series().quantile(quantile) for quantile in self.config.quantiles
         }

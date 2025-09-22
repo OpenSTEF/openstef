@@ -48,7 +48,7 @@ class SimpleForecaster(HorizonForecaster):
         return cast(Self, state)
 
     @override
-    def fit(self, data: ForecastInputDataset) -> None:
+    def fit(self, data: ForecastInputDataset, data_val: ForecastInputDataset | None = None) -> None:
         self._is_fitted = True
 
     @override

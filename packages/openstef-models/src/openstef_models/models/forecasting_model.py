@@ -110,7 +110,11 @@ class ForecastingModel(BaseModel, Predictor[VersionedTimeSeriesDataset | TimeSer
         return self.forecaster.is_fitted
 
     @override
-    def fit(self, data: VersionedTimeSeriesDataset | TimeSeriesDataset):
+    def fit(
+        self,
+        data: VersionedTimeSeriesDataset | TimeSeriesDataset,
+        data_val: VersionedTimeSeriesDataset | TimeSeriesDataset | None = None,
+    ) -> None:
         """Train the forecasting model on the provided dataset.
 
         Fits the preprocessing pipeline and underlying forecaster. Handles both
@@ -118,19 +122,22 @@ class ForecastingModel(BaseModel, Predictor[VersionedTimeSeriesDataset | TimeSer
 
         Args:
             data: Historical time series data with features and target values.
+            data_val: The validation data to evaluate and tune the predictor on (optional).
         """
         # Fit the feature engineering transforms
         self.preprocessing.fit(data=data)
 
         # Transform the input data to a valid forecast input
-        input_data = self._prepare_input_data(dataset=data)
+        input_data_train = self._prepare_input_data(dataset=data)
+        input_data_val = self._prepare_input_data(dataset=data_val) if data_val is not None else None
 
         # Fit the model
         if isinstance(self.forecaster, Forecaster):
-            prediction = self.forecaster.fit_predict(data=input_data)
+            prediction = self.forecaster.fit_predict(data=input_data_train, data_val=input_data_val)
         else:
-            horizon_input_data = input_data[self.preprocessing.horizons[0]]
-            prediction = self.forecaster.fit_predict(data=horizon_input_data)
+            horizon_input_data = input_data_train[self.preprocessing.horizons[0]]
+            horizon_input_data_val = input_data_val[self.preprocessing.horizons[0]] if input_data_val else None
+            prediction = self.forecaster.fit_predict(data=horizon_input_data, data_val=horizon_input_data_val)
 
         # Fit the postprocessing transforms
         self.postprocessing.fit(data=prediction)

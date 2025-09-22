@@ -96,12 +96,13 @@ class ComponentSplittingModel(BaseModel, ComponentSplitter):
         return self.component_splitter.is_fitted
 
     @override
-    def fit(self, data: TimeSeriesDataset) -> None:
+    def fit(self, data: TimeSeriesDataset, data_val: TimeSeriesDataset | None = None) -> None:
         validate_required_columns(dataset=data, required_columns=[self.source_column, *self.config.components])
 
-        input_data = self.preprocessing.fit_transform(data=data)
+        input_data_train = self.preprocessing.fit_transform(data=data)
+        input_data_val = self.preprocessing.transform(data=data_val) if data_val else None
 
-        prediction = self.component_splitter.fit_predict(data=input_data)
+        prediction = self.component_splitter.fit_predict(data=input_data_train, data_val=input_data_val)
 
         self.postprocessing.fit(data=prediction)
 

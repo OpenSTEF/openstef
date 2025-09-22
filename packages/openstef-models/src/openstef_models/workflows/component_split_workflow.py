@@ -114,7 +114,9 @@ class ComponentSplitWorkflow(BaseModel):
         """
         self.callbacks.on_fit_start(workflow=self, data=data)
 
-        self.model.fit(data=data)
+        data_train, data_val = data, None  # TODO(#678): implement train/val split  # noqa: FIX002
+
+        self.model.fit(data=data_train, data_val=data_val)
 
         self.callbacks.on_fit_end(workflow=self, data=data)
 

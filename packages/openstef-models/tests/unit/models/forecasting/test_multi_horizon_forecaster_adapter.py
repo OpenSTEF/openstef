@@ -53,7 +53,7 @@ class PredictableConstantForecaster(HorizonForecaster):
         return cast(Self, state)
 
     @override
-    def fit(self, data: ForecastInputDataset) -> None:
+    def fit(self, data: ForecastInputDataset, data_val: ForecastInputDataset | None = None) -> None:
         # Learn from first data point: fitted_constant = first_target_value * 1.1
         # Use the target column from the input dataset when available, otherwise
         # fall back to the first column. We know the test data contains numeric
