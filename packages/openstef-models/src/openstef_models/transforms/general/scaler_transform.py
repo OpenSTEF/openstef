@@ -66,7 +66,7 @@ class ScalerTransform(BaseConfig, TimeSeriesTransform):
         1.0
     """
 
-    method: ScalingMethod = Field(description="Scaling method to use.")
+    method: ScalingMethod = Field(default="standard", description="Scaling method to use.")
 
     _scaler: MinMaxScaler | MaxAbsScaler | StandardScaler | RobustScaler = PrivateAttr()
     _is_fitted: bool = PrivateAttr(default=False)

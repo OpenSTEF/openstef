@@ -27,25 +27,8 @@ from pydantic import Field
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import ForecastDataset, ForecastInputDataset
-from openstef_core.mixins.predictor import BatchPredictor
+from openstef_core.mixins import BatchPredictor, HyperParams
 from openstef_core.types import LeadTime, Quantile
-
-
-class HyperParams(BaseConfig):  # TODO: move to another file
-    """Base configuration for model hyperparameters.
-
-    Serves as the foundation for model-specific hyperparameter configurations.
-    Inheriting classes should add their specific parameters as Pydantic fields
-    with appropriate validation and documentation.
-
-    Example:
-        Creating custom hyperparameters for a specific model:
-
-        >>> from pydantic import Field
-        >>> class MyModelHyperParams(HyperParams):
-        ...     learning_rate: float = Field(default=0.01, gt=0, description="Learning rate for training")
-        ...     max_epochs: int = Field(default=100, gt=0, description="Maximum training epochs")
-    """
 
 
 class ForecasterConfig(BaseConfig):
@@ -157,32 +140,38 @@ class Forecaster(BatchPredictor[dict[LeadTime, ForecastInputDataset], ForecastDa
     Example:
         Implementation for a model that handles multiple horizons:
 
-        >>> class MultiHorizonForecaster(BaseForecaster):
+        >>> from typing import override
+        >>> class MultiHorizonForecaster(Forecaster):
         ...     def __init__(self, config: ForecasterConfig):
         ...         self._config = config
         ...         self._fitted = False
         ...
         ...     @property
+        ...     @override
         ...     def config(self):
         ...         return self._config
         ...
         ...     @property
+        ...     @override
         ...     def is_fitted(self):
         ...         return self._fitted
         ...
+        ...     @override
         ...     def get_state(self):
         ...         return {"config": self._config, "fitted": self._fitted}
         ...
-        ...     @classmethod
-        ...     def from_state(cls, state):
-        ...         instance = cls(state["config"])
+        ...     @override
+        ...     def from_state(self, state):
+        ...         instance = self.__class__(state["config"])
         ...         instance._fitted = state["fitted"]
         ...         return instance
         ...
+        ...     @override
         ...     def fit(self, input_data):
         ...         # Train on data for all horizons
         ...         self._fitted = True
         ...
+        ...     @override
         ...     def predict(self, input_data):
         ...         # Generate predictions for all horizons
         ...         from openstef_core.datasets.validated_datasets import ForecastDataset
@@ -294,5 +283,4 @@ __all__ = [
     "ForecasterConfig",
     "HorizonForecaster",
     "HorizonForecasterConfig",
-    "HyperParams",
 ]

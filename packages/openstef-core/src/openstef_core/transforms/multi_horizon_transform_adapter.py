@@ -42,7 +42,8 @@ class MultiHorizonTransformAdapter(BaseModel, MultiHorizonTimeSeriesTransform):
     Example:
         Using an adapter with a scaling transform:
 
-        >>> scale_transform = ScaleTransform()
+        >>> from openstef_models.transforms.general.scaler_transform import ScalerTransform
+        >>> scale_transform = ScalerTransform()
         >>> adapter = MultiHorizonTransformAdapter(time_series_transform=scale_transform)
         >>> # adapter can now be used with MultiHorizonTimeSeriesDataset
     """

@@ -17,8 +17,9 @@ from pydantic import Field
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import ModelLoadingError, NotFittedError
 from openstef_core.mixins import State
+from openstef_core.mixins.predictor import HyperParams
 from openstef_core.types import Quantile
-from openstef_models.models.forecasting.forecaster import HorizonForecaster, HorizonForecasterConfig, HyperParams
+from openstef_models.models.forecasting.forecaster import HorizonForecaster, HorizonForecasterConfig
 
 
 class ConstantMedianForecasterHyperParams(HyperParams):

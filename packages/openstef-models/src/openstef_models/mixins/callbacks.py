@@ -9,79 +9,56 @@ model validation, and integration with external monitoring systems. Callbacks fo
 the observer pattern and are called at specific workflow lifecycle events.
 """
 
-from typing import TYPE_CHECKING
 
-from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesDataset
-from openstef_core.datasets.validated_datasets import ForecastDataset
+class PredictorCallback[W, I, O]:
+    """Base callback interface for monitoring predictor workflow lifecycle events.
 
-if TYPE_CHECKING:
-    from openstef_models.workflows.forecasting_workflow import ForecastingWorkflow
-
-
-class ForecastingCallback:
-    """Base callback interface for monitoring forecasting workflow lifecycle events.
-
-    Provides hooks at key stages of the forecasting process to enable custom
+    Provides hooks at key stages of the prediction process to enable custom
     functionality such as logging, metrics collection, model validation,
     data preprocessing, and integration with monitoring systems.
 
     All methods have default no-op implementations, so subclasses only need
     to override the specific events they care about.
-
-    Example:
-        Creating a logging callback:
-
-        >>> class LoggingCallback(ForecastingCallback):
-        ...     def on_fit_start(self, pipeline, dataset):
-        ...         print(f"Starting training with {len(dataset.data)} samples")
-        ...
-        ...     def on_predict_end(self, pipeline, dataset, forecasts):
-        ...         print(f"Generated {len(forecasts.data)} forecasts")
-        >>>
-        >>> callback = LoggingCallback()
-        >>> workflow = ForecastingWorkflow(model, callbacks=callback) # doctest: +SKIP
     """
 
-    def on_fit_start(self, pipeline: "ForecastingWorkflow", dataset: VersionedTimeSeriesDataset | TimeSeriesDataset):
+    def on_fit_start(self, workflow: W, data: I):
         """Called before model fitting begins.
 
         Use this hook for pre-training validation, data preprocessing,
         or setting up training monitoring.
 
         Args:
-            pipeline: The forecasting workflow performing the fit.
-            dataset: Training dataset being used for fitting.
+            workflow: The prediction workflow performing the fit.
+            data: Training dataset being used for fitting.
         """
 
-    def on_fit_end(self, pipeline: "ForecastingWorkflow", dataset: VersionedTimeSeriesDataset | TimeSeriesDataset):
+    def on_fit_end(self, workflow: W, data: I):
         """Called after model fitting completes successfully.
 
         Use this hook for post-training validation, model evaluation,
         saving training metrics, or triggering downstream processes.
 
         Args:
-            pipeline: The forecasting workflow that completed fitting.
-            dataset: Training dataset that was used for fitting.
+            workflow: The prediction workflow that completed fitting.
+            data: Training dataset that was used for fitting.
         """
 
-    def on_predict_start(
-        self, pipeline: "ForecastingWorkflow", dataset: VersionedTimeSeriesDataset | TimeSeriesDataset
-    ):
+    def on_predict_start(self, workflow: W, data: I):
         """Called before prediction generation begins.
 
         Use this hook for input data validation, prediction setup,
         or logging prediction requests.
 
         Args:
-            pipeline: The forecasting workflow performing the prediction.
-            dataset: Input dataset being used for prediction.
+            workflow: The prediction workflow performing the prediction.
+            data: Input dataset being used for prediction.
         """
 
     def on_predict_end(
         self,
-        pipeline: "ForecastingWorkflow",
-        dataset: VersionedTimeSeriesDataset | TimeSeriesDataset,
-        forecasts: ForecastDataset,
+        workflow: W,
+        data: I,
+        forecasts: O,
     ):
         """Called after prediction generation completes successfully.
 
@@ -89,7 +66,10 @@ class ForecastingCallback:
         calculating metrics, or triggering downstream processes.
 
         Args:
-            pipeline: The forecasting workflow that completed prediction.
-            dataset: Input dataset that was used for prediction.
+            workflow: The prediction workflow that completed prediction.
+            data: Input dataset that was used for prediction.
             forecasts: Generated forecast results.
         """
+
+
+__all__ = []

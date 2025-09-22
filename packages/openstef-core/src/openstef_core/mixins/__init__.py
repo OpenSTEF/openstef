@@ -2,8 +2,17 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-from .predictor import Predictor
+from .predictor import BatchPredictor, BatchResult, HyperParams, Predictor
 from .stateful import State, Stateful
 from .transform import Transform, TransformPipeline
 
-__all__ = ["Predictor", "State", "Stateful", "Transform", "TransformPipeline"]
+__all__ = [
+    "BatchPredictor",
+    "BatchResult",
+    "HyperParams",
+    "Predictor",
+    "State",
+    "Stateful",
+    "Transform",
+    "TransformPipeline",
+]

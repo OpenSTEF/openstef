@@ -40,7 +40,7 @@ class ComponentSplittingModel(BaseModel, ComponentSplitter):
         >>> from openstef_models.models.component_splitting.constant_component_splitter import (
         ...     ConstantComponentSplitter, ConstantComponentSplitterConfig
         ... )
-        >>> from openstef_core.datasets.transforms import TransformPipeline
+        >>> from openstef_core.mixins import TransformPipeline
         >>> from openstef_core.types import EnergyComponentType
         >>>
         >>> # Create a component splitter with known energy ratios

@@ -48,34 +48,34 @@ class MultiHorizonForecasterAdapter(Forecaster):
     - State serialization and restoration for model persistence
 
     Example:
-        Creating a multi-horizon adapter:
-        TODO: change the example to new usage guide
+        Using a multi-horizon adapter:
 
         >>> from openstef_models.models.forecasting.constant_median_forecaster import ConstantMedianForecaster
+        >>> from openstef_core.types import LeadTime, Quantile
         >>>
-        >>> class MyConfig(HorizonForecasterConfig):
-        ...     pass
-        >>>
-        >>> class MySingleHorizonForecaster(BaseHorizonForecaster):
+        >>> class MySingleHorizonForecaster(HorizonForecaster):
         ...     def __init__(self, config): pass
-        ...     def fit_horizon(self, data): pass
-        ...     def predict_horizon(self, data): pass
-        ...     def get_state(self): return None
+        ...     def fit(self, data): pass
+        ...     def predict(self, data): pass
+        ...     def to_state(self): return None
         ...     def from_state(self, state): return self
         ...     @property
         ...     def config(self): return None
         ...     @property
         ...     def is_fitted(self): return True
         >>>
-        >>> class MyMultiHorizonForecaster(
-        ...     MultiHorizonForecasterAdapter[MyConfig, MySingleHorizonForecaster]
-        ... ):
-        ...     @classmethod
-        ...     def get_forecaster_type(cls):
-        ...         return MySingleHorizonForecaster
-        ...     @classmethod
-        ...     def create_forecaster(cls, config):
-        ...         return MySingleHorizonForecaster(config)
+        >>> adapter = MultiHorizonForecasterAdapter.create(
+        ...     config=MultiHorizonForecasterConfig(
+        ...         horizons=[LeadTime.from_string("PT1H"), LeadTime.from_string("PT24H")],
+        ...         forecaster_config=HorizonForecasterConfig(
+        ...             quantiles=[Quantile(0.5)], horizons=[LeadTime.from_string("PT1H")]
+        ...         ),
+        ...     ),
+        ...     model_factory=lambda cfg: MySingleHorizonForecaster(cfg),
+        ... )
+        >>> # adapter can now be used for multi-horizon forecasting
+        >>> adapter.fit(train_data)  # doctest: +SKIP
+        >>> predictions = adapter.predict(test_data) # doctest: +SKIP
     """
 
     _config: MultiHorizonForecasterConfig[HorizonForecasterConfig]
