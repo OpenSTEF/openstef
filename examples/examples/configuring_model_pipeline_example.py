@@ -37,7 +37,7 @@ import pandas as pd
 from pydantic_extra_types.country import CountryAlpha2
 
 from openstef_core.datasets import ForecastDataset, VersionedTimeSeriesDataset
-from openstef_core.datasets.transforms import TransformPipeline
+from openstef_core.mixins import TransformPipeline
 from openstef_core.types import LeadTime, Q
 from openstef_models.integrations.joblib import LocalModelStorage
 from openstef_models.models.forecasting.constant_median_forecaster import (
@@ -61,7 +61,7 @@ dataset = VersionedTimeSeriesDataset.from_dataframe(
 )
 
 model = ForecastingModel(
-    preprocessing=FeatureEngineeringPipeline(
+    preprocessing=FeatureEngineeringPipeline.create(
         horizons=[LeadTime.from_string("PT36H")],
         horizon_transforms=[
             ScalerTransform(method="standard"),
@@ -83,8 +83,8 @@ storage = LocalModelStorage(storage_dir=Path("./model_storage"))
 
 pipeline = ForecastingWorkflow.from_storage(
     model_id="constant_median_forecaster_v1",
+    model=model,
     storage=storage,
-    default_model_factory=lambda: model,
 )
 
 pipeline.fit(dataset)

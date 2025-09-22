@@ -9,15 +9,16 @@ minimum and maximum ranges during training, preventing out-of-range values
 during inference and improving model robustness.
 """
 
-from typing import override
+from typing import Any, Self, cast, override
 
 import pandas as pd
 from pydantic import Field, PrivateAttr
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.datasets.timeseries_transform import TimeSeriesTransform
 from openstef_core.exceptions import TransformNotFittedError
+from openstef_core.mixins import State
+from openstef_core.transforms import TimeSeriesTransform
 
 
 class ClippingTransform(BaseConfig, TimeSeriesTransform):
@@ -87,3 +88,22 @@ class ClippingTransform(BaseConfig, TimeSeriesTransform):
         transformed_data = data.data.clip(lower=min_aligned, upper=max_aligned, axis=1)
 
         return TimeSeriesDataset(data=transformed_data, sample_interval=data.sample_interval)
+
+    @override
+    def to_state(self) -> State:
+        return {
+            "config": self.model_dump(mode="json"),
+            "column_names": self.column_names,
+            "feature_mins": self._feature_mins,
+            "feature_maxs": self._feature_maxs,
+            "is_fitted": self._is_fitted,
+        }
+
+    @override
+    def from_state(self, state: State) -> Self:
+        state = cast(dict[str, Any], state)
+        instance = self.model_validate(state["config"])
+        instance._feature_mins = state["feature_mins"]  # noqa: SLF001
+        instance._feature_maxs = state["feature_maxs"]  # noqa: SLF001
+        instance._is_fitted = state["is_fitted"]  # noqa: SLF001
+        return instance

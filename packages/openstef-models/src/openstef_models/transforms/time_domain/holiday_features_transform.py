@@ -12,7 +12,7 @@ whether a date is a holiday or a specific holiday.
 
 import re
 import unicodedata
-from typing import override
+from typing import Self, override
 
 import holidays
 import pandas as pd
@@ -21,7 +21,8 @@ from pydantic_extra_types.country import CountryAlpha2
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.datasets.timeseries_transform import TimeSeriesTransform
+from openstef_core.mixins import State
+from openstef_core.transforms import TimeSeriesTransform
 
 
 class HolidayFeaturesTransform(BaseConfig, TimeSeriesTransform):
@@ -190,3 +191,11 @@ class HolidayFeaturesTransform(BaseConfig, TimeSeriesTransform):
         # Combine with original data
         result_data = pd.concat([data.data, general_feature, individual_features], axis=1)
         return TimeSeriesDataset(data=result_data, sample_interval=data.sample_interval)
+
+    @override
+    def to_state(self) -> State:
+        return self.model_dump(mode="json")
+
+    @override
+    def from_state(self, state: State) -> Self:
+        return self.model_validate(state)

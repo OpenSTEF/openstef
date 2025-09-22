@@ -10,21 +10,20 @@ data transformation and validation.
 """
 
 from datetime import datetime
-from typing import Self
+from typing import Any, Self, cast, override
 
 from pydantic import Field, model_validator
 
 from openstef_core.base_model import BaseModel
-from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesDataset
-from openstef_core.datasets.transforms import TransformPipeline
-from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
-from openstef_core.exceptions import ConfigurationError, NotFittedError, UnreachableStateError
+from openstef_core.datasets import ForecastDataset, ForecastInputDataset, TimeSeriesDataset, VersionedTimeSeriesDataset
+from openstef_core.exceptions import ConfigurationError, NotFittedError
+from openstef_core.mixins import Predictor, State, TransformPipeline
 from openstef_core.types import LeadTime
-from openstef_models.models.mixins import BaseForecaster, BaseHorizonForecaster
+from openstef_models.models.forecasting import Forecaster, HorizonForecaster
 from openstef_models.transforms import FeatureEngineeringPipeline
 
 
-class ForecastingModel(BaseModel):
+class ForecastingModel(BaseModel, Predictor[VersionedTimeSeriesDataset | TimeSeriesDataset, ForecastDataset]):
     """Complete forecasting pipeline combining preprocessing, prediction, and postprocessing.
 
     Orchestrates the full forecasting workflow by managing feature engineering,
@@ -66,7 +65,7 @@ class ForecastingModel(BaseModel):
         default=...,
         description="Feature engineering pipeline for transforming raw input data into model-ready features.",
     )
-    forecaster: BaseForecaster | BaseHorizonForecaster = Field(
+    forecaster: Forecaster | HorizonForecaster = Field(
         default=...,
         description="Underlying forecasting algorithm, either single-horizon or multi-horizon.",
     )
@@ -106,14 +105,11 @@ class ForecastingModel(BaseModel):
         }
 
     @property
+    @override
     def is_fitted(self) -> bool:
-        """Check if the underlying forecaster has been trained.
-
-        Returns:
-            True if the forecaster is fitted and ready for prediction.
-        """
         return self.forecaster.is_fitted
 
+    @override
     def fit(self, data: VersionedTimeSeriesDataset | TimeSeriesDataset):
         """Train the forecasting model on the provided dataset.
 
@@ -122,10 +118,6 @@ class ForecastingModel(BaseModel):
 
         Args:
             data: Historical time series data with features and target values.
-
-        Raises:
-            UnreachableStateError: If no data is available for horizon forecasting,
-                indicating a violated invariant in the preprocessing pipeline.
         """
         # Fit the feature engineering transforms
         self.preprocessing.fit(data=data)
@@ -134,18 +126,16 @@ class ForecastingModel(BaseModel):
         input_data = self._prepare_input_data(dataset=data)
 
         # Fit the model
-        if isinstance(self.forecaster, BaseForecaster):
-            prediction = self.forecaster.fit_predict(input_data=input_data)
+        if isinstance(self.forecaster, Forecaster):
+            prediction = self.forecaster.fit_predict(data=input_data)
         else:
-            horizon_input_data = next(iter(input_data.values()), None)
-            if horizon_input_data is None:
-                raise UnreachableStateError("No data available for horizon forecasting.")
-
-            prediction = self.forecaster.fit_predict_horizon(input_data=horizon_input_data)
+            horizon_input_data = input_data[self.preprocessing.horizons[0]]
+            prediction = self.forecaster.fit_predict(data=horizon_input_data)
 
         # Fit the postprocessing transforms
         self.postprocessing.fit(data=prediction)
 
+    @override
     def predict(
         self, data: VersionedTimeSeriesDataset | TimeSeriesDataset, forecast_start: datetime | None = None
     ) -> ForecastDataset:
@@ -163,8 +153,6 @@ class ForecastingModel(BaseModel):
 
         Raises:
             NotFittedError: If the model hasn't been trained yet.
-            UnreachableStateError: If no data is available for horizon forecasting,
-                indicating a violated invariant in the preprocessing pipeline.
         """
         if not self.is_fitted:
             raise NotFittedError(type(self.forecaster).__name__)
@@ -173,13 +161,32 @@ class ForecastingModel(BaseModel):
         input_data = self._prepare_input_data(dataset=data, forecast_start=forecast_start)
 
         # Generate predictions
-        if isinstance(self.forecaster, BaseForecaster):
-            raw_forecasts = self.forecaster.predict(input_data=input_data)
+        if isinstance(self.forecaster, Forecaster):
+            raw_forecasts = self.forecaster.predict(data=input_data)
         else:
-            horizon_input_data = next(iter(input_data.values()), None)
-            if horizon_input_data is None:
-                raise UnreachableStateError("No data available for horizon forecasting.")
-
-            raw_forecasts = self.forecaster.predict_horizon(input_data=horizon_input_data)
+            horizon_input_data = input_data[self.preprocessing.horizons[0]]
+            raw_forecasts = self.forecaster.predict(data=horizon_input_data)
 
         return self.postprocessing.transform(raw_forecasts)
+
+    @override
+    def to_state(self) -> State:
+        return {
+            "target_column": self.target_column,
+            "preprocessing": self.preprocessing.to_state(),
+            "forecaster": self.forecaster.to_state(),
+            "postprocessing": self.postprocessing.to_state(),
+        }
+
+    @override
+    def from_state(self, state: State) -> Self:
+        state = cast(dict[str, Any], state)
+        return self.__class__(
+            target_column=state["target_column"],
+            preprocessing=self.preprocessing.from_state(state["preprocessing"]),
+            forecaster=self.forecaster.from_state(state["forecaster"]),
+            postprocessing=self.postprocessing.from_state(state["postprocessing"]),
+        )
+
+
+__all__ = ["ForecastingModel"]

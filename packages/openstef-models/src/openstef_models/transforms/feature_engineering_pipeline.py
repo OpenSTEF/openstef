@@ -6,31 +6,19 @@
 This module provides the FeaturePipeline class, which coordinates feature engineering
 for multi-horizon forecasting models. It handles the complete feature transformation
 process, from versioned time series data through horizon-specific transformations.
-
-The pipeline operates in two main phases:
-1. Versioned transforms: Handle complex time logic on data with forecast validity timestamps
-2. Horizon transforms: Apply standard transformations on resolved time series data
-
-This design enables efficient processing of forecasting data where features may have
-different availability times and forecast horizons require different processing.
 """
 
-from typing import Any, override
+from collections.abc import Sequence
+from typing import Any, Self, cast, override
 
-from pydantic import Field, PrivateAttr
+from pydantic import BaseModel, Field, PrivateAttr
 
-from openstef_core.base_model import BaseModel
-from openstef_core.datasets import (
-    SelfTransform,
-    TimeSeriesDataset,
-    TimeSeriesTransform,
-    Transform,
-    VersionedTimeSeriesDataset,
-)
-from openstef_core.datasets.timeseries_dataset import MultiHorizonTimeSeriesDataset
-from openstef_core.exceptions import TransformNotFittedError
+from openstef_core.datasets import MultiHorizonTimeSeriesDataset, TimeSeriesDataset, VersionedTimeSeriesDataset
+from openstef_core.exceptions import NotFittedError
+from openstef_core.mixins import State, Transform, TransformPipeline
+from openstef_core.transforms import MultiHorizonTimeSeriesTransform, TimeSeriesTransform
 from openstef_core.types import LeadTime
-from openstef_models.transforms.horizon_split_transform import HorizonSplitTransform
+from openstef_models.transforms import HorizonSplitTransform
 
 
 class FeatureEngineeringPipeline(
@@ -75,7 +63,7 @@ class FeatureEngineeringPipeline(
         >>> versioned_dataset = VersionedTimeSeriesDataset.from_dataframe(data, timedelta(hours=1))
         >>>
         >>> # Configure pipeline for multiple forecast horizons
-        >>> pipeline = FeatureEngineeringPipeline(
+        >>> pipeline = FeatureEngineeringPipeline.create(
         ...     horizons=[LeadTime.from_string("PT1H"), LeadTime.from_string("PT24H")],
         ...     versioned_transforms=[],  # No versioned transforms available yet
         ...     horizon_transforms=[
@@ -108,7 +96,7 @@ class FeatureEngineeringPipeline(
         >>> simple_dataset = TimeSeriesDataset(simple_data, timedelta(hours=1))
         >>>
         >>> # Configure pipeline for single horizon (no versioned transforms allowed)
-        >>> single_pipeline = FeatureEngineeringPipeline(
+        >>> single_pipeline = FeatureEngineeringPipeline.create(
         ...     horizons=[LeadTime.from_string("PT36H")],
         ...     horizon_transforms=[
         ...         CyclicFeaturesTransform(included_features=["timeOfDay"])
@@ -129,73 +117,95 @@ class FeatureEngineeringPipeline(
         min_length=1,
     )
 
-    versioned_transforms: list[SelfTransform[VersionedTimeSeriesDataset]] = Field(
-        default=[],
+    versioned_pipeline: TransformPipeline[VersionedTimeSeriesDataset] = Field(
+        default_factory=lambda: TransformPipeline(transforms=[]),
         description=(
             "Transforms that operate on versioned time series, and usually involve complex time handling logic."
         ),
     )
-    horizon_transforms: list[TimeSeriesTransform] = Field(
-        default=[], description="Transforms that operate on time series with already resolved timestamps."
+    horizon_pipeline: TransformPipeline[MultiHorizonTimeSeriesDataset] = Field(
+        default_factory=lambda: TransformPipeline(transforms=[]),
+        description="Transforms that operate on time series with already resolved timestamps.",
     )
 
     _horizon_split_transform: HorizonSplitTransform = PrivateAttr()
     _is_fitted: bool = PrivateAttr(default=False)
 
+    @classmethod
+    def create(
+        cls,
+        versioned_transforms: Sequence[Transform[VersionedTimeSeriesDataset, VersionedTimeSeriesDataset]] | None = None,
+        horizon_transforms: Sequence[TimeSeriesTransform | MultiHorizonTimeSeriesTransform] | None = None,
+        horizons: list[LeadTime] | None = None,
+    ) -> Self:
+        return cls(
+            horizons=horizons or [LeadTime.from_string("PT36H")],
+            versioned_pipeline=TransformPipeline(transforms=versioned_transforms or []),
+            horizon_pipeline=TransformPipeline(
+                transforms=[
+                    transform
+                    if isinstance(transform, MultiHorizonTimeSeriesTransform)
+                    else transform.to_multi_horizon()
+                    for transform in horizon_transforms or []
+                ]
+            ),
+        )
+
     @override
     def model_post_init(self, context: Any) -> None:
         self._horizon_split_transform = HorizonSplitTransform(horizons=self.horizons)
 
-    def _validate_unversioned_compatibility(self) -> None:
-        if len(self.versioned_transforms) > 0:
-            raise ValueError("When using unversioned data, the pipeline cannot contain versioned transforms.")
-        if len(self.horizons) != 1:
-            raise ValueError("When using unversioned data, exactly one horizon must be configured in the pipeline.")
+    @override
+    def to_state(self) -> State:
+        return {
+            "versioned_transforms": self.versioned_pipeline.to_state(),
+            "horizon_transforms": self.horizon_pipeline.to_state(),
+        }
+
+    @override
+    def from_state(self, state: State) -> Self:
+        state = cast(dict[str, State], state)
+
+        return self.__class__(
+            horizons=self.horizons,
+            versioned_pipeline=self.versioned_pipeline.from_state(state["versioned_transforms"]),
+            horizon_pipeline=self.horizon_pipeline.from_state(state["horizon_transforms"]),
+        )
 
     @property
     @override
     def is_fitted(self) -> bool:
         return self._is_fitted
 
+    def _validate_unversioned_compatibility(self) -> None:
+        if len(self.versioned_pipeline.transforms) > 0:
+            raise ValueError("When using unversioned data, the pipeline cannot contain versioned transforms.")
+
     @override
     def fit(self, data: VersionedTimeSeriesDataset | TimeSeriesDataset) -> None:
         if isinstance(data, TimeSeriesDataset):
-            self._validate_unversioned_compatibility()
-            horizon_data = {self.horizons[0]: data}
+            horizon_data = dict.fromkeys(self.horizons, data)
         else:
             # Fit all the versioned transforms
-            versioned_data = data
-            for transform in self.versioned_transforms:
-                versioned_data = transform.fit_transform(versioned_data)
+            versioned_data = self.versioned_pipeline.fit_transform(data=data)
 
-            # Split to simple time series for fitting simple transforms
-            horizon_data = self._horizon_split_transform.fit_transform(versioned_data)
+            # Split to simple time series into horizon-specific datasets
+            horizon_data = self._horizon_split_transform.fit_transform(data=versioned_data)
 
-        # Fit all the simple transforms on each simple dataset
-        for transform in self.horizon_transforms:
-            horizon_data = transform.fit_transform_horizons(horizon_data)
+        # Fit all the horizon transforms
+        self.horizon_pipeline.fit_transform(data=horizon_data)
 
         self._is_fitted = True
 
     @override
     def transform(self, data: VersionedTimeSeriesDataset | TimeSeriesDataset) -> MultiHorizonTimeSeriesDataset:
         if not self._is_fitted:
-            raise TransformNotFittedError("Pipeline is not fitted yet.")
+            raise NotFittedError("Pipeline is not fitted")
 
         if isinstance(data, TimeSeriesDataset):
-            self._validate_unversioned_compatibility()
-            horizon_data = {self.horizons[0]: data}
+            horizon_data = dict.fromkeys(self.horizons, data)
         else:
-            # Apply all the versioned transforms
-            versioned_data = data
-            for transform in self.versioned_transforms:
-                versioned_data = transform.transform(versioned_data)
+            versioned_data = self.versioned_pipeline.transform(data=data)
+            horizon_data = self._horizon_split_transform.transform(data=versioned_data)
 
-            # Split to horizon time series for transforming horizon transforms
-            horizon_data = self._horizon_split_transform.transform(versioned_data)
-
-        # Transform all the horizon datasets
-        for transform in self.horizon_transforms:
-            horizon_data = transform.transform_horizons(horizon_data)
-
-        return horizon_data
+        return self.horizon_pipeline.transform(data=horizon_data)

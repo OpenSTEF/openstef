@@ -9,15 +9,16 @@ only missing values from time series data.
 """
 
 import logging
-from typing import override
+from typing import Any, Self, cast, override
 
 import numpy as np
 from pydantic import Field, PrivateAttr
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.datasets.timeseries_transform import TimeSeriesTransform
 from openstef_core.exceptions import TransformNotFittedError
+from openstef_core.mixins import State
+from openstef_core.transforms import TimeSeriesTransform
 
 _logger = logging.getLogger(__name__)
 
@@ -110,3 +111,19 @@ class RemoveEmptyColumnsTransform(BaseConfig, TimeSeriesTransform):
         result_data = data.data.loc[:, ~data.data.columns.isin(self._remove_columns)]  # pyright: ignore[reportUnknownMemberType]
 
         return TimeSeriesDataset(data=result_data, sample_interval=data.sample_interval)
+
+    @override
+    def to_state(self) -> State:
+        return {
+            "config": self.model_dump(mode="json"),
+            "remove_columns": list(self._remove_columns),
+            "is_fitted": self._is_fitted,
+        }
+
+    @override
+    def from_state(self, state: State) -> Self:
+        state = cast(dict[str, Any], state)
+        instance = self.model_validate(state["config"])
+        instance._remove_columns = set(state["remove_columns"])  # noqa: SLF001
+        instance._is_fitted = state["is_fitted"]  # noqa: SLF001
+        return instance

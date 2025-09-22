@@ -10,18 +10,20 @@ forecasting where temporal dependencies matter but data availability varies.
 """
 
 from datetime import timedelta
-from typing import override
+from typing import Self, override
 
 from pydantic import Field
 
 from openstef_core.base_model import BaseConfig
-from openstef_core.datasets import SelfTransform, VersionedTimeSeriesPart
+from openstef_core.datasets import VersionedTimeSeriesPart
 from openstef_core.datasets.versioned_timeseries.dataset import VersionedTimeSeriesDataset
 from openstef_core.exceptions import MissingColumnsError
+from openstef_core.mixins import State
+from openstef_core.transforms import VersionedTimeSeriesTransform
 from openstef_core.utils import timedelta_to_isoformat
 
 
-class VersionedLagTransform(BaseConfig, SelfTransform[VersionedTimeSeriesDataset]):
+class VersionedLagTransform(BaseConfig, VersionedTimeSeriesTransform):
     """Create lag features while preserving data availability constraints.
 
     This transform creates lagged versions of a column for capturing temporal dependencies
@@ -120,6 +122,14 @@ class VersionedLagTransform(BaseConfig, SelfTransform[VersionedTimeSeriesDataset
                 *lag_parts,
             ]
         )
+
+    @override
+    def to_state(self) -> State:
+        return self.model_dump(mode="json")
+
+    @override
+    def from_state(self, state: State) -> Self:
+        return self.model_validate(state)
 
 
 def _transform_to_lag(data: VersionedTimeSeriesPart, column: str, lag: timedelta) -> VersionedTimeSeriesPart:

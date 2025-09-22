@@ -18,12 +18,6 @@ The module supports:
 
 from openstef_core.datasets.mixins import TimeSeriesMixin, VersionedTimeSeriesMixin
 from openstef_core.datasets.timeseries_dataset import MultiHorizonTimeSeriesDataset, TimeSeriesDataset
-from openstef_core.datasets.timeseries_transform import TimeSeriesTransform
-from openstef_core.datasets.transforms import (
-    SelfTransform,
-    Transform,
-    TransformPipeline,
-)
 from openstef_core.datasets.validated_datasets import (
     EnergyComponentDataset,
     ForecastDataset,
@@ -36,12 +30,8 @@ __all__ = [
     "ForecastDataset",
     "ForecastInputDataset",
     "MultiHorizonTimeSeriesDataset",
-    "SelfTransform",
     "TimeSeriesDataset",
     "TimeSeriesMixin",
-    "TimeSeriesTransform",
-    "Transform",
-    "TransformPipeline",
     "VersionedTimeSeriesDataset",
     "VersionedTimeSeriesMixin",
     "VersionedTimeSeriesPart",

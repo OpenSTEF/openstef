@@ -9,15 +9,14 @@ callback execution, and optional model persistence. Acts as the main
 entry point for production forecasting systems.
 """
 
-from collections.abc import Callable
 from datetime import datetime
 from typing import Self
 
 from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesDataset
 from openstef_core.datasets.validated_datasets import ForecastDataset
-from openstef_core.exceptions import ModelNotFoundError, NotFittedError
-from openstef_models.integrations.callbacks import ForecastingCallback
-from openstef_models.integrations.model_storage import ModelIdentifier, ModelStorage
+from openstef_core.exceptions import NotFittedError
+from openstef_models.mixins.callbacks import ForecastingCallback
+from openstef_models.mixins.model_storage import ModelIdentifier, ModelStorage
 from openstef_models.models.forecasting_model import ForecastingModel
 
 
@@ -131,6 +130,9 @@ class ForecastingWorkflow:
 
         self.callbacks.on_fit_end(pipeline=self, dataset=dataset)
 
+        if self.storage is not None:
+            self.storage.save_model_state(model_id=self.model_id, model=self.model)
+
     def predict(
         self, dataset: VersionedTimeSeriesDataset | TimeSeriesDataset, forecast_start: datetime | None = None
     ) -> ForecastDataset:
@@ -158,18 +160,15 @@ class ForecastingWorkflow:
 
         self.callbacks.on_predict_end(pipeline=self, dataset=dataset, forecasts=forecasts)
 
-        if self.storage is not None:
-            self.storage.save_model(model_id=self.model_id, model=self.model)
-
         return forecasts
 
     @classmethod
     def from_storage(
         cls,
         model_id: ModelIdentifier,
+        model: ForecastingModel,
         storage: ModelStorage,
         callbacks: ForecastingCallback | None = None,
-        default_model_factory: Callable[[], ForecastingModel] | None = None,
     ) -> Self:
         """Create a workflow by loading a model from storage with optional fallback.
 
@@ -178,25 +177,14 @@ class ForecastingWorkflow:
 
         Args:
             model_id: Identifier for the model to load from storage.
+            model: The forecasting model to use for training and prediction.
             storage: Model storage system to load from.
             callbacks: Optional callback handler for the workflow.
-            default_model_factory: Optional factory function to create a default
-                model if the specified model is not found in storage.
 
         Returns:
             New workflow instance with the loaded or created model.
-
-        Raises:
-            ModelNotFoundError: If model is not found and no default factory provided.
         """
-        try:
-            model = storage.load_model(model_id=model_id)
-        except ModelNotFoundError:
-            if default_model_factory is None:
-                raise
-
-            model = default_model_factory()
-
+        model = storage.load_model_state(model_id=model_id, model=model)
         return cls(model=model, callbacks=callbacks, storage=storage, model_id=model_id)
 
 

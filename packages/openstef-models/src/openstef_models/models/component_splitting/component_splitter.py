@@ -15,6 +15,7 @@ from pydantic import Field
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import EnergyComponentDataset, TimeSeriesDataset
+from openstef_core.mixins import Predictor
 from openstef_core.types import EnergyComponentType
 
 
@@ -35,7 +36,7 @@ class ComponentSplitterConfig(BaseConfig):
     )
 
 
-class ComponentSplitterMixin:
+class ComponentSplitter(Predictor[TimeSeriesDataset, EnergyComponentDataset]):
     """Abstract base class for energy component splitting models.
 
     Defines the standard interface that all component splitters must implement.
@@ -61,56 +62,3 @@ class ComponentSplitterMixin:
             Configuration object containing fundamental model parameters.
         """
         raise NotImplementedError("Subclasses must implement config")
-
-    @property
-    @abstractmethod
-    def is_fitted(self) -> bool:
-        """Check if the model has been trained and is ready for predictions.
-
-        Used to prevent predictions on untrained models. For models that don't require
-        training, this should always return True.
-
-        Invariants:
-            - fit() methods will not be called if this returns True
-            - predict() methods should only be called when this returns True
-
-        Returns:
-            True if model is trained and ready, False otherwise.
-        """
-
-    @abstractmethod
-    def fit(self, data: TimeSeriesDataset) -> None:
-        """Train the model to split load/target data.
-
-        Only called when is_fitted returns False.
-
-        Args:
-            data: Historical data for training, including features and targets.
-        """
-
-    @abstractmethod
-    def predict(self, data: TimeSeriesDataset) -> EnergyComponentDataset:
-        """Split the input time series into configured energy components.
-
-        Args:
-            data: Time series data to be split into components.
-
-        Returns:
-            A dataset containing the split energy components.
-
-        Raises:
-            ModelNotFittedError: If the model hasn't been trained yet.
-        """
-        raise NotImplementedError("Subclasses must implement predict")
-
-    def fit_predict(self, data: TimeSeriesDataset) -> EnergyComponentDataset:
-        """Convenience method to fit the model and immediately make predictions.
-
-        Args:
-            data: Time series data for fitting and prediction.
-
-        Returns:
-            A dataset containing the split energy components.
-        """
-        self.fit(data)
-        return self.predict(data)

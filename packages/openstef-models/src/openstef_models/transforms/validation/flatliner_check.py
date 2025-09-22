@@ -11,7 +11,7 @@ malfunction, data transmission errors, or other anomalies in energy forecasting 
 
 import logging
 from datetime import timedelta
-from typing import cast, override
+from typing import Self, cast, override
 
 import numpy as np
 import pandas as pd
@@ -19,8 +19,9 @@ from pydantic import Field
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.datasets.timeseries_transform import TimeSeriesTransform
 from openstef_core.exceptions import FlatlinerDetectedError, MissingColumnsError
+from openstef_core.mixins import State
+from openstef_core.transforms import TimeSeriesTransform
 
 _logger = logging.getLogger(__name__)
 
@@ -146,3 +147,11 @@ class FlatlinerCheckTransform(BaseConfig, TimeSeriesTransform):
             _logger.warning("Flatliner detected in the provided load data.")
 
         return data
+
+    @override
+    def to_state(self) -> State:
+        return self.model_dump(mode="json")
+
+    @override
+    def from_state(self, state: State) -> Self:
+        return self.model_validate(state)

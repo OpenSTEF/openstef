@@ -80,8 +80,8 @@ def test_plot_with_models():
 
     # Assert
     assert isinstance(fig, go.Figure)
-    assert len(fig.data) == 2
-    assert fig.layout.title.text == "Test Plot"
+    assert len(fig.data) == 2  # pyright: ignore[reportArgumentType, reportUnknownMemberType]
+    assert fig.layout.title.text == "Test Plot"  # pyright: ignore[reportUnknownMemberType]
 
 
 def test_model_chaining():

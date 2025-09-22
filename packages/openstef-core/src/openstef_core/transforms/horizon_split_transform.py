@@ -9,16 +9,16 @@ resolves timestamps to create clean time series datasets for each forecast horiz
 This enables efficient processing of multi-horizon forecasting models.
 """
 
-from typing import override
+from typing import Self, override
 
 from pydantic import Field
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import (
     MultiHorizonTimeSeriesDataset,
-    Transform,
     VersionedTimeSeriesDataset,
 )
+from openstef_core.mixins import State, Transform
 from openstef_core.types import LeadTime
 
 
@@ -66,6 +66,14 @@ class HorizonSplitTransform(BaseConfig, Transform[VersionedTimeSeriesDataset, Mu
         description="List of forecast horizons to prepare / split the dataset for.",
     )
 
+    @override
+    def to_state(self) -> State:
+        return {"horizons": [str(horizon) for horizon in self.horizons]}
+
+    @override
+    def from_state(self, state: State) -> Self:
+        return super().from_state(state)
+
     @property
     @override
     def is_fitted(self) -> bool:
@@ -89,3 +97,6 @@ class HorizonSplitTransform(BaseConfig, Transform[VersionedTimeSeriesDataset, Mu
             Dictionary mapping each LeadTime to its corresponding TimeSeriesDataset.
         """
         return {horizon: data.filter_by_lead_time(lead_time=horizon).select_version() for horizon in self.horizons}
+
+
+__all__ = ["HorizonSplitTransform"]

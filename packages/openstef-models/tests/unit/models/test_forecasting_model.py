@@ -10,20 +10,20 @@ import pandas as pd
 import pytest
 
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.datasets.transforms import TransformPipeline
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import ConfigurationError, NotFittedError
-from openstef_core.types import LeadTime, Quantile
-from openstef_models.models.forecasting.multi_horizon_adapter import (
+from openstef_core.mixins import State, TransformPipeline
+from openstef_core.types import LeadTime, Quantile, override
+from openstef_models.models.forecasting import Forecaster, HorizonForecaster, HorizonForecasterConfig
+from openstef_models.models.forecasting.multi_horizon_forecaster_adapter import (
     MultiHorizonForecasterAdapter,
     MultiHorizonForecasterConfig,
 )
 from openstef_models.models.forecasting_model import ForecastingModel
-from openstef_models.models.mixins import BaseForecaster, BaseHorizonForecaster, HorizonForecasterConfig, ModelState
 from openstef_models.transforms import FeatureEngineeringPipeline
 
 
-class SimpleForecaster(BaseHorizonForecaster):
+class SimpleForecaster(HorizonForecaster):
     """Simple test forecaster that returns predictable values for testing."""
 
     def __init__(self, config: HorizonForecasterConfig):
@@ -35,49 +35,37 @@ class SimpleForecaster(BaseHorizonForecaster):
         return self._config
 
     @property
+    @override
     def is_fitted(self) -> bool:
         return self._is_fitted
 
-    def get_state(self) -> ModelState:
-        return cast(ModelState, self)
+    @override
+    def to_state(self) -> State:
+        return cast(State, self)
 
-    @classmethod
-    def from_state(cls, state: ModelState) -> Self:
+    @override
+    def from_state(self, state: State) -> Self:  # noqa: PLR6301
         return cast(Self, state)
 
-    def fit_horizon(self, input_data: ForecastInputDataset) -> None:
+    @override
+    def fit(self, data: ForecastInputDataset) -> None:
         self._is_fitted = True
 
-    def predict_horizon(self, input_data: ForecastInputDataset) -> ForecastDataset:
+    @override
+    def predict(self, data: ForecastInputDataset) -> ForecastDataset:
         # Return predictable forecast values
         forecast_values = {quantile: 100.0 + quantile * 10 for quantile in self.config.quantiles}
-        data = pd.DataFrame(
-            {
-                quantile.format(): [forecast_values[quantile]] * len(input_data.index)
-                for quantile in self.config.quantiles
-            },
-            index=input_data.index,
+        return ForecastDataset(
+            pd.DataFrame(
+                {
+                    quantile.format(): [forecast_values[quantile]] * len(data.index)
+                    for quantile in self.config.quantiles
+                },
+                index=data.index,
+            ),
+            data.sample_interval,
+            data.forecast_start,
         )
-        return ForecastDataset(data, input_data.sample_interval, input_data.forecast_start)
-
-
-class SimpleMultiHorizonForecaster(MultiHorizonForecasterAdapter[HorizonForecasterConfig, SimpleForecaster]):
-    """Multi-horizon adapter using SimpleForecaster for testing."""
-
-    @classmethod
-    def get_forecaster_type(cls) -> type[SimpleForecaster]:
-        return SimpleForecaster
-
-    @classmethod
-    def create_forecaster(cls, config: HorizonForecasterConfig) -> SimpleForecaster:
-        return SimpleForecaster(config=config)
-
-    def get_state(self) -> ModelState:
-        return cast(ModelState, self)
-
-    @classmethod
-    def from_state(cls, state: ModelState) -> Self:
-        return cast(Self, state)
 
 
 @pytest.fixture
@@ -158,8 +146,8 @@ def test_forecasting_model__init__raises_error_when_horizons_mismatch():
 @pytest.mark.parametrize(
     "forecaster_type",
     [
-        pytest.param(BaseHorizonForecaster, id="horizon_forecaster"),
-        pytest.param(BaseForecaster, id="multi_horizon_forecaster"),
+        pytest.param(HorizonForecaster, id="horizon_forecaster"),
+        pytest.param(Forecaster, id="multi_horizon_forecaster"),
     ],
 )
 def test_forecasting_model__fit__orchestrates_correctly(
@@ -169,7 +157,7 @@ def test_forecasting_model__fit__orchestrates_correctly(
     # Arrange
     horizons = [LeadTime(timedelta(hours=6))]
 
-    if forecaster_type == BaseHorizonForecaster:
+    if forecaster_type == HorizonForecaster:
         config = HorizonForecasterConfig(quantiles=[Quantile(0.5)], horizons=horizons)
         forecaster = SimpleForecaster(config=config)
     else:
@@ -178,7 +166,9 @@ def test_forecasting_model__fit__orchestrates_correctly(
             horizons=horizons,
             forecaster_config=HorizonForecasterConfig(quantiles=[Quantile(0.5)], horizons=horizons),
         )
-        forecaster = SimpleMultiHorizonForecaster.create(config=config)
+        forecaster = MultiHorizonForecasterAdapter.create(
+            config=config, model_factory=lambda config: SimpleForecaster(config=config)
+        )
 
     preprocessing = FeatureEngineeringPipeline(horizons=horizons)
     postprocessing = TransformPipeline[ForecastDataset](transforms=[])
@@ -199,8 +189,8 @@ def test_forecasting_model__fit__orchestrates_correctly(
 @pytest.mark.parametrize(
     "forecaster_type",
     [
-        pytest.param(BaseHorizonForecaster, id="horizon_forecaster"),
-        pytest.param(BaseForecaster, id="multi_horizon_forecaster"),
+        pytest.param(HorizonForecaster, id="horizon_forecaster"),
+        pytest.param(Forecaster, id="multi_horizon_forecaster"),
     ],
 )
 def test_forecasting_model__predict__orchestrates_correctly(
@@ -210,7 +200,7 @@ def test_forecasting_model__predict__orchestrates_correctly(
     # Arrange
     horizons = [LeadTime(timedelta(hours=6))]
 
-    if forecaster_type == BaseHorizonForecaster:
+    if forecaster_type == HorizonForecaster:
         config = HorizonForecasterConfig(quantiles=[Quantile(0.5)], horizons=horizons)
         forecaster = SimpleForecaster(config=config)
     else:
@@ -219,7 +209,9 @@ def test_forecasting_model__predict__orchestrates_correctly(
             horizons=horizons,
             forecaster_config=HorizonForecasterConfig(quantiles=[Quantile(0.5)], horizons=horizons),
         )
-        forecaster = SimpleMultiHorizonForecaster.create(config=config)
+        forecaster = MultiHorizonForecasterAdapter.create(
+            config=config, model_factory=lambda config: SimpleForecaster(config=config)
+        )
 
     preprocessing = FeatureEngineeringPipeline(horizons=horizons)
     postprocessing = TransformPipeline[ForecastDataset](transforms=[])

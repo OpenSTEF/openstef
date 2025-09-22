@@ -10,10 +10,10 @@ import pandas as pd
 import pytest
 
 from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesDataset
-from openstef_core.types import LeadTime
-from openstef_models.transforms.horizon_split_transform import (
+from openstef_core.transforms.horizon_split_transform import (
     HorizonSplitTransform,
 )
+from openstef_core.types import LeadTime
 
 
 @pytest.fixture

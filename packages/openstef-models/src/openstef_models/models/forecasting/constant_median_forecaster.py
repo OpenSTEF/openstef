@@ -14,20 +14,14 @@ from typing import Self, override
 import pandas as pd
 from pydantic import Field
 
-from openstef_core.base_model import BaseConfig
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import ModelLoadingError, NotFittedError
+from openstef_core.mixins import State
 from openstef_core.types import Quantile
-from openstef_models.models.forecasting.multi_horizon_adapter import MultiHorizonForecasterAdapter
-from openstef_models.models.mixins import (
-    BaseHorizonForecaster,
-    ForecasterHyperParams,
-    HorizonForecasterConfig,
-    ModelState,
-)
+from openstef_models.models.forecasting.forecaster import HorizonForecaster, HorizonForecasterConfig, HyperParams
 
 
-class ConstantMedianForecasterHyperParams(ForecasterHyperParams):
+class ConstantMedianForecasterHyperParams(HyperParams):
     """Hyperparameter configuration for constant median forecaster."""
 
     constant: float = Field(
@@ -47,15 +41,7 @@ class ConstantMedianForecasterConfig(HorizonForecasterConfig):
 MODEL_CODE_VERSION = 2
 
 
-class ConstantMedianState(BaseConfig):
-    """Serializable state for constant median forecaster."""
-
-    version: int = Field(default=MODEL_CODE_VERSION, description="State version for compatibility checks.")
-    config: ConstantMedianForecasterConfig = Field(default=...)
-    quantile_values: dict[Quantile, float] = Field(default={})
-
-
-class ConstantMedianForecaster(BaseHorizonForecaster):
+class ConstantMedianForecaster(HorizonForecaster):
     """Constant median-based forecaster for single horizon predictions.
 
     Predicts constant values based on historical quantiles from training data.
@@ -78,10 +64,12 @@ class ConstantMedianForecaster(BaseHorizonForecaster):
         >>> # predictions = forecaster.predict_horizon(test_data)
     """
 
+    _config: ConstantMedianForecasterConfig
+    _quantile_values: dict[Quantile, float]
+
     def __init__(
         self,
         config: ConstantMedianForecasterConfig | None = None,
-        state: ConstantMedianState | None = None,
     ) -> None:
         """Initialize the constant median forecaster.
 
@@ -89,92 +77,67 @@ class ConstantMedianForecaster(BaseHorizonForecaster):
             config: Configuration specifying quantiles and hyperparameters.
             state: Optional pre-trained state for restored models.
         """
-        config = config or ConstantMedianForecasterConfig()
-        self._state: ConstantMedianState = state if state is not None else ConstantMedianState(config=config)
+        self._config = config or ConstantMedianForecasterConfig()
+        self._quantile_values: dict[Quantile, float] = {}
 
     @property
     @override
     def config(self) -> ConstantMedianForecasterConfig:
-        return self._state.config
+        return self._config
 
     @property
     @override
     def hyperparams(self) -> ConstantMedianForecasterHyperParams:
-        return self._state.config.hyperparams
+        return self._config.hyperparams
 
     @override
-    def get_state(self) -> ModelState:
-        return self._state.model_dump(mode="json")
+    def to_state(self) -> State:
+        return {
+            "version": MODEL_CODE_VERSION,
+            "config": self.config.model_dump(mode="json"),
+            "quantile_values": self._quantile_values,
+        }
 
-    @classmethod
     @override
-    def from_state(cls, state: ModelState) -> Self:
+    def from_state(self, state: State) -> Self:
         if not isinstance(state, dict) or "version" not in state or state["version"] > MODEL_CODE_VERSION:
             raise ModelLoadingError("Invalid state for ConstantMedianForecaster")
 
-        try:
-            # Gracefully migrate state from older model versions
-            if state["version"] == 1:
-                state["quantile_values"] = state["quantile_values_v1"]
+        # Gracefully migrate state from older model versions
+        if state["version"] == 1:
+            state["quantile_values"] = state["quantile_values_v1"]
 
-            state = ConstantMedianState.model_validate(state)
-        except Exception as e:
-            raise ModelLoadingError("Failed to validate state") from e
-
-        return cls(config=state.config, state=state)
+        instance = self.__class__(config=ConstantMedianForecasterConfig.model_validate(state["config"]))
+        instance._quantile_values = state["quantile_values"]  # noqa: SLF001
+        return instance
 
     @property
     @override
     def is_fitted(self) -> bool:
-        return len(self._state.quantile_values) > 0
+        return len(self._quantile_values) > 0
 
     @override
-    def fit_horizon(self, input_data: ForecastInputDataset) -> None:
-        self._state = ConstantMedianState(
-            config=self.config,
-            quantile_values={
-                quantile: input_data.target_series().quantile(quantile) for quantile in self.config.quantiles
-            },
-        )
+    def fit(self, data: ForecastInputDataset) -> None:
+        self._quantile_values = {
+            quantile: data.target_series().quantile(quantile) for quantile in self.config.quantiles
+        }
 
     @override
-    def predict_horizon(self, input_data: ForecastInputDataset) -> ForecastDataset:
+    def predict(self, data: ForecastInputDataset) -> ForecastDataset:
         if not self.is_fitted:
             raise NotFittedError(self.__class__.__name__)
 
         return ForecastDataset(
             data=pd.DataFrame(
                 data={
-                    quantile.format(): self._state.quantile_values[quantile] + self.hyperparams.constant
+                    quantile.format(): self._quantile_values[quantile] + self.hyperparams.constant
                     for quantile in self.config.quantiles
                 },
                 index=(
-                    input_data.index[input_data.index > pd.Timestamp(input_data.forecast_start)]
-                    if input_data.forecast_start is not None
-                    else input_data.index
+                    data.index[data.index > pd.Timestamp(data.forecast_start)]
+                    if data.forecast_start is not None
+                    else data.index
                 ),
             ),
-            sample_interval=input_data.sample_interval,
+            sample_interval=data.sample_interval,
         )
-
-
-class ConstantMedianHorizonForecaster(
-    MultiHorizonForecasterAdapter[ConstantMedianForecasterConfig, ConstantMedianForecaster]
-):
-    """Multi-horizon adapter for constant median forecasting.
-
-    Creates separate ConstantMedianForecaster models for each prediction horizon
-    and combines their outputs. Each horizon-specific model learns its own median
-    values from training data, then the adapter stitches results together by using
-    each model's predictions for its designated time range.
-    """
-
-    @classmethod
-    @override
-    def get_forecaster_type(cls) -> type[ConstantMedianForecaster]:
-        return ConstantMedianForecaster
-
-    @classmethod
-    @override
-    def create_forecaster(cls, config: ConstantMedianForecasterConfig) -> ConstantMedianForecaster:
-        return ConstantMedianForecaster(config=config)

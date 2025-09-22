@@ -14,7 +14,7 @@ from typing import cast, override
 
 from openstef_core.base_model import BaseModel
 from openstef_core.exceptions import MissingExtraError, ModelNotFoundError
-from openstef_models.integrations.model_storage import ModelIdentifier, ModelStorage
+from openstef_models.mixins.model_storage import ModelIdentifier, ModelStorage, Stateful
 from openstef_models.models.forecasting_model import ForecastingModel
 
 try:
@@ -23,7 +23,7 @@ except ImportError as e:
     raise MissingExtraError("joblib", package="openstef-models") from e
 
 
-class LocalModelStorage(ModelStorage, BaseModel):
+class LocalModelStorage(BaseModel, ModelStorage):
     """File-based model storage using joblib serialization.
 
     Provides persistent storage for ForecastingModel instances on the local
@@ -66,7 +66,7 @@ class LocalModelStorage(ModelStorage, BaseModel):
         return self.storage_dir / f"{model_id}.pkl"
 
     @override
-    def load_model(self, model_id: ModelIdentifier) -> ForecastingModel:
+    def load_model_state[T: Stateful](self, model_id: ModelIdentifier, model: T) -> T:
         model_path = self._get_model_path(model_id)
         if not model_path.exists():
             raise ModelNotFoundError(str(model_id))
@@ -74,7 +74,7 @@ class LocalModelStorage(ModelStorage, BaseModel):
         return cast(ForecastingModel, joblib.load(model_path))  # type: ignore[reportUnknownMemberType]
 
     @override
-    def save_model(self, model_id: ModelIdentifier, model: ForecastingModel) -> None:
+    def save_model_state(self, model_id: ModelIdentifier, model: Stateful) -> None:
         model_path = self._get_model_path(model_id)
 
         joblib.dump(model, model_path)  # type: ignore[reportUnknownMemberType]

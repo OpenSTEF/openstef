@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+from typing import Any, cast
+
 import plotly.graph_objects as go
 import pytest
 
@@ -100,7 +102,7 @@ def test_plot_with_custom_title():
     fig = plotter.plot(title=custom_title)
 
     # Assert
-    assert fig.layout.title.text == custom_title
+    assert fig.layout.title.text == custom_title  # pyright: ignore[reportUnknownMemberType, reportAttributeAccessIssue]
 
 
 def test_plot_with_multiple_models():
@@ -114,9 +116,9 @@ def test_plot_with_multiple_models():
 
     # Assert
     # The figure should have 3 traces: 2 models + perfect calibration line
-    assert len(fig.data) == 3
+    assert len(fig.data) == 3  # pyright: ignore[reportArgumentType, reportUnknownArgumentType, reportUnknownMemberType]
 
     # Check that both models are represented in the plot
-    model_names = [trace.name for trace in fig.data if trace.name != "Perfect probability"]
+    model_names = [trace.name for trace in cast(Any, fig.data) if trace.name != "Perfect probability"]  # pyright: ignore[reportUnknownMemberType]
     assert "model1" in model_names
     assert "model2" in model_names

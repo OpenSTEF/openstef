@@ -12,4 +12,6 @@ parts based on various algorithms and known ratios.
 
 from openstef_models.models import component_splitting
 
-__all__ = ["component_splitting"]
+from .component_splitter import ComponentSplitter, ComponentSplitterConfig
+
+__all__ = ["ComponentSplitter", "ComponentSplitterConfig", "component_splitting"]

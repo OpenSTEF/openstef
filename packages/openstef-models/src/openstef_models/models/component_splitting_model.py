@@ -9,18 +9,19 @@ Handles data transformation and validation while providing consistent component
 analysis across different splitting algorithms.
 """
 
-from typing import override
+from typing import Any, cast, override
 
 from pydantic import Field
 
 from openstef_core.base_model import BaseModel
 from openstef_core.datasets import EnergyComponentDataset, TimeSeriesDataset
-from openstef_core.datasets.transforms import TransformPipeline
+from openstef_core.datasets.mixins import Self
 from openstef_core.datasets.validation import validate_required_columns
-from openstef_models.models.mixins.component_splitter_mixin import ComponentSplitterConfig, ComponentSplitterMixin
+from openstef_core.mixins import State, TransformPipeline
+from openstef_models.models.component_splitting.component_splitter import ComponentSplitter, ComponentSplitterConfig
 
 
-class ComponentSplittingModel(BaseModel, ComponentSplitterMixin):
+class ComponentSplittingModel(BaseModel, ComponentSplitter):
     """Complete component splitting pipeline combining preprocessing, splitting, and postprocessing.
 
     Orchestrates the full component splitting workflow by managing data preprocessing,
@@ -71,7 +72,7 @@ class ComponentSplittingModel(BaseModel, ComponentSplitterMixin):
         default_factory=TransformPipeline[TimeSeriesDataset],
         description="Feature engineering pipeline for transforming raw input data into model-ready features.",
     )
-    component_splitter: ComponentSplitterMixin = Field(
+    component_splitter: ComponentSplitter = Field(
         default=...,
         description="Underlying component splitting algorithm implementing the splitting logic.",
     )
@@ -113,6 +114,25 @@ class ComponentSplittingModel(BaseModel, ComponentSplitterMixin):
         prediction = self.component_splitter.predict(data=input_data)
 
         return self.postprocessing.transform(data=prediction)
+
+    @override
+    def to_state(self) -> State:
+        return {
+            "source_column": self.source_column,
+            "preprocessing": self.preprocessing.to_state(),
+            "component_splitter": self.component_splitter.to_state(),
+            "postprocessing": self.postprocessing.to_state(),
+        }
+
+    @override
+    def from_state(self, state: State) -> Self:
+        state = cast(dict[str, Any], state)
+        return self.__class__(
+            source_column=state["source_column"],
+            preprocessing=self.preprocessing.from_state(state["preprocessing"]),
+            component_splitter=self.component_splitter.from_state(state["component_splitter"]),
+            postprocessing=self.postprocessing.from_state(state["postprocessing"]),
+        )
 
 
 __all__ = ["ComponentSplittingModel"]

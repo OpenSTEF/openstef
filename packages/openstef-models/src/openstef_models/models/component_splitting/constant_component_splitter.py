@@ -20,13 +20,9 @@ import pandas as pd
 from pydantic import Field, field_validator
 
 from openstef_core.datasets import EnergyComponentDataset, TimeSeriesDataset
+from openstef_core.mixins import State
 from openstef_core.types import EnergyComponentType
-from openstef_models.models.mixins import (
-    ComponentSplitterConfig,
-    ComponentSplitterMixin,
-    ModelState,
-    StatefulModelMixin,
-)
+from openstef_models.models.component_splitting.component_splitter import ComponentSplitter, ComponentSplitterConfig
 
 
 class ConstantComponentSplitterConfig(ComponentSplitterConfig):
@@ -50,7 +46,7 @@ class ConstantComponentSplitterConfig(ComponentSplitterConfig):
         return value
 
 
-class ConstantComponentSplitter(ComponentSplitterMixin, StatefulModelMixin):
+class ConstantComponentSplitter(ComponentSplitter):
     """Constant ratio-based component splitter for energy data.
 
     Splits energy time series into predefined components using fixed ratios.
@@ -127,14 +123,13 @@ class ConstantComponentSplitter(ComponentSplitterMixin, StatefulModelMixin):
         )
 
     @override
-    def get_state(self) -> ModelState:
+    def to_state(self) -> State:
         return self.config.model_dump(mode="json")
 
-    @classmethod
     @override
-    def from_state(cls, state: ModelState) -> Self:
+    def from_state(self, state: State) -> Self:
         config = ConstantComponentSplitterConfig.model_validate(state)
-        return cls(config=config)
+        return self.__class__(config=config)
 
     @classmethod
     def known_solar_park(cls) -> Self:

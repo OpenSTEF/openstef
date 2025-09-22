@@ -3,15 +3,16 @@
 # SPDX-License-Identifier: MPL-2.0
 
 from datetime import timedelta
-from typing import override
+from typing import Self, cast, override
 
 import pandas as pd
 import pytest
 
-from openstef_core.datasets import SelfTransform, TimeSeriesDataset, TransformPipeline
+from openstef_core.datasets import TimeSeriesDataset
+from openstef_core.mixins import State, Transform, TransformPipeline
 
 
-class SimpleAddTransform(SelfTransform[TimeSeriesDataset]):
+class SimpleAddTransform(Transform[TimeSeriesDataset, TimeSeriesDataset]):
     """Simple transform that adds a constant to all time series values."""
 
     def __init__(self, add_value: float = 1.0):
@@ -33,8 +34,16 @@ class SimpleAddTransform(SelfTransform[TimeSeriesDataset]):
             sample_interval=data.sample_interval,
         )
 
+    @override
+    def to_state(self) -> State:
+        return self
 
-class SimpleMultiplyTransform(SelfTransform[TimeSeriesDataset]):
+    @override
+    def from_state(self, state: State) -> Self:
+        return cast(Self, state)
+
+
+class SimpleMultiplyTransform(Transform[TimeSeriesDataset, TimeSeriesDataset]):
     """Simple transform that multiplies all time series values by a constant."""
 
     def __init__(self, multiplier: float = 2.0):
@@ -55,6 +64,14 @@ class SimpleMultiplyTransform(SelfTransform[TimeSeriesDataset]):
             data=data.data * self.multiplier,
             sample_interval=data.sample_interval,
         )
+
+    @override
+    def to_state(self) -> State:
+        return self
+
+    @override
+    def from_state(self, state: State) -> Self:
+        return cast(Self, state)
 
 
 @pytest.fixture
@@ -81,7 +98,7 @@ def sample_timeseries_dataset() -> TimeSeriesDataset:
 )
 def test_transform_pipeline__fit_transform_functionality(
     sample_timeseries_dataset: TimeSeriesDataset,
-    transforms: list[SelfTransform[TimeSeriesDataset]],
+    transforms: list[Transform[TimeSeriesDataset, TimeSeriesDataset]],
     expected_values: list[float],
 ):
     """Test TransformPipeline fit_transform with essential scenarios."""

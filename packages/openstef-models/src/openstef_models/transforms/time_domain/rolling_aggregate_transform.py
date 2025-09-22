@@ -10,15 +10,16 @@ accuracy by identifying underlying trends.
 """
 
 from datetime import timedelta
-from typing import Literal, cast, override
+from typing import Literal, Self, cast, override
 
 import pandas as pd
 from pydantic import Field
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.datasets.timeseries_transform import TimeSeriesTransform
 from openstef_core.datasets.validation import validate_required_columns
+from openstef_core.mixins import State
+from openstef_core.transforms import TimeSeriesTransform
 from openstef_core.utils import timedelta_to_isoformat
 
 type AggregationFunction = Literal["mean", "median", "max", "min"]
@@ -98,6 +99,14 @@ class RollingAggregateTransform(BaseConfig, TimeSeriesTransform):
             data=pd.concat(agg_series, axis=1),
             sample_interval=data.sample_interval,
         )
+
+    @override
+    def to_state(self) -> State:
+        return self.model_dump(mode="json")
+
+    @override
+    def from_state(self, state: State) -> Self:
+        return self.model_validate(state)
 
 
 __all__ = ["RollingAggregateTransform"]

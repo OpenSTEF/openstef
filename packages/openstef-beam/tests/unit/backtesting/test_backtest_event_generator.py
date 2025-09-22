@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 
 from datetime import datetime, time, timedelta
+from typing import Literal
 
 import pandas as pd
 import pytest
@@ -52,7 +53,13 @@ def factory(config: BacktestForecasterConfig, hourly_index: pd.DatetimeIndex) ->
         ("predict", "2025-01-01T12:00:00", "predict", "2025-01-01T12:00:00", 0),
     ],
 )
-def test_cmp_events(event1_type: str, event1_time: str, event2_type: str, event2_time: str, expected: int):
+def test_cmp_events(
+    event1_type: Literal["predict", "train"],
+    event1_time: str,
+    event2_type: Literal["predict", "train"],
+    event2_time: str,
+    expected: int,
+):
     # Arrange
     event1 = BacktestEvent(type=event1_type, timestamp=datetime.fromisoformat(event1_time))
     event2 = BacktestEvent(type=event2_type, timestamp=datetime.fromisoformat(event2_time))
