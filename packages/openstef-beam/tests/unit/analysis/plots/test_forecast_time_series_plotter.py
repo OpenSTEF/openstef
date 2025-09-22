@@ -358,11 +358,14 @@ def test_insert_gaps_for_missing_timestamps(connect_gaps: bool):
     # Arrange
     plotter = ForecastTimeSeriesPlotter(connect_gaps=connect_gaps)
 
-    # Create time series with gaps (1-hour gap: missing 12:00, 3-hour gap: missing 15:00-17:00)
+    # Create example time series with gaps
     dates_with_gaps = pd.to_datetime([
-        "2024-01-01 10:00:00", "2024-01-01 11:00:00",  # continuous
-        "2024-01-01 13:00:00", "2024-01-01 14:00:00",  # 1-hour gap (missing 12:00)
-        "2024-01-01 18:00:00", "2024-01-01 19:00:00"   # 3-hour gap (missing 15:00-17:00)
+        "2024-01-01 10:00:00",
+        "2024-01-01 11:00:00",
+        "2024-01-01 13:00:00",
+        "2024-01-01 14:00:00",
+        "2024-01-01 18:00:00",
+        "2024-01-01 19:00:00",
     ])
     original_series = pd.Series([10, 20, 30, 40, 50, 60], index=dates_with_gaps)
     sample_interval = pd.Timedelta("1h")
@@ -376,11 +379,7 @@ def test_insert_gaps_for_missing_timestamps(connect_gaps: bool):
         pd.testing.assert_series_equal(result, original_series)
     else:
         # connect_gaps=False should have filled in missing timestamps with NaN
-        expected_index = pd.date_range(
-            start="2024-01-01 10:00:00",
-            end="2024-01-01 19:00:00",
-            freq="1h"
-        )
+        expected_index = pd.date_range(start="2024-01-01 10:00:00", end="2024-01-01 19:00:00", freq="1h")
         expected_values = [10, 20, np.nan, 30, 40, np.nan, np.nan, np.nan, 50, 60]
         expected_series = pd.Series(expected_values, index=expected_index)
 
@@ -394,11 +393,7 @@ def test_add_segmented_quantile_polygons():
     figure = go.Figure()
 
     # Create example indices
-    complete_index = pd.date_range(
-        start="2024-01-01 10:00:00",
-        end="2024-01-01 18:00:00",
-        freq="1h"
-    )
+    complete_index = pd.date_range(start="2024-01-01 10:00:00", end="2024-01-01 18:00:00", freq="1h")
 
     # Create data with explicit NaN values for gaps
     lower_values = [5, 10, 15, np.nan, np.nan, 20, 25, np.nan, 30]
@@ -435,17 +430,22 @@ def test_add_segmented_quantile_polygons():
     expected_lengths = [6, 4, 2]  # 3-point, 2-point, 1-point segments -> 6, 4, 2 polygon coordinates
     for i, polygon_trace in enumerate(polygon_traces):
         # Each segment polygon should have: n_points * 2 coordinates (lower + upper reversed)
-        assert len(polygon_trace.x) == expected_lengths[i], f"Segment {i} should have {expected_lengths[i]} x-coordinates, got {len(polygon_trace.x)}"
-        assert len(polygon_trace.y) == expected_lengths[i], f"Segment {i} should have {expected_lengths[i]} y-coordinates, got {len(polygon_trace.y)}"
+        assert len(polygon_trace.x) == expected_lengths[i], (
+            f"Segment {i} should have {expected_lengths[i]} x-coordinates, got {len(polygon_trace.x)}"
+        )
+        assert len(polygon_trace.y) == expected_lengths[i], (
+            f"Segment {i} should have {expected_lengths[i]} y-coordinates, got {len(polygon_trace.y)}"
+        )
 
     # Verify segment coordinates match expected continuous data ranges
     expected_segments = [
-        {"x_times": ["2024-01-01 10:00:00", "2024-01-01 11:00:00", "2024-01-01 12:00:00"],
-         "y_lower": [5, 10, 15], "y_upper": [15, 25, 35]},
-        {"x_times": ["2024-01-01 15:00:00", "2024-01-01 16:00:00"],
-         "y_lower": [20, 25], "y_upper": [45, 55]},
-        {"x_times": ["2024-01-01 18:00:00"],
-         "y_lower": [30], "y_upper": [65]},
+        {
+            "x_times": ["2024-01-01 10:00:00", "2024-01-01 11:00:00", "2024-01-01 12:00:00"],
+            "y_lower": [5, 10, 15],
+            "y_upper": [15, 25, 35],
+        },
+        {"x_times": ["2024-01-01 15:00:00", "2024-01-01 16:00:00"], "y_lower": [20, 25], "y_upper": [45, 55]},
+        {"x_times": ["2024-01-01 18:00:00"], "y_lower": [30], "y_upper": [65]},
     ]
 
     for i, (polygon_trace, expected) in enumerate(zip(polygon_traces, expected_segments, strict=True)):
@@ -467,15 +467,20 @@ def test_add_quantile_band(connect_gaps: bool):
     plotter = ForecastTimeSeriesPlotter(connect_gaps=connect_gaps)
     figure = go.Figure()
 
-    # Create quantile data with gaps (1-hour gap: missing 12:00, 3-hour gap: missing 15:00-17:00)
+    # Create example quantile data with gaps
     dates_with_gaps = pd.to_datetime([
-        "2024-01-01 10:00:00", "2024-01-01 11:00:00",  # continuous
-        "2024-01-01 13:00:00", "2024-01-01 14:00:00",  # 1-hour gap (missing 12:00)
-        "2024-01-01 18:00:00", "2024-01-01 19:00:00"   # 3-hour gap (missing 15:00-17:00)
+        "2024-01-01 10:00:00",
+        "2024-01-01 11:00:00",
+        "2024-01-01 13:00:00",
+        "2024-01-01 14:00:00",
+        "2024-01-01 18:00:00",
+        "2024-01-01 19:00:00",
     ])
 
     lower_quantile_data = pd.Series([5, 10, 15, 20, 25, 30], index=dates_with_gaps)
-    upper_quantile_data = pd.Series([15, 25, 35, 45, 55, 65], index=dates_with_gaps)    # Act
+    upper_quantile_data = pd.Series([15, 25, 35, 45, 55, 65], index=dates_with_gaps)
+
+    # Act
     plotter._add_quantile_band(
         figure=figure,
         lower_quantile_data=lower_quantile_data,
@@ -506,7 +511,9 @@ def test_add_quantile_band(connect_gaps: bool):
     else:
         # connect_gaps=False: Should create MULTIPLE polygon traces (one per continuous segment)
         # With our gap data, we expect 3 segments: [10:00-11:00], [13:00-14:00], [18:00-19:00]
-        assert len(polygon_traces) == 3, f"Expected 3 polygon segments for connect_gaps=False, got {len(polygon_traces)}"
+        assert len(polygon_traces) == 3, (
+            f"Expected 3 polygon segments for connect_gaps=False, got {len(polygon_traces)}"
+        )
 
         # Each segment polygon should have 4 points: 2 lower + 2 upper
         for polygon_trace in polygon_traces:
@@ -514,5 +521,9 @@ def test_add_quantile_band(connect_gaps: bool):
             assert len(polygon_trace.y) == 4
 
     # Both modes should have a hover trace for quantile information
-    hover_traces = [trace for trace in figure.data if hasattr(trace, "showlegend") and not trace.showlegend and getattr(trace, "fill", None) is None]
+    hover_traces = [
+        trace
+        for trace in figure.data
+        if hasattr(trace, "showlegend") and not trace.showlegend and getattr(trace, "fill", None) is None
+    ]
     assert len(hover_traces) >= 1

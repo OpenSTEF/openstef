@@ -150,11 +150,7 @@ class ForecastTimeSeriesPlotter:
         end_time = cast(pd.Timestamp, series.index[-1])
 
         # Create complete index with the sample interval
-        complete_index = pd.date_range(
-            start=start_time,
-            end=end_time,
-            freq=sample_interval
-        )
+        complete_index = pd.date_range(start=start_time, end=end_time, freq=sample_interval)
 
         # Reindex the series to the complete index, automatically filling missing values with NaN
         return series.reindex(complete_index)
@@ -332,12 +328,8 @@ class ForecastTimeSeriesPlotter:
             # Process data to insert gaps, then create segmented polygons
             if len(lower_quantile_data) > 1:
                 estimated_interval = pd.Timedelta(lower_quantile_data.index.to_series().diff().median())
-                processed_lower_data = self._insert_gaps_for_missing_timestamps(
-                    lower_quantile_data, estimated_interval
-                )
-                processed_upper_data = self._insert_gaps_for_missing_timestamps(
-                    upper_quantile_data, estimated_interval
-                )
+                processed_lower_data = self._insert_gaps_for_missing_timestamps(lower_quantile_data, estimated_interval)
+                processed_upper_data = self._insert_gaps_for_missing_timestamps(upper_quantile_data, estimated_interval)
             else:
                 processed_lower_data = lower_quantile_data
                 processed_upper_data = upper_quantile_data
@@ -501,9 +493,7 @@ class ForecastTimeSeriesPlotter:
             else:
                 # Process data to insert gaps for missing timestamps
                 estimated_interval = pd.Timedelta(line["data"].index.to_series().diff().median())
-                processed_data = self._insert_gaps_for_missing_timestamps(
-                    line["data"], estimated_interval
-                )
+                processed_data = self._insert_gaps_for_missing_timestamps(line["data"], estimated_interval)
                 x_data = processed_data.index
                 y_data = processed_data
 
@@ -532,8 +522,7 @@ class ForecastTimeSeriesPlotter:
                 # Process data to insert gaps for missing timestamps
                 measurements_data = cast(pd.Series, self.measurements.data.squeeze())
                 processed_data = self._insert_gaps_for_missing_timestamps(
-                    measurements_data,
-                    pd.Timedelta(self.measurements.sample_interval)
+                    measurements_data, pd.Timedelta(self.measurements.sample_interval)
                 )
                 x_data = processed_data.index
                 y_data = processed_data
@@ -655,7 +644,7 @@ class ForecastTimeSeriesPlotter:
         if not mask.any():
             return  # No valid data
 
-        # Find start and end indices of continuous segments 
+        # Find start and end indices of continuous segments
         # diff() finds transitions: True->False (-1) and False->True (1)
         mask_array = mask.to_numpy()
         transitions = np.diff(np.concatenate(([False], mask_array, [False])).astype(int))
@@ -665,8 +654,8 @@ class ForecastTimeSeriesPlotter:
 
         # Create separate polygon for each continuous segment
         for seg_idx, (start, end) in enumerate(segments):  # type: ignore[misc]
-            lower_segment = band["lower_data"].iloc[start:end + 1]
-            upper_segment = band["upper_data"].iloc[start:end + 1]
+            lower_segment = band["lower_data"].iloc[start : end + 1]
+            upper_segment = band["upper_data"].iloc[start : end + 1]
 
             # Create polygon for this segment
             index_list = lower_segment.index.to_list()
