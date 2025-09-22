@@ -2,6 +2,12 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+"""Multi-horizon transform adapter for time series data.
+
+Provides utilities for applying single-horizon transforms to multi-horizon
+datasets, including concatenation and adaptation mechanisms.
+"""
+
 from typing import Self, override
 
 import pandas as pd

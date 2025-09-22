@@ -18,8 +18,7 @@ from openstef_core.base_model import BaseModel
 from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesDataset
 from openstef_core.datasets.validated_datasets import ForecastDataset
 from openstef_core.exceptions import NotFittedError
-from openstef_models.mixins.callbacks import PredictorCallback
-from openstef_models.mixins.model_storage import ModelIdentifier, ModelStorage
+from openstef_models.mixins import ModelIdentifier, ModelStorage, PredictorCallback
 from openstef_models.models.forecasting_model import ForecastingModel
 
 
@@ -75,7 +74,6 @@ class ForecastingWorkflow(BaseModel):
         ...     ConstantMedianForecaster, ConstantMedianForecasterConfig
         ... )
         >>> from openstef_models.models.forecasting_model import ForecastingModel
-        >>> from openstef_models.mixins import ForecastingCallback
         >>> from openstef_models.transforms import FeatureEngineeringPipeline
         >>>
         >>> # Create sample data

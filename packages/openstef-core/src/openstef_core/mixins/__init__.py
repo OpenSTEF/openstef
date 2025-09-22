@@ -2,6 +2,13 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+"""Core mixins for building reusable components.
+
+This package provides fundamental mixin classes that enable common patterns
+across the OpenSTEF codebase, including prediction interfaces, state management,
+and data transformation pipelines.
+"""
+
 from .predictor import BatchPredictor, BatchResult, HyperParams, Predictor
 from .stateful import State, Stateful
 from .transform import Transform, TransformPipeline

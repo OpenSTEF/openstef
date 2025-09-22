@@ -138,6 +138,21 @@ class FeatureEngineeringPipeline(
         horizon_transforms: Sequence[TimeSeriesTransform | MultiHorizonTimeSeriesTransform] | None = None,
         horizons: list[LeadTime] | None = None,
     ) -> Self:
+        """Create a feature engineering pipeline with specified transforms.
+
+        Factory method to construct a pipeline with versioned and horizon-specific
+        transforms. Automatically adapts single-horizon transforms to multi-horizon
+        format when needed.
+
+        Args:
+            versioned_transforms: Transforms that operate on versioned time series data.
+            horizon_transforms: Transforms that operate on horizon-specific data.
+                Single-horizon transforms are automatically adapted to multi-horizon.
+            horizons: Forecast horizons for the pipeline. Defaults to 36 hours.
+
+        Returns:
+            Configured feature engineering pipeline instance.
+        """
         return cls(
             horizons=horizons or [LeadTime.from_string("PT36H")],
             versioned_pipeline=TransformPipeline(transforms=versioned_transforms or []),
