@@ -8,7 +8,7 @@ The transform computes wind speed at hub height and wind power output
 based on wind speed data from measurements, forecasts, or model outputs.
 """
 
-from typing import override
+from typing import Self, override
 
 import numpy as np
 import pandas as pd
@@ -16,8 +16,9 @@ from pydantic import Field
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.datasets.transforms import TimeSeriesTransform
 from openstef_core.exceptions import MissingColumnsError
+from openstef_core.mixins.stateful import State
+from openstef_core.transforms import TimeSeriesTransform
 
 
 class WindPowerTransform(BaseConfig, TimeSeriesTransform):
@@ -121,3 +122,11 @@ class WindPowerTransform(BaseConfig, TimeSeriesTransform):
             features["wind_power"] = self._calculate_wind_power(data.data[self.windspeed_hub_height_column])
 
         return TimeSeriesDataset(data=pd.concat([data.data, features], axis=1), sample_interval=data.sample_interval)
+
+    @override
+    def to_state(self) -> State:
+        return self.model_dump(mode="json")
+
+    @override
+    def from_state(self, state: State) -> Self:
+        return self.model_validate(state)

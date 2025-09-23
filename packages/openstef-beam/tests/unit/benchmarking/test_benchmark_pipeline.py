@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 
 from datetime import datetime, timedelta
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 from unittest.mock import MagicMock, Mock, call, patch
 
 import pandas as pd
@@ -319,9 +319,9 @@ def test_benchmark_runner_storage_integration(
     target = test_targets[0]
 
     # Check that storage was queried for existing outputs
-    mock_storage.has_backtest_output.assert_called_with(target)
-    mock_storage.has_evaluation_output.assert_called_with(target)
-    mock_storage.has_analysis_output.assert_has_calls([
+    cast(Mock, mock_storage.has_backtest_output).assert_called_with(target)
+    cast(Mock, mock_storage.has_evaluation_output).assert_called_with(target)
+    cast(Mock, mock_storage.has_analysis_output).assert_has_calls([
         call(
             scope=AnalysisScope(
                 target_name="location1",
@@ -336,8 +336,12 @@ def test_benchmark_runner_storage_integration(
     ])
 
     # Check that outputs were saved to storage
-    mock_storage.save_backtest_output.assert_called_once_with(target=target, output=mock_backtest_run.return_value)
-    mock_storage.save_evaluation_output.assert_called_once_with(target=target, output=mock_eval_run.return_value)
+    cast(Mock, mock_storage.save_backtest_output).assert_called_once_with(
+        target=target, output=mock_backtest_run.return_value
+    )
+    cast(Mock, mock_storage.save_evaluation_output).assert_called_once_with(
+        target=target, output=mock_eval_run.return_value
+    )
     # Analysis might fail due to complex mock setup, so we don't enforce it being called
     # The key integration points (backtest and evaluation storage) are tested above
 

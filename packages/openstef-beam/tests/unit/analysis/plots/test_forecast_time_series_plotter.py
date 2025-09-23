@@ -4,11 +4,13 @@
 
 from typing import cast
 
+import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import pytest
 
 from openstef_beam.analysis.plots import ForecastTimeSeriesPlotter
+from openstef_beam.analysis.plots.forecast_time_series_plotter import BandData, QuantilePolygonStyle
 from openstef_core.datasets import TimeSeriesDataset
 
 
@@ -180,7 +182,7 @@ def test_plot_with_only_measurements():
     # Assert
     assert isinstance(fig, go.Figure)
     # Should have one trace for the measurements
-    assert len(fig.data) == 1
+    assert len(fig.data) == 1  # pyright: ignore[reportArgumentType, reportUnknownMemberType]
 
 
 def test_plot_with_forecasts_and_no_quantiles():
@@ -206,7 +208,7 @@ def test_plot_with_forecasts_and_no_quantiles():
 
     # Assert
     # Should have two traces, one for each forecast
-    assert len(fig.data) == 2
+    assert len(fig.data) == 2  # pyright: ignore[reportArgumentType, reportUnknownMemberType]
 
 
 def test_plot_with_measurements_and_forecasts():
@@ -230,7 +232,7 @@ def test_plot_with_measurements_and_forecasts():
 
     # Assert
     # Should have two traces: measurements and forecast
-    assert len(fig.data) == 2
+    assert len(fig.data) == 2  # pyright: ignore[reportArgumentType, reportUnknownMemberType]
 
 
 def test_plot_with_forecasts_and_quantiles():
@@ -305,7 +307,7 @@ def test_plot_with_measurements_forecasts_and_quantiles_multiple_models():
 
     # Assert
     # 1 measurement trace, 2 forecast traces, 2*2 quantile traces (one band per model, each band = 2 traces)
-    assert len(fig.data) == 7
+    assert len(fig.data) == 7  # pyright: ignore[reportArgumentType, reportUnknownMemberType]
 
 
 def test_custom_title():
@@ -344,7 +346,184 @@ def test_plot_with_only_quantiles_includes_50th():
 
     # Assert
     # Should have quantile bands (2 traces for 10/90) plus 50th quantile line (1 trace): total 3
-    assert len(fig.data) == 3
-    names: list[str] = [trace.name for trace in fig.data]
+    assert len(fig.data) == 3  # pyright: ignore[reportArgumentType, reportUnknownMemberType]
+    names: list[str] = [trace.name for trace in fig.data]  # pyright: ignore[reportUnknownVariableType, reportAttributeAccessIssue, reportUnknownMemberType]
     assert any("Quantile (50th)" in n for n in names)
     assert any("10%-90%" in n for n in names)
+
+
+@pytest.mark.parametrize("connect_gaps", [True, False])
+def test_insert_gaps_for_missing_timestamps(connect_gaps: bool):
+    """Test the _insert_gaps_for_missing_timestamps method."""
+    # Arrange
+    plotter = ForecastTimeSeriesPlotter(connect_gaps=connect_gaps)
+
+    # Create example time series with gaps
+    dates_with_gaps = pd.to_datetime([
+        "2024-01-01 10:00:00",
+        "2024-01-01 11:00:00",
+        "2024-01-01 13:00:00",
+        "2024-01-01 14:00:00",
+        "2024-01-01 18:00:00",
+        "2024-01-01 19:00:00",
+    ])
+    original_series = pd.Series([10, 20, 30, 40, 50, 60], index=dates_with_gaps)
+    sample_interval = pd.Timedelta("1h")
+
+    # Act
+    result = plotter._insert_gaps_for_missing_timestamps(original_series, sample_interval)
+
+    # Assert
+    if connect_gaps:
+        # connect_gaps=True should return unchanged series
+        pd.testing.assert_series_equal(result, original_series)
+    else:
+        # connect_gaps=False should have filled in missing timestamps with NaN
+        expected_index = pd.date_range(start="2024-01-01 10:00:00", end="2024-01-01 19:00:00", freq="1h")
+        expected_values = [10, 20, np.nan, 30, 40, np.nan, np.nan, np.nan, 50, 60]
+        expected_series = pd.Series(expected_values, index=expected_index)
+
+        pd.testing.assert_series_equal(result, expected_series)
+
+
+def test_add_segmented_quantile_polygons():
+    """Test the _add_segmented_quantile_polygons method directly."""
+    # Arrange
+    plotter = ForecastTimeSeriesPlotter(connect_gaps=False)
+    figure = go.Figure()
+
+    # Create example indices
+    complete_index = pd.date_range(start="2024-01-01 10:00:00", end="2024-01-01 18:00:00", freq="1h")
+
+    # Create data with explicit NaN values for gaps
+    lower_values = [5, 10, 15, np.nan, np.nan, 20, 25, np.nan, 30]
+    upper_values = [15, 25, 35, np.nan, np.nan, 45, 55, np.nan, 65]
+
+    lower_quantile_data = pd.Series(lower_values, index=complete_index)
+    upper_quantile_data = pd.Series(upper_values, index=complete_index)
+
+    band = BandData(
+        model_name="TestModel",
+        model_index=0,
+        lower_quantile=10,
+        upper_quantile=90,
+        lower_data=lower_quantile_data,
+        upper_data=upper_quantile_data,
+    )
+
+    style = QuantilePolygonStyle(
+        fill_color="rgb(0, 0, 255)",
+        stroke_color="rgb(0, 0, 200)",
+        legendgroup="test_group",
+    )
+
+    # Act
+    plotter._add_segmented_quantile_polygons(figure, band, style)
+
+    # Assert
+    polygon_traces = [trace for trace in figure.data if hasattr(trace, "fill") and trace.fill == "toself"]
+
+    # Should create 3 separate polygon traces for the 3 continuous segments
+    assert len(polygon_traces) == 3, f"Expected 3 polygon segments, got {len(polygon_traces)}"
+
+    # Verify each segment has correct structure with different lengths: 3, 2, 1 points
+    expected_lengths = [6, 4, 2]  # 3-point, 2-point, 1-point segments -> 6, 4, 2 polygon coordinates
+    for i, polygon_trace in enumerate(polygon_traces):
+        # Each segment polygon should have: n_points * 2 coordinates (lower + upper reversed)
+        assert len(polygon_trace.x) == expected_lengths[i], (
+            f"Segment {i} should have {expected_lengths[i]} x-coordinates, got {len(polygon_trace.x)}"
+        )
+        assert len(polygon_trace.y) == expected_lengths[i], (
+            f"Segment {i} should have {expected_lengths[i]} y-coordinates, got {len(polygon_trace.y)}"
+        )
+
+    # Verify segment coordinates match expected continuous data ranges
+    expected_segments = [
+        {
+            "x_times": ["2024-01-01 10:00:00", "2024-01-01 11:00:00", "2024-01-01 12:00:00"],
+            "y_lower": [5, 10, 15],
+            "y_upper": [15, 25, 35],
+        },
+        {"x_times": ["2024-01-01 15:00:00", "2024-01-01 16:00:00"], "y_lower": [20, 25], "y_upper": [45, 55]},
+        {"x_times": ["2024-01-01 18:00:00"], "y_lower": [30], "y_upper": [65]},
+    ]
+
+    for i, (polygon_trace, expected) in enumerate(zip(polygon_traces, expected_segments, strict=True)):
+        # Convert expected times to pandas timestamps for comparison
+        expected_x = [pd.Timestamp(t) for t in expected["x_times"]]
+
+        # Polygon should have: [x1, x2, ...] + [x_n, ..., x1] (lower forward + upper backward)
+        expected_polygon_x = expected_x + expected_x[::-1]
+        expected_polygon_y = expected["y_lower"] + expected["y_upper"][::-1]
+
+        assert list(polygon_trace.x) == expected_polygon_x, f"Segment {i} x-coordinates mismatch"
+        assert list(polygon_trace.y) == expected_polygon_y, f"Segment {i} y-coordinates mismatch"
+
+
+@pytest.mark.parametrize("connect_gaps", [True, False])
+def test_add_quantile_band(connect_gaps: bool):
+    """Test the _add_quantile_band method with both connect_gaps modes."""
+    # Arrange
+    plotter = ForecastTimeSeriesPlotter(connect_gaps=connect_gaps)
+    figure = go.Figure()
+
+    # Create example quantile data with gaps
+    dates_with_gaps = pd.to_datetime([
+        "2024-01-01 10:00:00",
+        "2024-01-01 11:00:00",
+        "2024-01-01 13:00:00",
+        "2024-01-01 14:00:00",
+        "2024-01-01 18:00:00",
+        "2024-01-01 19:00:00",
+    ])
+
+    lower_quantile_data = pd.Series([5, 10, 15, 20, 25, 30], index=dates_with_gaps)
+    upper_quantile_data = pd.Series([15, 25, 35, 45, 55, 65], index=dates_with_gaps)
+
+    # Act
+    plotter._add_quantile_band(
+        figure=figure,
+        lower_quantile_data=lower_quantile_data,
+        lower_quantile=10.0,
+        upper_quantile_data=upper_quantile_data,
+        upper_quantile=90.0,
+        model_name="TestModel",
+        model_index=0,
+    )
+
+    # Assert
+    # Should have added traces to the figure
+    assert len(figure.data) > 0  # type: ignore[attr-defined]
+
+    # Get polygon traces (filled areas)
+    polygon_traces = [trace for trace in figure.data if hasattr(trace, "fill") and trace.fill == "toself"]
+
+    if connect_gaps:
+        # connect_gaps=True: Should create exactly ONE polygon trace covering all data points
+        assert len(polygon_traces) == 1
+
+        polygon_trace = polygon_traces[0]
+
+        # The single polygon should have 12 points: 6 lower + 6 upper (reversed)
+        assert len(polygon_trace.x) == 12
+        assert len(polygon_trace.y) == 12
+
+    else:
+        # connect_gaps=False: Should create MULTIPLE polygon traces (one per continuous segment)
+        # With our gap data, we expect 3 segments: [10:00-11:00], [13:00-14:00], [18:00-19:00]
+        assert len(polygon_traces) == 3, (
+            f"Expected 3 polygon segments for connect_gaps=False, got {len(polygon_traces)}"
+        )
+
+        # Each segment polygon should have 4 points: 2 lower + 2 upper
+        for polygon_trace in polygon_traces:
+            assert len(polygon_trace.x) == 4
+            assert len(polygon_trace.y) == 4
+
+    # Both modes should have a hover trace for quantile information
+    hover_traces = [
+        trace
+        for trace in figure.data
+        if hasattr(trace, "showlegend") and not trace.showlegend and getattr(trace, "fill", None) is None
+    ]
+    assert len(hover_traces) >= 1

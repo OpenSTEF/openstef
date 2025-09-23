@@ -20,6 +20,7 @@ from typing import Self, cast
 import pandas as pd
 
 from openstef_core.datasets.mixins import TimeSeriesMixin
+from openstef_core.types import LeadTime
 from openstef_core.utils import timedelta_from_isoformat, timedelta_to_isoformat
 
 _logger = logging.getLogger(__name__)
@@ -175,4 +176,7 @@ class TimeSeriesDataset(TimeSeriesMixin):
         )
 
 
-__all__ = ["TimeSeriesDataset"]
+type MultiHorizonTimeSeriesDataset = dict[LeadTime, TimeSeriesDataset]
+
+
+__all__ = ["MultiHorizonTimeSeriesDataset", "TimeSeriesDataset"]

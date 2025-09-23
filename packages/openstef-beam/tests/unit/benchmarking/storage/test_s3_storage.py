@@ -46,7 +46,7 @@ def s3_setup(moto_server: str) -> tuple[s3fs.S3FileSystem, str]:
     # Arrange
     fs = s3fs.S3FileSystem(client_kwargs={"endpoint_url": moto_server}, key="testing", secret="testing")  # noqa: S106 - Not a real secret
     bucket_name = f"test-bucket-{uuid.uuid4().hex[:8]}"
-    fs.makedirs(bucket_name, exist_ok=True)
+    fs.makedirs(bucket_name, exist_ok=True)  # pyright: ignore[reportUnknownMemberType]
     return fs, bucket_name
 
 
@@ -190,16 +190,16 @@ def test_s3_upload_on_save(
     # Assert
     if operation == "predictions":
         s3_path = f"{bucket_name}/test-prefix/backtest/default/test_target/predictions.parquet"
-        assert fs.exists(s3_path)
+        assert fs.exists(s3_path)  # pyright: ignore[reportUnknownMemberType]
         # Verify content
-        with fs.open(s3_path, "rb") as f:
-            uploaded_data = pd.read_parquet(f)
+        with fs.open(s3_path, "rb") as f:  # pyright: ignore[reportUnknownMemberType]
+            uploaded_data = pd.read_parquet(f)  # pyright: ignore[reportArgumentType]
         local_path = local_storage.get_predictions_path_for_target(target)
         local_data = pd.read_parquet(local_path)
         pd.testing.assert_frame_equal(uploaded_data, local_data)
     else:
         s3_path = f"{bucket_name}/test-prefix/evaluation/default/test_target"
-        assert fs.exists(s3_path)
+        assert fs.exists(s3_path)  # pyright: ignore[reportUnknownMemberType]
 
 
 def test_save_evaluation_output_uploads_to_s3(
@@ -225,7 +225,7 @@ def test_save_evaluation_output_uploads_to_s3(
     # Assert
     # Check that evaluation file was uploaded to S3
     s3_path = f"{bucket_name}/test-prefix/evaluation/default/test_target"
-    assert fs.exists(s3_path), f"Evaluation file not found at {s3_path}"
+    assert fs.exists(s3_path), f"Evaluation file not found at {s3_path}"  # pyright: ignore[reportUnknownMemberType]
 
     # Verify content integrity by checking local file was created
     local_path = local_storage.get_evaluations_path_for_target(target)
@@ -258,8 +258,8 @@ def test_missing_local_files_handling(
     )
 
     # Assert - no files should be uploaded to S3
-    objects = list(fs.ls(f"{bucket_name}/", detail=False))
-    assert len(objects) == 0
+    objects = list(fs.ls(f"{bucket_name}/", detail=False))  # pyright: ignore[reportUnknownVariableType, reportUnknownArgumentType, reportUnknownMemberType]
+    assert len(objects) == 0  # pyright: ignore[reportUnknownArgumentType]
 
 
 def test_load_operations_delegate_to_local_storage(

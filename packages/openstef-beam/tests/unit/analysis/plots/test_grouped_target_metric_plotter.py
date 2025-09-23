@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+from typing import Any, cast
+
 import plotly.graph_objects as go
 import pytest
 
@@ -72,9 +74,9 @@ def test_plot_creates_correct_figure_type(use_target_groups: bool, expected_plot
     # Assert
     assert isinstance(fig, go.Figure)
     if expected_plot_type == "bar":
-        assert any(trace.type == "bar" for trace in fig.data)
+        assert any(trace.type == "bar" for trace in cast(Any, fig.data))  # pyright: ignore[reportUnknownMemberType]
     elif expected_plot_type == "box":
-        assert any(trace.type == "box" for trace in fig.data)
+        assert any(trace.type == "box" for trace in cast(Any, fig.data))  # pyright: ignore[reportUnknownMemberType]
 
 
 def test_plot_with_multiple_models():
@@ -88,7 +90,7 @@ def test_plot_with_multiple_models():
 
     # Assert
     assert isinstance(fig, go.Figure)
-    assert len(fig.data) == 2  # Two traces for two models
+    assert len(fig.data) == 2  # pyright: ignore[reportArgumentType, reportUnknownMemberType] # Two traces for two models
 
 
 def test_plot_with_no_data():

@@ -9,16 +9,17 @@ import pandas as pd
 import pytest
 
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
+from openstef_core.mixins import State
 from openstef_core.types import LeadTime, Quantile
-from openstef_models.models.forecasting.mixins import BaseHorizonForecaster, HorizonForecasterConfig, ModelState
-from openstef_models.models.forecasting.multi_horizon_adapter import (
+from openstef_models.models.forecasting import HorizonForecaster, HorizonForecasterConfig
+from openstef_models.models.forecasting.multi_horizon_forecaster_adapter import (
     MultiHorizonForecasterAdapter,
     MultiHorizonForecasterConfig,
     combine_horizon_forecasts,
 )
 
 
-class PredictableConstantForecaster(BaseHorizonForecaster):
+class PredictableConstantForecaster(HorizonForecaster):
     """Always predicts constant 110.0 after fitting. Minimal test implementation.
 
     Behavior:
@@ -44,59 +45,45 @@ class PredictableConstantForecaster(BaseHorizonForecaster):
         return self._is_fitted
 
     @override
-    def get_state(self) -> ModelState:
+    def to_state(self) -> State:
         return self  # Lazy: just return self for testing
 
-    @classmethod
     @override
-    def from_state(cls, state: ModelState) -> Self:
+    def from_state(self, state: State) -> Self:
         return cast(Self, state)
 
     @override
-    def fit_horizon(self, input_data: ForecastInputDataset) -> None:
+    def fit(self, data: ForecastInputDataset, data_val: ForecastInputDataset | None = None) -> None:
         # Learn from first data point: fitted_constant = first_target_value * 1.1
         # Use the target column from the input dataset when available, otherwise
         # fall back to the first column. We know the test data contains numeric
         # values, so this is safe for predictable testing.
-        if input_data.target_column and input_data.target_column in input_data.data.columns:
-            series = input_data.data[input_data.target_column]
+        if data.target_column and data.target_column in data.data.columns:
+            series = data.data[data.target_column]
         else:
-            series = input_data.data.iloc[:, 0]
+            series = data.data.iloc[:, 0]
         first_value = float(series.iloc[0])
         self._fitted_constant = first_value * 1.1
         self._is_fitted = True
 
     @override
-    def predict_horizon(self, input_data: ForecastInputDataset) -> ForecastDataset:
+    def predict(self, data: ForecastInputDataset) -> ForecastDataset:
         if not self._is_fitted:
             raise RuntimeError("Model not fitted")
 
         return ForecastDataset(
             data=pd.DataFrame(
                 data={quantile.format(): self._fitted_constant for quantile in self.config.quantiles},
-                index=input_data.index,
+                index=data.index,
             ),
-            sample_interval=input_data.sample_interval,
-            forecast_start=input_data.forecast_start,
+            sample_interval=data.sample_interval,
+            forecast_start=data.forecast_start,
         )
 
 
-class DummyMultiHorizonForecaster(
-    MultiHorizonForecasterAdapter[HorizonForecasterConfig, PredictableConstantForecaster]
-):
-    """Test implementation of MultiHorizonForecasterAdapter."""
-
-    @classmethod
-    @override
-    def get_forecaster_type(cls) -> type[PredictableConstantForecaster]:
-        return PredictableConstantForecaster
-
-    @classmethod
-    @override
-    def create_forecaster(cls, config: HorizonForecasterConfig) -> PredictableConstantForecaster:
-        # Use different initial values based on horizon for distinguishable results
-        initial_value = 100.0 + config.horizons[0].value.total_seconds() / 3600  # 100 + hours
-        return PredictableConstantForecaster(config=config, initial_value=initial_value)
+def model_factory(config: HorizonForecasterConfig) -> PredictableConstantForecaster:
+    initial_value = 100.0 + config.horizons[0].value.total_seconds() / 3600  # 100 + hours
+    return PredictableConstantForecaster(config=config, initial_value=initial_value)
 
 
 # Fixtures for tests
@@ -142,10 +129,9 @@ def test_multi_horizon_forecaster__create_and_workflow(
 ):
     """Test creating MultiHorizonForecasterAdapter and complete fit-predict workflow with exact value validation."""
     # Arrange
-    forecaster = DummyMultiHorizonForecaster.create(sample_multi_horizon_config)
+    forecaster = MultiHorizonForecasterAdapter.create(config=sample_multi_horizon_config, model_factory=model_factory)
 
     # Assert initial state
-    assert isinstance(forecaster, DummyMultiHorizonForecaster)
     assert len(forecaster._horizon_forecasters) == 2
     assert LeadTime(timedelta(hours=3)) in forecaster._horizon_forecasters
     assert LeadTime(timedelta(hours=6)) in forecaster._horizon_forecasters
@@ -178,7 +164,9 @@ def test_multi_horizon_forecaster__state_serialize_restore(
 ):
     """Test state serialization preserves learned behavior across different input data."""
     # Arrange - create and train original forecaster
-    original_forecaster = DummyMultiHorizonForecaster.create(sample_multi_horizon_config)
+    original_forecaster = MultiHorizonForecasterAdapter.create(
+        config=sample_multi_horizon_config, model_factory=model_factory
+    )
     original_forecaster.fit(sample_input_data)
 
     # Create different input data to test serialization meaningfully
@@ -202,8 +190,11 @@ def test_multi_horizon_forecaster__state_serialize_restore(
     }
 
     # Act
-    state = original_forecaster.get_state()
-    restored_forecaster = DummyMultiHorizonForecaster.from_state(state)
+    state = original_forecaster.to_state()
+    restored_forecaster = MultiHorizonForecasterAdapter.create(
+        config=sample_multi_horizon_config, model_factory=model_factory
+    )
+    restored_forecaster = restored_forecaster.from_state(state)
 
     # Compare predictions on new data to verify state restoration
     original_result = original_forecaster.predict(different_data)
@@ -221,7 +212,7 @@ def test_multi_horizon_forecaster__predict_not_fitted_raises_error(
 ):
     """Test that predicting without fitting raises error."""
     # Arrange
-    forecaster = DummyMultiHorizonForecaster.create(sample_multi_horizon_config)
+    forecaster = MultiHorizonForecasterAdapter.create(config=sample_multi_horizon_config, model_factory=model_factory)
 
     # Act & Assert
     with pytest.raises(RuntimeError, match="Model not fitted"):

@@ -8,7 +8,7 @@ The transform computes saturation vapour pressure, vapour pressure, dewpoint, an
 based on temperature, pressure, and relative humidity columns using established physical equations.
 """
 
-from typing import Any, Literal, override
+from typing import Any, Literal, Self, override
 
 import numpy as np
 import pandas as pd
@@ -16,8 +16,9 @@ from pydantic import Field
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.datasets.transforms import TimeSeriesTransform
 from openstef_core.exceptions import MissingColumnsError
+from openstef_core.mixins import State
+from openstef_core.transforms import TimeSeriesTransform
 
 type AirRelatedFeatureName = Literal["saturation_vapour_pressure", "vapour_pressure", "dewpoint", "air_density"]
 
@@ -190,3 +191,11 @@ class AtmosphereDerivedFeaturesTransform(BaseConfig, TimeSeriesTransform):
         return TimeSeriesDataset(
             data=pd.concat([data.data, atmosphere_derived_features], axis=1), sample_interval=data.sample_interval
         )
+
+    @override
+    def to_state(self) -> State:
+        return self.model_dump(mode="json")
+
+    @override
+    def from_state(self, state: State) -> Self:
+        return self.model_validate(state)

@@ -10,15 +10,16 @@ forecasting where temporal dependencies matter but data availability varies.
 """
 
 from datetime import timedelta
-from typing import override
+from typing import Self, override
 
 from pydantic import Field
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import VersionedTimeSeriesPart
-from openstef_core.datasets.transforms import VersionedTimeSeriesTransform
 from openstef_core.datasets.versioned_timeseries.dataset import VersionedTimeSeriesDataset
 from openstef_core.exceptions import MissingColumnsError
+from openstef_core.mixins import State
+from openstef_core.transforms import VersionedTimeSeriesTransform
 from openstef_core.utils import timedelta_to_isoformat
 
 
@@ -96,6 +97,15 @@ class VersionedLagTransform(BaseConfig, VersionedTimeSeriesTransform):
         min_length=1,
     )
 
+    @property
+    @override
+    def is_fitted(self) -> bool:
+        return True  # Stateless transform, always considered fitted
+
+    @override
+    def fit(self, data: VersionedTimeSeriesDataset) -> None:
+        pass
+
     @override
     def transform(self, data: VersionedTimeSeriesDataset) -> VersionedTimeSeriesDataset:
         if self.column not in data.feature_names:
@@ -112,6 +122,14 @@ class VersionedLagTransform(BaseConfig, VersionedTimeSeriesTransform):
                 *lag_parts,
             ]
         )
+
+    @override
+    def to_state(self) -> State:
+        return self.model_dump(mode="json")
+
+    @override
+    def from_state(self, state: State) -> Self:
+        return self.model_validate(state)
 
 
 def _transform_to_lag(data: VersionedTimeSeriesPart, column: str, lag: timedelta) -> VersionedTimeSeriesPart:

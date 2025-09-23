@@ -18,21 +18,15 @@ Implementations:
     - multi_horizon_adapter: Adapter pattern for converting single to multi-horizon forecasters
 """
 
-from openstef_models.models.forecasting import constant_median_forecaster, multi_horizon_adapter
-from openstef_models.models.forecasting.mixins import (
-    BaseForecaster,
-    BaseHorizonForecaster,
-    ForecasterConfig,
-    ForecasterHyperParams,
-    HorizonForecasterConfig,
-)
+from openstef_models.models.forecasting import constant_median_forecaster, multi_horizon_forecaster_adapter
+
+from .forecaster import Forecaster, ForecasterConfig, HorizonForecaster, HorizonForecasterConfig
 
 __all__ = [
-    "BaseForecaster",
-    "BaseHorizonForecaster",
+    "Forecaster",
     "ForecasterConfig",
-    "ForecasterHyperParams",
+    "HorizonForecaster",
     "HorizonForecasterConfig",
     "constant_median_forecaster",
-    "multi_horizon_adapter",
+    "multi_horizon_forecaster_adapter",
 ]

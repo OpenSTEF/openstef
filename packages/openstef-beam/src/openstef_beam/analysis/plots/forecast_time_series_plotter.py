@@ -47,6 +47,14 @@ class BandData(TypedDict):
     upper_data: pd.Series
 
 
+class QuantilePolygonStyle(TypedDict):
+    """TypedDict for storing quantile polygon styling parameters."""
+
+    fill_color: str
+    stroke_color: str
+    legendgroup: str
+
+
 class ForecastTimeSeriesPlotter:
     """Creates interactive time series charts comparing forecasts, measurements, and uncertainty bands.
 
@@ -109,11 +117,43 @@ class ForecastTimeSeriesPlotter:
     stroke_opacity: float = 0.8
     stroke_width: float = 1.5
 
-    def __init__(self):
-        """Initialize the ForecastTimeSeriesPlotter."""
+    def __init__(self, *, connect_gaps: bool = True):
+        """Initialize the ForecastTimeSeriesPlotter.
+
+        Args:
+            connect_gaps: If True, connects data points across missing timestamps with lines.
+                If False, leaves gaps where data is missing (no interpolation).
+        """
         self.measurements: TimeSeriesDataset | None = None
         self.models_data: list[ModelData] = []
         self.limits: list[dict[str, Any]] = []
+        self.connect_gaps = connect_gaps
+
+    def _insert_gaps_for_missing_timestamps(self, series: pd.Series, sample_interval: pd.Timedelta) -> pd.Series:
+        """Insert NaN values where there are temporal gaps larger than the expected sample interval.
+
+        This ensures that connectgaps=False works properly by creating actual NaN values
+        for missing timestamps, rather than just having missing timestamps.
+
+        Args:
+            series: The time series data
+            sample_interval: Expected interval between consecutive samples
+
+        Returns:
+            Series with NaN values inserted at gap locations
+        """
+        if self.connect_gaps:
+            return series
+
+        # Create a complete time index from start to end with the expected frequency
+        start_time = cast(pd.Timestamp, series.index[0])
+        end_time = cast(pd.Timestamp, series.index[-1])
+
+        # Create complete index with the sample interval
+        complete_index = pd.date_range(start=start_time, end=end_time, freq=sample_interval)
+
+        # Reindex the series to the complete index, automatically filling missing values with NaN
+        return series.reindex(complete_index)
 
     def add_measurements(self, measurements: TimeSeriesDataset) -> "ForecastTimeSeriesPlotter":
         """Add measurements (realized values) to the plot.
@@ -260,50 +300,71 @@ class ForecastTimeSeriesPlotter:
             model_name (str): The name of the model for which the quantile band is being added.
             model_index (int): The index of the model in the models_data list.
         """
-        # Create polygon shape for the quantile band in counterclockwise order
-        lower_quantile_index_list = lower_quantile_data.index.to_list()
-        upper_quantile_index_list = upper_quantile_data.index.to_list()
-        x = lower_quantile_index_list + upper_quantile_index_list[::-1]
-        y = list(lower_quantile_data) + list(upper_quantile_data[::-1])
-
-        # Get colors for the band
+        # Get colors and legendgroup
         colormap = self.colormaps[model_index % len(self.colormaps)]
         fill_color, stroke_color = self._get_quantile_colors(lower_quantile, colormap)
-
-        # Group traces by quantile range
         legendgroup = f"{model_name}_quantile_{lower_quantile}_{upper_quantile}"
 
-        # Add a single trace that forms a filled polygon
-        figure.add_trace(  # type: ignore[reportUnknownMemberType]
-            go.Scatter(
-                x=x,
-                y=y,
-                fill="toself",
-                fillcolor=f"rgba{fill_color[3:-1]}, {self.fill_opacity})",
-                line={
-                    "color": f"rgba{stroke_color[3:-1]}, {self.stroke_opacity})",
-                    "width": self.stroke_width,
-                },
-                name=f"{model_name} {lower_quantile}%-{upper_quantile}%",
-                showlegend=True,
-                hoverinfo="skip",
+        if self.connect_gaps:
+            # Original behavior - create single polygon from raw data
+            band = BandData(
+                model_name=model_name,
+                model_index=model_index,
+                lower_quantile=int(lower_quantile),
+                upper_quantile=int(upper_quantile),
+                lower_data=lower_quantile_data,
+                upper_data=upper_quantile_data,
+            )
+            style = QuantilePolygonStyle(
+                fill_color=fill_color,
+                stroke_color=stroke_color,
                 legendgroup=legendgroup,
             )
-        )
+            self._add_single_quantile_polygon(figure, band, style)
+            # Use raw data for hover
+            processed_lower_data = lower_quantile_data
+            processed_upper_data = upper_quantile_data
+        else:
+            # Process data to insert gaps, then create segmented polygons
+            if len(lower_quantile_data) > 1:
+                estimated_interval = pd.Timedelta(lower_quantile_data.index.to_series().diff().median())
+                processed_lower_data = self._insert_gaps_for_missing_timestamps(lower_quantile_data, estimated_interval)
+                processed_upper_data = self._insert_gaps_for_missing_timestamps(upper_quantile_data, estimated_interval)
+            else:
+                processed_lower_data = lower_quantile_data
+                processed_upper_data = upper_quantile_data
 
-        # Add an (invisible) line around the filled area to make quantile
-        # values selectable/hover-able.
-        # Hovering on filled area values is not supported by plotly.
+            # Create segmented polygons for each continuous section
+            band = BandData(
+                model_name=model_name,
+                model_index=model_index,
+                lower_quantile=int(lower_quantile),
+                upper_quantile=int(upper_quantile),
+                lower_data=processed_lower_data,
+                upper_data=processed_upper_data,
+            )
+            style = QuantilePolygonStyle(
+                fill_color=fill_color,
+                stroke_color=stroke_color,
+                legendgroup=legendgroup,
+            )
+            self._add_segmented_quantile_polygons(figure, band, style)
+
+        # Add hover line for quantile values
+        x_data = processed_lower_data.index
+        y_lower = processed_lower_data.to_numpy()
+        y_upper = processed_upper_data.to_numpy()
+
         figure.add_trace(  # type: ignore[reportUnknownMemberType]
             go.Scatter(
-                x=lower_quantile_data.index,
-                y=lower_quantile_data.to_numpy(),
+                x=x_data,
+                y=y_lower,
                 mode="lines",
                 line={
                     "width": self.stroke_width,
                     "color": f"rgba{stroke_color[3:-1]}, {self.stroke_opacity})",
                 },
-                customdata=np.column_stack((lower_quantile_data.to_numpy(), upper_quantile_data.to_numpy())),
+                customdata=np.column_stack((y_lower, y_upper)),
                 hovertemplate=(
                     f"{lower_quantile}%: %{{customdata[0]:,.4s}}<br>"
                     f"{upper_quantile}%: %{{customdata[1]:,.4s}}"
@@ -312,6 +373,7 @@ class ForecastTimeSeriesPlotter:
                 name=f"{model_name} {lower_quantile}%-{upper_quantile}% Hover Info",
                 showlegend=False,
                 legendgroup=legendgroup,
+                connectgaps=self.connect_gaps,
             )
         )
 
@@ -424,30 +486,57 @@ class ForecastTimeSeriesPlotter:
                 name = f"{line['model_name']} Quantile (50th)"
                 hover_label = "Quantile (50th)"
 
+            if self.connect_gaps or len(line["data"]) == 1:
+                # Use data as-is (either connect_gaps=True or single data point)
+                x_data = line["data"].index
+                y_data = line["data"]
+            else:
+                # Process data to insert gaps for missing timestamps
+                estimated_interval = pd.Timedelta(line["data"].index.to_series().diff().median())
+                processed_data = self._insert_gaps_for_missing_timestamps(line["data"], estimated_interval)
+                x_data = processed_data.index
+                y_data = processed_data
+
             figure.add_trace(  # type: ignore[reportUnknownMemberType]
                 go.Scatter(
-                    x=line["data"].index,
-                    y=line["data"],
+                    x=x_data,
+                    y=y_data,
                     mode="lines",
                     line={"color": color, "width": self.stroke_width},
                     name=name,
-                    customdata=line["data"].values,
+                    customdata=y_data.values,
                     hovertemplate=f"{hover_label}: %{{customdata:,.4s}}<extra></extra>",
+                    connectgaps=self.connect_gaps,
                 )
             )
 
     def _add_measurements_to_figure(self, figure: go.Figure) -> None:
         """Add measurements to the figure."""
         if self.measurements is not None:
+            if self.connect_gaps:
+                # Original behavior - use data as-is
+                measurements_data = cast(pd.Series, self.measurements.data.squeeze())
+                x_data = measurements_data.index
+                y_data = measurements_data
+            else:
+                # Process data to insert gaps for missing timestamps
+                measurements_data = cast(pd.Series, self.measurements.data.squeeze())
+                processed_data = self._insert_gaps_for_missing_timestamps(
+                    measurements_data, pd.Timedelta(self.measurements.sample_interval)
+                )
+                x_data = processed_data.index
+                y_data = processed_data
+
             figure.add_trace(  # type: ignore[reportUnknownMemberType]
                 go.Scatter(
-                    x=self.measurements.index,
-                    y=self.measurements.data,
+                    x=x_data,
+                    y=y_data,
                     mode="lines",
                     line={"color": "red", "width": self.stroke_width},
-                    customdata=self.measurements.data.values,
+                    customdata=y_data.values,
                     hovertemplate="Realized: %{customdata:,.4s}<extra></extra>",
                     name="Realized",
+                    connectgaps=self.connect_gaps,
                 )
             )
 
@@ -511,6 +600,88 @@ class ForecastTimeSeriesPlotter:
         ForecastTimeSeriesPlotter._configure_figure_layout(figure, title)
 
         return figure
+
+    def _add_single_quantile_polygon(
+        self,
+        figure: go.Figure,
+        band: BandData,
+        style: QuantilePolygonStyle,
+    ) -> None:
+        """Add a single quantile polygon for the original connect_gaps=True behavior."""
+        # Create polygon shape for the quantile band in counterclockwise order
+        index_list = band["lower_data"].index.to_list()
+        x = index_list + index_list[::-1]
+        y = list(band["lower_data"]) + list(band["upper_data"][::-1])
+
+        figure.add_trace(  # type: ignore[reportUnknownMemberType]
+            go.Scatter(
+                x=x,
+                y=y,
+                mode="lines",
+                fill="toself",
+                fillcolor=f"rgba{style['fill_color'][3:-1]}, {self.fill_opacity})",
+                line={
+                    "color": f"rgba{style['stroke_color'][3:-1]}, {self.stroke_opacity})",
+                    "width": self.stroke_width,
+                },
+                name=f"{band['model_name']} {band['lower_quantile']}%-{band['upper_quantile']}%",
+                showlegend=True,
+                hoverinfo="skip",
+                legendgroup=style["legendgroup"],
+            )
+        )
+
+    def _add_segmented_quantile_polygons(
+        self,
+        figure: go.Figure,
+        band: BandData,
+        style: QuantilePolygonStyle,
+    ) -> None:
+        """Add segmented quantile polygons that respect gaps (NaN values)."""
+        # Find continuous segments (non-NaN data)
+        mask = ~(band["lower_data"].isna() | band["upper_data"].isna())
+
+        if not mask.any():
+            return  # No valid data
+
+        # Find start and end indices of continuous segments
+        # diff() finds transitions: True->False (-1) and False->True (1)
+        mask_array = mask.to_numpy()
+        transitions = np.diff(np.concatenate(([False], mask_array, [False])).astype(int))
+        segment_starts = np.where(transitions == 1)[0]  # Where transitions from False to True
+        segment_ends = np.where(transitions == -1)[0] - 1  # Where transitions from True to False
+        segments = list(zip(segment_starts, segment_ends, strict=True))
+
+        # Create separate polygon for each continuous segment
+        for seg_idx, (start, end) in enumerate(segments):  # type: ignore[misc]
+            lower_segment = band["lower_data"].iloc[start : end + 1]
+            upper_segment = band["upper_data"].iloc[start : end + 1]
+
+            # Create polygon for this segment
+            index_list = lower_segment.index.to_list()
+            x = index_list + index_list[::-1]
+            y = list(lower_segment) + list(upper_segment[::-1])
+
+            # Only show legend for the first segment
+            show_legend = seg_idx == 0
+
+            figure.add_trace(  # type: ignore[reportUnknownMemberType]
+                go.Scatter(
+                    x=x,
+                    y=y,
+                    mode="lines",
+                    fill="toself",
+                    fillcolor=f"rgba{style['fill_color'][3:-1]}, {self.fill_opacity})",
+                    line={
+                        "color": f"rgba{style['stroke_color'][3:-1]}, {self.stroke_opacity})",
+                        "width": self.stroke_width,
+                    },
+                    name=f"{band['model_name']} {band['lower_quantile']}%-{band['upper_quantile']}%",
+                    showlegend=show_legend,
+                    hoverinfo="skip",
+                    legendgroup=style["legendgroup"],
+                )
+            )
 
 
 __all__ = ["ForecastTimeSeriesPlotter"]

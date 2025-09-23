@@ -229,6 +229,10 @@ cmd = "uv lock --check"
 help = "Check typing (with pyright)"
 cmd = "pyright tools examples packages/*/src packages/*/examples"
 
+[tool.poe.tasks.type-tests]
+help = "Check typing (with pyright)"
+cmd = "pyright packages/*/tests"
+
 [tool.poe.tasks.tests]
 help = "Run pytest with xdist, marker filtering, and coverage"
 cmd = "pytest --numprocesses=auto ${markers:+ -m $markers} --cov --cov-report=term-missing --cov-report=xml:coverage.xml"
