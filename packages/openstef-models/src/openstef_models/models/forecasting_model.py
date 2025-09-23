@@ -91,17 +91,17 @@ class ForecastingModel(BaseModel, Predictor[VersionedTimeSeriesDataset | TimeSer
 
     def _prepare_input_data(
         self,
-        dataset: VersionedTimeSeriesDataset | TimeSeriesDataset,
+        data: VersionedTimeSeriesDataset | TimeSeriesDataset,
         forecast_start: datetime | None = None,
     ) -> dict[LeadTime, ForecastInputDataset]:
-        input_data = self.preprocessing.transform(data=dataset)
+        input_data = self.preprocessing.transform(data=data)
         return {
             lead_time: ForecastInputDataset.from_timeseries_dataset(
-                dataset=timeseries_dataset,
+                dataset=timeseries_data,
                 target_column=self.target_column,
                 forecast_start=forecast_start,
             )
-            for lead_time, timeseries_dataset in input_data.items()
+            for lead_time, timeseries_data in input_data.items()
         }
 
     @property
@@ -128,8 +128,8 @@ class ForecastingModel(BaseModel, Predictor[VersionedTimeSeriesDataset | TimeSer
         self.preprocessing.fit(data=data)
 
         # Transform the input data to a valid forecast input
-        input_data_train = self._prepare_input_data(dataset=data)
-        input_data_val = self._prepare_input_data(dataset=data_val) if data_val is not None else None
+        input_data_train = self._prepare_input_data(data=data)
+        input_data_val = self._prepare_input_data(data=data_val) if data_val is not None else None
 
         # Fit the model
         if isinstance(self.forecaster, Forecaster):
@@ -165,7 +165,7 @@ class ForecastingModel(BaseModel, Predictor[VersionedTimeSeriesDataset | TimeSer
             raise NotFittedError(type(self.forecaster).__name__)
 
         # Transform the input data to a valid forecast input
-        input_data = self._prepare_input_data(dataset=data, forecast_start=forecast_start)
+        input_data = self._prepare_input_data(data=data, forecast_start=forecast_start)
 
         # Generate predictions
         if isinstance(self.forecaster, Forecaster):
