@@ -129,7 +129,7 @@ class QuantileCalibrationBoxPlotter:
         models_df = pd.concat(model_df_list, ignore_index=True)
 
         # Create the boxplot
-        fig = px.box(
+        fig: go.Figure = px.box(  # type: ignore[reportUnknownMemberType]
             models_df,
             x="Quantile",
             y="Calibration_Error",
@@ -138,7 +138,7 @@ class QuantileCalibrationBoxPlotter:
         )
 
         # Add a horizontal line at y=0 (perfect calibration)
-        fig.add_hline(
+        fig.add_hline(  # type: ignore[reportUnknownMemberType]
             y=0,
             line_dash="dash",
             line_color="black",
@@ -147,7 +147,7 @@ class QuantileCalibrationBoxPlotter:
         )
 
         # Add simple region labels
-        fig.add_annotation(
+        fig.add_annotation(  # type: ignore[reportUnknownMemberType]
             x=1,
             y=1,
             xref="paper",
@@ -159,7 +159,7 @@ class QuantileCalibrationBoxPlotter:
             yanchor="top",
         )
 
-        fig.add_annotation(
+        fig.add_annotation(  # type: ignore[reportUnknownMemberType]
             x=1,
             y=0,
             xref="paper",
@@ -172,7 +172,7 @@ class QuantileCalibrationBoxPlotter:
         )
 
         # Update layout for better readability
-        fig.update_layout(
+        fig.update_layout(  # type: ignore[reportUnknownMemberType]
             xaxis_title="Quantile Level",
             yaxis_title="Calibration Error (Observed - Forecasted)",
             showlegend=True,
