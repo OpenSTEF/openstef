@@ -9,17 +9,16 @@ only missing values from time series data.
 """
 
 import logging
-from typing import override
+from typing import Any, Self, cast, override
 
 import numpy as np
 from pydantic import Field, PrivateAttr
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.datasets.transforms import TimeSeriesTransform
 from openstef_core.exceptions import TransformNotFittedError
-from openstef_core.types import LeadTime
-from openstef_models.transforms.horizon_split_transform import concat_horizon_datasets_rowwise
+from openstef_core.mixins import State
+from openstef_core.transforms import TimeSeriesTransform
 
 _logger = logging.getLogger(__name__)
 
@@ -87,11 +86,6 @@ class RemoveEmptyColumnsTransform(BaseConfig, TimeSeriesTransform):
         return self._is_fitted
 
     @override
-    def fit_horizons(self, data: dict[LeadTime, TimeSeriesDataset]) -> None:
-        flat_data = concat_horizon_datasets_rowwise(data)
-        return self.fit(flat_data)
-
-    @override
     def fit(self, data: TimeSeriesDataset) -> None:
         columns = (self.columns or set(data.data.columns)).intersection(data.data.columns)
         data_subset = data.data[list(columns)]
@@ -117,3 +111,19 @@ class RemoveEmptyColumnsTransform(BaseConfig, TimeSeriesTransform):
         result_data = data.data.loc[:, ~data.data.columns.isin(self._remove_columns)]  # pyright: ignore[reportUnknownMemberType]
 
         return TimeSeriesDataset(data=result_data, sample_interval=data.sample_interval)
+
+    @override
+    def to_state(self) -> State:
+        return {
+            "config": self.model_dump(mode="json"),
+            "remove_columns": list(self._remove_columns),
+            "is_fitted": self._is_fitted,
+        }
+
+    @override
+    def from_state(self, state: State) -> Self:
+        state = cast(dict[str, Any], state)
+        instance = self.model_validate(state["config"])
+        instance._remove_columns = set(state["remove_columns"])  # noqa: SLF001
+        instance._is_fitted = state["is_fitted"]  # noqa: SLF001
+        return instance

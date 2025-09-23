@@ -9,23 +9,22 @@ multi-horizon forecasters. The adapter handles training separate models for each
 prediction horizon and combining their outputs.
 """
 
-from abc import ABC, abstractmethod
+from collections.abc import Callable
 from datetime import datetime, timedelta
-from typing import Self, cast, override
+from typing import Any, Self, cast, override
 
 import pandas as pd
 
-from openstef_core.base_model import BaseModel
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.datasets.validation import validate_same_sample_intervals
+from openstef_core.mixins import State
 from openstef_core.types import LeadTime
 from openstef_core.utils.pandas import unsafe_sorted_range_slice_idxs
-from openstef_models.models.forecasting.mixins import (
-    BaseForecaster,
-    BaseHorizonForecaster,
+from openstef_models.models.forecasting.forecaster import (
+    Forecaster,
     ForecasterConfig,
+    HorizonForecaster,
     HorizonForecasterConfig,
-    ModelState,
 )
 
 
@@ -35,18 +34,8 @@ class MultiHorizonForecasterConfig[FC: ForecasterConfig](ForecasterConfig):
     forecaster_config: FC
 
 
-class MultiHorizonForecasterState[FC: HorizonForecasterConfig](BaseModel):
-    """Serializable state for multi-horizon forecaster adapters."""
-
-    config: MultiHorizonForecasterConfig[FC]
-    forecasters: dict[LeadTime, ModelState]
-
-
-class MultiHorizonForecasterAdapter[
-    FC: HorizonForecasterConfig,
-    F: BaseHorizonForecaster,
-](BaseForecaster, ABC):
-    """Abstract adapter converting single-horizon forecasters to multi-horizon.
+class MultiHorizonForecasterAdapter(Forecaster):
+    """Adapter converting single-horizon forecasters to multi-horizon.
 
     This adapter allows any single-horizon forecaster to work across multiple
     prediction horizons. It maintains separate forecaster instances for each
@@ -58,94 +47,63 @@ class MultiHorizonForecasterAdapter[
     - Combining predictions from all horizons into unified output
     - State serialization and restoration for model persistence
 
-    Subclasses must implement the abstract methods to specify which forecaster
-    type to use and how to create forecaster instances.
-
     Example:
-        Creating a multi-horizon adapter:
+        Using a multi-horizon adapter:
 
-        >>> from openstef_models.models.forecasting.mixins import HorizonForecasterConfig, BaseHorizonForecaster
+        >>> from openstef_models.models.forecasting.constant_median_forecaster import ConstantMedianForecaster
+        >>> from openstef_core.types import LeadTime, Quantile
         >>>
-        >>> class MyConfig(HorizonForecasterConfig):
-        ...     pass
-        >>>
-        >>> class MySingleHorizonForecaster(BaseHorizonForecaster):
+        >>> class MySingleHorizonForecaster(HorizonForecaster):
         ...     def __init__(self, config): pass
-        ...     def fit_horizon(self, data): pass
-        ...     def predict_horizon(self, data): pass
-        ...     def get_state(self): return {}
-        ...     @classmethod
-        ...     def from_state(cls, state): return cls(None)
+        ...     def fit(self, data): pass
+        ...     def predict(self, data): pass
+        ...     def to_state(self): return None
+        ...     def from_state(self, state): return self
         ...     @property
         ...     def config(self): return None
         ...     @property
         ...     def is_fitted(self): return True
         >>>
-        >>> class MyMultiHorizonForecaster(
-        ...     MultiHorizonForecasterAdapter[MyConfig, MySingleHorizonForecaster]
-        ... ):
-        ...     @classmethod
-        ...     def get_forecaster_type(cls):
-        ...         return MySingleHorizonForecaster
-        ...     @classmethod
-        ...     def create_forecaster(cls, config):
-        ...         return MySingleHorizonForecaster(config)
+        >>> adapter = MultiHorizonForecasterAdapter.create(
+        ...     config=MultiHorizonForecasterConfig(
+        ...         horizons=[LeadTime.from_string("PT1H"), LeadTime.from_string("PT24H")],
+        ...         forecaster_config=HorizonForecasterConfig(
+        ...             quantiles=[Quantile(0.5)], horizons=[LeadTime.from_string("PT1H")]
+        ...         ),
+        ...     ),
+        ...     model_factory=lambda cfg: MySingleHorizonForecaster(cfg),
+        ... )
+        >>> # adapter can now be used for multi-horizon forecasting
+        >>> adapter.fit(data_train)  # doctest: +SKIP
+        >>> predictions = adapter.predict(test_data) # doctest: +SKIP
     """
 
-    _config: MultiHorizonForecasterConfig[FC]
-    _horizon_forecasters: dict[LeadTime, F]
+    _config: MultiHorizonForecasterConfig[HorizonForecasterConfig]
+    _horizon_forecasters: dict[LeadTime, HorizonForecaster]
+    _model_factory: Callable[[HorizonForecasterConfig], HorizonForecaster]
 
     def __init__(
         self,
-        config: MultiHorizonForecasterConfig[FC],
-        horizon_forecasters: dict[LeadTime, F],
+        config: MultiHorizonForecasterConfig[HorizonForecasterConfig],
+        horizon_forecasters: dict[LeadTime, HorizonForecaster],
+        model_factory: Callable[[HorizonForecasterConfig], HorizonForecaster],
     ) -> None:
         """Initialize the multi-horizon forecaster adapter.
 
         Args:
             config: Configuration wrapping the underlying forecaster config.
             horizon_forecasters: Pre-created forecasters for each horizon.
+            model_factory: Factory function to create forecasters from config.
         """
         self._config = config
         self._horizon_forecasters = horizon_forecasters
-
-    @property
-    def config(self) -> MultiHorizonForecasterConfig[FC]:
-        """Access the multi-horizon forecaster configuration."""
-        return self._config
-
-    @property
-    def is_fitted(self) -> bool:
-        """Check if all horizon forecasters are fitted and ready for predictions."""
-        return all(forecaster.is_fitted for forecaster in self._horizon_forecasters.values())
-
-    @classmethod
-    @abstractmethod
-    def get_forecaster_type(cls) -> type[F]:
-        """Return the type of single-horizon forecaster to use.
-
-        Returns:
-            The forecaster class that will be instantiated for each horizon.
-        """
-        raise NotImplementedError
-
-    @classmethod
-    @abstractmethod
-    def create_forecaster(cls, config: FC) -> F:
-        """Create a new single-horizon forecaster instance.
-
-        Args:
-            config: Configuration for the single-horizon forecaster.
-
-        Returns:
-            A new instance of the single-horizon forecaster.
-        """
-        raise NotImplementedError
+        self._model_factory = model_factory
 
     @classmethod
     def create(
         cls,
-        config: MultiHorizonForecasterConfig[FC],
+        config: MultiHorizonForecasterConfig[HorizonForecasterConfig],
+        model_factory: Callable[[HorizonForecasterConfig], HorizonForecaster],
     ) -> Self:
         """Create a new multi-horizon forecaster from configuration.
 
@@ -154,6 +112,8 @@ class MultiHorizonForecasterAdapter[
 
         Args:
             config: Multi-horizon configuration with list of horizons.
+            model_factory: Factory function to create single-horizon
+                forecasters from their configuration.
 
         Returns:
             New multi-horizon forecaster ready for training.
@@ -161,43 +121,59 @@ class MultiHorizonForecasterAdapter[
         return cls(
             config=config,
             horizon_forecasters={
-                lead_time: cls.create_forecaster(config=config.forecaster_config.with_horizon(lead_time))
+                lead_time: model_factory(config.forecaster_config.with_horizon(lead_time))
                 for lead_time in config.horizons
             },
+            model_factory=model_factory,
         )
 
+    @property
+    def config(self) -> MultiHorizonForecasterConfig[HorizonForecasterConfig]:
+        """Access the multi-horizon forecaster configuration."""
+        return self._config
+
+    @property
+    def is_fitted(self) -> bool:
+        """Check if all horizon forecasters are fitted and ready for predictions."""
+        return all(forecaster.is_fitted for forecaster in self._horizon_forecasters.values())
+
     @override
-    def get_state(self) -> ModelState:
-        return MultiHorizonForecasterState[FC](
-            config=self._config,
-            forecasters={
-                lead_time: forecaster.get_state() for lead_time, forecaster in self._horizon_forecasters.items()
+    def to_state(self) -> State:
+        return {
+            "config": self._config.model_dump(mode="json"),
+            "forecasters": {
+                lead_time: forecaster.to_state() for lead_time, forecaster in self._horizon_forecasters.items()
             },
-        )
-
-    @classmethod
-    @override
-    def from_state(cls, state: ModelState) -> Self:
-        state = cast(MultiHorizonForecasterState[FC], state)
-        forecaster_type = cls.get_forecaster_type()
-
-        return cls(
-            config=state.config,
-            horizon_forecasters={
-                lead_time: forecaster_type.from_state(forecaster_state)
-                for lead_time, forecaster_state in state.forecasters.items()
-            },
-        )
+        }
 
     @override
-    def fit(self, input_data: dict[LeadTime, ForecastInputDataset]) -> None:
+    def from_state(self, state: State) -> Self:
+        state = cast(dict[str, Any], state)
+
+        horizon_forecasters: dict[LeadTime, HorizonForecaster] = {
+            lead_time: self._model_factory(self._config.forecaster_config.with_horizon(lead_time)).from_state(
+                forecaster_state
+            )
+            for lead_time, forecaster_state in state["forecasters"].items()
+        }
+
+        return self.__class__(
+            config=self._config.model_validate(state["config"]),
+            horizon_forecasters=horizon_forecasters,
+            model_factory=self._model_factory,
+        )
+
+    @override
+    def fit(
+        self, data: dict[LeadTime, ForecastInputDataset], data_val: dict[LeadTime, ForecastInputDataset] | None = None
+    ) -> None:
         for lead_time, forecaster in self._horizon_forecasters.items():
-            forecaster.fit_horizon(input_data[lead_time])
+            forecaster.fit(data=data[lead_time], data_val=data_val[lead_time] if data_val else None)
 
     @override
-    def predict(self, input_data: dict[LeadTime, ForecastInputDataset]) -> ForecastDataset:
+    def predict(self, data: dict[LeadTime, ForecastInputDataset]) -> ForecastDataset:
         predictions = {
-            lead_time: forecaster.predict_horizon(input_data[lead_time])
+            lead_time: forecaster.predict(data[lead_time])
             for lead_time, forecaster in self._horizon_forecasters.items()
         }
         return combine_horizon_forecasts(predictions)

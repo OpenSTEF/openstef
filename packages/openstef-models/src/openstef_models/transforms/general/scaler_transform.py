@@ -9,17 +9,16 @@ from scikit-learn to normalize and standardize features in time series datasets
 for improved machine learning model performance.
 """
 
-from typing import Any, Literal, cast, override
+from typing import Any, Literal, Self, cast, override
 
 import pandas as pd
 from pydantic import Field, PrivateAttr
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.datasets.transforms import TimeSeriesTransform
 from openstef_core.exceptions import MissingExtraError, TransformNotFittedError
-from openstef_core.types import LeadTime
-from openstef_models.transforms.horizon_split_transform import concat_horizon_datasets_rowwise
+from openstef_core.mixins import State
+from openstef_core.transforms import TimeSeriesTransform
 
 try:
     from sklearn.preprocessing import MaxAbsScaler, MinMaxScaler, RobustScaler, StandardScaler
@@ -67,7 +66,7 @@ class ScalerTransform(BaseConfig, TimeSeriesTransform):
         1.0
     """
 
-    method: ScalingMethod = Field(description="Scaling method to use.")
+    method: ScalingMethod = Field(default="standard", description="Scaling method to use.")
 
     _scaler: MinMaxScaler | MaxAbsScaler | StandardScaler | RobustScaler = PrivateAttr()
     _is_fitted: bool = PrivateAttr(default=False)
@@ -88,11 +87,6 @@ class ScalerTransform(BaseConfig, TimeSeriesTransform):
                 self._scaler = StandardScaler()
             case "robust":
                 self._scaler = RobustScaler()
-
-    @override
-    def fit_horizons(self, data: dict[LeadTime, TimeSeriesDataset]) -> None:
-        flat_data = concat_horizon_datasets_rowwise(data)
-        return self.fit(flat_data)
 
     @override
     def fit(self, data: TimeSeriesDataset) -> None:
@@ -118,3 +112,22 @@ class ScalerTransform(BaseConfig, TimeSeriesTransform):
             data=scaled_data,
             sample_interval=data.sample_interval,
         )
+
+    @override
+    def to_state(self) -> State:
+        return cast(
+            State,
+            {
+                "config": self.model_dump(mode="json"),
+                "scaler": self._scaler.get_params(),  # pyright: ignore[reportUnknownMemberType]
+                "is_fitted": self._is_fitted,
+            },
+        )
+
+    @override
+    def from_state(self, state: State) -> Self:
+        state = cast(dict[str, Any], state)
+        instance = self.model_validate(state["config"])
+        instance._scaler.set_params(**state["scaler"])  # pyright: ignore[reportUnknownMemberType]  # noqa: SLF001
+        instance._is_fitted = state["is_fitted"]  # noqa: SLF001
+        return instance

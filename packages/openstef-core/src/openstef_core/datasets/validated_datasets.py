@@ -170,7 +170,7 @@ class ForecastDataset(TimeSeriesDataset):
         return self._quantiles
 
 
-class TimeSeriesEnergyComponentDataset(TimeSeriesDataset):
+class EnergyComponentDataset(TimeSeriesDataset):
     """Time series dataset for energy generation by component type.
 
     Validates that all required energy component columns (wind, solar, other)
@@ -188,7 +188,7 @@ class TimeSeriesEnergyComponentDataset(TimeSeriesDataset):
         ...     'solar': [30, 40],
         ...     'other': [20, 25]
         ... }, index=pd.date_range('2025-01-01', periods=2, freq='h'))
-        >>> dataset = TimeSeriesEnergyComponentDataset(energy_data, timedelta(hours=1))
+        >>> dataset = EnergyComponentDataset(energy_data, timedelta(hours=1))
         >>> 'wind' in dataset.feature_names
         True
         >>> len(dataset.feature_names)
@@ -219,7 +219,7 @@ class TimeSeriesEnergyComponentDataset(TimeSeriesDataset):
 
 
 __all__ = [
+    "EnergyComponentDataset",
     "ForecastDataset",
     "ForecastInputDataset",
-    "TimeSeriesEnergyComponentDataset",
 ]

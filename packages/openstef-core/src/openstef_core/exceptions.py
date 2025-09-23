@@ -105,7 +105,7 @@ class InsufficientlyCompleteError(Exception):
         super().__init__(message)
 
 
-class ForecastError(Exception):
+class PredictError(Exception):
     """Exception raised for errors during forecasting operations."""
 
 
@@ -171,7 +171,6 @@ class ConfigurationError(Exception):
 __all__ = [
     "ConfigurationError",
     "FlatlinerDetectedError",
-    "ForecastError",
     "InsufficientlyCompleteError",
     "InvalidColumnTypeError",
     "MissingColumnsError",
@@ -179,6 +178,7 @@ __all__ = [
     "ModelLoadingError",
     "ModelNotFoundError",
     "NotFittedError",
+    "PredictError",
     "TimeSeriesValidationError",
     "TransformNotFittedError",
     "UnreachableStateError",

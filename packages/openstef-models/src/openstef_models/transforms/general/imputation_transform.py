@@ -8,7 +8,7 @@ This module provides functionality for handling missing values in time series da
 through various imputation strategies.
 """
 
-from typing import Any, Literal, cast, override
+from typing import Any, Literal, Self, cast, override
 
 import numpy as np
 import pandas as pd
@@ -17,10 +17,9 @@ from sklearn.impute import SimpleImputer
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.datasets.mixins import LeadTime
-from openstef_core.datasets.transforms import TimeSeriesTransform
 from openstef_core.exceptions import TransformNotFittedError
-from openstef_models.transforms.horizon_split_transform import concat_horizon_datasets_rowwise
+from openstef_core.mixins import State
+from openstef_core.transforms import TimeSeriesTransform
 
 type ImputationStrategy = Literal["mean", "median", "most_frequent", "constant"]
 
@@ -151,12 +150,6 @@ class ImputationTransform(BaseConfig, TimeSeriesTransform):
         return self._is_fitted
 
     @override
-    def fit_horizons(self, data: dict[LeadTime, TimeSeriesDataset]) -> None:
-        # Because the imputation computes a global statistic, we fit on the concatenated data
-        flat_data = concat_horizon_datasets_rowwise(data)
-        return self.fit(flat_data)
-
-    @override
     def fit(self, data: TimeSeriesDataset) -> None:
         transform_columns = (self.columns or set(data.data.columns)).intersection(data.data.columns)
 
@@ -197,3 +190,24 @@ class ImputationTransform(BaseConfig, TimeSeriesTransform):
         result_data[list(transform_columns)] = data_transformed
 
         return TimeSeriesDataset(data=result_data, sample_interval=data.sample_interval)
+
+    @override
+    def to_state(self) -> State:
+        return cast(
+            State,
+            {
+                "config": self.model_dump(mode="json"),
+                "imputer": self._imputer.get_params(),  # pyright: ignore[reportUnknownMemberType]
+                "is_fitted": self._is_fitted,
+                "transform_columns": list(self._transform_columns),
+            },
+        )
+
+    @override
+    def from_state(self, state: State) -> Self:
+        state = cast(dict[str, Any], state)
+        instance = self.model_validate(state["config"])
+        instance._imputer.set_params(**state["imputer"])  # pyright: ignore[reportUnknownMemberType]  # noqa: SLF001
+        instance._is_fitted = state["is_fitted"]  # noqa: SLF001
+        instance._transform_columns = set(state["transform_columns"])  # noqa: SLF001
+        return instance

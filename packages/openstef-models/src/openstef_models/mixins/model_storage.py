@@ -11,7 +11,7 @@ databases, or model registries.
 
 from abc import ABC, abstractmethod
 
-from openstef_models.models.forecasting_model import ForecastingModel
+from openstef_core.mixins import Stateful
 
 type ModelIdentifier = str
 
@@ -25,7 +25,7 @@ class ModelStorage(ABC):
     postprocessing components.
 
     Invariants:
-        - save_model() followed by load_model() with the same ID should return
+        - save_model_state() followed by load_model_state() with the same ID should return
           an equivalent model that produces the same predictions
         - Model IDs should be unique within the storage system
 
@@ -38,12 +38,12 @@ class ModelStorage(ABC):
         ...         self.base_path = Path(base_path)
         ...         self.base_path.mkdir(exist_ok=True)
         ...
-        ...     def save_model(self, model_id: ModelIdentifier, model: ForecastingModel):
+        ...     def save_model_state(self, model_id: ModelIdentifier, model: Stateful) -> None:
         ...         path = self.base_path / f"{model_id}.pkl"
         ...         with open(path, 'wb') as f:
         ...             pickle.dump(model, f)
         ...
-        ...     def load_model(self, model_id: ModelIdentifier) -> ForecastingModel:
+        ...     def load_model_state(self, model_id: ModelIdentifier, model: Stateful) -> Stateful:
         ...         path = self.base_path / f"{model_id}.pkl"
         ...         if not path.exists():
         ...             raise ModelNotFoundError(model_id)
@@ -52,11 +52,12 @@ class ModelStorage(ABC):
     """
 
     @abstractmethod
-    def load_model(self, model_id: ModelIdentifier) -> ForecastingModel:
+    def load_model_state[T: Stateful](self, model_id: ModelIdentifier, model: T) -> T:
         """Load a previously saved forecasting model.
 
         Args:
             model_id: Unique identifier for the model to load.
+            model: An instance of the model class to populate with loaded state.
 
         Returns:
             Complete forecasting model ready for prediction.
@@ -66,7 +67,7 @@ class ModelStorage(ABC):
         """
 
     @abstractmethod
-    def save_model(self, model_id: ModelIdentifier, model: ForecastingModel) -> None:
+    def save_model_state(self, model_id: ModelIdentifier, model: Stateful) -> None:
         """Save a forecasting model for later retrieval.
 
         Persists the complete model state including preprocessing pipeline,
@@ -77,3 +78,6 @@ class ModelStorage(ABC):
             model_id: Unique identifier for storing the model.
             model: Complete forecasting model to save.
         """
+
+
+__all__ = ["ModelIdentifier", "ModelStorage"]

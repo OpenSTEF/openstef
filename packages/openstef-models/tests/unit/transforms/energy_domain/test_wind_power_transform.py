@@ -2,7 +2,8 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-from datetime import datetime
+from datetime import datetime, timedelta
+from typing import cast
 
 import numpy as np
 import pandas as pd
@@ -35,7 +36,7 @@ def test_calculate_wind_speed_at_hub_height(
     # Assert
     assert abs(result.iloc[0] - expected) < 1e-3
     assert len(result) == 1
-    assert result.index.equals(wind_speed_series.index)
+    assert cast(pd.Series, result.index).equals(cast(pd.Series, wind_speed_series.index))
 
 
 @pytest.mark.parametrize(
@@ -64,7 +65,7 @@ def test_calculate_wind_power(
     # Assert
     assert abs(result.iloc[0] - expected) < 1e-2
     assert len(result) == 1
-    assert result.index.equals(wind_speed_series.index)
+    assert cast(pd.Series, result.index).equals(cast(pd.Series, wind_speed_series.index))
 
 
 def test_transform_preserves_original_data() -> None:
@@ -75,7 +76,7 @@ def test_transform_preserves_original_data() -> None:
         index=pd.date_range("2025-01-01", periods=2, freq="h"),
     )
     transform = WindPowerTransform(windspeed_hub_height_column="windspeed_100m")
-    dataset = TimeSeriesDataset(data=data, sample_interval="1h")
+    dataset = TimeSeriesDataset(data=data, sample_interval=timedelta(hours=1))
 
     # Act
     result = transform.transform(dataset)

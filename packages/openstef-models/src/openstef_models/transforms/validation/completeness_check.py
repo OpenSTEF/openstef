@@ -8,18 +8,19 @@ This module provides functionality for checking the completeness of time series 
 Completeness is defined as the ratio of non-missing values to the total number of values in a given time series.
 """
 
-from typing import override
+from typing import Self, override
 
 import pandas as pd
 from pydantic import Field
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.datasets.transforms import TimeSeriesTransform
 from openstef_core.exceptions import InsufficientlyCompleteError
+from openstef_core.mixins import State
+from openstef_core.transforms import TimeSeriesTransform
 
 
-class CompletenessCheckTransform(TimeSeriesTransform, BaseConfig):
+class CompletenessCheckTransform(BaseConfig, TimeSeriesTransform):
     """Transformer to check the completeness of time series load data.
 
     Completeness is defined as the ratio of non-missing values to the total number of values in a given time series.
@@ -117,3 +118,11 @@ class CompletenessCheckTransform(TimeSeriesTransform, BaseConfig):
             raise InsufficientlyCompleteError(msg)
 
         return data
+
+    @override
+    def to_state(self) -> State:
+        return self.model_dump(mode="json")
+
+    @override
+    def from_state(self, state: State) -> Self:
+        return self.model_validate(state)

@@ -9,6 +9,7 @@ pipelines. Provides subpackages for validation, temporal, forecasting,
 weather and energy-domain feature transforms.
 """
 
+from openstef_core.transforms.horizon_split_transform import HorizonSplitTransform
 from openstef_models.transforms import (
     energy_domain,
     general,
@@ -16,13 +17,10 @@ from openstef_models.transforms import (
     validation,
     weather_domain,
 )
-from openstef_models.transforms.feature_pipeline import FeaturePipeline
-from openstef_models.transforms.forecast_transform_pipeline import ForecastTransformPipeline
-from openstef_models.transforms.horizon_split_transform import HorizonSplitTransform
+from openstef_models.transforms.feature_engineering_pipeline import FeatureEngineeringPipeline
 
 __all__ = [
-    "FeaturePipeline",
-    "ForecastTransformPipeline",
+    "FeatureEngineeringPipeline",
     "HorizonSplitTransform",
     "energy_domain",
     "general",

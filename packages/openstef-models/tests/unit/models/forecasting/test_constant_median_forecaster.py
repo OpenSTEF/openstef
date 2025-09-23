@@ -14,9 +14,8 @@ from openstef_models.models.forecasting.constant_median_forecaster import (
     ConstantMedianForecaster,
     ConstantMedianForecasterConfig,
     ConstantMedianForecasterHyperParams,
-    ConstantMedianHorizonForecaster,
 )
-from openstef_models.models.forecasting.multi_horizon_adapter import MultiHorizonForecasterConfig
+from openstef_models.models.forecasting.multi_horizon_forecaster_adapter import MultiHorizonForecasterConfig
 
 
 @pytest.fixture
@@ -58,8 +57,8 @@ def test_constant_median_forecaster__fit_predict(
     forecaster = ConstantMedianForecaster(config=sample_forecaster_config)
 
     # Act
-    forecaster.fit_horizon(sample_forecast_input_dataset)
-    result = forecaster.predict_horizon(sample_forecast_input_dataset)
+    forecaster.fit(sample_forecast_input_dataset)
+    result = forecaster.predict(sample_forecast_input_dataset)
 
     # Assert
     # Check that model is fitted and produces forecast
@@ -91,7 +90,7 @@ def test_constant_median_forecaster__predict_not_fitted_raises_error(
 
     # Act & Assert
     with pytest.raises(NotFittedError, match="ConstantMedianForecaster"):
-        forecaster.predict_horizon(input_dataset)
+        forecaster.predict(input_dataset)
 
 
 def test_constant_median_forecaster__state_serialize_restore(
@@ -101,18 +100,20 @@ def test_constant_median_forecaster__state_serialize_restore(
     """Test that forecaster state can be serialized and restored with preserved functionality."""
     # Arrange
     original_forecaster = ConstantMedianForecaster(config=sample_forecaster_config)
-    original_forecaster.fit_horizon(sample_forecast_input_dataset)
+    original_forecaster.fit(sample_forecast_input_dataset)
 
     # Act
     # Serialize state and create new forecaster from state
-    state = original_forecaster.get_state()
-    restored_forecaster = ConstantMedianForecaster.from_state(state)
+    state = original_forecaster.to_state()
+
+    restored_forecaster = ConstantMedianForecaster(config=sample_forecaster_config)
+    restored_forecaster = restored_forecaster.from_state(state)
 
     # Assert
     # Check that restored forecaster produces identical predictions
     assert restored_forecaster.is_fitted
-    original_result = original_forecaster.predict_horizon(sample_forecast_input_dataset)
-    restored_result = restored_forecaster.predict_horizon(sample_forecast_input_dataset)
+    original_result = original_forecaster.predict(sample_forecast_input_dataset)
+    restored_result = restored_forecaster.predict(sample_forecast_input_dataset)
 
     pd.testing.assert_frame_equal(original_result.data, restored_result.data)
     assert original_result.sample_interval == restored_result.sample_interval
@@ -153,46 +154,3 @@ def multi_horizon_input_data() -> dict[LeadTime, ForecastInputDataset]:
             data=horizon_6h_data, sample_interval=timedelta(hours=1), target_column="load"
         ),
     }
-
-
-def test_constant_median_horizon_forecaster__fit_predict(
-    multi_horizon_config: MultiHorizonForecasterConfig[ConstantMedianForecasterConfig],
-    multi_horizon_input_data: dict[LeadTime, ForecastInputDataset],
-):
-    """Test ConstantMedianHorizonForecaster fit and predict workflow."""
-    # Arrange
-    multi_forecaster = ConstantMedianHorizonForecaster.create(multi_horizon_config)
-
-    # Act
-    multi_forecaster.fit(multi_horizon_input_data)
-    result = multi_forecaster.predict(multi_horizon_input_data)
-
-    # Assert
-    assert multi_forecaster.is_fitted
-    assert isinstance(result, ForecastDataset)
-    assert len(result.data) > 0
-
-    # Verify predictions contain expected median values from horizon-specific data
-    result_values = result.data["quantile_P50"].tolist()
-    assert all(value in {200.0, 600.0} for value in result_values), f"Unexpected values: {result_values}"
-
-
-def test_constant_median_horizon_forecaster__state_serialize_restore(
-    multi_horizon_config: MultiHorizonForecasterConfig[ConstantMedianForecasterConfig],
-    multi_horizon_input_data: dict[LeadTime, ForecastInputDataset],
-):
-    """Test ConstantMedianHorizonForecaster state serialization and restoration."""
-    # Arrange
-    multi_forecaster = ConstantMedianHorizonForecaster.create(multi_horizon_config)
-    multi_forecaster.fit(multi_horizon_input_data)
-    original_result = multi_forecaster.predict(multi_horizon_input_data)
-
-    # Act
-    state = multi_forecaster.get_state()
-    restored_forecaster = ConstantMedianHorizonForecaster.from_state(state)
-    restored_result = restored_forecaster.predict(multi_horizon_input_data)
-
-    # Assert
-    assert restored_forecaster.is_fitted
-    pd.testing.assert_frame_equal(original_result.data, restored_result.data)
-    assert original_result.sample_interval == restored_result.sample_interval

@@ -6,25 +6,35 @@ from __future__ import annotations
 
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Self, cast, override
 
 import pytest
 
 from openstef_core.exceptions import ModelNotFoundError
+from openstef_core.mixins import Stateful
 from openstef_models.integrations.joblib.storage import LocalModelStorage
 
 if TYPE_CHECKING:
     from collections.abc import Generator
 
-    from openstef_models.models.forecasting_model import ForecastingModel
 
-
-class SimpleSerializableModel:
+class SimpleSerializableModel(Stateful):
     """A simple model class that can be pickled for testing."""
 
     def __init__(self) -> None:
         self.target_column = "load"
         self.is_fitted = True
+
+    @override
+    def to_state(self) -> object:
+        return {"target_column": self.target_column, "is_fitted": self.is_fitted}
+
+    @override
+    def from_state(self, state: object) -> Self:
+        state_dict = cast(dict[str, object], state)
+        self.target_column = state_dict.get("target_column", "load")
+        self.is_fitted = state_dict.get("is_fitted", True)
+        return self
 
 
 @pytest.fixture
@@ -62,14 +72,14 @@ def test_local_model_storage__save_and_load_integration(
 ):
     """Test save and load integration across different model ID formats."""
     # Arrange & Act - Save the model
-    storage.save_model(model_id, cast("ForecastingModel", mock_forecasting_model))
+    storage.save_model_state(model_id, mock_forecasting_model)
 
     # Assert - File should exist with correct name
     model_path = storage.storage_dir / expected_filename
     assert model_path.exists()
 
     # Act - Load the model
-    loaded_model = storage.load_model(model_id)
+    loaded_model = storage.load_model_state(model_id, mock_forecasting_model)
 
     # Assert - Should get back equivalent model object
     assert loaded_model is not None
@@ -77,11 +87,13 @@ def test_local_model_storage__save_and_load_integration(
     assert hasattr(loaded_model, "is_fitted")
 
 
-def test_local_model_storage__load_model__raises_error_when_file_not_exists(storage: LocalModelStorage):
+def test_local_model_storage__load_model__raises_error_when_file_not_exists(
+    storage: LocalModelStorage, mock_forecasting_model: SimpleSerializableModel
+):
     """Test that load_model raises ModelNotFoundError when file doesn't exist."""
     # Arrange
     model_id = "nonexistent_model"
 
     # Act & Assert
     with pytest.raises(ModelNotFoundError, match="nonexistent_model"):
-        storage.load_model(model_id)
+        storage.load_model_state(model_id, mock_forecasting_model)
