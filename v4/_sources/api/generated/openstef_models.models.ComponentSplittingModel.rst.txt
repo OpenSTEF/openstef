@@ -2,11 +2,11 @@
 ..
 .. SPDX-License-Identifier: MPL-2.0
 
-ForecastTransformPipeline
-=========================
+ComponentSplittingModel
+=======================
 
-.. currentmodule:: openstef_models.transforms
+.. currentmodule:: openstef_models.models
 
-.. autoclass:: ForecastTransformPipeline
+.. autoclass:: ComponentSplittingModel
    :show-inheritance:
    :members:

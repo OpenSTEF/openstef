@@ -35,7 +35,6 @@ Classes
 
    ConfigurationError
    FlatlinerDetectedError
-   ForecastError
    InsufficientlyCompleteError
    InvalidColumnTypeError
    MissingColumnsError
@@ -43,6 +42,7 @@ Classes
    ModelLoadingError
    ModelNotFoundError
    NotFittedError
+   PredictError
    TimeSeriesValidationError
    TransformNotFittedError
    UnreachableStateError

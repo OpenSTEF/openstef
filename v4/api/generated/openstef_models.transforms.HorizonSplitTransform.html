@@ -60,7 +60,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="openstef_models.models" href="openstef_models.models.html" />
-    <link rel="prev" title="ForecastTransformPipeline" href="openstef_models.transforms.ForecastTransformPipeline.html" />
+    <link rel="prev" title="FeatureEngineeringPipeline" href="openstef_models.transforms.FeatureEngineeringPipeline.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="0.0.0" />
@@ -400,10 +400,10 @@
 <li class="toctree-l3"><a class="reference internal" href="openstef_core.datasets.mixins.VersionedTimeSeriesMixin.html">VersionedTimeSeriesMixin</a></li>
 </ul>
 </details></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_core.datasets.EnergyComponentDataset.html">EnergyComponentDataset</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.datasets.ForecastDataset.html">ForecastDataset</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.datasets.ForecastInputDataset.html">ForecastInputDataset</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.datasets.TimeSeriesDataset.html">TimeSeriesDataset</a></li>
-<li class="toctree-l2"><a class="reference internal" href="openstef_core.datasets.TimeSeriesEnergyComponentDataset.html">TimeSeriesEnergyComponentDataset</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.datasets.TimeSeriesMixin.html">TimeSeriesMixin</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.datasets.VersionedTimeSeriesDataset.html">VersionedTimeSeriesDataset</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.datasets.VersionedTimeSeriesMixin.html">VersionedTimeSeriesMixin</a></li>
@@ -429,7 +429,6 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="openstef_core.exceptions.html">openstef_core.exceptions</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.ConfigurationError.html">ConfigurationError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.FlatlinerDetectedError.html">FlatlinerDetectedError</a></li>
-<li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.ForecastError.html">ForecastError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.InsufficientlyCompleteError.html">InsufficientlyCompleteError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.InvalidColumnTypeError.html">InvalidColumnTypeError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.MissingColumnsError.html">MissingColumnsError</a></li>
@@ -437,6 +436,7 @@
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.ModelLoadingError.html">ModelLoadingError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.ModelNotFoundError.html">ModelNotFoundError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.NotFittedError.html">NotFittedError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.PredictError.html">PredictError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.TimeSeriesValidationError.html">TimeSeriesValidationError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.TransformNotFittedError.html">TransformNotFittedError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.UnreachableStateError.html">UnreachableStateError</a></li>
@@ -445,12 +445,15 @@
 </ul>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="openstef_models.transforms.html">openstef_models.transforms</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="openstef_models.transforms.FeaturePipeline.html">FeaturePipeline</a></li>
-<li class="toctree-l2"><a class="reference internal" href="openstef_models.transforms.ForecastTransformPipeline.html">ForecastTransformPipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_models.transforms.FeatureEngineeringPipeline.html">FeatureEngineeringPipeline</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">HorizonSplitTransform</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1"><a class="reference internal" href="openstef_models.models.html">openstef_models.models</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="openstef_models.models.html">openstef_models.models</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="openstef_models.models.ComponentSplittingModel.html">ComponentSplittingModel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_models.models.ForecastingModel.html">ForecastingModel</a></li>
+</ul>
+</details></li>
 <li class="toctree-l1"><a class="reference internal" href="openstef_models.explainability.html">openstef_models.explainability</a></li>
 </ul>
 <ul class="nav bd-sidenav">
@@ -577,8 +580,8 @@
 <h1>HorizonSplitTransform<a class="headerlink" href="#horizonsplittransform" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="openstef_models.transforms.HorizonSplitTransform">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef_models.transforms.</span></span><span class="sig-name descname"><span class="pre">HorizonSplitTransform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/openstef_models/transforms/horizon_split_transform.html#HorizonSplitTransform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_models.transforms.HorizonSplitTransform" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="openstef_core.base_model.BaseConfig.html#openstef_core.base_model.BaseConfig" title="openstef_core.base_model.BaseConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseConfig</span></code></a></p>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef_models.transforms.</span></span><span class="sig-name descname"><span class="pre">HorizonSplitTransform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/openstef_core/transforms/horizon_split_transform.html#HorizonSplitTransform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_models.transforms.HorizonSplitTransform" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="openstef_core.base_model.BaseConfig.html#openstef_core.base_model.BaseConfig" title="openstef_core.base_model.BaseConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseConfig</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Transform</span></code>[<a class="reference internal" href="openstef_core.datasets.VersionedTimeSeriesDataset.html#openstef_core.datasets.VersionedTimeSeriesDataset" title="openstef_core.datasets.versioned_timeseries.dataset.VersionedTimeSeriesDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">VersionedTimeSeriesDataset</span></code></a>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">MultiHorizonTimeSeriesDataset</span></code>]</p>
 <p>Transform that splits versioned datasets into horizon-specific time series.</p>
 <p>This transform is a key component in multi-horizon forecasting pipelines. It takes
 versioned time series data (containing forecast validity timestamps) and produces
@@ -624,23 +627,90 @@ separate regular time series datasets for each specified forecast horizon.</p>
 <dd></dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="openstef_models.transforms.HorizonSplitTransform.to_state">
+<span class="sig-name descname"><span class="pre">to_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">State</span></span></span><a class="reference internal" href="../../_modules/openstef_core/transforms/horizon_split_transform.html#HorizonSplitTransform.to_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_models.transforms.HorizonSplitTransform.to_state" title="Link to this definition">#</a></dt>
+<dd><p>Serialize the current state of the object.</p>
+<p>Must capture all information needed to restore the object to its current state,
+including configuration, trained parameters, and any internal state variables.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">TypeAliasType</span></code></span></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Serializable representation of the object state.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef_models.transforms.HorizonSplitTransform.from_state">
+<span class="sig-name descname"><span class="pre">from_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">State</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Self</span></span></span><a class="reference internal" href="../../_modules/openstef_core/transforms/horizon_split_transform.html#HorizonSplitTransform.from_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_models.transforms.HorizonSplitTransform.from_state" title="Link to this definition">#</a></dt>
+<dd><p>Restore an object from its serialized state.</p>
+<p>Must reconstruct the object to match the exact state when to_state()
+was called. Should handle version compatibility for older state formats
+when possible.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>state</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">TypeAliasType</span></code></span>) – Serialized state returned from to_state().</p></li>
+<li><p><strong>state</strong></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Object instance restored to the exact previous state.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – If state is invalid or incompatible.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Self</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="openstef_models.transforms.HorizonSplitTransform.is_fitted">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_fitted</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#openstef_models.transforms.HorizonSplitTransform.is_fitted" title="Link to this definition">#</a></dt>
+<dd><p>Check if the transform has been fitted.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef_models.transforms.HorizonSplitTransform.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="openstef_core.datasets.VersionedTimeSeriesDataset.html#openstef_core.datasets.VersionedTimeSeriesDataset" title="openstef_core.datasets.versioned_timeseries.dataset.VersionedTimeSeriesDataset"><span class="pre">VersionedTimeSeriesDataset</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/openstef_core/transforms/horizon_split_transform.html#HorizonSplitTransform.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_models.transforms.HorizonSplitTransform.fit" title="Link to this definition">#</a></dt>
+<dd><p>Fit the transform to the input data.</p>
+<p>This method should be called before applying the transform to the data.
+It allows the transform to learn any necessary parameters from the data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="openstef_core.datasets.VersionedTimeSeriesDataset.html#openstef_core.datasets.VersionedTimeSeriesDataset" title="openstef_core.datasets.versioned_timeseries.dataset.VersionedTimeSeriesDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">VersionedTimeSeriesDataset</span></code></a></span>) – The input data to fit the transform on.</p></li>
+<li><p><strong>data</strong></p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="openstef_models.transforms.HorizonSplitTransform.transform">
-<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="openstef_core.datasets.VersionedTimeSeriesDataset.html#openstef_core.datasets.VersionedTimeSeriesDataset" title="openstef_core.datasets.versioned_timeseries.dataset.VersionedTimeSeriesDataset"><span class="pre">VersionedTimeSeriesDataset</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">LeadTime</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><span class="pre">TimeSeriesDataset</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/openstef_models/transforms/horizon_split_transform.html#HorizonSplitTransform.transform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_models.transforms.HorizonSplitTransform.transform" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="openstef_core.datasets.VersionedTimeSeriesDataset.html#openstef_core.datasets.VersionedTimeSeriesDataset" title="openstef_core.datasets.versioned_timeseries.dataset.VersionedTimeSeriesDataset"><span class="pre">VersionedTimeSeriesDataset</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">MultiHorizonTimeSeriesDataset</span></span></span><a class="reference internal" href="../../_modules/openstef_core/transforms/horizon_split_transform.html#HorizonSplitTransform.transform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_models.transforms.HorizonSplitTransform.transform" title="Link to this definition">#</a></dt>
 <dd><p>Split versioned dataset into horizon-specific time series datasets.</p>
 <p>For each configured horizon, filters the versioned data and resolves timestamps
 to create clean time series datasets suitable for standard processing.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dataset</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="openstef_core.datasets.VersionedTimeSeriesDataset.html#openstef_core.datasets.VersionedTimeSeriesDataset" title="openstef_core.datasets.versioned_timeseries.dataset.VersionedTimeSeriesDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">VersionedTimeSeriesDataset</span></code></a></span>) – Versioned time series dataset with forecast validity timestamps.</p></li>
-<li><p><strong>dataset</strong></p></li>
+<li><p><strong>data</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="openstef_core.datasets.VersionedTimeSeriesDataset.html#openstef_core.datasets.VersionedTimeSeriesDataset" title="openstef_core.datasets.versioned_timeseries.dataset.VersionedTimeSeriesDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">VersionedTimeSeriesDataset</span></code></a></span>) – Versioned time series dataset with forecast validity timestamps.</p></li>
+<li><p><strong>data</strong></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Dictionary mapping each LeadTime to its corresponding TimeSeriesDataset.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">LeadTime</span></code>, <a class="reference internal" href="openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeSeriesDataset</span></code></a>]</span></p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">TypeAliasType</span></code></span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -666,12 +736,12 @@ to create clean time series datasets suitable for standard processing.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="openstef_models.transforms.ForecastTransformPipeline.html"
+       href="openstef_models.transforms.FeatureEngineeringPipeline.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">ForecastTransformPipeline</p>
+        <p class="prev-next-title">FeatureEngineeringPipeline</p>
       </div>
     </a>
     <a class="right-next"
@@ -704,6 +774,10 @@ to create clean time series datasets suitable for standard processing.</p>
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.transforms.HorizonSplitTransform"><code class="docutils literal notranslate"><span class="pre">HorizonSplitTransform</span></code></a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.transforms.HorizonSplitTransform.horizons"><code class="docutils literal notranslate"><span class="pre">HorizonSplitTransform.horizons</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.transforms.HorizonSplitTransform.to_state"><code class="docutils literal notranslate"><span class="pre">HorizonSplitTransform.to_state()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.transforms.HorizonSplitTransform.from_state"><code class="docutils literal notranslate"><span class="pre">HorizonSplitTransform.from_state()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.transforms.HorizonSplitTransform.is_fitted"><code class="docutils literal notranslate"><span class="pre">HorizonSplitTransform.is_fitted</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.transforms.HorizonSplitTransform.fit"><code class="docutils literal notranslate"><span class="pre">HorizonSplitTransform.fit()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.transforms.HorizonSplitTransform.transform"><code class="docutils literal notranslate"><span class="pre">HorizonSplitTransform.transform()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.transforms.HorizonSplitTransform.model_config"><code class="docutils literal notranslate"><span class="pre">HorizonSplitTransform.model_config</span></code></a></li>
 </ul>

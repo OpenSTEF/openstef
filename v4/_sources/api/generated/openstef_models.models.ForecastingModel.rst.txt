@@ -2,11 +2,11 @@
 ..
 .. SPDX-License-Identifier: MPL-2.0
 
-TimeSeriesEnergyComponentDataset
-================================
+ForecastingModel
+================
 
-.. currentmodule:: openstef_core.datasets
+.. currentmodule:: openstef_models.models
 
-.. autoclass:: TimeSeriesEnergyComponentDataset
+.. autoclass:: ForecastingModel
    :show-inheritance:
    :members:

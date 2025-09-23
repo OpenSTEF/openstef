@@ -21,7 +21,15 @@ openstef_models.models
 
 
 
+Classes
+-------
 
+.. autosummary::
+   :toctree: .
+   :template: custom_class.rst
+
+   ComponentSplittingModel
+   ForecastingModel
 
 
 

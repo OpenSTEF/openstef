@@ -461,6 +461,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets.mixins</span><span class="w"> </span><span class="kn">import</span> <span class="n">TimeSeriesMixin</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">LeadTime</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">timedelta_from_isoformat</span><span class="p">,</span> <span class="n">timedelta_to_isoformat</span>
 
 <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
@@ -628,7 +629,10 @@
 
 
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;TimeSeriesDataset&quot;</span><span class="p">]</span>
+<span class="nb">type</span> <span class="n">MultiHorizonTimeSeriesDataset</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">[</span><span class="n">LeadTime</span><span class="p">,</span> <span class="n">TimeSeriesDataset</span><span class="p">]</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;MultiHorizonTimeSeriesDataset&quot;</span><span class="p">,</span> <span class="s2">&quot;TimeSeriesDataset&quot;</span><span class="p">]</span>
 </pre></div>
 
                 </article>

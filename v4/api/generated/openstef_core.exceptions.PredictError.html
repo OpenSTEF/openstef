@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>BacktestConfig &#8212; OpenSTEF 0.0.0 documentation</title>
+    <title>PredictError &#8212; OpenSTEF 0.0.0 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../_static/copybutton.js?v=97f0b27d"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'api/generated/openstef_beam.backtesting.BacktestConfig';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/generated/openstef_core.exceptions.PredictError';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = '_static/versions.json';
@@ -59,8 +59,8 @@
     <link rel="icon" href="../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="BacktestPipeline" href="openstef_beam.backtesting.BacktestPipeline.html" />
-    <link rel="prev" title="openstef_beam.backtesting" href="openstef_beam.backtesting.html" />
+    <link rel="next" title="TimeSeriesValidationError" href="openstef_core.exceptions.TimeSeriesValidationError.html" />
+    <link rel="prev" title="NotFittedError" href="openstef_core.exceptions.NotFittedError.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="0.0.0" />
@@ -393,7 +393,7 @@
 <nav class="bd-docs-nav bd-links"
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
-  <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="openstef_core.datasets.html">openstef_core.datasets</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="openstef_core.datasets.mixins.html">openstef_core.datasets.mixins</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="openstef_core.datasets.mixins.TimeSeriesMixin.html">TimeSeriesMixin</a></li>
@@ -426,7 +426,7 @@
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.base_model.PydanticStringPrimitive.html">PydanticStringPrimitive</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="openstef_core.exceptions.html">openstef_core.exceptions</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="openstef_core.exceptions.html">openstef_core.exceptions</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.ConfigurationError.html">ConfigurationError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.FlatlinerDetectedError.html">FlatlinerDetectedError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.InsufficientlyCompleteError.html">InsufficientlyCompleteError</a></li>
@@ -436,7 +436,7 @@
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.ModelLoadingError.html">ModelLoadingError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.ModelNotFoundError.html">ModelNotFoundError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.NotFittedError.html">NotFittedError</a></li>
-<li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.PredictError.html">PredictError</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">PredictError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.TimeSeriesValidationError.html">TimeSeriesValidationError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.TransformNotFittedError.html">TransformNotFittedError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.UnreachableStateError.html">UnreachableStateError</a></li>
@@ -456,7 +456,7 @@
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="openstef_models.explainability.html">openstef_models.explainability</a></li>
 </ul>
-<ul class="current nav bd-sidenav">
+<ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="openstef_beam.metrics.html">openstef_beam.metrics</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.confusion_matrix.html">confusion_matrix</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.crps.html">crps</a></li>
@@ -473,8 +473,8 @@
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.PrecisionRecall.html">PrecisionRecall</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="openstef_beam.backtesting.html">openstef_beam.backtesting</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">BacktestConfig</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="openstef_beam.backtesting.html">openstef_beam.backtesting</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="openstef_beam.backtesting.BacktestConfig.html">BacktestConfig</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.backtesting.BacktestPipeline.html">BacktestPipeline</a></li>
 </ul>
 </details></li>
@@ -557,9 +557,9 @@
     <li class="breadcrumb-item"><a href="../index.html" class="nav-link">API Reference</a></li>
     
     
-    <li class="breadcrumb-item"><a href="openstef_beam.backtesting.html" class="nav-link">openstef_beam.backtesting</a></li>
+    <li class="breadcrumb-item"><a href="openstef_core.exceptions.html" class="nav-link">openstef_core.exceptions</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">BacktestConfig</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">PredictError</span></li>
   </ul>
 </nav>
 </div>
@@ -576,44 +576,13 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="backtestconfig">
-<h1>BacktestConfig<a class="headerlink" href="#backtestconfig" title="Link to this heading">#</a></h1>
+  <section id="predicterror">
+<h1>PredictError<a class="headerlink" href="#predicterror" title="Link to this heading">#</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="openstef_beam.backtesting.BacktestConfig">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef_beam.backtesting.</span></span><span class="sig-name descname"><span class="pre">BacktestConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/openstef_beam/backtesting/backtest_pipeline.html#BacktestConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_beam.backtesting.BacktestConfig" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="openstef_core.base_model.BaseConfig.html#openstef_core.base_model.BaseConfig" title="openstef_core.base_model.BaseConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseConfig</span></code></a></p>
-<p>Configuration for backtesting energy forecasting models.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>data</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></span>)</p>
-</dd>
-</dl>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="openstef_beam.backtesting.BacktestConfig.prediction_sample_interval">
-<span class="sig-name descname"><span class="pre">prediction_sample_interval</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">timedelta</span></code></em><a class="headerlink" href="#openstef_beam.backtesting.BacktestConfig.prediction_sample_interval" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="openstef_beam.backtesting.BacktestConfig.predict_interval">
-<span class="sig-name descname"><span class="pre">predict_interval</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">timedelta</span></code></em><a class="headerlink" href="#openstef_beam.backtesting.BacktestConfig.predict_interval" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="openstef_beam.backtesting.BacktestConfig.train_interval">
-<span class="sig-name descname"><span class="pre">train_interval</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">timedelta</span></code></em><a class="headerlink" href="#openstef_beam.backtesting.BacktestConfig.train_interval" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="openstef_beam.backtesting.BacktestConfig.align_time">
-<span class="sig-name descname"><span class="pre">align_time</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">time</span></code></em><a class="headerlink" href="#openstef_beam.backtesting.BacktestConfig.align_time" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="openstef_beam.backtesting.BacktestConfig.model_config">
-<span class="sig-name descname"><span class="pre">model_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar[ConfigDict]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'arbitrary_types_allowed':</span> <span class="pre">False,</span> <span class="pre">'extra':</span> <span class="pre">'ignore',</span> <span class="pre">'protected_namespaces':</span> <span class="pre">()}</span></em><a class="headerlink" href="#openstef_beam.backtesting.BacktestConfig.model_config" title="Link to this definition">#</a></dt>
-<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
-</dd></dl>
-
+<dt class="sig sig-object py" id="openstef_core.exceptions.PredictError">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef_core.exceptions.</span></span><span class="sig-name descname"><span class="pre">PredictError</span></span><a class="reference internal" href="../../_modules/openstef_core/exceptions.html#PredictError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.exceptions.PredictError" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Exception raised for errors during forecasting operations.</p>
 </dd></dl>
 
 </section>
@@ -629,20 +598,20 @@
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="openstef_beam.backtesting.html"
+       href="openstef_core.exceptions.NotFittedError.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">openstef_beam.backtesting</p>
+        <p class="prev-next-title">NotFittedError</p>
       </div>
     </a>
     <a class="right-next"
-       href="openstef_beam.backtesting.BacktestPipeline.html"
+       href="openstef_core.exceptions.TimeSeriesValidationError.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">BacktestPipeline</p>
+        <p class="prev-next-title">TimeSeriesValidationError</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -665,14 +634,7 @@
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.backtesting.BacktestConfig"><code class="docutils literal notranslate"><span class="pre">BacktestConfig</span></code></a><ul class="visible nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.backtesting.BacktestConfig.prediction_sample_interval"><code class="docutils literal notranslate"><span class="pre">BacktestConfig.prediction_sample_interval</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.backtesting.BacktestConfig.predict_interval"><code class="docutils literal notranslate"><span class="pre">BacktestConfig.predict_interval</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.backtesting.BacktestConfig.train_interval"><code class="docutils literal notranslate"><span class="pre">BacktestConfig.train_interval</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.backtesting.BacktestConfig.align_time"><code class="docutils literal notranslate"><span class="pre">BacktestConfig.align_time</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.backtesting.BacktestConfig.model_config"><code class="docutils literal notranslate"><span class="pre">BacktestConfig.model_config</span></code></a></li>
-</ul>
-</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.exceptions.PredictError"><code class="docutils literal notranslate"><span class="pre">PredictError</span></code></a></li>
 </ul>
   </nav></div>
 
@@ -680,7 +642,7 @@
 
   
   <div class="tocsection editthispage">
-    <a href="https://github.com/OpenSTEF/openstef/edit/release/v4.0.0/docs/source/api/generated/openstef_beam.backtesting.BacktestConfig.rst">
+    <a href="https://github.com/OpenSTEF/openstef/edit/release/v4.0.0/docs/source/api/generated/openstef_core.exceptions.PredictError.rst">
       <i class="fa-solid fa-pencil"></i>
       
       

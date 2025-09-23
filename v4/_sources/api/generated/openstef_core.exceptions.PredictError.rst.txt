@@ -2,11 +2,11 @@
 ..
 .. SPDX-License-Identifier: MPL-2.0
 
-ForecastError
-=============
+PredictError
+============
 
 .. currentmodule:: openstef_core.exceptions
 
-.. autoclass:: ForecastError
+.. autoclass:: PredictError
    :show-inheritance:
    :members:

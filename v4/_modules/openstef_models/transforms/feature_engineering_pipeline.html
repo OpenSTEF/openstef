@@ -7,7 +7,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>openstef_models.transforms.feature_pipeline &#8212; OpenSTEF 0.0.0 documentation</title>
+    <title>openstef_models.transforms.feature_engineering_pipeline &#8212; OpenSTEF 0.0.0 documentation</title>
   
   
   
@@ -47,7 +47,7 @@
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../../_static/copybutton.js?v=97f0b27d"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/openstef_models/transforms/feature_pipeline';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/openstef_models/transforms/feature_engineering_pipeline';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = '_static/versions.json';
@@ -421,7 +421,7 @@
     
     <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">openstef_models.transforms.feature_pipeline</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">openstef_models.transforms.feature_engineering_pipeline</span></li>
   </ul>
 </nav>
 </div>
@@ -438,41 +438,35 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <h1>Source code for openstef_models.transforms.feature_pipeline</h1><div class="highlight"><pre>
+  <h1>Source code for openstef_models.transforms.feature_engineering_pipeline</h1><div class="highlight"><pre>
 <span></span><span class="c1"># SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project &lt;short.term.energy.forecasts@alliander.com&gt;</span>
 <span class="c1">#</span>
 <span class="c1"># SPDX-License-Identifier: MPL-2.0</span>
-
 <span class="sd">&quot;&quot;&quot;Feature engineering pipeline for time series forecasting models.</span>
 
 <span class="sd">This module provides the FeaturePipeline class, which coordinates feature engineering</span>
 <span class="sd">for multi-horizon forecasting models. It handles the complete feature transformation</span>
 <span class="sd">process, from versioned time series data through horizon-specific transformations.</span>
-
-<span class="sd">The pipeline operates in two main phases:</span>
-<span class="sd">1. Versioned transforms: Handle complex time logic on data with forecast validity timestamps</span>
-<span class="sd">2. Horizon transforms: Apply standard transformations on resolved time series data</span>
-
-<span class="sd">This design enables efficient processing of forecasting data where features may have</span>
-<span class="sd">different availability times and forecast horizons require different processing.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">override</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Self</span><span class="p">,</span> <span class="n">cast</span><span class="p">,</span> <span class="n">override</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">Field</span><span class="p">,</span> <span class="n">PrivateAttr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">Field</span><span class="p">,</span> <span class="n">PrivateAttr</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.base_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">TimeSeriesDataset</span><span class="p">,</span> <span class="n">VersionedTimeSeriesDataset</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">TimeSeriesTransform</span><span class="p">,</span> <span class="n">VersionedTimeSeriesTransform</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TransformNotFittedError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">MultiHorizonTimeSeriesDataset</span><span class="p">,</span> <span class="n">TimeSeriesDataset</span><span class="p">,</span> <span class="n">VersionedTimeSeriesDataset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">NotFittedError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.mixins</span><span class="w"> </span><span class="kn">import</span> <span class="n">State</span><span class="p">,</span> <span class="n">Transform</span><span class="p">,</span> <span class="n">TransformPipeline</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">MultiHorizonTimeSeriesTransform</span><span class="p">,</span> <span class="n">TimeSeriesTransform</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">LeadTime</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.transforms.horizon_split_transform</span><span class="w"> </span><span class="kn">import</span> <span class="n">HorizonSplitTransform</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">HorizonSplitTransform</span>
 
 
-<div class="viewcode-block" id="FeaturePipeline">
-<a class="viewcode-back" href="../../../api/generated/openstef_models.transforms.FeaturePipeline.html#openstef_models.transforms.FeaturePipeline">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">FeaturePipeline</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<div class="viewcode-block" id="FeatureEngineeringPipeline">
+<a class="viewcode-back" href="../../../api/generated/openstef_models.transforms.FeatureEngineeringPipeline.html#openstef_models.transforms.FeatureEngineeringPipeline">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FeatureEngineeringPipeline</span><span class="p">(</span>
+    <span class="n">BaseModel</span><span class="p">,</span> <span class="n">Transform</span><span class="p">[</span><span class="n">VersionedTimeSeriesDataset</span> <span class="o">|</span> <span class="n">TimeSeriesDataset</span><span class="p">,</span> <span class="n">MultiHorizonTimeSeriesDataset</span><span class="p">]</span>
+<span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Feature engineering pipeline for multi-horizon forecasting models.</span>
 
 <span class="sd">    Orchestrates feature transformations in a two-stage process optimized for forecasting workflows:</span>
@@ -512,7 +506,7 @@
 <span class="sd">        &gt;&gt;&gt; versioned_dataset = VersionedTimeSeriesDataset.from_dataframe(data, timedelta(hours=1))</span>
 <span class="sd">        &gt;&gt;&gt;</span>
 <span class="sd">        &gt;&gt;&gt; # Configure pipeline for multiple forecast horizons</span>
-<span class="sd">        &gt;&gt;&gt; pipeline = FeaturePipeline(</span>
+<span class="sd">        &gt;&gt;&gt; pipeline = FeatureEngineeringPipeline.create(</span>
 <span class="sd">        ...     horizons=[LeadTime.from_string(&quot;PT1H&quot;), LeadTime.from_string(&quot;PT24H&quot;)],</span>
 <span class="sd">        ...     versioned_transforms=[],  # No versioned transforms available yet</span>
 <span class="sd">        ...     horizon_transforms=[</span>
@@ -545,7 +539,7 @@
 <span class="sd">        &gt;&gt;&gt; simple_dataset = TimeSeriesDataset(simple_data, timedelta(hours=1))</span>
 <span class="sd">        &gt;&gt;&gt;</span>
 <span class="sd">        &gt;&gt;&gt; # Configure pipeline for single horizon (no versioned transforms allowed)</span>
-<span class="sd">        &gt;&gt;&gt; single_pipeline = FeaturePipeline(</span>
+<span class="sd">        &gt;&gt;&gt; single_pipeline = FeatureEngineeringPipeline.create(</span>
 <span class="sd">        ...     horizons=[LeadTime.from_string(&quot;PT36H&quot;)],</span>
 <span class="sd">        ...     horizon_transforms=[</span>
 <span class="sd">        ...         CyclicFeaturesTransform(included_features=[&quot;timeOfDay&quot;])</span>
@@ -563,125 +557,133 @@
     <span class="n">horizons</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">LeadTime</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
         <span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="p">[</span><span class="n">LeadTime</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;PT36H&quot;</span><span class="p">)],</span>
         <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The lead times (horizons) for which the model will make predictions.&quot;</span><span class="p">,</span>
+        <span class="n">min_length</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="n">versioned_transforms</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">VersionedTimeSeriesTransform</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
-        <span class="n">default</span><span class="o">=</span><span class="p">[],</span>
+    <span class="n">versioned_pipeline</span><span class="p">:</span> <span class="n">TransformPipeline</span><span class="p">[</span><span class="n">VersionedTimeSeriesDataset</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">TransformPipeline</span><span class="p">(</span><span class="n">transforms</span><span class="o">=</span><span class="p">[]),</span>
         <span class="n">description</span><span class="o">=</span><span class="p">(</span>
             <span class="s2">&quot;Transforms that operate on versioned time series, and usually involve complex time handling logic.&quot;</span>
         <span class="p">),</span>
     <span class="p">)</span>
-    <span class="n">horizon_transforms</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">TimeSeriesTransform</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
-        <span class="n">default</span><span class="o">=</span><span class="p">[],</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Transforms that operate on time series with already resolved timestamps.&quot;</span>
+    <span class="n">horizon_pipeline</span><span class="p">:</span> <span class="n">TransformPipeline</span><span class="p">[</span><span class="n">MultiHorizonTimeSeriesDataset</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">TransformPipeline</span><span class="p">(</span><span class="n">transforms</span><span class="o">=</span><span class="p">[]),</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Transforms that operate on time series with already resolved timestamps.&quot;</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="n">_horizon_split_transform</span><span class="p">:</span> <span class="n">HorizonSplitTransform</span> <span class="o">=</span> <span class="n">PrivateAttr</span><span class="p">()</span>
     <span class="n">_is_fitted</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">PrivateAttr</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-<div class="viewcode-block" id="FeaturePipeline.model_post_init">
-<a class="viewcode-back" href="../../../api/generated/openstef_models.transforms.FeaturePipeline.html#openstef_models.transforms.FeaturePipeline.model_post_init">[docs]</a>
+<div class="viewcode-block" id="FeatureEngineeringPipeline.create">
+<a class="viewcode-back" href="../../../api/generated/openstef_models.transforms.FeatureEngineeringPipeline.html#openstef_models.transforms.FeatureEngineeringPipeline.create">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">versioned_transforms</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Transform</span><span class="p">[</span><span class="n">VersionedTimeSeriesDataset</span><span class="p">,</span> <span class="n">VersionedTimeSeriesDataset</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">horizon_transforms</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">TimeSeriesTransform</span> <span class="o">|</span> <span class="n">MultiHorizonTimeSeriesTransform</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">horizons</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">LeadTime</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a feature engineering pipeline with specified transforms.</span>
+
+<span class="sd">        Factory method to construct a pipeline with versioned and horizon-specific</span>
+<span class="sd">        transforms. Automatically adapts single-horizon transforms to multi-horizon</span>
+<span class="sd">        format when needed.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            versioned_transforms: Transforms that operate on versioned time series data.</span>
+<span class="sd">            horizon_transforms: Transforms that operate on horizon-specific data.</span>
+<span class="sd">                Single-horizon transforms are automatically adapted to multi-horizon.</span>
+<span class="sd">            horizons: Forecast horizons for the pipeline. Defaults to 36 hours.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Configured feature engineering pipeline instance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">horizons</span><span class="o">=</span><span class="n">horizons</span> <span class="ow">or</span> <span class="p">[</span><span class="n">LeadTime</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;PT36H&quot;</span><span class="p">)],</span>
+            <span class="n">versioned_pipeline</span><span class="o">=</span><span class="n">TransformPipeline</span><span class="p">(</span><span class="n">transforms</span><span class="o">=</span><span class="n">versioned_transforms</span> <span class="ow">or</span> <span class="p">[]),</span>
+            <span class="n">horizon_pipeline</span><span class="o">=</span><span class="n">TransformPipeline</span><span class="p">(</span>
+                <span class="n">transforms</span><span class="o">=</span><span class="p">[</span>
+                    <span class="n">transform</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">transform</span><span class="p">,</span> <span class="n">MultiHorizonTimeSeriesTransform</span><span class="p">)</span>
+                    <span class="k">else</span> <span class="n">transform</span><span class="o">.</span><span class="n">to_multi_horizon</span><span class="p">()</span>
+                    <span class="k">for</span> <span class="n">transform</span> <span class="ow">in</span> <span class="n">horizon_transforms</span> <span class="ow">or</span> <span class="p">[]</span>
+                <span class="p">]</span>
+            <span class="p">),</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FeatureEngineeringPipeline.model_post_init">
+<a class="viewcode-back" href="../../../api/generated/openstef_models.transforms.FeatureEngineeringPipeline.html#openstef_models.transforms.FeatureEngineeringPipeline.model_post_init">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">model_post_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_horizon_split_transform</span> <span class="o">=</span> <span class="n">HorizonSplitTransform</span><span class="p">(</span><span class="n">horizons</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">horizons</span><span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="FeatureEngineeringPipeline.to_state">
+<a class="viewcode-back" href="../../../api/generated/openstef_models.transforms.FeatureEngineeringPipeline.html#openstef_models.transforms.FeatureEngineeringPipeline.to_state">[docs]</a>
+    <span class="nd">@override</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_state</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">State</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;versioned_transforms&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">versioned_pipeline</span><span class="o">.</span><span class="n">to_state</span><span class="p">(),</span>
+            <span class="s2">&quot;horizon_transforms&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">horizon_pipeline</span><span class="o">.</span><span class="n">to_state</span><span class="p">(),</span>
+        <span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="FeatureEngineeringPipeline.from_state">
+<a class="viewcode-back" href="../../../api/generated/openstef_models.transforms.FeatureEngineeringPipeline.html#openstef_models.transforms.FeatureEngineeringPipeline.from_state">[docs]</a>
+    <span class="nd">@override</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">State</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">State</span><span class="p">],</span> <span class="n">state</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span>
+            <span class="n">horizons</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">horizons</span><span class="p">,</span>
+            <span class="n">versioned_pipeline</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">versioned_pipeline</span><span class="o">.</span><span class="n">from_state</span><span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="s2">&quot;versioned_transforms&quot;</span><span class="p">]),</span>
+            <span class="n">horizon_pipeline</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">horizon_pipeline</span><span class="o">.</span><span class="n">from_state</span><span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="s2">&quot;horizon_transforms&quot;</span><span class="p">]),</span>
+        <span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="nd">@override</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_fitted</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_fitted</span>
+
     <span class="k">def</span><span class="w"> </span><span class="nf">_validate_unversioned_compatibility</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">versioned_transforms</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">versioned_pipeline</span><span class="o">.</span><span class="n">transforms</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;When using unversioned data, the pipeline cannot contain versioned transforms.&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">horizons</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;When using unversioned data, exactly one horizon must be configured in the pipeline.&quot;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="FeaturePipeline.fit_transform">
-<a class="viewcode-back" href="../../../api/generated/openstef_models.transforms.FeaturePipeline.html#openstef_models.transforms.FeaturePipeline.fit_transform">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">fit_transform</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">VersionedTimeSeriesDataset</span> <span class="o">|</span> <span class="n">TimeSeriesDataset</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="n">LeadTime</span><span class="p">,</span> <span class="n">TimeSeriesDataset</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Fit all transforms and apply them to the input dataset.</span>
-
-<span class="sd">        Convenience method that combines fitting and transformation in a single call.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            dataset: Versioned or simple time series dataset for fitting and transforming.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            Dictionary mapping each lead time to its transformed TimeSeriesDataset.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="FeaturePipeline.fit">
-<a class="viewcode-back" href="../../../api/generated/openstef_models.transforms.FeaturePipeline.html#openstef_models.transforms.FeaturePipeline.fit">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">VersionedTimeSeriesDataset</span> <span class="o">|</span> <span class="n">TimeSeriesDataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Fit all pipeline transforms to the input dataset.</span>
-
-<span class="sd">        Trains all transforms using the provided dataset. Supports both versioned datasets</span>
-<span class="sd">        (with complex time handling) and unversioned datasets (for single-horizon use cases).</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            dataset: Dataset used for fitting transforms. For unversioned data,</span>
-<span class="sd">                pipeline must have no versioned transforms and exactly one horizon.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">TimeSeriesDataset</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_validate_unversioned_compatibility</span><span class="p">()</span>
-            <span class="n">horizon_datasets</span> <span class="o">=</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">horizons</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="n">dataset</span><span class="p">}</span>
+<div class="viewcode-block" id="FeatureEngineeringPipeline.fit">
+<a class="viewcode-back" href="../../../api/generated/openstef_models.transforms.FeatureEngineeringPipeline.html#openstef_models.transforms.FeatureEngineeringPipeline.fit">[docs]</a>
+    <span class="nd">@override</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">VersionedTimeSeriesDataset</span> <span class="o">|</span> <span class="n">TimeSeriesDataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">TimeSeriesDataset</span><span class="p">):</span>
+            <span class="n">horizon_data</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">horizons</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Fit all the versioned transforms</span>
-            <span class="n">version_transformed_dataset</span><span class="p">:</span> <span class="n">VersionedTimeSeriesDataset</span> <span class="o">=</span> <span class="n">dataset</span>
-            <span class="k">for</span> <span class="n">transform</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">versioned_transforms</span><span class="p">:</span>
-                <span class="n">version_transformed_dataset</span> <span class="o">=</span> <span class="n">transform</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">version_transformed_dataset</span><span class="p">)</span>
+            <span class="n">versioned_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">versioned_pipeline</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
 
-            <span class="c1"># Split to simple time series for fitting simple transforms</span>
-            <span class="n">horizon_datasets</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">LeadTime</span><span class="p">,</span> <span class="n">TimeSeriesDataset</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_horizon_split_transform</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span>
-                <span class="n">version_transformed_dataset</span>
-            <span class="p">)</span>
+            <span class="c1"># Split to simple time series into horizon-specific datasets</span>
+            <span class="n">horizon_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_horizon_split_transform</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">versioned_data</span><span class="p">)</span>
 
-        <span class="c1"># Fit all the simple transforms on each simple dataset</span>
-        <span class="k">for</span> <span class="n">transform</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">horizon_transforms</span><span class="p">:</span>
-            <span class="n">horizon_datasets</span> <span class="o">=</span> <span class="n">transform</span><span class="o">.</span><span class="n">fit_transform_horizons</span><span class="p">(</span><span class="n">horizon_datasets</span><span class="p">)</span>
+        <span class="c1"># Fit all the horizon transforms</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">horizon_pipeline</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">horizon_data</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_fitted</span> <span class="o">=</span> <span class="kc">True</span></div>
 
 
-<div class="viewcode-block" id="FeaturePipeline.transform">
-<a class="viewcode-back" href="../../../api/generated/openstef_models.transforms.FeaturePipeline.html#openstef_models.transforms.FeaturePipeline.transform">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">VersionedTimeSeriesDataset</span> <span class="o">|</span> <span class="n">TimeSeriesDataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="n">LeadTime</span><span class="p">,</span> <span class="n">TimeSeriesDataset</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply fitted transforms to produce horizon-specific datasets.</span>
-
-<span class="sd">        Transforms input data through the complete pipeline. Assumes transforms have been fitted.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            dataset: Dataset to transform. Can be new data for prediction or training data.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            Dictionary mapping each LeadTime to its transformed TimeSeriesDataset.</span>
-
-<span class="sd">        Raises:</span>
-<span class="sd">            TransformNotFittedError: If pipeline hasn&#39;t been fitted before calling this method.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="FeatureEngineeringPipeline.transform">
+<a class="viewcode-back" href="../../../api/generated/openstef_models.transforms.FeatureEngineeringPipeline.html#openstef_models.transforms.FeatureEngineeringPipeline.transform">[docs]</a>
+    <span class="nd">@override</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">VersionedTimeSeriesDataset</span> <span class="o">|</span> <span class="n">TimeSeriesDataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MultiHorizonTimeSeriesDataset</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_fitted</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">TransformNotFittedError</span><span class="p">(</span><span class="s2">&quot;Pipeline is not fitted yet.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">NotFittedError</span><span class="p">(</span><span class="s2">&quot;Pipeline is not fitted&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">TimeSeriesDataset</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_validate_unversioned_compatibility</span><span class="p">()</span>
-            <span class="n">horizon_datasets</span> <span class="o">=</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">horizons</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="n">dataset</span><span class="p">}</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">TimeSeriesDataset</span><span class="p">):</span>
+            <span class="n">horizon_data</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">horizons</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># Apply all the versioned transforms</span>
-            <span class="n">version_transformed_dataset</span><span class="p">:</span> <span class="n">VersionedTimeSeriesDataset</span> <span class="o">=</span> <span class="n">dataset</span>
-            <span class="k">for</span> <span class="n">transform</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">versioned_transforms</span><span class="p">:</span>
-                <span class="n">version_transformed_dataset</span> <span class="o">=</span> <span class="n">transform</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">version_transformed_dataset</span><span class="p">)</span>
+            <span class="n">versioned_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">versioned_pipeline</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">horizon_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_horizon_split_transform</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">versioned_data</span><span class="p">)</span>
 
-            <span class="c1"># Split to horizon time series for transforming horizon transforms</span>
-            <span class="n">horizon_datasets</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">LeadTime</span><span class="p">,</span> <span class="n">TimeSeriesDataset</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_horizon_split_transform</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span>
-                <span class="n">version_transformed_dataset</span>
-            <span class="p">)</span>
-
-        <span class="c1"># Transform all the horizon datasets</span>
-        <span class="n">transformed_datasets</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">LeadTime</span><span class="p">,</span> <span class="n">TimeSeriesDataset</span><span class="p">]</span> <span class="o">=</span> <span class="n">horizon_datasets</span>
-        <span class="k">for</span> <span class="n">transform</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">horizon_transforms</span><span class="p">:</span>
-            <span class="n">transformed_datasets</span> <span class="o">=</span> <span class="n">transform</span><span class="o">.</span><span class="n">transform_horizons</span><span class="p">(</span><span class="n">transformed_datasets</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">transformed_datasets</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">horizon_pipeline</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">horizon_data</span><span class="p">)</span></div>
 </div>
 
 </pre></div>

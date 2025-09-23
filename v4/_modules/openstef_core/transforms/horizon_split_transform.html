@@ -7,7 +7,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>openstef_models.transforms.forecast_transform_pipeline &#8212; OpenSTEF 0.0.0 documentation</title>
+    <title>openstef_core.transforms.horizon_split_transform &#8212; OpenSTEF 0.0.0 documentation</title>
   
   
   
@@ -47,7 +47,7 @@
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../../_static/copybutton.js?v=97f0b27d"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/openstef_models/transforms/forecast_transform_pipeline';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/openstef_core/transforms/horizon_split_transform';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = '_static/versions.json';
@@ -421,7 +421,7 @@
     
     <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">openstef_models.transforms.forecast_transform_pipeline</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">openstef_core.transforms.horizon_split_transform</span></li>
   </ul>
 </nav>
 </div>
@@ -438,93 +438,124 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <h1>Source code for openstef_models.transforms.forecast_transform_pipeline</h1><div class="highlight"><pre>
+  <h1>Source code for openstef_core.transforms.horizon_split_transform</h1><div class="highlight"><pre>
 <span></span><span class="c1"># SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project &lt;short.term.energy.forecasts@alliander.com&gt;</span>
 <span class="c1">#</span>
 <span class="c1"># SPDX-License-Identifier: MPL-2.0</span>
 
-<span class="sd">&quot;&quot;&quot;Pipeline for applying multiple forecast transformations in sequence.</span>
+<span class="sd">&quot;&quot;&quot;Transform for splitting versioned datasets by forecast horizons.</span>
 
-<span class="sd">Chains forecast postprocessing operations together, ensuring they are applied</span>
-<span class="sd">in the correct order and providing unified fit/transform behavior across</span>
-<span class="sd">the entire pipeline.</span>
+<span class="sd">The main transform, HorizonSplitTransform, filters versioned data by lead time and</span>
+<span class="sd">resolves timestamps to create clean time series datasets for each forecast horizon.</span>
+<span class="sd">This enables efficient processing of multi-horizon forecasting models.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">override</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Self</span><span class="p">,</span> <span class="n">override</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">ForecastTransform</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets.validated_datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">ForecastDataset</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">NotFittedError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">Field</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.base_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">MultiHorizonTimeSeriesDataset</span><span class="p">,</span>
+    <span class="n">VersionedTimeSeriesDataset</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.mixins</span><span class="w"> </span><span class="kn">import</span> <span class="n">State</span><span class="p">,</span> <span class="n">Transform</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">LeadTime</span>
 
 
-<div class="viewcode-block" id="ForecastTransformPipeline">
-<a class="viewcode-back" href="../../../api/generated/openstef_models.transforms.ForecastTransformPipeline.html#openstef_models.transforms.ForecastTransformPipeline">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">ForecastTransformPipeline</span><span class="p">(</span><span class="n">ForecastTransform</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sequential pipeline of forecast transformations.</span>
+<div class="viewcode-block" id="HorizonSplitTransform">
+<a class="viewcode-back" href="../../../api/generated/openstef_models.transforms.HorizonSplitTransform.html#openstef_models.transforms.HorizonSplitTransform">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">HorizonSplitTransform</span><span class="p">(</span><span class="n">BaseConfig</span><span class="p">,</span> <span class="n">Transform</span><span class="p">[</span><span class="n">VersionedTimeSeriesDataset</span><span class="p">,</span> <span class="n">MultiHorizonTimeSeriesDataset</span><span class="p">]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform that splits versioned datasets into horizon-specific time series.</span>
 
-<span class="sd">    Applies multiple forecast transforms in order, fitting each transform</span>
-<span class="sd">    on the intermediate outputs of the previous transforms. Ensures proper</span>
-<span class="sd">    error handling and state management across the pipeline.</span>
+<span class="sd">    This transform is a key component in multi-horizon forecasting pipelines. It takes</span>
+<span class="sd">    versioned time series data (containing forecast validity timestamps) and produces</span>
+<span class="sd">    separate regular time series datasets for each specified forecast horizon.</span>
 
-<span class="sd">    Invariants:</span>
-<span class="sd">        - Transforms are called in order, receiving the output of the previous transform.</span>
-<span class="sd">        - Pipeline is considered fitted only when all transforms are fitted</span>
+<span class="sd">    The transformation process:</span>
+<span class="sd">    1. Filters data by each configured lead time (forecast horizon)</span>
+<span class="sd">    2. Resolves timestamps to remove versioning complexity</span>
+<span class="sd">    3. Returns clean time series datasets ready for standard processing</span>
 
 <span class="sd">    Example:</span>
-<span class="sd">        Creating and using a postprocessing pipeline:</span>
+<span class="sd">        Basic usage with energy forecasting data:</span>
 
-<span class="sd">        &gt;&gt;&gt; # Create an empty pipeline (no forecast transforms implemented yet)</span>
-<span class="sd">        &gt;&gt;&gt; pipeline = ForecastTransformPipeline()</span>
+<span class="sd">        &gt;&gt;&gt; import pandas as pd</span>
+<span class="sd">        &gt;&gt;&gt; from datetime import timedelta</span>
+<span class="sd">        &gt;&gt;&gt; from openstef_core.datasets import VersionedTimeSeriesDataset</span>
+<span class="sd">        &gt;&gt;&gt; from openstef_core.types import LeadTime</span>
 <span class="sd">        &gt;&gt;&gt;</span>
-<span class="sd">        &gt;&gt;&gt; # The pipeline can be used even when empty</span>
-<span class="sd">        &gt;&gt;&gt; # processed_forecasts = pipeline.transform(forecasts)</span>
+<span class="sd">        &gt;&gt;&gt; # Create sample versioned dataset</span>
+<span class="sd">        &gt;&gt;&gt; data = pd.DataFrame({</span>
+<span class="sd">        ...     &#39;timestamp&#39;: pd.date_range(&#39;2025-01-01&#39;, periods=24, freq=&#39;1h&#39;),</span>
+<span class="sd">        ...     &#39;available_at&#39;: pd.date_range(&#39;2025-01-01&#39;, periods=24, freq=&#39;1h&#39;),</span>
+<span class="sd">        ...     &#39;load&#39;: range(100, 124),</span>
+<span class="sd">        ...     &#39;temperature&#39;: [20 + i*0.5 for i in range(24)]</span>
+<span class="sd">        ... })</span>
+<span class="sd">        &gt;&gt;&gt; versioned_dataset = VersionedTimeSeriesDataset.from_dataframe(data, sample_interval=timedelta(hours=1))</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; # Configure horizons</span>
+<span class="sd">        &gt;&gt;&gt; horizons = [LeadTime.from_string(&quot;PT1H&quot;), LeadTime.from_string(&quot;PT24H&quot;)]</span>
+<span class="sd">        &gt;&gt;&gt; splitter = HorizonSplitTransform(horizons=horizons)</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; # Split into horizon-specific datasets</span>
+<span class="sd">        &gt;&gt;&gt; horizon_datasets = splitter.transform(versioned_dataset)</span>
+<span class="sd">        &gt;&gt;&gt; len(horizon_datasets)</span>
+<span class="sd">        2</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">transforms</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ForecastTransform</span><span class="p">]</span>
+    <span class="n">horizons</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">LeadTime</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="p">[</span><span class="n">LeadTime</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;PT36H&quot;</span><span class="p">)],</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;List of forecast horizons to prepare / split the dataset for.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
 
-<div class="viewcode-block" id="ForecastTransformPipeline.__init__">
-<a class="viewcode-back" href="../../../api/generated/openstef_models.transforms.ForecastTransformPipeline.html#openstef_models.transforms.ForecastTransformPipeline.__init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transforms</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ForecastTransform</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the postprocessing pipeline.</span>
+<div class="viewcode-block" id="HorizonSplitTransform.to_state">
+<a class="viewcode-back" href="../../../api/generated/openstef_models.transforms.HorizonSplitTransform.html#openstef_models.transforms.HorizonSplitTransform.to_state">[docs]</a>
+    <span class="nd">@override</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_state</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">State</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;horizons&quot;</span><span class="p">:</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">horizon</span><span class="p">)</span> <span class="k">for</span> <span class="n">horizon</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">horizons</span><span class="p">]}</span></div>
 
-<span class="sd">        Args:</span>
-<span class="sd">            transforms: List of forecast transforms to apply in sequence.</span>
-<span class="sd">                If None, creates an empty pipeline.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">transforms</span> <span class="o">=</span> <span class="n">transforms</span> <span class="ow">or</span> <span class="p">[]</span></div>
+
+<div class="viewcode-block" id="HorizonSplitTransform.from_state">
+<a class="viewcode-back" href="../../../api/generated/openstef_models.transforms.HorizonSplitTransform.html#openstef_models.transforms.HorizonSplitTransform.from_state">[docs]</a>
+    <span class="nd">@override</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">State</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">from_state</span><span class="p">(</span><span class="n">state</span><span class="p">)</span></div>
 
 
     <span class="nd">@property</span>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">is_fitted</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if all transforms in the pipeline are fitted.</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+<div class="viewcode-block" id="HorizonSplitTransform.fit">
+<a class="viewcode-back" href="../../../api/generated/openstef_models.transforms.HorizonSplitTransform.html#openstef_models.transforms.HorizonSplitTransform.fit">[docs]</a>
+    <span class="nd">@override</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">VersionedTimeSeriesDataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="HorizonSplitTransform.transform">
+<a class="viewcode-back" href="../../../api/generated/openstef_models.transforms.HorizonSplitTransform.html#openstef_models.transforms.HorizonSplitTransform.transform">[docs]</a>
+    <span class="nd">@override</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">VersionedTimeSeriesDataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MultiHorizonTimeSeriesDataset</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Split versioned dataset into horizon-specific time series datasets.</span>
+
+<span class="sd">        For each configured horizon, filters the versioned data and resolves timestamps</span>
+<span class="sd">        to create clean time series datasets suitable for standard processing.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data: Versioned time series dataset with forecast validity timestamps.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            True if all transforms in the pipeline are fitted, False otherwise.</span>
-<span class="sd">            Returns True for empty pipelines.</span>
+<span class="sd">            Dictionary mapping each LeadTime to its corresponding TimeSeriesDataset.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="n">transform</span><span class="o">.</span><span class="n">is_fitted</span> <span class="k">for</span> <span class="n">transform</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">transforms</span><span class="p">)</span>
-
-<div class="viewcode-block" id="ForecastTransformPipeline.fit">
-<a class="viewcode-back" href="../../../api/generated/openstef_models.transforms.ForecastTransformPipeline.html#openstef_models.transforms.ForecastTransformPipeline.fit">[docs]</a>
-    <span class="nd">@override</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">ForecastDataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">transform</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">transforms</span><span class="p">:</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="n">transform</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="ForecastTransformPipeline.transform">
-<a class="viewcode-back" href="../../../api/generated/openstef_models.transforms.ForecastTransformPipeline.html#openstef_models.transforms.ForecastTransformPipeline.transform">[docs]</a>
-    <span class="nd">@override</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">ForecastDataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ForecastDataset</span><span class="p">:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_fitted</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">NotFittedError</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
-
-        <span class="k">for</span> <span class="n">transform</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">transforms</span><span class="p">:</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="n">transform</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">data</span></div>
+        <span class="k">return</span> <span class="p">{</span><span class="n">horizon</span><span class="p">:</span> <span class="n">data</span><span class="o">.</span><span class="n">filter_by_lead_time</span><span class="p">(</span><span class="n">lead_time</span><span class="o">=</span><span class="n">horizon</span><span class="p">)</span><span class="o">.</span><span class="n">select_version</span><span class="p">()</span> <span class="k">for</span> <span class="n">horizon</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">horizons</span><span class="p">}</span></div>
 </div>
 
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;HorizonSplitTransform&quot;</span><span class="p">]</span>
 </pre></div>
 
                 </article>

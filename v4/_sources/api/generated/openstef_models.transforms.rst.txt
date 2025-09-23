@@ -28,8 +28,7 @@ Classes
    :toctree: .
    :template: custom_class.rst
 
-   FeaturePipeline
-   ForecastTransformPipeline
+   FeatureEngineeringPipeline
    HorizonSplitTransform
 
 

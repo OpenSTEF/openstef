@@ -629,9 +629,9 @@
 
 
 
-<div class="viewcode-block" id="TimeSeriesEnergyComponentDataset">
-<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.TimeSeriesEnergyComponentDataset.html#openstef_core.datasets.TimeSeriesEnergyComponentDataset">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">TimeSeriesEnergyComponentDataset</span><span class="p">(</span><span class="n">TimeSeriesDataset</span><span class="p">):</span>
+<div class="viewcode-block" id="EnergyComponentDataset">
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.EnergyComponentDataset.html#openstef_core.datasets.EnergyComponentDataset">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">EnergyComponentDataset</span><span class="p">(</span><span class="n">TimeSeriesDataset</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Time series dataset for energy generation by component type.</span>
 
 <span class="sd">    Validates that all required energy component columns (wind, solar, other)</span>
@@ -649,7 +649,7 @@
 <span class="sd">        ...     &#39;solar&#39;: [30, 40],</span>
 <span class="sd">        ...     &#39;other&#39;: [20, 25]</span>
 <span class="sd">        ... }, index=pd.date_range(&#39;2025-01-01&#39;, periods=2, freq=&#39;h&#39;))</span>
-<span class="sd">        &gt;&gt;&gt; dataset = TimeSeriesEnergyComponentDataset(energy_data, timedelta(hours=1))</span>
+<span class="sd">        &gt;&gt;&gt; dataset = EnergyComponentDataset(energy_data, timedelta(hours=1))</span>
 <span class="sd">        &gt;&gt;&gt; &#39;wind&#39; in dataset.feature_names</span>
 <span class="sd">        True</span>
 <span class="sd">        &gt;&gt;&gt; len(dataset.feature_names)</span>
@@ -661,8 +661,8 @@
 <span class="sd">        EnergyComponentType: Enum defining required energy component types.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="TimeSeriesEnergyComponentDataset.__init__">
-<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.TimeSeriesEnergyComponentDataset.html#openstef_core.datasets.TimeSeriesEnergyComponentDataset.__init__">[docs]</a>
+<div class="viewcode-block" id="EnergyComponentDataset.__init__">
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.EnergyComponentDataset.html#openstef_core.datasets.EnergyComponentDataset.__init__">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">sample_interval</span><span class="p">:</span> <span class="n">timedelta</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize dataset with energy component validation.</span>
@@ -684,9 +684,9 @@
 
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;EnergyComponentDataset&quot;</span><span class="p">,</span>
     <span class="s2">&quot;ForecastDataset&quot;</span><span class="p">,</span>
     <span class="s2">&quot;ForecastInputDataset&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;TimeSeriesEnergyComponentDataset&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 </pre></div>
 
