@@ -82,8 +82,7 @@ class ForecastInputDataset(TimeSeriesDataset):
         super().__init__(data, sample_interval)
 
         missing_columns = [
-            col for col in [target_column, sample_weight_column] 
-            if col is not None and col not in self.feature_names
+            col for col in [target_column, sample_weight_column] if col is not None and col not in self.feature_names
         ]
         if missing_columns:
             raise MissingColumnsError(missing_columns=missing_columns)

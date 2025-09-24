@@ -34,13 +34,13 @@ dependencies = [
 optional-dependencies.all = [
   "holidays>=0.79",
   "joblib>=1",
+  "openstef-models[xgboost-cpu]",
   "pvlib>=0.13",
   "scikit-learn>=1.7.1",
-  "openstef-models[xgboost-cpu]",
 ]
 optional-dependencies.xgboost-cpu = [
-  "xgboost-cpu>=3; sys_platform != 'darwin'",
-  "xgboost>=3; sys_platform == 'darwin'",
+  "xgboost>=3; sys_platform=='darwin'",
+  "xgboost-cpu>=3; sys_platform!='darwin'",
 ]
 optional-dependencies.xgboost-gpu = [
   "xgboost>=3",
