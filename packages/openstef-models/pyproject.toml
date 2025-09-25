@@ -36,6 +36,7 @@ optional-dependencies.all = [
   "joblib>=1",
   "pvlib>=0.13",
   "scikit-learn>=1.7.1",
+  "xgboost>=3",
 ]
 
 urls.Documentation = "https://openstef.github.io/openstef/index.html"
