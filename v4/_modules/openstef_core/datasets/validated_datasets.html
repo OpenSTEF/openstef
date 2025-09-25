@@ -477,12 +477,22 @@
 <span class="sd">        &gt;&gt;&gt; from datetime import timedelta</span>
 <span class="sd">        &gt;&gt;&gt; data = pd.DataFrame({</span>
 <span class="sd">        ...     &#39;load&#39;: [100, 120, 110],</span>
-<span class="sd">        ...     &#39;temperature&#39;: [20, 22, 21]</span>
+<span class="sd">        ...     &#39;temperature&#39;: [20, 22, 21],</span>
+<span class="sd">        ...     &#39;weights&#39;: [1.0, 0.5, 1.0],</span>
 <span class="sd">        ... }, index=pd.date_range(&#39;2025-01-01&#39;, periods=3, freq=&#39;h&#39;))</span>
-<span class="sd">        &gt;&gt;&gt; dataset = ForecastInputDataset(data, timedelta(hours=1), &#39;load&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; dataset = ForecastInputDataset(</span>
+<span class="sd">        ...     data=data,</span>
+<span class="sd">        ...     sample_interval=timedelta(hours=1),</span>
+<span class="sd">        ...     target_column=&#39;load&#39;,</span>
+<span class="sd">        ...     sample_weight_column=&#39;weights&#39;,</span>
+<span class="sd">        ... )</span>
 <span class="sd">        &gt;&gt;&gt; dataset.target_column</span>
 <span class="sd">        &#39;load&#39;</span>
+<span class="sd">        &gt;&gt;&gt; dataset.sample_weight_column</span>
+<span class="sd">        &#39;weights&#39;</span>
 <span class="sd">        &gt;&gt;&gt; len(dataset.target_series())</span>
+<span class="sd">        3</span>
+<span class="sd">        &gt;&gt;&gt; len(dataset.sample_weight_series())</span>
 <span class="sd">        3</span>
 
 <span class="sd">    See Also:</span>
