@@ -252,6 +252,7 @@ class XGBoostForecaster(HorizonForecaster):
     See Also:
         XGBoostHyperParams: Detailed hyperparameter configuration options.
         HorizonForecaster: Base interface for all forecasting models.
+        GBLinearForecaster: Alternative linear model using XGBoost.
     """
 
     _config: XGBoostForecasterConfig

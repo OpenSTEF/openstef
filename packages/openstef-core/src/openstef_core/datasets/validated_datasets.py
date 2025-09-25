@@ -81,26 +81,12 @@ class ForecastInputDataset(TimeSeriesDataset):
         """
         super().__init__(data, sample_interval)
 
-        missing_columns = [
-            col for col in [target_column, sample_weight_column] if col is not None and col not in self.feature_names
-        ]
-        if missing_columns:
-            raise MissingColumnsError(missing_columns=missing_columns)
+        if target_column not in self.feature_names:
+            raise MissingColumnsError(missing_columns=[target_column])
 
         self.target_column = target_column
         self.sample_weight_column = sample_weight_column
         self.forecast_start = forecast_start
-
-    def sample_weight_series(self) -> pd.Series:
-        """Extract the sample weight series from the dataset.
-
-        Returns:
-            Time series containing sample weights with original datetime index.
-            If no sample weight column is specified, returns a Series of ones.
-        """
-        if self.sample_weight_column is None:
-            return pd.Series(1, index=self.index)
-        return self.data[self.sample_weight_column]
 
     def target_series(self) -> pd.Series:
         """Extract the target time series from the dataset.
