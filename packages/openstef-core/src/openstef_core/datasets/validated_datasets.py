@@ -54,6 +54,7 @@ class ForecastInputDataset(TimeSeriesDataset):
         data: pd.DataFrame,
         sample_interval: timedelta,
         target_column: str = "load",
+        sample_weight_column: str = "sample_weight",
         forecast_start: datetime | None = None,
     ) -> None:
         """Initialize dataset with target column validation.
@@ -62,6 +63,7 @@ class ForecastInputDataset(TimeSeriesDataset):
             data: Time series data with DatetimeIndex.
             sample_interval: Time interval between consecutive data points.
             target_column: Name of the target column to forecast.
+            sample_weight_column: Name of column with sample weights.
             forecast_start: Optional timestamp indicating forecast start.
 
         Raises:
@@ -73,6 +75,7 @@ class ForecastInputDataset(TimeSeriesDataset):
             raise MissingColumnsError(missing_columns=[target_column])
 
         self.target_column = target_column
+        self.sample_weight_column = sample_weight_column
         self.forecast_start = forecast_start
 
     def target_series(self) -> pd.Series:
@@ -82,6 +85,35 @@ class ForecastInputDataset(TimeSeriesDataset):
             Time series containing target values with original datetime index.
         """
         return self.data[self.target_column]
+
+    def sample_weight_series(self) -> pd.Series:
+        """Extract the sample weight time series from the dataset, if it exists.
+
+        Returns:
+            Time series containing sample weights with original datetime index,
+            or None if the sample weight column does not exist.
+        """
+        if self.sample_weight_column in self.feature_names:
+            return self.data[self.sample_weight_column]
+        return pd.Series(1, index=self.index)
+
+    def input_data(self, start: datetime | None = None) -> pd.DataFrame:
+        """Extract the input features excluding the target column.
+
+        Args:
+            start: Optional datetime to filter data from. If provided, only includes
+                data points with timestamps at or after this date.
+
+        Returns:
+            DataFrame containing input features with original datetime index.
+        """
+        input_data: pd.DataFrame = self.data.drop(
+            columns=[self.target_column, self.sample_weight_column], errors="ignore"
+        )
+        if start is not None:
+            input_data = input_data[input_data.index >= pd.Timestamp(start)]
+
+        return input_data
 
     @classmethod
     def from_timeseries_dataset(
