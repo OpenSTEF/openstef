@@ -2,6 +2,13 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+"""XGBoost-based forecasting models for probabilistic energy forecasting.
+
+Provides gradient boosting tree models using XGBoost for multi-quantile energy
+forecasting. Optimized for time series data with specialized loss functions and
+comprehensive hyperparameter control for production forecasting workflows.
+"""
+
 import base64
 import json
 from functools import partial
@@ -14,7 +21,7 @@ from pydantic import Field
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import ForecastDataset, ForecastInputDataset
-from openstef_core.exceptions import MissingExtraError, ModelLoadingError
+from openstef_core.exceptions import MissingExtraError, ModelLoadingError, NotFittedError
 from openstef_core.mixins import HyperParams, State
 from openstef_models.models.forecasting import ForecasterConfig, HorizonForecaster, HorizonForecasterConfig
 from openstef_models.utils.loss_functions import OBJECTIVE_MAP, ObjectiveFunctionType
@@ -26,7 +33,33 @@ except ImportError as e:
 
 
 class XGBoostHyperParams(HyperParams):
-    """XGBoost hyperparameters specialized for gbtree booster with tree-specific parameters only."""
+    """XGBoost hyperparameters for gradient boosting tree models.
+
+    Configures tree-specific parameters for XGBoost gbtree booster. Provides
+    comprehensive control over model complexity, regularization, and training
+    behavior for energy forecasting tasks.
+
+    These parameters control tree structure, learning rates, regularization,
+    and sampling strategies. Proper tuning is essential for balancing model
+    performance and overfitting prevention in time series forecasting.
+
+    Example:
+        Creating custom hyperparameters for deep trees with regularization:
+
+        >>> hyperparams = XGBoostHyperParams(
+        ...     n_estimators=200,
+        ...     max_depth=8,
+        ...     learning_rate=0.1,
+        ...     reg_alpha=0.1,
+        ...     reg_lambda=1.0,
+        ...     subsample=0.8
+        ... )
+
+    Note:
+        These parameters are optimized for probabilistic forecasting with
+        quantile regression. The default objective function is specialized
+        for magnitude-weighted pinball loss.
+    """
 
     # Core Tree Boosting Parameters
     n_estimators: int = Field(
@@ -129,6 +162,27 @@ class XGBoostHyperParams(HyperParams):
 
 
 class XGBoostForecasterConfig(HorizonForecasterConfig):
+    """Configuration for XGBoost-based forecasting models.
+
+    Combines hyperparameters with execution settings for XGBoost models.
+    Controls both model training behavior and computational resources for
+    efficient forecasting in production environments.
+
+    Example:
+        Creating a GPU-accelerated configuration:
+
+        >>> from datetime import timedelta
+        >>> from openstef_core.types import LeadTime, Quantile
+        >>> config = XGBoostForecasterConfig(
+        ...     quantiles=[Quantile(0.1), Quantile(0.5), Quantile(0.9)],
+        ...     horizons=[LeadTime(timedelta(hours=6))],
+        ...     hyperparams=XGBoostHyperParams(n_estimators=500, max_depth=8),
+        ...     device="cuda",
+        ...     n_jobs=-1,
+        ...     verbosity=2
+        ... )
+    """
+
     hyperparams: XGBoostHyperParams = XGBoostHyperParams()
 
     # General Parameters
@@ -147,16 +201,73 @@ MODEL_CODE_VERSION = 2
 
 
 class XGBoostForecasterState(BaseConfig):
+    """Serializable state for XGBoost forecaster persistence.
+
+    Contains all information needed to restore a trained XGBoost model,
+    including configuration and the serialized model weights. Used for
+    model saving, loading, and version management in production systems.
+    """
+
     version: int = Field(default=MODEL_CODE_VERSION)
     config: XGBoostForecasterConfig
     model: str
 
 
 class XGBoostForecaster(HorizonForecaster):
+    """XGBoost-based forecaster for probabilistic energy forecasting.
+
+    Implements gradient boosting trees using XGBoost for multi-quantile forecasting.
+    Optimized for time series prediction with specialized loss functions and
+    comprehensive hyperparameter control suitable for production energy forecasting.
+
+    The forecaster uses a multi-output strategy where each quantile is predicted
+    by separate trees within the same boosting ensemble. This approach provides
+    well-calibrated uncertainty estimates while maintaining computational efficiency.
+
+    Invariants:
+        - fit() must be called before predict() to train the model
+        - Configuration quantiles determine the number of prediction outputs
+        - Model state is preserved across predict() calls after fitting
+        - Input features must match training data structure during prediction
+
+    Example:
+        Basic forecasting workflow:
+
+        >>> from datetime import timedelta
+        >>> from openstef_core.types import LeadTime, Quantile
+        >>> config = XGBoostForecasterConfig(
+        ...     quantiles=[Quantile(0.1), Quantile(0.5), Quantile(0.9)],
+        ...     horizons=[LeadTime(timedelta(hours=1))],
+        ...     hyperparams=XGBoostHyperParams(n_estimators=100, max_depth=6)
+        ... )
+        >>> forecaster = XGBoostForecaster(config)
+        >>> # forecaster.fit(training_data)
+        >>> # predictions = forecaster.predict(test_data)
+
+    Note:
+        XGBoost dependency is optional and must be installed separately.
+        The model automatically handles multi-quantile output and uses
+        magnitude-weighted pinball loss by default for better forecasting performance.
+
+    See Also:
+        XGBoostHyperParams: Detailed hyperparameter configuration options.
+        HorizonForecaster: Base interface for all forecasting models.
+    """
+
     _config: XGBoostForecasterConfig
     _xgboost_model: xgb.XGBRegressor
 
     def __init__(self, config: XGBoostForecasterConfig) -> None:
+        """Initialize XGBoost forecaster with configuration.
+
+        Creates an untrained XGBoost regressor with the specified configuration.
+        The underlying XGBoost model is configured for multi-output quantile
+        regression using the provided hyperparameters and execution settings.
+
+        Args:
+            config: Complete configuration including hyperparameters, quantiles,
+                and execution settings for the XGBoost model.
+        """
         self._config = config
 
         objective = partial(OBJECTIVE_MAP[self._config.hyperparams.objective], quantiles=self._config.quantiles)
@@ -277,6 +388,9 @@ class XGBoostForecaster(HorizonForecaster):
 
     @override
     def predict(self, data: ForecastInputDataset) -> ForecastDataset:
+        if not self.is_fitted:
+            raise NotFittedError(self.__class__.__name__)
+
         input_data: pd.DataFrame = data.data.drop(columns=[data.target_column])
         if data.forecast_start is not None:
             input_data = input_data[input_data.index >= pd.Timestamp(data.forecast_start)]
@@ -291,3 +405,6 @@ class XGBoostForecaster(HorizonForecaster):
             ),
             sample_interval=data.sample_interval,
         )
+
+
+__all__ = ["XGBoostForecaster", "XGBoostForecasterConfig", "XGBoostHyperParams"]

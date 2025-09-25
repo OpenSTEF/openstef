@@ -144,13 +144,13 @@ def test_loss_functions__raise_error_on_mismatched_lengths() -> None:
     quantiles = [Quantile(0.1), Quantile(0.9)]
 
     # Act & Assert
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError):  # noqa: PT011
         pinball_loss_multi_objective(y_true, y_pred, quantiles)
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError):  # noqa: PT011
         pinball_loss_magnitude_weighted_multi_objective(y_true, y_pred, quantiles)
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError):  # noqa: PT011
         arctan_loss_multi_objective(y_true, y_pred, quantiles)
 
 
