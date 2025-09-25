@@ -17,23 +17,12 @@ from openstef_core.datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import MissingExtraError, ModelLoadingError
 from openstef_core.mixins import HyperParams, State
 from openstef_models.models.forecasting import ForecasterConfig, HorizonForecaster, HorizonForecasterConfig
-from openstef_models.utils.loss_functions import (
-    arctan_loss_multi_objective,
-    pinball_loss_magnitude_weighted_multi_objective,
-    pinball_loss_multi_objective,
-)
+from openstef_models.utils.loss_functions import OBJECTIVE_MAP, ObjectiveFunctionType
 
 try:
     import xgboost as xgb
 except ImportError as e:
     raise MissingExtraError("xgboost", "openstef-models") from e
-
-
-_OBJECTIVE_MAP = {
-    "pinball_loss_magnitude_weighted": pinball_loss_magnitude_weighted_multi_objective,
-    "pinball_loss": pinball_loss_multi_objective,
-    "arctan_loss": arctan_loss_multi_objective,
-}
 
 
 class XGBoostHyperParams(HyperParams):
@@ -67,7 +56,7 @@ class XGBoostHyperParams(HyperParams):
         description="Minimum loss reduction required to make a split. Higher values make algorithm more "
         "conservative. Range: [0,∞]",
     )
-    objective: Literal["pinball_loss_magnitude_weighted", "pinball_loss", "arctan_loss"] = Field(
+    objective: ObjectiveFunctionType = Field(
         default="pinball_loss_magnitude_weighted",
         description="Objective function for training. 'pinball_loss_magnitude_weighted' is recommended for "
         "probabilistic forecasting.",
@@ -170,7 +159,7 @@ class XGBoostForecaster(HorizonForecaster):
     def __init__(self, config: XGBoostForecasterConfig) -> None:
         self._config = config
 
-        objective = partial(_OBJECTIVE_MAP[self._config.hyperparams.objective], quantiles=self._config.quantiles)
+        objective = partial(OBJECTIVE_MAP[self._config.hyperparams.objective], quantiles=self._config.quantiles)
 
         self._xgboost_model = xgb.XGBRegressor(
             # Multi-output configuration
