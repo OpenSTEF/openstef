@@ -208,9 +208,9 @@ class XGBoostForecasterState(BaseConfig):
     model saving, loading, and version management in production systems.
     """
 
-    version: int = Field(default=MODEL_CODE_VERSION)
-    config: XGBoostForecasterConfig
-    model: str
+    version: int = Field(default=MODEL_CODE_VERSION, description="Version of the model code.")
+    config: XGBoostForecasterConfig = Field(..., description="Forecaster configuration.")
+    model: str = Field(..., description="Base64-encoded serialized XGBoost model.")
 
 
 class XGBoostForecaster(HorizonForecaster):
@@ -391,10 +391,7 @@ class XGBoostForecaster(HorizonForecaster):
         if not self.is_fitted:
             raise NotFittedError(self.__class__.__name__)
 
-        input_data: pd.DataFrame = data.data.drop(columns=[data.target_column])
-        if data.forecast_start is not None:
-            input_data = input_data[input_data.index >= pd.Timestamp(data.forecast_start)]
-
+        input_data: pd.DataFrame = data.input_data(start=data.forecast_start)
         prediction: npt.NDArray[np.floating] = self._xgboost_model.predict(X=input_data)
 
         return ForecastDataset(

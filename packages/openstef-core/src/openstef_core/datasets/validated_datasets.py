@@ -97,13 +97,23 @@ class ForecastInputDataset(TimeSeriesDataset):
             return self.data[self.sample_weight_column]
         return pd.Series(1, index=self.index)
 
-    def input_data(self) -> pd.DataFrame:
+    def input_data(self, start: datetime | None = None) -> pd.DataFrame:
         """Extract the input features excluding the target column.
+
+        Args:
+            start: Optional datetime to filter data from. If provided, only includes
+                data points with timestamps at or after this date.
 
         Returns:
             DataFrame containing input features with original datetime index.
         """
-        return self.data.drop(columns=[self.target_column, self.sample_weight_column], errors="ignore")
+        input_data: pd.DataFrame = self.data.drop(
+            columns=[self.target_column, self.sample_weight_column], errors="ignore"
+        )
+        if start is not None:
+            input_data = input_data[input_data.index >= pd.Timestamp(start)]
+
+        return input_data
 
     @classmethod
     def from_timeseries_dataset(
