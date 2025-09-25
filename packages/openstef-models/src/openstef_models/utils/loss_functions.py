@@ -9,6 +9,8 @@ including magnitude-weighted pinball loss, arctan-smoothed pinball loss, and sta
 pinball loss. All functions support sample weighting for flexible training.
 """
 
+from typing import Literal
+
 import numpy as np
 import numpy.typing as npt
 
@@ -283,7 +285,18 @@ def pinball_loss_multi_objective(
     return gradient.flatten() / n_quantiles, hessian.flatten() / n_quantiles
 
 
+type ObjectiveFunctionType = Literal["pinball_loss_magnitude_weighted", "pinball_loss", "arctan_loss"]
+
+OBJECTIVE_MAP = {
+    "pinball_loss_magnitude_weighted": pinball_loss_magnitude_weighted_multi_objective,
+    "pinball_loss": pinball_loss_multi_objective,
+    "arctan_loss": arctan_loss_multi_objective,
+}
+
+
 __all__ = [
+    "OBJECTIVE_MAP",
+    "ObjectiveFunctionType",
     "arctan_loss_multi_objective",
     "pinball_loss_magnitude_weighted_multi_objective",
     "pinball_loss_multi_objective",
