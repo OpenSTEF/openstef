@@ -11,34 +11,32 @@ import xgboost as xgb
 from openstef_core.datasets import ForecastInputDataset
 from openstef_core.exceptions import ModelLoadingError, NotFittedError
 from openstef_core.types import LeadTime, Q
-from openstef_models.models.forecasting.xgboost_forecaster import (
-    XGBoostForecaster,
-    XGBoostForecasterConfig,
-    XGBoostHyperParams,
+from openstef_models.models.forecasting.gblinear_forecaster import (
+    GBLinearForecaster,
+    GBLinearForecasterConfig,
+    GBLinearHyperParams,
 )
 
 
 @pytest.fixture
-def base_config() -> XGBoostForecasterConfig:
-    """Base configuration for XGBoost forecaster tests."""
-    return XGBoostForecasterConfig(
+def base_config() -> GBLinearForecasterConfig:
+    """Base configuration for GBLinearForecasterConfig forecaster tests."""
+    return GBLinearForecasterConfig(
         horizons=[LeadTime(timedelta(days=1))],
         quantiles=[Q(0.1), Q(0.5), Q(0.9)],
-        hyperparams=XGBoostHyperParams(
-            n_estimators=10,  # Small for fast tests
-        ),
+        hyperparams=GBLinearHyperParams(),
         verbosity=0,  # Quiet for tests
     )
 
 
-def test_xgboost_forecaster__fit_predict(
+def test_gblinear_forecaster__fit_predict(
     sample_forecast_input_dataset: ForecastInputDataset,
-    base_config: XGBoostForecasterConfig,
+    base_config: GBLinearForecasterConfig,
 ):
     """Test basic fit and predict workflow with comprehensive output validation."""
     # Arrange
     expected_quantiles = base_config.quantiles
-    forecaster = XGBoostForecaster(config=base_config)
+    forecaster = GBLinearForecaster(config=base_config)
 
     # Act
     forecaster.fit(sample_forecast_input_dataset)
@@ -63,22 +61,22 @@ def test_xgboost_forecaster__fit_predict(
     assert (stds > 0).all(), f"All columns should have variation, got stds: {dict(stds)}"
 
 
-def test_xgboost_forecaster__state_roundtrip(
+def test_gblinear_forecaster__state_roundtrip(
     sample_forecast_input_dataset: ForecastInputDataset,
-    base_config: XGBoostForecasterConfig,
+    base_config: GBLinearForecasterConfig,
 ):
     """Test that forecaster state can be serialized and restored with preserved functionality."""
     # Arrange
     config = base_config
 
-    original_forecaster = XGBoostForecaster(config=config)
+    original_forecaster = GBLinearForecaster(config=config)
     original_forecaster.fit(sample_forecast_input_dataset)
 
     # Act
     # Serialize state and create new forecaster from state
     state = original_forecaster.to_state()
 
-    restored_forecaster = XGBoostForecaster(config=config)
+    restored_forecaster = GBLinearForecaster(config=config)
     restored_forecaster = restored_forecaster.from_state(state)
 
     # Assert
@@ -89,57 +87,57 @@ def test_xgboost_forecaster__state_roundtrip(
     pd.testing.assert_frame_equal(original_result.data, restored_result.data)
 
 
-def test_xgboost_forecaster__rejects_other_booster_state(
+def test_gblinear_forecaster__rejects_other_booster_state(
     sample_forecast_input_dataset: ForecastInputDataset,
-    base_config: XGBoostForecasterConfig,
+    base_config: GBLinearForecasterConfig,
 ):
-    """Test that XGBoost forecaster rejects states from other booster types."""
-    # Arrange: Create and train a different XGBoost model directly
+    """Test that GBLinear forecaster rejects states from gbtree booster using XGBoostRegressor directly."""
+    # Arrange: Create and train a gbtree XGBoost model directly
     input_data = sample_forecast_input_dataset.input_data()
     target = sample_forecast_input_dataset.target_series()
 
     # Create XGBoost regressor with gbtree booster (default)
     xgb_model = xgb.XGBRegressor(
-        booster="gblinear",
+        booster="gbtree",
         n_estimators=1,
         verbosity=0,
     )
     xgb_model.fit(input_data, target)
 
-    # replace XGBoost model with the GBtree model
-    gbtree_forecaster = XGBoostForecaster(config=base_config)
-    gbtree_forecaster._xgboost_model = xgb_model
+    # replace GBLinear model with the GBtree model
+    gbtree_forecaster = GBLinearForecaster(config=base_config)
+    gbtree_forecaster._gblinear_model = xgb_model
 
     fake_state = gbtree_forecaster.to_state()
 
-    # Create XGBoost forecaster
-    xgboost_forecaster = XGBoostForecaster(config=base_config)
+    # Create GBLinear forecaster
+    gblinear_forecaster = GBLinearForecaster(config=base_config)
 
     # Act & Assert: Should reject gbtree state
-    with pytest.raises(ModelLoadingError, match=r"Invalid booster type.*expected 'gbtree', got 'gblinear'"):
-        xgboost_forecaster.from_state(fake_state)
+    with pytest.raises(ModelLoadingError, match=r"Invalid booster type.*expected 'gblinear', got 'gbtree'"):
+        gblinear_forecaster.from_state(fake_state)
 
 
-def test_xgboost_forecaster__predict_not_fitted_raises_error(
+def test_gblinear_forecaster__predict_not_fitted_raises_error(
     sample_forecast_input_dataset: ForecastInputDataset,
-    base_config: XGBoostForecasterConfig,
+    base_config: GBLinearForecasterConfig,
 ):
     """Test that predict() raises NotFittedError when called before fit()."""
     # Arrange
-    forecaster = XGBoostForecaster(config=base_config)
+    forecaster = GBLinearForecaster(config=base_config)
 
     # Act & Assert
-    with pytest.raises(NotFittedError, match="XGBoostForecaster"):
+    with pytest.raises(NotFittedError, match="GBLinearForecaster"):
         forecaster.predict(sample_forecast_input_dataset)
 
 
-def test_xgboost_forecaster__with_sample_weights(
+def test_gblinear_forecaster__with_sample_weights(
     sample_dataset_with_weights: ForecastInputDataset,
-    base_config: XGBoostForecasterConfig,
+    base_config: GBLinearForecasterConfig,
 ):
     """Test that forecaster works with sample weights and produces different results."""
     # Arrange
-    forecaster_with_weights = XGBoostForecaster(config=base_config)
+    forecaster_with_weights = GBLinearForecaster(config=base_config)
 
     # Create dataset without weights for comparison
     data_without_weights = ForecastInputDataset(
@@ -148,7 +146,7 @@ def test_xgboost_forecaster__with_sample_weights(
         target_column=sample_dataset_with_weights.target_column,
         forecast_start=sample_dataset_with_weights.forecast_start,
     )
-    forecaster_without_weights = XGBoostForecaster(config=base_config)
+    forecaster_without_weights = GBLinearForecaster(config=base_config)
 
     # Act
     forecaster_with_weights.fit(sample_dataset_with_weights)
@@ -167,36 +165,3 @@ def test_xgboost_forecaster__with_sample_weights(
     # (This is a statistical test - with different weights, predictions should differ)
     differences = (result_with_weights.data - result_without_weights.data).abs()
     assert differences.sum().sum() > 0, "Sample weights should affect model predictions"
-
-
-@pytest.mark.parametrize("objective", ["pinball_loss", "pinball_loss_magnitude_weighted", "arctan_loss"])
-def test_xgboost_forecaster__different_objectives(
-    sample_forecast_input_dataset: ForecastInputDataset,
-    base_config: XGBoostForecasterConfig,
-    objective: str,
-):
-    """Test that forecaster works with different objective functions."""
-    # Arrange
-    config = base_config.model_copy(
-        update={
-            "hyperparams": base_config.hyperparams.model_copy(
-                update={"objective": objective}  # type: ignore[arg-type]
-            )
-        }
-    )
-    forecaster = XGBoostForecaster(config=config)
-
-    # Act
-    forecaster.fit(sample_forecast_input_dataset)
-    result = forecaster.predict(sample_forecast_input_dataset)
-
-    # Assert
-    # Basic functionality should work regardless of objective
-    assert forecaster.is_fitted, f"Model with {objective} should be fitted"
-    assert not result.data.isna().any().any(), f"Forecast with {objective} should not contain NaN values"
-
-    # Check value spread for each objective
-    # Note: Some objectives (like arctan_loss) may produce zero variation for some quantiles with small datasets
-    stds = result.data.std()
-    # At least one quantile should have variation (the model should not be completely degenerate)
-    assert (stds > 0).any(), f"At least one column should have variation with {objective}, got stds: {dict(stds)}"

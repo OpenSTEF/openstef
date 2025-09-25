@@ -252,6 +252,7 @@ class XGBoostForecaster(HorizonForecaster):
     See Also:
         XGBoostHyperParams: Detailed hyperparameter configuration options.
         HorizonForecaster: Base interface for all forecasting models.
+        GBLinearForecaster: Alternative linear model using XGBoost.
     """
 
     _config: XGBoostForecasterConfig
@@ -320,12 +321,7 @@ class XGBoostForecaster(HorizonForecaster):
 
     @override
     def to_state(self) -> State:
-        meta: dict[str, Any] = {}
-        meta["_estimator_type"] = self._xgboost_model._get_type()  # noqa: SLF001
-        meta_str = json.dumps(meta)
-        self._xgboost_model.get_booster().set_attr(scikit_learn=meta_str)
         model_raw = self._xgboost_model.get_booster().save_raw()
-        self._xgboost_model.get_booster().set_attr(scikit_learn=None)
 
         return XGBoostForecasterState(
             config=self._config,
@@ -347,6 +343,13 @@ class XGBoostForecaster(HorizonForecaster):
         instance = self.__class__(config=state_parsed.config)
         model_raw = bytearray(base64.b64decode(state_parsed.model))
         instance._xgboost_model.load_model(model_raw)  # pyright: ignore[reportUnknownMemberType]  # noqa: SLF001
+
+        booster = instance._xgboost_model.get_booster()  # noqa: SLF001
+        booster_config = json.loads(booster.save_config())
+        loaded_booster_type = booster_config.get("learner", {}).get("gradient_booster", {}).get("name", "")
+        if loaded_booster_type != "gbtree":
+            msg = f"Invalid booster type in state: expected 'gbtree', got '{loaded_booster_type}'"
+            raise ModelLoadingError(msg)
         return instance
 
     @property

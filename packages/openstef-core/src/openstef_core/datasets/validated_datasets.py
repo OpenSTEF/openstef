@@ -34,12 +34,22 @@ class ForecastInputDataset(TimeSeriesDataset):
         >>> from datetime import timedelta
         >>> data = pd.DataFrame({
         ...     'load': [100, 120, 110],
-        ...     'temperature': [20, 22, 21]
+        ...     'temperature': [20, 22, 21],
+        ...     'weights': [1.0, 0.5, 1.0],
         ... }, index=pd.date_range('2025-01-01', periods=3, freq='h'))
-        >>> dataset = ForecastInputDataset(data, timedelta(hours=1), 'load')
+        >>> dataset = ForecastInputDataset(
+        ...     data=data,
+        ...     sample_interval=timedelta(hours=1),
+        ...     target_column='load',
+        ...     sample_weight_column='weights',
+        ... )
         >>> dataset.target_column
         'load'
+        >>> dataset.sample_weight_column
+        'weights'
         >>> len(dataset.target_series())
+        3
+        >>> len(dataset.sample_weight_series())
         3
 
     See Also:
