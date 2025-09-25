@@ -68,7 +68,7 @@ def test_plot_formats_quantile_labels_correctly():
         x_values.extend(trace.x)
 
     unique_x_values = set(x_values)
-    expected_labels = {"P10", "P25", "P50", "P75", "P90"}
+    expected_labels = {"quantile_P10", "quantile_P25", "quantile_P50", "quantile_P75", "quantile_P90"}
     assert unique_x_values == expected_labels
 
 

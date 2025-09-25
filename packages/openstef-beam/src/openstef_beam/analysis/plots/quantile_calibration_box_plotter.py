@@ -68,9 +68,9 @@ class QuantileCalibrationBoxPlotter:
         """Add a model's forecasted and observed probabilities to the plot.
 
         Args:
-            model_name (str): The name of the model.
-            forecasted_probs (list[float]): List of forecasted probabilities.
-            observed_probs (list[float]): List of observed probabilities.
+            model_name: The name of the model.
+            forecasted_probs: List of forecasted probabilities.
+            observed_probs: List of observed probabilities.
 
         Returns:
             QuantileCalibrationBoxPlotter: The current instance for method chaining.
@@ -117,7 +117,7 @@ class QuantileCalibrationBoxPlotter:
             ]
 
             # Create quantile labels
-            quantile_labels = [f"P{int(float(q) * 100):02d}" for q in model_data["forecasted_prob"]]
+            quantile_labels = [q.format() for q in model_data["forecasted_prob"]]
 
             model_df = pd.DataFrame({
                 "Model": [model_data["model"]] * len(calibration_errors),
@@ -146,7 +146,27 @@ class QuantileCalibrationBoxPlotter:
             annotation_position="bottom right",
         )
 
-        # Add simple region labels
+        # Add region labels for over/under estimation
+        self._add_over_under_estimation_region_labels(fig)
+
+        # Update layout for better readability
+        fig.update_layout(  # type: ignore[reportUnknownMemberType]
+            xaxis_title="Quantile Level",
+            yaxis_title="Calibration Error (Observed - Forecasted)",
+            showlegend=True,
+            hovermode="x unified",
+        )
+
+        return fig
+
+    @staticmethod
+    def _add_over_under_estimation_region_labels(fig: go.Figure) -> None:
+        """Add region labels to indicate over/under estimation areas on the plot.
+
+        Args:
+            fig: The plotly figure to add annotations to.
+        """
+        # Add overestimation label (positive calibration error region)
         fig.add_annotation(  # type: ignore[reportUnknownMemberType]
             x=1,
             y=1,
@@ -159,6 +179,7 @@ class QuantileCalibrationBoxPlotter:
             yanchor="top",
         )
 
+        # Add underestimation label (negative calibration error region)
         fig.add_annotation(  # type: ignore[reportUnknownMemberType]
             x=1,
             y=0,
@@ -170,16 +191,6 @@ class QuantileCalibrationBoxPlotter:
             xanchor="right",
             yanchor="bottom",
         )
-
-        # Update layout for better readability
-        fig.update_layout(  # type: ignore[reportUnknownMemberType]
-            xaxis_title="Quantile Level",
-            yaxis_title="Calibration Error (Observed - Forecasted)",
-            showlegend=True,
-            hovermode="x unified",
-        )
-
-        return fig
 
 
 __all__ = ["QuantileCalibrationBoxPlotter"]

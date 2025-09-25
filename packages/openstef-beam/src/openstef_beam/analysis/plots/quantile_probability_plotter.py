@@ -65,9 +65,9 @@ class QuantileProbabilityPlotter:
         """Add a model's forecasted and observed probabilities to the plot.
 
         Args:
-            model_name (str): The name of the model.
-            forecasted_probs (list[float]): List of forecasted probabilities.
-            observed_probs (list[float]): List of observed probabilities.
+            model_name: The name of the model.
+            forecasted_probs: List of forecasted probabilities.
+            observed_probs: List of observed probabilities.
 
         Returns:
             QuantileProbabilityPlotter: The current instance for method chaining.
