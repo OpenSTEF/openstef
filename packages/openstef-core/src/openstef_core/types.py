@@ -281,15 +281,6 @@ class Quantile(float):
         pattern = r"^quantile_P(\d{1,2}(\.\d)?|100)$"
         return re.match(pattern, quantile_str) is not None
 
-    @property
-    def value(self) -> float:
-        """Get the float value of the quantile.
-
-        Returns:
-            Float value between 0 and 1.
-        """
-        return float(self)
-
 
 Q = Quantile  # Alias for easier imports
 
