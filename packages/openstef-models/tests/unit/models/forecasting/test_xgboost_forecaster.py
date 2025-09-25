@@ -6,9 +6,10 @@ from datetime import timedelta
 
 import pandas as pd
 import pytest
+import xgboost as xgb
 
 from openstef_core.datasets import ForecastInputDataset
-from openstef_core.exceptions import NotFittedError
+from openstef_core.exceptions import ModelLoadingError, NotFittedError
 from openstef_core.types import LeadTime, Q
 from openstef_models.models.forecasting.xgboost_forecaster import (
     XGBoostForecaster,
@@ -86,6 +87,37 @@ def test_xgboost_forecaster__state_roundtrip(
     restored_result = restored_forecaster.predict(sample_forecast_input_dataset)
 
     pd.testing.assert_frame_equal(original_result.data, restored_result.data)
+
+
+def test_xgboost_forecaster__rejects_other_booster_state(
+    sample_forecast_input_dataset: ForecastInputDataset,
+    base_config: XGBoostForecasterConfig,
+):
+    """Test that XGBoost forecaster rejects states from other booster types."""
+    # Arrange: Create and train a different XGBoost model directly
+    input_data = sample_forecast_input_dataset.input_data()
+    target = sample_forecast_input_dataset.target_series()
+
+    # Create XGBoost regressor with gbtree booster (default)
+    xgb_model = xgb.XGBRegressor(
+        booster="gblinear",
+        n_estimators=1,
+        verbosity=0,
+    )
+    xgb_model.fit(input_data, target)
+
+    # replace XGBoost model with the GBtree model
+    gbtree_forecaster = XGBoostForecaster(config=base_config)
+    gbtree_forecaster._xgboost_model = xgb_model
+
+    fake_state = gbtree_forecaster.to_state()
+
+    # Create XGBoost forecaster
+    xgboost_forecaster = XGBoostForecaster(config=base_config)
+
+    # Act & Assert: Should reject gbtree state
+    with pytest.raises(ModelLoadingError, match=r"Invalid booster type.*expected 'gbtree', got 'gblinear'"):
+        xgboost_forecaster.from_state(fake_state)
 
 
 def test_xgboost_forecaster__predict_not_fitted_raises_error(
