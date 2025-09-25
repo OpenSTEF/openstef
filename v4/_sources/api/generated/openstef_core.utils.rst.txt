@@ -1,0 +1,43 @@
+﻿.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+openstef_core.utils
+===================
+
+.. currentmodule:: openstef_core.utils
+
+.. automodule:: openstef_core.utils
+   :no-members:
+   :no-inherited-members:
+
+
+
+
+
+
+
+
+
+
+Functions
+---------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_function.rst
+
+   align_datetime
+   align_datetime_to_time
+   run_parallel
+   timedelta_from_isoformat
+   timedelta_to_isoformat
+
+
+
+
+
+
+
+
+
