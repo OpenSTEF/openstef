@@ -67,8 +67,7 @@ class QuantileCalibrationBoxVisualization(VisualizationProvider):
             AnalysisAggregation.RUN_AND_GROUP,
         }
 
-    @staticmethod
-    def _extract_probabilities_from_report(report: EvaluationSubsetReport) -> ProbabilityData:
+    def _extract_probabilities_from_report(self, report: EvaluationSubsetReport) -> ProbabilityData:
         """Extract observed and forecasted probability metrics from the report's global metrics.
 
         Args:
@@ -96,10 +95,10 @@ class QuantileCalibrationBoxVisualization(VisualizationProvider):
                     observed_probs.append(Quantile(observed_prob))
                     forecasted_probs.append(quantile)
 
-        if len(observed_probs) != len(forecasted_probs):
-            raise ValueError("Could not find all the observed probability metrics.")
+        prob_data = ProbabilityData(observed_probs=observed_probs, forecasted_probs=forecasted_probs)
+        self._validate_probability_data(prob_data)
 
-        return ProbabilityData(observed_probs=observed_probs, forecasted_probs=forecasted_probs)
+        return prob_data
 
     @staticmethod
     def _validate_probability_data(prob_data: ProbabilityData) -> None:
