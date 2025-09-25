@@ -139,8 +139,8 @@ class GBLinearForecaster(HorizonForecaster):
         ...     )
         ... )
         >>> forecaster = GBLinearForecaster(config)
-        >>> # forecaster.fit(training_data)
-        >>> # predictions = forecaster.predict(test_data)
+        >>> forecaster.fit(training_data)  # doctest: +SKIP
+        >>> predictions = forecaster.predict(test_data)  # doctest: +SKIP
 
     Note:
         XGBoost dependency is optional and must be installed separately.
