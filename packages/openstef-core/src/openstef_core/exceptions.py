@@ -14,7 +14,7 @@ from collections.abc import Sequence
 class MissingExtraError(Exception):
     """Exception raised when an extra is missing in the extras list."""
 
-    def __init__(self, extra: str, package: str = "stef-beam"):
+    def __init__(self, extra: str, package: str = "openstef-beam"):
         """Initialize the exception with the name of the missing extra.
 
         Args:

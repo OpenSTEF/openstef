@@ -64,7 +64,7 @@ class ForecastInputDataset(TimeSeriesDataset):
         data: pd.DataFrame,
         sample_interval: timedelta,
         target_column: str = "load",
-        sample_weight_column: str | None = None,
+        sample_weight_column: str = "sample_weight",
         forecast_start: datetime | None = None,
     ) -> None:
         """Initialize dataset with target column validation.
@@ -73,7 +73,7 @@ class ForecastInputDataset(TimeSeriesDataset):
             data: Time series data with DatetimeIndex.
             sample_interval: Time interval between consecutive data points.
             target_column: Name of the target column to forecast.
-            sample_weight_column: Optional name of column with sample weights.
+            sample_weight_column: Name of column with sample weights.
             forecast_start: Optional timestamp indicating forecast start.
 
         Raises:
@@ -109,6 +109,25 @@ class ForecastInputDataset(TimeSeriesDataset):
             Time series containing target values with original datetime index.
         """
         return self.data[self.target_column]
+
+    def sample_weight_series(self) -> pd.Series:
+        """Extract the sample weight time series from the dataset, if it exists.
+
+        Returns:
+            Time series containing sample weights with original datetime index,
+            or None if the sample weight column does not exist.
+        """
+        if self.sample_weight_column in self.feature_names:
+            return self.data[self.sample_weight_column]
+        return pd.Series(1, index=self.index)
+
+    def input_data(self) -> pd.DataFrame:
+        """Extract the input features excluding the target column.
+
+        Returns:
+            DataFrame containing input features with original datetime index.
+        """
+        return self.data.drop(columns=[self.target_column, self.sample_weight_column], errors="ignore")
 
     @classmethod
     def from_timeseries_dataset(
