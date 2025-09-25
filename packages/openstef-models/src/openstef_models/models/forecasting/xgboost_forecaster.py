@@ -197,7 +197,7 @@ class XGBoostForecasterConfig(HorizonForecasterConfig):
     )
 
 
-MODEL_CODE_VERSION = 2
+MODEL_CODE_VERSION = 1
 
 
 class XGBoostForecasterState(BaseConfig):
