@@ -10,8 +10,9 @@ forecasting where temporal dependencies matter but data availability varies.
 """
 
 from datetime import timedelta
-from typing import Self, override
+from typing import Self, cast, override
 
+import pandas as pd
 from pydantic import Field
 
 from openstef_core.base_model import BaseConfig
@@ -133,8 +134,12 @@ class VersionedLagTransform(BaseConfig, VersionedTimeSeriesTransform):
 
 
 def _transform_to_lag(data: VersionedTimeSeriesPart, column: str, lag: timedelta) -> VersionedTimeSeriesPart:
-    data_df = data.data.rename(columns={column: f"{column}_lag_{timedelta_to_isoformat(lag)}"})
+    data_df = data.data[[column, data.timestamp_column, data.available_at_column]].rename(columns={column: f"{column}_lag_{timedelta_to_isoformat(lag)}"})
     data_df[data.timestamp_column] = data_df[data.timestamp_column].sub(lag)  # pyright: ignore[reportArgumentType]
+
+    # Remove rows that were not present in the original data to avoid creating unpredictable NaNs
+    data_df = cast(pd.DataFrame, data_df[data_df[data.timestamp_column] <= cast(pd.Series, data.index).max()])
+
     return VersionedTimeSeriesPart(
         data=data_df,
         timestamp_column=data.timestamp_column,

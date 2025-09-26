@@ -118,3 +118,7 @@ tmp/
 output/
 prof/
 certificates/
+
+# Data artifacts
+examples/**/*.parquet
+examples/**/*.html

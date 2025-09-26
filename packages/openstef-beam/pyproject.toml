@@ -37,6 +37,9 @@ dependencies = [
 
 optional-dependencies.all = [
   "s3fs>=2025.5.1",
+  "openmeteo-requests>=1.7.2",
+  "requests-cache>=1.2.1",
+  "retry-requests>=2.0.0",
 ]
 urls.Documentation = "https://openstef.github.io/openstef/index.html"
 urls.Homepage = "https://lfenergy.org/projects/openstef/"

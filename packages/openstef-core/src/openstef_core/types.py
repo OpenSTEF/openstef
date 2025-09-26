@@ -10,15 +10,15 @@ key domain types like lead times, availability timestamps, and quantile values.
 """
 
 import re
-from datetime import timedelta
+from datetime import datetime, timedelta
 from enum import StrEnum
 from functools import total_ordering
 from typing import Any, Self, override
 
-from pydantic import GetCoreSchemaHandler, TypeAdapter
+from pydantic import Field, GetCoreSchemaHandler, TypeAdapter
 from pydantic_core import CoreSchema, core_schema
 
-from openstef_core.base_model import PydanticStringPrimitive
+from openstef_core.base_model import BaseConfig, PydanticStringPrimitive
 
 
 @total_ordering
@@ -291,3 +291,25 @@ class EnergyComponentType(StrEnum):
     WIND = "wind"
     SOLAR = "solar"
     OTHER = "other"
+
+
+class DatetimeRange(BaseConfig):
+    """Represents a range of datetime values with inclusive start and end.
+
+    This class is used to define a temporal range for filtering or querying
+    time-series data in the OpenSTEF forecasting pipeline.
+
+    Example:
+        Creating a datetime range for a specific day:
+
+        >>> from datetime import datetime
+        >>> range = DatetimeRange(
+        ...     start=datetime.fromisoformat('2023-01-01T00:00:00'),
+        ...     end=datetime.fromisoformat('2023-01-01T23:59:00')
+        ... )
+        >>> range.start
+        datetime.datetime(2023, 1, 1, 0, 0)
+    """
+
+    start: datetime = Field(..., description="Start datetime of the range, inclusive")
+    end: datetime = Field(..., description="End datetime of the range, inclusive")

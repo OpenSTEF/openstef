@@ -76,6 +76,7 @@ class LocalModelStorage(BaseModel, ModelStorage):
     @override
     def save_model_state(self, model_id: ModelIdentifier, model: Stateful) -> None:
         model_path = self._get_model_path(model_id)
+        model_path.parent.mkdir(parents=True, exist_ok=True)
 
         joblib.dump(model, model_path)  # type: ignore[reportUnknownMemberType]
 

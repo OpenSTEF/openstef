@@ -167,6 +167,7 @@ class GBLinearForecaster(HorizonForecaster):
         self._gblinear_model = xgb.XGBRegressor(
             booster="gblinear",
             objective="reg:quantileerror",
+            n_estimators=100,
             updater=self._config.hyperparams.updater,
             reg_alpha=self._config.hyperparams.reg_alpha,
             reg_lambda=self._config.hyperparams.reg_lambda,
@@ -228,7 +229,7 @@ class GBLinearForecaster(HorizonForecaster):
 
     @override
     def fit(self, data: ForecastInputDataset, data_val: ForecastInputDataset | None = None) -> None:
-        input_data: pd.DataFrame = data.input_data()
+        input_data: pd.DataFrame = data.input_data().dropna().astype(float)
         target: pd.Series = data.target_series()
         sample_weight: pd.Series = data.sample_weight_series()
 
@@ -236,11 +237,12 @@ class GBLinearForecaster(HorizonForecaster):
         sample_weight_eval_set = None
 
         if data_val is not None:
-            input_data_val: pd.DataFrame = data_val.input_data()
+            input_data_val: pd.DataFrame = data_val.input_data().dropna().astype(float)
             target_val: pd.Series = data_val.target_series()
             sample_weight_val: pd.Series = data_val.sample_weight_series()
             eval_set = [(input_data_val, target_val)]
             sample_weight_eval_set = [sample_weight_val]
+
 
         self._gblinear_model.fit(
             X=input_data,
@@ -256,7 +258,7 @@ class GBLinearForecaster(HorizonForecaster):
         if not self.is_fitted:
             raise NotFittedError(self.__class__.__name__)
 
-        input_data: pd.DataFrame = data.input_data(start=data.forecast_start)
+        input_data: pd.DataFrame = data.input_data(start=data.forecast_start).dropna().astype(float)
 
         predictions = self._gblinear_model.predict(input_data)
         return ForecastDataset(

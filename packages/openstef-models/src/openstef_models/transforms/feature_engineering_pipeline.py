@@ -207,6 +207,8 @@ class FeatureEngineeringPipeline(
             # Split to simple time series into horizon-specific datasets
             horizon_data = self._horizon_split_transform.fit_transform(data=versioned_data)
 
+            versioned_data.filter_by_lead_time()
+
         # Fit all the horizon transforms
         self.horizon_pipeline.fit_transform(data=horizon_data)
 
