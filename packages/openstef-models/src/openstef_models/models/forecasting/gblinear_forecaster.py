@@ -68,6 +68,10 @@ class GBLinearHyperParams(HyperParams):
     )
 
     # General Parameters
+    n_estimators: int = Field(
+        default=100,
+        description="Number of boosting rounds. More rounds can improve performance but may overfit."
+    )
     random_state: int | None = Field(
         default=None, description="Random seed for reproducibility. Controls tree structure randomness."
     )
@@ -167,6 +171,7 @@ class GBLinearForecaster(HorizonForecaster):
         self._gblinear_model = xgb.XGBRegressor(
             booster="gblinear",
             objective="reg:quantileerror",
+            n_estimators=self._config.hyperparams.n_estimators,
             updater=self._config.hyperparams.updater,
             reg_alpha=self._config.hyperparams.reg_alpha,
             reg_lambda=self._config.hyperparams.reg_lambda,
