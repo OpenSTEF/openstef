@@ -10,6 +10,7 @@
     installation
     quick_start
     intro/index
+    median_forecaster
     logging
     tutorials
     external_resources
