@@ -48,6 +48,7 @@ Classes
    InMemoryBenchmarkStorage
    LocalBenchmarkStorage
    S3BenchmarkStorage
+   SimpleTargetProvider
    StrictExecutionCallback
    TargetProvider
    TargetProviderConfig

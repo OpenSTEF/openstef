@@ -508,6 +508,7 @@
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.benchmarking.InMemoryBenchmarkStorage.html">InMemoryBenchmarkStorage</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.benchmarking.LocalBenchmarkStorage.html">LocalBenchmarkStorage</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.benchmarking.S3BenchmarkStorage.html">S3BenchmarkStorage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_beam.benchmarking.SimpleTargetProvider.html">SimpleTargetProvider</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.benchmarking.StrictExecutionCallback.html">StrictExecutionCallback</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.benchmarking.TargetProvider.html">TargetProvider</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.benchmarking.TargetProviderConfig.html">TargetProviderConfig</a></li>
@@ -635,13 +636,16 @@ metrics, generating reports, and storing results for comparison.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="openstef_beam.benchmarking.S3BenchmarkStorage.html#openstef_beam.benchmarking.S3BenchmarkStorage" title="openstef_beam.benchmarking.S3BenchmarkStorage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">S3BenchmarkStorage</span></code></a>(local_storage, bucket_name)</p></td>
 <td><p>S3-backed storage implementation that combines local and cloud storage.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="openstef_beam.benchmarking.StrictExecutionCallback.html#openstef_beam.benchmarking.StrictExecutionCallback" title="openstef_beam.benchmarking.StrictExecutionCallback"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StrictExecutionCallback</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="openstef_beam.benchmarking.SimpleTargetProvider.html#openstef_beam.benchmarking.SimpleTargetProvider" title="openstef_beam.benchmarking.SimpleTargetProvider"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SimpleTargetProvider</span></code></a>(**data)</p></td>
+<td><p>File-based target provider loading from YAML configs and Parquet datasets.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="openstef_beam.benchmarking.StrictExecutionCallback.html#openstef_beam.benchmarking.StrictExecutionCallback" title="openstef_beam.benchmarking.StrictExecutionCallback"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StrictExecutionCallback</span></code></a>()</p></td>
 <td><p>Callback to ensure strict benchmark execution with immediate error termination.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="openstef_beam.benchmarking.TargetProvider.html#openstef_beam.benchmarking.TargetProvider" title="openstef_beam.benchmarking.TargetProvider"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TargetProvider</span></code></a>(**data)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="openstef_beam.benchmarking.TargetProvider.html#openstef_beam.benchmarking.TargetProvider" title="openstef_beam.benchmarking.TargetProvider"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TargetProvider</span></code></a>(**data)</p></td>
 <td><p>Abstract interface for loading benchmark targets and their associated datasets.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="openstef_beam.benchmarking.TargetProviderConfig.html#openstef_beam.benchmarking.TargetProviderConfig" title="openstef_beam.benchmarking.TargetProviderConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TargetProviderConfig</span></code></a>(**data)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="openstef_beam.benchmarking.TargetProviderConfig.html#openstef_beam.benchmarking.TargetProviderConfig" title="openstef_beam.benchmarking.TargetProviderConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TargetProviderConfig</span></code></a>(**data)</p></td>
 <td><p>Configuration specifying data locations and path templates for target providers.</p></td>
 </tr>
 </tbody>

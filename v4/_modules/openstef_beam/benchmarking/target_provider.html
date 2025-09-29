@@ -633,6 +633,8 @@
 
 
 
+<div class="viewcode-block" id="SimpleTargetProvider">
+<a class="viewcode-back" href="../../../api/generated/openstef_beam.benchmarking.SimpleTargetProvider.html#openstef_beam.benchmarking.SimpleTargetProvider">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SimpleTargetProvider</span><span class="p">[</span><span class="n">T</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">,</span> <span class="n">F</span><span class="p">](</span><span class="n">TargetProvider</span><span class="p">[</span><span class="n">T</span><span class="p">,</span> <span class="n">F</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;File-based target provider loading from YAML configs and Parquet datasets.</span>
 
@@ -704,26 +706,37 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the class type of the target.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="nb">type</span><span class="p">[</span><span class="n">T</span><span class="p">],</span> <span class="n">BenchmarkTarget</span><span class="p">)</span>
 
+<div class="viewcode-block" id="SimpleTargetProvider.get_targets">
+<a class="viewcode-back" href="../../../api/generated/openstef_beam.benchmarking.SimpleTargetProvider.html#openstef_beam.benchmarking.SimpleTargetProvider.get_targets">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_targets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filter_args</span><span class="p">:</span> <span class="n">F</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
         <span class="n">targets_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">targets_file</span>
         <span class="k">return</span> <span class="n">read_yaml_config</span><span class="p">(</span>
             <span class="n">path</span><span class="o">=</span><span class="n">targets_path</span><span class="p">,</span>
             <span class="n">class_type</span><span class="o">=</span><span class="n">TypeAdapter</span><span class="p">(</span><span class="nb">list</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">get_target_class</span><span class="p">]),</span>
-        <span class="p">)</span>
+        <span class="p">)</span></div>
 
+
+<div class="viewcode-block" id="SimpleTargetProvider.get_metrics_for_target">
+<a class="viewcode-back" href="../../../api/generated/openstef_beam.benchmarking.SimpleTargetProvider.html#openstef_beam.benchmarking.SimpleTargetProvider.get_metrics_for_target">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_metrics_for_target</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">MetricProvider</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">metrics</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">metrics</span></div>
 
+
+<div class="viewcode-block" id="SimpleTargetProvider.get_measurements_path_for_target">
+<a class="viewcode-back" href="../../../api/generated/openstef_beam.benchmarking.SimpleTargetProvider.html#openstef_beam.benchmarking.SimpleTargetProvider.get_measurements_path_for_target">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_measurements_path_for_target</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Build file path for target measurements using configured template.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Path: Path to the measurements file for the target.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">/</span> <span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">group_name</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">measurements_path_template</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">target</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">/</span> <span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">group_name</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">measurements_path_template</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">target</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
 
+
+<div class="viewcode-block" id="SimpleTargetProvider.get_measurements_for_target">
+<a class="viewcode-back" href="../../../api/generated/openstef_beam.benchmarking.SimpleTargetProvider.html#openstef_beam.benchmarking.SimpleTargetProvider.get_measurements_for_target">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_measurements_for_target</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VersionedTimeSeriesDataset</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Load ground truth measurements from target-specific Parquet file.</span>
 
@@ -732,8 +745,11 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">VersionedTimeSeriesDataset</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span>
             <span class="n">path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_measurements_path_for_target</span><span class="p">(</span><span class="n">target</span><span class="p">),</span>
-        <span class="p">)</span>
+        <span class="p">)</span></div>
 
+
+<div class="viewcode-block" id="SimpleTargetProvider.get_predictors_for_target">
+<a class="viewcode-back" href="../../../api/generated/openstef_beam.benchmarking.SimpleTargetProvider.html#openstef_beam.benchmarking.SimpleTargetProvider.get_predictors_for_target">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_predictors_for_target</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VersionedTimeSeriesDataset</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Combine weather, profiles, and prices into aligned predictor dataset.</span>
 
@@ -753,16 +769,22 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_prices</span><span class="p">:</span>
             <span class="n">datasets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_prices</span><span class="p">())</span>
 
-        <span class="k">return</span> <span class="n">VersionedTimeSeriesDataset</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;inner&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">VersionedTimeSeriesDataset</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;inner&quot;</span><span class="p">)</span></div>
 
+
+<div class="viewcode-block" id="SimpleTargetProvider.get_weather_path_for_target">
+<a class="viewcode-back" href="../../../api/generated/openstef_beam.benchmarking.SimpleTargetProvider.html#openstef_beam.benchmarking.SimpleTargetProvider.get_weather_path_for_target">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_weather_path_for_target</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Build file path for target weather data using configured template.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Path: Path to the weather data file for the target.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">/</span> <span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">group_name</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">weather_path_template</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">target</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">/</span> <span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">group_name</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">weather_path_template</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">target</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
 
+
+<div class="viewcode-block" id="SimpleTargetProvider.get_weather_for_target">
+<a class="viewcode-back" href="../../../api/generated/openstef_beam.benchmarking.SimpleTargetProvider.html#openstef_beam.benchmarking.SimpleTargetProvider.get_weather_for_target">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_weather_for_target</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VersionedTimeSeriesDataset</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Load weather features from target-specific Parquet file.</span>
 
@@ -771,8 +793,11 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">VersionedTimeSeriesDataset</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span>
             <span class="n">path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_weather_path_for_target</span><span class="p">(</span><span class="n">target</span><span class="p">),</span>
-        <span class="p">)</span>
+        <span class="p">)</span></div>
 
+
+<div class="viewcode-block" id="SimpleTargetProvider.get_profiles">
+<a class="viewcode-back" href="../../../api/generated/openstef_beam.benchmarking.SimpleTargetProvider.html#openstef_beam.benchmarking.SimpleTargetProvider.get_profiles">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_profiles</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VersionedTimeSeriesDataset</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Load shared energy profiles data from configured Parquet file.</span>
 
@@ -781,8 +806,11 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">VersionedTimeSeriesDataset</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span>
             <span class="n">path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">profiles_path</span><span class="p">,</span>
-        <span class="p">)</span>
+        <span class="p">)</span></div>
 
+
+<div class="viewcode-block" id="SimpleTargetProvider.get_prices">
+<a class="viewcode-back" href="../../../api/generated/openstef_beam.benchmarking.SimpleTargetProvider.html#openstef_beam.benchmarking.SimpleTargetProvider.get_prices">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_prices</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VersionedTimeSeriesDataset</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Load shared energy pricing data from configured Parquet file.</span>
 
@@ -791,11 +819,16 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">VersionedTimeSeriesDataset</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span>
             <span class="n">path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">prices_path</span><span class="p">,</span>
-        <span class="p">)</span>
+        <span class="p">)</span></div>
 
+
+<div class="viewcode-block" id="SimpleTargetProvider.get_evaluation_mask_for_target">
+<a class="viewcode-back" href="../../../api/generated/openstef_beam.benchmarking.SimpleTargetProvider.html#openstef_beam.benchmarking.SimpleTargetProvider.get_evaluation_mask_for_target">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_evaluation_mask_for_target</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+</div>
+
 </pre></div>
 
                 </article>
