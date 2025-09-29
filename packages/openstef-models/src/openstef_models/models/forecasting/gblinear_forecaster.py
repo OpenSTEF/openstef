@@ -39,6 +39,11 @@ class GBLinearHyperParams(HyperParams):
     """Hyperparameter configuration for GBLinear forecaster."""
 
     # Learning Parameters
+    n_estimators: int = Field(
+        default=100,
+        description="Number of boosting rounds/trees to fit. Higher values may improve performance but "
+        "increase training time and risk overfitting.",
+    )
     updater: str = Field(
         default="shotgun",
         description="The updater to use for the GBLinear booster.",
@@ -166,14 +171,18 @@ class GBLinearForecaster(HorizonForecaster):
         self._config = config or GBLinearForecasterConfig()
         self._gblinear_model = xgb.XGBRegressor(
             booster="gblinear",
+            # Core parameters for forecasting
             objective="reg:quantileerror",
-            updater=self._config.hyperparams.updater,
-            reg_alpha=self._config.hyperparams.reg_alpha,
-            reg_lambda=self._config.hyperparams.reg_lambda,
-            feature_selector=self._config.hyperparams.feature_selector,
-            quantile_alpha=[float(q) for q in self._config.quantiles],
+            n_estimators=self._config.hyperparams.n_estimators,
             learning_rate=self._config.hyperparams.learning_rate,
             early_stopping_rounds=self._config.hyperparams.early_stopping_rounds,
+            # Regularization parameters
+            reg_alpha=self._config.hyperparams.reg_alpha,
+            reg_lambda=self._config.hyperparams.reg_lambda,
+            # Boosting structure control
+            feature_selector=self._config.hyperparams.feature_selector,
+            updater=self._config.hyperparams.updater,
+            quantile_alpha=[float(q) for q in self._config.quantiles],
             top_k=self._config.hyperparams.top_k,
         )
 
