@@ -9,10 +9,13 @@ how performance metrics evolve across different time windows.
 """
 
 import operator
+from collections import defaultdict
 from datetime import datetime
 from typing import Literal, override
 
-from openstef_beam.analysis.models import AnalysisAggregation, RunName, TargetMetadata, VisualizationOutput
+import numpy as np
+
+from openstef_beam.analysis.models import AnalysisAggregation, GroupName, RunName, TargetMetadata, VisualizationOutput
 from openstef_beam.analysis.plots import (
     WindowedMetricPlotter,
 )
@@ -68,6 +71,9 @@ class WindowedMetricVisualization(VisualizationProvider):
             AnalysisAggregation.NONE,
             AnalysisAggregation.RUN_AND_NONE,
             AnalysisAggregation.TARGET,
+            AnalysisAggregation.RUN_AND_TARGET,
+            AnalysisAggregation.GROUP,
+            AnalysisAggregation.RUN_AND_GROUP,
         }
 
     def _get_metric_info(self) -> tuple[str, Quantile | Literal["global"]]:
@@ -132,6 +138,38 @@ class WindowedMetricVisualization(VisualizationProvider):
         metric_display = f"{metric_name} (q={quantile_or_global})" if quantile_or_global != "global" else metric_name
         return f"Windowed {metric_display} {self.window} over Time {suffix}"
 
+    def _average_time_series_across_targets(
+        self, reports: list[ReportTuple], metric_name: str, quantile_or_global: Quantile | Literal["global"]
+    ) -> list[tuple[datetime, float]]:
+        """Average windowed metric values across multiple targets at each timestamp.
+
+        Args:
+            reports: List of (metadata, report) tuples from different targets
+            metric_name: Name of the metric to extract
+            quantile_or_global: Either a Quantile object or "global"
+
+        Returns:
+            List of (timestamp, averaged_metric_value) tuples
+        """
+        # Collect all time-value pairs from all targets
+        timestamp_values: dict[datetime, list[float]] = defaultdict(list)
+
+        for _metadata, report in reports:
+            time_value_pairs = self._extract_windowed_metric_values(report, metric_name, quantile_or_global)
+
+            for timestamp, value in time_value_pairs:
+                timestamp_values[timestamp].append(value)
+
+        # Calculate average for each timestamp
+        averaged_pairs: list[tuple[datetime, float]] = []
+        for timestamp in sorted(timestamp_values.keys()):
+            values = timestamp_values[timestamp]
+            if values:  # Only include timestamps that have data
+                avg_value = float(np.nanmean(values))
+                averaged_pairs.append((timestamp, avg_value))
+
+        return averaged_pairs
+
     @override
     def create_by_none(
         self,
@@ -142,7 +180,7 @@ class WindowedMetricVisualization(VisualizationProvider):
         time_value_pairs = self._extract_windowed_metric_values(report, metric_name, quantile_or_global)
 
         if not time_value_pairs:
-            raise ValueError("No windowed metrics found in the report for the specified window and metric.")
+            raise ValueError("No windowed metrics found for the specified window and metric.")
 
         # Unpack the sorted pairs
         timestamps = [pair[0] for pair in time_value_pairs]
@@ -172,7 +210,7 @@ class WindowedMetricVisualization(VisualizationProvider):
 
                 # Skip if no data points found for this run
                 if not time_value_pairs:
-                    continue
+                    raise ValueError("No windowed metrics found for the specified window, metric and run.")
 
                 # Unpack the sorted pairs
                 timestamps = [pair[0] for pair in time_value_pairs]
@@ -206,7 +244,7 @@ class WindowedMetricVisualization(VisualizationProvider):
 
             # Skip if no data points found for this target
             if not time_value_pairs:
-                continue
+                raise ValueError("No windowed metrics found for the specified window, metric and target.")
 
             # Unpack the sorted pairs
             timestamps = [pair[0] for pair in time_value_pairs]
@@ -225,6 +263,134 @@ class WindowedMetricVisualization(VisualizationProvider):
 
         title = self._create_plot_title(metric_name, quantile_or_global, title_suffix)
         figure = plotter.plot(title=title)
+
+        return VisualizationOutput(name=self.name, figure=figure)
+
+    # averaging over all targets in a single group
+    @override
+    def create_by_run_and_target(
+        self,
+        reports: dict[RunName, list[ReportTuple]],
+    ) -> VisualizationOutput:
+        metric_name, quantile_or_global = self._get_metric_info()
+        plotter = WindowedMetricPlotter()
+
+        # Process each run and calculate averaged metrics across its targets
+        for run_name, target_reports in reports.items():
+            if not target_reports:
+                raise ValueError("No windowed metrics found for the specified window, metric and run.")
+
+            # Average windowed metrics across all targets for this run
+            averaged_pairs = self._average_time_series_across_targets(
+                reports=target_reports,
+                metric_name=metric_name,
+                quantile_or_global=quantile_or_global,
+            )
+
+            # Skip if no averaged data points found for this run
+            if not averaged_pairs:
+                raise ValueError("No windowed averaged metrics found for the specified window, metric and run.")
+
+            # Unpack the averaged pairs
+            timestamps = [pair[0] for pair in averaged_pairs]
+            metric_values = [pair[1] for pair in averaged_pairs]
+
+            # Add this run to the plotter with averaged values
+            plotter.add_model(
+                model_name=run_name,
+                timestamps=timestamps,
+                metric_values=metric_values,
+            )
+
+        title = self._create_plot_title(metric_name, quantile_or_global, "by run (averaged over targets in group)")
+        figure = plotter.plot(title=title, metric_name=metric_name)
+
+        return VisualizationOutput(name=self.name, figure=figure)
+
+    # averaging over all targets (also when in different groups)
+    @override
+    def create_by_run_and_group(
+        self,
+        reports: dict[tuple[RunName, GroupName], list[ReportTuple]],
+    ) -> VisualizationOutput:
+        metric_name, quantile_or_global = self._get_metric_info()
+        plotter = WindowedMetricPlotter()
+
+        # Collect all targets for each run
+        run_to_targets: dict[str, list[ReportTuple]] = {}
+        for (run_name, _group_name), target_reports in reports.items():
+            run_to_targets.setdefault(run_name, []).extend(target_reports)
+
+        # Average metrics over all targets for each run
+        for run_name, all_target_reports in run_to_targets.items():
+            if not all_target_reports:
+                raise ValueError("No windowed metrics found for the specified window, metric and run.")
+
+            # Average windowed metrics across all targets for this run
+            averaged_pairs = self._average_time_series_across_targets(
+                reports=all_target_reports,
+                metric_name=metric_name,
+                quantile_or_global=quantile_or_global,
+            )
+
+            if not averaged_pairs:
+                raise ValueError("No windowed averaged metrics found for the specified window, metric and run.")
+
+            timestamps = [pair[0] for pair in averaged_pairs]
+            metric_values = [pair[1] for pair in averaged_pairs]
+
+            # Add this (run, group) to the plotter with averaged values
+            plotter.add_model(
+                model_name=run_name,
+                timestamps=timestamps,
+                metric_values=metric_values,
+            )
+
+        title = self._create_plot_title(metric_name, quantile_or_global, "by run (averaged over all targets)")
+        figure = plotter.plot(title=title, metric_name=metric_name)
+
+        return VisualizationOutput(name=self.name, figure=figure)
+
+    # averaging over all targets (also when in different groups) for a single run
+    @override
+    def create_by_group(
+        self,
+        reports: dict[GroupName, list[ReportTuple]],
+    ) -> VisualizationOutput:
+        metric_name, quantile_or_global = self._get_metric_info()
+        plotter = WindowedMetricPlotter()
+
+        # Collect all targets from all groups
+        all_target_reports: list[ReportTuple] = []
+        for report_list in reports.values():
+            all_target_reports.extend(report_list)
+
+        # Average metrics over all targets
+        averaged_pairs = self._average_time_series_across_targets(
+            reports=all_target_reports,
+            metric_name=metric_name,
+            quantile_or_global=quantile_or_global,
+        )
+
+        if not averaged_pairs:
+            raise ValueError(
+                "No windowed averaged metrics found for the specified window, metric and run across all groups."
+            )
+
+        timestamps = [pair[0] for pair in averaged_pairs]
+        metric_values = [pair[1] for pair in averaged_pairs]
+
+        # Use the run name from the first target if available
+        run_name = all_target_reports[0][0].run_name if all_target_reports else ""
+
+        plotter.add_model(
+            model_name=run_name,
+            timestamps=timestamps,
+            metric_values=metric_values,
+        )
+
+        title = self._create_plot_title(metric_name, quantile_or_global, "averaged over all targets")
+        figure = plotter.plot(title=title, metric_name=metric_name)
 
         return VisualizationOutput(name=self.name, figure=figure)
 

@@ -32,7 +32,7 @@ from openstef_beam.benchmarking.storage import (
     LocalBenchmarkStorage,
     S3BenchmarkStorage,
 )
-from openstef_beam.benchmarking.target_provider import TargetProvider, TargetProviderConfig
+from openstef_beam.benchmarking.target_provider import SimpleTargetProvider, TargetProvider, TargetProviderConfig
 
 __all__ = [
     "BenchmarkCallback",
@@ -46,6 +46,7 @@ __all__ = [
     "InMemoryBenchmarkStorage",
     "LocalBenchmarkStorage",
     "S3BenchmarkStorage",
+    "SimpleTargetProvider",
     "StrictExecutionCallback",
     "TargetProvider",
     "TargetProviderConfig",

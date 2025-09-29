@@ -4,9 +4,11 @@
 
 """Tests for WindowedMetricVisualization."""
 
+import copy
 from datetime import datetime
 from unittest.mock import call, patch
 
+import numpy as np
 import pytest
 
 from openstef_beam.analysis.models.target_metadata import TargetMetadata
@@ -151,7 +153,7 @@ def test_create_by_none_raises_error_when_no_windowed_data(
     """Test that create_by_none raises appropriate error when no windowed metrics are found."""
     viz = WindowedMetricVisualization(name="test_viz", metric="mae", window=sample_window)
 
-    with pytest.raises(ValueError, match="No windowed metrics found in the report for the specified window and metric"):
+    with pytest.raises(ValueError, match="No windowed metrics found for the specified window and metric"):
         viz.create_by_none(empty_evaluation_report, simple_target_metadata)
 
 
@@ -258,5 +260,234 @@ def test_supported_aggregations_includes_time_series_types(sample_window: Window
         AnalysisAggregation.NONE,
         AnalysisAggregation.RUN_AND_NONE,
         AnalysisAggregation.TARGET,
+        AnalysisAggregation.RUN_AND_TARGET,
+        AnalysisAggregation.GROUP,
+        AnalysisAggregation.RUN_AND_GROUP,
     }
     assert viz.supported_aggregations == expected
+
+
+def test_average_time_series_across_targets_averages_correctly(
+    multiple_target_metadata: list[TargetMetadata],
+    sample_evaluation_report: EvaluationSubsetReport,
+    sample_window: Window,
+):
+    # Arrange
+    # Change the windowed metric values in sample_evaluation_report_2 to simulate different targets
+    sample_evaluation_report_2 = copy.deepcopy(sample_evaluation_report)
+    for metric in sample_evaluation_report_2.metrics:
+        if metric.window == sample_window:
+            metric.metrics["global"]["mae"] += 1.0  # add 1.0 to each value
+
+    reports = [
+        (multiple_target_metadata[0], sample_evaluation_report),
+        (multiple_target_metadata[1], sample_evaluation_report_2),
+    ]
+
+    # Act
+    viz = WindowedMetricVisualization(name="test_viz", metric="mae", window=sample_window)
+
+    averaged = viz._average_time_series_across_targets(reports, metric_name="mae", quantile_or_global="global")
+
+    # Assert
+    # The expected average is mean of [0.4, 1.4] = 0.9 and [0.6, 1.6] = 1.1
+    assert averaged == [
+        (datetime.fromisoformat("2023-01-01T01:00:00"), pytest.approx(0.9)),
+        (datetime.fromisoformat("2023-01-01T02:00:00"), pytest.approx(1.1)),
+    ]
+
+
+def test_average_time_series_across_targets_averages_correctly_with_nan(
+    multiple_target_metadata: list[TargetMetadata],
+    sample_evaluation_report: EvaluationSubsetReport,
+    sample_window: Window,
+):
+    # Arrange
+    # Change the windowed metric values in sample_evaluation_report_2 to simulate different targets
+    sample_evaluation_report_2 = copy.deepcopy(sample_evaluation_report)
+    for metric in sample_evaluation_report_2.metrics:
+        if metric.window == sample_window:
+            metric.metrics["global"]["mae"] = np.nan  # set to NaN
+
+    reports = [
+        (multiple_target_metadata[0], sample_evaluation_report),
+        (multiple_target_metadata[1], sample_evaluation_report_2),
+    ]
+
+    # Act
+    viz = WindowedMetricVisualization(name="test_viz", metric="mae", window=sample_window)
+
+    averaged = viz._average_time_series_across_targets(reports, metric_name="mae", quantile_or_global="global")
+
+    # Assert
+    # The expected average is mean of [0.4, np.nan] = 0.4 and [0.6, np.nan] = 0.6
+    assert averaged == [
+        (datetime.fromisoformat("2023-01-01T01:00:00"), 0.4),
+        (datetime.fromisoformat("2023-01-01T02:00:00"), 0.6),
+    ]
+
+
+def test_create_by_run_and_target_handles_multiple_runs_and_targets(
+    sample_window: Window,
+    multiple_target_metadata: list[TargetMetadata],
+    sample_evaluation_report: EvaluationSubsetReport,
+    mock_plotly_figure: MockFigure,
+):
+    # Arrange
+    """Test create_by_run_and_target handles multiple runs with multiple targets each."""
+    viz = WindowedMetricVisualization(name="test_viz", metric="mae", window=sample_window)
+
+    # Create a second report with modified metrics for the second target in Run1
+    sample_evaluation_report_2 = copy.deepcopy(sample_evaluation_report)
+    for metric in sample_evaluation_report_2.metrics:
+        if metric.window == sample_window:
+            metric.metrics["global"]["mae"] += 1.0  # add 1.0 to each value
+
+    # Run1: two targets, Run2: one target
+    reports = {
+        "Run1": [
+            (multiple_target_metadata[0], sample_evaluation_report),
+            (multiple_target_metadata[1], sample_evaluation_report_2),
+        ],
+        "Run2": [
+            (multiple_target_metadata[2], sample_evaluation_report),
+        ],
+    }
+
+    # Act
+    with (
+        patch.object(WindowedMetricPlotter, "plot", return_value=mock_plotly_figure) as mock_plot,
+        patch.object(WindowedMetricPlotter, "add_model") as mock_add_model,
+    ):
+        result = viz.create_by_run_and_target(reports)
+
+    # Assert
+    expected_calls = [
+        call(
+            model_name="Run1",
+            timestamps=[datetime.fromisoformat("2023-01-01T01:00:00"), datetime.fromisoformat("2023-01-01T02:00:00")],
+            metric_values=[pytest.approx(0.9), pytest.approx(1.1)],
+        ),
+        call(
+            model_name="Run2",
+            timestamps=[datetime.fromisoformat("2023-01-01T01:00:00"), datetime.fromisoformat("2023-01-01T02:00:00")],
+            metric_values=[pytest.approx(0.4), pytest.approx(0.6)],
+        ),
+    ]
+    mock_add_model.assert_has_calls(expected_calls)
+    mock_plot.assert_called_once_with(
+        title="Windowed mae (lag=PT1H,size=PT2H,stride=PT1H) over Time by run (averaged over targets in group)",
+        metric_name="mae",
+    )
+    assert result.name == viz.name
+    assert result.figure == mock_plotly_figure
+
+
+def test_create_by_run_and_group_handles_multiple_runs_and_groups(
+    sample_window: Window,
+    multiple_target_metadata: list[TargetMetadata],
+    sample_evaluation_report: EvaluationSubsetReport,
+    mock_plotly_figure: MockFigure,
+):
+    """Test create_by_run_and_group aggregates by both run and group, averaging over all targets for each run."""
+    viz = WindowedMetricVisualization(name="test_viz", metric="mae", window=sample_window)
+
+    # Create a second report with modified metrics for the second target in Run1
+    sample_evaluation_report_2 = copy.deepcopy(sample_evaluation_report)
+    for metric in sample_evaluation_report_2.metrics:
+        if metric.window == sample_window:
+            metric.metrics["global"]["mae"] += 1.0
+
+    # Run1 appears in two groups, Run2 in one group
+    # This tests that aggregation is done over all targets for each run, not per group
+    reports = {
+        ("Run1", "GroupA"): [
+            (multiple_target_metadata[0], sample_evaluation_report),
+        ],
+        ("Run1", "GroupB"): [
+            (multiple_target_metadata[1], sample_evaluation_report_2),
+        ],
+        ("Run2", "GroupB"): [
+            (multiple_target_metadata[2], sample_evaluation_report),
+        ],
+    }
+
+    # Act
+    with (
+        patch.object(WindowedMetricPlotter, "plot", return_value=mock_plotly_figure) as mock_plot,
+        patch.object(WindowedMetricPlotter, "add_model") as mock_add_model,
+    ):
+        result = viz.create_by_run_and_group(reports)
+
+    # Assert: only one call for Run1, averaging over both groups
+    expected_calls = [
+        call(
+            model_name="Run1",
+            timestamps=[datetime.fromisoformat("2023-01-01T01:00:00"), datetime.fromisoformat("2023-01-01T02:00:00")],
+            metric_values=[pytest.approx(0.9), pytest.approx(1.1)],
+        ),
+        call(
+            model_name="Run2",
+            timestamps=[datetime.fromisoformat("2023-01-01T01:00:00"), datetime.fromisoformat("2023-01-01T02:00:00")],
+            metric_values=[pytest.approx(0.4), pytest.approx(0.6)],
+        ),
+    ]
+    mock_add_model.assert_has_calls(expected_calls)
+    # Assert only one call per run, not per run-group
+    assert mock_add_model.call_count == 2
+    mock_plot.assert_called_once_with(
+        title="Windowed mae (lag=PT1H,size=PT2H,stride=PT1H) over Time by run (averaged over all targets)",
+        metric_name="mae",
+    )
+    assert result.name == viz.name
+    assert result.figure == mock_plotly_figure
+
+
+def test_create_by_group_handles_multiple_groups(
+    sample_window: Window,
+    multiple_target_metadata: list[TargetMetadata],
+    sample_evaluation_report: EvaluationSubsetReport,
+    mock_plotly_figure: MockFigure,
+):
+    """Test create_by_run_and_group aggregates by both run and group, averaging over all targets for each run."""
+    viz = WindowedMetricVisualization(name="test_viz", metric="mae", window=sample_window)
+
+    # Create a second report with modified metrics for the second target in Run1
+    sample_evaluation_report_2 = copy.deepcopy(sample_evaluation_report)
+    for metric in sample_evaluation_report_2.metrics:
+        if metric.window == sample_window:
+            metric.metrics["global"]["mae"] += 1.0
+
+    # Run1 appears in two groups
+    reports = {
+        "GroupA": [
+            (multiple_target_metadata[0], sample_evaluation_report),
+        ],
+        "GroupB": [
+            (multiple_target_metadata[1], sample_evaluation_report_2),
+        ],
+    }
+
+    # Act
+    with (
+        patch.object(WindowedMetricPlotter, "plot", return_value=mock_plotly_figure) as mock_plot,
+        patch.object(WindowedMetricPlotter, "add_model") as mock_add_model,
+    ):
+        result = viz.create_by_group(reports)
+
+    # Assert: only one call for Run1, averaging over both groups
+    expected_calls = [
+        call(
+            model_name="Run1",
+            timestamps=[datetime.fromisoformat("2023-01-01T01:00:00"), datetime.fromisoformat("2023-01-01T02:00:00")],
+            metric_values=[pytest.approx(0.9), pytest.approx(1.1)],
+        ),
+    ]
+    mock_add_model.assert_has_calls(expected_calls)
+    # Assert only one call per run, not per run-group
+    assert mock_add_model.call_count == 1
+    mock_plot.assert_called_once_with(
+        title="Windowed mae (lag=PT1H,size=PT2H,stride=PT1H) over Time averaged over all targets", metric_name="mae"
+    )
+    assert result.name == viz.name
+    assert result.figure == mock_plotly_figure
