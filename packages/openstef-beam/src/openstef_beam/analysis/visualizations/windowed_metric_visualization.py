@@ -289,7 +289,7 @@ class WindowedMetricVisualization(VisualizationProvider):
 
             # Skip if no averaged data points found for this run
             if not averaged_pairs:
-                continue
+                    raise ValueError("No windowed metrics found for the specified window and metric across all groups.")
 
             # Unpack the averaged pairs
             timestamps = [pair[0] for pair in averaged_pairs]
