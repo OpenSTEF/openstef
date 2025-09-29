@@ -135,7 +135,7 @@ class Forecaster(BatchPredictor[dict[LeadTime, ForecastInputDataset], ForecastDa
 
     Invariants:
         - Predictions must include all quantiles specified in the configuration
-        - predict_horizon_batch() only called when supports_batching returns True
+        - predict_batch() only called when supports_batching returns True
 
     Example:
         Implementation for a model that handles multiple horizons:
@@ -167,7 +167,7 @@ class Forecaster(BatchPredictor[dict[LeadTime, ForecastInputDataset], ForecastDa
         ...         return instance
         ...
         ...     @override
-        ...     def fit(self, input_data):
+        ...     def fit(self, input_data, data_val):
         ...         # Train on data for all horizons
         ...         self._fitted = True
         ...
