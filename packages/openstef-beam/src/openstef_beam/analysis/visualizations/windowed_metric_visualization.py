@@ -180,7 +180,7 @@ class WindowedMetricVisualization(VisualizationProvider):
         time_value_pairs = self._extract_windowed_metric_values(report, metric_name, quantile_or_global)
 
         if not time_value_pairs:
-            raise ValueError("No windowed metrics found in the report for the specified window and metric.")
+            raise ValueError("No windowed metrics found for the specified window and metric.")
 
         # Unpack the sorted pairs
         timestamps = [pair[0] for pair in time_value_pairs]
@@ -210,7 +210,7 @@ class WindowedMetricVisualization(VisualizationProvider):
 
                 # Skip if no data points found for this run
                 if not time_value_pairs:
-                    continue
+                    raise ValueError("No windowed metrics found for the specified window, metric and run.")
 
                 # Unpack the sorted pairs
                 timestamps = [pair[0] for pair in time_value_pairs]
@@ -244,7 +244,7 @@ class WindowedMetricVisualization(VisualizationProvider):
 
             # Skip if no data points found for this target
             if not time_value_pairs:
-                continue
+                raise ValueError("No windowed metrics found for the specified window, metric and target.")
 
             # Unpack the sorted pairs
             timestamps = [pair[0] for pair in time_value_pairs]
@@ -278,7 +278,7 @@ class WindowedMetricVisualization(VisualizationProvider):
         # Process each run and calculate averaged metrics across its targets
         for run_name, target_reports in reports.items():
             if not target_reports:
-                continue
+                raise ValueError("No windowed metrics found for the specified window, metric and run.")
 
             # Average windowed metrics across all targets for this run
             averaged_pairs = self._average_time_series_across_targets(
@@ -289,7 +289,7 @@ class WindowedMetricVisualization(VisualizationProvider):
 
             # Skip if no averaged data points found for this run
             if not averaged_pairs:
-                raise ValueError("No windowed metrics found for the specified window and metric across all groups.")
+                raise ValueError("No windowed averaged metrics found for the specified window, metric and run.")
 
             # Unpack the averaged pairs
             timestamps = [pair[0] for pair in averaged_pairs]
@@ -324,7 +324,7 @@ class WindowedMetricVisualization(VisualizationProvider):
         # Average metrics over all targets for each run
         for run_name, all_target_reports in run_to_targets.items():
             if not all_target_reports:
-                continue
+                raise ValueError("No windowed metrics found for the specified window, metric and run.")
 
             # Average windowed metrics across all targets for this run
             averaged_pairs = self._average_time_series_across_targets(
@@ -334,7 +334,7 @@ class WindowedMetricVisualization(VisualizationProvider):
             )
 
             if not averaged_pairs:
-                continue
+                raise ValueError("No windowed averaged metrics found for the specified window, metric and run.")
 
             timestamps = [pair[0] for pair in averaged_pairs]
             metric_values = [pair[1] for pair in averaged_pairs]
@@ -373,7 +373,9 @@ class WindowedMetricVisualization(VisualizationProvider):
         )
 
         if not averaged_pairs:
-            raise ValueError("No windowed metrics found for the specified window and metric across all groups.")
+            raise ValueError(
+                "No windowed averaged metrics found for the specified window, metric and run across all groups."
+            )
 
         timestamps = [pair[0] for pair in averaged_pairs]
         metric_values = [pair[1] for pair in averaged_pairs]
