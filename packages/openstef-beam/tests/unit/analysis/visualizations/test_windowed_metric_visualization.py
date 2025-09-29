@@ -153,7 +153,7 @@ def test_create_by_none_raises_error_when_no_windowed_data(
     """Test that create_by_none raises appropriate error when no windowed metrics are found."""
     viz = WindowedMetricVisualization(name="test_viz", metric="mae", window=sample_window)
 
-    with pytest.raises(ValueError, match="No windowed metrics found in the report for the specified window and metric"):
+    with pytest.raises(ValueError, match="No windowed metrics found for the specified window and metric"):
         viz.create_by_none(empty_evaluation_report, simple_target_metadata)
 
 
