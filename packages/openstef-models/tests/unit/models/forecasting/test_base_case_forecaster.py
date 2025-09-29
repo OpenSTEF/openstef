@@ -86,9 +86,8 @@ def test_base_case_forecaster__fit_predict(
     assert isinstance(result, ForecastDataset)
 
     # Should have predictions for all periods from forecast_start onward
-    forecast_start = datetime.fromisoformat("2025-01-08T00:00:00")
-    expected_periods = len([t for t in sample_forecast_input_dataset.index if t >= forecast_start])
-    assert len(result.data) == expected_periods
+    expected_index = sample_forecast_input_dataset.input_data(start=sample_forecast_input_dataset.forecast_start).index
+    pd.testing.assert_index_equal(result.index, expected_index)
 
     # Check that predictions use lag features correctly
     # The forecaster should have detected the 7-day lag column
