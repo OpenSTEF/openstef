@@ -59,7 +59,7 @@ class GBLinearHyperParams(HyperParams):
         default=0.0001, description="L1 regularization on weights. Higher values increase regularization. Range: [0,∞]"
     )
     reg_lambda: float = Field(
-        default=0.1, description="L2 regularization on weights. Higher values increase regularization. Range: [0,∞]"
+        default=0.0, description="L2 regularization on weights. Higher values increase regularization. Range: [0,∞]"
     )
 
     # Feature selection
