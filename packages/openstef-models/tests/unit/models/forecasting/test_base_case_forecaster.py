@@ -20,16 +20,25 @@ from openstef_models.models.forecasting.base_case_forecaster import (
 
 @pytest.fixture
 def sample_forecast_input_dataset() -> ForecastInputDataset:
-    """Create simple test dataset with 2 weeks history + 1 week forecast."""
-    # Create 3 weeks of hourly data (simple and predictable)
+    """Create test dataset with different patterns for week 1 and week 2 + 1 week forecast."""
+    # Create 3 weeks of hourly data with distinct patterns
     dates: DatetimeIndex = pd.date_range(
         start=datetime.fromisoformat("2025-01-01T00:00:00"), periods=3 * 7 * 24, freq="1h"
     )
     forecast_start = dates[2 * 7 * 24]  # Start of 3rd week (2 weeks of history)
 
-    # Simple pattern: 100 + hour of day (0-23)
-    # This makes it easy to predict and verify weekly repetition
-    load_values = [100 + timestamp.hour if timestamp < forecast_start else np.nan for timestamp in dates]
+    load_values = []
+    for timestamp in dates:
+        if timestamp < forecast_start:
+            # Week 1: Pattern 200 + hour (should NOT be used for forecasting)
+            if timestamp < dates[7 * 24]:
+                load_values.append(200 + timestamp.hour)
+            # Week 2: Pattern 300 + hour (should be used for forecasting - most recent)
+            else:
+                load_values.append(300 + timestamp.hour)
+        else:
+            # Forecast period
+            load_values.append(np.nan)
 
     data = pd.DataFrame({"load": load_values}, index=dates)
 
@@ -98,20 +107,18 @@ def test_base_case_forecaster__weekly_pattern_repetition(
     base_case_forecaster: BaseCaseForecaster,
     sample_forecast_input_dataset: ForecastInputDataset,
 ):
-    """Test that predictions repeat the weekly pattern from historical data."""
-    # Arrange - Fixtures provide forecaster and dataset
-
+    """Test that forecaster uses the MOST RECENT week's pattern (week 2: 300s) NOT the older week (week 1: 200s)."""
     # Act
     result = base_case_forecaster.predict(sample_forecast_input_dataset)
 
-    # Assert
-    median_predictions = result.data["quantile_P50"]
-    first_day_forecast = median_predictions.iloc[:24]
-    expected_values = [100 + hour for hour in range(24)]
-
-    assert np.array_equal(first_day_forecast.to_numpy(), expected_values), (
-        "Weekly pattern should repeat exactly with simple test data"
+    # Assert - Simple check: Are we getting 300s (correct) or 200s (wrong)?
+    np.testing.assert_array_equal(
+        result.data["quantile_P50"].iloc[[0, 1, 23]].to_numpy(), np.array([300.0, 301.0, 323.0])
     )
+
+    # Verify confidence intervals have spread (non-zero std)
+    assert result.data["quantile_P10"].std() > 0, "Confidence intervals should vary"
+    assert result.data["quantile_P90"].std() > 0, "Confidence intervals should vary"
 
 
 def test_base_case_forecaster__no_forecast_start(base_case_forecaster: BaseCaseForecaster):
