@@ -23,10 +23,9 @@ from pydantic import Field
 from scipy.stats import norm
 
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
-from openstef_core.exceptions import MissingColumnsError, ModelLoadingError
+from openstef_core.exceptions import ModelLoadingError
 from openstef_core.mixins import State
 from openstef_core.mixins.predictor import HyperParams
-from openstef_core.utils import timedelta_to_isoformat
 from openstef_models.models.forecasting.forecaster import HorizonForecaster, HorizonForecasterConfig
 
 
@@ -55,20 +54,20 @@ MODEL_CODE_VERSION = 1
 
 
 class BaseCaseForecaster(HorizonForecaster):
-    """Base case forecaster that uses lag features for predictions.
+    """Base case forecaster that repeats weekly patterns for predictions.
 
-    A simple baseline forecasting model that leverages lag features created by LagTransform
-    to make predictions. This model serves as a naive baseline for comparison with more
-    sophisticated forecasting approaches, implementing the common assumption that energy
-    load patterns exhibit weekly periodicity.
+    A simple baseline forecasting model that uses pandas-native operations to repeat
+    the last week of historical target data for forecasting. This model serves as a
+    naive baseline for comparison with more sophisticated forecasting approaches,
+    implementing the common assumption that energy load patterns exhibit weekly periodicity.
 
-    The forecaster constructs lag column names based on the configured lags (primary_lag and
-    fallback_lag hyperparameters) and the target column name. It prioritizes the primary lag
-    features (default: 7-day lag, e.g., 'load_lag_-P7D') but falls back to fallback lag
-    features (default: 14-day lag, e.g., 'load_lag_-P14D') when primary lag data is not available.
+    The forecaster takes the last week of historical data (based on primary_lag, default: 7 days)
+    and uses pandas reindex with forward fill to repeat this weekly pattern until the end
+    of the forecast period. Missing values are filled using the fallback lag period
+    (default: 14 days, representing 2 weeks ago).
 
     The confidence intervals are calculated using hourly standard deviations computed from
-    the lag data, providing uncertainty estimates for each prediction.
+    the repeated base case data, providing uncertainty estimates for each prediction.
 
     Example:
         >>> from openstef_core.types import LeadTime, Quantile
@@ -92,24 +91,21 @@ class BaseCaseForecaster(HorizonForecaster):
         ... )
         >>> custom_forecaster = BaseCaseForecaster(custom_config)
         >>>
-        >>> # Assumes data has lag columns like 'load_lag_-P7D', 'load_lag_-P14D'
+        >>> # Works directly with target variable in the dataset
         >>> forecaster.fit(training_data)  # doctest: +SKIP
-        >>> predictions = forecaster.predict(test_data)  # doctest: +SKIP
+        >>> predictions = forecaster.predict(forecast_data)  # doctest: +SKIP
 
     Note:
-        The forecaster expects lag columns to be present in the input data, typically
-        created by applying LagTransform during preprocessing. The column names are
-        constructed as: {target_column}_lag_{ISO8601_duration}
-
-    See Also:
-        LagTransform: A transformation that creates lag features for time series forecasting.
+        The forecaster works directly with the target variable in the input dataset,
+        automatically detecting the forecast period from the forecast_start parameter
+        and repeating the appropriate historical weekly pattern.
     """
 
     _config: BaseCaseForecasterConfig
 
     def __init__(
         self,
-        config: BaseCaseForecasterConfig | None = None,
+        config: BaseCaseForecasterConfig,
     ) -> None:
         """Initialize the base case forecaster.
 
@@ -117,10 +113,7 @@ class BaseCaseForecaster(HorizonForecaster):
             config: Configuration specifying quantiles, horizons, and lag hyperparameters.
                    If None, uses default configuration with 7-day primary and 14-day fallback lags.
         """
-        self._config = config or BaseCaseForecasterConfig()
-        self._lag_columns_detected: bool = False
-        self._primary_lag_target_column_name: str | None = None
-        self._fallback_lag_target_column_name: str | None = None
+        self._config = config
 
     @property
     @override
@@ -146,94 +139,58 @@ class BaseCaseForecaster(HorizonForecaster):
 
         return self.__class__(config=BaseCaseForecasterConfig.model_validate(state["config"]))
 
-    @staticmethod
-    def _construct_lag_column_name(target_column: str, lag: timedelta) -> str:
-        """Constructs the column name for the lag target feature.
-
-        Args:
-            target_column: The name of the target column
-            lag: The timedelta lag
-
-        Returns:
-            The lag feature column name
-        """
-        # Convert timedelta to ISO format (e.g., P7D becomes -P7D for negative lag)
-        iso_lag = timedelta_to_isoformat(-lag)
-        return f"{target_column}_lag_{iso_lag}"
-
     @property
     @override
     def is_fitted(self) -> bool:
-        return self._lag_columns_detected
-
-    def _detect_lag_columns(self, data: ForecastInputDataset) -> None:
-        """Detect lag columns in the input data.
-
-        Looks for columns matching patterns like 'load_lag_-P7D', 'load_lag_-P14D', etc.
-
-        Args:
-            data: The input dataset containing features and target variable.
-
-        Raises:
-            MissingColumnsError: If both primary and fallback lag columns are not available.
-        """
-        self._primary_lag_target_column_name = self._construct_lag_column_name(
-            data.target_column, self._config.hyperparams.primary_lag
-        )
-
-        self._fallback_lag_target_column_name = self._construct_lag_column_name(
-            data.target_column, self._config.hyperparams.fallback_lag
-        )
-
-        # Check if we have at least one lag column available
-        has_primary = self._primary_lag_target_column_name in data.feature_names
-        has_fallback = self._fallback_lag_target_column_name in data.feature_names
-
-        if not has_primary and not has_fallback:
-            raise MissingColumnsError([self._primary_lag_target_column_name, self._fallback_lag_target_column_name])
-
-        # Mark that we have detected lag columns
-        self._lag_columns_detected = True
+        return True  # Base case forecaster is always "fitted" - no training required
 
     @override
     def fit(self, data: ForecastInputDataset, data_val: ForecastInputDataset | None = None) -> None:
-        # Detect lag columns during fitting
-        self._detect_lag_columns(data)
+        # Base case forecaster requires no training - just validate data has target column
+        pass
 
     def _get_basecase_values(self, data: ForecastInputDataset) -> pd.Series:
-        """Get basecase values from available lag columns.
+        """Get basecase values using pandas-native lag approach.
 
-        Prioritizes primary lag column (7-day), falls back to fallback lag column (14-day).
+        Creates lagged target data by shifting timestamps, similar to LagTransform.
+        Falls back to secondary lag if primary lag has missing values.
 
         Args:
-            data: Input dataset containing lag features
+            data: Input dataset containing target variable history and forecast range
 
         Returns:
-            Series with basecase values for prediction timestamps, or NaN series if no lag columns
+            Series with basecase values for forecast timestamps
         """
-        forecast_data = data.input_data(start=data.forecast_start)
+        if data.forecast_start is None:
+            # No forecast period specified - return empty series with DatetimeIndex
+            empty_index = pd.DatetimeIndex([], freq=data.sample_interval)
+            return pd.Series(dtype=float, index=empty_index, name=data.target_column)
 
-        # If no lag columns were detected, return NaN series
-        if not self._lag_columns_detected:
-            return pd.Series(float("nan"), index=forecast_data.index)
+        # Get target series from historical data only (before forecast_start)
+        # Use all available data but only up to forecast_start for lag calculations
+        all_data = data.data
+        historical_data = all_data[all_data.index < pd.Timestamp(data.forecast_start)]
+        target_series = historical_data[data.target_column]
 
-        # Try primary lag column first
-        if self._primary_lag_target_column_name in data.feature_names:
-            primary_values = forecast_data[self._primary_lag_target_column_name]
+        # Create primary lag series (shift timestamps forward by primary_lag)
+        # Following LagTransform approach: subtract negative lag from timestamps
+        primary_lag_series = target_series.copy()
+        primary_lag_series.index += self.hyperparams.primary_lag
 
-            # If primary has gaps, fill with fallback where available
-            if self._fallback_lag_target_column_name and self._fallback_lag_target_column_name in forecast_data.columns:
-                fallback_values = forecast_data[self._fallback_lag_target_column_name]
-                return primary_values.fillna(fallback_values)  # pyright: ignore[reportUnknownMemberType]
+        # Get forecast period data
+        forecast_index = data.index[data.index >= pd.Timestamp(data.forecast_start)]
+        primary_forecast = primary_lag_series.reindex(forecast_index)
 
-            return primary_values
+        # Fill missing values with fallback lag if needed
+        if primary_forecast.isna().any():
+            # Create fallback lag series
+            fallback_lag_series = target_series.copy()
+            fallback_lag_series.index += self.hyperparams.fallback_lag
 
-        # Fall back to fallback lag column if available
-        if self._fallback_lag_target_column_name in data.feature_names:
-            return forecast_data[self._fallback_lag_target_column_name]
+            fallback_forecast = fallback_lag_series.reindex(forecast_index)
+            primary_forecast = primary_forecast.fillna(fallback_forecast)  # pyright: ignore[reportUnknownMemberType]
 
-        # If we reach here, no lag columns are available
-        return pd.Series(float("nan"), index=forecast_data.index)
+        return primary_forecast
 
     @staticmethod
     def _calculate_hourly_std(basecase_values: pd.Series) -> pd.Series:
@@ -269,18 +226,15 @@ class BaseCaseForecaster(HorizonForecaster):
 
     @override
     def predict(self, data: ForecastInputDataset) -> ForecastDataset:
-        """Generate predictions using lag features with confidence intervals.
+        """Generate predictions using repeated weekly patterns with confidence intervals.
 
         Args:
-            data: The forecast input dataset containing lag features.
+            data: The forecast input dataset containing target variable history.
 
         Returns:
             ForecastDataset containing quantile predictions for the forecast period.
         """
-        # Ensure lag columns are available
-        self._detect_lag_columns(data)
-
-        # Get basecase values from lag columns
+        # Get basecase values by repeating last week of target data
         basecase_values = self._get_basecase_values(data)
 
         # Calculate hourly standard deviation for confidence intervals

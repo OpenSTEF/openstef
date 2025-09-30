@@ -7,9 +7,9 @@ from datetime import datetime, timedelta
 import numpy as np
 import pandas as pd
 import pytest
+from pandas import DatetimeIndex
 
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
-from openstef_core.exceptions import MissingColumnsError
 from openstef_core.types import LeadTime, Quantile
 from openstef_models.models.forecasting.base_case_forecaster import (
     BaseCaseForecaster,
@@ -20,104 +20,103 @@ from openstef_models.models.forecasting.base_case_forecaster import (
 
 @pytest.fixture
 def sample_forecast_input_dataset() -> ForecastInputDataset:
-    # Create 14 days of quarter-hourly data
-    num_samples = 14 * 24 * 4
-    dates = pd.date_range(start=datetime.fromisoformat("2025-01-01T00:00:00"), periods=num_samples, freq="15min")
-
-    # Create base load data with hourly variation: base + hour-based pattern
-    base_load = []
-    for i, timestamp in enumerate(dates):
-        # Week pattern: week 1 = 100-110, week 2 = 200-210 based on hour
-        week = 1 if i < (num_samples // 2) else 2
-        hour_variation = (timestamp.hour % 12) * 2  # 0-22 variation
-        base_load.append(week * 100 + hour_variation)
-
-    # Create lag features simulating LagTransform output
-    # 7-day lag (168 hours = P7D): values from 7 days ago
-    lag_7d = [np.nan] * (7 * 24 * 4) + base_load[: -7 * 24 * 4]
-
-    # 14-day lag (336 hours = P14D): values from 14 days ago with some variation
-    lag_14d_base = [np.nan] * (14 * 24 * 4) + base_load[: -14 * 24 * 4]
-    # Add some variation to enable std calculation
-    lag_14d = [val + (i % 5 - 2) if not pd.isna(val) else val for i, val in enumerate(lag_14d_base)]
-
-    data = pd.DataFrame(
-        {
-            "load": base_load,
-            "load_lag_-P7D": lag_7d,  # 7-day lag feature
-            "load_lag_-P14D": lag_14d,  # 14-day lag feature
-        },
-        index=dates,
+    """Create simple test dataset with 2 weeks history + 1 week forecast."""
+    # Create 3 weeks of hourly data (simple and predictable)
+    dates: DatetimeIndex = pd.date_range(
+        start=datetime.fromisoformat("2025-01-01T00:00:00"), periods=3 * 7 * 24, freq="1h"
     )
+    forecast_start = dates[2 * 7 * 24]  # Start of 3rd week (2 weeks of history)
+
+    # Simple pattern: 100 + hour of day (0-23)
+    # This makes it easy to predict and verify weekly repetition
+    load_values = [100 + timestamp.hour if timestamp < forecast_start else np.nan for timestamp in dates]
+
+    data = pd.DataFrame({"load": load_values}, index=dates)
 
     return ForecastInputDataset(
-        data=data,
-        sample_interval=timedelta(minutes=15),
-        target_column="load",
-        forecast_start=datetime.fromisoformat("2025-01-08T00:00:00"),  # Middle of dataset
+        data=data, sample_interval=timedelta(hours=1), target_column="load", forecast_start=forecast_start
     )
 
 
 @pytest.fixture
-def sample_forecaster_config() -> BaseCaseForecasterConfig:
+def base_case_forecaster() -> BaseCaseForecaster:
     """Create sample forecaster configuration with standard quantiles."""
-    return BaseCaseForecasterConfig(
-        quantiles=[Quantile(0.1), Quantile(0.5), Quantile(0.9)],
-        horizons=[LeadTime(timedelta(hours=6))],
-        hyperparams=BaseCaseForecasterHyperParams(),  # Auto-detect lag columns
+    return BaseCaseForecaster(
+        config=BaseCaseForecasterConfig(
+            quantiles=[Quantile(0.1), Quantile(0.5), Quantile(0.9)],
+            horizons=[LeadTime(timedelta(hours=6))],
+            hyperparams=BaseCaseForecasterHyperParams(),
+        )
     )
 
 
-def test_base_case_forecaster__fit_predict(
-    sample_forecaster_config: BaseCaseForecasterConfig,
-    sample_forecast_input_dataset: ForecastInputDataset,
-):
-    """Test that forecaster trains on data and produces predictions using lag features."""
+def test_base_case_forecaster__initialization_custom(base_case_forecaster: BaseCaseForecaster):
+    """Test forecaster initialization with custom configuration."""
     # Arrange
-    forecaster = BaseCaseForecaster(config=sample_forecaster_config)
-
-    # Act
-    forecaster.fit(sample_forecast_input_dataset)
-    result = forecaster.predict(sample_forecast_input_dataset)
+    forecaster = base_case_forecaster
 
     # Assert
-    # Check that model is fitted and produces forecast
-    assert forecaster.is_fitted
+    assert forecaster.config == base_case_forecaster.config
+    assert forecaster.hyperparams.primary_lag == timedelta(days=7)
+    assert forecaster.hyperparams.fallback_lag == timedelta(days=14)
+
+
+def test_base_case_forecaster__fit_predict(
+    base_case_forecaster: BaseCaseForecaster,
+    sample_forecast_input_dataset: ForecastInputDataset,
+):
+    """Test that forecaster produces predictions using weekly pattern repetition."""
+    # Arrange - Fixtures provide forecaster and dataset
+
+    # Act
+    base_case_forecaster.fit(sample_forecast_input_dataset)
+    result = base_case_forecaster.predict(sample_forecast_input_dataset)
+
+    # Assert
+    assert base_case_forecaster.is_fitted
     assert isinstance(result, ForecastDataset)
 
-    # Should have predictions for all periods from forecast_start onward
     expected_index = sample_forecast_input_dataset.input_data(start=sample_forecast_input_dataset.forecast_start).index
     pd.testing.assert_index_equal(result.index, expected_index)
 
-    # Check that predictions use lag features correctly
-    # The forecaster should have detected the 7-day lag column
-    assert forecaster._primary_lag_target_column_name == "load_lag_-P7D"
-    assert forecaster._fallback_lag_target_column_name == "load_lag_-P14D"
+    expected_columns = [q.format() for q in base_case_forecaster.config.quantiles]
+    assert list(result.data.columns) == expected_columns
 
-    # Check first prediction matches 7-day lag value
-    first_prediction_time = result.data.index[0]
-    expected_value = sample_forecast_input_dataset.data.loc[first_prediction_time, "load_lag_-P7D"]
-
-    # P50 (median) should match the lag value exactly (no std adjustment for median)
-    actual_median = result.data.iloc[0]["quantile_P50"]
-    assert actual_median == expected_value
-
-    # Check that all quantiles are present in results
     actual_values = result.data.iloc[0]
-    assert "quantile_P10" in actual_values
-    assert "quantile_P50" in actual_values
-    assert "quantile_P90" in actual_values
+    for col in expected_columns:
+        assert not pd.isna(actual_values[col])
 
-    # All quantile values should be finite numbers
-    assert not pd.isna(actual_values["quantile_P10"])
-    assert not pd.isna(actual_values["quantile_P50"])
-    assert not pd.isna(actual_values["quantile_P90"])
+    # Check quantile ordering: Q10 <= Q50 <= Q90
+    q10_values = result.data[expected_columns[0]]
+    q50_values = result.data[expected_columns[1]]
+    q90_values = result.data[expected_columns[2]]
+    assert all(q10_values <= q50_values)
+    assert all(q50_values <= q90_values)
 
 
-def test_base_case_forecaster__predict_without_lag_columns():
-    """Test that forecaster handles missing lag columns gracefully."""
+def test_base_case_forecaster__weekly_pattern_repetition(
+    base_case_forecaster: BaseCaseForecaster,
+    sample_forecast_input_dataset: ForecastInputDataset,
+):
+    """Test that predictions repeat the weekly pattern from historical data."""
+    # Arrange - Fixtures provide forecaster and dataset
+
+    # Act
+    result = base_case_forecaster.predict(sample_forecast_input_dataset)
+
+    # Assert
+    median_predictions = result.data["quantile_P50"]
+    first_day_forecast = median_predictions.iloc[:24]
+    expected_values = [100 + hour for hour in range(24)]
+
+    assert np.array_equal(first_day_forecast.to_numpy(), expected_values), (
+        "Weekly pattern should repeat exactly with simple test data"
+    )
+
+
+def test_base_case_forecaster__no_forecast_start(base_case_forecaster: BaseCaseForecaster):
+    """Test behavior when no forecast_start is specified."""
     # Arrange
-    # Create data with NO lag columns
     data = pd.DataFrame(
         {"load": [100.0, 110.0, 120.0]},
         index=pd.date_range(start=datetime.fromisoformat("2025-01-01T00:00:00"), periods=3, freq="1h"),
@@ -127,183 +126,201 @@ def test_base_case_forecaster__predict_without_lag_columns():
         data=data,
         sample_interval=timedelta(hours=1),
         target_column="load",
-        forecast_start=datetime.fromisoformat("2025-01-01T01:00:00"),
+        forecast_start=None,
     )
-
-    config = BaseCaseForecasterConfig(
-        quantiles=[Quantile(0.5)],
-        horizons=[LeadTime(timedelta(hours=1))],
-    )
-    forecaster = BaseCaseForecaster(config=config)
-
-    # Act & Assert
-    with pytest.raises(MissingColumnsError):
-        forecaster.fit_predict(input_dataset)
-
-
-def test_base_case_forecaster__state_serialize_restore(
-    sample_forecaster_config: BaseCaseForecasterConfig,
-    sample_forecast_input_dataset: ForecastInputDataset,
-):
-    """Test that forecaster state can be serialized and restored with preserved functionality."""
-    # Arrange
-    original_forecaster = BaseCaseForecaster(config=sample_forecaster_config)
-    original_forecaster.fit(sample_forecast_input_dataset)
 
     # Act
-    # Serialize state and create new forecaster from state
-    state = original_forecaster.to_state()
-
-    restored_forecaster = BaseCaseForecaster(config=sample_forecaster_config)
-    restored_forecaster = restored_forecaster.from_state(state)
+    result = base_case_forecaster.predict(input_dataset)
 
     # Assert
-    # Check that restored forecaster produces identical predictions
-    assert not restored_forecaster.is_fitted
-    original_result = original_forecaster.predict(sample_forecast_input_dataset)
-    restored_result = restored_forecaster.predict(sample_forecast_input_dataset)
-
-    pd.testing.assert_frame_equal(original_result.data, restored_result.data)
-    assert original_result.sample_interval == restored_result.sample_interval
+    assert len(result.data) == 0
+    assert result.sample_interval == input_dataset.sample_interval
 
 
-def test_base_case_forecaster__config_properties(sample_forecaster_config: BaseCaseForecasterConfig):
-    """Test that forecaster correctly exposes configuration properties."""
+def test_base_case_forecaster__no_historical_data(base_case_forecaster: BaseCaseForecaster):
+    """Test behavior when no historical data is available before forecast_start."""
     # Arrange
-    forecaster = BaseCaseForecaster(config=sample_forecaster_config)
-
-    # Assert
-    assert forecaster.config == sample_forecaster_config
-    assert forecaster.hyperparams == sample_forecaster_config.hyperparams
-    # Check that hyperparameters use timedelta values
-    assert forecaster.hyperparams.primary_lag == timedelta(days=7)
-    assert forecaster.hyperparams.fallback_lag == timedelta(days=14)
-
-
-def test_base_case_forecaster__explicit_lag_column_configuration():
-    """Test that forecaster respects explicit lag column configuration."""
-    # Arrange
-    # Create data with custom lag column names
-    dates = pd.date_range(
-        start=datetime.fromisoformat("2025-01-01T00:00:00"),
-        periods=24,  # 1 day
-        freq="1h",
-    )
-
     data = pd.DataFrame(
-        {
-            "load": list(range(24)),  # 0, 1, 2, ..., 23
-            "load_lag_-P7D": [100.0] * 12 + [200.0] * 12,  # 7-day lag column
-            "load_lag_-P14D": [300.0] * 24,  # 14-day lag column
-        },
-        index=dates,
+        {"load": [100.0, 110.0, 120.0]},
+        index=pd.date_range(start=datetime.fromisoformat("2025-01-01T00:00:00"), periods=3, freq="1h"),
     )
 
     input_dataset = ForecastInputDataset(
         data=data,
         sample_interval=timedelta(hours=1),
         target_column="load",
-        forecast_start=datetime.fromisoformat("2025-01-01T12:00:00"),  # Middle of day
+        forecast_start=data.index[0],
     )
 
-    # NOTE: The refactored version auto-detects column names from target + lag timedelta
-    # We need to create data that matches the expected lag column naming pattern
+    # Act
+    result = base_case_forecaster.predict(input_dataset)
+
+    # Assert
+    assert len(result.data) == 3
+    assert all(pd.isna(result.data["quantile_P50"]))
+
+
+def test_base_case_forecaster__fallback_lag_usage():
+    """Test that fallback lag is used when primary lag period has insufficient data."""
+    # Arrange
+    dates = pd.date_range(start=datetime.fromisoformat("2025-01-01T00:00:00"), periods=3 * 7 * 24, freq="1h")
+
+    load_values = []
+    for i, timestamp in enumerate(dates):
+        if i < 7 * 24:
+            load_values.append(100.0 + timestamp.hour)
+        elif i < 14 * 24:
+            load_values.append(200.0 + timestamp.hour)
+        else:
+            load_values.append(np.nan)
+
+    data = pd.DataFrame({"load": load_values}, index=dates)
+
     config = BaseCaseForecasterConfig(
         quantiles=[Quantile(0.5)],
         horizons=[LeadTime(timedelta(hours=1))],
-    )
-
-    forecaster = BaseCaseForecaster(config=config)
-    forecaster.fit(input_dataset)
-
-    # Act
-    result = forecaster.predict(input_dataset)
-
-    # Assert
-    # Should have detected the lag columns based on target + timedelta
-    assert forecaster._primary_lag_target_column_name == "load_lag_-P7D"
-    assert forecaster._fallback_lag_target_column_name == "load_lag_-P14D"
-
-    # Should predict values from the 7d lag column
-    first_prediction = result.data.iloc[0]["quantile_P50"]
-    assert first_prediction == 200.0  # Second half of custom_7d_lag
-
-
-def test_base_case_forecaster__fallback_to_14d_lag():
-    """Test that forecaster falls back to 14-day lag when 7-day lag has gaps."""
-    # Arrange
-    dates = pd.date_range(start=datetime.fromisoformat("2025-01-01T00:00:00"), periods=24, freq="1h")
-
-    # Create data where 7-day lag has NaN gaps, but 14-day lag is complete
-    data = pd.DataFrame(
-        {
-            "load": list(range(24)),
-            "load_lag_-P7D": [np.nan] * 12 + [100.0] * 12,  # Has gaps in first half
-            "load_lag_-P14D": [200.0] * 24,  # Complete data
-        },
-        index=dates,
+        hyperparams=BaseCaseForecasterHyperParams(
+            primary_lag=timedelta(hours=6),
+            fallback_lag=timedelta(days=7),
+        ),
     )
 
     input_dataset = ForecastInputDataset(
         data=data,
         sample_interval=timedelta(hours=1),
         target_column="load",
-        forecast_start=datetime.fromisoformat("2025-01-01T06:00:00"),  # In the gap area
+        forecast_start=dates[2 * 7 * 24],
     )
 
-    forecaster = BaseCaseForecaster(
-        BaseCaseForecasterConfig(
-            quantiles=[Quantile(0.5)],
-            horizons=[LeadTime(timedelta(hours=1))],
-        )
-    )
-    forecaster.fit(input_dataset)
+    forecaster = BaseCaseForecaster(config=config)
 
     # Act
     result = forecaster.predict(input_dataset)
 
     # Assert
-    # Should detect both lag columns
-    assert forecaster._primary_lag_target_column_name == "load_lag_-P7D"
-    assert forecaster._fallback_lag_target_column_name == "load_lag_-P14D"
-
-    # In gap area, should use 14-day lag as fallback
-    first_prediction = result.data.iloc[0]["quantile_P50"]
-    assert first_prediction == 200.0  # Fallback value
-
-    # Later predictions should use 7-day lag where available
-    later_prediction = result.data.iloc[6]["quantile_P50"]  # At 12:00, 7d lag available
-    assert later_prediction == 100.0  # Primary lag value
-
-
-def test_base_case_forecaster__minimal_config():
-    """Test that forecaster works with minimal configuration."""
-    # Arrange
-    config = BaseCaseForecasterConfig(
-        quantiles=[Quantile(0.5)],
-        horizons=[LeadTime(timedelta(hours=1))],
-    )
-    forecaster = BaseCaseForecaster(config=config)
-
-    # Create minimal test data with lag columns
-    data = pd.DataFrame(
-        {
-            "load": [100.0, 110.0],
-            "load_lag_-P7D": [90.0, 95.0],  # Primary lag data
-            "load_lag_-P14D": [80.0, 85.0],  # Fallback lag data
-        },
-        index=pd.date_range(start=datetime.fromisoformat("2025-01-01T00:00:00"), periods=2, freq="1h"),
-    )
-
-    input_dataset = ForecastInputDataset(data=data, sample_interval=timedelta(hours=1), target_column="load")
-
-    # Act
-    forecaster.fit(input_dataset)
-
-    # Assert
+    assert len(result.data) > 0
+    assert not result.data["quantile_P50"].isna().all()
     assert forecaster.is_fitted
-    # Check that hyperparameters use default timedelta values
-    assert forecaster.hyperparams.primary_lag == timedelta(days=7)
-    assert forecaster.hyperparams.fallback_lag == timedelta(days=14)
-    assert len(forecaster.config.quantiles) == 1  # Single quantile
-    assert forecaster.config.quantiles[0] == Quantile(0.5)  # Median
+    assert isinstance(result, ForecastDataset)
+
+    # Verify fallback lag is used - predictions should use Week 2 data (200.0 + hour pattern)
+    median_predictions = result.data["quantile_P50"]
+
+    # Check that we're getting values from Week 2 range (200-223) not Week 1 (100-123)
+    assert all(median_predictions >= 200.0), "Should use Week 2 data (≥200)"
+    assert all(median_predictions <= 223.0), "Should use Week 2 data (≤223)"
+
+
+def test_base_case_forecaster__state_serialization(base_case_forecaster: BaseCaseForecaster):
+    """Test state serialization and deserialization."""
+    # Arrange - Fixture provides forecaster
+
+    # Act
+    state = base_case_forecaster.to_state()
+    new_forecaster = BaseCaseForecaster(
+        config=BaseCaseForecasterConfig(
+            quantiles=[Quantile(0.1), Quantile(0.5), Quantile(0.9)],
+            horizons=[LeadTime(timedelta(hours=6))],
+            hyperparams=BaseCaseForecasterHyperParams(),
+        )
+    ).from_state(state)
+
+    # Assert
+    assert isinstance(state, dict)
+    assert "version" in state
+    assert "config" in state
+    assert new_forecaster.config.quantiles == base_case_forecaster.config.quantiles
+    assert new_forecaster.hyperparams.primary_lag == base_case_forecaster.hyperparams.primary_lag
+
+
+def test_base_case_forecaster__different_frequencies(base_case_forecaster: BaseCaseForecaster):
+    """Test forecaster with different data frequencies."""
+    # Arrange
+    dates = pd.date_range(start=datetime.fromisoformat("2025-01-01T00:00:00"), periods=2 * 7 * 48, freq="30T")
+    load_values = [100.0 + (i % 48) for i in range(len(dates))]
+
+    data = pd.DataFrame({"load": load_values}, index=dates)
+
+    input_dataset = ForecastInputDataset(
+        data=data,
+        sample_interval=timedelta(minutes=30),
+        target_column="load",
+        forecast_start=dates[7 * 48],
+    )
+
+    # Act
+    result = base_case_forecaster.predict(input_dataset)
+
+    # Assert
+    assert result.sample_interval == timedelta(minutes=30)
+    assert len(result.data) > 0
+    assert not result.data["quantile_P50"].isna().all()
+
+
+def test_base_case_forecaster__hourly_std_calculation(
+    base_case_forecaster: BaseCaseForecaster, sample_forecast_input_dataset: ForecastInputDataset
+):
+    """Test hourly standard deviation calculation for confidence intervals."""
+    # Arrange
+    basecase_values = base_case_forecaster._get_basecase_values(sample_forecast_input_dataset)
+
+    # Act
+    hourly_std = base_case_forecaster._calculate_hourly_std(basecase_values)
+
+    # Assert
+    assert len(hourly_std) == len(basecase_values)
+    assert all(hourly_std >= 0)
+
+
+def test_base_case_forecaster__empty_std_calculation(base_case_forecaster: BaseCaseForecaster):
+    """Test std calculation with empty data."""
+    # Arrange
+    empty_series = pd.Series(dtype=float, name="load")
+
+    # Act
+    hourly_std = base_case_forecaster._calculate_hourly_std(empty_series)
+
+    # Assert
+    assert len(hourly_std) == 0
+
+
+@pytest.mark.parametrize(
+    ("primary_lag", "fallback_lag"),
+    [
+        (timedelta(days=7), timedelta(days=14)),
+        (timedelta(days=1), timedelta(days=7)),
+        (timedelta(hours=24), timedelta(hours=48)),
+    ],
+)
+def test_base_case_forecaster__different_lag_configurations(primary_lag: timedelta, fallback_lag: timedelta):
+    """Test forecaster with different lag configurations."""
+    # Arrange
+    dates = pd.date_range(start=datetime.fromisoformat("2025-01-01T00:00:00"), periods=3 * 7 * 24, freq="1h")
+    load_values = [100.0 + i % 24 for i in range(len(dates))]
+
+    data = pd.DataFrame({"load": load_values}, index=dates)
+
+    config = BaseCaseForecasterConfig(
+        quantiles=[Quantile(0.5)],
+        horizons=[LeadTime(timedelta(hours=1))],
+        hyperparams=BaseCaseForecasterHyperParams(
+            primary_lag=primary_lag,
+            fallback_lag=fallback_lag,
+        ),
+    )
+
+    input_dataset = ForecastInputDataset(
+        data=data,
+        sample_interval=timedelta(hours=1),
+        target_column="load",
+        forecast_start=dates[2 * 7 * 24],
+    )
+
+    forecaster = BaseCaseForecaster(config=config)
+
+    # Act
+    result = forecaster.predict(input_dataset)
+
+    # Assert
+    assert len(result.data) > 0
+    assert not result.data["quantile_P50"].isna().all()
