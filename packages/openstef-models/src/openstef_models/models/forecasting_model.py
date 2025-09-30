@@ -178,8 +178,10 @@ class ForecastingModel(BaseModel, Predictor[VersionedTimeSeriesDataset | TimeSer
         input_data = self._prepare_input_data(data=data, forecast_start=forecast_start)
 
         # Empty out the target column in the to predict range
-        if forecast_start is not None:
-            for input_data_horizon in input_data.values():
+        for input_data_horizon in input_data.values():
+            if forecast_start is None:
+                input_data_horizon.data[self.target_column] = np.nan
+            else:
                 mask = input_data_horizon.index >= pd.Timestamp(forecast_start)
                 input_data_horizon.data.loc[mask, self.target_column] = np.nan
 
