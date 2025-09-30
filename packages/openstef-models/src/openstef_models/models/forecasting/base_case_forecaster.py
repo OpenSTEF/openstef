@@ -11,8 +11,7 @@ assumption that energy load patterns exhibit weekly periodicity.
 
 The forecaster constructs lag column names based on hyperparameter configuration and
 uses them to make predictions. It prioritizes the primary lag (default: 7-day) but falls
-back to the fallback lag (default: 14-day) when primary lag data is not available,
-matching the behavior of the legacy create_basecase_forecast_pipeline.
+back to the fallback lag (default: 14-day) when primary lag data is not available.
 """
 
 from datetime import timedelta
