@@ -86,8 +86,9 @@ class VersionedLagTransform(BaseConfig, VersionedTimeSeriesTransform):
         [100.0, 110.0, 120.0]
 
     Note:
-        Lag features extend the dataset's time range. A dataset covering 10:00-13:00
-        with a -2h lag will have features available from 12:00-15:00.
+        Lag features are constrained to the original dataset's time range. A dataset covering
+        10:00-13:00 with a -2h lag will have features available only from 12:00-13:00, not extending
+        to 15:00. This prevents creating timepoints outside the forecasting range.
     """
 
     column: str = Field(
