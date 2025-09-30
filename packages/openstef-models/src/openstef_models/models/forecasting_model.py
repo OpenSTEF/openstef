@@ -105,6 +105,7 @@ class ForecastingModel(BaseModel, Predictor[VersionedTimeSeriesDataset | TimeSer
 
         return {
             lead_time: ForecastInputDataset(
+                # Reassign target column to ensure it exists and is unchanged
                 data=dataset.data.assign(**{self.target_column: target_series}),
                 sample_interval=data.sample_interval,
                 target_column=self.target_column,
