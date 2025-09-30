@@ -10,7 +10,7 @@ forecasting where temporal dependencies matter but data availability varies.
 """
 
 from datetime import timedelta
-from typing import Self, override
+from typing import TYPE_CHECKING, Self, override
 
 from pydantic import Field
 
@@ -21,6 +21,9 @@ from openstef_core.exceptions import MissingColumnsError
 from openstef_core.mixins import State
 from openstef_core.transforms import VersionedTimeSeriesTransform
 from openstef_core.utils import timedelta_to_isoformat
+
+if TYPE_CHECKING:
+    import pandas as pd
 
 
 class VersionedLagTransform(BaseConfig, VersionedTimeSeriesTransform):
@@ -80,7 +83,7 @@ class VersionedLagTransform(BaseConfig, VersionedTimeSeriesTransform):
 
         >>> # Verify lag values (1-hour lag shifts 100->11:00, 110->12:00, etc.)
         >>> snapshot.data['load_lag_-PT1H'].dropna().tolist()
-        [100.0, 110.0, 120.0, 130.0]
+        [100.0, 110.0, 120.0]
 
     Note:
         Lag features extend the dataset's time range. A dataset covering 10:00-13:00
@@ -133,8 +136,17 @@ class VersionedLagTransform(BaseConfig, VersionedTimeSeriesTransform):
 
 
 def _transform_to_lag(data: VersionedTimeSeriesPart, column: str, lag: timedelta) -> VersionedTimeSeriesPart:
+    # Shift timestamps forward by the lag duration
     data_df = data.data.rename(columns={column: f"{column}_lag_{timedelta_to_isoformat(lag)}"})
     data_df[data.timestamp_column] = data_df[data.timestamp_column].sub(lag)  # pyright: ignore[reportArgumentType]
+
+    # Lagging adds a lot of new timepoints outside the original range.
+    # We filter to only keep timepoints within the original timestamp range.
+    mask: pd.Series = (data_df[data.timestamp_column] >= data.data[data.timestamp_column].min()) & (
+        data_df[data.timestamp_column] <= data.data[data.timestamp_column].max()
+    )
+    data_df = data_df[mask]
+
     return VersionedTimeSeriesPart(
         data=data_df,
         timestamp_column=data.timestamp_column,
