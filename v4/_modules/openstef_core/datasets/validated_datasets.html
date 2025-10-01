@@ -673,7 +673,24 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            Quantile values (0-1 scale) corresponding to dataset columns.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_quantiles</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_quantiles</span>
+
+<div class="viewcode-block" id="ForecastDataset.median_series">
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.ForecastDataset.html#openstef_core.datasets.ForecastDataset.median_series">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">median_series</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Extract the median (50th percentile) forecast series.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Time series containing median forecast values with original datetime index.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            MissingColumnsError: If the median quantile column is not found.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">median_col</span> <span class="o">=</span> <span class="n">Quantile</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">median_col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_names</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MissingColumnsError</span><span class="p">(</span><span class="n">missing_columns</span><span class="o">=</span><span class="p">[</span><span class="n">median_col</span><span class="p">])</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">median_col</span><span class="p">]</span></div>
+</div>
 
 
 

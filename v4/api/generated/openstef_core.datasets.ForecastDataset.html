@@ -655,6 +655,23 @@ minimum timestamp from data if not provided.</p></li>
 </dl>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef_core.datasets.ForecastDataset.median_series">
+<span class="sig-name descname"><span class="pre">median_series</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Series</span></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/validated_datasets.html#ForecastDataset.median_series"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.ForecastDataset.median_series" title="Link to this definition">#</a></dt>
+<dd><p>Extract the median (50th percentile) forecast series.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code></span></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Time series containing median forecast values with original datetime index.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="openstef_core.exceptions.MissingColumnsError.html#openstef_core.exceptions.MissingColumnsError" title="openstef_core.exceptions.MissingColumnsError"><strong>MissingColumnsError</strong></a> – If the median quantile column is not found.</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -709,6 +726,7 @@ minimum timestamp from data if not provided.</p></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.datasets.ForecastDataset"><code class="docutils literal notranslate"><span class="pre">ForecastDataset</span></code></a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.datasets.ForecastDataset.__init__"><code class="docutils literal notranslate"><span class="pre">ForecastDataset.__init__()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.datasets.ForecastDataset.quantiles"><code class="docutils literal notranslate"><span class="pre">ForecastDataset.quantiles</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.datasets.ForecastDataset.median_series"><code class="docutils literal notranslate"><span class="pre">ForecastDataset.median_series()</span></code></a></li>
 </ul>
 </li>
 </ul>
