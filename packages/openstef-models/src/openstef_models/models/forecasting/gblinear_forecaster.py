@@ -49,17 +49,17 @@ class GBLinearHyperParams(HyperParams):
         description="The updater to use for the GBLinear booster.",
     )
     learning_rate: float = Field(
-        default=0.3,
+        default=0.15,
         description="Step size shrinkage used to prevent overfitting. Range: [0,1]. Lower values require more boosting "
         "rounds.",
     )
 
     # Regularization
     reg_alpha: float = Field(
-        default=0, description="L1 regularization on weights. Higher values increase regularization. Range: [0,∞]"
+        default=0.0001, description="L1 regularization on weights. Higher values increase regularization. Range: [0,∞]"
     )
     reg_lambda: float = Field(
-        default=1, description="L2 regularization on weights. Higher values increase regularization. Range: [0,∞]"
+        default=0.0, description="L2 regularization on weights. Higher values increase regularization. Range: [0,∞]"
     )
 
     # Feature selection
@@ -91,7 +91,7 @@ class GBLinearForecasterConfig(HorizonForecasterConfig):
     device: str = Field(
         default="cpu", description="Device for XGBoost computation. Options: 'cpu', 'cuda', 'cuda:<ordinal>', 'gpu'"
     )
-    verbosity: Literal[0, 1, 2, 3] = Field(
+    verbosity: Literal[0, 1, 2, 3, True] = Field(
         default=1, description="Verbosity level. 0=silent, 1=warning, 2=info, 3=debug"
     )
 
@@ -169,6 +169,7 @@ class GBLinearForecaster(HorizonForecaster):
             config: Configuration for the forecaster.
         """
         self._config = config or GBLinearForecasterConfig()
+
         self._gblinear_model = xgb.XGBRegressor(
             booster="gblinear",
             # Core parameters for forecasting
@@ -241,15 +242,15 @@ class GBLinearForecaster(HorizonForecaster):
         target: pd.Series = data.target_series()
         sample_weight: pd.Series = data.sample_weight_series()
 
-        eval_set = None
-        sample_weight_eval_set = None
+        eval_set = [(input_data, target)]
+        sample_weight_eval_set = [sample_weight]
 
         if data_val is not None:
             input_data_val: pd.DataFrame = data_val.input_data()
             target_val: pd.Series = data_val.target_series()
             sample_weight_val: pd.Series = data_val.sample_weight_series()
-            eval_set = [(input_data_val, target_val)]
-            sample_weight_eval_set = [sample_weight_val]
+            eval_set.append((input_data_val, target_val))
+            sample_weight_eval_set.append(sample_weight_val)
 
         self._gblinear_model.fit(
             X=input_data,

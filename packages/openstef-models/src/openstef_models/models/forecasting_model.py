@@ -12,6 +12,8 @@ data transformation and validation.
 from datetime import datetime
 from typing import Any, Self, cast, override
 
+import numpy as np
+import pandas as pd
 from pydantic import Field, model_validator
 
 from openstef_core.base_model import BaseModel
@@ -94,14 +96,22 @@ class ForecastingModel(BaseModel, Predictor[VersionedTimeSeriesDataset | TimeSer
         data: VersionedTimeSeriesDataset | TimeSeriesDataset,
         forecast_start: datetime | None = None,
     ) -> dict[LeadTime, ForecastInputDataset]:
+        if isinstance(data, VersionedTimeSeriesDataset):
+            target_series = data.select_version().data[self.target_column]
+        else:
+            target_series = data.data[self.target_column]
+
         input_data = self.preprocessing.transform(data=data)
+
         return {
-            lead_time: ForecastInputDataset.from_timeseries_dataset(
-                dataset=timeseries_data,
+            lead_time: ForecastInputDataset(
+                # Reassign target column to ensure it exists and is unchanged
+                data=dataset.data.assign(**{self.target_column: target_series}),
+                sample_interval=data.sample_interval,
                 target_column=self.target_column,
                 forecast_start=forecast_start,
             )
-            for lead_time, timeseries_data in input_data.items()
+            for lead_time, dataset in input_data.items()
         }
 
     @property
@@ -166,6 +176,14 @@ class ForecastingModel(BaseModel, Predictor[VersionedTimeSeriesDataset | TimeSer
 
         # Transform the input data to a valid forecast input
         input_data = self._prepare_input_data(data=data, forecast_start=forecast_start)
+
+        # Empty out the target column in the to predict range
+        for input_data_horizon in input_data.values():
+            if forecast_start is None:
+                input_data_horizon.data[self.target_column] = np.nan
+            else:
+                mask = input_data_horizon.index >= pd.Timestamp(forecast_start)
+                input_data_horizon.data.loc[mask, self.target_column] = np.nan
 
         # Generate predictions
         if isinstance(self.forecaster, Forecaster):

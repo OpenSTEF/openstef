@@ -36,13 +36,15 @@ import numpy as np
 import pandas as pd
 from pydantic_extra_types.country import CountryAlpha2
 
-from openstef_core.datasets import ForecastDataset, VersionedTimeSeriesDataset
+from openstef_beam.analysis.plots import ForecastTimeSeriesPlotter
+from openstef_core.datasets import ForecastDataset, TimeSeriesDataset, VersionedTimeSeriesDataset
 from openstef_core.mixins import TransformPipeline
 from openstef_core.types import LeadTime, Q
 from openstef_models.integrations.joblib import LocalModelStorage
-from openstef_models.models.forecasting.constant_median_forecaster import (
-    ConstantMedianForecaster,
-    ConstantMedianForecasterConfig,
+from openstef_models.models.forecasting.gblinear_forecaster import (
+    GBLinearForecaster,
+    GBLinearForecasterConfig,
+    GBLinearHyperParams,
 )
 from openstef_models.models.forecasting_model import ForecastingModel
 from openstef_models.transforms import FeatureEngineeringPipeline
@@ -51,28 +53,55 @@ from openstef_models.transforms.time_domain import HolidayFeaturesTransform
 from openstef_models.transforms.time_domain.lag_transform import VersionedLagTransform
 from openstef_models.workflows import ForecastingWorkflow
 
-dataset = VersionedTimeSeriesDataset.from_dataframe(
+# Create synthetic time series data
+n_samples = 24 * 31 * 3  # 3 months of hourly data
+rng = np.random.default_rng(42)
+temp = rng.standard_normal(size=n_samples)
+wind = rng.standard_normal(size=n_samples)
+radiation = rng.standard_normal(size=n_samples)
+timestamps = pd.date_range("2025-01-01", periods=n_samples, freq="h")
+
+load_dataset = VersionedTimeSeriesDataset.from_dataframe(
     data=pd.DataFrame({
-        "load": np.random.default_rng().standard_normal(size=24 * 14),
-        "timestamp": pd.date_range("2025-01-01", periods=24 * 14, freq="h"),
-        "available_at": pd.date_range("2025-01-01", periods=24 * 14, freq="h"),
+        "load": wind * -10 + temp * -3 + radiation * -5 + rng.standard_normal(size=n_samples) * 2,
+        "timestamp": timestamps,
+        "available_at": timestamps,
     }),
     sample_interval=timedelta(hours=1),
 )
+predictor_dataset = VersionedTimeSeriesDataset.from_dataframe(
+    data=pd.DataFrame({
+        "temp": temp,
+        "wind": wind,
+        "radiation": radiation,
+        "timestamp": timestamps,
+        "available_at": timestamps - timedelta(days=7),
+    }),
+    sample_interval=timedelta(hours=1),
+)
+
+dataset = VersionedTimeSeriesDataset.concat([load_dataset, predictor_dataset], mode="inner")
 
 model = ForecastingModel(
     preprocessing=FeatureEngineeringPipeline.create(
         horizons=[LeadTime.from_string("PT36H")],
         horizon_transforms=[
-            ScalerTransform(method="standard"),
+            ScalerTransform(method="standard", columns=["temp", "wind", "radiation"]),
             HolidayFeaturesTransform(country_code=CountryAlpha2("NL")),
         ],
         versioned_transforms=[VersionedLagTransform(column="load", lags=[timedelta(days=-7)])],
     ),
-    forecaster=ConstantMedianForecaster(
-        config=ConstantMedianForecasterConfig(
+    forecaster=GBLinearForecaster(
+        config=GBLinearForecasterConfig(
             horizons=[LeadTime.from_string("PT36H")],
             quantiles=[Q(0.5), Q(0.1), Q(0.9)],
+            hyperparams=GBLinearHyperParams(
+                n_estimators=1000,
+                learning_rate=0.3,
+                # reg_alpha=0.0,  # noqa: ERA001
+                # reg_lambda=1.0,  # noqa: ERA001
+            ),
+            verbosity=True,
         )
     ),
     postprocessing=TransformPipeline[ForecastDataset](transforms=[]),
@@ -81,14 +110,34 @@ model = ForecastingModel(
 
 storage = LocalModelStorage(storage_dir=Path("./model_storage"))
 
-pipeline = ForecastingWorkflow.from_storage(
-    model_id="constant_median_forecaster_v1",
+pipeline = ForecastingWorkflow(
+    model_id="gblinear_forecaster_v1",
     model=model,
     storage=storage,
 )
 
 pipeline.fit(dataset)
 
-forecast = pipeline.predict(dataset)
+forecast: ForecastDataset = pipeline.predict(dataset)
 
-print(forecast.quantiles)
+print(forecast.data.tail())
+
+fig = (
+    ForecastTimeSeriesPlotter()
+    .add_measurements(
+        measurements=TimeSeriesDataset(
+            data=dataset.select_version().data[["load"]],
+            sample_interval=dataset.sample_interval,
+        )
+    )
+    .add_model(
+        model_name="gblinear",
+        forecast=TimeSeriesDataset(
+            data=forecast.median_series().to_frame(name="load"),
+            sample_interval=dataset.sample_interval,
+        ),
+    )
+    .plot()
+)
+
+fig.write_html("forecast_plot.html")  # pyright: ignore[reportUnknownMemberType]

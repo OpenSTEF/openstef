@@ -14,8 +14,8 @@ from typing import cast, override
 
 from openstef_core.base_model import BaseModel
 from openstef_core.exceptions import MissingExtraError, ModelNotFoundError
-from openstef_models.mixins.model_storage import ModelIdentifier, ModelStorage, Stateful
-from openstef_models.models.forecasting_model import ForecastingModel
+from openstef_core.mixins import State, Stateful
+from openstef_models.mixins.model_storage import ModelIdentifier, ModelStorage
 
 try:
     import joblib
@@ -71,13 +71,16 @@ class LocalModelStorage(BaseModel, ModelStorage):
         if not model_path.exists():
             raise ModelNotFoundError(str(model_id))
 
-        return cast(ForecastingModel, joblib.load(model_path))  # type: ignore[reportUnknownMemberType]
+        state = cast(State, joblib.load(model_path))  # type: ignore[reportUnknownMemberType]
+        return model.from_state(state)
 
     @override
     def save_model_state(self, model_id: ModelIdentifier, model: Stateful) -> None:
         model_path = self._get_model_path(model_id)
+        model_path.parent.mkdir(parents=True, exist_ok=True)
 
-        joblib.dump(model, model_path)  # type: ignore[reportUnknownMemberType]
+        state = model.to_state()
+        joblib.dump(state, model_path)  # type: ignore[reportUnknownMemberType]
 
 
 __all__ = ["LocalModelStorage"]

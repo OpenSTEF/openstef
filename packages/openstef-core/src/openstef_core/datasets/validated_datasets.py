@@ -211,6 +211,20 @@ class ForecastDataset(TimeSeriesDataset):
         """
         return self._quantiles
 
+    def median_series(self) -> pd.Series:
+        """Extract the median (50th percentile) forecast series.
+
+        Returns:
+            Time series containing median forecast values with original datetime index.
+
+        Raises:
+            MissingColumnsError: If the median quantile column is not found.
+        """
+        median_col = Quantile(0.5).format()
+        if median_col not in self.feature_names:
+            raise MissingColumnsError(missing_columns=[median_col])
+        return self.data[median_col]
+
 
 class EnergyComponentDataset(TimeSeriesDataset):
     """Time series dataset for energy generation by component type.

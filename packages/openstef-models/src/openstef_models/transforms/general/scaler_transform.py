@@ -11,7 +11,6 @@ for improved machine learning model performance.
 
 from typing import Any, Literal, Self, cast, override
 
-import pandas as pd
 from pydantic import Field, PrivateAttr
 
 from openstef_core.base_model import BaseConfig
@@ -67,6 +66,10 @@ class ScalerTransform(BaseConfig, TimeSeriesTransform):
     """
 
     method: ScalingMethod = Field(default="standard", description="Scaling method to use.")
+    columns: list[str] | None = Field(
+        default=None,
+        description="List of column names to apply imputation to. If None, applies to all columns.",
+    )
 
     _scaler: MinMaxScaler | MaxAbsScaler | StandardScaler | RobustScaler = PrivateAttr()
     _is_fitted: bool = PrivateAttr(default=False)
@@ -95,7 +98,8 @@ class ScalerTransform(BaseConfig, TimeSeriesTransform):
         Args:
             data: Time series dataset.
         """
-        self._scaler.fit(data.data)  # type: ignore[reportUnknownMemberType]
+        columns = self.columns or data.feature_names
+        self._scaler.fit(data.data[columns])  # type: ignore[reportUnknownMemberType]
         self._is_fitted = True
 
     @override
@@ -103,11 +107,10 @@ class ScalerTransform(BaseConfig, TimeSeriesTransform):
         if not self._is_fitted:
             raise TransformNotFittedError(self.__class__.__name__)
 
-        scaled_data = pd.DataFrame(
-            data=cast(pd.DataFrame, self._scaler.transform(data.data)),
-            columns=data.data.columns,
-            index=data.data.index,
-        )
+        columns = self.columns or data.feature_names
+        scaled_data = data.data.copy()
+        scaled_data[columns] = self._scaler.transform(scaled_data[columns])
+
         return TimeSeriesDataset(
             data=scaled_data,
             sample_interval=data.sample_interval,

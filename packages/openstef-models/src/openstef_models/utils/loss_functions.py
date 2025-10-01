@@ -77,7 +77,7 @@ def pinball_loss_magnitude_weighted_multi_objective(
     n_rows = n_items // n_quantiles
     y_pred = np.reshape(y_pred, (n_rows, n_quantiles))
     y_true = np.reshape(y_true, (n_rows, n_quantiles))
-    sample_weight = np.reshape(sample_weight, (n_rows, 1)) if sample_weight is not None else None
+    sample_weight = np.reshape(sample_weight, (n_rows, -1)) if sample_weight is not None else None
 
     # Extract quantile values into array for vectorized operations
     quantile_values = np.array(quantiles)  # shape: (n_quantiles,)
@@ -175,7 +175,7 @@ def arctan_loss_multi_objective(
     n_rows = n_items // n_quantiles
     y_pred = np.reshape(y_pred, (n_rows, n_quantiles))
     y_true = np.reshape(y_true, (n_rows, n_quantiles))
-    sample_weight = np.reshape(sample_weight, (n_rows, 1)) if sample_weight is not None else None
+    sample_weight = np.reshape(sample_weight, (n_rows, -1)) if sample_weight is not None else None
 
     # Calculate the differences
     u = y_true - y_pred
@@ -257,7 +257,7 @@ def pinball_loss_multi_objective(
     n_rows = n_items // n_quantiles
     y_pred = np.reshape(y_pred, (n_rows, n_quantiles))
     y_true = np.reshape(y_true, (n_rows, n_quantiles))
-    sample_weight = np.reshape(sample_weight, (n_rows, 1)) if sample_weight is not None else None
+    sample_weight = np.reshape(sample_weight, (n_rows, -1)) if sample_weight is not None else None
 
     # Extract quantile values into array for vectorized operations
     quantile_values = np.array(quantiles)  # shape: (n_quantiles,)

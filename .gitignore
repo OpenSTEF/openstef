@@ -118,3 +118,7 @@ tmp/
 output/
 prof/
 certificates/
+
+# Output artifacts
+*.html
+*.pkl
