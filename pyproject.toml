@@ -263,9 +263,12 @@ switch = [
 
 [tool.poe.tasks.licensecheck]
 help = "Check licenses of dependencies for compatibility"
-# Note: MPL 2.0 lists explicitly Apache License 2.0 as compatible, so we ignore it here (due to false positive).
 cmd = 'licensecheck ${check:+ --show-only-failing --zero}'
 args = [ { name = "check", type = "boolean", help = "Does not correct files, only warns" } ]
+
+[tool.poe.tasks.licensecheck-third-party]
+help = "Check licenses of dependencies for compatibility"
+cmd = 'licensecheck --format markdown --file THIRD_PARTY_LICENSES.md'
 
 [tool.poe.tasks.all]
 help = "Run all CI calls"
@@ -285,8 +288,9 @@ switch = [
     "doctests",
   ], ignore_fail = "return_non_zero" },
   { sequence = [
-    "reuse --fix",
     "licensecheck --check",
+    "licensecheck-third-party",
+    "reuse --fix",
     "lint",
     "format",
     "format-pyproject",
