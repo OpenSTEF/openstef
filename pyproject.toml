@@ -53,6 +53,7 @@ urls.Repository = "https://github.com/OpenSTEF/openstef"
 
 [dependency-groups]
 dev = [
+  "licensecheck>=2025.1",
   "microsoft-python-type-stubs",
   "moto[s3,server]>=5.1.11",
   "openstef-beam",
@@ -260,6 +261,15 @@ switch = [
   { cmd = "reuse lint" },
 ]
 
+[tool.poe.tasks.licensecheck]
+help = "Check licenses of dependencies for compatibility"
+cmd = 'licensecheck ${check:+ --show-only-failing --zero}'
+args = [ { name = "check", type = "boolean", help = "Does not correct files, only warns" } ]
+
+[tool.poe.tasks.licensecheck-third-party]
+help = "Check licenses of dependencies for compatibility"
+cmd = 'licensecheck --format markdown --file THIRD_PARTY_LICENSES.md'
+
 [tool.poe.tasks.all]
 help = "Run all CI calls"
 control.expr = "check"                                                                       # There is no pass through option (yet?) so use a control expression to pass --check option to tasks when relevant
@@ -268,6 +278,7 @@ args = [ { name = "check", type = "boolean", help = "Does not correct files, onl
 switch = [
   { case = "check", sequence = [
     "reuse",
+    "licensecheck --check",
     "lint --check",
     "format --check",
     "format-pyproject --check",
@@ -277,6 +288,8 @@ switch = [
     "doctests",
   ], ignore_fail = "return_non_zero" },
   { sequence = [
+    "licensecheck --check",
+    "licensecheck-third-party",
     "reuse --fix",
     "lint",
     "format",
@@ -328,3 +341,11 @@ args = [
 [tool.poe.tasks.docs-clean]
 help = "Clean the documentation build artifacts"
 cmd = "rm -rf docs/build/html/* docs/source/api/generated"
+
+[tool.licensecheck]
+# Pycountry is LGPL-2.1 according to pypi.
+# MPL 2.0 lists explicitly that it is compatible with LGPL-2.1 and later, so we ignore it here (due to false positive).
+ignore_packages = [ "openstef-beam", "openstef-models", "openstef-compatibility", "openstef-core", "pycountry" ]
+# Note: MPL 2.0 lists explicitly Apache License 2.0 as compatible, so we ignore it here (due to false positive).
+ignore_licenses = [ "apache software license", "apache license 2.0" ]
+extras = [ "all" ]

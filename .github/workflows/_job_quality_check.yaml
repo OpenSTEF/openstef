@@ -37,6 +37,9 @@ jobs:
       - name: reuse
         if: ${{ ! inputs._SKIP_QUALITY && always() }}
         run: poe reuse
+      - name: licensecheck
+        if: ${{ ! inputs._SKIP_QUALITY && always() }}
+        run: poe licensecheck --check
       - name: lint
         if: ${{ ! inputs._SKIP_QUALITY && always() }}
         run: poe lint --check
