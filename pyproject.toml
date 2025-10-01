@@ -53,6 +53,7 @@ urls.Repository = "https://github.com/OpenSTEF/openstef"
 
 [dependency-groups]
 dev = [
+  "licensecheck>=2025.1",
   "microsoft-python-type-stubs",
   "moto[s3,server]>=5.1.11",
   "openstef-beam",
@@ -328,3 +329,8 @@ args = [
 [tool.poe.tasks.docs-clean]
 help = "Clean the documentation build artifacts"
 cmd = "rm -rf docs/build/html/* docs/source/api/generated"
+
+[tool.poe.tasks.licensecheck]
+help = "Check licenses of dependencies for compatibility"
+# Note: MPL 2.0 lists explicitly Apache License 2.0 as compatible, so we ignore it here (due to false positive).
+cmd = 'licensecheck --extras all --ignore-packages openstef-beam openstef-models openstef-compatibility openstef-core pycountry --ignore-licenses "apache software license" "apache license 2.0"'
