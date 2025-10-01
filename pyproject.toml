@@ -261,6 +261,12 @@ switch = [
   { cmd = "reuse lint" },
 ]
 
+[tool.poe.tasks.licensecheck]
+help = "Check licenses of dependencies for compatibility"
+# Note: MPL 2.0 lists explicitly Apache License 2.0 as compatible, so we ignore it here (due to false positive).
+cmd = 'licensecheck ${check:+ --show-only-failing --zero}'
+args = [ { name = "check", type = "boolean", help = "Does not correct files, only warns" } ]
+
 [tool.poe.tasks.all]
 help = "Run all CI calls"
 control.expr = "check"                                                                       # There is no pass through option (yet?) so use a control expression to pass --check option to tasks when relevant
@@ -269,6 +275,7 @@ args = [ { name = "check", type = "boolean", help = "Does not correct files, onl
 switch = [
   { case = "check", sequence = [
     "reuse",
+    "licensecheck --check",
     "lint --check",
     "format --check",
     "format-pyproject --check",
@@ -279,6 +286,7 @@ switch = [
   ], ignore_fail = "return_non_zero" },
   { sequence = [
     "reuse --fix",
+    "licensecheck --check",
     "lint",
     "format",
     "format-pyproject",
@@ -330,7 +338,10 @@ args = [
 help = "Clean the documentation build artifacts"
 cmd = "rm -rf docs/build/html/* docs/source/api/generated"
 
-[tool.poe.tasks.licensecheck]
-help = "Check licenses of dependencies for compatibility"
+[tool.licensecheck]
+# Pycountry is LGPL-2.1 according to pypi.
+# MPL 2.0 lists explicitly that it is compatible with LGPL-2.1 and later, so we ignore it here (due to false positive).
+ignore_packages = [ "openstef-beam", "openstef-models", "openstef-compatibility", "openstef-core", "pycountry" ]
 # Note: MPL 2.0 lists explicitly Apache License 2.0 as compatible, so we ignore it here (due to false positive).
-cmd = 'licensecheck --extras all --ignore-packages openstef-beam openstef-models openstef-compatibility openstef-core pycountry --ignore-licenses "apache software license" "apache license 2.0"'
+ignore_licenses = [ "apache software license", "apache license 2.0" ]
+extras = [ "all" ]
