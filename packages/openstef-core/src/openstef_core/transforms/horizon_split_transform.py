@@ -15,14 +15,15 @@ from pydantic import Field
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import (
-    MultiHorizonTimeSeriesDataset,
+    MultiHorizon,
     VersionedTimeSeriesDataset,
 )
+from openstef_core.datasets.mixins import TimeSeriesDataset
 from openstef_core.mixins import State, Transform
 from openstef_core.types import LeadTime
 
 
-class HorizonSplitTransform(BaseConfig, Transform[VersionedTimeSeriesDataset, MultiHorizonTimeSeriesDataset]):
+class HorizonSplitTransform(BaseConfig, Transform[VersionedTimeSeriesDataset, MultiHorizon[TimeSeriesDataset]]):
     """Transform that splits versioned datasets into horizon-specific time series.
 
     This transform is a key component in multi-horizon forecasting pipelines. It takes
@@ -84,7 +85,7 @@ class HorizonSplitTransform(BaseConfig, Transform[VersionedTimeSeriesDataset, Mu
         pass
 
     @override
-    def transform(self, data: VersionedTimeSeriesDataset) -> MultiHorizonTimeSeriesDataset:
+    def transform(self, data: VersionedTimeSeriesDataset) -> MultiHorizon[TimeSeriesDataset]:
         """Split versioned dataset into horizon-specific time series datasets.
 
         For each configured horizon, filters the versioned data and resolves timestamps
@@ -96,7 +97,9 @@ class HorizonSplitTransform(BaseConfig, Transform[VersionedTimeSeriesDataset, Mu
         Returns:
             Dictionary mapping each LeadTime to its corresponding TimeSeriesDataset.
         """
-        return {horizon: data.filter_by_lead_time(lead_time=horizon).select_version() for horizon in self.horizons}
+        return MultiHorizon({
+            horizon: data.filter_by_lead_time(lead_time=horizon).select_version() for horizon in self.horizons
+        })
 
 
 __all__ = ["HorizonSplitTransform"]

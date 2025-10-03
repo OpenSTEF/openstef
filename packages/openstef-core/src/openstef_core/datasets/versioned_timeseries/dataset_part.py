@@ -102,6 +102,8 @@ class VersionedTimeSeriesPart(VersionedTimeSeriesMixin):
         index: pd.DatetimeIndex | None = None,
         timestamp_column: str = "timestamp",
         available_at_column: str = "available_at",
+        *,
+        is_sorted: bool = False,
     ) -> None:
         """Initialize a VersionedTimeSeriesPart with the given data and configuration.
 
@@ -113,6 +115,8 @@ class VersionedTimeSeriesPart(VersionedTimeSeriesMixin):
             timestamp_column: Name of the column containing timestamps. Default is 'timestamp'.
             available_at_column: Name of the column indicating when data became available.
                 Default is 'available_at'.
+            is_sorted: If True, assumes data is already sorted by (timestamp, available_at).
+                If False, data will be sorted during initialization.
 
         Raises:
             MissingColumnsError: If required timestamp_column or available_at_column are missing.
@@ -131,17 +135,15 @@ class VersionedTimeSeriesPart(VersionedTimeSeriesMixin):
         validate_datetime_column(data[available_at_column], available_at_column)
 
         # Ensure invariant: data is at all times sorted by (timestamp, available_at) asc.
-        if not data.attrs.get("is_sorted", False):
+        if not data.attrs.get("is_sorted", False) and not is_sorted:
             data = data.sort_values(by=[timestamp_column, available_at_column], ascending=[True, True])
-            data.attrs["is_sorted"] = True
 
+        data.attrs["is_sorted"] = True
         self.data = data
         self.sample_interval = sample_interval
         self.timestamp_column = timestamp_column
         self.available_at_column = available_at_column
-        self.index = (
-            index if index is not None else cast(pd.DatetimeIndex, pd.DatetimeIndex(self.data[timestamp_column]))
-        )
+        self.index = index if index is not None else pd.DatetimeIndex(self.data[timestamp_column])
         self.index = cast(pd.DatetimeIndex, cast(pd.Series, self.index).sort_values().drop_duplicates())
         self.feature_names = list(set(self.data.columns) - {self.timestamp_column, self.available_at_column})
 

@@ -13,7 +13,7 @@ from typing import Self, override
 import pandas as pd
 
 from openstef_core.base_model import BaseModel
-from openstef_core.datasets import MultiHorizonTimeSeriesDataset, TimeSeriesDataset
+from openstef_core.datasets import MultiHorizon, TimeSeriesDataset
 from openstef_core.mixins import State
 from openstef_core.transforms.dataset_transforms import MultiHorizonTimeSeriesTransform, TimeSeriesTransform
 from openstef_core.types import LeadTime
@@ -51,7 +51,7 @@ class MultiHorizonTransformAdapter(BaseModel, MultiHorizonTimeSeriesTransform):
         >>> from openstef_models.transforms.general.scaler_transform import ScalerTransform
         >>> scale_transform = ScalerTransform()
         >>> adapter = MultiHorizonTransformAdapter(time_series_transform=scale_transform)
-        >>> # adapter can now be used with MultiHorizonTimeSeriesDataset
+        >>> # adapter can now be used with MultiHorizon[TimeSeriesDataset]
     """
 
     time_series_transform: TimeSeriesTransform
@@ -75,7 +75,7 @@ class MultiHorizonTransformAdapter(BaseModel, MultiHorizonTimeSeriesTransform):
         return self.time_series_transform.is_fitted
 
     @override
-    def fit(self, data: MultiHorizonTimeSeriesDataset) -> None:
+    def fit(self, data: MultiHorizon[TimeSeriesDataset]) -> None:
         """Fit the transform on concatenated multi-horizon data.
 
         Args:
@@ -85,8 +85,8 @@ class MultiHorizonTransformAdapter(BaseModel, MultiHorizonTimeSeriesTransform):
         self.time_series_transform.fit(flat_data)
 
     @override
-    def transform(self, data: MultiHorizonTimeSeriesDataset) -> MultiHorizonTimeSeriesDataset:
-        return {horizon: self.time_series_transform.transform(dataset) for horizon, dataset in data.items()}
+    def transform(self, data: MultiHorizon[TimeSeriesDataset]) -> MultiHorizon[TimeSeriesDataset]:
+        return data.map_horizons(self.time_series_transform.transform)
 
 
 __all__ = ["MultiHorizonTransformAdapter", "concat_horizon_datasets_rowwise"]
