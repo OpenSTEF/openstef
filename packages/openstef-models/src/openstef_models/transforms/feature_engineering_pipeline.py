@@ -13,7 +13,11 @@ from typing import Any, Self, cast, override
 
 from pydantic import BaseModel, Field, PrivateAttr
 
-from openstef_core.datasets import MultiHorizonTimeSeriesDataset, TimeSeriesDataset, VersionedTimeSeriesDataset
+from openstef_core.datasets import (
+    MultiHorizon,
+    TimeSeriesDataset,
+    VersionedTimeSeriesDataset,
+)
 from openstef_core.exceptions import NotFittedError
 from openstef_core.mixins import State, Transform, TransformPipeline
 from openstef_core.transforms import MultiHorizonTimeSeriesTransform, TimeSeriesTransform
@@ -22,7 +26,7 @@ from openstef_models.transforms import HorizonSplitTransform
 
 
 class FeatureEngineeringPipeline(
-    BaseModel, Transform[VersionedTimeSeriesDataset | TimeSeriesDataset, MultiHorizonTimeSeriesDataset]
+    BaseModel, Transform[VersionedTimeSeriesDataset | TimeSeriesDataset, MultiHorizon[TimeSeriesDataset]]
 ):
     """Feature engineering pipeline for multi-horizon forecasting models.
 
@@ -76,7 +80,7 @@ class FeatureEngineeringPipeline(
         >>> len(horizon_datasets)
         2
         >>> list(horizon_datasets.keys())
-        [LeadTime(datetime.timedelta(seconds=3600)), LeadTime(datetime.timedelta(days=1))]
+        [LeadTime('PT1H'), LeadTime('P1D')]
         >>>
         >>> # Check what columns are created (original + cyclic features)
         >>> sorted(horizon_datasets[LeadTime.from_string("PT1H")].feature_names)
@@ -123,7 +127,7 @@ class FeatureEngineeringPipeline(
             "Transforms that operate on versioned time series, and usually involve complex time handling logic."
         ),
     )
-    horizon_pipeline: TransformPipeline[MultiHorizonTimeSeriesDataset] = Field(
+    horizon_pipeline: TransformPipeline[MultiHorizon[TimeSeriesDataset]] = Field(
         default_factory=lambda: TransformPipeline(transforms=[]),
         description="Transforms that operate on time series with already resolved timestamps.",
     )
@@ -199,7 +203,7 @@ class FeatureEngineeringPipeline(
     @override
     def fit(self, data: VersionedTimeSeriesDataset | TimeSeriesDataset) -> None:
         if isinstance(data, TimeSeriesDataset):
-            horizon_data = dict.fromkeys(self.horizons, data)
+            horizon_data = MultiHorizon(dict.fromkeys(self.horizons, data))
         else:
             # Fit all the versioned transforms
             versioned_data = self.versioned_pipeline.fit_transform(data=data)
@@ -213,12 +217,12 @@ class FeatureEngineeringPipeline(
         self._is_fitted = True
 
     @override
-    def transform(self, data: VersionedTimeSeriesDataset | TimeSeriesDataset) -> MultiHorizonTimeSeriesDataset:
+    def transform(self, data: VersionedTimeSeriesDataset | TimeSeriesDataset) -> MultiHorizon[TimeSeriesDataset]:
         if not self._is_fitted:
             raise NotFittedError("Pipeline is not fitted")
 
         if isinstance(data, TimeSeriesDataset):
-            horizon_data = dict.fromkeys(self.horizons, data)
+            horizon_data = MultiHorizon(dict.fromkeys(self.horizons, data))
         else:
             versioned_data = self.versioned_pipeline.transform(data=data)
             horizon_data = self._horizon_split_transform.transform(data=versioned_data)

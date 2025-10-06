@@ -16,10 +16,9 @@ from openstef_core.base_model import BaseModel
 from openstef_core.datasets import MultiHorizon, TimeSeriesDataset
 from openstef_core.mixins import State
 from openstef_core.transforms.dataset_transforms import MultiHorizonTimeSeriesTransform, TimeSeriesTransform
-from openstef_core.types import LeadTime
 
 
-def concat_horizon_datasets_rowwise(horizon_datasets: dict[LeadTime, TimeSeriesDataset]) -> TimeSeriesDataset:
+def concat_horizon_datasets_rowwise(horizon_datasets: MultiHorizon[TimeSeriesDataset]) -> TimeSeriesDataset:
     """Concatenate multiple horizon datasets into a single dataset.
 
     This function takes a dictionary of horizon datasets, each corresponding to a specific lead time,

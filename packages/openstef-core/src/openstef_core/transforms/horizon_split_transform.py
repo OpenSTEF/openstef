@@ -16,9 +16,9 @@ from pydantic import Field
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import (
     MultiHorizon,
+    TimeSeriesDataset,
     VersionedTimeSeriesDataset,
 )
-from openstef_core.datasets.mixins import TimeSeriesDataset
 from openstef_core.mixins import State, Transform
 from openstef_core.types import LeadTime
 

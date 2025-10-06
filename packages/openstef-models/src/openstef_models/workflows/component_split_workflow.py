@@ -17,6 +17,7 @@ from openstef_core.base_model import BaseModel
 from openstef_core.datasets import EnergyComponentDataset, TimeSeriesDataset
 from openstef_core.exceptions import NotFittedError
 from openstef_models.mixins import ModelIdentifier, ModelStorage, PredictorCallback
+from openstef_models.mixins.callbacks import WorkflowContext
 from openstef_models.models import ComponentSplittingModel
 
 
@@ -112,13 +113,15 @@ class ComponentSplitWorkflow(BaseModel):
         Args:
             data: Training dataset for the component splitting model.
         """
-        self.callbacks.on_fit_start(workflow=self, data=data)
+        context: WorkflowContext[ComponentSplitWorkflow] = WorkflowContext(workflow=self)
+
+        self.callbacks.on_fit_start(context=context, data=data)
 
         data_train, data_val = data, None  # TODO(#678): implement train/val split  # noqa: FIX002
 
         self.model.fit(data=data_train, data_val=data_val)
 
-        self.callbacks.on_fit_end(workflow=self, data=data)
+        self.callbacks.on_fit_end(context=context, data=data)
 
         if self.storage is not None:
             self.storage.save_model_state(model_id=self.model_id, model=self.model)
@@ -141,11 +144,13 @@ class ComponentSplitWorkflow(BaseModel):
         if not self.model.is_fitted:
             raise NotFittedError(type(self.model).__name__)
 
-        self.callbacks.on_predict_start(workflow=self, data=data)
+        context: WorkflowContext[ComponentSplitWorkflow] = WorkflowContext(workflow=self)
+
+        self.callbacks.on_predict_start(context=context, data=data)
 
         prediction = self.model.predict(data=data)
 
-        self.callbacks.on_predict_end(workflow=self, data=data, forecasts=prediction)
+        self.callbacks.on_predict_end(context=context, data=data, forecasts=prediction)
 
         return prediction
 

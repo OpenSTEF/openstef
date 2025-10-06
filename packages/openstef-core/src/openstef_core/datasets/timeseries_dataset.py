@@ -168,7 +168,7 @@ class TimeSeriesDataset(TimeSeriesMixin):
             If the parquet file lacks a sample_interval attribute, defaults
             to 15 minutes with a warning logged.
         """
-        data = pd.read_parquet(path)
+        data = pd.read_parquet(path)  # type: ignore
         if "sample_interval" not in data.attrs:
             _logger.warning(
                 "Parquet file does not contain 'sample_interval' attribute. Using default value of 15 minutes."
@@ -213,12 +213,12 @@ class MultiHorizon[T: TimeSeriesDataset](UserDict[LeadTime, T]):
         >>> # Create MultiHorizon mapping
         >>> horizons = MultiHorizon({
         ...     LeadTime.from_string("PT1H"): dataset_1h,
-        ...     LeadTime.from_string("PT24H"): dataset_24h,
+        ...     LeadTime.from_string("P1D"): dataset_24h,
         ... })
         >>> len(horizons)
         2
         >>> list(horizons.keys())
-        [LeadTime('PT1H'), LeadTime('PT24H')]
+        [LeadTime('PT1H'), LeadTime('P1D')]
     """
 
     def horizons(self) -> Sequence[LeadTime]:
@@ -239,7 +239,6 @@ class MultiHorizon[T: TimeSeriesDataset](UserDict[LeadTime, T]):
             A new MultiHorizon instance with the transformed datasets.
         """
         return MultiHorizon({k: func(v) for k, v in self.items()})
-
 
 
 __all__ = ["MultiHorizon", "TimeSeriesDataset"]

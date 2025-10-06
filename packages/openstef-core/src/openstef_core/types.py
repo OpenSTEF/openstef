@@ -61,9 +61,9 @@ class LeadTime(PydanticStringPrimitive):
         """Returns a detailed string representation for debugging.
 
         Returns:
-            String representation showing the class name and timedelta value.
+            String representation showing the class name and ISO 8601 duration string.
         """
-        return f"LeadTime({self.value!r})"
+        return f"LeadTime('{self}')"
 
     @classmethod
     def from_string(cls, s: str) -> Self:

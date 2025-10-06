@@ -222,7 +222,7 @@ class VersionedTimeSeriesPart(VersionedTimeSeriesMixin):
             timestamp_column='timestamp', available_at_column='available_at'.
             A warning is logged if metadata is missing.
         """
-        data = pd.read_parquet(path)
+        data = pd.read_parquet(path)  # pyright: ignore[reportUnknownMemberType]
         if "sample_interval" not in data.attrs:
             _logger.warning(
                 "Parquet file does not contain 'sample_interval' attribute. Using default value of 15 minutes."

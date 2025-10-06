@@ -12,9 +12,9 @@ from typing import Self, override
 
 import pandas as pd
 
+from openstef_core.datasets import MultiHorizon
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import ModelLoadingError
-from openstef_core.types import LeadTime
 from openstef_models.models.forecasting import Forecaster, ForecasterConfig
 
 
@@ -90,13 +90,13 @@ class FlatlinerForecaster(Forecaster):
     @override
     def fit(
         self,
-        data: dict[LeadTime, ForecastInputDataset],
-        data_val: dict[LeadTime, ForecastInputDataset] | None = None,
+        data: MultiHorizon[ForecastInputDataset],
+        data_val: MultiHorizon[ForecastInputDataset] | None = None,
     ) -> None:
         pass
 
     @override
-    def predict(self, data: dict[LeadTime, ForecastInputDataset]) -> ForecastDataset:
+    def predict(self, data: MultiHorizon[ForecastInputDataset]) -> ForecastDataset:
         input_data_list = [horizon_data.input_data(start=horizon_data.forecast_start) for horizon_data in data.values()]
         return ForecastDataset(
             data=pd.concat([

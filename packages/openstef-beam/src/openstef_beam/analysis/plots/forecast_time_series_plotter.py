@@ -327,7 +327,9 @@ class ForecastTimeSeriesPlotter:
         else:
             # Process data to insert gaps, then create segmented polygons
             if len(lower_quantile_data) > 1:
-                estimated_interval = pd.Timedelta(lower_quantile_data.index.to_series().diff().median())
+                estimated_interval = (
+                    cast("pd.Series[pd.Timestamp]", lower_quantile_data.index.to_series()).diff().median()
+                )
                 processed_lower_data = self._insert_gaps_for_missing_timestamps(lower_quantile_data, estimated_interval)
                 processed_upper_data = self._insert_gaps_for_missing_timestamps(upper_quantile_data, estimated_interval)
             else:
@@ -352,8 +354,8 @@ class ForecastTimeSeriesPlotter:
 
         # Add hover line for quantile values
         x_data = processed_lower_data.index
-        y_lower = processed_lower_data.to_numpy()
-        y_upper = processed_upper_data.to_numpy()
+        y_lower = processed_lower_data.to_numpy(dtype=np.float32)  # type: ignore
+        y_upper = processed_upper_data.to_numpy(dtype=np.float32)  # type: ignore
 
         figure.add_trace(  # type: ignore[reportUnknownMemberType]
             go.Scatter(
@@ -492,7 +494,7 @@ class ForecastTimeSeriesPlotter:
                 y_data = line["data"]
             else:
                 # Process data to insert gaps for missing timestamps
-                estimated_interval = pd.Timedelta(line["data"].index.to_series().diff().median())
+                estimated_interval = cast("pd.Series[pd.Timestamp]", line["data"].index.to_series()).diff().median()
                 processed_data = self._insert_gaps_for_missing_timestamps(line["data"], estimated_interval)
                 x_data = processed_data.index
                 y_data = processed_data
@@ -646,7 +648,7 @@ class ForecastTimeSeriesPlotter:
 
         # Find start and end indices of continuous segments
         # diff() finds transitions: True->False (-1) and False->True (1)
-        mask_array = mask.to_numpy()
+        mask_array = mask.to_numpy()  # type: ignore
         transitions = np.diff(np.concatenate(([False], mask_array, [False])).astype(int))
         segment_starts = np.where(transitions == 1)[0]  # Where transitions from False to True
         segment_ends = np.where(transitions == -1)[0] - 1  # Where transitions from True to False

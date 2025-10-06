@@ -26,7 +26,7 @@ from typing import Self
 from pydantic import Field
 
 from openstef_core.base_model import BaseConfig
-from openstef_core.datasets import ForecastDataset, ForecastInputDataset
+from openstef_core.datasets import ForecastDataset, ForecastInputDataset, MultiHorizon
 from openstef_core.mixins import BatchPredictor, HyperParams
 from openstef_core.types import LeadTime, Quantile
 
@@ -123,7 +123,7 @@ class ConfigurableForecaster:
         return HyperParams()
 
 
-class Forecaster(BatchPredictor[dict[LeadTime, ForecastInputDataset], ForecastDataset], ConfigurableForecaster):
+class Forecaster(BatchPredictor[MultiHorizon[ForecastInputDataset], ForecastDataset], ConfigurableForecaster):
     """Base for forecasters that handle multiple horizons simultaneously.
 
     Designed for models that train and predict across multiple prediction horizons

@@ -19,6 +19,7 @@ from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesDataset
 from openstef_core.datasets.validated_datasets import ForecastDataset
 from openstef_core.exceptions import NotFittedError
 from openstef_models.mixins import ModelIdentifier, ModelStorage, PredictorCallback
+from openstef_models.mixins.callbacks import WorkflowContext
 from openstef_models.models.forecasting_model import ForecastingModel
 
 
@@ -98,7 +99,7 @@ class ForecastingWorkflow(BaseModel):
         ... )
         >>>
         >>> class LoggingCallback(ForecastingCallback):
-        ...     def on_fit_end(self, workflow, data):
+        ...     def on_fit_end(self, context, data):
         ...         print("Model training completed")
         >>>
         >>> workflow = ForecastingWorkflow(model=model, model_id="my_model", callbacks=LoggingCallback())
@@ -119,10 +120,13 @@ class ForecastingWorkflow(BaseModel):
 
     model: ForecastingModel = Field(description="The forecasting model to use.")
     callbacks: ForecastingCallback = Field(default_factory=ForecastingCallback)
-    storage: ModelStorage | None = Field(default=None)
     model_id: ModelIdentifier = Field(...)
 
-    def fit(self, data: VersionedTimeSeriesDataset | TimeSeriesDataset):
+    def fit(
+        self,
+        data: VersionedTimeSeriesDataset | TimeSeriesDataset,
+        data_val: VersionedTimeSeriesDataset | TimeSeriesDataset | None = None,
+    ):
         """Train the forecasting model with callback execution.
 
         Executes the complete training workflow including pre-fit callbacks,
@@ -130,17 +134,15 @@ class ForecastingWorkflow(BaseModel):
 
         Args:
             data: Training dataset for the forecasting model.
+            data_val: Optional validation dataset for model tuning.
         """
-        self.callbacks.on_fit_start(workflow=self, data=data)
+        context: WorkflowContext[ForecastingWorkflow] = WorkflowContext(workflow=self)
 
-        data_train, data_val = data, None  # TODO(#678): implement train/val split  # noqa: FIX002
+        self.callbacks.on_fit_start(context=context, data=data)
 
-        self.model.fit(data=data_train, data_val=data_val)
+        self.model.fit(data=data, data_val=data_val)
 
-        self.callbacks.on_fit_end(workflow=self, data=data)
-
-        if self.storage is not None:
-            self.storage.save_model_state(model_id=self.model_id, model=self.model)
+        self.callbacks.on_fit_end(context=context, data=data)
 
     def predict(
         self, data: VersionedTimeSeriesDataset | TimeSeriesDataset, forecast_start: datetime | None = None
@@ -163,11 +165,13 @@ class ForecastingWorkflow(BaseModel):
         if not self.model.is_fitted:
             raise NotFittedError(type(self.model).__name__)
 
-        self.callbacks.on_predict_start(workflow=self, data=data)
+        context: WorkflowContext[ForecastingWorkflow] = WorkflowContext(workflow=self)
+
+        self.callbacks.on_predict_start(context=context, data=data)
 
         forecasts = self.model.predict(data=data, forecast_start=forecast_start)
 
-        self.callbacks.on_predict_end(workflow=self, data=data, forecasts=forecasts)
+        self.callbacks.on_predict_end(context=context, data=data, forecasts=forecasts)
 
         return forecasts
 
@@ -194,7 +198,7 @@ class ForecastingWorkflow(BaseModel):
             New workflow instance with the loaded or created model.
         """
         model = storage.load_model_state(model_id=model_id, model=model)
-        return cls(model=model, callbacks=callbacks or ForecastingCallback(), storage=storage, model_id=model_id)
+        return cls(model=model, callbacks=callbacks or ForecastingCallback(), model_id=model_id)
 
 
 __all__ = ["ForecastingWorkflow"]

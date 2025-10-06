@@ -162,7 +162,7 @@ class BaseCaseForecaster(HorizonForecaster):
         """
         if data.forecast_start is None:
             # No forecast period specified - return empty series with DatetimeIndex
-            empty_index = pd.DatetimeIndex([], freq=data.sample_interval)
+            empty_index = pd.DatetimeIndex([], freq=data.sample_interval)  # pyright: ignore[reportArgumentType] - bad type stubs
             return pd.Series(dtype=float, index=empty_index, name=data.target_column)
 
         # Get target series from historical data only (before forecast_start)
@@ -174,7 +174,7 @@ class BaseCaseForecaster(HorizonForecaster):
         # Create primary lag series (shift timestamps forward by primary_lag)
         # Following LagTransform approach: subtract negative lag from timestamps
         primary_lag_series = target_series.copy()
-        primary_lag_series.index += self.hyperparams.primary_lag
+        primary_lag_series.index = cast(pd.DatetimeIndex, primary_lag_series.index) + self.hyperparams.primary_lag
 
         # Get forecast period data
         forecast_index = data.index[data.index >= pd.Timestamp(data.forecast_start)]
@@ -184,7 +184,9 @@ class BaseCaseForecaster(HorizonForecaster):
         if primary_forecast.isna().any():
             # Create fallback lag series
             fallback_lag_series = target_series.copy()
-            fallback_lag_series.index += self.hyperparams.fallback_lag
+            fallback_lag_series.index = (
+                cast(pd.DatetimeIndex, fallback_lag_series.index) + self.hyperparams.fallback_lag
+            )
 
             fallback_forecast = fallback_lag_series.reindex(forecast_index)
             primary_forecast = primary_forecast.fillna(fallback_forecast)  # pyright: ignore[reportUnknownMemberType]
