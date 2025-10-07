@@ -360,7 +360,7 @@ class XGBoostForecaster(HorizonForecaster):
     @override
     def fit(self, data: ForecastInputDataset, data_val: ForecastInputDataset | None = None) -> None:
         input_data: pd.DataFrame = data.input_data()
-        target: npt.NDArray[np.floating] = data.target_series().to_numpy()
+        target: npt.NDArray[np.floating] = data.target_series().to_numpy()  # type: ignore
         # Multi output setting requires a target per output (quantile)
         target_per_quantile: npt.NDArray[np.floating] = np.repeat(
             target[:, np.newaxis], repeats=len(self.config.quantiles), axis=1
@@ -372,7 +372,7 @@ class XGBoostForecaster(HorizonForecaster):
         eval_set_sample_weight = None
         if data_val is not None:
             val_input_data: pd.DataFrame = data_val.input_data()
-            val_target: npt.NDArray[np.floating] = data_val.target_series().to_numpy()
+            val_target: npt.NDArray[np.floating] = data_val.target_series().to_numpy()  # type: ignore
             val_target_per_quantile: npt.NDArray[np.floating] = np.repeat(
                 val_target[:, np.newaxis], repeats=len(self.config.quantiles), axis=1
             )

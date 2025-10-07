@@ -13,6 +13,8 @@ convenient methods for saving/loading datasets while preserving all metadata.
 """
 
 import logging
+from collections import UserDict
+from collections.abc import Callable, Sequence
 from datetime import timedelta
 from pathlib import Path
 from typing import Self, cast
@@ -70,6 +72,8 @@ class TimeSeriesDataset(TimeSeriesMixin):
         self,
         data: pd.DataFrame,
         sample_interval: timedelta,
+        *,
+        is_sorted: bool = False,
     ) -> None:
         """Initialize a TimeSeriesDataset with the given data and sampling interval.
 
@@ -78,6 +82,8 @@ class TimeSeriesDataset(TimeSeriesMixin):
                 Must have a pandas DatetimeIndex.
             sample_interval: Fixed time interval between consecutive data points.
                 Must be positive.
+            is_sorted: If True, assumes data is already sorted by timestamp.
+                If False, data will be sorted during initialization
 
         Raises:
             TypeError: If data index is not a pandas DatetimeIndex.
@@ -91,10 +97,10 @@ class TimeSeriesDataset(TimeSeriesMixin):
         if not isinstance(data.index, pd.DatetimeIndex):
             raise TypeError("Data index must be a pandas DatetimeIndex.")
 
-        if not data.attrs.get("is_sorted", False):
+        if not data.attrs.get("is_sorted", False) and not is_sorted:
             data = data.sort_index(ascending=True)
-            data.attrs["is_sorted"] = True
 
+        data.attrs["is_sorted"] = True
         self.data = data
         self.sample_interval = sample_interval
         self.index = cast(pd.DatetimeIndex, self.data.index)
@@ -162,7 +168,7 @@ class TimeSeriesDataset(TimeSeriesMixin):
             If the parquet file lacks a sample_interval attribute, defaults
             to 15 minutes with a warning logged.
         """
-        data = pd.read_parquet(path)
+        data = pd.read_parquet(path)  # type: ignore
         if "sample_interval" not in data.attrs:
             _logger.warning(
                 "Parquet file does not contain 'sample_interval' attribute. Using default value of 15 minutes."
@@ -176,7 +182,63 @@ class TimeSeriesDataset(TimeSeriesMixin):
         )
 
 
-type MultiHorizonTimeSeriesDataset = dict[LeadTime, TimeSeriesDataset]
+class MultiHorizon[T: TimeSeriesDataset](UserDict[LeadTime, T]):
+    """A dictionary mapping forecast horizons to time series datasets.
+
+    This class represents a collection of time series datasets, each associated
+    with a specific forecast horizon. It extends the standard dictionary to
+    provide additional type safety and clarity when working with multiple
+    horizon-specific datasets.
+
+    Attributes:
+        keys: Forecast horizons (LeadTime) for which datasets are available.
+        values: Corresponding time series datasets for each horizon.
+
+    Example:
+        Create a MultiHorizon dataset with two horizons:
+
+        >>> import pandas as pd
+        >>> from datetime import timedelta
+        >>> from openstef_core.types import LeadTime
+        >>> from openstef_core.datasets import TimeSeriesDataset, MultiHorizon
+        >>> # Create sample datasets for two horizons
+        >>> data_1h = pd.DataFrame({
+        ...     'load': [100, 110],
+        ... }, index=pd.date_range('2025-01-01', periods=2, freq='1H'))
+        >>> dataset_1h = TimeSeriesDataset(data_1h, sample_interval=timedelta(hours=1))
+        >>> data_24h = pd.DataFrame({
+        ...     'load': [120, 130],
+        ... }, index=pd.date_range('2025-01-01', periods=2, freq='24H'))
+        >>> dataset_24h = TimeSeriesDataset(data_24h, sample_interval=timedelta(hours=24))
+        >>> # Create MultiHorizon mapping
+        >>> horizons = MultiHorizon({
+        ...     LeadTime.from_string("PT1H"): dataset_1h,
+        ...     LeadTime.from_string("P1D"): dataset_24h,
+        ... })
+        >>> len(horizons)
+        2
+        >>> list(horizons.keys())
+        [LeadTime('PT1H'), LeadTime('P1D')]
+    """
+
+    def horizons(self) -> Sequence[LeadTime]:
+        """Get the list of forecast horizons available in the MultiHorizon dataset.
+
+        Returns:
+            List of LeadTime objects representing the forecast horizons.
+        """
+        return list(self.keys())
+
+    def map_horizons[U: TimeSeriesDataset](self, func: Callable[[T], U]) -> "MultiHorizon[U]":
+        """Apply a function to each dataset in the MultiHorizon collection.
+
+        Args:
+            func: A callable that takes a TimeSeriesDataset and returns a new dataset.
+
+        Returns:
+            A new MultiHorizon instance with the transformed datasets.
+        """
+        return MultiHorizon({k: func(v) for k, v in self.items()})
 
 
-__all__ = ["MultiHorizonTimeSeriesDataset", "TimeSeriesDataset"]
+__all__ = ["MultiHorizon", "TimeSeriesDataset"]

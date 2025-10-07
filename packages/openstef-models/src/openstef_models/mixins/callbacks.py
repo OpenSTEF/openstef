@@ -9,6 +9,24 @@ model validation, and integration with external monitoring systems. Callbacks fo
 the observer pattern and are called at specific workflow lifecycle events.
 """
 
+from typing import Any
+
+from pydantic import Field
+
+from openstef_core.base_model import BaseModel
+
+
+class WorkflowContext[W](BaseModel):
+    """Context object for workflow execution state.
+
+    Holds the current workflow instance and provides storage for additional
+    data that needs to be passed between workflow stages or shared with
+    callbacks.
+    """
+
+    workflow: W = Field(description="The workflow instance being executed.")
+    data: dict[str, Any] = Field(default_factory=dict, description="Dictionary for storing arbitrary additional data.")
+
 
 class PredictorCallback[W, I, O]:
     """Base callback interface for monitoring predictor workflow lifecycle events.
@@ -21,42 +39,42 @@ class PredictorCallback[W, I, O]:
     to override the specific events they care about.
     """
 
-    def on_fit_start(self, workflow: W, data: I):
+    def on_fit_start(self, context: WorkflowContext[W], data: I):
         """Called before model fitting begins.
 
         Use this hook for pre-training validation, data preprocessing,
         or setting up training monitoring.
 
         Args:
-            workflow: The prediction workflow performing the fit.
+            context: The workflow context performing the fitting.
             data: Training dataset being used for fitting.
         """
 
-    def on_fit_end(self, workflow: W, data: I):
+    def on_fit_end(self, context: WorkflowContext[W], data: I):
         """Called after model fitting completes successfully.
 
         Use this hook for post-training validation, model evaluation,
         saving training metrics, or triggering downstream processes.
 
         Args:
-            workflow: The prediction workflow that completed fitting.
+            context: The workflow context that completed fitting.
             data: Training dataset that was used for fitting.
         """
 
-    def on_predict_start(self, workflow: W, data: I):
+    def on_predict_start(self, context: WorkflowContext[W], data: I):
         """Called before prediction generation begins.
 
         Use this hook for input data validation, prediction setup,
         or logging prediction requests.
 
         Args:
-            workflow: The prediction workflow performing the prediction.
+            context: The workflow context performing the prediction.
             data: Input dataset being used for prediction.
         """
 
     def on_predict_end(
         self,
-        workflow: W,
+        context: WorkflowContext[W],
         data: I,
         forecasts: O,
     ):
@@ -66,10 +84,10 @@ class PredictorCallback[W, I, O]:
         calculating metrics, or triggering downstream processes.
 
         Args:
-            workflow: The prediction workflow that completed prediction.
+            context: The workflow context that completed prediction.
             data: Input dataset that was used for prediction.
             forecasts: Generated forecast results.
         """
 
 
-__all__ = []
+__all__ = ["PredictorCallback", "WorkflowContext"]

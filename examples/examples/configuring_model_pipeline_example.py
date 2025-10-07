@@ -30,7 +30,6 @@ into a working forecasting system.
 # SPDX-License-Identifier: MPL-2.0
 
 from datetime import timedelta
-from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -40,7 +39,6 @@ from openstef_beam.analysis.plots import ForecastTimeSeriesPlotter
 from openstef_core.datasets import ForecastDataset, TimeSeriesDataset, VersionedTimeSeriesDataset
 from openstef_core.mixins import TransformPipeline
 from openstef_core.types import LeadTime, Q
-from openstef_models.integrations.joblib import LocalModelStorage
 from openstef_models.models.forecasting.gblinear_forecaster import (
     GBLinearForecaster,
     GBLinearForecasterConfig,
@@ -108,12 +106,9 @@ model = ForecastingModel(
     target_column="load",
 )
 
-storage = LocalModelStorage(storage_dir=Path("./model_storage"))
-
 pipeline = ForecastingWorkflow(
     model_id="gblinear_forecaster_v1",
     model=model,
-    storage=storage,
 )
 
 pipeline.fit(dataset)

@@ -15,6 +15,7 @@ from typing import Any, Self, cast, override
 
 import pandas as pd
 
+from openstef_core.datasets import MultiHorizon
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.datasets.validation import validate_same_sample_intervals
 from openstef_core.mixins import State
@@ -165,13 +166,13 @@ class MultiHorizonForecasterAdapter(Forecaster):
 
     @override
     def fit(
-        self, data: dict[LeadTime, ForecastInputDataset], data_val: dict[LeadTime, ForecastInputDataset] | None = None
+        self, data: MultiHorizon[ForecastInputDataset], data_val: MultiHorizon[ForecastInputDataset] | None = None
     ) -> None:
         for lead_time, forecaster in self._horizon_forecasters.items():
             forecaster.fit(data=data[lead_time], data_val=data_val[lead_time] if data_val else None)
 
     @override
-    def predict(self, data: dict[LeadTime, ForecastInputDataset]) -> ForecastDataset:
+    def predict(self, data: MultiHorizon[ForecastInputDataset]) -> ForecastDataset:
         predictions = {
             lead_time: forecaster.predict(data[lead_time])
             for lead_time, forecaster in self._horizon_forecasters.items()

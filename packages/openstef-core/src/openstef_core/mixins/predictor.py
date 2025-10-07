@@ -10,6 +10,8 @@ with separate fit and predict phases, and support serialization through the
 Stateful interface.
 """
 
+from typing import Any
+
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets.mixins import abstractmethod
 from openstef_core.exceptions import PredictError
@@ -68,7 +70,7 @@ class Predictor[I, O](Stateful):
         """Check if the predictor has been fitted."""
 
     @abstractmethod
-    def fit(self, data: I, data_val: I | None = None) -> None:
+    def fit(self, data: I, data_val: I | None = None) -> Any:  # noqa: ANN401
         """Fit the predictor to the input data.
 
         This method should be called before generating predictions.

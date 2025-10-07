@@ -12,12 +12,12 @@ forecasting use cases.
 
 from typing import override
 
-from openstef_core.datasets import MultiHorizonTimeSeriesDataset, VersionedTimeSeriesDataset
+from openstef_core.datasets import MultiHorizon, VersionedTimeSeriesDataset
 from openstef_core.datasets.timeseries_dataset import TimeSeriesDataset
 from openstef_core.mixins import Transform
 
 
-class MultiHorizonTimeSeriesTransform(Transform[MultiHorizonTimeSeriesDataset, MultiHorizonTimeSeriesDataset]):
+class MultiHorizonTimeSeriesTransform(Transform[MultiHorizon[TimeSeriesDataset], MultiHorizon[TimeSeriesDataset]]):
     """Abstract base class for transforms that operate on multiple forecast horizons.
 
     This class provides an interface for data transformations that need to handle

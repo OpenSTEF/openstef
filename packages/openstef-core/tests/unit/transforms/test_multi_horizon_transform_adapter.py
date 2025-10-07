@@ -8,7 +8,7 @@ from typing import Any, Self, cast
 import pandas as pd
 import pytest
 
-from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesDataset
+from openstef_core.datasets import MultiHorizon, TimeSeriesDataset, VersionedTimeSeriesDataset
 from openstef_core.mixins import State
 from openstef_core.transforms.dataset_transforms import TimeSeriesTransform
 from openstef_core.transforms.horizon_split_transform import (
@@ -51,7 +51,7 @@ class DummyTransform(TimeSeriesTransform):
 
 
 @pytest.fixture
-def sample_multi_horizon_data() -> dict[LeadTime, TimeSeriesDataset]:
+def sample_multi_horizon_data() -> MultiHorizon[TimeSeriesDataset]:
     """Create sample multi-horizon dataset for testing."""
     data1 = pd.DataFrame(
         {"load": [100.0, 110.0], "temperature": [20.0, 21.0]},
@@ -65,10 +65,10 @@ def sample_multi_horizon_data() -> dict[LeadTime, TimeSeriesDataset]:
     )
     dataset2 = TimeSeriesDataset(data2, timedelta(hours=1))
 
-    return {
+    return MultiHorizon({
         LeadTime.from_string("PT1H"): dataset1,
         LeadTime.from_string("PT2H"): dataset2,
-    }
+    })
 
 
 @pytest.fixture
@@ -120,7 +120,7 @@ def adapter(dummy_transform: DummyTransform) -> MultiHorizonTransformAdapter:
 def test_concat_horizon_datasets_rowwise(datasets_config: list[dict[str, Any]], expected_behavior: dict[str, Any]):
     """Test concatenating horizon datasets with various configurations."""
     # Arrange
-    horizon_datasets: dict[LeadTime, TimeSeriesDataset] = {}
+    horizon_datasets_dict: dict[LeadTime, TimeSeriesDataset] = {}
     expected_sample_interval = expected_behavior["sample_interval"]
 
     for i, config in enumerate(datasets_config):
@@ -130,7 +130,9 @@ def test_concat_horizon_datasets_rowwise(datasets_config: list[dict[str, Any]], 
 
         interval = config.get("interval", timedelta(hours=1))
         dataset = TimeSeriesDataset(data, interval)
-        horizon_datasets[LeadTime.from_string(f"PT{i + 1}H")] = dataset
+        horizon_datasets_dict[LeadTime.from_string(f"PT{i + 1}H")] = dataset
+
+    horizon_datasets = MultiHorizon(horizon_datasets_dict)
 
     # Act
     result = concat_horizon_datasets_rowwise(horizon_datasets)
@@ -141,7 +143,7 @@ def test_concat_horizon_datasets_rowwise(datasets_config: list[dict[str, Any]], 
 
     if expected_behavior["type"] == "single":
         # Single dataset should be identical to input
-        original_dataset = next(iter(horizon_datasets.values()))
+        original_dataset = next(iter(horizon_datasets_dict.values()))
         pd.testing.assert_frame_equal(result.data, original_dataset.data)
     elif "total_rows" in expected_behavior:
         # Check expected number of rows
@@ -154,7 +156,7 @@ def test_concat_horizon_datasets_rowwise_empty_datasets():
     empty_data = pd.DataFrame(columns=["load", "temperature"])
     empty_data.index = pd.DatetimeIndex([], name="timestamp")
     empty_dataset = TimeSeriesDataset(empty_data, timedelta(hours=1))
-    horizon_datasets = {LeadTime.from_string("PT1H"): empty_dataset}
+    horizon_datasets = MultiHorizon({LeadTime.from_string("PT1H"): empty_dataset})
 
     # Act
     result = concat_horizon_datasets_rowwise(horizon_datasets)
@@ -221,7 +223,7 @@ def test_multi_horizon_transform_adapter_is_fitted_delegates_to_underlying(
 
 
 def test_multi_horizon_transform_adapter_fit_sets_fitted_state(
-    adapter: MultiHorizonTransformAdapter, sample_multi_horizon_data: dict[LeadTime, TimeSeriesDataset]
+    adapter: MultiHorizonTransformAdapter, sample_multi_horizon_data: MultiHorizon[TimeSeriesDataset]
 ):
     """Test that fit method sets the fitted state correctly."""
     # Arrange
@@ -236,7 +238,7 @@ def test_multi_horizon_transform_adapter_fit_sets_fitted_state(
 
 
 def test_multi_horizon_transform_adapter_transform_applies_to_each_horizon(
-    adapter: MultiHorizonTransformAdapter, sample_multi_horizon_data: dict[LeadTime, TimeSeriesDataset]
+    adapter: MultiHorizonTransformAdapter, sample_multi_horizon_data: MultiHorizon[TimeSeriesDataset]
 ):
     """Test that transform applies the underlying transform to each horizon independently."""
     # Arrange
@@ -244,11 +246,11 @@ def test_multi_horizon_transform_adapter_transform_applies_to_each_horizon(
     constant = 5.0  # From dummy_transform fixture
 
     # Act
-    result = adapter.transform(sample_multi_horizon_data)
+    result: MultiHorizon[TimeSeriesDataset] = adapter.transform(sample_multi_horizon_data)
 
     # Assert
     # Result should be a dict with same keys
-    assert isinstance(result, dict)
+    assert isinstance(result, MultiHorizon)
     assert set(result.keys()) == set(sample_multi_horizon_data.keys())
 
     # Each horizon's data should have constant added to numeric columns
@@ -263,7 +265,7 @@ def test_multi_horizon_transform_adapter_transform_applies_to_each_horizon(
 
 
 def test_multi_horizon_transform_adapter_to_state_and_from_state(
-    dummy_transform: DummyTransform, sample_multi_horizon_data: dict[LeadTime, TimeSeriesDataset]
+    dummy_transform: DummyTransform, sample_multi_horizon_data: MultiHorizon[TimeSeriesDataset]
 ):
     """Test serialization and deserialization of the adapter."""
     # Arrange

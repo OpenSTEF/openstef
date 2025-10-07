@@ -95,6 +95,7 @@ lint.ignore = [
   "D203",   # Conflicting rules (a), ruff itself suggest disabling them.
   "D213",   # Conflicting rules (a), ruff itself suggest disabling them.
   "EM101",  # do not enforce message in variable when raising an exception.
+  "PGH003", # Allow generic type ignores, since sometimes there are multiple unresolvable issues
   "TC006",  # Let's not force quoting the first param of typing.cast
   "TRY003", # simplify exception messages
 ]

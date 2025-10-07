@@ -17,7 +17,7 @@ The module supports:
 """
 
 from openstef_core.datasets.mixins import TimeSeriesMixin, VersionedTimeSeriesMixin
-from openstef_core.datasets.timeseries_dataset import MultiHorizonTimeSeriesDataset, TimeSeriesDataset
+from openstef_core.datasets.timeseries_dataset import MultiHorizon, TimeSeriesDataset
 from openstef_core.datasets.validated_datasets import (
     EnergyComponentDataset,
     ForecastDataset,
@@ -29,7 +29,7 @@ __all__ = [
     "EnergyComponentDataset",
     "ForecastDataset",
     "ForecastInputDataset",
-    "MultiHorizonTimeSeriesDataset",
+    "MultiHorizon",
     "TimeSeriesDataset",
     "TimeSeriesMixin",
     "VersionedTimeSeriesDataset",
