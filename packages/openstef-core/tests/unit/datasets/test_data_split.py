@@ -262,8 +262,18 @@ def test_stratified_train_test_splitter__fit_with_sufficient_days(stratified_dai
     # Check that test dates are a subset of the original dataset dates
     assert splitter._test_dates.isin(stratified_daily_dataset.index).all()  # type: ignore
 
-    # Check that we have the expected number of test dates (20% of 20 = 4, but stratified logic may select more)
-    assert len(splitter._test_dates) > 0
+    # Check that we have the expected number of test dates (approximately 20% of 20 = 4, but stratified logic may vary)
+    assert 3 <= len(splitter._test_dates) <= 5
+
+    # Check that test dates include at least one extreme day from min and max groups
+    target_series = stratified_daily_dataset.data["load"]
+    max_days, min_days, _ = StratifiedTrainTestSplitter._get_extreme_days(target_series=target_series, fraction=0.15)
+    assert not splitter._test_dates.intersection(max_days).empty, (
+        "Test dates should include at least one max extreme day"
+    )
+    assert not splitter._test_dates.intersection(min_days).empty, (
+        "Test dates should include at least one min extreme day"
+    )
 
 
 def test_stratified_train_test_splitter__transform_not_fitted(stratified_daily_dataset: TimeSeriesDataset):

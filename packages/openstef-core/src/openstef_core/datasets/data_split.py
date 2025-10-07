@@ -227,9 +227,9 @@ class StratifiedTrainTestSplitter(BaseTrainTestSplitter):
         )
 
         # Split each group proportionally between train and test
-        _, test_max_days = self._sample_dates_for_split(dates=max_days, test_fraction=self.test_fraction, rng=rng)
-        _, test_min_days = self._sample_dates_for_split(dates=min_days, test_fraction=self.test_fraction, rng=rng)
-        _, test_other_days = self._sample_dates_for_split(dates=other_days, test_fraction=self.test_fraction, rng=rng)
+        test_max_days, _ = self._sample_dates_for_split(dates=max_days, test_fraction=self.test_fraction, rng=rng)
+        test_min_days, _ = self._sample_dates_for_split(dates=min_days, test_fraction=self.test_fraction, rng=rng)
+        test_other_days, _ = self._sample_dates_for_split(dates=other_days, test_fraction=self.test_fraction, rng=rng)
 
         # Combine all train and test dates
         self._test_dates = cast(pd.DatetimeIndex, test_max_days.union(test_min_days).union(test_other_days))
@@ -266,7 +266,7 @@ class StratifiedTrainTestSplitter(BaseTrainTestSplitter):
 
         if len(dates) == 1:
             # Only one date, put in train
-            return dates, pd.DatetimeIndex([])
+            return pd.DatetimeIndex([]), dates
 
         test_dates = pd.DatetimeIndex(np.sort(rng.choice(dates, size=n_test, replace=False)))
         train_dates = dates.difference(test_dates, sort=True)  # type: ignore
