@@ -458,12 +458,30 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">Field</span><span class="p">,</span> <span class="n">model_validator</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.base_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">ForecastDataset</span><span class="p">,</span> <span class="n">ForecastInputDataset</span><span class="p">,</span> <span class="n">TimeSeriesDataset</span><span class="p">,</span> <span class="n">VersionedTimeSeriesDataset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ForecastDataset</span><span class="p">,</span>
+    <span class="n">ForecastInputDataset</span><span class="p">,</span>
+    <span class="n">MultiHorizon</span><span class="p">,</span>
+    <span class="n">TimeSeriesDataset</span><span class="p">,</span>
+    <span class="n">VersionedTimeSeriesDataset</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets.data_split</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseTrainTestSplitter</span><span class="p">,</span> <span class="n">StratifiedTrainTestSplitter</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConfigurationError</span><span class="p">,</span> <span class="n">NotFittedError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.mixins</span><span class="w"> </span><span class="kn">import</span> <span class="n">Predictor</span><span class="p">,</span> <span class="n">State</span><span class="p">,</span> <span class="n">TransformPipeline</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">LeadTime</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.models.forecasting</span><span class="w"> </span><span class="kn">import</span> <span class="n">Forecaster</span><span class="p">,</span> <span class="n">HorizonForecaster</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">FeatureEngineeringPipeline</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">FitResult</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">input_dataset</span><span class="p">:</span> <span class="n">VersionedTimeSeriesDataset</span> <span class="o">|</span> <span class="n">TimeSeriesDataset</span>
+
+    <span class="n">input_data_train</span><span class="p">:</span> <span class="n">MultiHorizon</span><span class="p">[</span><span class="n">ForecastInputDataset</span><span class="p">]</span>
+    <span class="n">input_data_val</span><span class="p">:</span> <span class="n">MultiHorizon</span><span class="p">[</span><span class="n">ForecastInputDataset</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span>
+
+    <span class="n">metrics</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Training metrics collected during the fit process.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
 
 
 <div class="viewcode-block" id="ForecastingModel">
@@ -487,6 +505,7 @@
 <span class="sd">        ...     ConstantMedianForecaster, ConstantMedianForecasterConfig</span>
 <span class="sd">        ... )</span>
 <span class="sd">        &gt;&gt;&gt; from openstef_models.transforms import FeatureEngineeringPipeline</span>
+<span class="sd">        &gt;&gt;&gt; from openstef_core.types import LeadTime</span>
 <span class="sd">        &gt;&gt;&gt;</span>
 <span class="sd">        &gt;&gt;&gt; # Note: This is a conceptual example showing the API structure</span>
 <span class="sd">        &gt;&gt;&gt; # Real usage requires implemented forecaster classes</span>
@@ -500,10 +519,10 @@
 <span class="sd">        ...     forecaster=forecaster,</span>
 <span class="sd">        ...     preprocessing=preprocessing</span>
 <span class="sd">        ... )</span>
-<span class="sd">        &gt;&gt;&gt; # model.fit(training_data)</span>
-<span class="sd">        &gt;&gt;&gt; #</span>
+<span class="sd">        &gt;&gt;&gt; model.fit(training_data)  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt;</span>
 <span class="sd">        &gt;&gt;&gt; # Generate forecasts</span>
-<span class="sd">        &gt;&gt;&gt; # forecasts = model.predict(new_data)</span>
+<span class="sd">        &gt;&gt;&gt; forecasts = model.predict(new_data)  # doctest: +SKIP</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">preprocessing</span><span class="p">:</span> <span class="n">FeatureEngineeringPipeline</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
@@ -522,6 +541,7 @@
         <span class="n">default</span><span class="o">=</span><span class="s2">&quot;load&quot;</span><span class="p">,</span>
         <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Name of the target variable column in datasets.&quot;</span><span class="p">,</span>
     <span class="p">)</span>
+    <span class="n">train_test_splitter</span><span class="p">:</span> <span class="n">BaseTrainTestSplitter</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">StratifiedTrainTestSplitter</span><span class="p">)</span>
 
     <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_validate_horizons_match</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
@@ -533,29 +553,6 @@
             <span class="k">raise</span> <span class="n">ConfigurationError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">_prepare_input_data</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">data</span><span class="p">:</span> <span class="n">VersionedTimeSeriesDataset</span> <span class="o">|</span> <span class="n">TimeSeriesDataset</span><span class="p">,</span>
-        <span class="n">forecast_start</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="n">LeadTime</span><span class="p">,</span> <span class="n">ForecastInputDataset</span><span class="p">]:</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">VersionedTimeSeriesDataset</span><span class="p">):</span>
-            <span class="n">target_series</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">select_version</span><span class="p">()</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">target_column</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">target_series</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">target_column</span><span class="p">]</span>
-
-        <span class="n">input_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="p">{</span>
-            <span class="n">lead_time</span><span class="p">:</span> <span class="n">ForecastInputDataset</span><span class="p">(</span>
-                <span class="c1"># Reassign target column to ensure it exists and is unchanged</span>
-                <span class="n">data</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="o">**</span><span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">target_column</span><span class="p">:</span> <span class="n">target_series</span><span class="p">}),</span>
-                <span class="n">sample_interval</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">sample_interval</span><span class="p">,</span>
-                <span class="n">target_column</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">target_column</span><span class="p">,</span>
-                <span class="n">forecast_start</span><span class="o">=</span><span class="n">forecast_start</span><span class="p">,</span>
-            <span class="p">)</span>
-            <span class="k">for</span> <span class="n">lead_time</span><span class="p">,</span> <span class="n">dataset</span> <span class="ow">in</span> <span class="n">input_data</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-        <span class="p">}</span>
 
     <span class="nd">@property</span>
     <span class="nd">@override</span>
@@ -569,7 +566,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">data</span><span class="p">:</span> <span class="n">VersionedTimeSeriesDataset</span> <span class="o">|</span> <span class="n">TimeSeriesDataset</span><span class="p">,</span>
         <span class="n">data_val</span><span class="p">:</span> <span class="n">VersionedTimeSeriesDataset</span> <span class="o">|</span> <span class="n">TimeSeriesDataset</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FitResult</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Train the forecasting model on the provided dataset.</span>
 
 <span class="sd">        Fits the preprocessing pipeline and underlying forecaster. Handles both</span>
@@ -578,25 +575,43 @@
 <span class="sd">        Args:</span>
 <span class="sd">            data: Historical time series data with features and target values.</span>
 <span class="sd">            data_val: The validation data to evaluate and tune the predictor on (optional).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            FitResult containing training details and metrics.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Fit the feature engineering transforms</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
 
         <span class="c1"># Transform the input data to a valid forecast input</span>
-        <span class="n">input_data_train</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_input_data</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
-        <span class="n">input_data_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_input_data</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data_val</span><span class="p">)</span> <span class="k">if</span> <span class="n">data_val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">input_data_train</span><span class="p">,</span> <span class="n">input_data_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_train_input</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">data_val</span><span class="o">=</span><span class="n">data_val</span><span class="p">)</span>
 
         <span class="c1"># Fit the model</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">forecaster</span><span class="p">,</span> <span class="n">Forecaster</span><span class="p">):</span>
-            <span class="n">prediction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">forecaster</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">input_data_train</span><span class="p">,</span> <span class="n">data_val</span><span class="o">=</span><span class="n">input_data_val</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">horizon_input_data</span> <span class="o">=</span> <span class="n">input_data_train</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">horizons</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
-            <span class="n">horizon_input_data_val</span> <span class="o">=</span> <span class="n">input_data_val</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">horizons</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="k">if</span> <span class="n">input_data_val</span> <span class="k">else</span> <span class="kc">None</span>
-            <span class="n">prediction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">forecaster</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">horizon_input_data</span><span class="p">,</span> <span class="n">data_val</span><span class="o">=</span><span class="n">horizon_input_data_val</span><span class="p">)</span>
+        <span class="n">prediction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit_model</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">input_data_train</span><span class="p">,</span> <span class="n">data_val</span><span class="o">=</span><span class="n">input_data_val</span><span class="p">)</span>
 
         <span class="c1"># Fit the postprocessing transforms</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">postprocessing</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">prediction</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">postprocessing</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">prediction</span><span class="p">)</span>
 
+        <span class="k">return</span> <span class="n">FitResult</span><span class="p">(</span>
+            <span class="n">input_dataset</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
+            <span class="n">input_data_train</span><span class="o">=</span><span class="n">input_data_train</span><span class="p">,</span>
+            <span class="n">input_data_val</span><span class="o">=</span><span class="n">input_data_val</span><span class="p">,</span>
+            <span class="n">metrics</span><span class="o">=</span><span class="p">{},</span>  <span class="c1"># TODO(#705): collect and return training metrics  # noqa: FIX002</span>
+        <span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_fit_model</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">data</span><span class="p">:</span> <span class="n">MultiHorizon</span><span class="p">[</span><span class="n">ForecastInputDataset</span><span class="p">],</span>
+        <span class="n">data_val</span><span class="p">:</span> <span class="n">MultiHorizon</span><span class="p">[</span><span class="n">ForecastInputDataset</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ForecastDataset</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">forecaster</span><span class="p">,</span> <span class="n">Forecaster</span><span class="p">):</span>
+            <span class="n">prediction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">forecaster</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">data_val</span><span class="o">=</span><span class="n">data_val</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">horizon_input_data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">horizons</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+            <span class="n">horizon_input_data_val</span> <span class="o">=</span> <span class="n">data_val</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">horizons</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="k">if</span> <span class="n">data_val</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="n">prediction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">forecaster</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">horizon_input_data</span><span class="p">,</span> <span class="n">data_val</span><span class="o">=</span><span class="n">horizon_input_data_val</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">prediction</span>
 
 <div class="viewcode-block" id="ForecastingModel.predict">
 <a class="viewcode-back" href="../../../api/generated/openstef_models.models.ForecastingModel.html#openstef_models.models.ForecastingModel.predict">[docs]</a>
@@ -623,7 +638,7 @@
             <span class="k">raise</span> <span class="n">NotFittedError</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">forecaster</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
 
         <span class="c1"># Transform the input data to a valid forecast input</span>
-        <span class="n">input_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_input_data</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">forecast_start</span><span class="o">=</span><span class="n">forecast_start</span><span class="p">)</span>
+        <span class="n">input_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_input</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">forecast_start</span><span class="o">=</span><span class="n">forecast_start</span><span class="p">)</span>
 
         <span class="c1"># Empty out the target column in the to predict range</span>
         <span class="k">for</span> <span class="n">input_data_horizon</span> <span class="ow">in</span> <span class="n">input_data</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
@@ -666,7 +681,70 @@
             <span class="n">forecaster</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">forecaster</span><span class="o">.</span><span class="n">from_state</span><span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="s2">&quot;forecaster&quot;</span><span class="p">]),</span>
             <span class="n">postprocessing</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">postprocessing</span><span class="o">.</span><span class="n">from_state</span><span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="s2">&quot;postprocessing&quot;</span><span class="p">]),</span>
         <span class="p">)</span></div>
-</div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_prepare_train_input</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">data</span><span class="p">:</span> <span class="n">VersionedTimeSeriesDataset</span> <span class="o">|</span> <span class="n">TimeSeriesDataset</span><span class="p">,</span>
+        <span class="n">data_val</span><span class="p">:</span> <span class="n">VersionedTimeSeriesDataset</span> <span class="o">|</span> <span class="n">TimeSeriesDataset</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">MultiHorizon</span><span class="p">[</span><span class="n">ForecastInputDataset</span><span class="p">],</span> <span class="n">MultiHorizon</span><span class="p">[</span><span class="n">ForecastInputDataset</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
+        <span class="c1"># Transform the input data to a valid forecast input</span>
+        <span class="n">input_data_train</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_input</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="c1"># Create or reuse validation data</span>
+        <span class="k">if</span> <span class="n">data_val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">input_data_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_input</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data_val</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">train_test_splitter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">train_test_splitter</span><span class="o">.</span><span class="n">is_fitted</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">train_test_splitter</span><span class="o">.</span><span class="n">fit_multihorizon</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">input_data_train</span><span class="p">)</span>
+            <span class="n">split_data_train</span><span class="p">,</span> <span class="n">split_data_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">train_test_splitter</span><span class="o">.</span><span class="n">transform_multihorizon</span><span class="p">(</span><span class="n">input_data_train</span><span class="p">)</span>
+            <span class="n">input_data_train</span><span class="p">,</span> <span class="n">input_data_val</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_dataset_to_input</span><span class="p">(</span><span class="n">split_data_train</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_dataset_to_input</span><span class="p">(</span><span class="n">split_data_val</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">input_data_val</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="n">input_data_train</span><span class="p">,</span> <span class="n">input_data_val</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_prepare_input</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">data</span><span class="p">:</span> <span class="n">VersionedTimeSeriesDataset</span> <span class="o">|</span> <span class="n">TimeSeriesDataset</span><span class="p">,</span>
+        <span class="n">forecast_start</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MultiHorizon</span><span class="p">[</span><span class="n">ForecastInputDataset</span><span class="p">]:</span>
+        <span class="c1"># Extract targets series to restore it later to ensure it is unchanged</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">VersionedTimeSeriesDataset</span><span class="p">):</span>
+            <span class="n">target_series</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">select_version</span><span class="p">()</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">target_column</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">target_series</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">target_column</span><span class="p">]</span>
+
+        <span class="c1"># Make sure future target values are NaN</span>
+        <span class="k">if</span> <span class="n">forecast_start</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">target_series</span><span class="o">.</span><span class="n">index</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">forecast_start</span>
+            <span class="n">target_series</span> <span class="o">=</span> <span class="n">target_series</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">cond</span><span class="o">=</span><span class="n">mask</span><span class="p">,</span> <span class="n">other</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+
+        <span class="c1"># Apply preprocessing transforms</span>
+        <span class="n">input_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">input_data</span><span class="o">.</span><span class="n">map_horizons</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">ForecastInputDataset</span><span class="p">(</span>
+                <span class="c1"># Reassign target column to ensure it exists and is unchanged</span>
+                <span class="n">data</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="o">**</span><span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">target_column</span><span class="p">:</span> <span class="n">target_series</span><span class="p">}),</span>
+                <span class="n">sample_interval</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">sample_interval</span><span class="p">,</span>
+                <span class="n">target_column</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">target_column</span><span class="p">,</span>
+                <span class="n">forecast_start</span><span class="o">=</span><span class="n">forecast_start</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_dataset_to_input</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">MultiHorizon</span><span class="p">[</span><span class="n">TimeSeriesDataset</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">MultiHorizon</span><span class="p">[</span><span class="n">ForecastInputDataset</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">map_horizons</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">dataset</span><span class="p">:</span> <span class="n">ForecastInputDataset</span><span class="p">(</span>
+                <span class="n">data</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
+                <span class="n">sample_interval</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">sample_interval</span><span class="p">,</span>
+                <span class="n">target_column</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">feature_names</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>  <span class="c1"># Assume first column is target</span>
+            <span class="p">)</span>
+        <span class="p">)</span></div>
 
 
 

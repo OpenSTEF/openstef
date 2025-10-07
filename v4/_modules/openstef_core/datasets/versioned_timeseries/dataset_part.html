@@ -547,6 +547,8 @@
         <span class="n">index</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">timestamp_column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;timestamp&quot;</span><span class="p">,</span>
         <span class="n">available_at_column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;available_at&quot;</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">is_sorted</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize a VersionedTimeSeriesPart with the given data and configuration.</span>
 
@@ -558,6 +560,8 @@
 <span class="sd">            timestamp_column: Name of the column containing timestamps. Default is &#39;timestamp&#39;.</span>
 <span class="sd">            available_at_column: Name of the column indicating when data became available.</span>
 <span class="sd">                Default is &#39;available_at&#39;.</span>
+<span class="sd">            is_sorted: If True, assumes data is already sorted by (timestamp, available_at).</span>
+<span class="sd">                If False, data will be sorted during initialization.</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            MissingColumnsError: If required timestamp_column or available_at_column are missing.</span>
@@ -576,17 +580,15 @@
         <span class="n">validate_datetime_column</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">available_at_column</span><span class="p">],</span> <span class="n">available_at_column</span><span class="p">)</span>
 
         <span class="c1"># Ensure invariant: data is at all times sorted by (timestamp, available_at) asc.</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;is_sorted&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;is_sorted&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_sorted</span><span class="p">:</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="n">timestamp_column</span><span class="p">,</span> <span class="n">available_at_column</span><span class="p">],</span> <span class="n">ascending</span><span class="o">=</span><span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">])</span>
-            <span class="n">data</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;is_sorted&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
 
+        <span class="n">data</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;is_sorted&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sample_interval</span> <span class="o">=</span> <span class="n">sample_interval</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">timestamp_column</span> <span class="o">=</span> <span class="n">timestamp_column</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">available_at_column</span> <span class="o">=</span> <span class="n">available_at_column</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">index</span> <span class="k">if</span> <span class="n">index</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">cast</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">timestamp_column</span><span class="p">]))</span>
-        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">index</span> <span class="k">if</span> <span class="n">index</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">timestamp_column</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">,</span> <span class="n">cast</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">sort_values</span><span class="p">()</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">())</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">feature_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="o">-</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">timestamp_column</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">available_at_column</span><span class="p">})</span></div>
 
@@ -683,7 +685,7 @@
 <span class="sd">            timestamp_column=&#39;timestamp&#39;, available_at_column=&#39;available_at&#39;.</span>
 <span class="sd">            A warning is logged if metadata is missing.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>  <span class="c1"># pyright: ignore[reportUnknownMemberType]</span>
         <span class="k">if</span> <span class="s2">&quot;sample_interval&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">attrs</span><span class="p">:</span>
             <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                 <span class="s2">&quot;Parquet file does not contain &#39;sample_interval&#39; attribute. Using default value of 15 minutes.&quot;</span>

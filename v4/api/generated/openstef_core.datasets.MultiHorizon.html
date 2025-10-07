@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>NotFittedError &#8212; OpenSTEF 0.0.0 documentation</title>
+    <title>MultiHorizon &#8212; OpenSTEF 0.0.0 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../_static/copybutton.js?v=97f0b27d"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'api/generated/openstef_core.exceptions.NotFittedError';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/generated/openstef_core.datasets.MultiHorizon';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = '_static/versions.json';
@@ -59,8 +59,8 @@
     <link rel="icon" href="../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="PredictError" href="openstef_core.exceptions.PredictError.html" />
-    <link rel="prev" title="ModelNotFoundError" href="openstef_core.exceptions.ModelNotFoundError.html" />
+    <link rel="next" title="TimeSeriesDataset" href="openstef_core.datasets.TimeSeriesDataset.html" />
+    <link rel="prev" title="ForecastInputDataset" href="openstef_core.datasets.ForecastInputDataset.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="0.0.0" />
@@ -394,7 +394,7 @@
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
-<li class="toctree-l1 has-children"><a class="reference internal" href="openstef_core.datasets.html">openstef_core.datasets</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="openstef_core.datasets.html">openstef_core.datasets</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2 has-children"><a class="reference internal" href="openstef_core.datasets.mixins.html">openstef_core.datasets.mixins</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="openstef_core.datasets.mixins.TimeSeriesMixin.html">TimeSeriesMixin</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_core.datasets.mixins.VersionedTimeSeriesMixin.html">VersionedTimeSeriesMixin</a></li>
@@ -403,7 +403,7 @@
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.datasets.EnergyComponentDataset.html">EnergyComponentDataset</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.datasets.ForecastDataset.html">ForecastDataset</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.datasets.ForecastInputDataset.html">ForecastInputDataset</a></li>
-<li class="toctree-l2"><a class="reference internal" href="openstef_core.datasets.MultiHorizon.html">MultiHorizon</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">MultiHorizon</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.datasets.TimeSeriesDataset.html">TimeSeriesDataset</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.datasets.TimeSeriesMixin.html">TimeSeriesMixin</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.datasets.VersionedTimeSeriesDataset.html">VersionedTimeSeriesDataset</a></li>
@@ -427,7 +427,7 @@
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.base_model.PydanticStringPrimitive.html">PydanticStringPrimitive</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="openstef_core.exceptions.html">openstef_core.exceptions</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="openstef_core.exceptions.html">openstef_core.exceptions</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.ConfigurationError.html">ConfigurationError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.FlatlinerDetectedError.html">FlatlinerDetectedError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.InsufficientlyCompleteError.html">InsufficientlyCompleteError</a></li>
@@ -436,7 +436,7 @@
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.MissingExtraError.html">MissingExtraError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.ModelLoadingError.html">ModelLoadingError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.ModelNotFoundError.html">ModelNotFoundError</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">NotFittedError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.NotFittedError.html">NotFittedError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.PredictError.html">PredictError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.TimeSeriesValidationError.html">TimeSeriesValidationError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.TransformNotFittedError.html">TransformNotFittedError</a></li>
@@ -559,9 +559,9 @@
     <li class="breadcrumb-item"><a href="../index.html" class="nav-link">API Reference</a></li>
     
     
-    <li class="breadcrumb-item"><a href="openstef_core.exceptions.html" class="nav-link">openstef_core.exceptions</a></li>
+    <li class="breadcrumb-item"><a href="openstef_core.datasets.html" class="nav-link">openstef_core.datasets</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">NotFittedError</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">MultiHorizon</span></li>
   </ul>
 </nav>
 </div>
@@ -578,28 +578,81 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="notfittederror">
-<h1>NotFittedError<a class="headerlink" href="#notfittederror" title="Link to this heading">#</a></h1>
+  <section id="multihorizon">
+<h1>MultiHorizon<a class="headerlink" href="#multihorizon" title="Link to this heading">#</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="openstef_core.exceptions.NotFittedError">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef_core.exceptions.</span></span><span class="sig-name descname"><span class="pre">NotFittedError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component_class</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/openstef_core/exceptions.html#NotFittedError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.exceptions.NotFittedError" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
-<p>Exception raised when a model or a transform is used before being fitted.</p>
+<dt class="sig sig-object py" id="openstef_core.datasets.MultiHorizon">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef_core.datasets.</span></span><span class="sig-name descname"><span class="pre">MultiHorizon</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/openstef_core/datasets/timeseries_dataset.html#MultiHorizon"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.MultiHorizon" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">UserDict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">LeadTime</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">T</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">Generic</span></code></p>
+<p>A dictionary mapping forecast horizons to time series datasets.</p>
+<p>This class represents a collection of time series datasets, each associated
+with a specific forecast horizon. It extends the standard dictionary to
+provide additional type safety and clarity when working with multiple
+horizon-specific datasets.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>component_class</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>)</p>
+<dt class="field-odd">Variables<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>keys</strong> – Forecast horizons (LeadTime) for which datasets are available.</p></li>
+<li><p><strong>values</strong> – Corresponding time series datasets for each horizon.</p></li>
+</ul>
 </dd>
 </dl>
+<p class="rubric">Example</p>
+<p>Create a MultiHorizon dataset with two horizons:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">timedelta</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">LeadTime</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">TimeSeriesDataset</span><span class="p">,</span> <span class="n">MultiHorizon</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Create sample datasets for two horizons</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data_1h</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s1">&#39;load&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">110</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">},</span> <span class="n">index</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">date_range</span><span class="p">(</span><span class="s1">&#39;2025-01-01&#39;</span><span class="p">,</span> <span class="n">periods</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="s1">&#39;1H&#39;</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dataset_1h</span> <span class="o">=</span> <span class="n">TimeSeriesDataset</span><span class="p">(</span><span class="n">data_1h</span><span class="p">,</span> <span class="n">sample_interval</span><span class="o">=</span><span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data_24h</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="s1">&#39;load&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">120</span><span class="p">,</span> <span class="mi">130</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">},</span> <span class="n">index</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">date_range</span><span class="p">(</span><span class="s1">&#39;2025-01-01&#39;</span><span class="p">,</span> <span class="n">periods</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="s1">&#39;24H&#39;</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dataset_24h</span> <span class="o">=</span> <span class="n">TimeSeriesDataset</span><span class="p">(</span><span class="n">data_24h</span><span class="p">,</span> <span class="n">sample_interval</span><span class="o">=</span><span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">24</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Create MultiHorizon mapping</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">horizons</span> <span class="o">=</span> <span class="n">MultiHorizon</span><span class="p">({</span>
+<span class="gp">... </span>    <span class="n">LeadTime</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;PT1H&quot;</span><span class="p">):</span> <span class="n">dataset_1h</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">LeadTime</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;P1D&quot;</span><span class="p">):</span> <span class="n">dataset_24h</span><span class="p">,</span>
+<span class="gp">... </span><span class="p">})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">horizons</span><span class="p">)</span>
+<span class="go">2</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">horizons</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+<span class="go">[LeadTime(&#39;PT1H&#39;), LeadTime(&#39;P1D&#39;)]</span>
+</pre></div>
+</div>
 <dl class="py method">
-<dt class="sig sig-object py" id="openstef_core.exceptions.NotFittedError.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">component_class</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/openstef_core/exceptions.html#NotFittedError.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.exceptions.NotFittedError.__init__" title="Link to this definition">#</a></dt>
-<dd><p>Initialize the exception with the name of the component class.</p>
+<dt class="sig sig-object py" id="openstef_core.datasets.MultiHorizon.horizons">
+<span class="sig-name descname"><span class="pre">horizons</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">LeadTime</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/timeseries_dataset.html#MultiHorizon.horizons"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.MultiHorizon.horizons" title="Link to this definition">#</a></dt>
+<dd><p>Get the list of forecast horizons available in the MultiHorizon dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">LeadTime</span></code>]</span></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of LeadTime objects representing the forecast horizons.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef_core.datasets.MultiHorizon.map_horizons">
+<span class="sig-name descname"><span class="pre">map_horizons</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">T</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">U</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#openstef_core.datasets.MultiHorizon" title="openstef_core.datasets.MultiHorizon"><span class="pre">MultiHorizon</span></a><span class="p"><span class="pre">[</span></span><span class="pre">U</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/timeseries_dataset.html#MultiHorizon.map_horizons"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.MultiHorizon.map_horizons" title="Link to this definition">#</a></dt>
+<dd><p>Apply a function to each dataset in the MultiHorizon collection.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>component_class</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Name of the component class that was not fitted.</p></li>
-<li><p><strong>component_class</strong></p></li>
+<li><p><strong>func</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Callable</span></code>[[<code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code>(<code class="docutils literal notranslate"><span class="pre">T</span></code>, bound= <a class="reference internal" href="openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeSeriesDataset</span></code></a>)], <code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code>(<code class="docutils literal notranslate"><span class="pre">U</span></code>, bound= <a class="reference internal" href="openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeSeriesDataset</span></code></a>)]</span>) – A callable that takes a TimeSeriesDataset and returns a new dataset.</p></li>
+<li><p><strong>func</strong></p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A new MultiHorizon instance with the transformed datasets.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type">MultiHorizon[U]</span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -619,20 +672,20 @@
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="openstef_core.exceptions.ModelNotFoundError.html"
+       href="openstef_core.datasets.ForecastInputDataset.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">ModelNotFoundError</p>
+        <p class="prev-next-title">ForecastInputDataset</p>
       </div>
     </a>
     <a class="right-next"
-       href="openstef_core.exceptions.PredictError.html"
+       href="openstef_core.datasets.TimeSeriesDataset.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">PredictError</p>
+        <p class="prev-next-title">TimeSeriesDataset</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -655,8 +708,9 @@
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.exceptions.NotFittedError"><code class="docutils literal notranslate"><span class="pre">NotFittedError</span></code></a><ul class="visible nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.exceptions.NotFittedError.__init__"><code class="docutils literal notranslate"><span class="pre">NotFittedError.__init__()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.datasets.MultiHorizon"><code class="docutils literal notranslate"><span class="pre">MultiHorizon</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.datasets.MultiHorizon.horizons"><code class="docutils literal notranslate"><span class="pre">MultiHorizon.horizons()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.datasets.MultiHorizon.map_horizons"><code class="docutils literal notranslate"><span class="pre">MultiHorizon.map_horizons()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -666,7 +720,7 @@
 
   
   <div class="tocsection editthispage">
-    <a href="https://github.com/OpenSTEF/openstef/edit/release/v4.0.0/docs/source/api/generated/openstef_core.exceptions.NotFittedError.rst">
+    <a href="https://github.com/OpenSTEF/openstef/edit/release/v4.0.0/docs/source/api/generated/openstef_core.datasets.MultiHorizon.rst">
       <i class="fa-solid fa-pencil"></i>
       
       

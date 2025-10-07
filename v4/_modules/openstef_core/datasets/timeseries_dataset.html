@@ -454,6 +454,8 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">UserDict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Sequence</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">timedelta</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Self</span><span class="p">,</span> <span class="n">cast</span>
@@ -515,6 +517,8 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
         <span class="n">sample_interval</span><span class="p">:</span> <span class="n">timedelta</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">is_sorted</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize a TimeSeriesDataset with the given data and sampling interval.</span>
 
@@ -523,6 +527,8 @@
 <span class="sd">                Must have a pandas DatetimeIndex.</span>
 <span class="sd">            sample_interval: Fixed time interval between consecutive data points.</span>
 <span class="sd">                Must be positive.</span>
+<span class="sd">            is_sorted: If True, assumes data is already sorted by timestamp.</span>
+<span class="sd">                If False, data will be sorted during initialization</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            TypeError: If data index is not a pandas DatetimeIndex.</span>
@@ -536,10 +542,10 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Data index must be a pandas DatetimeIndex.&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;is_sorted&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;is_sorted&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_sorted</span><span class="p">:</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">sort_index</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="n">data</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;is_sorted&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
 
+        <span class="n">data</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;is_sorted&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sample_interval</span> <span class="o">=</span> <span class="n">sample_interval</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
@@ -613,7 +619,7 @@
 <span class="sd">            If the parquet file lacks a sample_interval attribute, defaults</span>
 <span class="sd">            to 15 minutes with a warning logged.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
         <span class="k">if</span> <span class="s2">&quot;sample_interval&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">attrs</span><span class="p">:</span>
             <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                 <span class="s2">&quot;Parquet file does not contain &#39;sample_interval&#39; attribute. Using default value of 15 minutes.&quot;</span>
@@ -629,10 +635,75 @@
 
 
 
-<span class="nb">type</span> <span class="n">MultiHorizonTimeSeriesDataset</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">[</span><span class="n">LeadTime</span><span class="p">,</span> <span class="n">TimeSeriesDataset</span><span class="p">]</span>
+<div class="viewcode-block" id="MultiHorizon">
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.MultiHorizon.html#openstef_core.datasets.MultiHorizon">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MultiHorizon</span><span class="p">[</span><span class="n">T</span><span class="p">:</span> <span class="n">TimeSeriesDataset</span><span class="p">](</span><span class="n">UserDict</span><span class="p">[</span><span class="n">LeadTime</span><span class="p">,</span> <span class="n">T</span><span class="p">]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A dictionary mapping forecast horizons to time series datasets.</span>
+
+<span class="sd">    This class represents a collection of time series datasets, each associated</span>
+<span class="sd">    with a specific forecast horizon. It extends the standard dictionary to</span>
+<span class="sd">    provide additional type safety and clarity when working with multiple</span>
+<span class="sd">    horizon-specific datasets.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        keys: Forecast horizons (LeadTime) for which datasets are available.</span>
+<span class="sd">        values: Corresponding time series datasets for each horizon.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        Create a MultiHorizon dataset with two horizons:</span>
+
+<span class="sd">        &gt;&gt;&gt; import pandas as pd</span>
+<span class="sd">        &gt;&gt;&gt; from datetime import timedelta</span>
+<span class="sd">        &gt;&gt;&gt; from openstef_core.types import LeadTime</span>
+<span class="sd">        &gt;&gt;&gt; from openstef_core.datasets import TimeSeriesDataset, MultiHorizon</span>
+<span class="sd">        &gt;&gt;&gt; # Create sample datasets for two horizons</span>
+<span class="sd">        &gt;&gt;&gt; data_1h = pd.DataFrame({</span>
+<span class="sd">        ...     &#39;load&#39;: [100, 110],</span>
+<span class="sd">        ... }, index=pd.date_range(&#39;2025-01-01&#39;, periods=2, freq=&#39;1H&#39;))</span>
+<span class="sd">        &gt;&gt;&gt; dataset_1h = TimeSeriesDataset(data_1h, sample_interval=timedelta(hours=1))</span>
+<span class="sd">        &gt;&gt;&gt; data_24h = pd.DataFrame({</span>
+<span class="sd">        ...     &#39;load&#39;: [120, 130],</span>
+<span class="sd">        ... }, index=pd.date_range(&#39;2025-01-01&#39;, periods=2, freq=&#39;24H&#39;))</span>
+<span class="sd">        &gt;&gt;&gt; dataset_24h = TimeSeriesDataset(data_24h, sample_interval=timedelta(hours=24))</span>
+<span class="sd">        &gt;&gt;&gt; # Create MultiHorizon mapping</span>
+<span class="sd">        &gt;&gt;&gt; horizons = MultiHorizon({</span>
+<span class="sd">        ...     LeadTime.from_string(&quot;PT1H&quot;): dataset_1h,</span>
+<span class="sd">        ...     LeadTime.from_string(&quot;P1D&quot;): dataset_24h,</span>
+<span class="sd">        ... })</span>
+<span class="sd">        &gt;&gt;&gt; len(horizons)</span>
+<span class="sd">        2</span>
+<span class="sd">        &gt;&gt;&gt; list(horizons.keys())</span>
+<span class="sd">        [LeadTime(&#39;PT1H&#39;), LeadTime(&#39;P1D&#39;)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="MultiHorizon.horizons">
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.MultiHorizon.html#openstef_core.datasets.MultiHorizon.horizons">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">horizons</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">LeadTime</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the list of forecast horizons available in the MultiHorizon dataset.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List of LeadTime objects representing the forecast horizons.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div>
 
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;MultiHorizonTimeSeriesDataset&quot;</span><span class="p">,</span> <span class="s2">&quot;TimeSeriesDataset&quot;</span><span class="p">]</span>
+<div class="viewcode-block" id="MultiHorizon.map_horizons">
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.MultiHorizon.html#openstef_core.datasets.MultiHorizon.map_horizons">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">map_horizons</span><span class="p">[</span><span class="n">U</span><span class="p">:</span> <span class="n">TimeSeriesDataset</span><span class="p">](</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">T</span><span class="p">],</span> <span class="n">U</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;MultiHorizon[U]&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply a function to each dataset in the MultiHorizon collection.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            func: A callable that takes a TimeSeriesDataset and returns a new dataset.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A new MultiHorizon instance with the transformed datasets.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">MultiHorizon</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="n">func</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span></div>
+</div>
+
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;MultiHorizon&quot;</span><span class="p">,</span> <span class="s2">&quot;TimeSeriesDataset&quot;</span><span class="p">]</span>
 </pre></div>
 
                 </article>

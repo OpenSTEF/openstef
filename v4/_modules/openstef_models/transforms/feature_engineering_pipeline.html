@@ -454,7 +454,11 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">Field</span><span class="p">,</span> <span class="n">PrivateAttr</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">MultiHorizonTimeSeriesDataset</span><span class="p">,</span> <span class="n">TimeSeriesDataset</span><span class="p">,</span> <span class="n">VersionedTimeSeriesDataset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">MultiHorizon</span><span class="p">,</span>
+    <span class="n">TimeSeriesDataset</span><span class="p">,</span>
+    <span class="n">VersionedTimeSeriesDataset</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">NotFittedError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.mixins</span><span class="w"> </span><span class="kn">import</span> <span class="n">State</span><span class="p">,</span> <span class="n">Transform</span><span class="p">,</span> <span class="n">TransformPipeline</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">MultiHorizonTimeSeriesTransform</span><span class="p">,</span> <span class="n">TimeSeriesTransform</span>
@@ -465,7 +469,7 @@
 <div class="viewcode-block" id="FeatureEngineeringPipeline">
 <a class="viewcode-back" href="../../../api/generated/openstef_models.transforms.FeatureEngineeringPipeline.html#openstef_models.transforms.FeatureEngineeringPipeline">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">FeatureEngineeringPipeline</span><span class="p">(</span>
-    <span class="n">BaseModel</span><span class="p">,</span> <span class="n">Transform</span><span class="p">[</span><span class="n">VersionedTimeSeriesDataset</span> <span class="o">|</span> <span class="n">TimeSeriesDataset</span><span class="p">,</span> <span class="n">MultiHorizonTimeSeriesDataset</span><span class="p">]</span>
+    <span class="n">BaseModel</span><span class="p">,</span> <span class="n">Transform</span><span class="p">[</span><span class="n">VersionedTimeSeriesDataset</span> <span class="o">|</span> <span class="n">TimeSeriesDataset</span><span class="p">,</span> <span class="n">MultiHorizon</span><span class="p">[</span><span class="n">TimeSeriesDataset</span><span class="p">]]</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Feature engineering pipeline for multi-horizon forecasting models.</span>
 
@@ -519,7 +523,7 @@
 <span class="sd">        &gt;&gt;&gt; len(horizon_datasets)</span>
 <span class="sd">        2</span>
 <span class="sd">        &gt;&gt;&gt; list(horizon_datasets.keys())</span>
-<span class="sd">        [LeadTime(datetime.timedelta(seconds=3600)), LeadTime(datetime.timedelta(days=1))]</span>
+<span class="sd">        [LeadTime(&#39;PT1H&#39;), LeadTime(&#39;P1D&#39;)]</span>
 <span class="sd">        &gt;&gt;&gt;</span>
 <span class="sd">        &gt;&gt;&gt; # Check what columns are created (original + cyclic features)</span>
 <span class="sd">        &gt;&gt;&gt; sorted(horizon_datasets[LeadTime.from_string(&quot;PT1H&quot;)].feature_names)</span>
@@ -566,7 +570,7 @@
             <span class="s2">&quot;Transforms that operate on versioned time series, and usually involve complex time handling logic.&quot;</span>
         <span class="p">),</span>
     <span class="p">)</span>
-    <span class="n">horizon_pipeline</span><span class="p">:</span> <span class="n">TransformPipeline</span><span class="p">[</span><span class="n">MultiHorizonTimeSeriesDataset</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+    <span class="n">horizon_pipeline</span><span class="p">:</span> <span class="n">TransformPipeline</span><span class="p">[</span><span class="n">MultiHorizon</span><span class="p">[</span><span class="n">TimeSeriesDataset</span><span class="p">]]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
         <span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">TransformPipeline</span><span class="p">(</span><span class="n">transforms</span><span class="o">=</span><span class="p">[]),</span>
         <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Transforms that operate on time series with already resolved timestamps.&quot;</span><span class="p">,</span>
     <span class="p">)</span>
@@ -656,7 +660,7 @@
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">VersionedTimeSeriesDataset</span> <span class="o">|</span> <span class="n">TimeSeriesDataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">TimeSeriesDataset</span><span class="p">):</span>
-            <span class="n">horizon_data</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">horizons</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+            <span class="n">horizon_data</span> <span class="o">=</span> <span class="n">MultiHorizon</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">horizons</span><span class="p">,</span> <span class="n">data</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Fit all the versioned transforms</span>
             <span class="n">versioned_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">versioned_pipeline</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
@@ -673,12 +677,12 @@
 <div class="viewcode-block" id="FeatureEngineeringPipeline.transform">
 <a class="viewcode-back" href="../../../api/generated/openstef_models.transforms.FeatureEngineeringPipeline.html#openstef_models.transforms.FeatureEngineeringPipeline.transform">[docs]</a>
     <span class="nd">@override</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">VersionedTimeSeriesDataset</span> <span class="o">|</span> <span class="n">TimeSeriesDataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MultiHorizonTimeSeriesDataset</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">VersionedTimeSeriesDataset</span> <span class="o">|</span> <span class="n">TimeSeriesDataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MultiHorizon</span><span class="p">[</span><span class="n">TimeSeriesDataset</span><span class="p">]:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_fitted</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">NotFittedError</span><span class="p">(</span><span class="s2">&quot;Pipeline is not fitted&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">TimeSeriesDataset</span><span class="p">):</span>
-            <span class="n">horizon_data</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">horizons</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+            <span class="n">horizon_data</span> <span class="o">=</span> <span class="n">MultiHorizon</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">horizons</span><span class="p">,</span> <span class="n">data</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">versioned_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">versioned_pipeline</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
             <span class="n">horizon_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_horizon_split_transform</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">versioned_data</span><span class="p">)</span>

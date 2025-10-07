@@ -403,6 +403,7 @@
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.datasets.EnergyComponentDataset.html">EnergyComponentDataset</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.datasets.ForecastDataset.html">ForecastDataset</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.datasets.ForecastInputDataset.html">ForecastInputDataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_core.datasets.MultiHorizon.html">MultiHorizon</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.datasets.TimeSeriesDataset.html">TimeSeriesDataset</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.datasets.TimeSeriesMixin.html">TimeSeriesMixin</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.datasets.VersionedTimeSeriesDataset.html">VersionedTimeSeriesDataset</a></li>
@@ -599,6 +600,7 @@ ensuring data consistency and validation throughout the pipeline.</p>
 <span class="gp">... </span>    <span class="n">ConstantMedianForecaster</span><span class="p">,</span> <span class="n">ConstantMedianForecasterConfig</span>
 <span class="gp">... </span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">FeatureEngineeringPipeline</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">LeadTime</span>
 <span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Note: This is a conceptual example showing the API structure</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Real usage requires implemented forecaster classes</span>
@@ -612,10 +614,10 @@ ensuring data consistency and validation throughout the pipeline.</p>
 <span class="gp">... </span>    <span class="n">forecaster</span><span class="o">=</span><span class="n">forecaster</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="n">preprocessing</span><span class="o">=</span><span class="n">preprocessing</span>
 <span class="gp">... </span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c1"># model.fit(training_data)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c1">#</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">training_data</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Generate forecasts</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c1"># forecasts = model.predict(new_data)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">forecasts</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">new_data</span><span class="p">)</span>
 </pre></div>
 </div>
 <dl class="field-list simple">
@@ -643,6 +645,11 @@ ensuring data consistency and validation throughout the pipeline.</p>
 <span class="sig-name descname"><span class="pre">target_column</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#openstef_models.models.ForecastingModel.target_column" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef_models.models.ForecastingModel.train_test_splitter">
+<span class="sig-name descname"><span class="pre">train_test_splitter</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseTrainTestSplitter</span></code> <span class="pre">|</span> <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></em><a class="headerlink" href="#openstef_models.models.ForecastingModel.train_test_splitter" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
 <dl class="py property">
 <dt class="sig sig-object py" id="openstef_models.models.ForecastingModel.is_fitted">
 <em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_fitted</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#openstef_models.models.ForecastingModel.is_fitted" title="Link to this definition">#</a></dt>
@@ -651,7 +658,7 @@ ensuring data consistency and validation throughout the pipeline.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="openstef_models.models.ForecastingModel.fit">
-<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="openstef_core.datasets.VersionedTimeSeriesDataset.html#openstef_core.datasets.VersionedTimeSeriesDataset" title="openstef_core.datasets.versioned_timeseries.dataset.VersionedTimeSeriesDataset"><span class="pre">VersionedTimeSeriesDataset</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><span class="pre">TimeSeriesDataset</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_val</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="openstef_core.datasets.VersionedTimeSeriesDataset.html#openstef_core.datasets.VersionedTimeSeriesDataset" title="openstef_core.datasets.versioned_timeseries.dataset.VersionedTimeSeriesDataset"><span class="pre">VersionedTimeSeriesDataset</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><span class="pre">TimeSeriesDataset</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/openstef_models/models/forecasting_model.html#ForecastingModel.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_models.models.ForecastingModel.fit" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="openstef_core.datasets.VersionedTimeSeriesDataset.html#openstef_core.datasets.VersionedTimeSeriesDataset" title="openstef_core.datasets.versioned_timeseries.dataset.VersionedTimeSeriesDataset"><span class="pre">VersionedTimeSeriesDataset</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><span class="pre">TimeSeriesDataset</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_val</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="openstef_core.datasets.VersionedTimeSeriesDataset.html#openstef_core.datasets.VersionedTimeSeriesDataset" title="openstef_core.datasets.versioned_timeseries.dataset.VersionedTimeSeriesDataset"><span class="pre">VersionedTimeSeriesDataset</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><span class="pre">TimeSeriesDataset</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">FitResult</span></span></span><a class="reference internal" href="../../_modules/openstef_models/models/forecasting_model.html#ForecastingModel.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_models.models.ForecastingModel.fit" title="Link to this definition">#</a></dt>
 <dd><p>Train the forecasting model on the provided dataset.</p>
 <p>Fits the preprocessing pipeline and underlying forecaster. Handles both
 single-horizon and multi-horizon forecasters appropriately.</p>
@@ -664,8 +671,11 @@ single-horizon and multi-horizon forecasters appropriately.</p>
 <li><p><strong>data_val</strong></p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>FitResult containing training details and metrics.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">FitResult</span></code></span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -801,6 +811,7 @@ when possible.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.models.ForecastingModel.forecaster"><code class="docutils literal notranslate"><span class="pre">ForecastingModel.forecaster</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.models.ForecastingModel.postprocessing"><code class="docutils literal notranslate"><span class="pre">ForecastingModel.postprocessing</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.models.ForecastingModel.target_column"><code class="docutils literal notranslate"><span class="pre">ForecastingModel.target_column</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.models.ForecastingModel.train_test_splitter"><code class="docutils literal notranslate"><span class="pre">ForecastingModel.train_test_splitter</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.models.ForecastingModel.is_fitted"><code class="docutils literal notranslate"><span class="pre">ForecastingModel.is_fitted</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.models.ForecastingModel.fit"><code class="docutils literal notranslate"><span class="pre">ForecastingModel.fit()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.models.ForecastingModel.predict"><code class="docutils literal notranslate"><span class="pre">ForecastingModel.predict()</span></code></a></li>
