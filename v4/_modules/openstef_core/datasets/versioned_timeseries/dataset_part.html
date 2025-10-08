@@ -462,7 +462,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">FilePath</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets.mixins</span><span class="w"> </span><span class="kn">import</span> <span class="n">VersionedTimeSeriesMixin</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets.mixins</span><span class="w"> </span><span class="kn">import</span> <span class="n">StoreableDatasetMixin</span><span class="p">,</span> <span class="n">VersionedTimeSeriesMixin</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets.timeseries_dataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">TimeSeriesDataset</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets.validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_datetime_column</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">MissingColumnsError</span>
@@ -475,7 +475,7 @@
 
 <div class="viewcode-block" id="VersionedTimeSeriesPart">
 <a class="viewcode-back" href="../../../../api/generated/openstef_core.datasets.VersionedTimeSeriesPart.html#openstef_core.datasets.VersionedTimeSeriesPart">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">VersionedTimeSeriesPart</span><span class="p">(</span><span class="n">VersionedTimeSeriesMixin</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">VersionedTimeSeriesPart</span><span class="p">(</span><span class="n">VersionedTimeSeriesMixin</span><span class="p">,</span> <span class="n">StoreableDatasetMixin</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A single part of a versioned time series dataset with enhanced filtering capabilities.</span>
 
 <span class="sd">    This class represents a contiguous segment of versioned time series data,</span>
@@ -650,6 +650,7 @@
 
 <div class="viewcode-block" id="VersionedTimeSeriesPart.to_parquet">
 <a class="viewcode-back" href="../../../../api/generated/openstef_core.datasets.VersionedTimeSeriesPart.html#openstef_core.datasets.VersionedTimeSeriesPart.to_parquet">[docs]</a>
+    <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">to_parquet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">FilePath</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Save to parquet file.</span>
 
@@ -670,6 +671,7 @@
 
 <div class="viewcode-block" id="VersionedTimeSeriesPart.read_parquet">
 <a class="viewcode-back" href="../../../../api/generated/openstef_core.datasets.VersionedTimeSeriesPart.html#openstef_core.datasets.VersionedTimeSeriesPart.read_parquet">[docs]</a>
+    <span class="nd">@override</span>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">read_parquet</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">FilePath</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Load from parquet file.</span>

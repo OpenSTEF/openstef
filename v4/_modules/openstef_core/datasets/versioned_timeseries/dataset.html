@@ -458,20 +458,20 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">functools</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">operator</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Sequence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Self</span><span class="p">,</span> <span class="n">cast</span><span class="p">,</span> <span class="n">override</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">FilePath</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets.mixins</span><span class="w"> </span><span class="kn">import</span> <span class="n">VersionedTimeSeriesMixin</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets.mixins</span><span class="w"> </span><span class="kn">import</span> <span class="n">StoreableDatasetMixin</span><span class="p">,</span> <span class="n">VersionedTimeSeriesMixin</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets.timeseries_dataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">TimeSeriesDataset</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets.validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_disjoint_columns</span><span class="p">,</span> <span class="n">validate_same_sample_intervals</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets.versioned_timeseries.dataset_part</span><span class="w"> </span><span class="kn">import</span> <span class="n">VersionedTimeSeriesPart</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TimeSeriesValidationError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">AvailableAt</span><span class="p">,</span> <span class="n">LeadTime</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.utils.pandas</span><span class="w"> </span><span class="kn">import</span> <span class="n">unsafe_sorted_range_slice_idxs</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.utils.pandas</span><span class="w"> </span><span class="kn">import</span> <span class="n">combine_timeseries_indexes</span><span class="p">,</span> <span class="n">unsafe_sorted_range_slice_idxs</span>
 
 <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -481,7 +481,7 @@
 
 <div class="viewcode-block" id="VersionedTimeSeriesDataset">
 <a class="viewcode-back" href="../../../../api/generated/openstef_core.datasets.VersionedTimeSeriesDataset.html#openstef_core.datasets.VersionedTimeSeriesDataset">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">VersionedTimeSeriesDataset</span><span class="p">(</span><span class="n">VersionedTimeSeriesMixin</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">VersionedTimeSeriesDataset</span><span class="p">(</span><span class="n">VersionedTimeSeriesMixin</span><span class="p">,</span> <span class="n">StoreableDatasetMixin</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A versioned time series dataset composed of multiple data parts.</span>
 
 <span class="sd">    This class combines multiple VersionedTimeSeriesPart instances into a unified</span>
@@ -601,11 +601,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">data_parts</span> <span class="o">=</span> <span class="n">data_parts</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sample_interval</span> <span class="o">=</span> <span class="n">data_parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">sample_interval</span>
-        <span class="k">if</span> <span class="n">index</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">index</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">union_fn</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">Callable</span><span class="p">[[</span><span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">],</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">],</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="o">.</span><span class="n">union</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">functools</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">union_fn</span><span class="p">,</span> <span class="p">[</span><span class="n">part</span><span class="o">.</span><span class="n">index</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">data_parts</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">combine_timeseries_indexes</span><span class="p">(</span><span class="n">indexes</span><span class="o">=</span><span class="p">[</span><span class="n">part</span><span class="o">.</span><span class="n">index</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">data_parts</span><span class="p">])</span> <span class="k">if</span> <span class="n">index</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">index</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">feature_names</span> <span class="o">=</span> <span class="n">functools</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">iadd</span><span class="p">,</span> <span class="p">[</span><span class="n">part</span><span class="o">.</span><span class="n">feature_names</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">data_parts</span><span class="p">],</span> <span class="p">[])</span></div>
 
 
@@ -758,6 +754,7 @@
 
 <div class="viewcode-block" id="VersionedTimeSeriesDataset.to_parquet">
 <a class="viewcode-back" href="../../../../api/generated/openstef_core.datasets.VersionedTimeSeriesDataset.html#openstef_core.datasets.VersionedTimeSeriesDataset.to_parquet">[docs]</a>
+    <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">to_parquet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">FilePath</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Save dataset to parquet file.</span>
 
@@ -775,6 +772,7 @@
 
 <div class="viewcode-block" id="VersionedTimeSeriesDataset.read_parquet">
 <a class="viewcode-back" href="../../../../api/generated/openstef_core.datasets.VersionedTimeSeriesDataset.html#openstef_core.datasets.VersionedTimeSeriesDataset.read_parquet">[docs]</a>
+    <span class="nd">@override</span>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">read_parquet</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">FilePath</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Load dataset from parquet file.</span>

@@ -452,6 +452,7 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Self</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
@@ -605,7 +606,72 @@
 
 
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;TimeSeriesMixin&quot;</span><span class="p">,</span> <span class="s2">&quot;VersionedTimeSeriesMixin&quot;</span><span class="p">]</span>
+<div class="viewcode-block" id="StoreableDatasetMixin">
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.mixins.StoreableDatasetMixin.html#openstef_core.datasets.StoreableDatasetMixin">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">StoreableDatasetMixin</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract base class for dataset persistence operations.</span>
+
+<span class="sd">    This mixin defines the interface for saving and loading datasets to/from</span>
+<span class="sd">    parquet files. It ensures datasets can be persisted with all their metadata</span>
+<span class="sd">    and reconstructed exactly as they were saved.</span>
+
+<span class="sd">    Classes implementing this mixin must:</span>
+<span class="sd">    - Save all data and metadata necessary for complete reconstruction</span>
+<span class="sd">    - Store metadata in parquet file attributes using attrs</span>
+<span class="sd">    - Handle missing metadata gracefully with sensible defaults when loading</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        See TimeSeriesDataset and VersionedTimeSeriesPart for example</span>
+<span class="sd">        implementations of this interface.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="StoreableDatasetMixin.to_parquet">
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.mixins.StoreableDatasetMixin.html#openstef_core.datasets.StoreableDatasetMixin.to_parquet">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_parquet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Save the dataset to a parquet file.</span>
+
+<span class="sd">        Stores both the dataset&#39;s data and all necessary metadata for complete</span>
+<span class="sd">        reconstruction. Metadata should be stored in the parquet file&#39;s attrs</span>
+<span class="sd">        dictionary.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            path: File path where the dataset should be saved.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Implementations should store all metadata needed to reconstruct</span>
+<span class="sd">            the dataset exactly, including sample intervals, column names,</span>
+<span class="sd">            and any configuration parameters.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="StoreableDatasetMixin.read_parquet">
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.mixins.StoreableDatasetMixin.html#openstef_core.datasets.StoreableDatasetMixin.read_parquet">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read_parquet</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load a dataset from a parquet file.</span>
+
+<span class="sd">        Reconstructs a dataset from a parquet file created with to_parquet,</span>
+<span class="sd">        including all data and metadata. Should handle missing metadata</span>
+<span class="sd">        gracefully with sensible defaults.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            path: Path to the parquet file to load.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            New dataset instance reconstructed from the file.</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            Implementations should log warnings when metadata is missing</span>
+<span class="sd">            and defaults are used, helping users identify potential issues</span>
+<span class="sd">            with older file formats.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+</div>
+
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;StoreableDatasetMixin&quot;</span><span class="p">,</span> <span class="s2">&quot;TimeSeriesMixin&quot;</span><span class="p">,</span> <span class="s2">&quot;VersionedTimeSeriesMixin&quot;</span><span class="p">]</span>
 </pre></div>
 
                 </article>
