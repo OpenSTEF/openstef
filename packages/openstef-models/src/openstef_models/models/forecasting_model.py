@@ -31,7 +31,7 @@ from openstef_models.models.forecasting import Forecaster, HorizonForecaster
 from openstef_models.transforms import FeatureEngineeringPipeline
 
 
-class FitResult(BaseModel):
+class ModelFitResult(BaseModel):
     input_dataset: VersionedTimeSeriesDataset | TimeSeriesDataset
 
     input_data_train: MultiHorizon[ForecastInputDataset]
@@ -99,6 +99,10 @@ class ForecastingModel(BaseModel, Predictor[VersionedTimeSeriesDataset | TimeSer
         description="Name of the target variable column in datasets.",
     )
     train_test_splitter: BaseTrainTestSplitter | None = Field(default_factory=StratifiedTrainTestSplitter)
+    tags: dict[str, str] = Field(
+        default_factory=dict,
+        description="Optional metadata tags for the model.",
+    )
 
     @model_validator(mode="after")
     def _validate_horizons_match(self) -> Self:
@@ -121,7 +125,7 @@ class ForecastingModel(BaseModel, Predictor[VersionedTimeSeriesDataset | TimeSer
         self,
         data: VersionedTimeSeriesDataset | TimeSeriesDataset,
         data_val: VersionedTimeSeriesDataset | TimeSeriesDataset | None = None,
-    ) -> FitResult:
+    ) -> ModelFitResult:
         """Train the forecasting model on the provided dataset.
 
         Fits the preprocessing pipeline and underlying forecaster. Handles both
@@ -146,7 +150,7 @@ class ForecastingModel(BaseModel, Predictor[VersionedTimeSeriesDataset | TimeSer
         # Fit the postprocessing transforms
         self.postprocessing.fit(data=prediction)
 
-        return FitResult(
+        return ModelFitResult(
             input_dataset=data,
             input_data_train=input_data_train,
             input_data_val=input_data_val,

@@ -28,7 +28,7 @@ class WorkflowContext[W](BaseModel):
     data: dict[str, Any] = Field(default_factory=dict, description="Dictionary for storing arbitrary additional data.")
 
 
-class PredictorCallback[W, I, O]:
+class PredictorCallback[W, I, FR, PR]:
     """Base callback interface for monitoring predictor workflow lifecycle events.
 
     Provides hooks at key stages of the prediction process to enable custom
@@ -50,7 +50,7 @@ class PredictorCallback[W, I, O]:
             data: Training dataset being used for fitting.
         """
 
-    def on_fit_end(self, context: WorkflowContext[W], data: I):
+    def on_fit_end(self, context: WorkflowContext[W], result: FR):
         """Called after model fitting completes successfully.
 
         Use this hook for post-training validation, model evaluation,
@@ -58,7 +58,7 @@ class PredictorCallback[W, I, O]:
 
         Args:
             context: The workflow context that completed fitting.
-            data: Training dataset that was used for fitting.
+            result: Result of the fitting process.
         """
 
     def on_predict_start(self, context: WorkflowContext[W], data: I):
@@ -76,7 +76,7 @@ class PredictorCallback[W, I, O]:
         self,
         context: WorkflowContext[W],
         data: I,
-        forecasts: O,
+        result: PR,
     ):
         """Called after prediction generation completes successfully.
 
@@ -86,7 +86,7 @@ class PredictorCallback[W, I, O]:
         Args:
             context: The workflow context that completed prediction.
             data: Input dataset that was used for prediction.
-            forecasts: Generated forecast results.
+            result: Generated prediction results.
         """
 
 
