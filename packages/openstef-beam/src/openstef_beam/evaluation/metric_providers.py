@@ -25,6 +25,7 @@ from openstef_beam.metrics import (
     mean_absolute_calibration_error,
     observed_probability,
     precision_recall,
+    r2,
     rcrps,
     relative_pinball_loss,
     riqd,
@@ -345,6 +346,24 @@ class MAPEProvider(MetricProvider):
         quantile: float,
     ) -> MetricsDict:
         return {"MAPE": mape(y_true=y_true, y_pred=y_pred)}
+
+
+class R2Provider(MetricProvider):
+    """Provides R² (coefficient of determination) metrics.
+
+    Computes the R² score which represents the proportion of variance
+    in the dependent variable that is predictable from the predictions.
+    Values range from -∞ to 1.0, where 1.0 is perfect prediction.
+    """
+
+    @override
+    def compute_deterministic(
+        self,
+        y_true: npt.NDArray[np.floating],
+        y_pred: npt.NDArray[np.floating],
+        quantile: float,
+    ) -> MetricsDict:
+        return {"R2": r2(y_true=y_true, y_pred=y_pred)}
 
 
 class ObservedProbabilityProvider(MetricProvider):
