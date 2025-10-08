@@ -21,7 +21,7 @@ from typing import Self, cast, override
 import pandas as pd
 from pydantic import FilePath
 
-from openstef_core.datasets.mixins import VersionedTimeSeriesMixin
+from openstef_core.datasets.mixins import StoreableDatasetMixin, VersionedTimeSeriesMixin
 from openstef_core.datasets.timeseries_dataset import TimeSeriesDataset
 from openstef_core.datasets.validation import validate_datetime_column
 from openstef_core.exceptions import MissingColumnsError
@@ -32,7 +32,7 @@ from openstef_core.utils.pandas import unsafe_sorted_range_slice_idxs
 _logger = logging.getLogger(__name__)
 
 
-class VersionedTimeSeriesPart(VersionedTimeSeriesMixin):
+class VersionedTimeSeriesPart(VersionedTimeSeriesMixin, StoreableDatasetMixin):
     """A single part of a versioned time series dataset with enhanced filtering capabilities.
 
     This class represents a contiguous segment of versioned time series data,
@@ -190,6 +190,7 @@ class VersionedTimeSeriesPart(VersionedTimeSeriesMixin):
             available_at_column=self.available_at_column,
         )
 
+    @override
     def to_parquet(self, path: FilePath) -> None:
         """Save to parquet file.
 
@@ -207,6 +208,7 @@ class VersionedTimeSeriesPart(VersionedTimeSeriesMixin):
         self.data.attrs["is_sorted"] = True
         self.data.to_parquet(path)
 
+    @override
     @classmethod
     def read_parquet(cls, path: FilePath) -> Self:
         """Load from parquet file.

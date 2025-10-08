@@ -7,7 +7,10 @@
 This module provides utility functions for working with pandas time series data.
 """
 
+import functools
+from collections.abc import Callable, Sequence
 from datetime import datetime
+from typing import cast
 
 import pandas as pd
 
@@ -41,3 +44,27 @@ def unsafe_sorted_range_slice_idxs(
     start_idx = data.searchsorted(start, side="left") if start else 0
     end_idx = data.searchsorted(end, side="left") if end else len(data)
     return int(start_idx), int(end_idx)
+
+
+def combine_timeseries_indexes(indexes: Sequence[pd.DatetimeIndex]) -> pd.DatetimeIndex:
+    """Combine multiple datetime indexes into a single sorted index.
+
+    Merges several pandas DatetimeIndex objects into one, ensuring that the
+    resulting index is sorted and contains no duplicate timestamps.
+
+    Args:
+        indexes: Sequence of pandas DatetimeIndex objects to combine.
+
+    Returns:
+        A single pandas DatetimeIndex containing all unique timestamps from the input indexes, sorted in ascending
+        order.
+    """
+    if not indexes:
+        return pd.DatetimeIndex([])
+
+    union_fn = cast(
+        Callable[[pd.DatetimeIndex, pd.DatetimeIndex], pd.DatetimeIndex],
+        functools.partial(pd.DatetimeIndex.union, sort=False),
+    )
+    index_raw = functools.reduce(union_fn, indexes)
+    return index_raw.unique().sort_values(ascending=True)  # pyright: ignore[reportUnknownVariableType, reportUnknownMemberType]

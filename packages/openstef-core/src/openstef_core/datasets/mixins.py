@@ -11,6 +11,7 @@ operations and versioned data access capabilities.
 
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta
+from pathlib import Path
 from typing import TYPE_CHECKING, Self
 
 import pandas as pd
@@ -141,6 +142,62 @@ class VersionedTimeSeriesMixin(TimeSeriesMixin):
             with the latest available version for each timestamp.
         """
         raise NotImplementedError
+
+
+class StoreableDatasetMixin(ABC):
+    """Abstract base class for dataset persistence operations.
+
+    This mixin defines the interface for saving and loading datasets to/from
+    parquet files. It ensures datasets can be persisted with all their metadata
+    and reconstructed exactly as they were saved.
+
+    Classes implementing this mixin must:
+    - Save all data and metadata necessary for complete reconstruction
+    - Store metadata in parquet file attributes using attrs
+    - Handle missing metadata gracefully with sensible defaults when loading
+
+    Note:
+        See TimeSeriesDataset and VersionedTimeSeriesPart for example
+        implementations of this interface.
+    """
+
+    @abstractmethod
+    def to_parquet(self, path: Path) -> None:
+        """Save the dataset to a parquet file.
+
+        Stores both the dataset's data and all necessary metadata for complete
+        reconstruction. Metadata should be stored in the parquet file's attrs
+        dictionary.
+
+        Args:
+            path: File path where the dataset should be saved.
+
+        Note:
+            Implementations should store all metadata needed to reconstruct
+            the dataset exactly, including sample intervals, column names,
+            and any configuration parameters.
+        """
+
+    @classmethod
+    @abstractmethod
+    def read_parquet(cls, path: Path) -> Self:
+        """Load a dataset from a parquet file.
+
+        Reconstructs a dataset from a parquet file created with to_parquet,
+        including all data and metadata. Should handle missing metadata
+        gracefully with sensible defaults.
+
+        Args:
+            path: Path to the parquet file to load.
+
+        Returns:
+            New dataset instance reconstructed from the file.
+
+        Note:
+            Implementations should log warnings when metadata is missing
+            and defaults are used, helping users identify potential issues
+            with older file formats.
+        """
 
 
 __all__ = ["TimeSeriesMixin", "VersionedTimeSeriesMixin"]
