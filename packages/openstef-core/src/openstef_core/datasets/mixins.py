@@ -156,9 +156,9 @@ class StoreableDatasetMixin(ABC):
     - Store metadata in parquet file attributes using attrs
     - Handle missing metadata gracefully with sensible defaults when loading
 
-    Note:
-        See TimeSeriesDataset and VersionedTimeSeriesPart for example
-        implementations of this interface.
+    See Also:
+        TimeSeriesDataset: Implementation for standard time series datasets.
+        VersionedTimeSeriesPart: Implementation for versioned dataset segments.
     """
 
     @abstractmethod
@@ -172,10 +172,8 @@ class StoreableDatasetMixin(ABC):
         Args:
             path: File path where the dataset should be saved.
 
-        Note:
-            Implementations should store all metadata needed to reconstruct
-            the dataset exactly, including sample intervals, column names,
-            and any configuration parameters.
+        See Also:
+            read_parquet: Counterpart method for loading datasets.
         """
 
     @classmethod
@@ -193,10 +191,8 @@ class StoreableDatasetMixin(ABC):
         Returns:
             New dataset instance reconstructed from the file.
 
-        Note:
-            Implementations should log warnings when metadata is missing
-            and defaults are used, helping users identify potential issues
-            with older file formats.
+        See Also:
+            to_parquet: Counterpart method for saving datasets.
         """
 
 
