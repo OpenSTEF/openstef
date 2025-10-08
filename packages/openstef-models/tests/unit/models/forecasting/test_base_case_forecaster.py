@@ -243,7 +243,7 @@ def test_base_case_forecaster__state_serialization(base_case_forecaster: BaseCas
 def test_base_case_forecaster__different_frequencies(base_case_forecaster: BaseCaseForecaster):
     """Test forecaster with different data frequencies."""
     # Arrange
-    dates = pd.date_range(start=datetime.fromisoformat("2025-01-01T00:00:00"), periods=2 * 7 * 48, freq="30T")
+    dates = pd.date_range(start=datetime.fromisoformat("2025-01-01T00:00:00"), periods=2 * 7 * 48, freq="30min")
     load_values = [100.0 + (i % 48) for i in range(len(dates))]
 
     data = pd.DataFrame({"load": load_values}, index=dates)

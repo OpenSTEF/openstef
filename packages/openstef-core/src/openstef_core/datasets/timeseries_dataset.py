@@ -17,18 +17,21 @@ from collections import UserDict
 from collections.abc import Callable, Sequence
 from datetime import timedelta
 from pathlib import Path
-from typing import Self, cast
+from typing import Self, cast, override
 
 import pandas as pd
 
-from openstef_core.datasets.mixins import TimeSeriesMixin
+from openstef_core.datasets.mixins import StoreableDatasetMixin, TimeSeriesMixin
+from openstef_core.datasets.validation import validate_same_columns, validate_same_sample_intervals
+from openstef_core.exceptions import TimeSeriesValidationError
 from openstef_core.types import LeadTime
 from openstef_core.utils import timedelta_from_isoformat, timedelta_to_isoformat
+from openstef_core.utils.pandas import combine_timeseries_indexes
 
 _logger = logging.getLogger(__name__)
 
 
-class TimeSeriesDataset(TimeSeriesMixin):
+class TimeSeriesDataset(TimeSeriesMixin, StoreableDatasetMixin):
     """A time series dataset with regular sampling intervals.
 
     This class represents time series data with a consistent sampling interval
@@ -106,6 +109,7 @@ class TimeSeriesDataset(TimeSeriesMixin):
         self.index = cast(pd.DatetimeIndex, self.data.index)
         self.feature_names = self.data.columns.tolist()
 
+    @override
     def to_parquet(
         self,
         path: Path,
@@ -126,6 +130,7 @@ class TimeSeriesDataset(TimeSeriesMixin):
         self.data.attrs["is_sorted"] = True
         self.data.to_parquet(path)
 
+    @override
     @classmethod
     def read_parquet(
         cls,
@@ -182,7 +187,7 @@ class TimeSeriesDataset(TimeSeriesMixin):
         )
 
 
-class MultiHorizon[T: TimeSeriesDataset](UserDict[LeadTime, T]):
+class MultiHorizon[T: TimeSeriesDataset](UserDict[LeadTime, T], TimeSeriesMixin, StoreableDatasetMixin):
     """A dictionary mapping forecast horizons to time series datasets.
 
     This class represents a collection of time series datasets, each associated
@@ -208,8 +213,8 @@ class MultiHorizon[T: TimeSeriesDataset](UserDict[LeadTime, T]):
         >>> dataset_1h = TimeSeriesDataset(data_1h, sample_interval=timedelta(hours=1))
         >>> data_24h = pd.DataFrame({
         ...     'load': [120, 130],
-        ... }, index=pd.date_range('2025-01-01', periods=2, freq='24H'))
-        >>> dataset_24h = TimeSeriesDataset(data_24h, sample_interval=timedelta(hours=24))
+        ... }, index=pd.date_range('2025-01-01', periods=2, freq='1H'))
+        >>> dataset_24h = TimeSeriesDataset(data_24h, sample_interval=timedelta(hours=1))
         >>> # Create MultiHorizon mapping
         >>> horizons = MultiHorizon({
         ...     LeadTime.from_string("PT1H"): dataset_1h,
@@ -220,6 +225,28 @@ class MultiHorizon[T: TimeSeriesDataset](UserDict[LeadTime, T]):
         >>> list(horizons.keys())
         [LeadTime('PT1H'), LeadTime('P1D')]
     """
+
+    def __init__(self, initial_data: dict[LeadTime, T]) -> None:
+        """Initialize a MultiHorizon dataset with the given horizon-dataset mapping.
+
+        Args:
+            initial_data: Dictionary mapping LeadTime horizons to TimeSeriesDataset instances.
+
+        Raises:
+            TimeSeriesValidationError: If the initial data is empty or if datasets have
+                inconsistent sample intervals or feature columns.
+
+        Note:
+            The class ensures that all values in the dictionary are of the correct type.
+        """
+        if len(initial_data) == 0:
+            raise TimeSeriesValidationError("Initial data dictionary is empty.")
+
+        self.sample_interval = validate_same_sample_intervals(datasets=initial_data.values())
+        self.feature_names = validate_same_columns(datasets=initial_data.values())
+        self.index = combine_timeseries_indexes(indexes=[dataset.index for dataset in initial_data.values()])
+
+        super().__init__(initial_data)
 
     def horizons(self) -> Sequence[LeadTime]:
         """Get the list of forecast horizons available in the MultiHorizon dataset.
@@ -239,6 +266,28 @@ class MultiHorizon[T: TimeSeriesDataset](UserDict[LeadTime, T]):
             A new MultiHorizon instance with the transformed datasets.
         """
         return MultiHorizon({k: func(v) for k, v in self.items()})
+
+    @override
+    def to_parquet(self, path: Path) -> None:
+        combined_dataset = TimeSeriesDataset(
+            data=pd.concat([dataset.data.assign(horizon=str(horizon)) for horizon, dataset in self.items()]),
+            sample_interval=self.sample_interval,
+        )
+        combined_dataset.to_parquet(path)
+
+    @override
+    @classmethod
+    def read_parquet(cls, path: Path) -> "MultiHorizon[TimeSeriesDataset]":
+        combined_dataset = TimeSeriesDataset.read_parquet(path)
+        horizon_data = {
+            LeadTime.from_string(str(horizon)): TimeSeriesDataset(
+                data=group.drop(columns="horizon"),
+                sample_interval=combined_dataset.sample_interval,
+            )
+            for horizon, group in combined_dataset.data.groupby(by="horizon")  # pyright: ignore[reportUnknownMemberType]
+        }
+
+        return MultiHorizon(horizon_data)
 
 
 __all__ = ["MultiHorizon", "TimeSeriesDataset"]

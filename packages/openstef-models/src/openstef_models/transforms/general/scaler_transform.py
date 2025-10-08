@@ -122,7 +122,7 @@ class ScalerTransform(BaseConfig, TimeSeriesTransform):
             State,
             {
                 "config": self.model_dump(mode="json"),
-                "scaler": self._scaler.get_params(),  # pyright: ignore[reportUnknownMemberType]
+                "scaler": self._scaler.__getstate__(),  # pyright: ignore[reportUnknownMemberType]
                 "is_fitted": self._is_fitted,
             },
         )
@@ -131,6 +131,6 @@ class ScalerTransform(BaseConfig, TimeSeriesTransform):
     def from_state(self, state: State) -> Self:
         state = cast(dict[str, Any], state)
         instance = self.model_validate(state["config"])
-        instance._scaler.set_params(**state["scaler"])  # pyright: ignore[reportUnknownMemberType]  # noqa: SLF001
+        instance._scaler.__setstate__(state["scaler"])  # pyright: ignore[reportUnknownMemberType]  # noqa: SLF001
         instance._is_fitted = state["is_fitted"]  # noqa: SLF001
         return instance

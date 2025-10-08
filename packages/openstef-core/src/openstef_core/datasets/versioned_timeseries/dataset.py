@@ -17,20 +17,20 @@ flexible dataset construction for complex forecasting pipelines.
 import functools
 import logging
 import operator
-from collections.abc import Callable, Sequence
+from collections.abc import Sequence
 from datetime import datetime, timedelta
 from typing import Literal, Self, cast, override
 
 import pandas as pd
 from pydantic import FilePath
 
-from openstef_core.datasets.mixins import VersionedTimeSeriesMixin
+from openstef_core.datasets.mixins import StoreableDatasetMixin, VersionedTimeSeriesMixin
 from openstef_core.datasets.timeseries_dataset import TimeSeriesDataset
 from openstef_core.datasets.validation import validate_disjoint_columns, validate_same_sample_intervals
 from openstef_core.datasets.versioned_timeseries.dataset_part import VersionedTimeSeriesPart
 from openstef_core.exceptions import TimeSeriesValidationError
 from openstef_core.types import AvailableAt, LeadTime
-from openstef_core.utils.pandas import unsafe_sorted_range_slice_idxs
+from openstef_core.utils.pandas import combine_timeseries_indexes, unsafe_sorted_range_slice_idxs
 
 _logger = logging.getLogger(__name__)
 
@@ -38,7 +38,7 @@ _logger = logging.getLogger(__name__)
 type ConcatMode = Literal["left", "outer", "inner"]
 
 
-class VersionedTimeSeriesDataset(VersionedTimeSeriesMixin):
+class VersionedTimeSeriesDataset(VersionedTimeSeriesMixin, StoreableDatasetMixin):
     """A versioned time series dataset composed of multiple data parts.
 
     This class combines multiple VersionedTimeSeriesPart instances into a unified
@@ -156,11 +156,7 @@ class VersionedTimeSeriesDataset(VersionedTimeSeriesMixin):
 
         self.data_parts = data_parts
         self.sample_interval = data_parts[0].sample_interval
-        if index is not None:
-            self.index = index
-        else:
-            union_fn = cast(Callable[[pd.DatetimeIndex, pd.DatetimeIndex], pd.DatetimeIndex], pd.DatetimeIndex.union)
-            self.index = functools.reduce(union_fn, [part.index for part in data_parts])
+        self.index = combine_timeseries_indexes(indexes=[part.index for part in data_parts]) if index is None else index
         self.feature_names = functools.reduce(operator.iadd, [part.feature_names for part in data_parts], [])
 
     @classmethod
@@ -292,6 +288,7 @@ class VersionedTimeSeriesDataset(VersionedTimeSeriesMixin):
             index=index,
         )
 
+    @override
     def to_parquet(self, path: FilePath) -> None:
         """Save dataset to parquet file.
 
@@ -306,6 +303,7 @@ class VersionedTimeSeriesDataset(VersionedTimeSeriesMixin):
 
         self.data_parts[0].to_parquet(path)
 
+    @override
     @classmethod
     def read_parquet(cls, path: FilePath) -> Self:
         """Load dataset from parquet file.

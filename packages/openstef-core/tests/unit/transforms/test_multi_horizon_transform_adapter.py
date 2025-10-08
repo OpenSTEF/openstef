@@ -101,14 +101,6 @@ def adapter(dummy_transform: DummyTransform) -> MultiHorizonTransformAdapter:
         ),
         pytest.param(
             [
-                {"load": [100.0], "start": "2025-01-01 10:00", "periods": 1, "interval": timedelta(hours=1)},
-                {"load": [110.0], "start": "2025-01-01 11:00", "periods": 1, "interval": timedelta(minutes=30)},
-            ],
-            {"type": "mixed_intervals", "sample_interval": timedelta(hours=1)},
-            id="preserves_first_sample_interval",
-        ),
-        pytest.param(
-            [
                 {"load": [100.0, 110.0], "temperature": [20.0, 21.0], "start": "2025-01-01 10:00", "periods": 2},
                 {"load": [105.0, 115.0], "temperature": [20.5, 21.5], "start": "2025-01-01 10:00", "periods": 2},
             ],
@@ -129,7 +121,7 @@ def test_concat_horizon_datasets_rowwise(datasets_config: list[dict[str, Any]], 
         data = pd.DataFrame(data_dict, index=index)
 
         interval = config.get("interval", timedelta(hours=1))
-        dataset = TimeSeriesDataset(data, interval)
+        dataset = TimeSeriesDataset(data, sample_interval=interval)
         horizon_datasets_dict[LeadTime.from_string(f"PT{i + 1}H")] = dataset
 
     horizon_datasets = MultiHorizon(horizon_datasets_dict)

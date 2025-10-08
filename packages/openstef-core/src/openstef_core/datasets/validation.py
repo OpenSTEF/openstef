@@ -56,6 +56,30 @@ def validate_disjoint_columns(datasets: Iterable[TimeSeriesMixin]) -> None:
         raise TimeSeriesValidationError("Datasets have overlapping feature names: " + ", ".join(duplicate_features))
 
 
+def validate_same_columns(datasets: Iterable[TimeSeriesMixin]) -> list[str]:
+    """Check if the datasets have the same feature names.
+
+    Validates that all datasets contain identical sets of feature names,
+    which is required for safe concatenation and combination operations.
+
+    Args:
+        datasets: Sequence of time series datasets to validate.
+
+    Returns:
+        The common list of feature names shared by all datasets.
+
+    Raises:
+        TimeSeriesValidationError: If datasets have different feature names.
+    """
+    feature_sets = {frozenset(d.feature_names) for d in datasets}
+    if len(feature_sets) > 1:
+        raise TimeSeriesValidationError(
+            "Datasets have different feature names: " + "; ".join([", ".join(sorted(fs)) for fs in feature_sets])
+        )
+
+    return list(feature_sets.pop())
+
+
 def validate_same_sample_intervals(datasets: Iterable[TimeSeriesMixin]) -> timedelta:
     """Check if the datasets have the same sample interval.
 
@@ -92,3 +116,12 @@ def validate_datetime_column(series: pd.Series, column_name: str) -> None:
     """
     if not pd.api.types.is_datetime64_any_dtype(series):
         raise InvalidColumnTypeError(column_name, expected_type="datetime", actual_type=str(series.dtype))
+
+
+__all__ = [
+    "validate_datetime_column",
+    "validate_disjoint_columns",
+    "validate_required_columns",
+    "validate_same_columns",
+    "validate_same_sample_intervals",
+]
