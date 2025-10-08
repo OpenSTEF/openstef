@@ -200,4 +200,4 @@ class StoreableDatasetMixin(ABC):
         """
 
 
-__all__ = ["TimeSeriesMixin", "VersionedTimeSeriesMixin"]
+__all__ = ["StoreableDatasetMixin", "TimeSeriesMixin", "VersionedTimeSeriesMixin"]
