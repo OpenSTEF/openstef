@@ -197,7 +197,7 @@ class ImputationTransform(BaseConfig, TimeSeriesTransform):
             State,
             {
                 "config": self.model_dump(mode="json"),
-                "imputer": self._imputer.get_params(),  # pyright: ignore[reportUnknownMemberType]
+                "imputer": self._imputer.__getstate__(),  # pyright: ignore[reportUnknownMemberType]
                 "is_fitted": self._is_fitted,
                 "transform_columns": list(self._transform_columns),
             },
@@ -207,7 +207,7 @@ class ImputationTransform(BaseConfig, TimeSeriesTransform):
     def from_state(self, state: State) -> Self:
         state = cast(dict[str, Any], state)
         instance = self.model_validate(state["config"])
-        instance._imputer.set_params(**state["imputer"])  # pyright: ignore[reportUnknownMemberType]  # noqa: SLF001
+        instance._imputer.__setstate__(state["imputer"])  # pyright: ignore[reportUnknownMemberType]  # noqa: SLF001
         instance._is_fitted = state["is_fitted"]  # noqa: SLF001
         instance._transform_columns = set(state["transform_columns"])  # noqa: SLF001
         return instance

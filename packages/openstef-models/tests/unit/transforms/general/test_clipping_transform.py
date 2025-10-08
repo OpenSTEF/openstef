@@ -79,3 +79,21 @@ def test_feature_clipper_transform_without_fit(clipper: ClippingTransform, test_
     # The transform should raise TransformNotFittedError when not fitted
     with pytest.raises(TransformNotFittedError, match=r"ClippingTransform.*has not been fitted"):
         clipper.transform(test_dataset)
+
+
+def test_clipping_transform__state_roundtrip(train_dataset: TimeSeriesDataset, test_dataset: TimeSeriesDataset):
+    """Test clipping transform state serialization and restoration."""
+    # Arrange
+    original_transform = ClippingTransform(column_names=["A", "B"])
+    original_transform.fit(train_dataset)
+
+    # Act
+    state = original_transform.to_state()
+    restored_transform = ClippingTransform(column_names=["A", "B"])
+    restored_transform = restored_transform.from_state(state)
+
+    original_result = original_transform.transform(test_dataset)
+    restored_result = restored_transform.transform(test_dataset)
+
+    # Assert
+    pd.testing.assert_frame_equal(original_result.data, restored_result.data)

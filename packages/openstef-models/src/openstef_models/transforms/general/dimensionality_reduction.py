@@ -135,7 +135,7 @@ class DimensionalityReduction(BaseConfig, TimeSeriesTransform):
             State,
             {
                 "config": self.model_dump(mode="json"),
-                "dimensionality_reducer": self._dimensionality_reducer,
+                "dimensionality_reducer": self._dimensionality_reducer.__getstate__(),  # pyright: ignore[reportUnknownMemberType]
                 "is_fitted": self._is_fitted,
             },
         )
@@ -144,6 +144,6 @@ class DimensionalityReduction(BaseConfig, TimeSeriesTransform):
     def from_state(self, state: State) -> Self:
         state = cast(dict[str, Any], state)
         instance = self.model_validate(state["config"])
-        instance._dimensionality_reducer = state["dimensionality_reducer"]  # noqa: SLF001
+        instance._dimensionality_reducer.__setstate__(state["dimensionality_reducer"])  # pyright: ignore[reportUnknownMemberType] # noqa: SLF001
         instance._is_fitted = state["is_fitted"]  # noqa: SLF001
         return instance
