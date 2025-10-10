@@ -150,10 +150,8 @@ def test_forecasting_model__init__raises_error_when_horizons_mismatch():
         pytest.param(Forecaster, id="multi_horizon_forecaster"),
     ],
 )
-def test_forecasting_model__fit__orchestrates_correctly(
-    forecaster_type: type, sample_timeseries_dataset: TimeSeriesDataset
-):
-    """Test that fit correctly orchestrates preprocessing and forecaster calls."""
+def test_forecasting_model__fit(forecaster_type: type, sample_timeseries_dataset: TimeSeriesDataset):
+    """Test that fit correctly orchestrates preprocessing and forecaster calls, and returns metrics."""
     # Arrange
     horizons = [LeadTime(timedelta(hours=6))]
 
@@ -180,10 +178,16 @@ def test_forecasting_model__fit__orchestrates_correctly(
     )
 
     # Act
-    model.fit(data=sample_timeseries_dataset)
+    result = model.fit(data=sample_timeseries_dataset)
 
-    # Assert - Model is fitted
+    # Assert - Model is fitted and returns metrics
     assert model.is_fitted
+    assert result.input_dataset is sample_timeseries_dataset
+    assert result.input_data_train is not None
+    assert result.metrics_train is not None
+    assert result.metrics_full is not None
+    assert result.metrics_val is not None
+    assert result.metrics_test is not None
 
 
 @pytest.mark.parametrize(
@@ -193,9 +197,7 @@ def test_forecasting_model__fit__orchestrates_correctly(
         pytest.param(Forecaster, id="multi_horizon_forecaster"),
     ],
 )
-def test_forecasting_model__predict__orchestrates_correctly(
-    forecaster_type: type, sample_timeseries_dataset: TimeSeriesDataset
-):
+def test_forecasting_model__predict(forecaster_type: type, sample_timeseries_dataset: TimeSeriesDataset):
     """Test that predict correctly orchestrates preprocessing and forecaster calls."""
     # Arrange
     horizons = [LeadTime(timedelta(hours=6))]
@@ -252,3 +254,48 @@ def test_forecasting_model__predict__raises_error_when_not_fitted(sample_timeser
     # Act & Assert
     with pytest.raises(NotFittedError):
         model.predict(data=sample_timeseries_dataset)
+
+
+def test_forecasting_model__score__returns_metrics(sample_timeseries_dataset: TimeSeriesDataset):
+    """Test that score evaluates model and returns metrics."""
+    # Arrange
+    horizons = [LeadTime(timedelta(hours=6))]
+    config = HorizonForecasterConfig(quantiles=[Quantile(0.5)], horizons=horizons)
+    forecaster = SimpleForecaster(config=config)
+    preprocessing = FeatureEngineeringPipeline(horizons=horizons)
+
+    model = ForecastingModel(forecaster=forecaster, preprocessing=preprocessing)
+    model.fit(data=sample_timeseries_dataset)
+
+    # Act
+    metrics = model.score(data=sample_timeseries_dataset)
+
+    # Assert - Metrics are calculated for the median quantile
+    assert metrics.metrics is not None
+    assert Quantile(0.5) in metrics.metrics
+    # R2 metric should be present (default evaluation metric)
+    assert "R2" in metrics.metrics[Quantile(0.5)]
+
+
+def test_forecasting_model__state_roundtrip(sample_timeseries_dataset: TimeSeriesDataset):
+    """Test that model state can be serialized and restored."""
+    # Arrange
+    horizons = [LeadTime(timedelta(hours=6))]
+    config = HorizonForecasterConfig(quantiles=[Quantile(0.5)], horizons=horizons)
+    forecaster = SimpleForecaster(config=config)
+    preprocessing = FeatureEngineeringPipeline(horizons=horizons)
+
+    original_model = ForecastingModel(forecaster=forecaster, preprocessing=preprocessing)
+    original_model.fit(data=sample_timeseries_dataset)
+
+    # Act - Serialize and restore
+    state = original_model.to_state()
+    restored_model = ForecastingModel(
+        forecaster=SimpleForecaster(config=config), preprocessing=FeatureEngineeringPipeline(horizons=horizons)
+    ).from_state(state)
+
+    # Assert - Restored model is fitted and produces same predictions
+    assert restored_model.is_fitted
+    original_pred = original_model.predict(data=sample_timeseries_dataset)
+    restored_pred = restored_model.predict(data=sample_timeseries_dataset)
+    assert original_pred.data.equals(restored_pred.data)
