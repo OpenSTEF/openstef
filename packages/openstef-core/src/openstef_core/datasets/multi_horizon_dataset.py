@@ -88,7 +88,7 @@ class MultiHorizon[T: TimeSeriesDataset](UserDict[LeadTime, T], TimeSeriesMixin,
 
         self.sample_interval = validate_same_sample_intervals(datasets=initial_data.values())
         self.feature_names = list(
-            functools.reduce(operator.ior, [set(d.feature_names) for d in initial_data.values()], set())
+            functools.reduce(operator.ior, [set(d.feature_names) for d in initial_data.values()], set[str]())
         )
         self.index = combine_timeseries_indexes(indexes=[dataset.index for dataset in initial_data.values()])
 

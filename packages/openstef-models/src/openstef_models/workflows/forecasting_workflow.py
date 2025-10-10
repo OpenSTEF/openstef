@@ -9,14 +9,15 @@ callback execution, and optional model persistence. Acts as the main
 entry point for production forecasting systems.
 """
 
+import logging
 from datetime import datetime
 
-from pydantic import Field
+from pydantic import Field, PrivateAttr
 
 from openstef_core.base_model import BaseModel
 from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesDataset
 from openstef_core.datasets.validated_datasets import ForecastDataset
-from openstef_core.exceptions import NotFittedError
+from openstef_core.exceptions import NotFittedError, SkipFitting
 from openstef_models.mixins import ModelIdentifier, PredictorCallback
 from openstef_models.mixins.callbacks import WorkflowContext
 from openstef_models.models.forecasting_model import ForecastingModel, ModelFitResult
@@ -103,8 +104,8 @@ class ForecastingWorkflow(BaseModel):
         ...     def on_fit_end(self, context, result):
         ...         print("Model training completed")
         >>>
-        >>> workflow = ForecastingWorkflow(model=model, model_id="my_model", callbacks=LoggingCallback())
-        >>> workflow.fit(dataset)
+        >>> workflow = ForecastingWorkflow(model=model, model_id="my_model", callbacks=[LoggingCallback()])
+        >>> result = workflow.fit(dataset)
         Model training completed
         >>> forecasts = workflow.predict(dataset)
         >>> len(forecasts.data) > 0
@@ -120,14 +121,18 @@ class ForecastingWorkflow(BaseModel):
     """
 
     model: ForecastingModel = Field(description="The forecasting model to use.")
-    callbacks: ForecastingCallback = Field(default_factory=ForecastingCallback)
+    callbacks: list[ForecastingCallback] = Field(
+        default_factory=list[ForecastingCallback], description="List of callbacks to execute during workflow events."
+    )
     model_id: ModelIdentifier = Field(...)
+
+    _logger: logging.Logger = PrivateAttr(default_factory=lambda: logging.getLogger(__name__))
 
     def fit(
         self,
         data: VersionedTimeSeriesDataset | TimeSeriesDataset,
         data_val: VersionedTimeSeriesDataset | TimeSeriesDataset | None = None,
-    ):
+    ) -> ModelFitResult | None:
         """Train the forecasting model with callback execution.
 
         Executes the complete training workflow including pre-fit callbacks,
@@ -136,14 +141,26 @@ class ForecastingWorkflow(BaseModel):
         Args:
             data: Training dataset for the forecasting model.
             data_val: Optional validation dataset for model tuning.
+
+        Returns:
+            ModelFitResult containing training metrics and information,
+            or None if fitting was skipped.
         """
         context: WorkflowContext[ForecastingWorkflow] = WorkflowContext(workflow=self)
 
-        self.callbacks.on_fit_start(context=context, data=data)
+        try:
+            for callback in self.callbacks:
+                callback.on_fit_start(context=context, data=data)
 
-        result = self.model.fit(data=data, data_val=data_val)
+            result = self.model.fit(data=data, data_val=data_val)
 
-        self.callbacks.on_fit_end(context=context, result=result)
+            for callback in self.callbacks:
+                callback.on_fit_end(context=context, result=result)
+        except SkipFitting as e:
+            self._logger.info("Skipping model fitting: %s", e)
+            result = None
+
+        return result
 
     def predict(
         self, data: VersionedTimeSeriesDataset | TimeSeriesDataset, forecast_start: datetime | None = None
@@ -165,14 +182,16 @@ class ForecastingWorkflow(BaseModel):
         """
         context: WorkflowContext[ForecastingWorkflow] = WorkflowContext(workflow=self)
 
-        self.callbacks.on_predict_start(context=context, data=data)
+        for callback in self.callbacks:
+            callback.on_predict_start(context=context, data=data)
 
         if not self.model.is_fitted:
             raise NotFittedError(type(self.model).__name__)
 
         forecasts = self.model.predict(data=data, forecast_start=forecast_start)
 
-        self.callbacks.on_predict_end(context=context, data=data, result=forecasts)
+        for callback in self.callbacks:
+            callback.on_predict_end(context=context, data=data, result=forecasts)
 
         return forecasts
 
