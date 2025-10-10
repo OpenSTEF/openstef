@@ -41,7 +41,7 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
 
     model_selection_enable: bool = Field(default=True)
     model_selection_metric: tuple[QuantileOrGlobal, str, MetricDirection] = Field(
-        default=(Q(0.5), "r2", "higher_is_better"),
+        default=(Q(0.5), "R2", "higher_is_better"),
         description="Metric to monitor for model performance when retraining.",
     )
 
@@ -180,10 +180,19 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
             )
             return True
 
+        self._logger.info(
+            "Comparing old model %s metric %.5f to new model %s metric %.5f for quantile %s",
+            metric_name,
+            old_metric,
+            metric_name,
+            new_metric,
+            quantile,
+        )
+
         match direction:
-            case "higher_is_better" if new_metric > old_metric:
+            case "higher_is_better" if new_metric >= old_metric:
                 return True
-            case "lower_is_better" if new_metric < old_metric:
+            case "lower_is_better" if new_metric <= old_metric:
                 return True
             case _:
                 return False

@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 from typing import Self, cast
 from unittest.mock import MagicMock
 
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -70,14 +71,17 @@ class SimpleForecaster(HorizonForecaster):
 
 @pytest.fixture
 def sample_timeseries_dataset() -> TimeSeriesDataset:
-    # Create sample time series data with typical energy forecasting features
+    """Create sample time series data with typical energy forecasting features."""
+    n_samples = 25
+    rng = np.random.default_rng(seed=42)
+
     data = pd.DataFrame(
         {
-            "load": [100.0, 110.0, 120.0, 105.0, 95.0, 115.0],
-            "temperature": [20.0, 21.0, 22.0, 20.5, 19.5, 21.5],
-            "radiation": [0.0, 100.0, 500.0, 300.0, 50.0, 250.0],
+            "load": 100.0 + rng.normal(10.0, 5.0, n_samples),
+            "temperature": 20.0 + rng.normal(1.0, 0.5, n_samples),
+            "radiation": rng.uniform(0.0, 500.0, n_samples),
         },
-        index=pd.date_range("2025-01-01 10:00", periods=6, freq="h"),
+        index=pd.date_range("2025-01-01 10:00", periods=n_samples, freq="h"),
     )
 
     return TimeSeriesDataset(data, timedelta(hours=1))
@@ -188,6 +192,9 @@ def test_forecasting_model__fit(forecaster_type: type, sample_timeseries_dataset
     assert result.metrics_full is not None
     assert result.metrics_val is not None
     assert result.metrics_test is not None
+    # R2 metric exists for the 50th quantile
+    assert Quantile(0.5) in result.metrics_train.metrics
+    assert "R2" in result.metrics_train.metrics[Quantile(0.5)]
 
 
 @pytest.mark.parametrize(
