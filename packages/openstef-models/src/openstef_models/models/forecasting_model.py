@@ -26,7 +26,7 @@ from openstef_core.datasets import (
     TimeSeriesDataset,
     VersionedTimeSeriesDataset,
 )
-from openstef_core.datasets.data_split import BaseTrainTestSplitter, StratifiedTrainTestSplitter
+from openstef_core.datasets.data_split import DataSplitStrategy, StratifiedTrainTestSplitter
 from openstef_core.exceptions import ConfigurationError, NotFittedError
 from openstef_core.mixins import Predictor, State, TransformPipeline
 from openstef_models.models.forecasting import Forecaster, HorizonForecaster
@@ -102,9 +102,17 @@ class ForecastingModel(BaseModel, Predictor[VersionedTimeSeriesDataset | TimeSer
         default="load",
         description="Name of the target variable column in datasets.",
     )
-    # Evaluation
-    train_test_splitter: BaseTrainTestSplitter | None = Field(default_factory=StratifiedTrainTestSplitter)
-    train_val_splitter: BaseTrainTestSplitter | None = Field(default=None)
+    # Evaluation - Data splitting configuration
+    # Splits are applied in sequence: test_splitter first, then val_splitter on remaining data
+    # Example: With defaults, 100% → 80% train+val / 20% test → 60% train / 20% val / 20% test
+    split_strategy: DataSplitStrategy = Field(
+        default_factory=lambda: DataSplitStrategy(
+            test_splitter=StratifiedTrainTestSplitter(test_fraction=0.1),
+            val_splitter=StratifiedTrainTestSplitter(test_fraction=0.15),
+        ),
+        description="Strategy for splitting data into train/validation/test sets. "
+        "Handles explicit and automatic splitting scenarios.",
+    )
     evaluation_metrics: list[MetricProvider] = Field(
         default_factory=lambda: [R2Provider(), ObservedProbabilityProvider()],
         description="List of metric providers for evaluating model score.",
@@ -136,15 +144,22 @@ class ForecastingModel(BaseModel, Predictor[VersionedTimeSeriesDataset | TimeSer
         self,
         data: VersionedTimeSeriesDataset | TimeSeriesDataset,
         data_val: VersionedTimeSeriesDataset | TimeSeriesDataset | None = None,
+        data_test: VersionedTimeSeriesDataset | TimeSeriesDataset | None = None,
     ) -> ModelFitResult:
         """Train the forecasting model on the provided dataset.
 
         Fits the preprocessing pipeline and underlying forecaster. Handles both
         single-horizon and multi-horizon forecasters appropriately.
 
+        The data splitting follows this sequence:
+        1. Split test set from full data (using test_splitter)
+        2. Split validation from remaining train+val data (using val_splitter)
+        3. Train on the final training set
+
         Args:
             data: Historical time series data with features and target values.
-            data_val: The validation data to evaluate and tune the predictor on (optional).
+            data_val: Optional validation data. If provided, splitters are ignored for validation.
+            data_test: Optional test data. If provided, splitters are ignored for test.
 
         Returns:
             FitResult containing training details and metrics.
@@ -152,8 +167,10 @@ class ForecastingModel(BaseModel, Predictor[VersionedTimeSeriesDataset | TimeSer
         # Fit the feature engineering transforms
         self.preprocessing.fit(data=data)
 
-        # Transform the input data to a valid forecast input
-        input_data_train, input_data_val = self._prepare_split_input(data=data, data_val=data_val)
+        # Transform the input data to a valid forecast input and split into train/val/test
+        input_data_train, input_data_val, input_data_test = self._prepare_split_input(
+            data=data, data_val=data_val, data_test=data_test
+        )
 
         # Fit the model
         prediction = self._fit_forecaster(data=input_data_train, data_val=input_data_val)
@@ -161,36 +178,26 @@ class ForecastingModel(BaseModel, Predictor[VersionedTimeSeriesDataset | TimeSer
         # Fit the postprocessing transforms
         self.postprocessing.fit(data=prediction)
 
-        # Calculate training and operational metrics
+        # Calculate training, validation, test, and full metrics
         target_dataset = _dataset_to_target(data=data, target_column=self.target_column)
 
-        predictions_train = self._predict_forecaster(data=input_data_train).pipe(self.postprocessing.transform)
-        predictions_val = (
-            self._predict_forecaster(data=input_data_val).pipe(self.postprocessing.transform)
-            if input_data_val
-            else None
-        )
+        def predict_and_score(input_data: MultiHorizon[ForecastInputDataset]) -> SubsetMetric:
+            prediction = self._predict_forecaster(data=input_data).pipe(self.postprocessing.transform)
+            return self._calculate_score(ground_truth=target_dataset, prediction=prediction)
 
-        metrics_train = self._calculate_score(
-            ground_truth=target_dataset,
-            prediction=predictions_train,
-        )
-        metrics_val = (
-            self._calculate_score(
-                ground_truth=target_dataset,
-                prediction=predictions_val,
-            )
-            if predictions_val
-            else None
-        )
+        metrics_train = predict_and_score(input_data_train)
+        metrics_val = predict_and_score(input_data_val) if input_data_val else None
+        metrics_test = predict_and_score(input_data_test) if input_data_test else None
         metrics_full = self.score(data=data)
 
         return ModelFitResult(
             input_dataset=data,
             input_data_train=input_data_train,
             input_data_val=input_data_val,
+            input_data_test=input_data_test,
             metrics_train=metrics_train,
             metrics_val=metrics_val,
+            metrics_test=metrics_test,
             metrics_full=metrics_full,
         )
 
@@ -251,25 +258,62 @@ class ForecastingModel(BaseModel, Predictor[VersionedTimeSeriesDataset | TimeSer
         self,
         data: VersionedTimeSeriesDataset | TimeSeriesDataset,
         data_val: VersionedTimeSeriesDataset | TimeSeriesDataset | None = None,
-    ) -> tuple[MultiHorizon[ForecastInputDataset], MultiHorizon[ForecastInputDataset] | None]:
-        # Transform the input data to a valid forecast input
-        input_data_train = self._prepare_input(data=data)
+        data_test: VersionedTimeSeriesDataset | TimeSeriesDataset | None = None,
+    ) -> tuple[
+        MultiHorizon[ForecastInputDataset],
+        MultiHorizon[ForecastInputDataset] | None,
+        MultiHorizon[ForecastInputDataset] | None,
+    ]:
+        """Prepare and split input data into train, validation, and test sets.
 
-        # Create or reuse validation data
-        if data_val is not None:
-            input_data_val = self._prepare_input(data=data_val)
-        elif self.train_test_splitter is not None:
-            if not self.train_test_splitter.is_fitted:
-                self.train_test_splitter.fit_multihorizon(data=input_data_train)
-            split_data_train, split_data_val = self.train_test_splitter.transform_multihorizon(input_data_train)
-            input_data_train, input_data_val = (
-                _dataset_to_input(split_data_train),
-                _dataset_to_input(split_data_val),
+        Args:
+            data: Full dataset to split.
+            data_val: Optional pre-split validation data.
+            data_test: Optional pre-split test data.
+
+        Returns:
+            Tuple of (train_data, val_data, test_data) where val_data and test_data may be None.
+        """
+        # Preprocess all data
+        preprocessed_data = self.preprocessing.transform(data=data)
+        preprocessed_val = self.preprocessing.transform(data=data_val) if data_val else None
+        preprocessed_test = self.preprocessing.transform(data=data_test) if data_test else None
+
+        # Apply splitting strategy
+        split_result = self.split_strategy.split_multihorizon(
+            data=preprocessed_data,
+            data_val=preprocessed_val,
+            data_test=preprocessed_test,
+        )
+
+        # Convert to ForecastInputDataset with restored target column
+        return (
+            self._to_forecast_input(split_result.train, data),
+            self._to_forecast_input(split_result.val, data) if split_result.val else None,
+            self._to_forecast_input(split_result.test, data) if split_result.test else None,
+        )
+
+    def _to_forecast_input(
+        self,
+        data: MultiHorizon[TimeSeriesDataset],
+        original_data: VersionedTimeSeriesDataset | TimeSeriesDataset,
+    ) -> MultiHorizon[ForecastInputDataset]:
+        """Convert preprocessed data to ForecastInputDataset with restored target column.
+
+        Returns:
+            Multi-horizon forecast input dataset with target column restored from original data.
+        """
+        target_dataset = _dataset_to_target(data=original_data, target_column=self.target_column)
+        target_series = target_dataset.data[self.target_column]
+
+        input_data = _dataset_to_input(data)
+        return input_data.map_horizons(
+            lambda dataset: ForecastInputDataset(
+                data=dataset.data.assign(**{self.target_column: target_series}),
+                sample_interval=dataset.sample_interval,
+                target_column=self.target_column,
             )
-        else:
-            input_data_val = None
-
-        return input_data_train, input_data_val
+        )
 
     def _prepare_input(
         self,
