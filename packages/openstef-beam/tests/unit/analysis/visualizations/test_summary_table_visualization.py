@@ -13,7 +13,7 @@ from openstef_beam.analysis.plots import SummaryTablePlotter
 from openstef_beam.analysis.visualizations import SummaryTableVisualization
 from openstef_beam.analysis.visualizations.summary_table_visualization import MetricAggregation
 from openstef_beam.evaluation.models.report import EvaluationSubsetReport
-from openstef_beam.evaluation.models.subset import QuantileOrGlobal
+from openstef_core.types import QuantileOrGlobal
 
 
 @pytest.mark.parametrize(

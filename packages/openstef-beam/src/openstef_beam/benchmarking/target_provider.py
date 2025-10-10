@@ -105,6 +105,11 @@ class TargetProvider[T: BenchmarkTarget, F](BaseConfig):
         ...         return base_metrics
     """
 
+    target_column: str = Field(
+        default="load",
+        description="Name of the target column in the ground truth dataset",
+    )
+
     @abstractmethod
     def get_targets(self, filter_args: F | None = None) -> list[T]:
         """Load all available benchmark targets.

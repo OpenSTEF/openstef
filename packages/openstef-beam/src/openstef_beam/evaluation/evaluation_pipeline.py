@@ -28,7 +28,7 @@ from openstef_beam.evaluation.models import (
 from openstef_beam.evaluation.models.subset import merge_quantile_metrics
 from openstef_beam.evaluation.window_iterators import iterate_subsets_by_window
 from openstef_core.base_model import BaseConfig
-from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesMixin
+from openstef_core.datasets import ForecastDataset, ForecastInputDataset, VersionedTimeSeriesMixin
 from openstef_core.exceptions import MissingColumnsError
 from openstef_core.types import AvailableAt, LeadTime, Quantile
 
@@ -105,6 +105,7 @@ class EvaluationPipeline:
         self,
         predictions: VersionedTimeSeriesMixin,
         ground_truth: VersionedTimeSeriesMixin,
+        target_column: str,
         evaluation_mask: pd.DatetimeIndex | None = None,
     ) -> EvaluationReport:
         """Evaluates predictions against ground truth.
@@ -115,6 +116,7 @@ class EvaluationPipeline:
         Args:
             predictions: Forecasted values with versioning information.
             ground_truth: Actual observed values for comparison.
+            target_column: Name of the target column in ground truth dataset.
             evaluation_mask: Optional datetime index to limit evaluation period.
 
         Returns:
@@ -140,6 +142,7 @@ class EvaluationPipeline:
             predictions=predictions,
             ground_truth=ground_truth,
             evaluation_mask=evaluation_mask,
+            target_column=target_column,
         ):
             if subset.index.empty:
                 _logger.warning("No overlapping data for filtering %s. Skipping.", filtering)
@@ -159,10 +162,45 @@ class EvaluationPipeline:
             subset_reports=subsets,
         )
 
+    def run_for_subset(
+        self,
+        filtering: Filtering,
+        ground_truth: ForecastInputDataset,
+        predictions: ForecastDataset,
+        evaluation_mask: pd.DatetimeIndex | None = None,
+    ) -> EvaluationSubsetReport:
+        """Evaluates a single evaluation subset.
+
+        Computes metrics for the provided subset without additional filtering.
+
+        Args:
+            filtering: The filtering criteria describing this subset.
+            ground_truth: TimeSeriesDataset containing the ground truth values.
+            predictions: TimeSeriesDataset containing the predicted values.
+            evaluation_mask: Optional datetime index to limit evaluation period.
+
+        Returns:
+            EvaluationSubsetReport containing computed metrics for the subset.
+        """
+        subset = EvaluationSubset.create(
+            ground_truth=ground_truth,
+            predictions=predictions.select_quantiles(quantiles=self.quantiles),
+            index=evaluation_mask,
+        )
+
+        subset_metrics = self._evaluate_subset(subset=subset)
+
+        return EvaluationSubsetReport(
+            filtering=filtering,
+            subset=subset,
+            metrics=subset_metrics,
+        )
+
     def _iterate_subsets(
         self,
         predictions: VersionedTimeSeriesMixin,
         ground_truth: VersionedTimeSeriesMixin,
+        target_column: str,
         evaluation_mask: pd.DatetimeIndex | None = None,
     ) -> Iterator[tuple[Filtering, EvaluationSubset]]:
         """Yields evaluation subsets filtered by available_at and lead_time.
@@ -174,7 +212,12 @@ class EvaluationPipeline:
         """
         quantile_columns = [quantile.format() for quantile in self.quantiles]
 
-        ground_truth_data = ground_truth.select_version()
+        ground_truth_data = ForecastInputDataset(
+            data=ground_truth.select_version().data,
+            sample_interval=ground_truth.sample_interval,
+            target_column=target_column,
+            is_sorted=True,
+        )
 
         for available_at in self.config.available_ats:
             predictions_filtered = predictions.filter_by_available_at(available_at=available_at).select_version()
@@ -182,7 +225,7 @@ class EvaluationPipeline:
                 available_at,
                 EvaluationSubset.create(
                     ground_truth=ground_truth_data,
-                    predictions=TimeSeriesDataset(
+                    predictions=ForecastDataset(
                         data=predictions_filtered.data[quantile_columns],
                         sample_interval=predictions.sample_interval,
                     ),
@@ -196,7 +239,7 @@ class EvaluationPipeline:
                 lead_time,
                 EvaluationSubset.create(
                     ground_truth=ground_truth_data,
-                    predictions=TimeSeriesDataset(
+                    predictions=ForecastDataset(
                         data=predictions_filtered.data[quantile_columns],
                         sample_interval=predictions.sample_interval,
                     ),
@@ -219,20 +262,22 @@ class EvaluationPipeline:
             and timestamp combination, plus the global metrics.
         """
         windowed_metrics: list[SubsetMetric] = []
-        for window in self.config.windows:
-            windowed_metrics.extend([
-                SubsetMetric(
-                    window=window,
-                    timestamp=window_timestamp,
-                    metrics=merge_quantile_metrics([
-                        provider(window_subset) for provider in self.window_metric_providers
-                    ]),
-                )
-                for window_timestamp, window_subset in iterate_subsets_by_window(
-                    subset=subset,
-                    window=window,
-                )
-            ])
+
+        if len(self.window_metric_providers) > 0:
+            for window in self.config.windows:
+                windowed_metrics.extend([
+                    SubsetMetric(
+                        window=window,
+                        timestamp=window_timestamp,
+                        metrics=merge_quantile_metrics([
+                            provider(window_subset) for provider in self.window_metric_providers
+                        ]),
+                    )
+                    for window_timestamp, window_subset in iterate_subsets_by_window(
+                        subset=subset,
+                        window=window,
+                    )
+                ])
 
         windowed_metrics.append(
             SubsetMetric(

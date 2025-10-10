@@ -10,6 +10,7 @@ operations and versioned data access capabilities.
 """
 
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import TYPE_CHECKING, Self
@@ -53,6 +54,20 @@ class TimeSeriesMixin(ABC):
             timedelta: Total time coverage of the dataset.
         """
         return len(self.index.unique()) * self.sample_interval
+
+    def pipe[T](self, func: Callable[[Self], T]) -> T:
+        """Applies a function to the dataset and returns the result.
+
+        This method allows for functional-style transformations and operations
+        on the dataset, enabling method chaining and cleaner code.
+
+        Args:
+            func: A callable that takes the dataset instance and returns a value of type T.
+
+        Returns:
+            The result of applying the function to the dataset.
+        """
+        return func(self)
 
 
 class VersionedTimeSeriesMixin(TimeSeriesMixin):
