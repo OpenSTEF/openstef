@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>PrecisionRecall &#8212; OpenSTEF 0.0.0 documentation</title>
+    <title>r2 &#8212; OpenSTEF 0.0.0 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../_static/copybutton.js?v=97f0b27d"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'api/generated/openstef_beam.metrics.PrecisionRecall';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/generated/openstef_beam.metrics.r2';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = '_static/versions.json';
@@ -59,8 +59,8 @@
     <link rel="icon" href="../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="openstef_beam.backtesting" href="openstef_beam.backtesting.html" />
-    <link rel="prev" title="ConfusionMatrix" href="openstef_beam.metrics.ConfusionMatrix.html" />
+    <link rel="next" title="rcrps" href="openstef_beam.metrics.rcrps.html" />
+    <link rel="prev" title="precision_recall" href="openstef_beam.metrics.precision_recall.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="0.0.0" />
@@ -467,13 +467,13 @@
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.mean_absolute_calibration_error.html">mean_absolute_calibration_error</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.observed_probability.html">observed_probability</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.precision_recall.html">precision_recall</a></li>
-<li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.r2.html">r2</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">r2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.rcrps.html">rcrps</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.relative_pinball_loss.html">relative_pinball_loss</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.riqd.html">riqd</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.rmae.html">rmae</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.ConfusionMatrix.html">ConfusionMatrix</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">PrecisionRecall</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.PrecisionRecall.html">PrecisionRecall</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="openstef_beam.backtesting.html">openstef_beam.backtesting</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -563,7 +563,7 @@
     
     <li class="breadcrumb-item"><a href="openstef_beam.metrics.html" class="nav-link">openstef_beam.metrics</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">PrecisionRecall</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">r2</span></li>
   </ul>
 </nav>
 </div>
@@ -580,42 +580,69 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="precisionrecall">
-<h1>PrecisionRecall<a class="headerlink" href="#precisionrecall" title="Link to this heading">#</a></h1>
-<dl class="py class">
-<dt class="sig sig-object py" id="openstef_beam.metrics.PrecisionRecall">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef_beam.metrics.</span></span><span class="sig-name descname"><span class="pre">PrecisionRecall</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">precision</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recall</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/openstef_beam/metrics/metrics_deterministic.html#PrecisionRecall"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_beam.metrics.PrecisionRecall" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">NamedTuple</span></code></p>
-<p>Container for precision and recall metrics.</p>
-<p>This class holds the fundamental classification metrics used to evaluate
-peak detection performance in energy forecasting applications.</p>
+  <section id="r2">
+<h1>r2<a class="headerlink" href="#r2" title="Link to this heading">#</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="openstef_beam.metrics.r2">
+<span class="sig-prename descclassname"><span class="pre">openstef_beam.metrics.</span></span><span class="sig-name descname"><span class="pre">r2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_true</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">floating</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_pred</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">floating</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weights</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">floating</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../../_modules/openstef_beam/metrics/metrics_deterministic.html#r2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_beam.metrics.r2" title="Link to this definition">#</a></dt>
+<dd><p>Calculate the R² (coefficient of determination) score.</p>
+<p>R² represents the proportion of variance in the dependent variable that is
+predictable from the independent variable(s). It provides a measure of how
+well observed outcomes are replicated by the model, based on the proportion
+of total variation of outcomes explained by the model.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Variables<span class="colon">:</span></dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>precision</strong> – The fraction of predicted peaks that were actual peaks.
-Range [0, 1] where 1.0 is perfect precision.</p></li>
-<li><p><strong>recall</strong> – The fraction of actual peaks that were correctly predicted.
-Range [0, 1] where 1.0 is perfect recall.</p></li>
+<li><p><strong>y_true</strong> (<em>ndarray</em><em>[</em><em>tuple</em><em>[</em><em>Any</em><em>, </em><em>...</em><em>]</em><em>, </em><em>dtype</em><em>[</em><em>floating</em><em>]</em><em>]</em>) – Ground truth values with shape (num_samples,).</p></li>
+<li><p><strong>y_pred</strong> (<em>ndarray</em><em>[</em><em>tuple</em><em>[</em><em>Any</em><em>, </em><em>...</em><em>]</em><em>, </em><em>dtype</em><em>[</em><em>floating</em><em>]</em><em>]</em>) – Predicted values with shape (num_samples,).</p></li>
+<li><p><strong>sample_weights</strong> (<em>ndarray</em><em>[</em><em>tuple</em><em>[</em><em>Any</em><em>, </em><em>...</em><em>]</em><em>, </em><em>dtype</em><em>[</em><em>floating</em><em>]</em><em>] </em><em>| </em><em>None</em>) – Optional weights for each sample with shape (num_samples,).
+If None, all samples are weighted equally.</p></li>
 </ul>
 </dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The R² score as a float. Best possible score is 1.0, and it can be negative
+(because the model can be arbitrarily worse). A constant model that always
+predicts the mean of y_true would get an R² score of 0.0.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
 </dl>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>High precision means few false alarms, while high recall means
-few missed peaks. There is often a trade-off between these metrics.</p>
+<p class="rubric">Example</p>
+<p>Basic usage with energy load data:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y_true</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">100</span><span class="p">,</span> <span class="mi">120</span><span class="p">,</span> <span class="mi">110</span><span class="p">,</span> <span class="mi">130</span><span class="p">,</span> <span class="mi">105</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y_pred</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">98</span><span class="p">,</span> <span class="mi">122</span><span class="p">,</span> <span class="mi">108</span><span class="p">,</span> <span class="mi">135</span><span class="p">,</span> <span class="mi">107</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">score</span> <span class="o">=</span> <span class="n">r2</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">round</span><span class="p">(</span><span class="n">score</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="go">0.929</span>
+</pre></div>
 </div>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="openstef_beam.metrics.PrecisionRecall.precision">
-<span class="sig-name descname"><span class="pre">precision</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></em><a class="headerlink" href="#openstef_beam.metrics.PrecisionRecall.precision" title="Link to this definition">#</a></dt>
-<dd><p>Alias for field number 0</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="openstef_beam.metrics.PrecisionRecall.recall">
-<span class="sig-name descname"><span class="pre">recall</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></em><a class="headerlink" href="#openstef_beam.metrics.PrecisionRecall.recall" title="Link to this definition">#</a></dt>
-<dd><p>Alias for field number 1</p>
-</dd></dl>
-
+<p>Perfect predictions give R² = 1.0:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">perfect_pred</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">100</span><span class="p">,</span> <span class="mi">120</span><span class="p">,</span> <span class="mi">110</span><span class="p">,</span> <span class="mi">130</span><span class="p">,</span> <span class="mi">105</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">r2</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">perfect_pred</span><span class="p">)</span>
+<span class="go">1.0</span>
+</pre></div>
+</div>
+<p>With sample weights:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">score</span> <span class="o">=</span> <span class="n">r2</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span> <span class="n">sample_weights</span><span class="o">=</span><span class="n">weights</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">isinstance</span><span class="p">(</span><span class="n">score</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>y_true</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">floating</span></code>]]</span>)</p></li>
+<li><p><strong>y_pred</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">floating</span></code>]]</span>)</p></li>
+<li><p><strong>sample_weights</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">floating</span></code>]] | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span></p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
@@ -631,20 +658,20 @@ few missed peaks. There is often a trade-off between these metrics.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="openstef_beam.metrics.ConfusionMatrix.html"
+       href="openstef_beam.metrics.precision_recall.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">ConfusionMatrix</p>
+        <p class="prev-next-title">precision_recall</p>
       </div>
     </a>
     <a class="right-next"
-       href="openstef_beam.backtesting.html"
+       href="openstef_beam.metrics.rcrps.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">openstef_beam.backtesting</p>
+        <p class="prev-next-title">rcrps</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -667,11 +694,7 @@ few missed peaks. There is often a trade-off between these metrics.</p>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.metrics.PrecisionRecall"><code class="docutils literal notranslate"><span class="pre">PrecisionRecall</span></code></a><ul class="visible nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.metrics.PrecisionRecall.precision"><code class="docutils literal notranslate"><span class="pre">PrecisionRecall.precision</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.metrics.PrecisionRecall.recall"><code class="docutils literal notranslate"><span class="pre">PrecisionRecall.recall</span></code></a></li>
-</ul>
-</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.metrics.r2"><code class="docutils literal notranslate"><span class="pre">r2()</span></code></a></li>
 </ul>
   </nav></div>
 
@@ -679,7 +702,7 @@ few missed peaks. There is often a trade-off between these metrics.</p>
 
   
   <div class="tocsection editthispage">
-    <a href="https://github.com/OpenSTEF/openstef/edit/release/v4.0.0/docs/source/api/generated/openstef_beam.metrics.PrecisionRecall.rst">
+    <a href="https://github.com/OpenSTEF/openstef/edit/release/v4.0.0/docs/source/api/generated/openstef_beam.metrics.r2.rst">
       <i class="fa-solid fa-pencil"></i>
       
       

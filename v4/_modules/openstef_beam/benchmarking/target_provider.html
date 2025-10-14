@@ -551,6 +551,11 @@
 <span class="sd">        ...         return base_metrics</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+    <span class="n">target_column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;load&quot;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Name of the target column in the ground truth dataset&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
 <div class="viewcode-block" id="TargetProvider.get_targets">
 <a class="viewcode-back" href="../../../api/generated/openstef_beam.benchmarking.TargetProvider.html#openstef_beam.benchmarking.TargetProvider.get_targets">[docs]</a>
     <span class="nd">@abstractmethod</span>

@@ -454,8 +454,6 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">UserDict</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Sequence</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">timedelta</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Self</span><span class="p">,</span> <span class="n">cast</span><span class="p">,</span> <span class="n">override</span>
@@ -463,11 +461,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets.mixins</span><span class="w"> </span><span class="kn">import</span> <span class="n">StoreableDatasetMixin</span><span class="p">,</span> <span class="n">TimeSeriesMixin</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets.validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_same_columns</span><span class="p">,</span> <span class="n">validate_same_sample_intervals</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TimeSeriesValidationError</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">LeadTime</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">timedelta_from_isoformat</span><span class="p">,</span> <span class="n">timedelta_to_isoformat</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.utils.pandas</span><span class="w"> </span><span class="kn">import</span> <span class="n">combine_timeseries_indexes</span>
 
 <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -640,128 +634,7 @@
 
 
 
-<div class="viewcode-block" id="MultiHorizon">
-<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.MultiHorizon.html#openstef_core.datasets.MultiHorizon">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">MultiHorizon</span><span class="p">[</span><span class="n">T</span><span class="p">:</span> <span class="n">TimeSeriesDataset</span><span class="p">](</span><span class="n">UserDict</span><span class="p">[</span><span class="n">LeadTime</span><span class="p">,</span> <span class="n">T</span><span class="p">],</span> <span class="n">TimeSeriesMixin</span><span class="p">,</span> <span class="n">StoreableDatasetMixin</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A dictionary mapping forecast horizons to time series datasets.</span>
-
-<span class="sd">    This class represents a collection of time series datasets, each associated</span>
-<span class="sd">    with a specific forecast horizon. It extends the standard dictionary to</span>
-<span class="sd">    provide additional type safety and clarity when working with multiple</span>
-<span class="sd">    horizon-specific datasets.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        keys: Forecast horizons (LeadTime) for which datasets are available.</span>
-<span class="sd">        values: Corresponding time series datasets for each horizon.</span>
-
-<span class="sd">    Example:</span>
-<span class="sd">        Create a MultiHorizon dataset with two horizons:</span>
-
-<span class="sd">        &gt;&gt;&gt; import pandas as pd</span>
-<span class="sd">        &gt;&gt;&gt; from datetime import timedelta</span>
-<span class="sd">        &gt;&gt;&gt; from openstef_core.types import LeadTime</span>
-<span class="sd">        &gt;&gt;&gt; from openstef_core.datasets import TimeSeriesDataset, MultiHorizon</span>
-<span class="sd">        &gt;&gt;&gt; # Create sample datasets for two horizons</span>
-<span class="sd">        &gt;&gt;&gt; data_1h = pd.DataFrame({</span>
-<span class="sd">        ...     &#39;load&#39;: [100, 110],</span>
-<span class="sd">        ... }, index=pd.date_range(&#39;2025-01-01&#39;, periods=2, freq=&#39;1H&#39;))</span>
-<span class="sd">        &gt;&gt;&gt; dataset_1h = TimeSeriesDataset(data_1h, sample_interval=timedelta(hours=1))</span>
-<span class="sd">        &gt;&gt;&gt; data_24h = pd.DataFrame({</span>
-<span class="sd">        ...     &#39;load&#39;: [120, 130],</span>
-<span class="sd">        ... }, index=pd.date_range(&#39;2025-01-01&#39;, periods=2, freq=&#39;1H&#39;))</span>
-<span class="sd">        &gt;&gt;&gt; dataset_24h = TimeSeriesDataset(data_24h, sample_interval=timedelta(hours=1))</span>
-<span class="sd">        &gt;&gt;&gt; # Create MultiHorizon mapping</span>
-<span class="sd">        &gt;&gt;&gt; horizons = MultiHorizon({</span>
-<span class="sd">        ...     LeadTime.from_string(&quot;PT1H&quot;): dataset_1h,</span>
-<span class="sd">        ...     LeadTime.from_string(&quot;P1D&quot;): dataset_24h,</span>
-<span class="sd">        ... })</span>
-<span class="sd">        &gt;&gt;&gt; len(horizons)</span>
-<span class="sd">        2</span>
-<span class="sd">        &gt;&gt;&gt; list(horizons.keys())</span>
-<span class="sd">        [LeadTime(&#39;PT1H&#39;), LeadTime(&#39;P1D&#39;)]</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-<div class="viewcode-block" id="MultiHorizon.__init__">
-<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.MultiHorizon.html#openstef_core.datasets.MultiHorizon.__init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initial_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">LeadTime</span><span class="p">,</span> <span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize a MultiHorizon dataset with the given horizon-dataset mapping.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            initial_data: Dictionary mapping LeadTime horizons to TimeSeriesDataset instances.</span>
-
-<span class="sd">        Raises:</span>
-<span class="sd">            TimeSeriesValidationError: If the initial data is empty or if datasets have</span>
-<span class="sd">                inconsistent sample intervals or feature columns.</span>
-
-<span class="sd">        Note:</span>
-<span class="sd">            The class ensures that all values in the dictionary are of the correct type.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">initial_data</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">TimeSeriesValidationError</span><span class="p">(</span><span class="s2">&quot;Initial data dictionary is empty.&quot;</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">sample_interval</span> <span class="o">=</span> <span class="n">validate_same_sample_intervals</span><span class="p">(</span><span class="n">datasets</span><span class="o">=</span><span class="n">initial_data</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">feature_names</span> <span class="o">=</span> <span class="n">validate_same_columns</span><span class="p">(</span><span class="n">datasets</span><span class="o">=</span><span class="n">initial_data</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">combine_timeseries_indexes</span><span class="p">(</span><span class="n">indexes</span><span class="o">=</span><span class="p">[</span><span class="n">dataset</span><span class="o">.</span><span class="n">index</span> <span class="k">for</span> <span class="n">dataset</span> <span class="ow">in</span> <span class="n">initial_data</span><span class="o">.</span><span class="n">values</span><span class="p">()])</span>
-
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">initial_data</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="MultiHorizon.horizons">
-<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.MultiHorizon.html#openstef_core.datasets.MultiHorizon.horizons">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">horizons</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">LeadTime</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the list of forecast horizons available in the MultiHorizon dataset.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            List of LeadTime objects representing the forecast horizons.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div>
-
-
-<div class="viewcode-block" id="MultiHorizon.map_horizons">
-<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.MultiHorizon.html#openstef_core.datasets.MultiHorizon.map_horizons">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">map_horizons</span><span class="p">[</span><span class="n">U</span><span class="p">:</span> <span class="n">TimeSeriesDataset</span><span class="p">](</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">T</span><span class="p">],</span> <span class="n">U</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;MultiHorizon[U]&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply a function to each dataset in the MultiHorizon collection.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            func: A callable that takes a TimeSeriesDataset and returns a new dataset.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            A new MultiHorizon instance with the transformed datasets.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">MultiHorizon</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="n">func</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span></div>
-
-
-<div class="viewcode-block" id="MultiHorizon.to_parquet">
-<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.MultiHorizon.html#openstef_core.datasets.MultiHorizon.to_parquet">[docs]</a>
-    <span class="nd">@override</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">to_parquet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">combined_dataset</span> <span class="o">=</span> <span class="n">TimeSeriesDataset</span><span class="p">(</span>
-            <span class="n">data</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">dataset</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">horizon</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">horizon</span><span class="p">))</span> <span class="k">for</span> <span class="n">horizon</span><span class="p">,</span> <span class="n">dataset</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">()]),</span>
-            <span class="n">sample_interval</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sample_interval</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">combined_dataset</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="MultiHorizon.read_parquet">
-<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.MultiHorizon.html#openstef_core.datasets.MultiHorizon.read_parquet">[docs]</a>
-    <span class="nd">@override</span>
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">read_parquet</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;MultiHorizon[TimeSeriesDataset]&quot;</span><span class="p">:</span>
-        <span class="n">combined_dataset</span> <span class="o">=</span> <span class="n">TimeSeriesDataset</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-        <span class="n">horizon_data</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="n">LeadTime</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">horizon</span><span class="p">)):</span> <span class="n">TimeSeriesDataset</span><span class="p">(</span>
-                <span class="n">data</span><span class="o">=</span><span class="n">group</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s2">&quot;horizon&quot;</span><span class="p">),</span>
-                <span class="n">sample_interval</span><span class="o">=</span><span class="n">combined_dataset</span><span class="o">.</span><span class="n">sample_interval</span><span class="p">,</span>
-            <span class="p">)</span>
-            <span class="k">for</span> <span class="n">horizon</span><span class="p">,</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">combined_dataset</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s2">&quot;horizon&quot;</span><span class="p">)</span>  <span class="c1"># pyright: ignore[reportUnknownMemberType]</span>
-        <span class="p">}</span>
-
-        <span class="k">return</span> <span class="n">MultiHorizon</span><span class="p">(</span><span class="n">horizon_data</span><span class="p">)</span></div>
-</div>
-
-
-
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;MultiHorizon&quot;</span><span class="p">,</span> <span class="s2">&quot;TimeSeriesDataset&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;TimeSeriesDataset&quot;</span><span class="p">]</span>
 </pre></div>
 
                 </article>

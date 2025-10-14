@@ -576,7 +576,6 @@
     <span class="p">)</span>
 
     <span class="n">_horizon_split_transform</span><span class="p">:</span> <span class="n">HorizonSplitTransform</span> <span class="o">=</span> <span class="n">PrivateAttr</span><span class="p">()</span>
-    <span class="n">_is_fitted</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">PrivateAttr</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
 <div class="viewcode-block" id="FeatureEngineeringPipeline.create">
 <a class="viewcode-back" href="../../../api/generated/openstef_models.transforms.FeatureEngineeringPipeline.html#openstef_models.transforms.FeatureEngineeringPipeline.create">[docs]</a>
@@ -649,7 +648,7 @@
     <span class="nd">@property</span>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">is_fitted</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_fitted</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">versioned_pipeline</span><span class="o">.</span><span class="n">is_fitted</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">horizon_pipeline</span><span class="o">.</span><span class="n">is_fitted</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_validate_unversioned_compatibility</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">versioned_pipeline</span><span class="o">.</span><span class="n">transforms</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
@@ -669,16 +668,14 @@
             <span class="n">horizon_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_horizon_split_transform</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">versioned_data</span><span class="p">)</span>
 
         <span class="c1"># Fit all the horizon transforms</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">horizon_pipeline</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">horizon_data</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_is_fitted</span> <span class="o">=</span> <span class="kc">True</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">horizon_pipeline</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">horizon_data</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="FeatureEngineeringPipeline.transform">
 <a class="viewcode-back" href="../../../api/generated/openstef_models.transforms.FeatureEngineeringPipeline.html#openstef_models.transforms.FeatureEngineeringPipeline.transform">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">VersionedTimeSeriesDataset</span> <span class="o">|</span> <span class="n">TimeSeriesDataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MultiHorizon</span><span class="p">[</span><span class="n">TimeSeriesDataset</span><span class="p">]:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_fitted</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_fitted</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">NotFittedError</span><span class="p">(</span><span class="s2">&quot;Pipeline is not fitted&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">TimeSeriesDataset</span><span class="p">):</span>

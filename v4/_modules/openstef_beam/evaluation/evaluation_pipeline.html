@@ -469,7 +469,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.evaluation.models.subset</span><span class="w"> </span><span class="kn">import</span> <span class="n">merge_quantile_metrics</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.evaluation.window_iterators</span><span class="w"> </span><span class="kn">import</span> <span class="n">iterate_subsets_by_window</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.base_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseConfig</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">TimeSeriesDataset</span><span class="p">,</span> <span class="n">VersionedTimeSeriesMixin</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">ForecastDataset</span><span class="p">,</span> <span class="n">ForecastInputDataset</span><span class="p">,</span> <span class="n">VersionedTimeSeriesMixin</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">MissingColumnsError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">AvailableAt</span><span class="p">,</span> <span class="n">LeadTime</span><span class="p">,</span> <span class="n">Quantile</span>
 
@@ -556,6 +556,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">predictions</span><span class="p">:</span> <span class="n">VersionedTimeSeriesMixin</span><span class="p">,</span>
         <span class="n">ground_truth</span><span class="p">:</span> <span class="n">VersionedTimeSeriesMixin</span><span class="p">,</span>
+        <span class="n">target_column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">evaluation_mask</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EvaluationReport</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Evaluates predictions against ground truth.</span>
@@ -566,6 +567,7 @@
 <span class="sd">        Args:</span>
 <span class="sd">            predictions: Forecasted values with versioning information.</span>
 <span class="sd">            ground_truth: Actual observed values for comparison.</span>
+<span class="sd">            target_column: Name of the target column in ground truth dataset.</span>
 <span class="sd">            evaluation_mask: Optional datetime index to limit evaluation period.</span>
 
 <span class="sd">        Returns:</span>
@@ -591,6 +593,7 @@
             <span class="n">predictions</span><span class="o">=</span><span class="n">predictions</span><span class="p">,</span>
             <span class="n">ground_truth</span><span class="o">=</span><span class="n">ground_truth</span><span class="p">,</span>
             <span class="n">evaluation_mask</span><span class="o">=</span><span class="n">evaluation_mask</span><span class="p">,</span>
+            <span class="n">target_column</span><span class="o">=</span><span class="n">target_column</span><span class="p">,</span>
         <span class="p">):</span>
             <span class="k">if</span> <span class="n">subset</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
                 <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No overlapping data for filtering </span><span class="si">%s</span><span class="s2">. Skipping.&quot;</span><span class="p">,</span> <span class="n">filtering</span><span class="p">)</span>
@@ -611,10 +614,48 @@
         <span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="EvaluationPipeline.run_for_subset">
+<a class="viewcode-back" href="../../../api/generated/openstef_beam.evaluation.EvaluationPipeline.html#openstef_beam.evaluation.EvaluationPipeline.run_for_subset">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run_for_subset</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">filtering</span><span class="p">:</span> <span class="n">Filtering</span><span class="p">,</span>
+        <span class="n">ground_truth</span><span class="p">:</span> <span class="n">ForecastInputDataset</span><span class="p">,</span>
+        <span class="n">predictions</span><span class="p">:</span> <span class="n">ForecastDataset</span><span class="p">,</span>
+        <span class="n">evaluation_mask</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EvaluationSubsetReport</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Evaluates a single evaluation subset.</span>
+
+<span class="sd">        Computes metrics for the provided subset without additional filtering.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            filtering: The filtering criteria describing this subset.</span>
+<span class="sd">            ground_truth: TimeSeriesDataset containing the ground truth values.</span>
+<span class="sd">            predictions: TimeSeriesDataset containing the predicted values.</span>
+<span class="sd">            evaluation_mask: Optional datetime index to limit evaluation period.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            EvaluationSubsetReport containing computed metrics for the subset.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">subset</span> <span class="o">=</span> <span class="n">EvaluationSubset</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+            <span class="n">ground_truth</span><span class="o">=</span><span class="n">ground_truth</span><span class="p">,</span>
+            <span class="n">predictions</span><span class="o">=</span><span class="n">predictions</span><span class="o">.</span><span class="n">select_quantiles</span><span class="p">(</span><span class="n">quantiles</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">quantiles</span><span class="p">),</span>
+            <span class="n">index</span><span class="o">=</span><span class="n">evaluation_mask</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">subset_metrics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evaluate_subset</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="n">subset</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">EvaluationSubsetReport</span><span class="p">(</span>
+            <span class="n">filtering</span><span class="o">=</span><span class="n">filtering</span><span class="p">,</span>
+            <span class="n">subset</span><span class="o">=</span><span class="n">subset</span><span class="p">,</span>
+            <span class="n">metrics</span><span class="o">=</span><span class="n">subset_metrics</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
     <span class="k">def</span><span class="w"> </span><span class="nf">_iterate_subsets</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">predictions</span><span class="p">:</span> <span class="n">VersionedTimeSeriesMixin</span><span class="p">,</span>
         <span class="n">ground_truth</span><span class="p">:</span> <span class="n">VersionedTimeSeriesMixin</span><span class="p">,</span>
+        <span class="n">target_column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">evaluation_mask</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">Filtering</span><span class="p">,</span> <span class="n">EvaluationSubset</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Yields evaluation subsets filtered by available_at and lead_time.</span>
@@ -626,7 +667,12 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">quantile_columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">quantile</span><span class="o">.</span><span class="n">format</span><span class="p">()</span> <span class="k">for</span> <span class="n">quantile</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">quantiles</span><span class="p">]</span>
 
-        <span class="n">ground_truth_data</span> <span class="o">=</span> <span class="n">ground_truth</span><span class="o">.</span><span class="n">select_version</span><span class="p">()</span>
+        <span class="n">ground_truth_data</span> <span class="o">=</span> <span class="n">ForecastInputDataset</span><span class="p">(</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">ground_truth</span><span class="o">.</span><span class="n">select_version</span><span class="p">()</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
+            <span class="n">sample_interval</span><span class="o">=</span><span class="n">ground_truth</span><span class="o">.</span><span class="n">sample_interval</span><span class="p">,</span>
+            <span class="n">target_column</span><span class="o">=</span><span class="n">target_column</span><span class="p">,</span>
+            <span class="n">is_sorted</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
 
         <span class="k">for</span> <span class="n">available_at</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">available_ats</span><span class="p">:</span>
             <span class="n">predictions_filtered</span> <span class="o">=</span> <span class="n">predictions</span><span class="o">.</span><span class="n">filter_by_available_at</span><span class="p">(</span><span class="n">available_at</span><span class="o">=</span><span class="n">available_at</span><span class="p">)</span><span class="o">.</span><span class="n">select_version</span><span class="p">()</span>
@@ -634,7 +680,7 @@
                 <span class="n">available_at</span><span class="p">,</span>
                 <span class="n">EvaluationSubset</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
                     <span class="n">ground_truth</span><span class="o">=</span><span class="n">ground_truth_data</span><span class="p">,</span>
-                    <span class="n">predictions</span><span class="o">=</span><span class="n">TimeSeriesDataset</span><span class="p">(</span>
+                    <span class="n">predictions</span><span class="o">=</span><span class="n">ForecastDataset</span><span class="p">(</span>
                         <span class="n">data</span><span class="o">=</span><span class="n">predictions_filtered</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">quantile_columns</span><span class="p">],</span>
                         <span class="n">sample_interval</span><span class="o">=</span><span class="n">predictions</span><span class="o">.</span><span class="n">sample_interval</span><span class="p">,</span>
                     <span class="p">),</span>
@@ -648,7 +694,7 @@
                 <span class="n">lead_time</span><span class="p">,</span>
                 <span class="n">EvaluationSubset</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
                     <span class="n">ground_truth</span><span class="o">=</span><span class="n">ground_truth_data</span><span class="p">,</span>
-                    <span class="n">predictions</span><span class="o">=</span><span class="n">TimeSeriesDataset</span><span class="p">(</span>
+                    <span class="n">predictions</span><span class="o">=</span><span class="n">ForecastDataset</span><span class="p">(</span>
                         <span class="n">data</span><span class="o">=</span><span class="n">predictions_filtered</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">quantile_columns</span><span class="p">],</span>
                         <span class="n">sample_interval</span><span class="o">=</span><span class="n">predictions</span><span class="o">.</span><span class="n">sample_interval</span><span class="p">,</span>
                     <span class="p">),</span>
@@ -671,20 +717,22 @@
 <span class="sd">            and timestamp combination, plus the global metrics.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">windowed_metrics</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">SubsetMetric</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">window</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">windows</span><span class="p">:</span>
-            <span class="n">windowed_metrics</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span>
-                <span class="n">SubsetMetric</span><span class="p">(</span>
-                    <span class="n">window</span><span class="o">=</span><span class="n">window</span><span class="p">,</span>
-                    <span class="n">timestamp</span><span class="o">=</span><span class="n">window_timestamp</span><span class="p">,</span>
-                    <span class="n">metrics</span><span class="o">=</span><span class="n">merge_quantile_metrics</span><span class="p">([</span>
-                        <span class="n">provider</span><span class="p">(</span><span class="n">window_subset</span><span class="p">)</span> <span class="k">for</span> <span class="n">provider</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">window_metric_providers</span>
-                    <span class="p">]),</span>
-                <span class="p">)</span>
-                <span class="k">for</span> <span class="n">window_timestamp</span><span class="p">,</span> <span class="n">window_subset</span> <span class="ow">in</span> <span class="n">iterate_subsets_by_window</span><span class="p">(</span>
-                    <span class="n">subset</span><span class="o">=</span><span class="n">subset</span><span class="p">,</span>
-                    <span class="n">window</span><span class="o">=</span><span class="n">window</span><span class="p">,</span>
-                <span class="p">)</span>
-            <span class="p">])</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">window_metric_providers</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">window</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">windows</span><span class="p">:</span>
+                <span class="n">windowed_metrics</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span>
+                    <span class="n">SubsetMetric</span><span class="p">(</span>
+                        <span class="n">window</span><span class="o">=</span><span class="n">window</span><span class="p">,</span>
+                        <span class="n">timestamp</span><span class="o">=</span><span class="n">window_timestamp</span><span class="p">,</span>
+                        <span class="n">metrics</span><span class="o">=</span><span class="n">merge_quantile_metrics</span><span class="p">([</span>
+                            <span class="n">provider</span><span class="p">(</span><span class="n">window_subset</span><span class="p">)</span> <span class="k">for</span> <span class="n">provider</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">window_metric_providers</span>
+                        <span class="p">]),</span>
+                    <span class="p">)</span>
+                    <span class="k">for</span> <span class="n">window_timestamp</span><span class="p">,</span> <span class="n">window_subset</span> <span class="ow">in</span> <span class="n">iterate_subsets_by_window</span><span class="p">(</span>
+                        <span class="n">subset</span><span class="o">=</span><span class="n">subset</span><span class="p">,</span>
+                        <span class="n">window</span><span class="o">=</span><span class="n">window</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">])</span>
 
         <span class="n">windowed_metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
             <span class="n">SubsetMetric</span><span class="p">(</span>

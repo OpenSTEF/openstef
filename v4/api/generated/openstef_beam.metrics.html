@@ -467,6 +467,7 @@
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.mean_absolute_calibration_error.html">mean_absolute_calibration_error</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.observed_probability.html">observed_probability</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.precision_recall.html">precision_recall</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.r2.html">r2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.rcrps.html">rcrps</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.relative_pinball_loss.html">relative_pinball_loss</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.riqd.html">riqd</a></li>
@@ -617,16 +618,19 @@ and scale differences between high and low load periods.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="openstef_beam.metrics.precision_recall.html#openstef_beam.metrics.precision_recall" title="openstef_beam.metrics.precision_recall"><code class="xref py py-obj docutils literal notranslate"><span class="pre">precision_recall</span></code></a>(cm, *[, effective])</p></td>
 <td><p>Calculate precision and recall metrics from a confusion matrix.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="openstef_beam.metrics.rcrps.html#openstef_beam.metrics.rcrps" title="openstef_beam.metrics.rcrps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rcrps</span></code></a>(y_true, y_pred, quantiles[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="openstef_beam.metrics.r2.html#openstef_beam.metrics.r2" title="openstef_beam.metrics.r2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">r2</span></code></a>(y_true, y_pred, *[, sample_weights])</p></td>
+<td><p>Calculate the R² (coefficient of determination) score.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="openstef_beam.metrics.rcrps.html#openstef_beam.metrics.rcrps" title="openstef_beam.metrics.rcrps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rcrps</span></code></a>(y_true, y_pred, quantiles[, ...])</p></td>
 <td><p>Calculate the relative Continuous Ranked Probability Score (rCRPS).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="openstef_beam.metrics.relative_pinball_loss.html#openstef_beam.metrics.relative_pinball_loss" title="openstef_beam.metrics.relative_pinball_loss"><code class="xref py py-obj docutils literal notranslate"><span class="pre">relative_pinball_loss</span></code></a>(y_true, y_pred, *, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="openstef_beam.metrics.relative_pinball_loss.html#openstef_beam.metrics.relative_pinball_loss" title="openstef_beam.metrics.relative_pinball_loss"><code class="xref py py-obj docutils literal notranslate"><span class="pre">relative_pinball_loss</span></code></a>(y_true, y_pred, *, ...)</p></td>
 <td><p>Calculate the relative Pinball Loss (also known as relative Quantile Loss).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="openstef_beam.metrics.riqd.html#openstef_beam.metrics.riqd" title="openstef_beam.metrics.riqd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">riqd</span></code></a>(y_true, y_pred_lower_q, y_pred_upper_q, *)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="openstef_beam.metrics.riqd.html#openstef_beam.metrics.riqd" title="openstef_beam.metrics.riqd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">riqd</span></code></a>(y_true, y_pred_lower_q, y_pred_upper_q, *)</p></td>
 <td><p>Calculate the relative Inter Quantile Distance (rIQD).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="openstef_beam.metrics.rmae.html#openstef_beam.metrics.rmae" title="openstef_beam.metrics.rmae"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rmae</span></code></a>(y_true, y_pred, *[, lower_quantile, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="openstef_beam.metrics.rmae.html#openstef_beam.metrics.rmae" title="openstef_beam.metrics.rmae"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rmae</span></code></a>(y_true, y_pred, *[, lower_quantile, ...])</p></td>
 <td><p>Calculate the relative Mean Absolute Error (rMAE) using percentiles for range calculation.</p></td>
 </tr>
 </tbody>

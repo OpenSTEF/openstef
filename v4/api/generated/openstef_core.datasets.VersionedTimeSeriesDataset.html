@@ -467,6 +467,7 @@
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.mean_absolute_calibration_error.html">mean_absolute_calibration_error</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.observed_probability.html">observed_probability</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.precision_recall.html">precision_recall</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.r2.html">r2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.rcrps.html">rcrps</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.relative_pinball_loss.html">relative_pinball_loss</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.riqd.html">riqd</a></li>
@@ -935,11 +936,8 @@ Must contain at least one dataset.</p></li>
 <li><p><strong>path</strong></p></li>
 </ul>
 </dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="openstef_core.exceptions.TimeSeriesValidationError.html#openstef_core.exceptions.TimeSeriesValidationError" title="openstef_core.exceptions.TimeSeriesValidationError"><strong>TimeSeriesValidationError</strong></a> – If dataset has multiple data parts.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -958,8 +956,11 @@ Must contain at least one dataset.</p></li>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Loaded VersionedTimeSeriesDataset.</p>
 </dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Self</span></code></span></p>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="openstef_core.exceptions.TimeSeriesValidationError.html#openstef_core.exceptions.TimeSeriesValidationError" title="openstef_core.exceptions.TimeSeriesValidationError"><strong>TimeSeriesValidationError</strong></a> – If no data parts found in the file.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Self</span></code></span></p>
 </dd>
 </dl>
 </dd></dl>

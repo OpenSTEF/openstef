@@ -467,6 +467,7 @@
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.mean_absolute_calibration_error.html">mean_absolute_calibration_error</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.observed_probability.html">observed_probability</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.precision_recall.html">precision_recall</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.r2.html">r2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.rcrps.html">rcrps</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.relative_pinball_loss.html">relative_pinball_loss</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.riqd.html">riqd</a></li>
@@ -583,7 +584,7 @@
 <h1>ForecastDataset<a class="headerlink" href="#forecastdataset" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="openstef_core.datasets.ForecastDataset">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef_core.datasets.</span></span><span class="sig-name descname"><span class="pre">ForecastDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_interval</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">timedelta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast_start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">datetime</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/validated_datasets.html#ForecastDataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.ForecastDataset" title="Link to this definition">#</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef_core.datasets.</span></span><span class="sig-name descname"><span class="pre">ForecastDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_interval</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">timedelta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast_start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">datetime</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_sorted</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/validated_datasets.html#ForecastDataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.ForecastDataset" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeSeriesDataset</span></code></a></p>
 <p>Time series dataset containing probabilistic forecasts with quantile estimates.</p>
 <p>Contains forecast results with column names following quantile naming convention
@@ -621,12 +622,13 @@ Quantile: Type for handling quantile values and naming conventions.</p>
 <li><p><strong>data</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></span>)</p></li>
 <li><p><strong>sample_interval</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">timedelta</span></code></span>)</p></li>
 <li><p><strong>forecast_start</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>)</p></li>
+<li><p><strong>is_sorted</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>)</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="openstef_core.datasets.ForecastDataset.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_interval</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">timedelta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast_start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">datetime</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/validated_datasets.html#ForecastDataset.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.ForecastDataset.__init__" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_interval</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">timedelta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast_start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">datetime</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_sorted</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/validated_datasets.html#ForecastDataset.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.ForecastDataset.__init__" title="Link to this definition">#</a></dt>
 <dd><p>Initialize dataset with quantile column validation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -635,9 +637,11 @@ Quantile: Type for handling quantile values and naming conventions.</p>
 <li><p><strong>sample_interval</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">timedelta</span></code></span>) – Time interval between consecutive forecast points.</p></li>
 <li><p><strong>forecast_start</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Timestamp when forecast period begins. Defaults to
 minimum timestamp from data if not provided.</p></li>
+<li><p><strong>is_sorted</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether the data is already sorted by index.</p></li>
 <li><p><strong>data</strong></p></li>
 <li><p><strong>sample_interval</strong></p></li>
 <li><p><strong>forecast_start</strong></p></li>
+<li><p><strong>is_sorted</strong></p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
@@ -670,6 +674,29 @@ minimum timestamp from data if not provided.</p></li>
 </dd>
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference internal" href="openstef_core.exceptions.MissingColumnsError.html#openstef_core.exceptions.MissingColumnsError" title="openstef_core.exceptions.MissingColumnsError"><strong>MissingColumnsError</strong></a> – If the median quantile column is not found.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef_core.datasets.ForecastDataset.select_quantiles">
+<span class="sig-name descname"><span class="pre">select_quantiles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">quantiles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Quantile</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Self</span></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/validated_datasets.html#ForecastDataset.select_quantiles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.ForecastDataset.select_quantiles" title="Link to this definition">#</a></dt>
+<dd><p>Select a subset of quantiles from the forecast dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>quantiles</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Quantile</span></code>]</span>) – List of Quantile values to select.</p></li>
+<li><p><strong>quantiles</strong></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>New ForecastDataset containing only the specified quantile columns.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="openstef_core.exceptions.MissingColumnsError.html#openstef_core.exceptions.MissingColumnsError" title="openstef_core.exceptions.MissingColumnsError"><strong>MissingColumnsError</strong></a> – If any requested quantile columns are not found.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Self</span></code></span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -729,6 +756,7 @@ minimum timestamp from data if not provided.</p></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.datasets.ForecastDataset.__init__"><code class="docutils literal notranslate"><span class="pre">ForecastDataset.__init__()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.datasets.ForecastDataset.quantiles"><code class="docutils literal notranslate"><span class="pre">ForecastDataset.quantiles</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.datasets.ForecastDataset.median_series"><code class="docutils literal notranslate"><span class="pre">ForecastDataset.median_series()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.datasets.ForecastDataset.select_quantiles"><code class="docutils literal notranslate"><span class="pre">ForecastDataset.select_quantiles()</span></code></a></li>
 </ul>
 </li>
 </ul>

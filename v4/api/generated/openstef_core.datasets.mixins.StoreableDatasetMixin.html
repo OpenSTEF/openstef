@@ -467,6 +467,7 @@
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.mean_absolute_calibration_error.html">mean_absolute_calibration_error</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.observed_probability.html">observed_probability</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.precision_recall.html">precision_recall</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.r2.html">r2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.rcrps.html">rcrps</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.relative_pinball_loss.html">relative_pinball_loss</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.riqd.html">riqd</a></li>
@@ -596,10 +597,10 @@ and reconstructed exactly as they were saved.</p>
 - Save all data and metadata necessary for complete reconstruction
 - Store metadata in parquet file attributes using attrs
 - Handle missing metadata gracefully with sensible defaults when loading</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>See TimeSeriesDataset and VersionedTimeSeriesPart for example
-implementations of this interface.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p>TimeSeriesDataset: Implementation for standard time series datasets.
+VersionedTimeSeriesPart: Implementation for versioned dataset segments.</p>
 </div>
 <dl class="py method">
 <dt class="sig sig-object py" id="openstef_core.datasets.mixins.StoreableDatasetMixin.to_parquet">
@@ -613,11 +614,9 @@ dictionary.</p>
 <dd class="field-odd"><p><strong>path</strong> (<em>Path</em>) – File path where the dataset should be saved.</p>
 </dd>
 </dl>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Implementations should store all metadata needed to reconstruct
-the dataset exactly, including sample intervals, column names,
-and any configuration parameters.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p>read_parquet: Counterpart method for loading datasets.</p>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -647,11 +646,9 @@ gracefully with sensible defaults.</p>
 <dd class="field-odd"><p><em>Self</em></p>
 </dd>
 </dl>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Implementations should log warnings when metadata is missing
-and defaults are used, helping users identify potential issues
-with older file formats.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p>to_parquet: Counterpart method for saving datasets.</p>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>

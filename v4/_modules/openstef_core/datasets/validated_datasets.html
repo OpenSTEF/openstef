@@ -508,9 +508,11 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
         <span class="n">sample_interval</span><span class="p">:</span> <span class="n">timedelta</span><span class="p">,</span>
-        <span class="n">target_column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;load&quot;</span><span class="p">,</span>
+        <span class="n">target_column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">sample_weight_column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;sample_weight&quot;</span><span class="p">,</span>
         <span class="n">forecast_start</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">is_sorted</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize dataset with target column validation.</span>
 
@@ -520,18 +522,20 @@
 <span class="sd">            target_column: Name of the target column to forecast.</span>
 <span class="sd">            sample_weight_column: Name of column with sample weights.</span>
 <span class="sd">            forecast_start: Optional timestamp indicating forecast start.</span>
+<span class="sd">            is_sorted: Whether the data is already sorted by index.</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            MissingColumnsError: If target_column is not found in data.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">sample_interval</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">sample_interval</span><span class="o">=</span><span class="n">sample_interval</span><span class="p">,</span> <span class="n">is_sorted</span><span class="o">=</span><span class="n">is_sorted</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">target_column</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_names</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">MissingColumnsError</span><span class="p">(</span><span class="n">missing_columns</span><span class="o">=</span><span class="p">[</span><span class="n">target_column</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target_column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;target_column&quot;</span><span class="p">,</span> <span class="n">target_column</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;load&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_column</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_names</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MissingColumnsError</span><span class="p">(</span><span class="n">missing_columns</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">target_column</span><span class="p">])</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">target_column</span> <span class="o">=</span> <span class="n">target_column</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sample_weight_column</span> <span class="o">=</span> <span class="n">sample_weight_column</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">forecast_start</span> <span class="o">=</span> <span class="n">forecast_start</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">forecast_start</span> <span class="o">=</span> <span class="n">forecast_start</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;target_column&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_column</span></div>
 
 
 <div class="viewcode-block" id="ForecastInputDataset.target_series">
@@ -645,7 +649,14 @@
 <div class="viewcode-block" id="ForecastDataset.__init__">
 <a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.ForecastDataset.html#openstef_core.datasets.ForecastDataset.__init__">[docs]</a>
     <span class="nd">@override</span>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">sample_interval</span><span class="p">:</span> <span class="n">timedelta</span><span class="p">,</span> <span class="n">forecast_start</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">sample_interval</span><span class="p">:</span> <span class="n">timedelta</span><span class="p">,</span>
+        <span class="n">forecast_start</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">is_sorted</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize dataset with quantile column validation.</span>
 
 <span class="sd">        Args:</span>
@@ -653,11 +664,12 @@
 <span class="sd">            sample_interval: Time interval between consecutive forecast points.</span>
 <span class="sd">            forecast_start: Timestamp when forecast period begins. Defaults to</span>
 <span class="sd">                minimum timestamp from data if not provided.</span>
+<span class="sd">            is_sorted: Whether the data is already sorted by index.</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            TimeSeriesValidationError: If any columns are not valid quantile strings.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">sample_interval</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">sample_interval</span><span class="o">=</span><span class="n">sample_interval</span><span class="p">,</span> <span class="n">is_sorted</span><span class="o">=</span><span class="n">is_sorted</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">Quantile</span><span class="o">.</span><span class="n">is_valid_quantile_string</span><span class="p">(</span><span class="n">col</span><span class="p">)</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_names</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">TimeSeriesValidationError</span><span class="p">(</span><span class="s2">&quot;All feature names must be valid quantile strings.&quot;</span><span class="p">)</span>
@@ -690,6 +702,33 @@
         <span class="k">if</span> <span class="n">median_col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_names</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">MissingColumnsError</span><span class="p">(</span><span class="n">missing_columns</span><span class="o">=</span><span class="p">[</span><span class="n">median_col</span><span class="p">])</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">median_col</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="ForecastDataset.select_quantiles">
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.ForecastDataset.html#openstef_core.datasets.ForecastDataset.select_quantiles">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_quantiles</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quantiles</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Quantile</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Select a subset of quantiles from the forecast dataset.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            quantiles: List of Quantile values to select.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            New ForecastDataset containing only the specified quantile columns.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            MissingColumnsError: If any requested quantile columns are not found.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">quantile_columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">q</span><span class="o">.</span><span class="n">format</span><span class="p">()</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">quantiles</span><span class="p">]</span>
+        <span class="n">missing_columns</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">quantile_columns</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">feature_names</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">missing_columns</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MissingColumnsError</span><span class="p">(</span><span class="n">missing_columns</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">missing_columns</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span>
+            <span class="n">data</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">quantile_columns</span><span class="p">],</span>
+            <span class="n">sample_interval</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sample_interval</span><span class="p">,</span>
+            <span class="n">forecast_start</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">forecast_start</span><span class="p">,</span>
+            <span class="n">is_sorted</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span></div>
 </div>
 
 

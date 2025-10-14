@@ -467,6 +467,7 @@
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.mean_absolute_calibration_error.html">mean_absolute_calibration_error</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.observed_probability.html">observed_probability</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.precision_recall.html">precision_recall</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.r2.html">r2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.rcrps.html">rcrps</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.relative_pinball_loss.html">relative_pinball_loss</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.riqd.html">riqd</a></li>
@@ -583,7 +584,7 @@
 <h1>MultiHorizon<a class="headerlink" href="#multihorizon" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="openstef_core.datasets.MultiHorizon">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef_core.datasets.</span></span><span class="sig-name descname"><span class="pre">MultiHorizon</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">LeadTime</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">T</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/timeseries_dataset.html#MultiHorizon"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.MultiHorizon" title="Link to this definition">#</a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef_core.datasets.</span></span><span class="sig-name descname"><span class="pre">MultiHorizon</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">LeadTime</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">T</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/multi_horizon_dataset.html#MultiHorizon"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.MultiHorizon" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">UserDict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">LeadTime</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">T</span></code>], <a class="reference internal" href="openstef_core.datasets.mixins.TimeSeriesMixin.html#openstef_core.datasets.mixins.TimeSeriesMixin" title="openstef_core.datasets.mixins.TimeSeriesMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeSeriesMixin</span></code></a>, <a class="reference internal" href="openstef_core.datasets.mixins.StoreableDatasetMixin.html#openstef_core.datasets.mixins.StoreableDatasetMixin" title="openstef_core.datasets.mixins.StoreableDatasetMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">StoreableDatasetMixin</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Generic</span></code></p>
 <p>A dictionary mapping forecast horizons to time series datasets.</p>
 <p>This class represents a collection of time series datasets, each associated
@@ -631,7 +632,7 @@ horizon-specific datasets.</p>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="openstef_core.datasets.MultiHorizon.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">LeadTime</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">T</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/timeseries_dataset.html#MultiHorizon.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.MultiHorizon.__init__" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initial_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">LeadTime</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">T</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/multi_horizon_dataset.html#MultiHorizon.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.MultiHorizon.__init__" title="Link to this definition">#</a></dt>
 <dd><p>Initialize a MultiHorizon dataset with the given horizon-dataset mapping.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -639,12 +640,13 @@ horizon-specific datasets.</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference internal" href="openstef_core.exceptions.TimeSeriesValidationError.html#openstef_core.exceptions.TimeSeriesValidationError" title="openstef_core.exceptions.TimeSeriesValidationError"><strong>TimeSeriesValidationError</strong></a> – If the initial data is empty or if datasets have
-    inconsistent sample intervals or feature columns.</p>
+    inconsistent sample intervals.</p>
 </dd>
 </dl>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The class ensures that all values in the dictionary are of the correct type.</p>
+<p>Different horizons may have different feature sets (typically shorter
+lead times have more features than longer ones).</p>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -655,7 +657,7 @@ horizon-specific datasets.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="openstef_core.datasets.MultiHorizon.horizons">
-<span class="sig-name descname"><span class="pre">horizons</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">LeadTime</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/timeseries_dataset.html#MultiHorizon.horizons"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.MultiHorizon.horizons" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">horizons</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">LeadTime</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/multi_horizon_dataset.html#MultiHorizon.horizons"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.MultiHorizon.horizons" title="Link to this definition">#</a></dt>
 <dd><p>Get the list of forecast horizons available in the MultiHorizon dataset.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -669,7 +671,7 @@ horizon-specific datasets.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="openstef_core.datasets.MultiHorizon.map_horizons">
-<span class="sig-name descname"><span class="pre">map_horizons</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">T</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">U</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#openstef_core.datasets.MultiHorizon" title="openstef_core.datasets.MultiHorizon"><span class="pre">MultiHorizon</span></a><span class="p"><span class="pre">[</span></span><span class="pre">U</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/timeseries_dataset.html#MultiHorizon.map_horizons"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.MultiHorizon.map_horizons" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">map_horizons</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">T</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">U</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#openstef_core.datasets.MultiHorizon" title="openstef_core.datasets.MultiHorizon"><span class="pre">MultiHorizon</span></a><span class="p"><span class="pre">[</span></span><span class="pre">U</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/multi_horizon_dataset.html#MultiHorizon.map_horizons"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.MultiHorizon.map_horizons" title="Link to this definition">#</a></dt>
 <dd><p>Apply a function to each dataset in the MultiHorizon collection.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -688,8 +690,26 @@ horizon-specific datasets.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="openstef_core.datasets.MultiHorizon.to_versioned">
+<span class="sig-name descname"><span class="pre">to_versioned</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="openstef_core.datasets.VersionedTimeSeriesDataset.html#openstef_core.datasets.VersionedTimeSeriesDataset" title="openstef_core.datasets.versioned_timeseries.dataset.VersionedTimeSeriesDataset"><span class="pre">VersionedTimeSeriesDataset</span></a></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/multi_horizon_dataset.html#MultiHorizon.to_versioned"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.MultiHorizon.to_versioned" title="Link to this definition">#</a></dt>
+<dd><p>Convert the multi-horizon dataset to a versioned time series dataset.</p>
+<p>Transforms horizon-specific datasets into a single versioned dataset where each
+forecast is tagged with its available_at timestamp based on the forecast horizon.
+The available_at time is calculated by subtracting the horizon from the forecast
+timestamp.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="openstef_core.datasets.VersionedTimeSeriesDataset.html#openstef_core.datasets.VersionedTimeSeriesDataset" title="openstef_core.datasets.versioned_timeseries.dataset.VersionedTimeSeriesDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">VersionedTimeSeriesDataset</span></code></a></span></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>VersionedTimeSeriesDataset containing all forecasts with their availability times.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="openstef_core.datasets.MultiHorizon.to_parquet">
-<span class="sig-name descname"><span class="pre">to_parquet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/timeseries_dataset.html#MultiHorizon.to_parquet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.MultiHorizon.to_parquet" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">to_parquet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/multi_horizon_dataset.html#MultiHorizon.to_parquet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.MultiHorizon.to_parquet" title="Link to this definition">#</a></dt>
 <dd><p>Save the dataset to a parquet file.</p>
 <p>Stores both the dataset’s data and all necessary metadata for complete
 reconstruction. Metadata should be stored in the parquet file’s attrs
@@ -699,11 +719,9 @@ dictionary.</p>
 <dd class="field-odd"><p><strong>path</strong> (<em>Path</em>) – File path where the dataset should be saved.</p>
 </dd>
 </dl>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Implementations should store all metadata needed to reconstruct
-the dataset exactly, including sample intervals, column names,
-and any configuration parameters.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p>read_parquet: Counterpart method for loading datasets.</p>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -717,7 +735,7 @@ and any configuration parameters.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="openstef_core.datasets.MultiHorizon.read_parquet">
-<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">read_parquet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#openstef_core.datasets.MultiHorizon" title="openstef_core.datasets.timeseries_dataset.MultiHorizon"><span class="pre">MultiHorizon</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><span class="pre">TimeSeriesDataset</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/timeseries_dataset.html#MultiHorizon.read_parquet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.MultiHorizon.read_parquet" title="Link to this definition">#</a></dt>
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">read_parquet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#openstef_core.datasets.MultiHorizon" title="openstef_core.datasets.multi_horizon_dataset.MultiHorizon"><span class="pre">MultiHorizon</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><span class="pre">TimeSeriesDataset</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/multi_horizon_dataset.html#MultiHorizon.read_parquet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.MultiHorizon.read_parquet" title="Link to this definition">#</a></dt>
 <dd><p>Load a dataset from a parquet file.</p>
 <p>Reconstructs a dataset from a parquet file created with to_parquet,
 including all data and metadata. Should handle missing metadata
@@ -730,21 +748,19 @@ gracefully with sensible defaults.</p>
 <dd class="field-even"><p>New dataset instance reconstructed from the file.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#openstef_core.datasets.MultiHorizon" title="openstef_core.datasets.timeseries_dataset.MultiHorizon"><em>MultiHorizon</em></a>[<a class="reference internal" href="openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><em>TimeSeriesDataset</em></a>]</p>
+<dd class="field-odd"><p><a class="reference internal" href="#openstef_core.datasets.MultiHorizon" title="openstef_core.datasets.multi_horizon_dataset.MultiHorizon"><em>MultiHorizon</em></a>[<a class="reference internal" href="openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><em>TimeSeriesDataset</em></a>]</p>
 </dd>
 </dl>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Implementations should log warnings when metadata is missing
-and defaults are used, helping users identify potential issues
-with older file formats.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p>to_parquet: Counterpart method for saving datasets.</p>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>path</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></span>)</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#openstef_core.datasets.MultiHorizon" title="openstef_core.datasets.timeseries_dataset.MultiHorizon"><code class="xref py py-class docutils literal notranslate"><span class="pre">MultiHorizon</span></code></a>[<a class="reference internal" href="openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeSeriesDataset</span></code></a>]</span></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#openstef_core.datasets.MultiHorizon" title="openstef_core.datasets.multi_horizon_dataset.MultiHorizon"><code class="xref py py-class docutils literal notranslate"><span class="pre">MultiHorizon</span></code></a>[<a class="reference internal" href="openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeSeriesDataset</span></code></a>]</span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -804,6 +820,7 @@ with older file formats.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.datasets.MultiHorizon.__init__"><code class="docutils literal notranslate"><span class="pre">MultiHorizon.__init__()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.datasets.MultiHorizon.horizons"><code class="docutils literal notranslate"><span class="pre">MultiHorizon.horizons()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.datasets.MultiHorizon.map_horizons"><code class="docutils literal notranslate"><span class="pre">MultiHorizon.map_horizons()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.datasets.MultiHorizon.to_versioned"><code class="docutils literal notranslate"><span class="pre">MultiHorizon.to_versioned()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.datasets.MultiHorizon.to_parquet"><code class="docutils literal notranslate"><span class="pre">MultiHorizon.to_parquet()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.datasets.MultiHorizon.read_parquet"><code class="docutils literal notranslate"><span class="pre">MultiHorizon.read_parquet()</span></code></a></li>
 </ul>

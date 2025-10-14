@@ -34,6 +34,7 @@ Functions
    mean_absolute_calibration_error
    observed_probability
    precision_recall
+   r2
    rcrps
    relative_pinball_loss
    riqd

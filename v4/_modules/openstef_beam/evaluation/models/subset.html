@@ -459,10 +459,10 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.evaluation.models.window</span><span class="w"> </span><span class="kn">import</span> <span class="n">Window</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.base_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">FloatOrNan</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">TimeSeriesDataset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">ForecastDataset</span><span class="p">,</span> <span class="n">ForecastInputDataset</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets.validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_same_sample_intervals</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TimeSeriesValidationError</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Quantile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Quantile</span><span class="p">,</span> <span class="n">QuantileOrGlobal</span>
 
 
 <div class="viewcode-block" id="EvaluationSubset">
@@ -475,15 +475,15 @@
 <span class="sd">    consistency and sample intervals for reliable metric computation.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">ground_truth</span><span class="p">:</span> <span class="n">TimeSeriesDataset</span>
-    <span class="n">predictions</span><span class="p">:</span> <span class="n">TimeSeriesDataset</span>
+    <span class="n">ground_truth</span><span class="p">:</span> <span class="n">ForecastInputDataset</span>
+    <span class="n">predictions</span><span class="p">:</span> <span class="n">ForecastDataset</span>
 
 <div class="viewcode-block" id="EvaluationSubset.__init__">
 <a class="viewcode-back" href="../../../../api/generated/openstef_beam.evaluation.EvaluationSubset.html#openstef_beam.evaluation.EvaluationSubset.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">ground_truth</span><span class="p">:</span> <span class="n">TimeSeriesDataset</span><span class="p">,</span>
-        <span class="n">predictions</span><span class="p">:</span> <span class="n">TimeSeriesDataset</span><span class="p">,</span>
+        <span class="n">ground_truth</span><span class="p">:</span> <span class="n">ForecastInputDataset</span><span class="p">,</span>
+        <span class="n">predictions</span><span class="p">:</span> <span class="n">ForecastDataset</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize evaluation subset with aligned ground truth and predictions.</span>
 
@@ -527,8 +527,8 @@
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span>
-        <span class="n">ground_truth</span><span class="p">:</span> <span class="n">TimeSeriesDataset</span><span class="p">,</span>
-        <span class="n">predictions</span><span class="p">:</span> <span class="n">TimeSeriesDataset</span><span class="p">,</span>
+        <span class="n">ground_truth</span><span class="p">:</span> <span class="n">ForecastInputDataset</span><span class="p">,</span>
+        <span class="n">predictions</span><span class="p">:</span> <span class="n">ForecastDataset</span><span class="p">,</span>
         <span class="n">index</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create an evaluation subset with optional index filtering.</span>
@@ -546,13 +546,15 @@
             <span class="n">combined_index</span> <span class="o">=</span> <span class="n">combined_index</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
-            <span class="n">ground_truth</span><span class="o">=</span><span class="n">TimeSeriesDataset</span><span class="p">(</span>
+            <span class="n">ground_truth</span><span class="o">=</span><span class="n">ForecastInputDataset</span><span class="p">(</span>
                 <span class="n">data</span><span class="o">=</span><span class="n">ground_truth</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">combined_index</span><span class="p">],</span>
                 <span class="n">sample_interval</span><span class="o">=</span><span class="n">ground_truth</span><span class="o">.</span><span class="n">sample_interval</span><span class="p">,</span>
+                <span class="n">target_column</span><span class="o">=</span><span class="n">ground_truth</span><span class="o">.</span><span class="n">target_column</span><span class="p">,</span>
             <span class="p">),</span>
-            <span class="n">predictions</span><span class="o">=</span><span class="n">TimeSeriesDataset</span><span class="p">(</span>
+            <span class="n">predictions</span><span class="o">=</span><span class="n">ForecastDataset</span><span class="p">(</span>
                 <span class="n">data</span><span class="o">=</span><span class="n">predictions</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">combined_index</span><span class="p">],</span>
                 <span class="n">sample_interval</span><span class="o">=</span><span class="n">predictions</span><span class="o">.</span><span class="n">sample_interval</span><span class="p">,</span>
+                <span class="n">forecast_start</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="p">),</span>
         <span class="p">)</span></div>
 
@@ -582,8 +584,8 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            Loaded EvaluationSubset instance.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">ground_truth</span> <span class="o">=</span> <span class="n">TimeSeriesDataset</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;ground_truth.parquet&quot;</span><span class="p">)</span>
-        <span class="n">predictions</span> <span class="o">=</span> <span class="n">TimeSeriesDataset</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;predictions.parquet&quot;</span><span class="p">)</span>
+        <span class="n">ground_truth</span> <span class="o">=</span> <span class="n">ForecastInputDataset</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;ground_truth.parquet&quot;</span><span class="p">)</span>
+        <span class="n">predictions</span> <span class="o">=</span> <span class="n">ForecastDataset</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;predictions.parquet&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
             <span class="n">ground_truth</span><span class="o">=</span><span class="n">ground_truth</span><span class="p">,</span>
             <span class="n">predictions</span><span class="o">=</span><span class="n">predictions</span><span class="p">,</span>
@@ -591,8 +593,6 @@
 </div>
 
 
-
-<span class="n">QuantileOrGlobal</span> <span class="o">=</span> <span class="n">Quantile</span> <span class="o">|</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;global&quot;</span><span class="p">]</span>
 
 <span class="n">MetricsDict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">FloatOrNan</span><span class="p">]</span>
 <span class="n">QuantileMetricsDict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">[</span><span class="n">QuantileOrGlobal</span><span class="p">,</span> <span class="n">MetricsDict</span><span class="p">]</span>
@@ -621,6 +621,34 @@
 <span class="sd">            Sorted list of quantile values (excluding &#39;global&#39;).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">q</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">metrics</span> <span class="k">if</span> <span class="n">q</span> <span class="o">!=</span> <span class="s2">&quot;global&quot;</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="SubsetMetric.to_dataframe">
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.evaluation.SubsetMetric.html#openstef_beam.evaluation.SubsetMetric.to_dataframe">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_dataframe</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert the metrics to a pandas DataFrame.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DataFrame with quantiles as index and metric names as columns.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="n">data</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;quantile&quot;</span><span class="p">:</span> <span class="n">quantile</span><span class="p">,</span> <span class="o">**</span><span class="n">metric_dict</span><span class="p">}</span> <span class="k">for</span> <span class="n">quantile</span><span class="p">,</span> <span class="n">metric_dict</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SubsetMetric.get_metric">
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.evaluation.SubsetMetric.html#openstef_beam.evaluation.SubsetMetric.get_metric">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_metric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quantile</span><span class="p">:</span> <span class="n">QuantileOrGlobal</span><span class="p">,</span> <span class="n">metric_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FloatOrNan</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve a specific metric value for a given quantile.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            quantile: The quantile level or &#39;global&#39;.</span>
+<span class="sd">            metric_name: The name of the metric to retrieve.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The metric value if it exists, otherwise None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">quantile</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">metric_name</span><span class="p">)</span></div>
 </div>
 
 

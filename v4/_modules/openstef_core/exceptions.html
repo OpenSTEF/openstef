@@ -621,6 +621,22 @@
 
 
 
+<span class="k">class</span><span class="w"> </span><span class="nc">SkipFitting</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>  <span class="c1"># noqa: N818 - ignore, cause this is not an error</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Exception raised to indicate that fitting should be skipped.</span>
+
+<span class="sd">    This is used in scenarios where a model is determined to be recent enough</span>
+<span class="sd">    or otherwise does not require re-fitting.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reason</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the exception with an optional reason.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            reason: Human-readable description of why fitting is being skipped.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">reason</span><span class="p">)</span>
+
+
 <div class="viewcode-block" id="ModelNotFoundError">
 <a class="viewcode-back" href="../../api/generated/openstef_core.exceptions.ModelNotFoundError.html#openstef_core.exceptions.ModelNotFoundError">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ModelNotFoundError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>

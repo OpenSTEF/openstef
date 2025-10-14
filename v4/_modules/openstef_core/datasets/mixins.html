@@ -451,6 +451,7 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Self</span>
@@ -498,6 +499,23 @@
 <span class="sd">            timedelta: Total time coverage of the dataset.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_interval</span></div>
+
+
+<div class="viewcode-block" id="TimeSeriesMixin.pipe">
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.mixins.TimeSeriesMixin.html#openstef_core.datasets.TimeSeriesMixin.pipe">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">pipe</span><span class="p">[</span><span class="n">T</span><span class="p">](</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Self</span><span class="p">],</span> <span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Applies a function to the dataset and returns the result.</span>
+
+<span class="sd">        This method allows for functional-style transformations and operations</span>
+<span class="sd">        on the dataset, enabling method chaining and cleaner code.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            func: A callable that takes the dataset instance and returns a value of type T.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The result of applying the function to the dataset.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 </div>
 
 
@@ -620,9 +638,9 @@
 <span class="sd">    - Store metadata in parquet file attributes using attrs</span>
 <span class="sd">    - Handle missing metadata gracefully with sensible defaults when loading</span>
 
-<span class="sd">    Note:</span>
-<span class="sd">        See TimeSeriesDataset and VersionedTimeSeriesPart for example</span>
-<span class="sd">        implementations of this interface.</span>
+<span class="sd">    See Also:</span>
+<span class="sd">        TimeSeriesDataset: Implementation for standard time series datasets.</span>
+<span class="sd">        VersionedTimeSeriesPart: Implementation for versioned dataset segments.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="StoreableDatasetMixin.to_parquet">
@@ -638,10 +656,8 @@
 <span class="sd">        Args:</span>
 <span class="sd">            path: File path where the dataset should be saved.</span>
 
-<span class="sd">        Note:</span>
-<span class="sd">            Implementations should store all metadata needed to reconstruct</span>
-<span class="sd">            the dataset exactly, including sample intervals, column names,</span>
-<span class="sd">            and any configuration parameters.</span>
+<span class="sd">        See Also:</span>
+<span class="sd">            read_parquet: Counterpart method for loading datasets.</span>
 <span class="sd">        &quot;&quot;&quot;</span></div>
 
 
@@ -662,10 +678,8 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            New dataset instance reconstructed from the file.</span>
 
-<span class="sd">        Note:</span>
-<span class="sd">            Implementations should log warnings when metadata is missing</span>
-<span class="sd">            and defaults are used, helping users identify potential issues</span>
-<span class="sd">            with older file formats.</span>
+<span class="sd">        See Also:</span>
+<span class="sd">            to_parquet: Counterpart method for saving datasets.</span>
 <span class="sd">        &quot;&quot;&quot;</span></div>
 </div>
 
