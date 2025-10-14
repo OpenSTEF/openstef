@@ -134,10 +134,10 @@ pipeline = ForecastingWorkflow(
 logger.info("Starting model training")
 result = pipeline.fit(dataset)
 if result is not None:
-    logger.info("Full eval result: \n%s", result.metrics_full.to_dataframe())
+    logger.info("Full eval result:\n%s", result.metrics_full.to_dataframe())
 
     if result.metrics_test is not None:
-        logger.info("Test result: \n%s", result.metrics_test.to_dataframe())
+        logger.info("Test result:\n%s", result.metrics_test.to_dataframe())
 
 logger.info("Starting forecasting")
 forecast: ForecastDataset = pipeline.predict(dataset)
