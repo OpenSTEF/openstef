@@ -19,7 +19,12 @@ from openstef_beam.benchmarking.models import BenchmarkTarget
 from openstef_beam.benchmarking.storage import LocalBenchmarkStorage
 from openstef_beam.evaluation import EvaluationReport, EvaluationSubsetReport, SubsetMetric
 from openstef_beam.evaluation.models import EvaluationSubset
-from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesDataset, VersionedTimeSeriesPart
+from openstef_core.datasets import (
+    ForecastDataset,
+    ForecastInputDataset,
+    VersionedTimeSeriesDataset,
+    VersionedTimeSeriesPart,
+)
 from openstef_core.types import AvailableAt
 
 
@@ -70,7 +75,7 @@ def predictions() -> VersionedTimeSeriesPart:
     """Create test predictions."""
     return VersionedTimeSeriesPart(
         data=pd.DataFrame({
-            "value": [1.0, 2.0],
+            "quantile_P50": [1.0, 2.0],
             "timestamp": pd.date_range("2023-01-07", periods=2, freq="1h"),
             "available_at": pd.date_range("2023-01-01", periods=2, freq="1h"),
         }),
@@ -87,12 +92,13 @@ def evaluation_report() -> EvaluationReport:
             EvaluationSubsetReport(
                 filtering=AvailableAt.from_string("D-1T06:00"),
                 subset=EvaluationSubset.create(
-                    ground_truth=TimeSeriesDataset(
+                    ground_truth=ForecastInputDataset(
                         data=pd.DataFrame({"value": [1.0, 2.0]}, index=index),
                         sample_interval=timedelta(hours=1),
+                        target_column="value",
                     ),
-                    predictions=TimeSeriesDataset(
-                        data=pd.DataFrame({"value": [1.0, 2.0]}, index=index),
+                    predictions=ForecastDataset(
+                        data=pd.DataFrame({"quantile_P50": [1.0, 2.0]}, index=index),
                         sample_interval=timedelta(hours=1),
                     ),
                     index=index,

@@ -10,6 +10,7 @@ operations and versioned data access capabilities.
 """
 
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import TYPE_CHECKING, Self
@@ -53,6 +54,20 @@ class TimeSeriesMixin(ABC):
             timedelta: Total time coverage of the dataset.
         """
         return len(self.index.unique()) * self.sample_interval
+
+    def pipe[T](self, func: Callable[[Self], T]) -> T:
+        """Applies a function to the dataset and returns the result.
+
+        This method allows for functional-style transformations and operations
+        on the dataset, enabling method chaining and cleaner code.
+
+        Args:
+            func: A callable that takes the dataset instance and returns a value of type T.
+
+        Returns:
+            The result of applying the function to the dataset.
+        """
+        return func(self)
 
 
 class VersionedTimeSeriesMixin(TimeSeriesMixin):
@@ -156,9 +171,9 @@ class StoreableDatasetMixin(ABC):
     - Store metadata in parquet file attributes using attrs
     - Handle missing metadata gracefully with sensible defaults when loading
 
-    Note:
-        See TimeSeriesDataset and VersionedTimeSeriesPart for example
-        implementations of this interface.
+    See Also:
+        TimeSeriesDataset: Implementation for standard time series datasets.
+        VersionedTimeSeriesPart: Implementation for versioned dataset segments.
     """
 
     @abstractmethod
@@ -172,10 +187,8 @@ class StoreableDatasetMixin(ABC):
         Args:
             path: File path where the dataset should be saved.
 
-        Note:
-            Implementations should store all metadata needed to reconstruct
-            the dataset exactly, including sample intervals, column names,
-            and any configuration parameters.
+        See Also:
+            read_parquet: Counterpart method for loading datasets.
         """
 
     @classmethod
@@ -193,10 +206,8 @@ class StoreableDatasetMixin(ABC):
         Returns:
             New dataset instance reconstructed from the file.
 
-        Note:
-            Implementations should log warnings when metadata is missing
-            and defaults are used, helping users identify potential issues
-            with older file formats.
+        See Also:
+            to_parquet: Counterpart method for saving datasets.
         """
 
 

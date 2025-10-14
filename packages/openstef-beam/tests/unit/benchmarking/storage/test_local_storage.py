@@ -17,7 +17,7 @@ from openstef_beam.benchmarking.models import BenchmarkTarget
 from openstef_beam.benchmarking.storage import LocalBenchmarkStorage
 from openstef_beam.evaluation import EvaluationReport, EvaluationSubsetReport, Filtering, SubsetMetric
 from openstef_beam.evaluation.models import EvaluationSubset
-from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesPart
+from openstef_core.datasets import ForecastDataset, ForecastInputDataset, VersionedTimeSeriesPart
 from openstef_core.types import AvailableAt, LeadTime
 
 
@@ -76,12 +76,13 @@ def evaluation_report() -> EvaluationReport:
             EvaluationSubsetReport(
                 filtering=AvailableAt.from_string("D-1T06:00"),
                 subset=EvaluationSubset.create(
-                    ground_truth=TimeSeriesDataset(
+                    ground_truth=ForecastInputDataset(
                         data=pd.DataFrame({"value": [1.0, 2.0]}, index=index),
                         sample_interval=timedelta(hours=1),
+                        target_column="value",
                     ),
-                    predictions=TimeSeriesDataset(
-                        data=pd.DataFrame({"value": [1.0, 2.0]}, index=index),
+                    predictions=ForecastDataset(
+                        data=pd.DataFrame(data={"quantile_P50": [1.0, 2.0]}, index=index),
                         sample_interval=timedelta(hours=1),
                     ),
                     index=index,

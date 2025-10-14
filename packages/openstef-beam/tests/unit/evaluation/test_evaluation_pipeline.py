@@ -67,7 +67,11 @@ def test_run_raises_on_missing_quantile_column(
 
     # Act / Assert
     with pytest.raises(MissingColumnsError, match="quantile_P10"):
-        pipeline.run(predictions_dataset, minimal_ground_truth_dataset)
+        pipeline.run(
+            predictions=predictions_dataset,
+            ground_truth=minimal_ground_truth_dataset,
+            target_column="target",
+        )
 
 
 def test_run_returns_evaluation_report(
@@ -84,7 +88,9 @@ def test_run_returns_evaluation_report(
     )
 
     # Act
-    report = pipeline.run(predictions_dataset, minimal_ground_truth_dataset)
+    report = pipeline.run(
+        predictions=predictions_dataset, ground_truth=minimal_ground_truth_dataset, target_column="target"
+    )
 
     # Assert
     assert isinstance(report, EvaluationReport)

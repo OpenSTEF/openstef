@@ -14,7 +14,7 @@ from openstef_beam.analysis.plots import (
 )
 from openstef_beam.analysis.visualizations.base import ReportTuple, VisualizationProvider
 from openstef_beam.evaluation import EvaluationSubsetReport
-from openstef_beam.evaluation.models.subset import QuantileOrGlobal
+from openstef_core.types import QuantileOrGlobal
 
 
 class MetricAggregation(NamedTuple):

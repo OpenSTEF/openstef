@@ -9,22 +9,24 @@ callback execution, and optional model persistence. Acts as the main
 entry point for production forecasting systems.
 """
 
+import logging
 from datetime import datetime
-from typing import Self
 
-from pydantic import Field
+from pydantic import Field, PrivateAttr
 
 from openstef_core.base_model import BaseModel
 from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesDataset
 from openstef_core.datasets.validated_datasets import ForecastDataset
-from openstef_core.exceptions import NotFittedError
-from openstef_models.mixins import ModelIdentifier, ModelStorage, PredictorCallback
+from openstef_core.exceptions import NotFittedError, SkipFitting
+from openstef_models.mixins import ModelIdentifier, PredictorCallback
 from openstef_models.mixins.callbacks import WorkflowContext
-from openstef_models.models.forecasting_model import ForecastingModel
+from openstef_models.models.forecasting_model import ForecastingModel, ModelFitResult
 
 
 class ForecastingCallback(
-    PredictorCallback["ForecastingWorkflow", VersionedTimeSeriesDataset | TimeSeriesDataset, ForecastDataset]
+    PredictorCallback[
+        "ForecastingWorkflow", VersionedTimeSeriesDataset | TimeSeriesDataset, ModelFitResult, ForecastDataset
+    ]
 ):
     """Base callback interface for monitoring forecasting workflow lifecycle events.
 
@@ -99,11 +101,11 @@ class ForecastingWorkflow(BaseModel):
         ... )
         >>>
         >>> class LoggingCallback(ForecastingCallback):
-        ...     def on_fit_end(self, context, data):
+        ...     def on_fit_end(self, context, result):
         ...         print("Model training completed")
         >>>
-        >>> workflow = ForecastingWorkflow(model=model, model_id="my_model", callbacks=LoggingCallback())
-        >>> workflow.fit(dataset)
+        >>> workflow = ForecastingWorkflow(model=model, model_id="my_model", callbacks=[LoggingCallback()])
+        >>> result = workflow.fit(dataset)
         Model training completed
         >>> forecasts = workflow.predict(dataset)
         >>> len(forecasts.data) > 0
@@ -119,14 +121,18 @@ class ForecastingWorkflow(BaseModel):
     """
 
     model: ForecastingModel = Field(description="The forecasting model to use.")
-    callbacks: ForecastingCallback = Field(default_factory=ForecastingCallback)
+    callbacks: list[ForecastingCallback] = Field(
+        default_factory=list[ForecastingCallback], description="List of callbacks to execute during workflow events."
+    )
     model_id: ModelIdentifier = Field(...)
+
+    _logger: logging.Logger = PrivateAttr(default_factory=lambda: logging.getLogger(__name__))
 
     def fit(
         self,
         data: VersionedTimeSeriesDataset | TimeSeriesDataset,
         data_val: VersionedTimeSeriesDataset | TimeSeriesDataset | None = None,
-    ):
+    ) -> ModelFitResult | None:
         """Train the forecasting model with callback execution.
 
         Executes the complete training workflow including pre-fit callbacks,
@@ -135,14 +141,26 @@ class ForecastingWorkflow(BaseModel):
         Args:
             data: Training dataset for the forecasting model.
             data_val: Optional validation dataset for model tuning.
+
+        Returns:
+            ModelFitResult containing training metrics and information,
+            or None if fitting was skipped.
         """
         context: WorkflowContext[ForecastingWorkflow] = WorkflowContext(workflow=self)
 
-        self.callbacks.on_fit_start(context=context, data=data)
+        try:
+            for callback in self.callbacks:
+                callback.on_fit_start(context=context, data=data)
 
-        self.model.fit(data=data, data_val=data_val)
+            result = self.model.fit(data=data, data_val=data_val)
 
-        self.callbacks.on_fit_end(context=context, data=data)
+            for callback in self.callbacks:
+                callback.on_fit_end(context=context, result=result)
+        except SkipFitting as e:
+            self._logger.info("Skipping model fitting: %s", e)
+            result = None
+
+        return result
 
     def predict(
         self, data: VersionedTimeSeriesDataset | TimeSeriesDataset, forecast_start: datetime | None = None
@@ -162,43 +180,20 @@ class ForecastingWorkflow(BaseModel):
         Raises:
             NotFittedError: If the underlying model hasn't been trained.
         """
+        context: WorkflowContext[ForecastingWorkflow] = WorkflowContext(workflow=self)
+
+        for callback in self.callbacks:
+            callback.on_predict_start(context=context, data=data)
+
         if not self.model.is_fitted:
             raise NotFittedError(type(self.model).__name__)
 
-        context: WorkflowContext[ForecastingWorkflow] = WorkflowContext(workflow=self)
-
-        self.callbacks.on_predict_start(context=context, data=data)
-
         forecasts = self.model.predict(data=data, forecast_start=forecast_start)
 
-        self.callbacks.on_predict_end(context=context, data=data, forecasts=forecasts)
+        for callback in self.callbacks:
+            callback.on_predict_end(context=context, data=data, result=forecasts)
 
         return forecasts
-
-    @classmethod
-    def from_storage(
-        cls,
-        model_id: ModelIdentifier,
-        model: ForecastingModel,
-        storage: ModelStorage,
-        callbacks: ForecastingCallback | None = None,
-    ) -> Self:
-        """Create a workflow by loading a model from storage with optional fallback.
-
-        Attempts to load a model from storage. If the model is not found and a
-        default factory is provided, creates a new model using the factory.
-
-        Args:
-            model_id: Identifier for the model to load from storage.
-            model: The forecasting model to use for training and prediction.
-            storage: Model storage system to load from.
-            callbacks: Optional callback handler for the workflow.
-
-        Returns:
-            New workflow instance with the loaded or created model.
-        """
-        model = storage.load_model_state(model_id=model_id, model=model)
-        return cls(model=model, callbacks=callbacks or ForecastingCallback(), model_id=model_id)
 
 
 __all__ = ["ForecastingWorkflow"]

@@ -9,6 +9,6 @@ callback handling in machine learning pipelines.
 """
 
 from .callbacks import PredictorCallback
-from .model_storage import ModelIdentifier, ModelStorage
+from .model_serializer import ModelIdentifier, ModelSerializer
 
-__all__ = ["ModelIdentifier", "ModelStorage", "PredictorCallback"]
+__all__ = ["ModelIdentifier", "ModelSerializer", "PredictorCallback"]

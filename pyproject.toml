@@ -74,6 +74,23 @@ dev = [
 [tool.hatch.build.targets.wheel]
 bypass-selection = true
 
+[tool.uv.sources]
+openstef-beam = { workspace = true }
+openstef-models = { workspace = true }
+openstef-compatibility = { workspace = true }
+openstef-docs = { workspace = true }
+openstef-core = { workspace = true }
+microsoft-python-type-stubs = { git = "git+https://github.com/microsoft/python-type-stubs.git" }
+
+[tool.uv.workspace]
+members = [
+  "packages/openstef-models",
+  "packages/openstef-beam",
+  "packages/openstef-compatibility",
+  "docs",
+  "packages/openstef-core",
+]
+
 [tool.ruff]
 target-version = "py312"
 line-length = 120
@@ -188,23 +205,6 @@ reportMissingTypeStubs = false
 reportPrivateUsage = false
 reportUnusedExpression = false
 
-[tool.uv.sources]
-openstef-beam = { workspace = true }
-openstef-models = { workspace = true }
-openstef-compatibility = { workspace = true }
-openstef-docs = { workspace = true }
-openstef-core = { workspace = true }
-microsoft-python-type-stubs = { git = "git+https://github.com/microsoft/python-type-stubs.git" }
-
-[tool.uv.workspace]
-members = [
-  "packages/openstef-models",
-  "packages/openstef-beam",
-  "packages/openstef-compatibility",
-  "docs",
-  "packages/openstef-core",
-]
-
 [tool.poe.tasks.lint]
 help = "Lint code (with ruff)"
 cmd = 'ruff check --fix --show-fixes ${check:+ --no-fix} ${unsafe:+ --unsafe-fixes}'
@@ -290,7 +290,6 @@ switch = [
   ], ignore_fail = "return_non_zero" },
   { sequence = [
     "licensecheck --check",
-    "licensecheck-third-party",
     "reuse --fix",
     "lint",
     "format",

@@ -9,19 +9,19 @@ callback execution, and optional model persistence. Acts as the main
 entry point for production component splitting systems.
 """
 
-from typing import Self
-
 from pydantic import Field
 
 from openstef_core.base_model import BaseModel
 from openstef_core.datasets import EnergyComponentDataset, TimeSeriesDataset
 from openstef_core.exceptions import NotFittedError
-from openstef_models.mixins import ModelIdentifier, ModelStorage, PredictorCallback
+from openstef_models.mixins import ModelIdentifier, PredictorCallback
 from openstef_models.mixins.callbacks import WorkflowContext
 from openstef_models.models import ComponentSplittingModel
 
 
-class ComponentSplitCallback(PredictorCallback["ComponentSplitWorkflow", TimeSeriesDataset, EnergyComponentDataset]):
+class ComponentSplitCallback(
+    PredictorCallback["ComponentSplitWorkflow", TimeSeriesDataset, None, EnergyComponentDataset]
+):
     """Base callback interface for monitoring component splitting workflow lifecycle events.
 
     Provides hooks at key stages of the component splitting process to enable custom
@@ -101,10 +101,13 @@ class ComponentSplitWorkflow(BaseModel):
 
     model: ComponentSplittingModel = Field(description="The component splitting model to use.")
     callbacks: ComponentSplitCallback = Field(default_factory=ComponentSplitCallback)
-    storage: ModelStorage | None = Field(default=None)
     model_id: ModelIdentifier = Field(...)
 
-    def fit(self, data: TimeSeriesDataset) -> None:
+    def fit(
+        self,
+        data: TimeSeriesDataset,
+        data_val: TimeSeriesDataset | None = None,
+    ) -> None:
         """Train the component splitting model with callback execution.
 
         Executes the complete training workflow including pre-fit callbacks,
@@ -112,19 +115,15 @@ class ComponentSplitWorkflow(BaseModel):
 
         Args:
             data: Training dataset for the component splitting model.
+            data_val: Optional validation dataset for monitoring during training.
         """
         context: WorkflowContext[ComponentSplitWorkflow] = WorkflowContext(workflow=self)
 
         self.callbacks.on_fit_start(context=context, data=data)
 
-        data_train, data_val = data, None  # TODO(#678): implement train/val split  # noqa: FIX002
+        result = self.model.fit(data=data, data_val=data_val)
 
-        self.model.fit(data=data_train, data_val=data_val)
-
-        self.callbacks.on_fit_end(context=context, data=data)
-
-        if self.storage is not None:
-            self.storage.save_model_state(model_id=self.model_id, model=self.model)
+        self.callbacks.on_fit_end(context=context, result=result)
 
     def predict(self, data: TimeSeriesDataset) -> EnergyComponentDataset:
         """Generate component predictions with callback execution.
@@ -150,31 +149,6 @@ class ComponentSplitWorkflow(BaseModel):
 
         prediction = self.model.predict(data=data)
 
-        self.callbacks.on_predict_end(context=context, data=data, forecasts=prediction)
+        self.callbacks.on_predict_end(context=context, data=data, result=prediction)
 
         return prediction
-
-    @classmethod
-    def from_storage(
-        cls,
-        model_id: ModelIdentifier,
-        model: ComponentSplittingModel,
-        storage: ModelStorage,
-        callbacks: ComponentSplitCallback | None = None,
-    ) -> Self:
-        """Create a workflow by loading a model from storage with optional fallback.
-
-        Attempts to load a model from storage. If the model is not found and a
-        default factory is provided, creates a new model using the factory.
-
-        Args:
-            model_id: Identifier for the model to load from storage.
-            model: The component splitting model to use for training and prediction.
-            storage: Model storage system to load from.
-            callbacks: Optional callback handler for the workflow.
-
-        Returns:
-            New workflow instance with the loaded or created model.
-        """
-        model = storage.load_model_state(model_id=model_id, model=model)
-        return cls(model=model, callbacks=callbacks or ComponentSplitCallback(), storage=storage, model_id=model_id)

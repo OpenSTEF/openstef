@@ -18,10 +18,10 @@ import pandas as pd
 
 from openstef_beam.evaluation.models.window import Window
 from openstef_core.base_model import BaseModel, FloatOrNan
-from openstef_core.datasets import TimeSeriesDataset
+from openstef_core.datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.datasets.validation import validate_same_sample_intervals
 from openstef_core.exceptions import TimeSeriesValidationError
-from openstef_core.types import Quantile
+from openstef_core.types import Quantile, QuantileOrGlobal
 
 
 class EvaluationSubset:
@@ -32,13 +32,13 @@ class EvaluationSubset:
     consistency and sample intervals for reliable metric computation.
     """
 
-    ground_truth: TimeSeriesDataset
-    predictions: TimeSeriesDataset
+    ground_truth: ForecastInputDataset
+    predictions: ForecastDataset
 
     def __init__(
         self,
-        ground_truth: TimeSeriesDataset,
-        predictions: TimeSeriesDataset,
+        ground_truth: ForecastInputDataset,
+        predictions: ForecastDataset,
     ):
         """Initialize evaluation subset with aligned ground truth and predictions.
 
@@ -79,8 +79,8 @@ class EvaluationSubset:
     @classmethod
     def create(
         cls,
-        ground_truth: TimeSeriesDataset,
-        predictions: TimeSeriesDataset,
+        ground_truth: ForecastInputDataset,
+        predictions: ForecastDataset,
         index: pd.DatetimeIndex | None = None,
     ) -> Self:
         """Create an evaluation subset with optional index filtering.
@@ -98,13 +98,15 @@ class EvaluationSubset:
             combined_index = combined_index.intersection(index)
 
         return cls(
-            ground_truth=TimeSeriesDataset(
+            ground_truth=ForecastInputDataset(
                 data=ground_truth.data.loc[combined_index],
                 sample_interval=ground_truth.sample_interval,
+                target_column=ground_truth.target_column,
             ),
-            predictions=TimeSeriesDataset(
+            predictions=ForecastDataset(
                 data=predictions.data.loc[combined_index],
                 sample_interval=predictions.sample_interval,
+                forecast_start=None,
             ),
         )
 
@@ -128,15 +130,13 @@ class EvaluationSubset:
         Returns:
             Loaded EvaluationSubset instance.
         """
-        ground_truth = TimeSeriesDataset.read_parquet(path / "ground_truth.parquet")
-        predictions = TimeSeriesDataset.read_parquet(path / "predictions.parquet")
+        ground_truth = ForecastInputDataset.read_parquet(path / "ground_truth.parquet")
+        predictions = ForecastDataset.read_parquet(path / "predictions.parquet")
         return cls(
             ground_truth=ground_truth,
             predictions=predictions,
         )
 
-
-QuantileOrGlobal = Quantile | Literal["global"]
 
 MetricsDict = dict[str, FloatOrNan]
 QuantileMetricsDict = dict[QuantileOrGlobal, MetricsDict]
@@ -161,6 +161,28 @@ class SubsetMetric(BaseModel):
             Sorted list of quantile values (excluding 'global').
         """
         return sorted([q for q in self.metrics if q != "global"])
+
+    def to_dataframe(self) -> pd.DataFrame:
+        """Convert the metrics to a pandas DataFrame.
+
+        Returns:
+            DataFrame with quantiles as index and metric names as columns.
+        """
+        return pd.DataFrame(
+            data=[{"quantile": quantile, **metric_dict} for quantile, metric_dict in self.metrics.items()]
+        )
+
+    def get_metric(self, quantile: QuantileOrGlobal, metric_name: str) -> FloatOrNan | None:
+        """Retrieve a specific metric value for a given quantile.
+
+        Args:
+            quantile: The quantile level or 'global'.
+            metric_name: The name of the metric to retrieve.
+
+        Returns:
+            The metric value if it exists, otherwise None.
+        """
+        return self.metrics.get(quantile, {}).get(metric_name)
 
 
 def merge_quantile_metrics(metrics_list: list[QuantileMetricsDict]) -> QuantileMetricsDict:
