@@ -8,3 +8,7 @@ Contains transforms that are applied to forecast results to improve accuracy,
 apply business constraints, or enhance prediction quality. These transforms
 operate on ForecastDataset objects after the core prediction step.
 """
+
+from openstef_models.transforms.postprocessing.quantile_sorter import QuantileSorter
+
+__all__ = ["QuantileSorter"]
