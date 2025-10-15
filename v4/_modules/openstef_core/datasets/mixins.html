@@ -544,12 +544,16 @@
 <div class="viewcode-block" id="VersionedTimeSeriesMixin.filter_by_range">
 <a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.mixins.VersionedTimeSeriesMixin.html#openstef_core.datasets.VersionedTimeSeriesMixin.filter_by_range">[docs]</a>
     <span class="nd">@abstractmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">filter_by_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">filter_by_range</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">available_before</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Filter the dataset to include only data within the specified time range.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            start: The inclusive start time of the range. If None, no start boundary is applied.</span>
 <span class="sd">            end: The exclusive end time of the range. If None, no end boundary is applied.</span>
+<span class="sd">            available_before: Optional cutoff time for data availability. If provided, only data</span>
+<span class="sd">                available before this time will be included.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A new instance of the same type containing only data within [start, end).</span>
