@@ -107,6 +107,14 @@ class LeadTime(PydanticStringPrimitive):
 
         return self.value < other.value
 
+    def to_hours(self) -> float:
+        """Converts the lead time to total hours.
+
+        Returns:
+            Total hours represented by the lead time.
+        """
+        return self.value.total_seconds() / 3600.0
+
 
 class AvailableAt(PydanticStringPrimitive):
     """Represents a time point available relative to a reference day.

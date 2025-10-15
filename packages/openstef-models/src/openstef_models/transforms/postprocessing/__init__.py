@@ -9,6 +9,7 @@ apply business constraints, or enhance prediction quality. These transforms
 operate on ForecastDataset objects after the core prediction step.
 """
 
+from openstef_models.transforms.postprocessing.confidence_interval_applicator import ConfidenceIntervalApplicator
 from openstef_models.transforms.postprocessing.quantile_sorter import QuantileSorter
 
-__all__ = ["QuantileSorter"]
+__all__ = ["ConfidenceIntervalApplicator", "QuantileSorter"]

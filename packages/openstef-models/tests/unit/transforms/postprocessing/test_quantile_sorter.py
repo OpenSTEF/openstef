@@ -5,11 +5,9 @@
 from datetime import timedelta
 
 import pandas as pd
-import pytest
 
 from openstef_core.datasets import ForecastDataset
 from openstef_models.transforms.postprocessing import QuantileSorter
-
 
 
 def test_quantile_sorter_transform_enforces_monotonic_ordering():

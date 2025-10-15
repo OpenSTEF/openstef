@@ -58,7 +58,7 @@ class QuantileSorter(Transform[ForecastDataset, ForecastDataset]):
 
     @override
     def fit(self, data: ForecastDataset) -> None:
-        pass  # noop
+        pass  # noop - stateless transform
 
     @override
     def transform(self, data: ForecastDataset) -> ForecastDataset:
