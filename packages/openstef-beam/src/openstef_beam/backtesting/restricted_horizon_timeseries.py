@@ -10,8 +10,7 @@ by the old implementation. These will redirect to the new V4 implementation.
 
 from datetime import datetime
 
-from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.datasets.mixins import VersionedTimeSeriesMixin
+from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesDataset
 
 
 class RestrictedHorizonVersionedTimeSeries:
@@ -21,7 +20,7 @@ class RestrictedHorizonVersionedTimeSeries:
     while using the new V4 classes underneath.
     """
 
-    def __init__(self, dataset: VersionedTimeSeriesMixin, horizon: datetime) -> None:
+    def __init__(self, dataset: VersionedTimeSeriesDataset, horizon: datetime) -> None:
         """Initialize with dataset and horizon.
 
         Args:
@@ -43,6 +42,16 @@ class RestrictedHorizonVersionedTimeSeries:
             DataFrame with data from the specified window.
         """
         return self.dataset.filter_by_range(start=start, end=end).select_version(available_before=available_before)
+
+    def get_window_versioned(
+        self, start: datetime, end: datetime, available_before: datetime | None = None
+    ) -> VersionedTimeSeriesDataset:
+        """Get data window with horizon restriction.
+
+        Returns:
+            DataFrame with data from the specified window.
+        """
+        return self.dataset.filter_by_range(start=start, end=end, available_before=available_before)
 
 
 __all__ = [

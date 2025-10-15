@@ -90,12 +90,16 @@ class VersionedTimeSeriesMixin(TimeSeriesMixin):
     """
 
     @abstractmethod
-    def filter_by_range(self, start: datetime | None = None, end: datetime | None = None) -> Self:
+    def filter_by_range(
+        self, start: datetime | None = None, end: datetime | None = None, available_before: datetime | None = None
+    ) -> Self:
         """Filter the dataset to include only data within the specified time range.
 
         Args:
             start: The inclusive start time of the range. If None, no start boundary is applied.
             end: The exclusive end time of the range. If None, no end boundary is applied.
+            available_before: Optional cutoff time for data availability. If provided, only data
+                available before this time will be included.
 
         Returns:
             A new instance of the same type containing only data within [start, end).

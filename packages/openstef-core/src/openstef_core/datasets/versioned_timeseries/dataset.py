@@ -217,12 +217,16 @@ class VersionedTimeSeriesDataset(VersionedTimeSeriesMixin, StoreableDatasetMixin
         return cls(data_parts=[part])
 
     @override
-    def filter_by_range(self, start: datetime | None = None, end: datetime | None = None) -> Self:
+    def filter_by_range(
+        self, start: datetime | None = None, end: datetime | None = None, available_before: datetime | None = None
+    ) -> Self:
         start_idx, end_idx = unsafe_sorted_range_slice_idxs(data=cast(pd.Series, self.index), start=start, end=end)
         index = self.index[start_idx:end_idx]
 
         return self.__class__(
-            data_parts=[part.filter_by_range(start, end) for part in self.data_parts],
+            data_parts=[
+                part.filter_by_range(start, end, available_before=available_before) for part in self.data_parts
+            ],
             index=index,
         )
 

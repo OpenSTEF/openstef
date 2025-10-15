@@ -24,7 +24,6 @@ from openstef_beam.backtesting.backtest_forecaster.mixins import BacktestBatchFo
 from openstef_beam.backtesting.restricted_horizon_timeseries import RestrictedHorizonVersionedTimeSeries
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import VersionedTimeSeriesDataset, VersionedTimeSeriesPart
-from openstef_core.datasets.mixins import VersionedTimeSeriesMixin
 
 _logger = logging.getLogger(__name__)
 
@@ -182,14 +181,14 @@ class BacktestPipeline:
             sample_interval=self.config.prediction_sample_interval,
         )
 
-    def _process_train_event(self, event: BacktestEvent, dataset: VersionedTimeSeriesMixin) -> None:
+    def _process_train_event(self, event: BacktestEvent, dataset: VersionedTimeSeriesDataset) -> None:
         """Process a single training event."""
         horizon_dataset = RestrictedHorizonVersionedTimeSeries(dataset=dataset, horizon=event.timestamp)
         self.forecaster.fit(horizon_dataset)
         _logger.debug("Processed train event", extra={"event": event})
 
     def _process_single_prediction(
-        self, event: BacktestEvent, dataset: VersionedTimeSeriesMixin
+        self, event: BacktestEvent, dataset: VersionedTimeSeriesDataset
     ) -> list[VersionedTimeSeriesPart]:
         """Process a single prediction event.
 
@@ -211,7 +210,7 @@ class BacktestPipeline:
             return []
 
     def _process_batch_prediction(
-        self, batch_events: list[BacktestEvent], dataset: VersionedTimeSeriesMixin
+        self, batch_events: list[BacktestEvent], dataset: VersionedTimeSeriesDataset
     ) -> list[VersionedTimeSeriesPart]:
         """Process a batch of prediction events and return valid predictions.
 
@@ -248,7 +247,7 @@ class BacktestPipeline:
     def _process_events(
         self,
         event_factory: BacktestEventGenerator,
-        dataset: VersionedTimeSeriesMixin,
+        dataset: VersionedTimeSeriesDataset,
         batch_size: int | None,
         *,
         show_progress: bool = True,
