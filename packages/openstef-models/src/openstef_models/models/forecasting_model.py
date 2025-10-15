@@ -228,6 +228,24 @@ class ForecastingModel(BaseModel, Predictor[VersionedTimeSeriesDataset | TimeSer
             postprocessing=self.postprocessing.from_state(state["postprocessing"]),
         )
 
+    def _remove_target_nans(self, data: MultiHorizon[ForecastInputDataset]) -> MultiHorizon[ForecastInputDataset]:
+        """Remove rows with NaN values in the target column from all horizons.
+
+        Args:
+            data: Multi-horizon forecast input dataset.
+
+        Returns:
+            Multi-horizon dataset with NaN target values removed.
+        """
+        return data.map_horizons(
+            lambda dataset: ForecastInputDataset(
+                data=dataset.data.dropna(subset=[self.target_column]),  # type: ignore[call-overload]
+                sample_interval=dataset.sample_interval,
+                target_column=dataset.target_column,
+                forecast_start=dataset.forecast_start,
+            )
+        )
+
     def _prepare_train_input(
         self,
         data: VersionedTimeSeriesDataset | TimeSeriesDataset,
@@ -236,9 +254,14 @@ class ForecastingModel(BaseModel, Predictor[VersionedTimeSeriesDataset | TimeSer
         # Transform the input data to a valid forecast input
         input_data_train = self._prepare_input(data=data)
 
+        # Remove potential NaN values from target column in training data
+        input_data_train = self._remove_target_nans(input_data_train)
+
         # Create or reuse validation data
         if data_val is not None:
             input_data_val = self._prepare_input(data=data_val)
+            # Remove potential NaN values from target column in validation data
+            input_data_val = self._remove_target_nans(input_data_val)
         elif self.train_test_splitter is not None:
             if not self.train_test_splitter.is_fitted:
                 self.train_test_splitter.fit_multihorizon(data=input_data_train)
@@ -247,6 +270,9 @@ class ForecastingModel(BaseModel, Predictor[VersionedTimeSeriesDataset | TimeSer
                 self._dataset_to_input(split_data_train),
                 self._dataset_to_input(split_data_val),
             )
+            # Remove potential NaN values from target column after splitting
+            input_data_train = self._remove_target_nans(input_data_train)
+            input_data_val = self._remove_target_nans(input_data_val)
         else:
             input_data_val = None
 
