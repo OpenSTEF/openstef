@@ -9,16 +9,17 @@ by sorting predictions across quantile columns. This fixes violations that can
 occur when quantiles are predicted independently.
 """
 
-from typing import Self, override
+from typing import Any, Self, override
 
 import numpy as np
 import pandas as pd
 
 from openstef_core.datasets import ForecastDataset
-from openstef_core.mixins import State, Transform
+from openstef_core.mixins import State
+from openstef_models.transforms.postprocessing_pipeline import PostprocessingTransform
 
 
-class QuantileSorter(Transform[ForecastDataset, ForecastDataset]):
+class QuantileSorter(PostprocessingTransform[Any, ForecastDataset]):
     """Sort quantile forecasts to enforce monotonic ordering.
 
     Probabilistic forecasts should have higher quantiles predict higher values
@@ -45,7 +46,7 @@ class QuantileSorter(Transform[ForecastDataset, ForecastDataset]):
         ...     sample_interval=timedelta(hours=1)
         ... )
         >>> sorter = QuantileSorter()
-        >>> sorted_dataset = sorter.transform(dataset)
+        >>> sorted_dataset = sorter.transform(data=(None, dataset))
         >>> # Now quantile_P10 <= quantile_P50 <= quantile_P90 for each time step
         >>> sorted_dataset.data.iloc[0].values.tolist()
         [0.5, 1.0, 2.0]
@@ -57,22 +58,24 @@ class QuantileSorter(Transform[ForecastDataset, ForecastDataset]):
         return True
 
     @override
-    def fit(self, data: ForecastDataset) -> None:
+    def fit(self, data: tuple[Any, ForecastDataset]) -> None:
         pass  # noop - stateless transform
 
     @override
-    def transform(self, data: ForecastDataset) -> ForecastDataset:
-        quantile_columns = [quantile.format() for quantile in sorted(data.quantiles)]
+    def transform(self, data: tuple[Any, ForecastDataset]) -> ForecastDataset:
+        _, forecast = data
+
+        quantile_columns = [quantile.format() for quantile in sorted(forecast.quantiles)]
         sorted_data = pd.DataFrame(
-            data=np.sort(data.data[quantile_columns].values, axis=1),
-            index=data.data.index,
+            data=np.sort(forecast.data[quantile_columns].values, axis=1),
+            index=forecast.data.index,
             columns=quantile_columns,
         )
 
         return ForecastDataset(
             data=sorted_data,
-            sample_interval=data.sample_interval,
-            forecast_start=data.forecast_start,
+            sample_interval=forecast.sample_interval,
+            forecast_start=forecast.forecast_start,
             is_sorted=True,
         )
 

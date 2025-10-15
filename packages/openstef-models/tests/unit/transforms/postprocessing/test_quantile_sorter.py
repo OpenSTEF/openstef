@@ -34,8 +34,8 @@ def test_quantile_sorter_transform_enforces_monotonic_ordering():
         index=unsorted_dataset.data.index,
     )
 
-    # Act
-    sorted_dataset = sorter.transform(unsorted_dataset)
+    # Act - PostprocessingTransform expects tuple[I, O] where I is input data (unused here)
+    sorted_dataset = sorter.transform((None, unsorted_dataset))
 
     # Assert
     # Check that all rows have the expected sorted values

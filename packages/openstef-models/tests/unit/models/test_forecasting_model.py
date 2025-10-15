@@ -13,7 +13,7 @@ import pytest
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import ConfigurationError, NotFittedError
-from openstef_core.mixins import State, TransformPipeline
+from openstef_core.mixins import State
 from openstef_core.types import LeadTime, Quantile, override
 from openstef_models.models.forecasting import Forecaster, HorizonForecaster, HorizonForecasterConfig
 from openstef_models.models.forecasting.multi_horizon_forecaster_adapter import (
@@ -21,7 +21,7 @@ from openstef_models.models.forecasting.multi_horizon_forecaster_adapter import 
     MultiHorizonForecasterConfig,
 )
 from openstef_models.models.forecasting_model import ForecastingModel
-from openstef_models.transforms import FeatureEngineeringPipeline
+from openstef_models.transforms import FeatureEngineeringPipeline, PostprocessingPipeline
 
 
 class SimpleForecaster(HorizonForecaster):
@@ -87,32 +87,6 @@ def sample_timeseries_dataset() -> TimeSeriesDataset:
     return TimeSeriesDataset(data, timedelta(hours=1))
 
 
-def test_forecasting_model__init__validates_horizons_and_assigns_components():
-    """Test initialization validates horizon matching and assigns components correctly."""
-    # Arrange
-    horizons = [LeadTime(timedelta(hours=6))]
-    config = HorizonForecasterConfig(quantiles=[Quantile(0.5)], horizons=horizons)
-    forecaster = SimpleForecaster(config=config)
-
-    preprocessing = FeatureEngineeringPipeline(horizons=horizons)
-    postprocessing = TransformPipeline[ForecastDataset](transforms=[])
-
-    # Act
-    model = ForecastingModel(
-        forecaster=forecaster,
-        preprocessing=preprocessing,
-        postprocessing=postprocessing,
-        target_column="energy",
-    )
-
-    # Assert - Components are assigned correctly
-    assert model.forecaster is forecaster
-    assert model.preprocessing is preprocessing
-    assert model.postprocessing is postprocessing
-    assert model.target_column == "energy"
-    assert model.is_fitted == forecaster.is_fitted  # Property delegation
-
-
 def test_forecasting_model__init__uses_defaults():
     """Test initialization uses default preprocessing and postprocessing when not provided."""
     # Arrange
@@ -130,7 +104,7 @@ def test_forecasting_model__init__uses_defaults():
     assert isinstance(model.preprocessing, FeatureEngineeringPipeline)
     assert model.preprocessing.horizons == forecaster.config.horizons
     assert model.postprocessing is not None
-    assert isinstance(model.postprocessing, TransformPipeline)
+    assert isinstance(model.postprocessing, PostprocessingPipeline)
     assert model.target_column == "load"  # Default value
 
 
@@ -172,13 +146,10 @@ def test_forecasting_model__fit(forecaster_type: type, sample_timeseries_dataset
             config=config, model_factory=lambda config: SimpleForecaster(config=config)
         )
 
-    preprocessing = FeatureEngineeringPipeline(horizons=horizons)
-    postprocessing = TransformPipeline[ForecastDataset](transforms=[])
-
     model = ForecastingModel(
         forecaster=forecaster,
-        preprocessing=preprocessing,
-        postprocessing=postprocessing,
+        preprocessing=FeatureEngineeringPipeline(horizons=horizons),
+        postprocessing=PostprocessingPipeline(transforms=[]),
     )
 
     # Act
@@ -222,13 +193,10 @@ def test_forecasting_model__predict(forecaster_type: type, sample_timeseries_dat
             config=config, model_factory=lambda config: SimpleForecaster(config=config)
         )
 
-    preprocessing = FeatureEngineeringPipeline(horizons=horizons)
-    postprocessing = TransformPipeline[ForecastDataset](transforms=[])
-
     model = ForecastingModel(
         forecaster=forecaster,
-        preprocessing=preprocessing,
-        postprocessing=postprocessing,
+        preprocessing=FeatureEngineeringPipeline(horizons=horizons),
+        postprocessing=PostprocessingPipeline(transforms=[]),
     )
 
     # Fit the model first

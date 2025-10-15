@@ -39,7 +39,6 @@ from pydantic_extra_types.country import CountryAlpha2
 
 from openstef_beam.analysis.plots import ForecastTimeSeriesPlotter
 from openstef_core.datasets import ForecastDataset, TimeSeriesDataset, VersionedTimeSeriesDataset
-from openstef_core.mixins import TransformPipeline
 from openstef_core.types import LeadTime, Q
 from openstef_models.integrations.mlflow import MLFlowStorageCallback
 from openstef_models.integrations.mlflow.mlflow_storage import MLFlowStorage
@@ -49,7 +48,7 @@ from openstef_models.models.forecasting.gblinear_forecaster import (
     GBLinearHyperParams,
 )
 from openstef_models.models.forecasting_model import ForecastingModel
-from openstef_models.transforms import FeatureEngineeringPipeline
+from openstef_models.transforms import FeatureEngineeringPipeline, PostprocessingPipeline
 from openstef_models.transforms.general import ScalerTransform
 from openstef_models.transforms.time_domain import HolidayFeaturesTransform
 from openstef_models.transforms.time_domain.lag_transform import VersionedLagTransform
@@ -109,7 +108,7 @@ model = ForecastingModel(
             verbosity=True,
         )
     ),
-    postprocessing=TransformPipeline[ForecastDataset](transforms=[]),
+    postprocessing=PostprocessingPipeline(transforms=[]),
     target_column="load",
     tags={
         "model": "gblinear",

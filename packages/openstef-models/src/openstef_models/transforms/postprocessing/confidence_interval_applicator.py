@@ -19,13 +19,13 @@ from scipy import stats
 from openstef_core.datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.datasets.multi_horizon_dataset import MultiHorizon
 from openstef_core.exceptions import NotFittedError
-from openstef_core.mixins import State, Transform
+from openstef_core.mixins import State
 from openstef_core.types import LeadTime, Quantile
+from openstef_models.transforms.postprocessing_pipeline import PostprocessingTransform
 
 
 class ConfidenceIntervalApplicator(
-    BaseModel,
-    Transform[tuple[MultiHorizon[ForecastInputDataset], ForecastDataset], ForecastDataset],
+    BaseModel, PostprocessingTransform[MultiHorizon[ForecastInputDataset], ForecastDataset]
 ):
     """Add quantile predictions to forecasts based on learned uncertainty patterns.
 

@@ -18,10 +18,13 @@ from openstef_models.transforms import (
     weather_domain,
 )
 from openstef_models.transforms.feature_engineering_pipeline import FeatureEngineeringPipeline
+from openstef_models.transforms.postprocessing_pipeline import PostprocessingPipeline, PostprocessingTransform
 
 __all__ = [
     "FeatureEngineeringPipeline",
     "HorizonSplitTransform",
+    "PostprocessingPipeline",
+    "PostprocessingTransform",
     "energy_domain",
     "general",
     "time_domain",

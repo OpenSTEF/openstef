@@ -28,9 +28,9 @@ from openstef_core.datasets import (
 )
 from openstef_core.datasets.data_split import DataSplitStrategy, StratifiedTrainTestSplitter
 from openstef_core.exceptions import ConfigurationError, NotFittedError
-from openstef_core.mixins import Predictor, State, TransformPipeline
+from openstef_core.mixins import Predictor, State
 from openstef_models.models.forecasting import Forecaster, HorizonForecaster
-from openstef_models.transforms import FeatureEngineeringPipeline
+from openstef_models.transforms import FeatureEngineeringPipeline, PostprocessingPipeline
 
 
 class ModelFitResult(BaseModel):
@@ -94,8 +94,8 @@ class ForecastingModel(BaseModel, Predictor[VersionedTimeSeriesDataset | TimeSer
         default=...,
         description="Underlying forecasting algorithm, either single-horizon or multi-horizon.",
     )
-    postprocessing: TransformPipeline[ForecastDataset] = Field(
-        default_factory=TransformPipeline[ForecastDataset],
+    postprocessing: PostprocessingPipeline[MultiHorizon[ForecastInputDataset], ForecastDataset] = Field(
+        default_factory=PostprocessingPipeline[MultiHorizon[ForecastInputDataset], ForecastDataset],
         description="Postprocessing pipeline for transforming model outputs into final forecasts.",
     )
     target_column: str = Field(
@@ -176,13 +176,14 @@ class ForecastingModel(BaseModel, Predictor[VersionedTimeSeriesDataset | TimeSer
         prediction = self._fit_forecaster(data=input_data_train, data_val=input_data_val)
 
         # Fit the postprocessing transforms
-        self.postprocessing.fit(data=prediction)
+        self.postprocessing.fit(data=(input_data_train, prediction))
 
         # Calculate training, validation, test, and full metrics
         target_dataset = _dataset_to_target(data=data, target_column=self.target_column)
 
         def predict_and_score(input_data: MultiHorizon[ForecastInputDataset]) -> SubsetMetric:
-            prediction = self._predict_forecaster(data=input_data).pipe(self.postprocessing.transform)
+            prediction = self._predict_forecaster(data=input_data)
+            prediction = self.postprocessing.transform(data=(input_data, prediction))
             return self._calculate_score(ground_truth=target_dataset, prediction=prediction)
 
         metrics_train = predict_and_score(input_data_train)
@@ -229,7 +230,7 @@ class ForecastingModel(BaseModel, Predictor[VersionedTimeSeriesDataset | TimeSer
         # Generate predictions
         raw_forecasts = self._predict_forecaster(data=input_data)
 
-        return self.postprocessing.transform(raw_forecasts)
+        return self.postprocessing.transform(data=(input_data, raw_forecasts))
 
     def _fit_forecaster(
         self,
