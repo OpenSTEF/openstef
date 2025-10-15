@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 from typing import Self, cast
 from unittest.mock import MagicMock
 
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -70,14 +71,17 @@ class SimpleForecaster(HorizonForecaster):
 
 @pytest.fixture
 def sample_timeseries_dataset() -> TimeSeriesDataset:
-    # Create sample time series data with typical energy forecasting features
+    """Create sample time series data with typical energy forecasting features."""
+    n_samples = 25
+    rng = np.random.default_rng(seed=42)
+
     data = pd.DataFrame(
         {
-            "load": [100.0, 110.0, 120.0, 105.0, 95.0, 115.0],
-            "temperature": [20.0, 21.0, 22.0, 20.5, 19.5, 21.5],
-            "radiation": [0.0, 100.0, 500.0, 300.0, 50.0, 250.0],
+            "load": 100.0 + rng.normal(10.0, 5.0, n_samples),
+            "temperature": 20.0 + rng.normal(1.0, 0.5, n_samples),
+            "radiation": rng.uniform(0.0, 500.0, n_samples),
         },
-        index=pd.date_range("2025-01-01 10:00", periods=6, freq="h"),
+        index=pd.date_range("2025-01-01 10:00", periods=n_samples, freq="h"),
     )
 
     return TimeSeriesDataset(data, timedelta(hours=1))
@@ -150,10 +154,8 @@ def test_forecasting_model__init__raises_error_when_horizons_mismatch():
         pytest.param(Forecaster, id="multi_horizon_forecaster"),
     ],
 )
-def test_forecasting_model__fit__orchestrates_correctly(
-    forecaster_type: type, sample_timeseries_dataset: TimeSeriesDataset
-):
-    """Test that fit correctly orchestrates preprocessing and forecaster calls."""
+def test_forecasting_model__fit(forecaster_type: type, sample_timeseries_dataset: TimeSeriesDataset):
+    """Test that fit correctly orchestrates preprocessing and forecaster calls, and returns metrics."""
     # Arrange
     horizons = [LeadTime(timedelta(hours=6))]
 
@@ -180,10 +182,19 @@ def test_forecasting_model__fit__orchestrates_correctly(
     )
 
     # Act
-    model.fit(data=sample_timeseries_dataset)
+    result = model.fit(data=sample_timeseries_dataset)
 
-    # Assert - Model is fitted
+    # Assert - Model is fitted and returns metrics
     assert model.is_fitted
+    assert result.input_dataset is sample_timeseries_dataset
+    assert result.input_data_train is not None
+    assert result.metrics_train is not None
+    assert result.metrics_full is not None
+    assert result.metrics_val is not None
+    assert result.metrics_test is not None
+    # R2 metric exists for the 50th quantile
+    assert Quantile(0.5) in result.metrics_train.metrics
+    assert "R2" in result.metrics_train.metrics[Quantile(0.5)]
 
 
 @pytest.mark.parametrize(
@@ -193,9 +204,7 @@ def test_forecasting_model__fit__orchestrates_correctly(
         pytest.param(Forecaster, id="multi_horizon_forecaster"),
     ],
 )
-def test_forecasting_model__predict__orchestrates_correctly(
-    forecaster_type: type, sample_timeseries_dataset: TimeSeriesDataset
-):
+def test_forecasting_model__predict(forecaster_type: type, sample_timeseries_dataset: TimeSeriesDataset):
     """Test that predict correctly orchestrates preprocessing and forecaster calls."""
     # Arrange
     horizons = [LeadTime(timedelta(hours=6))]
@@ -252,3 +261,48 @@ def test_forecasting_model__predict__raises_error_when_not_fitted(sample_timeser
     # Act & Assert
     with pytest.raises(NotFittedError):
         model.predict(data=sample_timeseries_dataset)
+
+
+def test_forecasting_model__score__returns_metrics(sample_timeseries_dataset: TimeSeriesDataset):
+    """Test that score evaluates model and returns metrics."""
+    # Arrange
+    horizons = [LeadTime(timedelta(hours=6))]
+    config = HorizonForecasterConfig(quantiles=[Quantile(0.5)], horizons=horizons)
+    forecaster = SimpleForecaster(config=config)
+    preprocessing = FeatureEngineeringPipeline(horizons=horizons)
+
+    model = ForecastingModel(forecaster=forecaster, preprocessing=preprocessing)
+    model.fit(data=sample_timeseries_dataset)
+
+    # Act
+    metrics = model.score(data=sample_timeseries_dataset)
+
+    # Assert - Metrics are calculated for the median quantile
+    assert metrics.metrics is not None
+    assert Quantile(0.5) in metrics.metrics
+    # R2 metric should be present (default evaluation metric)
+    assert "R2" in metrics.metrics[Quantile(0.5)]
+
+
+def test_forecasting_model__state_roundtrip(sample_timeseries_dataset: TimeSeriesDataset):
+    """Test that model state can be serialized and restored."""
+    # Arrange
+    horizons = [LeadTime(timedelta(hours=6))]
+    config = HorizonForecasterConfig(quantiles=[Quantile(0.5)], horizons=horizons)
+    forecaster = SimpleForecaster(config=config)
+    preprocessing = FeatureEngineeringPipeline(horizons=horizons)
+
+    original_model = ForecastingModel(forecaster=forecaster, preprocessing=preprocessing)
+    original_model.fit(data=sample_timeseries_dataset)
+
+    # Act - Serialize and restore
+    state = original_model.to_state()
+    restored_model = ForecastingModel(
+        forecaster=SimpleForecaster(config=config), preprocessing=FeatureEngineeringPipeline(horizons=horizons)
+    ).from_state(state)
+
+    # Assert - Restored model is fitted and produces same predictions
+    assert restored_model.is_fitted
+    original_pred = original_model.predict(data=sample_timeseries_dataset)
+    restored_pred = restored_model.predict(data=sample_timeseries_dataset)
+    assert original_pred.data.equals(restored_pred.data)

@@ -9,13 +9,11 @@ testing, and single-machine deployments where models need to be persisted
 to the local filesystem.
 """
 
-from pathlib import Path
-from typing import cast, override
+from typing import BinaryIO, ClassVar, cast, override
 
-from openstef_core.base_model import BaseModel
-from openstef_core.exceptions import MissingExtraError, ModelNotFoundError
+from openstef_core.exceptions import MissingExtraError
 from openstef_core.mixins import State, Stateful
-from openstef_models.mixins.model_storage import ModelIdentifier, ModelStorage
+from openstef_models.mixins.model_serializer import ModelSerializer
 
 try:
     import joblib
@@ -23,7 +21,7 @@ except ImportError as e:
     raise MissingExtraError("joblib", package="openstef-models") from e
 
 
-class LocalModelStorage(BaseModel, ModelStorage):
+class JoblibModelSerializer(ModelSerializer):
     """File-based model storage using joblib serialization.
 
     Provides persistent storage for ForecastingModel instances on the local
@@ -47,9 +45,6 @@ class LocalModelStorage(BaseModel, ModelStorage):
         - Storage directory is created automatically if it doesn't exist
         - Load operations fail with ModelNotFoundError if model file doesn't exist
 
-    Args:
-        storage_dir: Directory path where model files will be stored.
-
     Example:
         Basic usage with model persistence:
 
@@ -60,27 +55,17 @@ class LocalModelStorage(BaseModel, ModelStorage):
         >>> loaded_model = storage.load_model("my_model")  # doctest: +SKIP
     """
 
-    storage_dir: Path
-
-    def _get_model_path(self, model_id: ModelIdentifier) -> Path:
-        return self.storage_dir / f"{model_id}.pkl"
+    extension: ClassVar[str] = "joblib"
 
     @override
-    def load_model_state[T: Stateful](self, model_id: ModelIdentifier, model: T) -> T:
-        model_path = self._get_model_path(model_id)
-        if not model_path.exists():
-            raise ModelNotFoundError(str(model_id))
+    def serialize(self, model: Stateful, file: BinaryIO) -> None:
+        state = model.to_state()
+        joblib.dump(state, file)  # type: ignore[reportUnknownMemberType]
 
-        state = cast(State, joblib.load(model_path))  # type: ignore[reportUnknownMemberType]
+    @override
+    def deserialize[T: Stateful](self, model: T, file: BinaryIO) -> T:
+        state = cast(State, joblib.load(file))  # type: ignore[reportUnknownMemberType]
         return model.from_state(state)
 
-    @override
-    def save_model_state(self, model_id: ModelIdentifier, model: Stateful) -> None:
-        model_path = self._get_model_path(model_id)
-        model_path.parent.mkdir(parents=True, exist_ok=True)
 
-        state = model.to_state()
-        joblib.dump(state, model_path)  # type: ignore[reportUnknownMemberType]
-
-
-__all__ = ["LocalModelStorage"]
+__all__ = ["JoblibModelSerializer"]

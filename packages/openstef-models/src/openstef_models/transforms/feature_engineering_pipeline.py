@@ -133,7 +133,6 @@ class FeatureEngineeringPipeline(
     )
 
     _horizon_split_transform: HorizonSplitTransform = PrivateAttr()
-    _is_fitted: bool = PrivateAttr(default=False)
 
     @classmethod
     def create(
@@ -194,7 +193,7 @@ class FeatureEngineeringPipeline(
     @property
     @override
     def is_fitted(self) -> bool:
-        return self._is_fitted
+        return self.versioned_pipeline.is_fitted and self.horizon_pipeline.is_fitted
 
     def _validate_unversioned_compatibility(self) -> None:
         if len(self.versioned_pipeline.transforms) > 0:
@@ -214,11 +213,9 @@ class FeatureEngineeringPipeline(
         # Fit all the horizon transforms
         self.horizon_pipeline.fit_transform(data=horizon_data)
 
-        self._is_fitted = True
-
     @override
     def transform(self, data: VersionedTimeSeriesDataset | TimeSeriesDataset) -> MultiHorizon[TimeSeriesDataset]:
-        if not self._is_fitted:
+        if not self.is_fitted:
             raise NotFittedError("Pipeline is not fitted")
 
         if isinstance(data, TimeSeriesDataset):

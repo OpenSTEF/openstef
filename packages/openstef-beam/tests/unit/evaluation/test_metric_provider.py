@@ -10,7 +10,7 @@ import pytest
 
 from openstef_beam.evaluation.metric_providers import RIQDProvider, RMAEPeakHoursProvider
 from openstef_beam.evaluation.models import EvaluationSubset
-from openstef_core.datasets import TimeSeriesDataset
+from openstef_core.datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.types import Quantile
 
 
@@ -31,13 +31,14 @@ def test_peak_hours_filtering(start_peak_hours: int, end_peak_hours: int, num_ti
     times = [start_time + timedelta(minutes=i) for i in range(0, 1440, 15)]
     index = pd.DatetimeIndex(times)
 
-    predictions = TimeSeriesDataset(
+    predictions = ForecastDataset(
         data=pd.DataFrame({"quantile_P50": range(len(times))}, index=index),
         sample_interval=timedelta(minutes=15),
     )
-    ground_truth = TimeSeriesDataset(
+    ground_truth = ForecastInputDataset(
         data=pd.DataFrame({"value": range(len(times))}, index=index),
         sample_interval=timedelta(minutes=15),
+        target_column="value",
     )
     subset = EvaluationSubset(predictions=predictions, ground_truth=ground_truth)
     # Act
@@ -86,14 +87,15 @@ def test_riqd_provider_symmetric_quantile_logic(
     for i, q in enumerate(quantiles):
         quantile_data[f"quantile_P{int(q * 100):02d}"] = [i * 10 + j for j in range(24)]
 
-    predictions = TimeSeriesDataset(
+    predictions = ForecastDataset(
         data=pd.DataFrame(quantile_data, index=index),
         sample_interval=timedelta(hours=1),
     )
 
-    ground_truth = TimeSeriesDataset(
+    ground_truth = ForecastInputDataset(
         data=pd.DataFrame({"value": range(24)}, index=index),
         sample_interval=timedelta(hours=1),
+        target_column="value",
     )
 
     subset = EvaluationSubset(predictions=predictions, ground_truth=ground_truth)

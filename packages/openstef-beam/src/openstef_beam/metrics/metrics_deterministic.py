@@ -18,6 +18,7 @@ from typing import NamedTuple
 
 import numpy as np
 import numpy.typing as npt
+from sklearn.metrics import r2_score
 
 
 def rmae(
@@ -401,6 +402,56 @@ def riqd(
     riqd = iqd / y_range
 
     return float(riqd)
+
+
+def r2(
+    y_true: npt.NDArray[np.floating],
+    y_pred: npt.NDArray[np.floating],
+    *,
+    sample_weights: npt.NDArray[np.floating] | None = None,
+) -> float:
+    """Calculate the R² (coefficient of determination) score.
+
+    R² represents the proportion of variance in the dependent variable that is
+    predictable from the independent variable(s). It provides a measure of how
+    well observed outcomes are replicated by the model, based on the proportion
+    of total variation of outcomes explained by the model.
+
+    Args:
+        y_true: Ground truth values with shape (num_samples,).
+        y_pred: Predicted values with shape (num_samples,).
+        sample_weights: Optional weights for each sample with shape (num_samples,).
+            If None, all samples are weighted equally.
+
+    Returns:
+        The R² score as a float. Best possible score is 1.0, and it can be negative
+        (because the model can be arbitrarily worse). A constant model that always
+        predicts the mean of y_true would get an R² score of 0.0.
+
+    Example:
+        Basic usage with energy load data:
+
+        >>> import numpy as np
+        >>> y_true = np.array([100, 120, 110, 130, 105])
+        >>> y_pred = np.array([98, 122, 108, 135, 107])
+        >>> score = r2(y_true, y_pred)
+        >>> round(score, 3)
+        0.929
+
+        Perfect predictions give R² = 1.0:
+
+        >>> perfect_pred = np.array([100, 120, 110, 130, 105])
+        >>> r2(y_true, perfect_pred)
+        1.0
+
+        With sample weights:
+
+        >>> weights = np.array([1, 2, 1, 2, 1])
+        >>> score = r2(y_true, y_pred, sample_weights=weights)
+        >>> isinstance(score, float)
+        True
+    """
+    return float(r2_score(y_true, y_pred, sample_weight=sample_weights))
 
 
 def relative_pinball_loss(

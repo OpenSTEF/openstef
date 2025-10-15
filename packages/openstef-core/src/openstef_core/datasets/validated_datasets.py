@@ -63,9 +63,11 @@ class ForecastInputDataset(TimeSeriesDataset):
         self,
         data: pd.DataFrame,
         sample_interval: timedelta,
-        target_column: str = "load",
+        target_column: str | None = None,
         sample_weight_column: str = "sample_weight",
         forecast_start: datetime | None = None,
+        *,
+        is_sorted: bool = False,
     ) -> None:
         """Initialize dataset with target column validation.
 
@@ -75,18 +77,20 @@ class ForecastInputDataset(TimeSeriesDataset):
             target_column: Name of the target column to forecast.
             sample_weight_column: Name of column with sample weights.
             forecast_start: Optional timestamp indicating forecast start.
+            is_sorted: Whether the data is already sorted by index.
 
         Raises:
             MissingColumnsError: If target_column is not found in data.
         """
-        super().__init__(data, sample_interval)
+        super().__init__(data=data, sample_interval=sample_interval, is_sorted=is_sorted)
 
-        if target_column not in self.feature_names:
-            raise MissingColumnsError(missing_columns=[target_column])
+        self.target_column: str = data.attrs.get("target_column", target_column) or "load"
+        if self.target_column not in self.feature_names:
+            raise MissingColumnsError(missing_columns=[self.target_column])
 
-        self.target_column = target_column
         self.sample_weight_column = sample_weight_column
         self.forecast_start = forecast_start
+        self.data.attrs["target_column"] = self.target_column
 
     def target_series(self) -> pd.Series:
         """Extract the target time series from the dataset.
@@ -182,7 +186,14 @@ class ForecastDataset(TimeSeriesDataset):
     """
 
     @override
-    def __init__(self, data: pd.DataFrame, sample_interval: timedelta, forecast_start: datetime | None = None) -> None:
+    def __init__(
+        self,
+        data: pd.DataFrame,
+        sample_interval: timedelta,
+        forecast_start: datetime | None = None,
+        *,
+        is_sorted: bool = False,
+    ) -> None:
         """Initialize dataset with quantile column validation.
 
         Args:
@@ -190,11 +201,12 @@ class ForecastDataset(TimeSeriesDataset):
             sample_interval: Time interval between consecutive forecast points.
             forecast_start: Timestamp when forecast period begins. Defaults to
                 minimum timestamp from data if not provided.
+            is_sorted: Whether the data is already sorted by index.
 
         Raises:
             TimeSeriesValidationError: If any columns are not valid quantile strings.
         """
-        super().__init__(data, sample_interval)
+        super().__init__(data=data, sample_interval=sample_interval, is_sorted=is_sorted)
 
         if not all(Quantile.is_valid_quantile_string(col) for col in self.feature_names):
             raise TimeSeriesValidationError("All feature names must be valid quantile strings.")
@@ -224,6 +236,30 @@ class ForecastDataset(TimeSeriesDataset):
         if median_col not in self.feature_names:
             raise MissingColumnsError(missing_columns=[median_col])
         return self.data[median_col]
+
+    def select_quantiles(self, quantiles: list[Quantile]) -> Self:
+        """Select a subset of quantiles from the forecast dataset.
+
+        Args:
+            quantiles: List of Quantile values to select.
+
+        Returns:
+            New ForecastDataset containing only the specified quantile columns.
+
+        Raises:
+            MissingColumnsError: If any requested quantile columns are not found.
+        """
+        quantile_columns = [q.format() for q in quantiles]
+        missing_columns = set(quantile_columns) - set(self.feature_names)
+        if missing_columns:
+            raise MissingColumnsError(missing_columns=list(missing_columns))
+
+        return self.__class__(
+            data=self.data[quantile_columns],
+            sample_interval=self.sample_interval,
+            forecast_start=self.forecast_start,
+            is_sorted=True,
+        )
 
 
 class EnergyComponentDataset(TimeSeriesDataset):

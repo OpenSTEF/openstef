@@ -9,7 +9,7 @@ for probabilistic forecasts. Each provider handles specific metric types
 and can be configured to work with specific quantiles or all available quantiles.
 """
 
-from typing import cast, override
+from typing import Literal, cast, override
 
 import numpy as np
 import numpy.typing as npt
@@ -25,6 +25,7 @@ from openstef_beam.metrics import (
     mean_absolute_calibration_error,
     observed_probability,
     precision_recall,
+    r2,
     rcrps,
     relative_pinball_loss,
     riqd,
@@ -32,6 +33,8 @@ from openstef_beam.metrics import (
 )
 from openstef_core.base_model import BaseConfig
 from openstef_core.types import Quantile
+
+type MetricDirection = Literal["higher_is_better", "lower_is_better"]
 
 
 class MetricProvider(BaseConfig):
@@ -87,7 +90,7 @@ class MetricProvider(BaseConfig):
             QuantileMetricsDict mapping quantile keys to computed metric values.
         """
         quantiles = np.array([Quantile.parse(quantile) for quantile in subset.predictions.feature_names])
-        y_true: npt.NDArray[np.floating] = cast(pd.Series, subset.ground_truth.data.squeeze()).to_numpy()  # type: ignore
+        y_true: npt.NDArray[np.floating] = subset.ground_truth.target_series().to_numpy()  # type: ignore
         y_pred: npt.NDArray[np.floating] = subset.predictions.data.to_numpy()
 
         return self.compute_probabilistic(y_true, y_pred, quantiles)
@@ -347,6 +350,24 @@ class MAPEProvider(MetricProvider):
         return {"MAPE": mape(y_true=y_true, y_pred=y_pred)}
 
 
+class R2Provider(MetricProvider):
+    """Provides R² (coefficient of determination) metrics.
+
+    Computes the R² score which represents the proportion of variance
+    in the dependent variable that is predictable from the predictions.
+    Values range from -∞ to 1.0, where 1.0 is perfect prediction.
+    """
+
+    @override
+    def compute_deterministic(
+        self,
+        y_true: npt.NDArray[np.floating],
+        y_pred: npt.NDArray[np.floating],
+        quantile: float,
+    ) -> MetricsDict:
+        return {"R2": r2(y_true=y_true, y_pred=y_pred)}
+
+
 class ObservedProbabilityProvider(MetricProvider):
     """Provides observed probability metrics.
 
@@ -514,3 +535,19 @@ class RelativePinballLossProvider(MetricProvider):
                 measurement_range_upper_q=self.measurement_range_upper_q,
             )
         }
+
+
+__all__ = [
+    "MAPEProvider",
+    "MeanAbsoluteCalibrationErrorProvider",
+    "MetricDirection",
+    "MetricProvider",
+    "ObservedProbabilityProvider",
+    "PeakMetricProvider",
+    "R2Provider",
+    "RCRPSProvider",
+    "RIQDProvider",
+    "RMAEPeakHoursProvider",
+    "RMAEProvider",
+    "RelativePinballLossProvider",
+]

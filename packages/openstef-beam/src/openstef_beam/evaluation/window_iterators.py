@@ -15,7 +15,7 @@ from datetime import datetime, timedelta
 import pandas as pd
 
 from openstef_beam.evaluation.models import EvaluationSubset, Window
-from openstef_core.datasets import TimeSeriesDataset
+from openstef_core.datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.utils import align_datetime
 
 
@@ -80,13 +80,15 @@ def iterate_subsets_by_window(
         sample_interval=subset.sample_interval,
     ):
         mutual_index = window_index.intersection(subset.ground_truth.index).intersection(subset.predictions.index)
-        window_ground_truth = TimeSeriesDataset(
+        window_ground_truth = ForecastInputDataset(
             data=subset.ground_truth.data.loc[mutual_index],
             sample_interval=subset.sample_interval,
+            target_column=subset.ground_truth.target_column,
         )
-        window_predictions = TimeSeriesDataset(
+        window_predictions = ForecastDataset(
             data=subset.predictions.data.loc[mutual_index],
             sample_interval=subset.sample_interval,
+            forecast_start=None,
         )
 
         # If there is not enough data in the window, then skip it

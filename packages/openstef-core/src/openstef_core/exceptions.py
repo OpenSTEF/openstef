@@ -126,6 +126,22 @@ class NotFittedError(Exception):
         super().__init__(message)
 
 
+class SkipFitting(Exception):  # noqa: N818 - ignore, cause this is not an error
+    """Exception raised to indicate that fitting should be skipped.
+
+    This is used in scenarios where a model is determined to be recent enough
+    or otherwise does not require re-fitting.
+    """
+
+    def __init__(self, reason: str):
+        """Initialize the exception with an optional reason.
+
+        Args:
+            reason: Human-readable description of why fitting is being skipped.
+        """
+        super().__init__(reason)
+
+
 class ModelNotFoundError(Exception):
     """Exception raised when a model is not found in storage."""
 

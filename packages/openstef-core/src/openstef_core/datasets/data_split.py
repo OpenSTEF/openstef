@@ -17,7 +17,7 @@ import numpy as np
 import pandas as pd
 from pydantic import Field, PrivateAttr
 
-from openstef_core.base_model import BaseConfig
+from openstef_core.base_model import BaseConfig, BaseModel
 from openstef_core.datasets import MultiHorizon, VersionedTimeSeriesPart
 from openstef_core.datasets.timeseries_dataset import TimeSeriesDataset
 from openstef_core.datasets.versioned_timeseries import VersionedTimeSeriesDataset
@@ -47,7 +47,10 @@ class BaseTrainTestSplitter(
     """
 
     test_fraction: float = Field(
-        default=0.2, description="Fraction of data to include in the test split.", ge=0.0, lt=1.0
+        default=0.2,
+        description="Fraction of data to include in the test split. Set to 0.0 to disable splitting.",
+        ge=0.0,
+        le=1.0,
     )
 
     @overload
@@ -112,6 +115,25 @@ class BaseTrainTestSplitter(
             self.fit(dataset)
             break  # Fit only on the first horizon since they have the same index
 
+    def fit_transform_multihorizon[T: TimeSeriesDataset](
+        self,
+        data: MultiHorizon[T],
+    ) -> tuple[MultiHorizon[TimeSeriesDataset], MultiHorizon[TimeSeriesDataset]]:
+        """Fit the splitter and transform a multi-horizon dataset.
+
+        Combines fitting and transforming into a single step for convenience.
+
+        Args:
+            data: Multi-horizon dataset to fit and transform.
+
+        Returns:
+            Tuple of (train_multihorizon, test_multihorizon).
+        """
+        if not self.is_fitted:
+            self.fit_multihorizon(data)
+
+        return self.transform_multihorizon(data)
+
     @override
     def to_state(self) -> State:
         return None
@@ -133,7 +155,10 @@ class ChronologicalTrainTestSplitter(BaseTrainTestSplitter):
     """
 
     test_fraction: float = Field(
-        default=0.2, description="Fraction of data to include in the test split.", ge=0.0, lt=1.0
+        default=0.2,
+        description="Fraction of data to include in the test split. Set to 0.0 to disable splitting.",
+        ge=0.0,
+        le=1.0,
     )
 
     _split_date: pd.Timestamp | None = PrivateAttr(default=None)
@@ -145,8 +170,13 @@ class ChronologicalTrainTestSplitter(BaseTrainTestSplitter):
 
     @override
     def fit(self, data: TimeSeriesDataset | VersionedTimeSeriesDataset) -> None:
-        if not 0.0 < self.test_fraction < 1.0:
+        if not 0.0 <= self.test_fraction <= 1.0:
             raise ValueError("test_fraction must be between 0 and 1.")
+
+        # Handle no-split case (test_fraction = 0.0)
+        if self.test_fraction == 0.0:
+            self._split_date = data.index[-1]  # Set to last index so test set is empty
+            return
 
         n_total = len(data.index)
         n_test = int(n_total * self.test_fraction)
@@ -186,7 +216,10 @@ class StratifiedTrainTestSplitter(BaseTrainTestSplitter):
     """
 
     test_fraction: float = Field(
-        default=0.2, description="Fraction of data to include in the test split.", ge=0.0, lt=1.0
+        default=0.2,
+        description="Fraction of data to include in the test split. Set to 0.0 to disable splitting.",
+        ge=0.0,
+        le=1.0,
     )
     stratification_fraction: float = Field(
         default=0.15, description="Fraction of extreme days to consider for stratification."
@@ -432,3 +465,157 @@ def split_by_dates(
         VersionedTimeSeriesDataset(data_parts=train_parts),
         VersionedTimeSeriesDataset(data_parts=test_parts),
     )
+
+
+class TrainValTestSplit[T](BaseModel):
+    """Result of a train/validation/test split operation.
+
+    Contains the three dataset splits with guaranteed non-None training data.
+    Validation and test sets may be None if no splitter was configured.
+    """
+
+    train: T = Field(description="Training dataset (always present).")
+    val: T | None = Field(default=None, description="Validation dataset (may be None).")
+    test: T | None = Field(default=None, description="Test dataset (may be None).")
+
+
+class DataSplitStrategy(BaseConfig):
+    """Handles train/validation/test splitting with configurable strategies.
+
+    Orchestrates the splitting of datasets into train, validation, and test sets,
+    handling various scenarios:
+    - Explicit data provided (data_val, data_test)
+    - Automatic splitting using configured splitters
+    - Mixed scenarios (some explicit, some automatic)
+
+    The strategy ensures:
+    - Training data is always present
+    - Missing folds are created from available data when splitters are configured
+    - Setting test_fraction=0.0 effectively disables that split (all data goes to train)
+    """
+
+    test_splitter: BaseTrainTestSplitter = Field(
+        default_factory=lambda: ChronologicalTrainTestSplitter(test_fraction=0.0),
+        description="Splitter for separating test data from the full dataset (applied first). "
+        "Set test_fraction=0.0 to disable test splitting.",
+    )
+    val_splitter: BaseTrainTestSplitter = Field(
+        default_factory=lambda: ChronologicalTrainTestSplitter(test_fraction=0.0),
+        description="Splitter for separating validation data from the train+val portion (applied second). "
+        "Set test_fraction=0.0 to disable validation splitting.",
+    )
+
+    def split[T: TimeSeriesDataset](
+        self,
+        data: T,
+        data_val: T | None = None,
+        data_test: T | None = None,
+    ) -> TrainValTestSplit[T]:
+        """Split data into train, validation, and test sets.
+
+        Args:
+            data: Full dataset to split.
+            data_val: Optional pre-split validation data.
+            data_test: Optional pre-split test data.
+
+        Returns:
+            TrainValTestSplit with train (always present), val, and test datasets.
+
+        Examples:
+            All automatic:
+            >>> strategy = DataSplitStrategy(
+            ...     test_splitter=ChronologicalTrainTestSplitter(test_fraction=0.2),
+            ...     val_splitter=ChronologicalTrainTestSplitter(test_fraction=0.25)
+            ... )
+            >>> result = strategy.split(data)  # doctest: +SKIP
+            >>> result.train, result.val, result.test  # All non-None  # doctest: +SKIP
+
+            Explicit val and test:
+            >>> result = strategy.split(data, data_val=val, data_test=test)  # doctest: +SKIP
+            >>> result.train, result.val, result.test  # All non-None  # doctest: +SKIP
+
+            Disable test splitting:
+            >>> strategy = DataSplitStrategy(
+            ...     test_splitter=ChronologicalTrainTestSplitter(test_fraction=0.0),
+            ...     val_splitter=ChronologicalTrainTestSplitter(test_fraction=0.2)
+            ... )
+            >>> result = strategy.split(data)  # doctest: +SKIP
+            >>> result.train, result.val  # Non-None, test is None  # doctest: +SKIP
+        """
+        # Case 1: Both val and test explicitly provided
+        if data_val is not None and data_test is not None:
+            return TrainValTestSplit(train=data, val=data_val, test=data_test)
+
+        # Case 2: Only val provided - split test automatically
+        if data_val is not None:
+            train_data, test_data = self.test_splitter.fit_transform(data)
+            return TrainValTestSplit(
+                train=cast(T, train_data),
+                val=data_val,
+                test=cast(T, test_data) if self.test_splitter.test_fraction > 0 else None,
+            )
+
+        # Case 3: Only test provided - split val automatically
+        if data_test is not None:
+            train_data, val_data = self.val_splitter.fit_transform(data)
+            return TrainValTestSplit(
+                train=cast(T, train_data),
+                val=cast(T, val_data) if self.val_splitter.test_fraction > 0 else None,
+                test=data_test,
+            )
+
+        # Case 4: No explicit data - automatic splitting
+        train_val_data, test_data = self.test_splitter.fit_transform(data)
+        train_data, val_data = self.val_splitter.fit_transform(train_val_data)
+        return TrainValTestSplit(
+            train=cast(T, train_data),
+            val=cast(T, val_data) if self.val_splitter.test_fraction > 0 else None,
+            test=cast(T, test_data) if self.test_splitter.test_fraction > 0 else None,
+        )
+
+    def split_multihorizon[T: TimeSeriesDataset](
+        self,
+        data: MultiHorizon[T],
+        data_val: MultiHorizon[T] | None = None,
+        data_test: MultiHorizon[T] | None = None,
+    ) -> TrainValTestSplit[MultiHorizon[T]]:
+        """Split multi-horizon data into train, validation, and test sets.
+
+        Args:
+            data: Full multi-horizon dataset to split.
+            data_val: Optional pre-split validation data.
+            data_test: Optional pre-split test data.
+
+        Returns:
+            TrainValTestSplit with multi-horizon train, val, and test datasets.
+        """
+        # Case 1: Both val and test explicitly provided
+        if data_val is not None and data_test is not None:
+            return TrainValTestSplit(train=data, val=data_val, test=data_test)
+
+        # Case 2: Only val provided - split test automatically
+        if data_val is not None:
+            train_data, test_data = self.test_splitter.fit_transform_multihorizon(data)
+            return TrainValTestSplit(
+                train=cast(MultiHorizon[T], train_data),
+                val=data_val,
+                test=cast(MultiHorizon[T], test_data) if self.test_splitter.test_fraction > 0 else None,
+            )
+
+        # Case 3: Only test provided - split val automatically
+        if data_test is not None:
+            train_data, val_data = self.val_splitter.fit_transform_multihorizon(data)
+            return TrainValTestSplit(
+                train=cast(MultiHorizon[T], train_data),
+                val=cast(MultiHorizon[T], val_data) if self.val_splitter.test_fraction > 0 else None,
+                test=data_test,
+            )
+
+        # Case 4: No explicit data - automatic splitting
+        train_val_data, test_data = self.test_splitter.fit_transform_multihorizon(data)
+        train_data, val_data = self.val_splitter.fit_transform_multihorizon(train_val_data)
+        return TrainValTestSplit(
+            train=cast(MultiHorizon[T], train_data),
+            val=cast(MultiHorizon[T], val_data) if self.val_splitter.test_fraction > 0 else None,
+            test=cast(MultiHorizon[T], test_data) if self.test_splitter.test_fraction > 0 else None,
+        )

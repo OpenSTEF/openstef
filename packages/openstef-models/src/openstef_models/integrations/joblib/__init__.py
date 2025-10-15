@@ -10,6 +10,6 @@ single-machine deployments.
 #
 # SPDX-License-Identifier: MPL-2.0
 
-from .storage import LocalModelStorage
+from .joblib_model_serializer import JoblibModelSerializer
 
-__all__ = ["LocalModelStorage"]
+__all__ = ["JoblibModelSerializer"]

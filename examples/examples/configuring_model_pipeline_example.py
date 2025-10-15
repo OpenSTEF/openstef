@@ -29,7 +29,9 @@ into a working forecasting system.
 #
 # SPDX-License-Identifier: MPL-2.0
 
+import logging
 from datetime import timedelta
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -39,6 +41,8 @@ from openstef_beam.analysis.plots import ForecastTimeSeriesPlotter
 from openstef_core.datasets import ForecastDataset, TimeSeriesDataset, VersionedTimeSeriesDataset
 from openstef_core.mixins import TransformPipeline
 from openstef_core.types import LeadTime, Q
+from openstef_models.integrations.mlflow import MLFlowStorageCallback
+from openstef_models.integrations.mlflow.mlflow_storage import MLFlowStorage
 from openstef_models.models.forecasting.gblinear_forecaster import (
     GBLinearForecaster,
     GBLinearForecasterConfig,
@@ -50,6 +54,11 @@ from openstef_models.transforms.general import ScalerTransform
 from openstef_models.transforms.time_domain import HolidayFeaturesTransform
 from openstef_models.transforms.time_domain.lag_transform import VersionedLagTransform
 from openstef_models.workflows import ForecastingWorkflow
+
+logging.basicConfig(level=logging.INFO, format="[%(asctime)s][%(levelname)s] %(message)s")
+logger = logging.getLogger(__name__)
+
+workspace_dir = Path(__file__).parent.resolve()
 
 # Create synthetic time series data
 n_samples = 24 * 31 * 3  # 3 months of hourly data
@@ -96,27 +105,47 @@ model = ForecastingModel(
             hyperparams=GBLinearHyperParams(
                 n_estimators=1000,
                 learning_rate=0.3,
-                # reg_alpha=0.0,  # noqa: ERA001
-                # reg_lambda=1.0,  # noqa: ERA001
             ),
             verbosity=True,
         )
     ),
     postprocessing=TransformPipeline[ForecastDataset](transforms=[]),
     target_column="load",
+    tags={
+        "model": "gblinear",
+        "version": "1.0.0",
+    },
 )
 
 pipeline = ForecastingWorkflow(
     model_id="gblinear_forecaster_v1",
     model=model,
+    callbacks=[
+        MLFlowStorageCallback(
+            storage=MLFlowStorage(
+                tracking_uri=str(workspace_dir / "mlflow_tracking"),
+                local_artifacts_path=workspace_dir / "mlflow_tracking_artifacts",
+            ),
+            model_reuse_enable=False,
+        )
+    ],
 )
 
-pipeline.fit(dataset)
+logger.info("Starting model training")
+result = pipeline.fit(dataset)
+if result is not None:
+    logger.info("Full eval result:\n%s", result.metrics_full.to_dataframe())
 
+    if result.metrics_test is not None:
+        logger.info("Test result:\n%s", result.metrics_test.to_dataframe())
+
+logger.info("Starting forecasting")
 forecast: ForecastDataset = pipeline.predict(dataset)
 
 print(forecast.data.tail())
 
+
+logger.info("Storing forecast plot to forecast_plot.html")
 fig = (
     ForecastTimeSeriesPlotter()
     .add_measurements(

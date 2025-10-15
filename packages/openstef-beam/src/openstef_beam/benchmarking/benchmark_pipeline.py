@@ -280,6 +280,7 @@ class BenchmarkPipeline[T: BenchmarkTarget, F]:
             ground_truth=self.target_provider.get_measurements_for_target(target),
             predictions=predictions,
             evaluation_mask=self.target_provider.get_evaluation_mask_for_target(target),
+            target_column=self.target_provider.target_column,
         )
         self.storage.save_evaluation_output(target=target, output=report)
         self.callback_manager.on_evaluation_complete(runner=self, target=target, report=report)

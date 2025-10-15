@@ -13,7 +13,7 @@ import re
 from datetime import timedelta
 from enum import StrEnum
 from functools import total_ordering
-from typing import Any, Self, override
+from typing import Any, Literal, Self, override
 
 from pydantic import GetCoreSchemaHandler, TypeAdapter
 from pydantic_core import CoreSchema, core_schema
@@ -283,6 +283,7 @@ class Quantile(float):
 
 
 Q = Quantile  # Alias for easier imports
+QuantileOrGlobal = Quantile | Literal["global"]
 
 
 class EnergyComponentType(StrEnum):

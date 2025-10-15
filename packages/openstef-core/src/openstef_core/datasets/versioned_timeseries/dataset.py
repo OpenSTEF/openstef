@@ -15,6 +15,7 @@ flexible dataset construction for complex forecasting pipelines.
 """
 
 import functools
+import json
 import logging
 import operator
 from collections.abc import Sequence
@@ -30,6 +31,7 @@ from openstef_core.datasets.validation import validate_disjoint_columns, validat
 from openstef_core.datasets.versioned_timeseries.dataset_part import VersionedTimeSeriesPart
 from openstef_core.exceptions import TimeSeriesValidationError
 from openstef_core.types import AvailableAt, LeadTime
+from openstef_core.utils import timedelta_from_isoformat, timedelta_to_isoformat
 from openstef_core.utils.pandas import combine_timeseries_indexes, unsafe_sorted_range_slice_idxs
 
 _logger = logging.getLogger(__name__)
@@ -294,14 +296,20 @@ class VersionedTimeSeriesDataset(VersionedTimeSeriesMixin, StoreableDatasetMixin
 
         Args:
             path: File path for saving.
-
-        Raises:
-            TimeSeriesValidationError: If dataset has multiple data parts.
         """
-        if len(self.data_parts) > 1:
-            raise TimeSeriesValidationError("to_parquet is only supported for datasets with a single data part.")
-
-        self.data_parts[0].to_parquet(path)
+        combined_data = pd.concat([part.data.assign(part_id=i) for i, part in enumerate(self.data_parts)], axis=0)
+        combined_data.attrs["sample_interval"] = timedelta_to_isoformat(self.sample_interval)
+        combined_data.attrs["structure"] = json.dumps({
+            "parts": [
+                {
+                    "columns": part.data.columns.tolist(),
+                    "timestamp_column": part.timestamp_column,
+                    "available_at_column": part.available_at_column,
+                }
+                for part in self.data_parts
+            ]
+        })
+        combined_data.to_parquet(path)
 
     @override
     @classmethod
@@ -313,10 +321,31 @@ class VersionedTimeSeriesDataset(VersionedTimeSeriesMixin, StoreableDatasetMixin
 
         Returns:
             Loaded VersionedTimeSeriesDataset.
+
+        Raises:
+            TimeSeriesValidationError: If no data parts found in the file.
         """
-        return cls(
-            data_parts=[VersionedTimeSeriesPart.read_parquet(path=path)],
-        )
+        combined_data = pd.read_parquet(path)  # type: ignore
+        sample_interval = timedelta_from_isoformat(combined_data.attrs.get("sample_interval", "PT1H"))
+        structure = json.loads(combined_data.attrs.get("structure", "{}"))
+
+        parts: list[VersionedTimeSeriesPart] = []
+        for i, part_info in enumerate(structure.get("parts", [])):
+            columns: list[str] = part_info["columns"]
+            part_data = combined_data[combined_data.part_id == i][columns]
+            parts.append(
+                VersionedTimeSeriesPart(
+                    data=part_data,
+                    sample_interval=sample_interval,
+                    timestamp_column=part_info["timestamp_column"],
+                    available_at_column=part_info["available_at_column"],
+                )
+            )
+
+        if len(parts) == 0:
+            raise TimeSeriesValidationError("No data parts found in the parquet file.")
+
+        return cls(data_parts=parts)
 
 
 __all__ = [
