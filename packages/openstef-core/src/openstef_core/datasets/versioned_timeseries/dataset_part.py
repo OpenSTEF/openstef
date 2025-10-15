@@ -148,9 +148,14 @@ class VersionedTimeSeriesPart(VersionedTimeSeriesMixin, StoreableDatasetMixin):
         self.feature_names = list(set(self.data.columns) - {self.timestamp_column, self.available_at_column})
 
     @override
-    def filter_by_range(self, start: datetime | None = None, end: datetime | None = None) -> Self:
+    def filter_by_range(
+        self, start: datetime | None = None, end: datetime | None = None, available_before: datetime | None = None
+    ) -> Self:
         start_idx, end_idx = unsafe_sorted_range_slice_idxs(data=self.data[self.timestamp_column], start=start, end=end)
         data_filtered = self.data.iloc[start_idx:end_idx]
+        if available_before is not None:
+            data_filtered = data_filtered[data_filtered[self.available_at_column] <= available_before]
+
         return self._copy_with_data(data_filtered)
 
     @override
