@@ -22,18 +22,17 @@ from openstef_models.transforms.postprocessing.confidence_interval_applicator im
 @pytest.fixture
 def validation_data() -> MultiHorizon[ForecastInputDataset]:
     """Validation data with multiple horizons (6h and 12h) spanning 6 days."""
-    rng = np.random.default_rng(42)
     index = pd.date_range("2018-01-01 00:00:00", periods=144, freq="1h")
     base_pattern = [4.0, 2.0, 5.0, 2.0, 4.0, 2.0, 5.0, 2.0]
     actual_values = np.tile(base_pattern, 18)
 
     data_6h = pd.DataFrame(
-        {"target": actual_values, "feature_1": rng.random(144)},
+        {"target": actual_values, "feature_1": np.arange(144)},
         index=index,
     )
 
     data_12h = pd.DataFrame(
-        {"target": actual_values, "feature_1": rng.random(144)},
+        {"target": actual_values, "feature_1": np.arange(144)},
         index=index,
     )
 
