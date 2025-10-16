@@ -606,7 +606,7 @@ versioned and unversioned (single horizon) datasets.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">timedelta</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">LeadTime</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">VersionedTimeSeriesDataset</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.transforms.time_domain</span><span class="w"> </span><span class="kn">import</span> <span class="n">CyclicFeaturesTransform</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.transforms.time_domain</span><span class="w"> </span><span class="kn">import</span> <span class="n">CyclicFeaturesAdder</span>
 <span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Create a versioned time series dataset</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
@@ -626,7 +626,7 @@ versioned and unversioned (single horizon) datasets.</p>
 <span class="gp">... </span>    <span class="n">horizons</span><span class="o">=</span><span class="p">[</span><span class="n">LeadTime</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;PT1H&quot;</span><span class="p">),</span> <span class="n">LeadTime</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;PT24H&quot;</span><span class="p">)],</span>
 <span class="gp">... </span>    <span class="n">versioned_transforms</span><span class="o">=</span><span class="p">[],</span>  <span class="c1"># No versioned transforms available yet</span>
 <span class="gp">... </span>    <span class="n">horizon_transforms</span><span class="o">=</span><span class="p">[</span>
-<span class="gp">... </span>        <span class="n">CyclicFeaturesTransform</span><span class="p">(</span><span class="n">included_features</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;timeOfDay&quot;</span><span class="p">,</span> <span class="s2">&quot;season&quot;</span><span class="p">])</span>
+<span class="gp">... </span>        <span class="n">CyclicFeaturesAdder</span><span class="p">(</span><span class="n">included_features</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;timeOfDay&quot;</span><span class="p">,</span> <span class="s2">&quot;season&quot;</span><span class="p">])</span>
 <span class="gp">... </span>    <span class="p">]</span>
 <span class="gp">... </span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt;</span>
@@ -657,7 +657,7 @@ versioned and unversioned (single horizon) datasets.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">single_pipeline</span> <span class="o">=</span> <span class="n">FeatureEngineeringPipeline</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="n">horizons</span><span class="o">=</span><span class="p">[</span><span class="n">LeadTime</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;PT36H&quot;</span><span class="p">)],</span>
 <span class="gp">... </span>    <span class="n">horizon_transforms</span><span class="o">=</span><span class="p">[</span>
-<span class="gp">... </span>        <span class="n">CyclicFeaturesTransform</span><span class="p">(</span><span class="n">included_features</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;timeOfDay&quot;</span><span class="p">])</span>
+<span class="gp">... </span>        <span class="n">CyclicFeaturesAdder</span><span class="p">(</span><span class="n">included_features</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;timeOfDay&quot;</span><span class="p">])</span>
 <span class="gp">... </span>    <span class="p">]</span>
 <span class="gp">... </span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt;</span>

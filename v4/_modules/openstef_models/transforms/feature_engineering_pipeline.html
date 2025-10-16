@@ -494,7 +494,7 @@
 <span class="sd">        &gt;&gt;&gt; from datetime import timedelta</span>
 <span class="sd">        &gt;&gt;&gt; from openstef_core.types import LeadTime</span>
 <span class="sd">        &gt;&gt;&gt; from openstef_core.datasets import VersionedTimeSeriesDataset</span>
-<span class="sd">        &gt;&gt;&gt; from openstef_models.transforms.time_domain import CyclicFeaturesTransform</span>
+<span class="sd">        &gt;&gt;&gt; from openstef_models.transforms.time_domain import CyclicFeaturesAdder</span>
 <span class="sd">        &gt;&gt;&gt;</span>
 <span class="sd">        &gt;&gt;&gt; # Create a versioned time series dataset</span>
 <span class="sd">        &gt;&gt;&gt; data = pd.DataFrame({</span>
@@ -514,7 +514,7 @@
 <span class="sd">        ...     horizons=[LeadTime.from_string(&quot;PT1H&quot;), LeadTime.from_string(&quot;PT24H&quot;)],</span>
 <span class="sd">        ...     versioned_transforms=[],  # No versioned transforms available yet</span>
 <span class="sd">        ...     horizon_transforms=[</span>
-<span class="sd">        ...         CyclicFeaturesTransform(included_features=[&quot;timeOfDay&quot;, &quot;season&quot;])</span>
+<span class="sd">        ...         CyclicFeaturesAdder(included_features=[&quot;timeOfDay&quot;, &quot;season&quot;])</span>
 <span class="sd">        ...     ]</span>
 <span class="sd">        ... )</span>
 <span class="sd">        &gt;&gt;&gt;</span>
@@ -546,7 +546,7 @@
 <span class="sd">        &gt;&gt;&gt; single_pipeline = FeatureEngineeringPipeline.create(</span>
 <span class="sd">        ...     horizons=[LeadTime.from_string(&quot;PT36H&quot;)],</span>
 <span class="sd">        ...     horizon_transforms=[</span>
-<span class="sd">        ...         CyclicFeaturesTransform(included_features=[&quot;timeOfDay&quot;])</span>
+<span class="sd">        ...         CyclicFeaturesAdder(included_features=[&quot;timeOfDay&quot;])</span>
 <span class="sd">        ...     ]</span>
 <span class="sd">        ... )</span>
 <span class="sd">        &gt;&gt;&gt;</span>
