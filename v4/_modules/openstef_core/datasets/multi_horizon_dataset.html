@@ -495,11 +495,11 @@
 <span class="sd">        &gt;&gt;&gt; # Create sample datasets for two horizons</span>
 <span class="sd">        &gt;&gt;&gt; data_1h = pd.DataFrame({</span>
 <span class="sd">        ...     &#39;load&#39;: [100, 110],</span>
-<span class="sd">        ... }, index=pd.date_range(&#39;2025-01-01&#39;, periods=2, freq=&#39;1H&#39;))</span>
+<span class="sd">        ... }, index=pd.date_range(&#39;2025-01-01&#39;, periods=2, freq=&#39;1h&#39;))</span>
 <span class="sd">        &gt;&gt;&gt; dataset_1h = TimeSeriesDataset(data_1h, sample_interval=timedelta(hours=1))</span>
 <span class="sd">        &gt;&gt;&gt; data_24h = pd.DataFrame({</span>
 <span class="sd">        ...     &#39;load&#39;: [120, 130],</span>
-<span class="sd">        ... }, index=pd.date_range(&#39;2025-01-01&#39;, periods=2, freq=&#39;1H&#39;))</span>
+<span class="sd">        ... }, index=pd.date_range(&#39;2025-01-01&#39;, periods=2, freq=&#39;1h&#39;))</span>
 <span class="sd">        &gt;&gt;&gt; dataset_24h = TimeSeriesDataset(data_24h, sample_interval=timedelta(hours=1))</span>
 <span class="sd">        &gt;&gt;&gt; # Create MultiHorizon mapping</span>
 <span class="sd">        &gt;&gt;&gt; horizons = MultiHorizon({</span>
