@@ -52,11 +52,11 @@ class MultiHorizon[T: TimeSeriesDataset](UserDict[LeadTime, T], TimeSeriesMixin,
         >>> # Create sample datasets for two horizons
         >>> data_1h = pd.DataFrame({
         ...     'load': [100, 110],
-        ... }, index=pd.date_range('2025-01-01', periods=2, freq='1H'))
+        ... }, index=pd.date_range('2025-01-01', periods=2, freq='1h'))
         >>> dataset_1h = TimeSeriesDataset(data_1h, sample_interval=timedelta(hours=1))
         >>> data_24h = pd.DataFrame({
         ...     'load': [120, 130],
-        ... }, index=pd.date_range('2025-01-01', periods=2, freq='1H'))
+        ... }, index=pd.date_range('2025-01-01', periods=2, freq='1h'))
         >>> dataset_24h = TimeSeriesDataset(data_24h, sample_interval=timedelta(hours=1))
         >>> # Create MultiHorizon mapping
         >>> horizons = MultiHorizon({

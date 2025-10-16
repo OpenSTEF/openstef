@@ -50,9 +50,10 @@ def pinball_loss_magnitude_weighted_multi_objective(
             to different samples in the loss computation.
 
     Returns:
-        tuple: (gradient, hessian) arrays flattened for XGBoost multi-output format
-            - gradient: First derivative scaled by error magnitude, normalized by n_quantiles
-            - hessian: Constant positive values for numerical stability, normalized by n_quantiles
+        tuple: (gradient, hessian) arrays in 2D format for XGBoost multi-output
+            - gradient: First derivative scaled by error magnitude, shape (n_samples, n_quantiles)
+            - hessian: Constant positive values for numerical stability, shape (n_samples, n_quantiles)
+            Both arrays are normalized by n_quantiles for consistent loss values.
 
     Mathematical Formulation:
         Standard pinball loss gradient: ∇L = (τ - I(error < 0))
@@ -101,8 +102,8 @@ def pinball_loss_magnitude_weighted_multi_objective(
         gradient *= sample_weight
         hessian *= sample_weight
 
-    # Normalize by number of quantiles for consistent loss value.
-    return gradient.flatten() / n_quantiles, hessian.flatten() / n_quantiles
+    # Shape: (n_samples, n_quantiles) for proper multi-output format
+    return gradient / n_quantiles, hessian / n_quantiles
 
 
 def arctan_loss_multi_objective(
@@ -135,9 +136,10 @@ def arctan_loss_multi_objective(
            to standard pinball loss but reduce second derivative magnitude.
 
     Returns:
-        tuple: (gradient, hessian) arrays flattened and normalized for XGBoost multi-output
-            - gradient: First derivative of arctan pinball loss, normalized by n_quantiles
-            - hessian: Second derivative of arctan pinball loss, normalized by n_quantiles
+        tuple: (gradient, hessian) arrays in 2D format for XGBoost multi-output
+            - gradient: First derivative of arctan pinball loss, shape (n_samples, n_quantiles)
+            - hessian: Second derivative of arctan pinball loss, shape (n_samples, n_quantiles)
+            Both arrays are normalized by n_quantiles for consistent optimization dynamics.
 
     Mathematical Formulation:
         Loss function: L^(arctan)_τ,s(u) = (τ - 0.5 + arctan(u/s)/π) * u + s/π
@@ -201,8 +203,8 @@ def arctan_loss_multi_objective(
         grad *= sample_weight
         hess *= sample_weight
 
-    # Flatten arrays back to original XGBoost format
-    return -grad.flatten() / n_quantiles, hess.flatten() / n_quantiles
+    # Shape: (n_samples, n_quantiles) for proper multi-output format
+    return -grad / n_quantiles, hess / n_quantiles
 
 
 def pinball_loss_multi_objective(
@@ -237,9 +239,10 @@ def pinball_loss_multi_objective(
             to different samples in the loss computation.
 
     Returns:
-        tuple: (gradient, hessian) arrays flattened for XGBoost multi-output format
-            - gradient: First derivative of pinball loss, normalized by n_quantiles
-            - hessian: Constant positive values for numerical stability, normalized by n_quantiles
+        tuple: (gradient, hessian) arrays in 2D format for XGBoost multi-output
+            - gradient: First derivative of pinball loss, shape (n_samples, n_quantiles)
+            - hessian: Constant positive values for numerical stability, shape (n_samples, n_quantiles)
+            Both arrays are normalized by n_quantiles for consistent loss values.
 
     Mathematical Formulation:
         Standard pinball loss gradient: ∇L = -τ * I(error < 0) + (1 - τ) * I(error >= 0)
@@ -281,8 +284,8 @@ def pinball_loss_multi_objective(
         gradient *= sample_weight
         hessian *= sample_weight
 
-    # Normalize by number of quantiles for consistent loss value.
-    return gradient.flatten() / n_quantiles, hessian.flatten() / n_quantiles
+    # Shape: (n_samples, n_quantiles) for proper multi-output format
+    return gradient / n_quantiles, hessian / n_quantiles
 
 
 type ObjectiveFunctionType = Literal["pinball_loss_magnitude_weighted", "pinball_loss", "arctan_loss"]

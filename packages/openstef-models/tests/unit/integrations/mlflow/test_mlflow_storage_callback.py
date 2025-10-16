@@ -12,6 +12,7 @@ import pandas as pd
 import pytest
 
 from openstef_core.datasets import TimeSeriesDataset
+from openstef_core.datasets.data_split import DataSplitStrategy, StratifiedTrainTestSplitter
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import ModelNotFoundError, SkipFitting
 from openstef_core.mixins import State
@@ -103,9 +104,15 @@ def workflow(sample_dataset: TimeSeriesDataset) -> ForecastingWorkflow:
     horizons = [LeadTime(timedelta(hours=1))]
     quantiles = [Q(0.5)]
 
+    # Disable train/val/test splitting to avoid R^2 warnings with small dataset
+    # (R^2 is undefined with less than 2 samples, and splitting 8 samples creates tiny sets)
     model = ForecastingModel(
         preprocessing=FeatureEngineeringPipeline(horizons=horizons),
         forecaster=SimpleTestForecaster(config=HorizonForecasterConfig(horizons=horizons, quantiles=quantiles)),
+        split_strategy=DataSplitStrategy(
+            test_splitter=StratifiedTrainTestSplitter(test_fraction=0.0),  # No test split
+            val_splitter=StratifiedTrainTestSplitter(test_fraction=0.0),  # No val split
+        ),
     )
 
     return ForecastingWorkflow(model_id="test_model", model=model)
@@ -246,9 +253,14 @@ def test_mlflow_storage_callback__model_selection__keeps_better_model(
     worse_forecaster._median_value = 50.0  # Much lower than actual values (~110)
     worse_forecaster._is_fitted = True
 
+    # Disable splits for worse model too to avoid R^2 warnings
     worse_model = ForecastingModel(
         preprocessing=FeatureEngineeringPipeline(horizons=worse_horizons),
         forecaster=worse_forecaster,
+        split_strategy=DataSplitStrategy(
+            test_splitter=StratifiedTrainTestSplitter(test_fraction=0.0),
+            val_splitter=StratifiedTrainTestSplitter(test_fraction=0.0),
+        ),
     )
 
     # Create a worse result by fitting with the worse model
