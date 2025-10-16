@@ -51,7 +51,7 @@ class FeatureEngineeringPipeline(
         >>> from datetime import timedelta
         >>> from openstef_core.types import LeadTime
         >>> from openstef_core.datasets import VersionedTimeSeriesDataset
-        >>> from openstef_models.transforms.time_domain import CyclicFeaturesTransform
+        >>> from openstef_models.transforms.time_domain import CyclicFeaturesAdder
         >>>
         >>> # Create a versioned time series dataset
         >>> data = pd.DataFrame({
@@ -71,7 +71,7 @@ class FeatureEngineeringPipeline(
         ...     horizons=[LeadTime.from_string("PT1H"), LeadTime.from_string("PT24H")],
         ...     versioned_transforms=[],  # No versioned transforms available yet
         ...     horizon_transforms=[
-        ...         CyclicFeaturesTransform(included_features=["timeOfDay", "season"])
+        ...         CyclicFeaturesAdder(included_features=["timeOfDay", "season"])
         ...     ]
         ... )
         >>>
@@ -103,7 +103,7 @@ class FeatureEngineeringPipeline(
         >>> single_pipeline = FeatureEngineeringPipeline.create(
         ...     horizons=[LeadTime.from_string("PT36H")],
         ...     horizon_transforms=[
-        ...         CyclicFeaturesTransform(included_features=["timeOfDay"])
+        ...         CyclicFeaturesAdder(included_features=["timeOfDay"])
         ...     ]
         ... )
         >>>

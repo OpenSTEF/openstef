@@ -8,18 +8,18 @@ data cleaning, normalization, and feature engineering utilities that can be appl
 across various domains.
 """
 
-from openstef_models.transforms.general.clipping_transform import ClippingTransform
-from openstef_models.transforms.general.dimensionality_reduction import DimensionalityReduction
-from openstef_models.transforms.general.imputation_transform import ImputationTransform
-from openstef_models.transforms.general.remove_empty_columns_transform import (
-    RemoveEmptyColumnsTransform,
+from openstef_models.transforms.general.clipper import Clipper
+from openstef_models.transforms.general.dimensionality_reducer import DimensionalityReducer
+from openstef_models.transforms.general.empty_feature_remover import (
+    EmptyFeatureRemover,
 )
-from openstef_models.transforms.general.scaler_transform import ScalerTransform
+from openstef_models.transforms.general.imputer import Imputer
+from openstef_models.transforms.general.scaler import Scaler
 
 __all__ = [
-    "ClippingTransform",
-    "DimensionalityReduction",
-    "ImputationTransform",
-    "RemoveEmptyColumnsTransform",
-    "ScalerTransform",
+    "Clipper",
+    "DimensionalityReducer",
+    "EmptyFeatureRemover",
+    "Imputer",
+    "Scaler",
 ]

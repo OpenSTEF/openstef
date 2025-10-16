@@ -10,16 +10,16 @@ patterns, holiday indicators, and daylight information to enhance time series
 forecasting models.
 """
 
-from openstef_models.transforms.time_domain.cyclic_features_transform import CyclicFeaturesTransform
-from openstef_models.transforms.time_domain.datetime_features_transform import (
-    DatetimeFeaturesTransform,
+from openstef_models.transforms.time_domain.cyclic_features_adder import CyclicFeaturesAdder
+from openstef_models.transforms.time_domain.datetime_features_adder import (
+    DatetimeFeaturesAdder,
 )
-from openstef_models.transforms.time_domain.holiday_features_transform import HolidayFeaturesTransform
-from openstef_models.transforms.time_domain.rolling_aggregate_transform import RollingAggregateTransform
+from openstef_models.transforms.time_domain.holiday_features_adder import HolidayFeatureAdder
+from openstef_models.transforms.time_domain.rolling_aggregates_adder import RollingAggregatesAdder
 
 __all__ = [
-    "CyclicFeaturesTransform",
-    "DatetimeFeaturesTransform",
-    "HolidayFeaturesTransform",
-    "RollingAggregateTransform",
+    "CyclicFeaturesAdder",
+    "DatetimeFeaturesAdder",
+    "HolidayFeatureAdder",
+    "RollingAggregatesAdder",
 ]

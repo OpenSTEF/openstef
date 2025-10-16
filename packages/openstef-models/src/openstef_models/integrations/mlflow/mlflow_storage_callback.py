@@ -25,9 +25,9 @@ from openstef_core.types import Q, QuantileOrGlobal
 from openstef_models.integrations.mlflow.mlflow_storage import MLFlowStorage
 from openstef_models.mixins.callbacks import WorkflowContext
 from openstef_models.models.forecasting_model import ModelFitResult
-from openstef_models.workflows.forecasting_workflow import (
+from openstef_models.workflows.custom_forecasting_workflow import (
+    CustomForecastingWorkflow,
     ForecastingCallback,
-    ForecastingWorkflow,
 )
 
 
@@ -44,6 +44,10 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
         default=(Q(0.5), "R2", "higher_is_better"),
         description="Metric to monitor for model performance when retraining.",
     )
+    model_selection_old_model_penalty: float = Field(
+        default=1.2,
+        description="Penalty to apply to the old model's metric to bias selection towards newer models.",
+    )
 
     _logger: logging.Logger = PrivateAttr(default=logging.getLogger(__name__))
 
@@ -54,7 +58,7 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
     @override
     def on_fit_start(
         self,
-        context: WorkflowContext[ForecastingWorkflow],
+        context: WorkflowContext[CustomForecastingWorkflow],
         data: VersionedTimeSeriesDataset | TimeSeriesDataset,
     ) -> None:
         if not self.model_reuse_enable:
@@ -80,7 +84,7 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
     @override
     def on_fit_end(
         self,
-        context: WorkflowContext[ForecastingWorkflow],
+        context: WorkflowContext[CustomForecastingWorkflow],
         result: ModelFitResult,
     ) -> None:
         if self.model_selection_enable:
@@ -120,7 +124,7 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
 
     @override
     def on_predict_start(
-        self, context: WorkflowContext[ForecastingWorkflow], data: VersionedTimeSeriesDataset | TimeSeriesDataset
+        self, context: WorkflowContext[CustomForecastingWorkflow], data: VersionedTimeSeriesDataset | TimeSeriesDataset
     ):
         if context.workflow.model.is_fitted:
             return
@@ -136,7 +140,7 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
         context.workflow.model = self.storage.load_run_model(run_id=run_id, model=context.workflow.model)
         self._logger.info("Loaded model from MLflow run %s for model %s", run_id, context.workflow.model_id)
 
-    def _run_model_selection(self, workflow: ForecastingWorkflow, result: ModelFitResult) -> None:
+    def _run_model_selection(self, workflow: CustomForecastingWorkflow, result: ModelFitResult) -> None:
         # Find the latest successful run for this model
         runs = self.storage.search_latest_runs(model_id=workflow.model_id)
         run = next(iter(runs), None)
@@ -190,9 +194,9 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
         )
 
         match direction:
-            case "higher_is_better" if new_metric >= old_metric:
+            case "higher_is_better" if new_metric >= old_metric / self.model_selection_old_model_penalty:
                 return True
-            case "lower_is_better" if new_metric <= old_metric:
+            case "lower_is_better" if new_metric <= old_metric / self.model_selection_old_model_penalty:
                 return True
             case _:
                 return False

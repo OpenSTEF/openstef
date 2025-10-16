@@ -22,7 +22,7 @@ from openstef_models.mixins.callbacks import WorkflowContext
 from openstef_models.models.forecasting import HorizonForecaster, HorizonForecasterConfig
 from openstef_models.models.forecasting_model import ForecastingModel, ModelFitResult
 from openstef_models.transforms import FeatureEngineeringPipeline
-from openstef_models.workflows.forecasting_workflow import ForecastingWorkflow
+from openstef_models.workflows.custom_forecasting_workflow import CustomForecastingWorkflow
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -99,7 +99,7 @@ def sample_dataset() -> TimeSeriesDataset:
 
 
 @pytest.fixture
-def workflow(sample_dataset: TimeSeriesDataset) -> ForecastingWorkflow:
+def workflow(sample_dataset: TimeSeriesDataset) -> CustomForecastingWorkflow:
     """Create a forecasting workflow for testing."""
     horizons = [LeadTime(timedelta(hours=1))]
     quantiles = [Q(0.5)]
@@ -115,18 +115,18 @@ def workflow(sample_dataset: TimeSeriesDataset) -> ForecastingWorkflow:
         ),
     )
 
-    return ForecastingWorkflow(model_id="test_model", model=model)
+    return CustomForecastingWorkflow(model_id="test_model", model=model)
 
 
 @pytest.fixture
-def fit_result(sample_dataset: TimeSeriesDataset, workflow: ForecastingWorkflow) -> ModelFitResult:
+def fit_result(sample_dataset: TimeSeriesDataset, workflow: CustomForecastingWorkflow) -> ModelFitResult:
     """Create a fit result with metrics for testing."""
     # Fit the model and get the result which includes metrics
     return workflow.model.fit(sample_dataset)
 
 
 def test_mlflow_storage_callback__on_fit_end__stores_model_and_metrics(
-    callback: MLFlowStorageCallback, workflow: ForecastingWorkflow, fit_result: ModelFitResult
+    callback: MLFlowStorageCallback, workflow: CustomForecastingWorkflow, fit_result: ModelFitResult
 ):
     """Test that on_fit_end stores model, data, and metrics to MLflow."""
     # Arrange
@@ -147,7 +147,7 @@ def test_mlflow_storage_callback__on_fit_end__stores_model_and_metrics(
 
 def test_mlflow_storage_callback__on_predict_start__loads_model_when_not_fitted(
     callback: MLFlowStorageCallback,
-    workflow: ForecastingWorkflow,
+    workflow: CustomForecastingWorkflow,
     fit_result: ModelFitResult,
     sample_dataset: TimeSeriesDataset,
 ):
@@ -158,7 +158,7 @@ def test_mlflow_storage_callback__on_predict_start__loads_model_when_not_fitted(
 
     # Create a new unfitted workflow
     horizons = [LeadTime(timedelta(hours=1))]
-    unfitted_workflow = ForecastingWorkflow(
+    unfitted_workflow = CustomForecastingWorkflow(
         model_id="test_model",
         model=ForecastingModel(
             preprocessing=FeatureEngineeringPipeline(horizons=horizons),
@@ -180,7 +180,7 @@ def test_mlflow_storage_callback__on_predict_start__raises_error_when_no_model_e
     """Test that on_predict_start raises ModelNotFoundError when no stored model exists."""
     # Arrange - Create unfitted workflow without any stored runs
     horizons = [LeadTime(timedelta(hours=1))]
-    unfitted_workflow = ForecastingWorkflow(
+    unfitted_workflow = CustomForecastingWorkflow(
         model_id="nonexistent_model",
         model=ForecastingModel(
             preprocessing=FeatureEngineeringPipeline(horizons=horizons),
@@ -203,7 +203,7 @@ def test_mlflow_storage_callback__on_predict_start__raises_error_when_no_model_e
 )
 def test_mlflow_storage_callback__on_fit_start__model_reuse_logic(
     storage: MLFlowStorage,
-    workflow: ForecastingWorkflow,
+    workflow: CustomForecastingWorkflow,
     fit_result: ModelFitResult,
     max_age: timedelta,
     wait_seconds: int,
@@ -232,7 +232,7 @@ def test_mlflow_storage_callback__on_fit_start__model_reuse_logic(
 
 def test_mlflow_storage_callback__model_selection__keeps_better_model(
     storage: MLFlowStorage,
-    workflow: ForecastingWorkflow,
+    workflow: CustomForecastingWorkflow,
     fit_result: ModelFitResult,
     sample_dataset: TimeSeriesDataset,
 ):
@@ -266,7 +266,7 @@ def test_mlflow_storage_callback__model_selection__keeps_better_model(
     # Create a worse result by fitting with the worse model
     worse_result = worse_model.fit(sample_dataset)
 
-    worse_workflow = ForecastingWorkflow(model_id="test_model", model=worse_model)
+    worse_workflow = CustomForecastingWorkflow(model_id="test_model", model=worse_model)
     worse_context = WorkflowContext(workflow=worse_workflow)
 
     # Act & Assert - Should raise SkipFitting because new model is worse

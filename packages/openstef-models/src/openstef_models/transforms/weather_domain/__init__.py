@@ -9,9 +9,9 @@ datasets, including meteorological data preprocessing and weather-based feature
 engineering for improved forecasting accuracy.
 """
 
-from openstef_models.transforms.weather_domain.daylight_features_transform import DaylightFeaturesTransform
-from openstef_models.transforms.weather_domain.radiation_derived_features import (
-    RadiationDerivedFeaturesTransform,
+from openstef_models.transforms.weather_domain.daylight_feature_adder import DaylightFeatureAdder
+from openstef_models.transforms.weather_domain.radiation_derived_features_adder import (
+    RadiationDerivedFeaturesAdder,
 )
 
-__all__ = ["DaylightFeaturesTransform", "RadiationDerivedFeaturesTransform"]
+__all__ = ["DaylightFeatureAdder", "RadiationDerivedFeaturesAdder"]

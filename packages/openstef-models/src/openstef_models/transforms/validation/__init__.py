@@ -9,7 +9,7 @@ datasets, including data integrity checks and validation transformations that en
 data quality before model training and inference.
 """
 
-from openstef_models.transforms.validation.completeness_check import CompletenessCheckTransform
-from openstef_models.transforms.validation.flatliner_check import FlatlinerCheckTransform
+from openstef_models.transforms.validation.completeness_checker import CompletenessChecker
+from openstef_models.transforms.validation.flatline_checker import FlatlineChecker
 
-__all__ = ["CompletenessCheckTransform", "FlatlinerCheckTransform"]
+__all__ = ["CompletenessChecker", "FlatlineChecker"]
