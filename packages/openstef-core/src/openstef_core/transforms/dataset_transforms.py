@@ -10,6 +10,7 @@ These interfaces build on the core Transform mixin with specialized support for
 forecasting use cases.
 """
 
+from abc import abstractmethod
 from typing import override
 
 from openstef_core.datasets import MultiHorizon, VersionedTimeSeriesDataset
@@ -89,6 +90,15 @@ class TimeSeriesTransform(Transform[TimeSeriesDataset, TimeSeriesDataset]):
         )
 
         return MultiHorizonTransformAdapter(time_series_transform=self)
+
+    @abstractmethod
+    def features_added(self) -> list[str]:
+        """List of feature names added by this transform.
+
+        Returns:
+            A list of strings representing the names of features added
+            to the dataset by this transform. Default is an empty list.
+        """
 
 
 class VersionedTimeSeriesTransform(Transform[VersionedTimeSeriesDataset, VersionedTimeSeriesDataset]):

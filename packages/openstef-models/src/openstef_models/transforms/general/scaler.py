@@ -18,6 +18,7 @@ from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.exceptions import MissingExtraError, TransformNotFittedError
 from openstef_core.mixins import State
 from openstef_core.transforms import TimeSeriesTransform
+from openstef_models.utils.feature_selection import FeatureSelection
 
 try:
     from sklearn.preprocessing import MaxAbsScaler, MinMaxScaler, RobustScaler, StandardScaler
@@ -66,9 +67,9 @@ class Scaler(BaseConfig, TimeSeriesTransform):
     """
 
     method: ScalingMethod = Field(default="standard", description="Scaling method to use.")
-    columns: list[str] | None = Field(
-        default=None,
-        description="List of column names to apply imputation to. If None, applies to all columns.",
+    selection: FeatureSelection = Field(
+        default=FeatureSelection.ALL,
+        description="Features to scale.",
     )
 
     _scaler: MinMaxScaler | MaxAbsScaler | StandardScaler | RobustScaler = PrivateAttr()
@@ -98,8 +99,8 @@ class Scaler(BaseConfig, TimeSeriesTransform):
         Args:
             data: Time series dataset.
         """
-        columns = self.columns or data.feature_names
-        self._scaler.fit(data.data[columns])  # type: ignore[reportUnknownMemberType]
+        features = self.selection.resolve(data.feature_names)
+        self._scaler.fit(data.data[features])  # type: ignore[reportUnknownMemberType]
         self._is_fitted = True
 
     @override
@@ -107,9 +108,9 @@ class Scaler(BaseConfig, TimeSeriesTransform):
         if not self._is_fitted:
             raise TransformNotFittedError(self.__class__.__name__)
 
-        columns = self.columns or data.feature_names
+        features = self.selection.resolve(data.feature_names)
         scaled_data = data.data.copy()
-        scaled_data[columns] = self._scaler.transform(scaled_data[columns])
+        scaled_data[features] = self._scaler.transform(scaled_data[features])
 
         return TimeSeriesDataset(
             data=scaled_data,
@@ -134,3 +135,7 @@ class Scaler(BaseConfig, TimeSeriesTransform):
         instance._scaler.__setstate__(state["scaler"])  # pyright: ignore[reportUnknownMemberType]  # noqa: SLF001
         instance._is_fitted = state["is_fitted"]  # noqa: SLF001
         return instance
+
+    @override
+    def features_added(self) -> list[str]:
+        return []

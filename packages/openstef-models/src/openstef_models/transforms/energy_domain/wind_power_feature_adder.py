@@ -76,6 +76,10 @@ class WindPowerFeatureAdder(BaseConfig, TimeSeriesTransform):
         default=8.07,
         description="Slope center parameter for the power curve.",
     )
+    feature_name: str = Field(
+        default="wind_power",
+        description="Name of the generated wind power feature.",
+    )
 
     def _calculate_wind_speed_at_hub_height(self, wind_speed: pd.Series) -> pd.Series:
         """Calculates wind speed at hub height based on wind speed at reference height.
@@ -117,9 +121,9 @@ class WindPowerFeatureAdder(BaseConfig, TimeSeriesTransform):
             features[self.windspeed_hub_height_column] = self._calculate_wind_speed_at_hub_height(
                 data.data[self.windspeed_reference_column]
             )
-            features["wind_power"] = self._calculate_wind_power(features[self.windspeed_hub_height_column])
+            features[self.feature_name] = self._calculate_wind_power(features[self.windspeed_hub_height_column])
         else:
-            features["wind_power"] = self._calculate_wind_power(data.data[self.windspeed_hub_height_column])
+            features[self.feature_name] = self._calculate_wind_power(data.data[self.windspeed_hub_height_column])
 
         return TimeSeriesDataset(data=pd.concat([data.data, features], axis=1), sample_interval=data.sample_interval)
 
@@ -130,3 +134,7 @@ class WindPowerFeatureAdder(BaseConfig, TimeSeriesTransform):
     @override
     def from_state(self, state: State) -> Self:
         return self.model_validate(state)
+
+    @override
+    def features_added(self) -> list[str]:
+        return [self.feature_name]

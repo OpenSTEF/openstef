@@ -19,6 +19,7 @@ from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.exceptions import TransformNotFittedError
 from openstef_core.mixins import State
 from openstef_core.transforms import TimeSeriesTransform
+from openstef_models.utils.feature_selection import FeatureSelection
 
 _logger = logging.getLogger(__name__)
 
@@ -41,6 +42,7 @@ class EmptyFeatureRemover(BaseConfig, TimeSeriesTransform):
         >>> from openstef_models.transforms.general import (
         ...     EmptyFeatureRemover,
         ... )
+        >>> from openstef_models.utils.feature_selection import FeatureSelection
         >>> # Create dataset with some empty columns
         >>> data = pd.DataFrame(
         ...     {
@@ -59,7 +61,9 @@ class EmptyFeatureRemover(BaseConfig, TimeSeriesTransform):
         >>> list(result.data.columns)
         ['radiation', 'temperature']
         >>> # Only check specific columns
-        >>> transform_selective = EmptyFeatureRemover(columns={"empty_col1", "radiation"})
+        >>> transform_selective = EmptyFeatureRemover(
+        ...     selection=FeatureSelection(include={"empty_col1", "radiation"})
+        ... )
         >>> transform_selective.fit(dataset)
         >>> result_selective = transform_selective.transform(dataset)
         >>> "empty_col1" in result_selective.data.columns
@@ -68,9 +72,9 @@ class EmptyFeatureRemover(BaseConfig, TimeSeriesTransform):
         True
     """
 
-    columns: set[str] | None = Field(
-        default=None,
-        description="Set of column names to check for emptiness. If None, checks all columns.",
+    selection: FeatureSelection = Field(
+        default=FeatureSelection.ALL,
+        description="Features to check for emptiness.",
     )
     missing_value: float = Field(
         default=np.nan,
@@ -87,8 +91,8 @@ class EmptyFeatureRemover(BaseConfig, TimeSeriesTransform):
 
     @override
     def fit(self, data: TimeSeriesDataset) -> None:
-        columns = (self.columns or set(data.data.columns)).intersection(data.data.columns)
-        data_subset = data.data[list(columns)]
+        features = self.selection.resolve(data.feature_names)
+        data_subset = data.data[features]
 
         empty_mask = (
             data_subset.isna().all() if np.isnan(self.missing_value) else (data_subset == self.missing_value).all()
@@ -127,3 +131,7 @@ class EmptyFeatureRemover(BaseConfig, TimeSeriesTransform):
         instance._remove_columns = set(state["remove_columns"])  # noqa: SLF001
         instance._is_fitted = state["is_fitted"]  # noqa: SLF001
         return instance
+
+    @override
+    def features_added(self) -> list[str]:
+        return []

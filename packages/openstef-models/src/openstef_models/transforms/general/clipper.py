@@ -9,7 +9,7 @@ minimum and maximum ranges during training, preventing out-of-range values
 during inference and improving model robustness.
 """
 
-from typing import Any, Self, cast, override
+from typing import Any, Literal, Self, cast, override
 
 import pandas as pd
 from pydantic import Field, PrivateAttr
@@ -19,6 +19,9 @@ from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.exceptions import TransformNotFittedError
 from openstef_core.mixins import State
 from openstef_core.transforms import TimeSeriesTransform
+from openstef_models.utils.feature_selection import FeatureSelection
+
+type ClipMode = Literal["minmax", "standard"]
 
 
 class Clipper(BaseConfig, TimeSeriesTransform):
@@ -46,7 +49,7 @@ class Clipper(BaseConfig, TimeSeriesTransform):
         ... freq='1h'))
         >>> test_dataset = TimeSeriesDataset(test_data, timedelta(hours=1))
         >>> # Initialize and apply transform
-        >>> clipper = Clipper(column_names=['load', 'temperature'])
+        >>> clipper = Clipper(select=FeatureSelection(include=['load', 'temperature']), mode='minmax')
         >>> clipper.fit(training_dataset)
         >>> transformed_dataset = clipper.transform(test_dataset)
         >>> clipper._feature_mins.to_dict()
@@ -60,10 +63,21 @@ class Clipper(BaseConfig, TimeSeriesTransform):
 
     """
 
-    column_names: list[str] = Field(description="Columns to apply clipping to.")
+    selection: FeatureSelection = Field(default=FeatureSelection.ALL, description="Features to clip.")
+    mode: ClipMode = Field(
+        default="minmax",
+        description="Clipping mode: 'minmax' clips to observed min/max, 'standard' clips to mean ± n_std * std",
+    )
+    n_std: float = Field(
+        default=2.0,
+        gt=0.0,
+        description="Number of standard deviations to clip at (only used when mode='standard')",
+    )
 
     _feature_mins: pd.Series = PrivateAttr(default_factory=pd.Series)
     _feature_maxs: pd.Series = PrivateAttr(default_factory=pd.Series)
+    _feature_means: pd.Series = PrivateAttr(default_factory=pd.Series)
+    _feature_stds: pd.Series = PrivateAttr(default_factory=pd.Series)
     _is_fitted: bool = PrivateAttr(default=False)
 
     @property
@@ -73,8 +87,13 @@ class Clipper(BaseConfig, TimeSeriesTransform):
 
     @override
     def fit(self, data: TimeSeriesDataset) -> None:
-        self._feature_mins = data.data.reindex(self.column_names, axis=1).min()
-        self._feature_maxs = data.data.reindex(self.column_names, axis=1).max()
+        features = self.selection.resolve(data.feature_names)
+        if self.mode == "minmax":
+            self._feature_mins = data.data.reindex(features, axis=1).min()
+            self._feature_maxs = data.data.reindex(features, axis=1).max()
+        else:  # mode == "standard"
+            self._feature_means = data.data.reindex(features, axis=1).mean()
+            self._feature_stds = data.data.reindex(features, axis=1).std()
         self._is_fitted = True
 
     @override
@@ -82,28 +101,52 @@ class Clipper(BaseConfig, TimeSeriesTransform):
         if not self._is_fitted:
             raise TransformNotFittedError(self.__class__.__name__)
 
-        min_aligned = self._feature_mins.reindex(data.feature_names)
-        max_aligned = self._feature_maxs.reindex(data.feature_names)
+        features = self.selection.resolve(data.feature_names)
+        transformed_data = data.data.copy()
 
-        transformed_data = data.data.clip(lower=min_aligned, upper=max_aligned, axis=1)
+        if self.mode == "minmax":
+            min_aligned = self._feature_mins.reindex(features)
+            max_aligned = self._feature_maxs.reindex(features)
+            transformed_data[features] = data.data[features].clip(lower=min_aligned, upper=max_aligned, axis=1)
+        else:  # mode == "standard"
+            mean_aligned = self._feature_means.reindex(features)
+            std_aligned = self._feature_stds.reindex(features)
+            lower_bound = mean_aligned - self.n_std * std_aligned
+            upper_bound = mean_aligned + self.n_std * std_aligned
+            transformed_data[features] = data.data[features].clip(lower=lower_bound, upper=upper_bound, axis=1)
 
         return TimeSeriesDataset(data=transformed_data, sample_interval=data.sample_interval)
 
     @override
     def to_state(self) -> State:
-        return {
+        state: dict[str, Any] = {
             "config": self.model_dump(mode="json"),
-            "column_names": self.column_names,
-            "feature_mins": self._feature_mins,
-            "feature_maxs": self._feature_maxs,
             "is_fitted": self._is_fitted,
+            "mode": self.mode,
         }
+        if self.mode == "minmax":
+            state["feature_mins"] = self._feature_mins
+            state["feature_maxs"] = self._feature_maxs
+        else:  # mode == "standard"
+            state["feature_means"] = self._feature_means
+            state["feature_stds"] = self._feature_stds
+        return cast(State, state)
 
     @override
     def from_state(self, state: State) -> Self:
-        state = cast(dict[str, Any], state)
-        instance = self.model_validate(state["config"])
-        instance._feature_mins = state["feature_mins"]  # noqa: SLF001
-        instance._feature_maxs = state["feature_maxs"]  # noqa: SLF001
-        instance._is_fitted = state["is_fitted"]  # noqa: SLF001
+        state_dict = cast(dict[str, Any], state)
+        instance = self.model_validate(state_dict["config"])
+
+        if instance.mode == "minmax":
+            instance._feature_mins = state_dict["feature_mins"]  # noqa: SLF001
+            instance._feature_maxs = state_dict["feature_maxs"]  # noqa: SLF001
+        else:  # mode == "standard"
+            instance._feature_means = state_dict["feature_means"]  # noqa: SLF001
+            instance._feature_stds = state_dict["feature_stds"]  # noqa: SLF001
+
+        instance._is_fitted = state_dict["is_fitted"]  # noqa: SLF001
         return instance
+
+    @override
+    def features_added(self) -> list[str]:
+        return []

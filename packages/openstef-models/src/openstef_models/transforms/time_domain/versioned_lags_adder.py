@@ -48,11 +48,6 @@ class VersionedLagsAdder(BaseConfig, VersionedTimeSeriesTransform):
     - **Short lags + long lead times**: Use high-quality data (available later)
     - **Long lags + short lead times**: Use lower-quality data (available sooner)
 
-    Args:
-        column: Name of the column to create lag features from.
-        lags: List of lag periods. Negative values look backward in time (typical use).
-              Example: timedelta(hours=-2) uses data from 2 hours ago.
-
     Example:
         Create lag features for energy forecasting:
 
@@ -70,14 +65,14 @@ class VersionedLagsAdder(BaseConfig, VersionedTimeSeriesTransform):
 
         >>> # Create 1-hour and 2-hour lag features
         >>> transform = VersionedLagsAdder(
-        ...     column='load',
+        ...     feature='load',
         ...     lags=[timedelta(hours=-1), timedelta(hours=-2)]
         ... )
         >>> result = transform.transform(dataset)
         >>> snapshot = result.select_version()
 
         >>> # Check lag feature names
-        >>> lag_features = [col for col in snapshot.data.columns if 'lag' in col]
+        >>> lag_features = [col for col in snapshot.feature_names if 'lag' in col]
         >>> sorted(lag_features)
         ['load_lag_-PT1H', 'load_lag_-PT2H']
 
@@ -91,13 +86,14 @@ class VersionedLagsAdder(BaseConfig, VersionedTimeSeriesTransform):
         to 15:00. This prevents creating timepoints outside the forecasting range.
     """
 
-    column: str = Field(
+    feature: str = Field(
         default=...,
         description="The name of the column to apply the lags on.",
     )
     lags: list[timedelta] = Field(
         default=[],
-        description="List of lags to apply to the time series data. Negative values indicate look back.",
+        description="List of lags to apply to the time series data. Negative values indicate look back. "
+        "For example timedelta(hours=-2) uses data from 2 hours ago.",
         min_length=1,
     )
 
@@ -112,12 +108,12 @@ class VersionedLagsAdder(BaseConfig, VersionedTimeSeriesTransform):
 
     @override
     def transform(self, data: VersionedTimeSeriesDataset) -> VersionedTimeSeriesDataset:
-        if self.column not in data.feature_names:
-            raise MissingColumnsError(missing_columns=[self.column])
+        if self.feature not in data.feature_names:
+            raise MissingColumnsError(missing_columns=[self.feature])
 
-        source_part = next(part for part in data.data_parts if self.column in part.feature_names)
+        source_part = next(part for part in data.data_parts if self.feature in part.feature_names)
         lag_parts: list[VersionedTimeSeriesPart] = [
-            _transform_to_lag(data=source_part, column=self.column, lag=lag) for lag in self.lags
+            _transform_to_lag(data=source_part, feature=self.feature, lag=lag) for lag in self.lags
         ]
 
         return VersionedTimeSeriesDataset(
@@ -136,9 +132,9 @@ class VersionedLagsAdder(BaseConfig, VersionedTimeSeriesTransform):
         return self.model_validate(state)
 
 
-def _transform_to_lag(data: VersionedTimeSeriesPart, column: str, lag: timedelta) -> VersionedTimeSeriesPart:
+def _transform_to_lag(data: VersionedTimeSeriesPart, feature: str, lag: timedelta) -> VersionedTimeSeriesPart:
     # Shift timestamps forward by the lag duration
-    data_df = data.data.rename(columns={column: f"{column}_lag_{timedelta_to_isoformat(lag)}"})
+    data_df = data.data.rename(columns={feature: f"{feature}_lag_{timedelta_to_isoformat(lag)}"})
     data_df[data.timestamp_column] = data_df[data.timestamp_column].sub(lag)  # pyright: ignore[reportArgumentType]
 
     # Lagging adds a lot of new timepoints outside the original range.

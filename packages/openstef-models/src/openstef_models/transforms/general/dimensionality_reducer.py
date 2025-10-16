@@ -19,6 +19,7 @@ from openstef_core.datasets.timeseries_dataset import TimeSeriesDataset
 from openstef_core.exceptions import NotFittedError
 from openstef_core.mixins import State
 from openstef_core.transforms import TimeSeriesTransform
+from openstef_models.utils.feature_selection import FeatureSelection
 
 if TYPE_CHECKING:
     import numpy as np
@@ -47,8 +48,9 @@ class DimensionalityReducer(BaseConfig, TimeSeriesTransform):
         ... }, index=pd.date_range('2025-01-01', periods=5, freq='1h'))
         >>> dataset = TimeSeriesDataset(data, timedelta(hours=1))
         >>> # Initialize and apply transform
+        >>> from openstef_models.utils.feature_selection import FeatureSelection
         >>> dim_reducer = DimensionalityReducer(
-        ...     columns={'feature1', 'feature2', 'feature3'},
+        ...     selection=FeatureSelection(include={'feature1', 'feature2', 'feature3'}),
         ...     method="pca",
         ...     n_components=2,
         ...     random_state=1234
@@ -65,9 +67,9 @@ class DimensionalityReducer(BaseConfig, TimeSeriesTransform):
 
     """
 
-    columns: list[str] | None = Field(
-        default=None,
-        description="List of column names to apply dim reduction to. If None, applies to all columns.",
+    selection: FeatureSelection = Field(
+        default=FeatureSelection.ALL,
+        description="Features to apply dimensionality reduction to.",
     )
     method: Literal["pca", "factor_analysis", "fastica", "kernel_pca"] = Field(
         default="pca", description="Dimensionality reduction method to use."
@@ -88,22 +90,22 @@ class DimensionalityReducer(BaseConfig, TimeSeriesTransform):
 
     @override
     def fit(self, data: TimeSeriesDataset) -> None:
-        columns = self.columns or data.data.columns
-        self._dimensionality_reducer.fit(data.data[columns])  # type: ignore[reportUnknownMemberType]
+        features = self.selection.resolve(data.feature_names)
+        self._dimensionality_reducer.fit(data.data[features])  # type: ignore[reportUnknownMemberType]
         self._is_fitted = True
 
     @override
     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
-        columns = self.columns or data.data.columns
+        features = self.selection.resolve(data.feature_names)
         if not self._is_fitted:
             raise NotFittedError(self.__class__.__name__)
-        transformed_data: np.ndarray = self._dimensionality_reducer.transform(data.data[columns])  # type: ignore[reportUnknownMemberType]
+        transformed_data: np.ndarray = self._dimensionality_reducer.transform(data.data[features])  # type: ignore[reportUnknownMemberType]
         transformed_data_pd = pd.DataFrame(
             transformed_data,
             index=data.data.index,
             columns=[f"component_{i + 1}" for i in range(self.n_components)],
         )
-        untransformed_columns = [feature_name for feature_name in data.feature_names if feature_name not in columns]
+        untransformed_columns = [feature_name for feature_name in data.feature_names if feature_name not in features]
 
         transformed_data_pd = pd.concat(
             [transformed_data_pd, data.data[untransformed_columns]],
@@ -147,3 +149,7 @@ class DimensionalityReducer(BaseConfig, TimeSeriesTransform):
         instance._dimensionality_reducer.__setstate__(state["dimensionality_reducer"])  # pyright: ignore[reportUnknownMemberType] # noqa: SLF001
         instance._is_fitted = state["is_fitted"]  # noqa: SLF001
         return instance
+
+    @override
+    def features_added(self) -> list[str]:
+        return [f"component_{i + 1}" for i in range(self.n_components)]
