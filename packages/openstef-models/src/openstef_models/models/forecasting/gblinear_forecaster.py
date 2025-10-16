@@ -184,7 +184,7 @@ class GBLinearForecaster(HorizonForecaster):
             feature_selector=self._config.hyperparams.feature_selector,
             updater=self._config.hyperparams.updater,
             quantile_alpha=[float(q) for q in self._config.quantiles],
-            top_k=self._config.hyperparams.top_k,
+            top_k=self._config.hyperparams.top_k if self._config.hyperparams.feature_selector == "thrifty" else None,
         )
 
     @property

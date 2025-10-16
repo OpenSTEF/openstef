@@ -169,6 +169,12 @@ markers = [
   "integration: marks integration tests",
   "slow: marks slow-running tests",
 ]
+filterwarnings = [
+  # Ignore fork() deprecation warning from multiprocessing on macOS
+  # This warning occurs when pytest (multi-threaded) spawns processes using fork()
+  # Using spawn instead breaks test infrastructure (fixtures not picklable)
+  "ignore:This process.*is multi-threaded.*use of fork.*may lead to deadlocks:DeprecationWarning",
+]
 
 [tool.coverage.report]
 fail_under = 20
@@ -244,7 +250,7 @@ args = [
 
 [tool.poe.tasks.doctests]
 help = "Run all docstring examples via pytest’s doctest plugin"
-cmd = "pytest --numprocesses=auto --doctest-modules packages/*/src --maxfail=1 --disable-warnings"
+cmd = "pytest --numprocesses=auto --doctest-modules packages/*/src --maxfail=1"
 
 [tool.poe.tasks.report]
 help = "Generate coverage report. Will use data from a previous cover command."
