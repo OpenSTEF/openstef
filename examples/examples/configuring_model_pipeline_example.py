@@ -19,7 +19,7 @@ Key Components:
     - ForecastingModel: Complete forecasting pipeline
     - FeaturePipeline: Preprocessing with holidays and lags
     - LocalModelStorage: File-based model persistence
-    - ForecastingWorkflow: High-level orchestration
+    - CustomForecastingWorkflow: High-level orchestration
 
 This example is useful for understanding how to integrate all OpenSTEF components
 into a working forecasting system.
@@ -52,7 +52,7 @@ from openstef_models.transforms import FeatureEngineeringPipeline, Postprocessin
 from openstef_models.transforms.general import ScalerTransform
 from openstef_models.transforms.time_domain import HolidayFeaturesTransform
 from openstef_models.transforms.time_domain.lag_transform import VersionedLagTransform
-from openstef_models.workflows import ForecastingWorkflow
+from openstef_models.workflows import CustomForecastingWorkflow
 
 logging.basicConfig(level=logging.INFO, format="[%(asctime)s][%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)
@@ -116,7 +116,7 @@ model = ForecastingModel(
     },
 )
 
-pipeline = ForecastingWorkflow(
+pipeline = CustomForecastingWorkflow(
     model_id="gblinear_forecaster_v1",
     model=model,
     callbacks=[

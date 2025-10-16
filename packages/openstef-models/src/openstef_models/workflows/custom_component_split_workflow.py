@@ -20,7 +20,7 @@ from openstef_models.models import ComponentSplittingModel
 
 
 class ComponentSplitCallback(
-    PredictorCallback["ComponentSplitWorkflow", TimeSeriesDataset, None, EnergyComponentDataset]
+    PredictorCallback["CustomComponentSplitWorkflow", TimeSeriesDataset, None, EnergyComponentDataset]
 ):
     """Base callback interface for monitoring component splitting workflow lifecycle events.
 
@@ -46,7 +46,7 @@ class ComponentSplitCallback(
     """
 
 
-class ComponentSplitWorkflow(BaseModel):
+class CustomComponentSplitWorkflow(BaseModel):
     """Complete component splitting workflow with model management and lifecycle hooks.
 
     Orchestrates the full component splitting process by combining a ComponentSplittingModel
@@ -83,7 +83,7 @@ class ComponentSplitWorkflow(BaseModel):
         ...     def on_fit_end(self, workflow, data):
         ...         print("Model training completed")
         >>>
-        >>> workflow = ComponentSplitWorkflow(
+        >>> workflow = CustomComponentSplitWorkflow(
         ...     model=model, model_id="my_model", callbacks=LoggingCallback()
         ... ) # doctest: +SKIP
         >>> workflow.fit(dataset) # doctest: +SKIP
@@ -117,7 +117,7 @@ class ComponentSplitWorkflow(BaseModel):
             data: Training dataset for the component splitting model.
             data_val: Optional validation dataset for monitoring during training.
         """
-        context: WorkflowContext[ComponentSplitWorkflow] = WorkflowContext(workflow=self)
+        context: WorkflowContext[CustomComponentSplitWorkflow] = WorkflowContext(workflow=self)
 
         self.callbacks.on_fit_start(context=context, data=data)
 
@@ -143,7 +143,7 @@ class ComponentSplitWorkflow(BaseModel):
         if not self.model.is_fitted:
             raise NotFittedError(type(self.model).__name__)
 
-        context: WorkflowContext[ComponentSplitWorkflow] = WorkflowContext(workflow=self)
+        context: WorkflowContext[CustomComponentSplitWorkflow] = WorkflowContext(workflow=self)
 
         self.callbacks.on_predict_start(context=context, data=data)
 
