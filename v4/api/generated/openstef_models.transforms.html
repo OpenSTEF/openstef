@@ -449,6 +449,8 @@
 <li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">openstef_models.transforms</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="openstef_models.transforms.FeatureEngineeringPipeline.html">FeatureEngineeringPipeline</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_models.transforms.HorizonSplitTransform.html">HorizonSplitTransform</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_models.transforms.PostprocessingPipeline.html">PostprocessingPipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_models.transforms.PostprocessingTransform.html">PostprocessingTransform</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="openstef_models.models.html">openstef_models.models</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -592,6 +594,12 @@ weather and energy-domain feature transforms.</p>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="openstef_models.transforms.HorizonSplitTransform.html#openstef_models.transforms.HorizonSplitTransform" title="openstef_models.transforms.HorizonSplitTransform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HorizonSplitTransform</span></code></a>(**data)</p></td>
 <td><p>Transform that splits versioned datasets into horizon-specific time series.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="openstef_models.transforms.PostprocessingPipeline.html#openstef_models.transforms.PostprocessingPipeline" title="openstef_models.transforms.PostprocessingPipeline"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PostprocessingPipeline</span></code></a>(**data)</p></td>
+<td><p>Sequential pipeline of postprocessing transformations.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="openstef_models.transforms.PostprocessingTransform.html#openstef_models.transforms.PostprocessingTransform" title="openstef_models.transforms.PostprocessingTransform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PostprocessingTransform</span></code></a>()</p></td>
+<td><p>Base class for postprocessing transforms that operate on (input, output) tuples.</p></td>
 </tr>
 </tbody>
 </table>

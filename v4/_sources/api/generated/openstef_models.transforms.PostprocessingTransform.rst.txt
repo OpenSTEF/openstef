@@ -1,0 +1,12 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+PostprocessingTransform
+=======================
+
+.. currentmodule:: openstef_models.transforms
+
+.. autoclass:: PostprocessingTransform
+   :show-inheritance:
+   :members:

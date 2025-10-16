@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>openstef_beam.metrics &#8212; OpenSTEF 0.0.0 documentation</title>
+    <title>PostprocessingTransform &#8212; OpenSTEF 0.0.0 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../_static/copybutton.js?v=97f0b27d"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'api/generated/openstef_beam.metrics';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/generated/openstef_models.transforms.PostprocessingTransform';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = '_static/versions.json';
@@ -59,8 +59,8 @@
     <link rel="icon" href="../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="confusion_matrix" href="openstef_beam.metrics.confusion_matrix.html" />
-    <link rel="prev" title="openstef_models.explainability" href="openstef_models.explainability.html" />
+    <link rel="next" title="openstef_models.models" href="openstef_models.models.html" />
+    <link rel="prev" title="PostprocessingPipeline" href="openstef_models.transforms.PostprocessingPipeline.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="0.0.0" />
@@ -445,12 +445,12 @@
 </ul>
 </details></li>
 </ul>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1 has-children"><a class="reference internal" href="openstef_models.transforms.html">openstef_models.transforms</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="openstef_models.transforms.html">openstef_models.transforms</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="openstef_models.transforms.FeatureEngineeringPipeline.html">FeatureEngineeringPipeline</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_models.transforms.HorizonSplitTransform.html">HorizonSplitTransform</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_models.transforms.PostprocessingPipeline.html">PostprocessingPipeline</a></li>
-<li class="toctree-l2"><a class="reference internal" href="openstef_models.transforms.PostprocessingTransform.html">PostprocessingTransform</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">PostprocessingTransform</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="openstef_models.models.html">openstef_models.models</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -460,8 +460,8 @@
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="openstef_models.explainability.html">openstef_models.explainability</a></li>
 </ul>
-<ul class="current nav bd-sidenav">
-<li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">openstef_beam.metrics</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="openstef_beam.metrics.html">openstef_beam.metrics</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.confusion_matrix.html">confusion_matrix</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.crps.html">crps</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.fbeta.html">fbeta</a></li>
@@ -562,7 +562,10 @@
     
     <li class="breadcrumb-item"><a href="../index.html" class="nav-link">API Reference</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">openstef_beam.metrics</span></li>
+    
+    <li class="breadcrumb-item"><a href="openstef_models.transforms.html" class="nav-link">openstef_models.transforms</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">PostprocessingTransform</span></li>
   </ul>
 </nav>
 </div>
@@ -579,80 +582,24 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="module-openstef_beam.metrics">
-<span id="openstef-beam-metrics"></span><h1>openstef_beam.metrics<a class="headerlink" href="#module-openstef_beam.metrics" title="Link to this heading">#</a></h1>
-<p>Metrics for measuring how well energy forecasting models perform.</p>
-<p>Energy forecasting models can predict either single values (deterministic) or probability
-distributions (probabilistic). This module provides specialized metrics for both types,
-with particular focus on the operational challenges of energy systems like peak detection
-and scale differences between high and low load periods.</p>
+  <section id="postprocessingtransform">
+<h1>PostprocessingTransform<a class="headerlink" href="#postprocessingtransform" title="Link to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="openstef_models.transforms.PostprocessingTransform">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef_models.transforms.</span></span><span class="sig-name descname"><span class="pre">PostprocessingTransform</span></span><a class="reference internal" href="../../_modules/openstef_models/transforms/postprocessing_pipeline.html#PostprocessingTransform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_models.transforms.PostprocessingTransform" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Transform</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">I</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">O</span></code>], <code class="xref py py-obj docutils literal notranslate"><span class="pre">O</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">Generic</span></code></p>
+<p>Base class for postprocessing transforms that operate on (input, output) tuples.</p>
+<p>This transform type receives both the input data and current forecast/output,
+allowing transforms to use input context when modifying predictions. Common use
+cases include adding uncertainty estimates based on input features or applying
+input-dependent corrections.</p>
 <dl class="simple">
-<dt>What you can measure:</dt><dd><ul class="simple">
-<li><p>Forecast accuracy: How close are predictions to actual values?</p></li>
-<li><p>Peak detection: Can the model identify congestion events?</p></li>
-<li><p>Uncertainty quality: For probabilistic forecasts, are confidence intervals reliable?</p></li>
-<li><p>Cross-period comparison: Compare model performance across seasons, times, etc.</p></li>
-</ul>
+<dt>Type parameters:</dt><dd><p>I: Input data type (e.g., ForecastInputDataset, MultiHorizon)
+O: Output/forecast type (e.g., ForecastDataset)</p>
 </dd>
 </dl>
-<section id="functions">
-<h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h2>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="openstef_beam.metrics.confusion_matrix.html#openstef_beam.metrics.confusion_matrix" title="openstef_beam.metrics.confusion_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">confusion_matrix</span></code></a>(y_true, y_pred, *, ...)</p></td>
-<td><p>Calculate confusion matrix for peak detection in energy load.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="openstef_beam.metrics.crps.html#openstef_beam.metrics.crps" title="openstef_beam.metrics.crps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">crps</span></code></a>(y_true, y_pred, quantiles[, sample_weights])</p></td>
-<td><p>Calculate the Continuous Ranked Probability Score (CRPS) for probabilistic forecasts.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="openstef_beam.metrics.fbeta.html#openstef_beam.metrics.fbeta" title="openstef_beam.metrics.fbeta"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fbeta</span></code></a>(precision_recall[, beta])</p></td>
-<td><p>Calculate the F-beta score from precision and recall metrics.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="openstef_beam.metrics.mape.html#openstef_beam.metrics.mape" title="openstef_beam.metrics.mape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mape</span></code></a>(y_true, y_pred)</p></td>
-<td><p>Calculate the Mean Absolute Percentage Error (MAPE).</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="openstef_beam.metrics.mean_absolute_calibration_error.html#openstef_beam.metrics.mean_absolute_calibration_error" title="openstef_beam.metrics.mean_absolute_calibration_error"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mean_absolute_calibration_error</span></code></a>(y_true, ...)</p></td>
-<td><p>Calculate the Mean Absolute Calibration Error (MACE) for probabilistic forecasts.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="openstef_beam.metrics.observed_probability.html#openstef_beam.metrics.observed_probability" title="openstef_beam.metrics.observed_probability"><code class="xref py py-obj docutils literal notranslate"><span class="pre">observed_probability</span></code></a>(y_true, y_pred)</p></td>
-<td><p>Calculate the observed probability (empirical quantile) of predicted values.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="openstef_beam.metrics.precision_recall.html#openstef_beam.metrics.precision_recall" title="openstef_beam.metrics.precision_recall"><code class="xref py py-obj docutils literal notranslate"><span class="pre">precision_recall</span></code></a>(cm, *[, effective])</p></td>
-<td><p>Calculate precision and recall metrics from a confusion matrix.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="openstef_beam.metrics.r2.html#openstef_beam.metrics.r2" title="openstef_beam.metrics.r2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">r2</span></code></a>(y_true, y_pred, *[, sample_weights])</p></td>
-<td><p>Calculate the R² (coefficient of determination) score.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="openstef_beam.metrics.rcrps.html#openstef_beam.metrics.rcrps" title="openstef_beam.metrics.rcrps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rcrps</span></code></a>(y_true, y_pred, quantiles[, ...])</p></td>
-<td><p>Calculate the relative Continuous Ranked Probability Score (rCRPS).</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="openstef_beam.metrics.relative_pinball_loss.html#openstef_beam.metrics.relative_pinball_loss" title="openstef_beam.metrics.relative_pinball_loss"><code class="xref py py-obj docutils literal notranslate"><span class="pre">relative_pinball_loss</span></code></a>(y_true, y_pred, *, ...)</p></td>
-<td><p>Calculate the relative Pinball Loss (also known as relative Quantile Loss).</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="openstef_beam.metrics.riqd.html#openstef_beam.metrics.riqd" title="openstef_beam.metrics.riqd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">riqd</span></code></a>(y_true, y_pred_lower_q, y_pred_upper_q, *)</p></td>
-<td><p>Calculate the relative Inter Quantile Distance (rIQD).</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="openstef_beam.metrics.rmae.html#openstef_beam.metrics.rmae" title="openstef_beam.metrics.rmae"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rmae</span></code></a>(y_true, y_pred, *[, lower_quantile, ...])</p></td>
-<td><p>Calculate the relative Mean Absolute Error (rMAE) using percentiles for range calculation.</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-</section>
-<section id="classes">
-<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading">#</a></h2>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="openstef_beam.metrics.ConfusionMatrix.html#openstef_beam.metrics.ConfusionMatrix" title="openstef_beam.metrics.ConfusionMatrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ConfusionMatrix</span></code></a>(true_positives, ...)</p></td>
-<td><p>Confusion matrix components for peak detection in energy forecasting.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="openstef_beam.metrics.PrecisionRecall.html#openstef_beam.metrics.PrecisionRecall" title="openstef_beam.metrics.PrecisionRecall"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PrecisionRecall</span></code></a>(precision, recall)</p></td>
-<td><p>Container for precision and recall metrics.</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-</section>
+</dd></dl>
+
 </section>
 
 
@@ -666,20 +613,20 @@ and scale differences between high and low load periods.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="openstef_models.explainability.html"
+       href="openstef_models.transforms.PostprocessingPipeline.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">openstef_models.explainability</p>
+        <p class="prev-next-title">PostprocessingPipeline</p>
       </div>
     </a>
     <a class="right-next"
-       href="openstef_beam.metrics.confusion_matrix.html"
+       href="openstef_models.models.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">confusion_matrix</p>
+        <p class="prev-next-title">openstef_models.models</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -702,8 +649,7 @@ and scale differences between high and low load periods.</p>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.transforms.PostprocessingTransform"><code class="docutils literal notranslate"><span class="pre">PostprocessingTransform</span></code></a></li>
 </ul>
   </nav></div>
 
@@ -711,7 +657,7 @@ and scale differences between high and low load periods.</p>
 
   
   <div class="tocsection editthispage">
-    <a href="https://github.com/OpenSTEF/openstef/edit/release/v4.0.0/docs/source/api/generated/openstef_beam.metrics.rst">
+    <a href="https://github.com/OpenSTEF/openstef/edit/release/v4.0.0/docs/source/api/generated/openstef_models.transforms.PostprocessingTransform.rst">
       <i class="fa-solid fa-pencil"></i>
       
       

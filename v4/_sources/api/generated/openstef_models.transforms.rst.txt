@@ -30,6 +30,8 @@ Classes
 
    FeatureEngineeringPipeline
    HorizonSplitTransform
+   PostprocessingPipeline
+   PostprocessingTransform
 
 
 

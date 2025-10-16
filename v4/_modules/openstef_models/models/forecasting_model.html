@@ -469,9 +469,9 @@
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets.data_split</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataSplitStrategy</span><span class="p">,</span> <span class="n">StratifiedTrainTestSplitter</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConfigurationError</span><span class="p">,</span> <span class="n">NotFittedError</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.mixins</span><span class="w"> </span><span class="kn">import</span> <span class="n">Predictor</span><span class="p">,</span> <span class="n">State</span><span class="p">,</span> <span class="n">TransformPipeline</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.mixins</span><span class="w"> </span><span class="kn">import</span> <span class="n">Predictor</span><span class="p">,</span> <span class="n">State</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.models.forecasting</span><span class="w"> </span><span class="kn">import</span> <span class="n">Forecaster</span><span class="p">,</span> <span class="n">HorizonForecaster</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">FeatureEngineeringPipeline</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">FeatureEngineeringPipeline</span><span class="p">,</span> <span class="n">PostprocessingPipeline</span>
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">ModelFitResult</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
@@ -537,8 +537,8 @@
         <span class="n">default</span><span class="o">=...</span><span class="p">,</span>
         <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Underlying forecasting algorithm, either single-horizon or multi-horizon.&quot;</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">postprocessing</span><span class="p">:</span> <span class="n">TransformPipeline</span><span class="p">[</span><span class="n">ForecastDataset</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
-        <span class="n">default_factory</span><span class="o">=</span><span class="n">TransformPipeline</span><span class="p">[</span><span class="n">ForecastDataset</span><span class="p">],</span>
+    <span class="n">postprocessing</span><span class="p">:</span> <span class="n">PostprocessingPipeline</span><span class="p">[</span><span class="n">MultiHorizon</span><span class="p">[</span><span class="n">ForecastInputDataset</span><span class="p">],</span> <span class="n">ForecastDataset</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default_factory</span><span class="o">=</span><span class="n">PostprocessingPipeline</span><span class="p">[</span><span class="n">MultiHorizon</span><span class="p">[</span><span class="n">ForecastInputDataset</span><span class="p">],</span> <span class="n">ForecastDataset</span><span class="p">],</span>
         <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Postprocessing pipeline for transforming model outputs into final forecasts.&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">target_column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
@@ -621,13 +621,14 @@
         <span class="n">prediction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit_forecaster</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">input_data_train</span><span class="p">,</span> <span class="n">data_val</span><span class="o">=</span><span class="n">input_data_val</span><span class="p">)</span>
 
         <span class="c1"># Fit the postprocessing transforms</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">postprocessing</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">prediction</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">postprocessing</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">(</span><span class="n">input_data_train</span><span class="p">,</span> <span class="n">prediction</span><span class="p">))</span>
 
         <span class="c1"># Calculate training, validation, test, and full metrics</span>
         <span class="n">target_dataset</span> <span class="o">=</span> <span class="n">_dataset_to_target</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">target_column</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">target_column</span><span class="p">)</span>
 
         <span class="k">def</span><span class="w"> </span><span class="nf">predict_and_score</span><span class="p">(</span><span class="n">input_data</span><span class="p">:</span> <span class="n">MultiHorizon</span><span class="p">[</span><span class="n">ForecastInputDataset</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">SubsetMetric</span><span class="p">:</span>
-            <span class="n">prediction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_predict_forecaster</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">input_data</span><span class="p">)</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">postprocessing</span><span class="o">.</span><span class="n">transform</span><span class="p">)</span>
+            <span class="n">prediction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_predict_forecaster</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">input_data</span><span class="p">)</span>
+            <span class="n">prediction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">postprocessing</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">(</span><span class="n">input_data</span><span class="p">,</span> <span class="n">prediction</span><span class="p">))</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calculate_score</span><span class="p">(</span><span class="n">ground_truth</span><span class="o">=</span><span class="n">target_dataset</span><span class="p">,</span> <span class="n">prediction</span><span class="o">=</span><span class="n">prediction</span><span class="p">)</span>
 
         <span class="n">metrics_train</span> <span class="o">=</span> <span class="n">predict_and_score</span><span class="p">(</span><span class="n">input_data_train</span><span class="p">)</span>
@@ -677,7 +678,7 @@
         <span class="c1"># Generate predictions</span>
         <span class="n">raw_forecasts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_predict_forecaster</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">input_data</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">postprocessing</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">raw_forecasts</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">postprocessing</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">(</span><span class="n">input_data</span><span class="p">,</span> <span class="n">raw_forecasts</span><span class="p">))</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_fit_forecaster</span><span class="p">(</span>

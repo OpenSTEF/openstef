@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>openstef_beam.metrics &#8212; OpenSTEF 0.0.0 documentation</title>
+    <title>PostprocessingPipeline &#8212; OpenSTEF 0.0.0 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../_static/copybutton.js?v=97f0b27d"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'api/generated/openstef_beam.metrics';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/generated/openstef_models.transforms.PostprocessingPipeline';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = '_static/versions.json';
@@ -59,8 +59,8 @@
     <link rel="icon" href="../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="confusion_matrix" href="openstef_beam.metrics.confusion_matrix.html" />
-    <link rel="prev" title="openstef_models.explainability" href="openstef_models.explainability.html" />
+    <link rel="next" title="PostprocessingTransform" href="openstef_models.transforms.PostprocessingTransform.html" />
+    <link rel="prev" title="HorizonSplitTransform" href="openstef_models.transforms.HorizonSplitTransform.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="0.0.0" />
@@ -445,11 +445,11 @@
 </ul>
 </details></li>
 </ul>
-<ul class="nav bd-sidenav">
-<li class="toctree-l1 has-children"><a class="reference internal" href="openstef_models.transforms.html">openstef_models.transforms</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="openstef_models.transforms.html">openstef_models.transforms</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="openstef_models.transforms.FeatureEngineeringPipeline.html">FeatureEngineeringPipeline</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_models.transforms.HorizonSplitTransform.html">HorizonSplitTransform</a></li>
-<li class="toctree-l2"><a class="reference internal" href="openstef_models.transforms.PostprocessingPipeline.html">PostprocessingPipeline</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">PostprocessingPipeline</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_models.transforms.PostprocessingTransform.html">PostprocessingTransform</a></li>
 </ul>
 </details></li>
@@ -460,8 +460,8 @@
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="openstef_models.explainability.html">openstef_models.explainability</a></li>
 </ul>
-<ul class="current nav bd-sidenav">
-<li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">openstef_beam.metrics</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="openstef_beam.metrics.html">openstef_beam.metrics</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.confusion_matrix.html">confusion_matrix</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.crps.html">crps</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.fbeta.html">fbeta</a></li>
@@ -562,7 +562,10 @@
     
     <li class="breadcrumb-item"><a href="../index.html" class="nav-link">API Reference</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">openstef_beam.metrics</span></li>
+    
+    <li class="breadcrumb-item"><a href="openstef_models.transforms.html" class="nav-link">openstef_models.transforms</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">PostprocessingPipeline</span></li>
   </ul>
 </nav>
 </div>
@@ -579,80 +582,163 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="module-openstef_beam.metrics">
-<span id="openstef-beam-metrics"></span><h1>openstef_beam.metrics<a class="headerlink" href="#module-openstef_beam.metrics" title="Link to this heading">#</a></h1>
-<p>Metrics for measuring how well energy forecasting models perform.</p>
-<p>Energy forecasting models can predict either single values (deterministic) or probability
-distributions (probabilistic). This module provides specialized metrics for both types,
-with particular focus on the operational challenges of energy systems like peak detection
-and scale differences between high and low load periods.</p>
-<dl class="simple">
-<dt>What you can measure:</dt><dd><ul class="simple">
-<li><p>Forecast accuracy: How close are predictions to actual values?</p></li>
-<li><p>Peak detection: Can the model identify congestion events?</p></li>
-<li><p>Uncertainty quality: For probabilistic forecasts, are confidence intervals reliable?</p></li>
-<li><p>Cross-period comparison: Compare model performance across seasons, times, etc.</p></li>
+  <section id="postprocessingpipeline">
+<h1>PostprocessingPipeline<a class="headerlink" href="#postprocessingpipeline" title="Link to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="openstef_models.transforms.PostprocessingPipeline">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef_models.transforms.</span></span><span class="sig-name descname"><span class="pre">PostprocessingPipeline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/openstef_models/transforms/postprocessing_pipeline.html#PostprocessingPipeline"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_models.transforms.PostprocessingPipeline" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code>, <a class="reference internal" href="openstef_models.transforms.PostprocessingTransform.html#openstef_models.transforms.PostprocessingTransform" title="openstef_models.transforms.postprocessing_pipeline.PostprocessingTransform"><code class="xref py py-class docutils literal notranslate"><span class="pre">PostprocessingTransform</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Generic</span></code></p>
+<p>Sequential pipeline of postprocessing transformations.</p>
+<p>Applies multiple PostprocessingTransform instances in order, passing both the
+original input data and the evolving forecast through each transform. This allows
+transforms to use input context when modifying predictions.</p>
+<p>Unlike TransformPipeline which threads data through (out1 → in2 → out2 → in3),
+this pipeline maintains the input and threads only the output:</p>
+<blockquote>
+<div><p>(input, out1) → transform1 → out1’
+(input, out1’) → transform2 → out2’
+…</p>
+</div></blockquote>
+<p class="rubric">Invariants</p>
+<ul class="simple">
+<li><p>Input data remains unchanged throughout the pipeline</p></li>
+<li><p>Transforms are applied in order, each receiving original input and current forecast</p></li>
+<li><p>Pipeline is fitted only when all transforms are fitted</p></li>
 </ul>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">ForecastDataset</span><span class="p">,</span> <span class="n">ForecastInputDataset</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.transforms.postprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+<span class="gp">... </span>    <span class="n">ConfidenceIntervalApplicator</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">QuantileSorter</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Quantile</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Create pipeline with multiple postprocessing transforms</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pipeline</span> <span class="o">=</span> <span class="n">PostprocessingPipeline</span><span class="p">[</span><span class="n">ForecastInputDataset</span><span class="p">,</span> <span class="n">ForecastDataset</span><span class="p">](</span>
+<span class="gp">... </span>    <span class="n">transforms</span><span class="o">=</span><span class="p">[</span>
+<span class="gp">... </span>        <span class="n">ConfidenceIntervalApplicator</span><span class="p">(</span>
+<span class="gp">... </span>            <span class="n">quantiles</span><span class="o">=</span><span class="p">[</span><span class="n">Quantile</span><span class="p">(</span><span class="mf">0.1</span><span class="p">),</span> <span class="n">Quantile</span><span class="p">(</span><span class="mf">0.5</span><span class="p">),</span> <span class="n">Quantile</span><span class="p">(</span><span class="mf">0.9</span><span class="p">)]</span>
+<span class="gp">... </span>        <span class="p">),</span>
+<span class="gp">... </span>        <span class="n">QuantileSorter</span><span class="p">(),</span>
+<span class="gp">... </span>    <span class="p">]</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Fit on validation data</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pipeline</span><span class="o">.</span><span class="n">fit</span><span class="p">((</span><span class="n">validation_input</span><span class="p">,</span> <span class="n">validation_predictions</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Transform new predictions using input context</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">final_forecast</span> <span class="o">=</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">transform</span><span class="p">((</span><span class="n">new_input</span><span class="p">,</span> <span class="n">raw_predictions</span><span class="p">))</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></span>)</p>
 </dd>
 </dl>
-<section id="functions">
-<h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h2>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="openstef_beam.metrics.confusion_matrix.html#openstef_beam.metrics.confusion_matrix" title="openstef_beam.metrics.confusion_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">confusion_matrix</span></code></a>(y_true, y_pred, *, ...)</p></td>
-<td><p>Calculate confusion matrix for peak detection in energy load.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="openstef_beam.metrics.crps.html#openstef_beam.metrics.crps" title="openstef_beam.metrics.crps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">crps</span></code></a>(y_true, y_pred, quantiles[, sample_weights])</p></td>
-<td><p>Calculate the Continuous Ranked Probability Score (CRPS) for probabilistic forecasts.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="openstef_beam.metrics.fbeta.html#openstef_beam.metrics.fbeta" title="openstef_beam.metrics.fbeta"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fbeta</span></code></a>(precision_recall[, beta])</p></td>
-<td><p>Calculate the F-beta score from precision and recall metrics.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="openstef_beam.metrics.mape.html#openstef_beam.metrics.mape" title="openstef_beam.metrics.mape"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mape</span></code></a>(y_true, y_pred)</p></td>
-<td><p>Calculate the Mean Absolute Percentage Error (MAPE).</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="openstef_beam.metrics.mean_absolute_calibration_error.html#openstef_beam.metrics.mean_absolute_calibration_error" title="openstef_beam.metrics.mean_absolute_calibration_error"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mean_absolute_calibration_error</span></code></a>(y_true, ...)</p></td>
-<td><p>Calculate the Mean Absolute Calibration Error (MACE) for probabilistic forecasts.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="openstef_beam.metrics.observed_probability.html#openstef_beam.metrics.observed_probability" title="openstef_beam.metrics.observed_probability"><code class="xref py py-obj docutils literal notranslate"><span class="pre">observed_probability</span></code></a>(y_true, y_pred)</p></td>
-<td><p>Calculate the observed probability (empirical quantile) of predicted values.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="openstef_beam.metrics.precision_recall.html#openstef_beam.metrics.precision_recall" title="openstef_beam.metrics.precision_recall"><code class="xref py py-obj docutils literal notranslate"><span class="pre">precision_recall</span></code></a>(cm, *[, effective])</p></td>
-<td><p>Calculate precision and recall metrics from a confusion matrix.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="openstef_beam.metrics.r2.html#openstef_beam.metrics.r2" title="openstef_beam.metrics.r2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">r2</span></code></a>(y_true, y_pred, *[, sample_weights])</p></td>
-<td><p>Calculate the R² (coefficient of determination) score.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="openstef_beam.metrics.rcrps.html#openstef_beam.metrics.rcrps" title="openstef_beam.metrics.rcrps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rcrps</span></code></a>(y_true, y_pred, quantiles[, ...])</p></td>
-<td><p>Calculate the relative Continuous Ranked Probability Score (rCRPS).</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="openstef_beam.metrics.relative_pinball_loss.html#openstef_beam.metrics.relative_pinball_loss" title="openstef_beam.metrics.relative_pinball_loss"><code class="xref py py-obj docutils literal notranslate"><span class="pre">relative_pinball_loss</span></code></a>(y_true, y_pred, *, ...)</p></td>
-<td><p>Calculate the relative Pinball Loss (also known as relative Quantile Loss).</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="openstef_beam.metrics.riqd.html#openstef_beam.metrics.riqd" title="openstef_beam.metrics.riqd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">riqd</span></code></a>(y_true, y_pred_lower_q, y_pred_upper_q, *)</p></td>
-<td><p>Calculate the relative Inter Quantile Distance (rIQD).</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="openstef_beam.metrics.rmae.html#openstef_beam.metrics.rmae" title="openstef_beam.metrics.rmae"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rmae</span></code></a>(y_true, y_pred, *[, lower_quantile, ...])</p></td>
-<td><p>Calculate the relative Mean Absolute Error (rMAE) using percentiles for range calculation.</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-</section>
-<section id="classes">
-<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading">#</a></h2>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="openstef_beam.metrics.ConfusionMatrix.html#openstef_beam.metrics.ConfusionMatrix" title="openstef_beam.metrics.ConfusionMatrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ConfusionMatrix</span></code></a>(true_positives, ...)</p></td>
-<td><p>Confusion matrix components for peak detection in energy forecasting.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="openstef_beam.metrics.PrecisionRecall.html#openstef_beam.metrics.PrecisionRecall" title="openstef_beam.metrics.PrecisionRecall"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PrecisionRecall</span></code></a>(precision, recall)</p></td>
-<td><p>Container for precision and recall metrics.</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-</section>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef_models.transforms.PostprocessingPipeline.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar[ConfigDict]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'arbitrary_types_allowed':</span> <span class="pre">True}</span></em><a class="headerlink" href="#openstef_models.transforms.PostprocessingPipeline.model_config" title="Link to this definition">#</a></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef_models.transforms.PostprocessingPipeline.transforms">
+<span class="sig-name descname"><span class="pre">transforms</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code><span class="pre">[</span><a class="reference internal" href="openstef_models.transforms.PostprocessingTransform.html#openstef_models.transforms.PostprocessingTransform" title="openstef_models.transforms.postprocessing_pipeline.PostprocessingTransform"><code class="xref py py-class docutils literal notranslate"><span class="pre">PostprocessingTransform</span></code></a><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code><span class="pre">(</span><code class="docutils literal notranslate"><span class="pre">I</span></code><span class="pre">),</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code><span class="pre">(</span><code class="docutils literal notranslate"><span class="pre">O</span></code><span class="pre">)]]</span></em><a class="headerlink" href="#openstef_models.transforms.PostprocessingPipeline.transforms" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef_models.transforms.PostprocessingPipeline.to_state">
+<span class="sig-name descname"><span class="pre">to_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">State</span></span></span><a class="reference internal" href="../../_modules/openstef_models/transforms/postprocessing_pipeline.html#PostprocessingPipeline.to_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_models.transforms.PostprocessingPipeline.to_state" title="Link to this definition">#</a></dt>
+<dd><p>Serialize the current state of the object.</p>
+<p>Must capture all information needed to restore the object to its current state,
+including configuration, trained parameters, and any internal state variables.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">TypeAliasType</span></code></span></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Serializable representation of the object state.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef_models.transforms.PostprocessingPipeline.from_state">
+<span class="sig-name descname"><span class="pre">from_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">State</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Self</span></span></span><a class="reference internal" href="../../_modules/openstef_models/transforms/postprocessing_pipeline.html#PostprocessingPipeline.from_state"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_models.transforms.PostprocessingPipeline.from_state" title="Link to this definition">#</a></dt>
+<dd><p>Restore an object from its serialized state.</p>
+<p>Must reconstruct the object to match the exact state when to_state()
+was called. Should handle version compatibility for older state formats
+when possible.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>state</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">TypeAliasType</span></code></span>) – Serialized state returned from to_state().</p></li>
+<li><p><strong>state</strong></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Object instance restored to the exact previous state.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – If state is invalid or incompatible.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Self</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="openstef_models.transforms.PostprocessingPipeline.is_fitted">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_fitted</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#openstef_models.transforms.PostprocessingPipeline.is_fitted" title="Link to this definition">#</a></dt>
+<dd><p>Check if the transform has been fitted.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef_models.transforms.PostprocessingPipeline.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">I</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">O</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/openstef_models/transforms/postprocessing_pipeline.html#PostprocessingPipeline.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_models.transforms.PostprocessingPipeline.fit" title="Link to this definition">#</a></dt>
+<dd><p>Fit the transform to the input data.</p>
+<p>This method should be called before applying the transform to the data.
+It allows the transform to learn any necessary parameters from the data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code>(<code class="docutils literal notranslate"><span class="pre">I</span></code>), <code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code>(<code class="docutils literal notranslate"><span class="pre">O</span></code>)]</span>) – The input data to fit the transform on.</p></li>
+<li><p><strong>data</strong></p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef_models.transforms.PostprocessingPipeline.transform">
+<span class="sig-name descname"><span class="pre">transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">I</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">O</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">O</span></span></span><a class="reference internal" href="../../_modules/openstef_models/transforms/postprocessing_pipeline.html#PostprocessingPipeline.transform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_models.transforms.PostprocessingPipeline.transform" title="Link to this definition">#</a></dt>
+<dd><p>Transform the input data.</p>
+<p>This method should apply a transformation to the input data and return a new instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code>(<code class="docutils literal notranslate"><span class="pre">I</span></code>), <code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code>(<code class="docutils literal notranslate"><span class="pre">O</span></code>)]</span>) – The input data to be transformed.</p></li>
+<li><p><strong>data</strong></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A new instance of the transformed data.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="openstef_core.exceptions.NotFittedError.html#openstef_core.exceptions.NotFittedError" title="openstef_core.exceptions.NotFittedError"><strong>NotFittedError</strong></a> – If the transform has not been fitted yet.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code>(<code class="docutils literal notranslate"><span class="pre">O</span></code>)</span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 
 
@@ -666,20 +752,20 @@ and scale differences between high and low load periods.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="openstef_models.explainability.html"
+       href="openstef_models.transforms.HorizonSplitTransform.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">openstef_models.explainability</p>
+        <p class="prev-next-title">HorizonSplitTransform</p>
       </div>
     </a>
     <a class="right-next"
-       href="openstef_beam.metrics.confusion_matrix.html"
+       href="openstef_models.transforms.PostprocessingTransform.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">confusion_matrix</p>
+        <p class="prev-next-title">PostprocessingTransform</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -702,8 +788,16 @@ and scale differences between high and low load periods.</p>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.transforms.PostprocessingPipeline"><code class="docutils literal notranslate"><span class="pre">PostprocessingPipeline</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.transforms.PostprocessingPipeline.model_config"><code class="docutils literal notranslate"><span class="pre">PostprocessingPipeline.model_config</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.transforms.PostprocessingPipeline.transforms"><code class="docutils literal notranslate"><span class="pre">PostprocessingPipeline.transforms</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.transforms.PostprocessingPipeline.to_state"><code class="docutils literal notranslate"><span class="pre">PostprocessingPipeline.to_state()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.transforms.PostprocessingPipeline.from_state"><code class="docutils literal notranslate"><span class="pre">PostprocessingPipeline.from_state()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.transforms.PostprocessingPipeline.is_fitted"><code class="docutils literal notranslate"><span class="pre">PostprocessingPipeline.is_fitted</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.transforms.PostprocessingPipeline.fit"><code class="docutils literal notranslate"><span class="pre">PostprocessingPipeline.fit()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.transforms.PostprocessingPipeline.transform"><code class="docutils literal notranslate"><span class="pre">PostprocessingPipeline.transform()</span></code></a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 
@@ -711,7 +805,7 @@ and scale differences between high and low load periods.</p>
 
   
   <div class="tocsection editthispage">
-    <a href="https://github.com/OpenSTEF/openstef/edit/release/v4.0.0/docs/source/api/generated/openstef_beam.metrics.rst">
+    <a href="https://github.com/OpenSTEF/openstef/edit/release/v4.0.0/docs/source/api/generated/openstef_models.transforms.PostprocessingPipeline.rst">
       <i class="fa-solid fa-pencil"></i>
       
       
