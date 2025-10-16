@@ -15,7 +15,7 @@ from pydantic import Field, PrivateAttr
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.exceptions import MissingExtraError, TransformNotFittedError
+from openstef_core.exceptions import MissingExtraError, NotFittedError
 from openstef_core.mixins import State
 from openstef_core.transforms import TimeSeriesTransform
 from openstef_models.utils.feature_selection import FeatureSelection
@@ -106,7 +106,7 @@ class Scaler(BaseConfig, TimeSeriesTransform):
     @override
     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
         if not self._is_fitted:
-            raise TransformNotFittedError(self.__class__.__name__)
+            raise NotFittedError(self.__class__.__name__)
 
         features = self.selection.resolve(data.feature_names)
         scaled_data = data.data.copy()

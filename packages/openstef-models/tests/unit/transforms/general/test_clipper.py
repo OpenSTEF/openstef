@@ -8,7 +8,7 @@ import pandas as pd
 import pytest
 
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.exceptions import TransformNotFittedError
+from openstef_core.exceptions import NotFittedError
 from openstef_models.transforms.general import Clipper
 from openstef_models.utils.feature_selection import FeatureSelection
 
@@ -112,7 +112,7 @@ def test_clipper__transform_without_fit(test_dataset: TimeSeriesDataset):
     clipper = Clipper(selection=FeatureSelection(include={"A", "B"}))
 
     # Act & Assert
-    with pytest.raises(TransformNotFittedError, match=r"Clipper.*has not been fitted"):
+    with pytest.raises(NotFittedError, match=r"Clipper.*has not been fitted"):
         clipper.transform(test_dataset)
 
 

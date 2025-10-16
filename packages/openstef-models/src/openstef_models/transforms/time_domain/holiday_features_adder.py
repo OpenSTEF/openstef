@@ -202,4 +202,12 @@ class HolidayFeatureAdder(BaseConfig, TimeSeriesTransform):
 
     @override
     def features_added(self) -> list[str]:
-        return []
+        country_holidays = holidays.country_holidays(
+            str(self.country_code), categories=["public"], years=[2025], language="en_US"
+        )
+
+        return ["is_holiday"] + [
+            f"is_{self._sanitize_holiday_name(name)}"
+            for name in set(country_holidays.values())
+            if self._sanitize_holiday_name(name)  # Exclude empty sanitized names
+        ]

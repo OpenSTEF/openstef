@@ -167,4 +167,4 @@ class RadiationDerivedFeaturesAdder(BaseConfig, TimeSeriesTransform):
 
     @override
     def features_added(self) -> list[str]:
-        return []
+        return list(self.included_features)

@@ -26,7 +26,7 @@ NUM_MONTHS_IN_YEAR = 12
 NUM_DAYS_IN_WEEK = 7
 NUM_SECONDS_IN_A_DAY = 24 * 60 * 60
 
-type CyclicFeatureName = Literal["timeOfDay", "season", "dayOfWeek", "month"]
+type CyclicFeatureName = Literal["time_of_day", "season", "day_of_week", "month"]
 
 
 class CyclicFeaturesAdder(BaseConfig, TimeSeriesTransform):
@@ -38,9 +38,9 @@ class CyclicFeaturesAdder(BaseConfig, TimeSeriesTransform):
 
     The features generated depend on the included_features configuration:
         - season: season_sine, season_cosine (based on day of year, 365.25 day cycle)
-        - dayOfWeek: dayOfWeek_sine, dayOfWeek_cosine (based on day of week, 7 day cycle)
+        - day_of_week: day_of_week_sine, day_of_week_cosine (based on day of week, 7 day cycle)
         - month: month_sine, month_cosine (based on month of year, 12 month cycle)
-        - timeOfDay: timeOfDay_sine, timeOfDay_cosine (based on seconds in day, 24 hour cycle)
+        - time_of_day: time_of_day_sine, time_of_day_cosine (based on seconds in day, 24 hour cycle)
 
     Example:
         >>> import pandas as pd
@@ -57,19 +57,19 @@ class CyclicFeaturesAdder(BaseConfig, TimeSeriesTransform):
         >>> dataset = TimeSeriesDataset(data, timedelta(hours=1))
         >>>
         >>> # Apply cyclic features with custom configuration
-        >>> transform = CyclicFeaturesAdder(included_features=["season", "timeOfDay"])
+        >>> transform = CyclicFeaturesAdder(included_features=["season", "time_of_day"])
         >>> transformed = transform.transform(dataset)
-        >>> result = transformed.data[['season_sine', 'timeOfDay_sine']].round(3)
+        >>> result = transformed.data[['season_sine', 'time_of_day_sine']].round(3)
         >>> print(result.head(2))
-                             season_sine  timeOfDay_sine
-        2025-01-01 12:00:00        0.017          -0.000
-        2025-01-01 13:00:00        0.017          -0.259
+                             season_sine  time_of_day_sine
+        2025-01-01 12:00:00        0.017            -0.000
+        2025-01-01 13:00:00        0.017            -0.259
     """
 
     included_features: list[CyclicFeatureName] = Field(
-        default_factory=lambda: ["timeOfDay", "season", "dayOfWeek", "month"],
+        default_factory=lambda: ["time_of_day", "season", "day_of_week", "month"],
         description="List of cyclic features to include in the transformation. "
-        "Options are 'timeOfDay', 'season', 'dayOfWeek', and 'month'.",
+        "Options are 'time_of_day', 'season', 'day_of_week', and 'month'.",
     )
 
     @staticmethod
@@ -122,13 +122,13 @@ class CyclicFeaturesAdder(BaseConfig, TimeSeriesTransform):
                 )
             )
 
-        if "dayOfWeek" in self.included_features:
+        if "day_of_week" in self.included_features:
             features.append(
                 self._compute_cyclic_feature(
                     phase=data.index.day_of_week,
                     period=NUM_DAYS_IN_WEEK,
                     index=data.index,
-                    name="dayOfWeek",
+                    name="day_of_week",
                 )
             )
 
@@ -142,13 +142,13 @@ class CyclicFeaturesAdder(BaseConfig, TimeSeriesTransform):
                 )
             )
 
-        if "timeOfDay" in self.included_features:
+        if "time_of_day" in self.included_features:
             features.append(
                 self._compute_cyclic_feature(
                     phase=data.index.hour * 3600 + data.index.minute * 60 + data.index.second,
                     period=NUM_SECONDS_IN_A_DAY,
                     index=data.index,
-                    name="timeOfDay",
+                    name="time_of_day",
                 )
             )
 
@@ -170,7 +170,9 @@ class CyclicFeaturesAdder(BaseConfig, TimeSeriesTransform):
 
     @override
     def features_added(self) -> list[str]:
-        return []
+        return [f"{feature}_sine" for feature in self.included_features] + [
+            f"{feature}_cosine" for feature in self.included_features
+        ]
 
 
 __all__ = ["CyclicFeaturesAdder"]

@@ -81,4 +81,4 @@ class DaylightFeatureAdder(BaseConfig, TimeSeriesTransform):
 
     @override
     def features_added(self) -> list[str]:
-        return []
+        return ["daylight_continuous"]

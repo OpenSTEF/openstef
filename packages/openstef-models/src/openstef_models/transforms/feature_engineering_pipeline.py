@@ -71,7 +71,7 @@ class FeatureEngineeringPipeline(
         ...     horizons=[LeadTime.from_string("PT1H"), LeadTime.from_string("PT24H")],
         ...     versioned_transforms=[],  # No versioned transforms available yet
         ...     horizon_transforms=[
-        ...         CyclicFeaturesAdder(included_features=["timeOfDay", "season"])
+        ...         CyclicFeaturesAdder(included_features=["time_of_day", "season"])
         ...     ]
         ... )
         >>>
@@ -84,7 +84,7 @@ class FeatureEngineeringPipeline(
         >>>
         >>> # Check what columns are created (original + cyclic features)
         >>> sorted(horizon_datasets[LeadTime.from_string("PT1H")].feature_names)
-        ['load', 'season_cosine', 'season_sine', 'temperature', 'timeOfDay_cosine', 'timeOfDay_sine']
+        ['load', 'season_cosine', 'season_sine', 'temperature', 'time_of_day_cosine', 'time_of_day_sine']
 
         **Example 2: Pipeline with simple time series dataset (single horizon)**
 
@@ -103,7 +103,7 @@ class FeatureEngineeringPipeline(
         >>> single_pipeline = FeatureEngineeringPipeline.create(
         ...     horizons=[LeadTime.from_string("PT36H")],
         ...     horizon_transforms=[
-        ...         CyclicFeaturesAdder(included_features=["timeOfDay"])
+        ...         CyclicFeaturesAdder(included_features=["time_of_day"])
         ...     ]
         ... )
         >>>
@@ -112,7 +112,7 @@ class FeatureEngineeringPipeline(
         >>> len(single_result)
         1
         >>> sorted(single_result[LeadTime.from_string("PT36H")].feature_names)
-        ['load', 'temperature', 'timeOfDay_cosine', 'timeOfDay_sine']
+        ['load', 'temperature', 'time_of_day_cosine', 'time_of_day_sine']
     """
 
     horizons: list[LeadTime] = Field(

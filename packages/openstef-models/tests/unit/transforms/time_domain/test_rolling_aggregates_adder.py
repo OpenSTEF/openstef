@@ -23,7 +23,7 @@ def test_rolling_aggregate_features_basic():
     dataset = TimeSeriesDataset(data, sample_interval=timedelta(hours=1))
 
     transform = RollingAggregatesAdder(
-        columns=["load"],
+        feature="load",
         rolling_window_size=timedelta(hours=2),  # 2-hour window
         aggregation_functions=["mean", "max", "min"],
     )
@@ -64,7 +64,7 @@ def test_rolling_aggregate_features_with_nan():
     dataset = TimeSeriesDataset(data, sample_interval=timedelta(hours=1))
 
     transform = RollingAggregatesAdder(
-        columns=["load"],
+        feature="load",
         rolling_window_size=timedelta(hours=2),
         aggregation_functions=["mean"],
     )
@@ -82,40 +82,6 @@ def test_rolling_aggregate_features_with_nan():
     assert result.data["rolling_mean_load_PT2H"].tolist() == expected_mean
 
 
-def test_rolling_aggregate_features_multiple_columns():
-    """Test rolling aggregation on multiple columns."""
-    # Arrange
-    data = pd.DataFrame(
-        {
-            "load": [10.0, 20.0, 30.0],
-            "temperature": [1.0, 2.0, 3.0],
-        },
-        index=pd.date_range("2023-01-01 00:00:00", periods=3, freq="1h"),
-    )
-    dataset = TimeSeriesDataset(data, sample_interval=timedelta(hours=1))
-
-    transform = RollingAggregatesAdder(
-        columns=["load", "temperature"],
-        rolling_window_size=timedelta(hours=2),
-        aggregation_functions=["mean"],
-    )
-
-    # Act
-    result = transform.transform(dataset)
-
-    # Assert
-    assert "rolling_mean_load_PT2H" in result.data.columns
-    assert "rolling_mean_temperature_PT2H" in result.data.columns
-
-    # Original columns should still be present
-    assert "load" in result.data.columns
-    assert "temperature" in result.data.columns
-
-    # Check values
-    assert result.data["rolling_mean_load_PT2H"].tolist() == [10.0, 15.0, 25.0]
-    assert result.data["rolling_mean_temperature_PT2H"].tolist() == [1.0, 1.5, 2.5]
-
-
 def test_rolling_aggregate_features_missing_column_raises_error():
     """Test that transform raises error when required column is missing."""
     # Arrange
@@ -124,7 +90,7 @@ def test_rolling_aggregate_features_missing_column_raises_error():
         index=pd.date_range("2023-01-01 00:00:00", periods=3, freq="1h"),
     )
     dataset = TimeSeriesDataset(data, sample_interval=timedelta(minutes=15))
-    transform = RollingAggregatesAdder(columns=["load"])
+    transform = RollingAggregatesAdder(feature="load")
 
     # Act & Assert
     with pytest.raises(MissingColumnsError, match="Missing required columns"):
@@ -140,7 +106,7 @@ def test_rolling_aggregate_features_default_parameters():
     )
     dataset = TimeSeriesDataset(data, sample_interval=timedelta(hours=1))
 
-    transform = RollingAggregatesAdder(columns=["load"])
+    transform = RollingAggregatesAdder(feature="load")
 
     # Act
     result = transform.transform(dataset)

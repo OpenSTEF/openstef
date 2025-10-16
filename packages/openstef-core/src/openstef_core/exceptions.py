@@ -80,19 +80,6 @@ class FlatlinerDetectedError(Exception):
         super().__init__(message)
 
 
-class TransformNotFittedError(Exception):
-    """Exception raised when a transform is used before being fitted."""
-
-    def __init__(self, transform_name: str):
-        """Initialize the exception with the name of the transform.
-
-        Args:
-            transform_name: Name of the transform that was not fitted.
-        """
-        message = f"The transform '{transform_name}' has not been fitted yet. Please call 'fit' before using it."
-        super().__init__(message)
-
-
 class InsufficientlyCompleteError(Exception):
     """Exception raised when a dataset is not sufficiently complete."""
 
@@ -196,6 +183,5 @@ __all__ = [
     "NotFittedError",
     "PredictError",
     "TimeSeriesValidationError",
-    "TransformNotFittedError",
     "UnreachableStateError",
 ]

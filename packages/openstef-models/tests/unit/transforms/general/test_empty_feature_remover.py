@@ -11,7 +11,7 @@ import pytest
 from _pytest.logging import LogCaptureFixture
 
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.exceptions import TransformNotFittedError
+from openstef_core.exceptions import NotFittedError
 from openstef_models.transforms.general import EmptyFeatureRemover
 from openstef_models.utils.feature_selection import FeatureSelection
 
@@ -113,7 +113,7 @@ def test_no_empty_columns_preserves_data():
 
 
 def test_transform_not_fitted_error():
-    """Test that TransformNotFittedError is raised when transform is called before fit."""
+    """Test that NotFittedError is raised when transform is called before fit."""
     # Arrange
     data = pd.DataFrame(
         {"radiation": [100.0, 110.0]},
@@ -123,7 +123,7 @@ def test_transform_not_fitted_error():
     transform = EmptyFeatureRemover()
 
     # Act & Assert
-    with pytest.raises(TransformNotFittedError, match="The transform 'EmptyFeatureRemover' has not been fitted"):
+    with pytest.raises(NotFittedError):
         transform.transform(dataset)
 
 

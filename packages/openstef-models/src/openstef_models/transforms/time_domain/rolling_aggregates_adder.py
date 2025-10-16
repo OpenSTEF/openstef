@@ -49,21 +49,21 @@ class RollingAggregatesAdder(BaseConfig, TimeSeriesTransform):
         >>>
         >>> # Initialize and apply transform
         >>> transform = RollingAggregatesAdder(
-        ...     columns=['load', 'temperature'],
+        ...     feature='load',
         ...     rolling_window_size=timedelta(hours=2),
         ...     aggregation_functions=["mean", "max"]
         ... )
         >>> transformed_dataset = transform.transform(dataset)
-        >>> result = transformed_dataset.data[['rolling_mean_load_PT2H', 'rolling_max_temperature_PT2H']]
+        >>> result = transformed_dataset.data[['rolling_mean_load_PT2H', 'rolling_max_load_PT2H']]
         >>> print(result.round(1).head(3))
-                             rolling_mean_load_PT2H  rolling_max_temperature_PT2H
-        2025-01-01 00:00:00                   100.0                          20.0
-        2025-01-01 01:00:00                   110.0                          22.0
-        2025-01-01 02:00:00                   115.0                          22.0
+                             rolling_mean_load_PT2H  rolling_max_load_PT2H
+        2025-01-01 00:00:00                   100.0                  100.0
+        2025-01-01 01:00:00                   110.0                  120.0
+        2025-01-01 02:00:00                   115.0                  120.0
     """
 
-    columns: list[str] = Field(
-        description="Columns to compute rolling aggregates for.",
+    feature: str = Field(
+        description="Feature to compute rolling aggregates for.",
     )
     rolling_window_size: timedelta = Field(
         default=timedelta(hours=24),
@@ -76,24 +76,23 @@ class RollingAggregatesAdder(BaseConfig, TimeSeriesTransform):
 
     @override
     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
-        validate_required_columns(dataset=data, required_columns=self.columns)
+        validate_required_columns(dataset=data, required_columns=[self.feature])
 
         agg_series: list[pd.DataFrame] = [data.data]
-        for column in self.columns:
-            # Compute rolling aggregations (pandas handles NaNs automatically)
-            rolling_window_column = data.data[column].rolling(window=self.rolling_window_size)
+        # Compute rolling aggregations (pandas handles NaNs automatically)
+        rolling_window_column = data.data[self.feature].rolling(window=self.rolling_window_size)
 
-            # Compute aggregations
-            aggregated_data: pd.DataFrame = cast(
-                pd.DataFrame,
-                rolling_window_column.agg(self.aggregation_functions),  # type: ignore[misc]
-            ).rename(
-                columns={
-                    func: f"rolling_{func}_{column}_{timedelta_to_isoformat(td=self.rolling_window_size)}"
-                    for func in self.aggregation_functions
-                }
-            )
-            agg_series.append(aggregated_data)
+        # Compute aggregations
+        aggregated_data: pd.DataFrame = cast(
+            pd.DataFrame,
+            rolling_window_column.agg(self.aggregation_functions),  # type: ignore[misc]
+        ).rename(
+            columns={
+                func: f"rolling_{func}_{self.feature}_{timedelta_to_isoformat(td=self.rolling_window_size)}"
+                for func in self.aggregation_functions
+            }
+        )
+        agg_series.append(aggregated_data)
 
         return TimeSeriesDataset(
             data=pd.concat(agg_series, axis=1),

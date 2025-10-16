@@ -26,10 +26,10 @@ def test_cyclic_features_basic():
     assert "season_cosine" in result.data.columns
     assert "month_sine" in result.data.columns
     assert "month_cosine" in result.data.columns
-    assert "dayOfWeek_sine" in result.data.columns
-    assert "dayOfWeek_cosine" in result.data.columns
-    assert "timeOfDay_sine" in result.data.columns
-    assert "timeOfDay_cosine" in result.data.columns
+    assert "day_of_week_sine" in result.data.columns
+    assert "day_of_week_cosine" in result.data.columns
+    assert "time_of_day_sine" in result.data.columns
+    assert "time_of_day_cosine" in result.data.columns
 
 
 def test_cyclic_features_midnight_values():
@@ -41,9 +41,9 @@ def test_cyclic_features_midnight_values():
     transform = CyclicFeaturesAdder()
     result = transform.transform(input_data)
 
-    # At midnight, timeOfDay should be 0 (cosine=1, sine=0)
-    time_sine = result.data.iloc[0]["timeOfDay_sine"]
-    time_cosine = result.data.iloc[0]["timeOfDay_cosine"]
+    # At midnight, time_of_day should be 0 (cosine=1, sine=0)
+    time_sine = result.data.iloc[0]["time_of_day_sine"]
+    time_cosine = result.data.iloc[0]["time_of_day_cosine"]
 
     # Values should be close to expected
     assert time_sine < 1e-10
@@ -90,7 +90,7 @@ def test_cyclic_features_sine_cosine_relationship():
     result = transform.transform(input_data)
 
     # Check sin²(x) + cos²(x) = 1 for all features
-    for feature in ["season", "month", "dayOfWeek", "timeOfDay"]:
+    for feature in ["season", "month", "day_of_week", "time_of_day"]:
         sine_col = f"{feature}_sine"
         cosine_col = f"{feature}_cosine"
 
