@@ -46,7 +46,7 @@ class FlatlinerForecaster(Forecaster):
         >>> predictions = forecaster.predict(test_data)  # doctest: +SKIP
 
     See Also:
-        FlatlinerCheckTransform: Transform to detect flatliner patterns in time series data.
+        FlatlineChecker: Transform to detect flatliner patterns in time series data.
         Forecaster: Base class for forecasting models that predict multiple horizons.
     """
 
