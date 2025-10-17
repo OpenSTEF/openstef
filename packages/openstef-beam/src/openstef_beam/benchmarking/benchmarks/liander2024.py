@@ -38,17 +38,30 @@ class Liander2024TargetProvider(TargetProvider[BenchmarkTarget, None]):
     DATASET_REPO_ID: ClassVar[str] = "OpenSTEF/liander2024-stef-benchmark"
 
     targets: list[dict[str, str | float]]
+    dataset_path: Path | None
 
-    def __init__(self) -> None:
-        """Initialize the benchmark target provider by loading target definitions from HuggingFace."""
-        path: str = hf_hub_download(
-            repo_id=self.DATASET_REPO_ID,
-            filename="liander2024_targets.yaml",
-            repo_type="dataset",
-        )
+    def __init__(self, path: Path | str | None = None) -> None:
+        """Initialize the benchmark target provider by loading target definitions.
 
-        with Path(path).open(encoding="utf-8") as f:
-            targets = yaml.safe_load(f)
+        Args:
+            path: Optional local path to the dataset. If None, loads from HuggingFace.
+        """
+        self.dataset_path = Path(path) if path is not None else None
+
+        if self.dataset_path is not None:
+            # Load from local path
+            target_file = self.dataset_path / "liander2024_targets.yaml"
+            with target_file.open(encoding="utf-8") as f:
+                targets = yaml.safe_load(f)
+        else:
+            # Load from HuggingFace
+            hf_path: str = hf_hub_download(
+                repo_id=self.DATASET_REPO_ID,
+                filename="liander2024_targets.yaml",
+                repo_type="dataset",
+            )
+            with Path(hf_path).open(encoding="utf-8") as f:
+                targets = yaml.safe_load(f)
         super().__init__(targets=targets)  # type: ignore
 
     @override
@@ -79,6 +92,22 @@ class Liander2024TargetProvider(TargetProvider[BenchmarkTarget, None]):
             for target in self.targets
         ]
 
+    def _load_parquet(self, file_path: str) -> pd.DataFrame:
+        """Load a parquet file from local path or HuggingFace.
+
+        Args:
+            file_path: Relative path to the parquet file within the dataset.
+
+        Returns:
+            DataFrame containing the loaded data.
+        """
+        if self.dataset_path is not None:
+            # Load from local path
+            full_path = self.dataset_path / file_path
+            return pd.read_parquet(full_path)  # type: ignore
+        # Load from HuggingFace
+        return pd.read_parquet(f"hf://datasets/{self.DATASET_REPO_ID}/{file_path}")  # type: ignore
+
     @override
     def get_measurements_for_target(self, target: BenchmarkTarget) -> VersionedTimeSeriesDataset:
         """Get measurement data for a target.
@@ -89,9 +118,7 @@ class Liander2024TargetProvider(TargetProvider[BenchmarkTarget, None]):
         Returns:
             Versioned time series dataset containing load measurements.
         """
-        load = pd.read_parquet(  # type: ignore
-            f"hf://datasets/{self.DATASET_REPO_ID}/load_measurements/{target.group_name}/{target.name}.parquet"
-        )
+        load = self._load_parquet(f"load_measurements/{target.group_name}/{target.name}.parquet")
 
         # Ensure consistent column naming between the solar/wind parks and the substation measurements
         if "load_normalized" in load.columns:
@@ -116,21 +143,19 @@ class Liander2024TargetProvider(TargetProvider[BenchmarkTarget, None]):
             Versioned time series dataset containing weather, EPEX spot prices, and profile data.
         """
         # Load predictors from dataset individually and combine
-        weather = pd.read_parquet(  # type: ignore
-            f"hf://datasets/{self.DATASET_REPO_ID}/weather_forecasts_versioned/{target.group_name}/{target.name}.parquet"
-        )
+        weather = self._load_parquet(f"weather_forecasts_versioned/{target.group_name}/{target.name}.parquet")
         weather_dataset = VersionedTimeSeriesDataset.from_dataframe(
             data=weather,
             sample_interval=timedelta(minutes=15),
         )
 
-        epex = pd.read_parquet(f"hf://datasets/{self.DATASET_REPO_ID}/EPEX.parquet")  # type: ignore
+        epex = self._load_parquet("EPEX.parquet")
         epex_dataset = VersionedTimeSeriesDataset.from_dataframe(
             data=epex,
             sample_interval=timedelta(minutes=15),
         )
 
-        profiles = pd.read_parquet(f"hf://datasets/{self.DATASET_REPO_ID}/profiles.parquet")  # type: ignore
+        profiles = self._load_parquet("profiles.parquet")
         profiles_dataset = VersionedTimeSeriesDataset.from_dataframe(
             data=profiles,
             sample_interval=timedelta(minutes=15),
@@ -244,12 +269,14 @@ LIANDER2024_ANALYSIS_CONFIG = AnalysisConfig(
 def create_liander2024_benchmark_runner(
     storage: BenchmarkStorage | None = None,
     callbacks: list[BenchmarkCallback] | None = None,
+    path: Path | str | None = None,
 ) -> BenchmarkPipeline[BenchmarkTarget, None]:
     """Create a simple benchmark pipeline.
 
     Args:
         storage: Storage backend for benchmark results.
         callbacks: List of benchmark callbacks to use during benchmarking.
+        path: Optional local path to the dataset. If None, loads from HuggingFace.
 
     Returns:
         Configured benchmark pipeline instance.
@@ -270,7 +297,7 @@ def create_liander2024_benchmark_runner(
             ],
         ),
         analysis_config=LIANDER2024_ANALYSIS_CONFIG,
-        target_provider=Liander2024TargetProvider(),
+        target_provider=Liander2024TargetProvider(path=path),
         storage=storage,
         callbacks=callbacks,
     )
