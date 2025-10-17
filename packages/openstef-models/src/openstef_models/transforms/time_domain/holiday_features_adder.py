@@ -25,6 +25,9 @@ from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.mixins import State
 from openstef_core.transforms import TimeSeriesTransform
 
+# Years used to fetch holiday names. If new holidays are added later, this needs to be updated.
+_REFERENCE_YEARS_FOR_HOLIDAYS = [2025, 2026]
+
 
 class HolidayFeatureAdder(BaseConfig, TimeSeriesTransform):
     """Transform that adds holiday features to time series data.
@@ -132,7 +135,7 @@ def get_holiday_names(country_code: CountryAlpha2) -> list[str]:
         List of unique holiday names in their original form.
     """
     country_holidays = holidays.country_holidays(
-        str(country_code), categories=["public"], years=[2025], language="en_US"
+        country=str(country_code), categories=["public"], years=_REFERENCE_YEARS_FOR_HOLIDAYS, language="en_US"
     )
     return sorted([
         sanitize_holiday_name(holiday_name)
