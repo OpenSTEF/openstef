@@ -38,6 +38,7 @@ optional-dependencies.all = [
   "openstef-models[all]",
 ]
 optional-dependencies.beam = [
+  "huggingface-hub>=0.35.3",
   "openstef-beam",
 ]
 optional-dependencies.compatibility = [
