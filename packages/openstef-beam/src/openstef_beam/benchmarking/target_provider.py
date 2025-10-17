@@ -199,11 +199,11 @@ class SimpleTargetProvider[T: BenchmarkTarget, F](TargetProvider[T, F]):
         >>> from openstef_beam.evaluation.metric_providers import RMAEProvider, RCRPSProvider
         >>> provider = SimpleTargetProvider(
         ...     data_dir=Path("./benchmark_data"),
-        ...     measurements_path_template="demand_{name}.parquet",
-        ...     weather_path_template="weather_{name}.parquet",
-        ...     profiles_path="standard_profiles.parquet",
-        ...     prices_path="energy_prices.parquet",
-        ...     targets_file="energy_targets.yaml",
+        ...     measurements_path_for_target=lambda t: Path(t.group_name) / f"load_{t.name}.parquet",
+        ...     weather_path_for_target=lambda t: Path(t.group_name) / f"weather_{t.name}.parquet",
+        ...     profiles_path=lambda: Path("standard_profiles.parquet"),
+        ...     prices_path=lambda: Path("energy_prices.parquet"),
+        ...     targets_file_path=lambda: Path("energy_targets.yaml"),
         ...     data_sample_interval=timedelta(minutes=15),
         ...     metrics=[RMAEProvider(), RCRPSProvider()],
         ...     use_profiles=True,
@@ -212,9 +212,21 @@ class SimpleTargetProvider[T: BenchmarkTarget, F](TargetProvider[T, F]):
     """
 
     data_dir: Path = Field(description="Root directory containing all benchmark data files")
-    profiles_path: str = Field(default="profiles_data.parquet", description="Path to shared profiles data file.")
-    prices_path: str = Field(default="prices_data.parquet", description="Path to shared prices data file.")
-    targets_file: str = Field(default="targets.yaml", description="YAML file containing target definitions")
+
+    profiles_path: Callable[[], Path] = Field(
+        default=lambda: Path("profiles_data.parquet"),
+        description="Function to build file path for shared profiles data",
+    )
+
+    prices_path: Callable[[], Path] = Field(
+        default=lambda: Path("prices_data.parquet"),
+        description="Function to build file path for shared prices data",
+    )
+
+    targets_file_path: Callable[[], Path] = Field(
+        default=lambda: Path("targets.yaml"),
+        description="Function to build file path for target definitions",
+    )
 
     use_profiles: bool = Field(
         default=True,
@@ -242,7 +254,7 @@ class SimpleTargetProvider[T: BenchmarkTarget, F](TargetProvider[T, F]):
 
     @override
     def get_targets(self, filter_args: F | None = None) -> list[T]:
-        targets_path = self.data_dir / self.targets_file
+        targets_path = self.data_dir / self.targets_file_path()
         return read_yaml_config(
             path=targets_path,
             class_type=TypeAdapter(list[self.get_target_class]),
@@ -310,7 +322,7 @@ class SimpleTargetProvider[T: BenchmarkTarget, F](TargetProvider[T, F]):
             VersionedTimeSeriesDataset: The loaded energy profiles data.
         """
         return VersionedTimeSeriesDataset.read_parquet(
-            path=self.data_dir / self.profiles_path,
+            path=self.data_dir / self.profiles_path(),
         )
 
     def get_prices(self) -> VersionedTimeSeriesDataset:
@@ -320,7 +332,7 @@ class SimpleTargetProvider[T: BenchmarkTarget, F](TargetProvider[T, F]):
             VersionedTimeSeriesDataset: The loaded energy pricing data.
         """
         return VersionedTimeSeriesDataset.read_parquet(
-            path=self.data_dir / self.prices_path,
+            path=self.data_dir / self.prices_path(),
         )
 
     @override

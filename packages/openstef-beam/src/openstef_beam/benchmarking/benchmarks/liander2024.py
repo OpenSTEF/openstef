@@ -121,9 +121,9 @@ def create_liander2024_target_provider(
         weather_path_for_target=lambda target: Path("weather_forecasts_versioned")
         / target.group_name
         / f"weather_forecast_{target.name}.parquet",
-        profiles_path="profiles.parquet",
-        prices_path="EPEX.parquet",
-        targets_file="liander2024_targets.yaml",
+        profiles_path=lambda: Path("profiles.parquet"),
+        prices_path=lambda: Path("EPEX.parquet"),
+        targets_file_path=lambda: Path("liander2024_targets.yaml"),
         data_sample_interval=timedelta(minutes=15),
         metrics=lambda target: [
             RMAEProvider(quantiles=[Quantile(0.5)], lower_quantile=0.01, upper_quantile=0.99),
