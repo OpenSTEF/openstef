@@ -109,7 +109,10 @@ class RollingAggregatesAdder(BaseConfig, TimeSeriesTransform):
 
     @override
     def features_added(self) -> list[str]:
-        return []
+        return [
+            f"rolling_{func}_{self.feature}_{timedelta_to_isoformat(self.rolling_window_size)}"
+            for func in self.aggregation_functions
+        ]
 
 
 __all__ = ["RollingAggregatesAdder"]

@@ -49,7 +49,7 @@ class Clipper(BaseConfig, TimeSeriesTransform):
         ... freq='1h'))
         >>> test_dataset = TimeSeriesDataset(test_data, timedelta(hours=1))
         >>> # Initialize and apply transform
-        >>> clipper = Clipper(select=FeatureSelection(include=['load', 'temperature']), mode='minmax')
+        >>> clipper = Clipper(selection=FeatureSelection(include=['load', 'temperature']), mode='minmax')
         >>> clipper.fit(training_dataset)
         >>> transformed_dataset = clipper.transform(test_dataset)
         >>> clipper._feature_mins.to_dict()
