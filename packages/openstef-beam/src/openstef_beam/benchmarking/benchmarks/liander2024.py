@@ -157,7 +157,7 @@ def create_liander2024_benchmark_runner(
 
     Example:
         >>> from pathlib import Path
-        >>> runner = create_liander2024_simple_benchmark_runner(
+        >>> runner = create_liander2024_benchmark_runner(
         ...     data_dir=Path("./liander2024_dataset")
         ... )
     """
