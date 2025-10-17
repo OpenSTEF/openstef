@@ -97,14 +97,13 @@ LIANDER2024_ANALYSIS_CONFIG = AnalysisConfig(
 def create_liander2024_target_provider(
     data_dir: Path | None = None,
 ) -> SimpleTargetProvider[BenchmarkTarget, None]:
-    """Create a Liander2024TargetProvider instance.
+    """Create target provider for Liander2024 dataset.
 
     Args:
-        data_dir: Path to the root directory containing the Liander2024 dataset.
-        If None, the dataset is downloaded from HuggingFace.
+        data_dir: Dataset directory. Downloads from HuggingFace if None.
 
     Returns:
-        Configured Liander2024TargetProvider instance.
+        Configured target provider instance.
     """
     if data_dir is None:
         data_dir = Path(
@@ -141,19 +140,15 @@ def create_liander2024_benchmark_runner(
     storage: BenchmarkStorage | None = None,
     callbacks: list[BenchmarkCallback] | None = None,
 ) -> BenchmarkPipeline[BenchmarkTarget, None]:
-    """Create a benchmark pipeline using Liander2024TargetProvider.
-
-    This function creates a pipeline that loads data from a local directory using
-    the SimpleTargetProvider template-based approach. If no data_dir is provided,
-    then the dataset is downloaded from HuggingFace.
+    """Create benchmark pipeline for Liander2024 dataset.
 
     Args:
-        data_dir: Path to the root directory containing the Liander2024 dataset, or None to download from HuggingFace.
-        storage: Storage backend for benchmark results.
-        callbacks: List of benchmark callbacks to use during benchmarking.
+        data_dir: Dataset directory. Downloads from HuggingFace if None.
+        storage: Storage backend for results.
+        callbacks: Callbacks to use during benchmarking.
 
     Returns:
-        Configured benchmark pipeline instance.
+        Configured benchmark pipeline.
 
     Example:
         >>> from pathlib import Path
