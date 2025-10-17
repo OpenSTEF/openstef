@@ -27,6 +27,7 @@ classifiers = [
 ]
 
 dependencies = [
+  "huggingface-hub>=0.35.3",
   "openstef-core",
   "openstef-models",
 ]
