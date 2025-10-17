@@ -11,218 +11,144 @@ import pytest
 from pydantic_extra_types.country import CountryAlpha2
 
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_models.transforms.time_domain.holiday_features_adder import HolidayFeatureAdder
+from openstef_models.transforms.time_domain.holiday_features_adder import (
+    HolidayFeatureAdder,
+    get_holiday_names,
+    get_holidays,
+    sanitize_holiday_name,
+)
 
-
-@pytest.fixture
-def sample_dataset() -> TimeSeriesDataset:
-    """Create a sample TimeSeriesDataset for testing.
-
-    Returns:
-        TimeSeriesDataset: A dataset with daily frequency spanning Christmas period.
-    """
-    data = pd.DataFrame(
-        {"load": [100.0, 110.0, 120.0, 130.0, 140.0]}, index=pd.date_range("2025-12-24", periods=5, freq="D")
-    )
-    return TimeSeriesDataset(data, timedelta(days=1))
-
-
-def test_holiday_features_initialization():
-    """Test HolidayFeatureAdder can be initialized properly."""
-    # Arrange & Act
-    transform = HolidayFeatureAdder(country_code=CountryAlpha2("NL"))
-
-    # Assert
-    assert transform.country_code == "NL"
+# Expected holidays for Netherlands in 2025 for testing
+NL_2025_HOLIDAYS = [
+    (date(2025, 1, 1), "New Year's Day", "new_year_s_day"),
+    (date(2025, 4, 20), "Easter Sunday", "easter_sunday"),
+    (date(2025, 4, 21), "Easter Monday", "easter_monday"),
+    (date(2025, 4, 26), "King's Day", "king_s_day"),
+    (date(2025, 5, 5), "Liberation Day", "liberation_day"),
+    (date(2025, 5, 29), "Ascension Day", "ascension_day"),
+    (date(2025, 6, 8), "Whit Sunday", "whit_sunday"),
+    (date(2025, 6, 9), "Whit Monday", "whit_monday"),
+    (date(2025, 12, 25), "Christmas Day", "christmas_day"),
+    (date(2025, 12, 26), "Second Day of Christmas", "second_day_of_christmas"),
+]
 
 
 @pytest.mark.parametrize(
     ("input_name", "expected_output"),
     [
         pytest.param("Christmas Day", "christmas_day", id="christmas_day"),
-        pytest.param("New Year's Day", "new_year_s_day", id="new_years_day"),
-        pytest.param("St. Patrick's Day", "st_patrick_s_day", id="st_patrick_s_day"),
-        pytest.param("INDEPENDENCE DAY", "independence_day", id="independence_day"),
-        pytest.param("Labor Day (May Day)", "labor_day_may_day", id="labor_day_may_day"),
+        pytest.param("New Year's Day", "new_year_s_day", id="apostrophe"),
+        pytest.param("St. Patrick's Day", "st_patrick_s_day", id="period_and_apostrophe"),
+        pytest.param("INDEPENDENCE DAY", "independence_day", id="uppercase"),
+        pytest.param("Labor Day (May Day)", "labor_day_may_day", id="parentheses"),
     ],
 )
 def test_sanitize_holiday_name(input_name: str, expected_output: str):
-    """Test holiday name sanitization for feature names."""
-    # Act & Assert
-    assert HolidayFeatureAdder._sanitize_holiday_name(input_name) == expected_output
-
-
-def test_get_holidays_dataframe_returns_cleaned_data(sample_dataset: TimeSeriesDataset):
-    """Test getting holidays DataFrame with cleaned data using real holiday data."""
-    # Arrange
-    transform = HolidayFeatureAdder(country_code=CountryAlpha2("NL"))
-
+    """Test sanitization of holiday names to valid Python identifiers."""
     # Act
-    result = transform._get_holidays_dataframe(sample_dataset)
+    result = sanitize_holiday_name(input_name)
 
     # Assert
-    # Check DataFrame structure
-    assert set(result.columns) == {"date", "holiday_name", "sanitized_name"}
-    assert len(result) >= 2  # Should have at least Christmas Day and Second Day of Christmas
-
-    # Check that specific known holidays are present for the date range (2025-12-24 to 2025-12-28)
-    holiday_dates = result["date"].tolist()
-    holiday_names = result["sanitized_name"].tolist()
-
-    # Christmas Day should be included
-    assert date(2025, 12, 25) in holiday_dates
-    assert "christmas_day" in holiday_names
-
-    # Second Day of Christmas should be included
-    assert date(2025, 12, 26) in holiday_dates
-    assert "second_day_of_christmas" in holiday_names
-
-    # Check that sanitized names are properly formatted (no special characters, lowercase)
-    for name in holiday_names:
-        assert isinstance(name, str)
-        assert name.islower()
-        assert all(c.isalnum() or c == "_" for c in name)
-        assert not name.startswith("_")
-        assert not name.endswith("_")
+    assert result == expected_output
 
 
-def test_create_general_holiday_feature(sample_dataset: TimeSeriesDataset):
-    """Test creation of general is_holiday feature."""
-    # Arrange
-    holidays_df = pd.DataFrame({
-        "date": [date(2025, 12, 25), date(2025, 12, 26)],
-        "holiday_name": ["Christmas Day", "Second Day of Christmas"],
-        "sanitized_name": ["christmas_day", "second_day_of_christmas"],
-    })
-
+@pytest.mark.parametrize(
+    ("country_code", "expected_count", "expected_holidays"),
+    [
+        pytest.param(
+            CountryAlpha2("NL"),
+            10,
+            ["christmas_day", "new_year_s_day", "king_s_day", "liberation_day"],
+            id="netherlands",
+        ),
+        pytest.param(
+            CountryAlpha2("US"),
+            11,
+            ["christmas_day", "new_year_s_day", "independence_day", "thanksgiving_day"],
+            id="united_states",
+        ),
+    ],
+)
+def test_get_holiday_names(country_code: CountryAlpha2, expected_count: int, expected_holidays: list[str]):
+    """Test that get_holiday_names returns correct count and expected holidays."""
     # Act
-    result = HolidayFeatureAdder._create_general_holiday_feature(sample_dataset, holidays_df)
+    result = get_holiday_names(country_code)
 
     # Assert
-    assert result.name == "is_holiday"
-    assert len(result) == len(sample_dataset.index)
-    assert result.dtype == int
-    # Check specific dates
-    assert result.loc["2025-12-24"] == 0  # Not a holiday
-    assert result.loc["2025-12-25"] == 1  # Christmas Day
-    assert result.loc["2025-12-26"] == 1  # Second Day of Christmas
-    assert result.loc["2025-12-27"] == 0  # Not a holiday
+    # Check count of unique holidays
+    assert len(result) == expected_count
+    # Check that expected holidays are present
+    for holiday in expected_holidays:
+        assert holiday in result
+    # Verify sorted order and uniqueness
+    assert result == sorted(result)
+    assert len(result) == len(set(result))
 
 
-def test_create_individual_features(sample_dataset: TimeSeriesDataset):
-    """Test creation of individual holiday features."""
+def test_get_holidays():
+    """Test that get_holidays returns expected holidays with correct structure."""
     # Arrange
-    holidays_df = pd.DataFrame({
-        "date": [date(2025, 12, 25), date(2025, 12, 26)],
-        "holiday_name": ["Christmas Day", "Second Day of Christmas"],
-        "sanitized_name": ["christmas_day", "second_day_of_christmas"],
-    })
+    index = pd.date_range("2025-01-01", periods=365, freq="D")
+    expected_df = pd.DataFrame(NL_2025_HOLIDAYS, columns=["date", "holiday_name", "sanitized_name"])
 
     # Act
-    result = HolidayFeatureAdder._create_individual_features(sample_dataset, holidays_df)
+    result = get_holidays(index=index, country=CountryAlpha2("NL"))
 
     # Assert
-    expected_columns = {"is_christmas_day", "is_second_day_of_christmas"}
-    assert set(result.columns) == expected_columns
-    assert len(result) == len(sample_dataset.index)
-    # Check specific holiday features
-    assert result.loc["2025-12-25", "is_christmas_day"] == 1
-    assert result.loc["2025-12-26", "is_christmas_day"] == 0
-    assert result.loc["2025-12-26", "is_second_day_of_christmas"] == 1
-    assert result.loc["2025-12-25", "is_second_day_of_christmas"] == 0
+    # Check DataFrame structure and all expected holidays are present
+    pd.testing.assert_frame_equal(result.sort_values("date").reset_index(drop=True), expected_df)
 
 
-def test_transform_adds_holiday_features(sample_dataset: TimeSeriesDataset):
-    """Test that transform adds holiday features to the dataset using real holiday data."""
+@pytest.mark.parametrize(
+    ("start_date", "periods", "expected_holiday_dates"),
+    [
+        pytest.param(
+            "2025-12-24",
+            5,
+            {
+                "2025-12-24": 0,
+                "2025-12-25": 1,  # Christmas Day
+                "2025-12-26": 1,  # Second Day of Christmas
+                "2025-12-27": 0,
+                "2025-12-28": 0,
+            },
+            id="christmas_period",
+        ),
+        pytest.param(
+            "2025-03-11",
+            2,
+            {"2025-03-11": 0, "2025-03-12": 0},
+            id="no_holidays",
+        ),
+    ],
+)
+def test_holiday_feature_adder_transform(start_date: str, periods: int, expected_holiday_dates: dict[str, int]):
+    """Test that HolidayFeatureAdder correctly adds holiday features."""
     # Arrange
-    transform = HolidayFeatureAdder(country_code=CountryAlpha2("NL"))
-
-    # Act
-    result = transform.transform(sample_dataset)
-
-    # Assert
-    # Check structure
-    assert isinstance(result, TimeSeriesDataset)
-    assert result.sample_interval == sample_dataset.sample_interval
-    # Check that original features are preserved
-    for feature in sample_dataset.feature_names:
-        assert feature in result.feature_names
-        pd.testing.assert_series_equal(result.data[feature], sample_dataset.data[feature])
-    # Check that holiday features are added
-    assert "is_holiday" in result.data.columns
-    assert "is_christmas_day" in result.data.columns
-    assert "is_second_day_of_christmas" in result.data.columns
-    # Check that holiday values are correct for known dates
-    assert result.data.loc["2025-12-25", "is_holiday"] == 1  # Christmas Day
-    assert result.data.loc["2025-12-26", "is_holiday"] == 1  # Second Day of Christmas
-    assert result.data.loc["2025-12-24", "is_holiday"] == 0  # Not a holiday
-    assert result.data.loc["2025-12-25", "is_christmas_day"] == 1
-    assert result.data.loc["2025-12-26", "is_second_day_of_christmas"] == 1
-
-
-def test_transform_with_real_holidays(sample_dataset: TimeSeriesDataset):
-    """Test transform with real holiday data (integration test)."""
-    # Arrange
-    transform = HolidayFeatureAdder(country_code=CountryAlpha2("NL"))
-
-    # Act
-    result = transform.transform(sample_dataset)
-
-    # Assert
-    assert isinstance(result, TimeSeriesDataset)
-    assert "is_holiday" in result.data.columns
-    # Check that Christmas Day is correctly identified (using real Dutch holiday data)
-    assert result.data.loc["2025-12-25", "is_holiday"] == 1
-    assert result.data.loc["2025-12-24", "is_holiday"] == 0
-
-
-def test_transform_with_empty_holidays():
-    """Test handling when no holidays are found in the date range."""
-    # Arrange
-    # Create a dataset for a very short period that realistically has no holidays
-    # Use a random Tuesday in March (typically no holidays in Netherlands)
     data = pd.DataFrame(
-        {"load": [100.0, 110.0]},
-        index=pd.date_range("2025-03-11", periods=2, freq="D"),  # Tuesday-Wednesday in March
+        {"load": [100.0 + i * 10 for i in range(periods)]},
+        index=pd.date_range(start_date, periods=periods, freq="D"),
     )
     dataset = TimeSeriesDataset(data, timedelta(days=1))
-
-    # Use Netherlands but with a date range that has no holidays
     transform = HolidayFeatureAdder(country_code=CountryAlpha2("NL"))
 
     # Act
     result = transform.transform(dataset)
 
     # Assert
+    # Check result structure
     assert isinstance(result, TimeSeriesDataset)
+    assert result.sample_interval == dataset.sample_interval
+    # Check original data is preserved (columns and index)
+    pd.testing.assert_frame_equal(result.data[["load"]], dataset.data)
+    # Check is_holiday feature is added with correct values
     assert "is_holiday" in result.data.columns
-    # All values should be 0 (no holidays in this specific date range)
-    assert (result.data["is_holiday"] == 0).all()
-
-
-@pytest.mark.parametrize(
-    ("holiday_name", "expected_feature"),
-    [
-        pytest.param("Christmas Day", "is_christmas_day", id="christmas_day"),
-        pytest.param("New Year's Day", "is_new_year_s_day", id="new_years_day"),
-        pytest.param("Independence Day", "is_independence_day", id="independence_day"),
-        pytest.param("Labor Day", "is_labor_day", id="labor_day"),
-    ],
-)
-def test_holiday_name_to_feature_mapping(holiday_name: str, expected_feature: str):
-    """Test that holiday names are correctly mapped to feature names."""
-    # Arrange
-    sample_index = pd.date_range("2025-01-01", periods=1, freq="D")
-    sample_data = TimeSeriesDataset(pd.DataFrame({"load": [100]}, index=sample_index), timedelta(days=1))
-    holidays_df = pd.DataFrame({
-        "date": [date(2025, 1, 1)],
-        "holiday_name": [holiday_name],
-        "sanitized_name": [HolidayFeatureAdder._sanitize_holiday_name(holiday_name)],
-    })
-
-    # Act
-    result = HolidayFeatureAdder._create_individual_features(sample_data, holidays_df)
-
-    # Assert
-    assert expected_feature in result.columns
-    assert result.loc["2025-01-01", expected_feature] == 1
+    for date_str, expected_value in expected_holiday_dates.items():
+        assert result.data["is_holiday"].loc[date_str] == expected_value
+    # Check all individual holiday features are added
+    all_holiday_names = get_holiday_names(CountryAlpha2("NL"))
+    all_holiday_features = {f"is_{holiday_name}" for holiday_name in all_holiday_names}
+    assert all_holiday_features.issubset(result.data.columns)
+    # Verify specific holiday feature naming (from hardcoded list)
+    expected_features = {"is_christmas_day", "is_new_year_s_day", "is_king_s_day"}
+    assert expected_features.issubset(result.data.columns)
