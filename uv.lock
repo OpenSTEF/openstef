@@ -2283,7 +2283,6 @@ name = "openstef"
 version = "0.0.0"
 source = { editable = "." }
 dependencies = [
-    { name = "huggingface-hub" },
     { name = "openstef-core" },
     { name = "openstef-models" },
 ]
@@ -2296,6 +2295,7 @@ all = [
     { name = "openstef-models", extra = ["all"] },
 ]
 beam = [
+    { name = "huggingface-hub" },
     { name = "openstef-beam" },
 ]
 compatibility = [
@@ -2327,7 +2327,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "huggingface-hub", specifier = ">=0.35.3" },
+    { name = "huggingface-hub", marker = "extra == 'beam'", specifier = ">=0.35.3" },
     { name = "openstef-beam", marker = "extra == 'beam'", editable = "packages/openstef-beam" },
     { name = "openstef-beam", extras = ["all"], marker = "extra == 'all'", editable = "packages/openstef-beam" },
     { name = "openstef-compatibility", marker = "extra == 'all'", editable = "packages/openstef-compatibility" },
