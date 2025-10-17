@@ -63,7 +63,7 @@ def test_sanitize_holiday_name(input_name: str, expected_output: str):
         ),
         pytest.param(
             CountryAlpha2("US"),
-            14,
+            16,
             ["christmas_day", "new_year_s_day", "independence_day", "thanksgiving_day"],
             id="united_states",
         ),

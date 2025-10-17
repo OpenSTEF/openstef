@@ -12,6 +12,7 @@ whether a date is a holiday or a specific holiday.
 
 import re
 import unicodedata
+from datetime import UTC, datetime
 from functools import lru_cache
 from typing import Self, override
 
@@ -24,9 +25,6 @@ from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.mixins import State
 from openstef_core.transforms import TimeSeriesTransform
-
-# Years used to fetch holiday names. If new holidays are added later, this needs to be updated.
-_REFERENCE_YEARS_FOR_HOLIDAYS = [2023, 2024, 2025, 2026]
 
 
 class HolidayFeatureAdder(BaseConfig, TimeSeriesTransform):
@@ -134,8 +132,12 @@ def get_holiday_names(country_code: CountryAlpha2) -> list[str]:
     Returns:
         List of unique holiday names in their original form.
     """
+    # Years used to fetch holiday names. If new holidays are added later, this needs to be updated.
+    current_year = datetime.now(tz=UTC).year
+    reference_years = range(current_year - 5, current_year + 1)
+
     country_holidays = holidays.country_holidays(
-        country=str(country_code), categories=["public"], years=_REFERENCE_YEARS_FOR_HOLIDAYS, language="en_US"
+        country=str(country_code), categories=["public"], years=reference_years, language="en_US"
     )
     return sorted([
         sanitize_holiday_name(holiday_name)
