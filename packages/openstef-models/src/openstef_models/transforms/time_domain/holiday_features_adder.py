@@ -26,7 +26,7 @@ from openstef_core.mixins import State
 from openstef_core.transforms import TimeSeriesTransform
 
 # Years used to fetch holiday names. If new holidays are added later, this needs to be updated.
-_REFERENCE_YEARS_FOR_HOLIDAYS = [2025, 2026]
+_REFERENCE_YEARS_FOR_HOLIDAYS = [2023, 2024, 2025, 2026]
 
 
 class HolidayFeatureAdder(BaseConfig, TimeSeriesTransform):
