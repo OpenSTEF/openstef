@@ -603,11 +603,11 @@ intervals and temporal alignment.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.evaluation.metric_providers</span><span class="w"> </span><span class="kn">import</span> <span class="n">RMAEProvider</span><span class="p">,</span> <span class="n">RCRPSProvider</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">provider</span> <span class="o">=</span> <span class="n">SimpleTargetProvider</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="n">data_dir</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;./benchmark_data&quot;</span><span class="p">),</span>
-<span class="gp">... </span>    <span class="n">measurements_path_template</span><span class="o">=</span><span class="s2">&quot;demand_</span><span class="si">{name}</span><span class="s2">.parquet&quot;</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="n">weather_path_template</span><span class="o">=</span><span class="s2">&quot;weather_</span><span class="si">{name}</span><span class="s2">.parquet&quot;</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="n">profiles_path</span><span class="o">=</span><span class="s2">&quot;standard_profiles.parquet&quot;</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="n">prices_path</span><span class="o">=</span><span class="s2">&quot;energy_prices.parquet&quot;</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="n">targets_file</span><span class="o">=</span><span class="s2">&quot;energy_targets.yaml&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">measurements_path_for_target</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">Path</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">group_name</span><span class="p">)</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;load_</span><span class="si">{</span><span class="n">t</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.parquet&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">weather_path_for_target</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">Path</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">group_name</span><span class="p">)</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;weather_</span><span class="si">{</span><span class="n">t</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.parquet&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">profiles_path</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;standard_profiles.parquet&quot;</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="n">prices_path</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;energy_prices.parquet&quot;</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="n">targets_file_path</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;energy_targets.yaml&quot;</span><span class="p">),</span>
 <span class="gp">... </span>    <span class="n">data_sample_interval</span><span class="o">=</span><span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="mi">15</span><span class="p">),</span>
 <span class="gp">... </span>    <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="n">RMAEProvider</span><span class="p">(),</span> <span class="n">RCRPSProvider</span><span class="p">()],</span>
 <span class="gp">... </span>    <span class="n">use_profiles</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -626,28 +626,18 @@ intervals and temporal alignment.</p>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="openstef_beam.benchmarking.SimpleTargetProvider.measurements_path_template">
-<span class="sig-name descname"><span class="pre">measurements_path_template</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#openstef_beam.benchmarking.SimpleTargetProvider.measurements_path_template" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="openstef_beam.benchmarking.SimpleTargetProvider.weather_path_template">
-<span class="sig-name descname"><span class="pre">weather_path_template</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#openstef_beam.benchmarking.SimpleTargetProvider.weather_path_template" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_beam.benchmarking.SimpleTargetProvider.profiles_path">
-<span class="sig-name descname"><span class="pre">profiles_path</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#openstef_beam.benchmarking.SimpleTargetProvider.profiles_path" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">profiles_path</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Callable</span></code><span class="pre">[[],</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code><span class="pre">]</span></em><a class="headerlink" href="#openstef_beam.benchmarking.SimpleTargetProvider.profiles_path" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_beam.benchmarking.SimpleTargetProvider.prices_path">
-<span class="sig-name descname"><span class="pre">prices_path</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#openstef_beam.benchmarking.SimpleTargetProvider.prices_path" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">prices_path</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Callable</span></code><span class="pre">[[],</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code><span class="pre">]</span></em><a class="headerlink" href="#openstef_beam.benchmarking.SimpleTargetProvider.prices_path" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="openstef_beam.benchmarking.SimpleTargetProvider.targets_file">
-<span class="sig-name descname"><span class="pre">targets_file</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#openstef_beam.benchmarking.SimpleTargetProvider.targets_file" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="openstef_beam.benchmarking.SimpleTargetProvider.targets_file_path">
+<span class="sig-name descname"><span class="pre">targets_file_path</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Callable</span></code><span class="pre">[[],</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code><span class="pre">]</span></em><a class="headerlink" href="#openstef_beam.benchmarking.SimpleTargetProvider.targets_file_path" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -667,7 +657,7 @@ intervals and temporal alignment.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_beam.benchmarking.SimpleTargetProvider.metrics">
-<span class="sig-name descname"><span class="pre">metrics</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">MetricProvider</span></code><span class="pre">]</span></em><a class="headerlink" href="#openstef_beam.benchmarking.SimpleTargetProvider.metrics" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">metrics</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">MetricProvider</span></code><span class="pre">]</span> <span class="pre">|</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">Callable</span></code><span class="pre">[[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code><span class="pre">(</span><code class="docutils literal notranslate"><span class="pre">T</span></code><span class="pre">,</span> <span class="pre">bound=</span> <a class="reference internal" href="openstef_beam.benchmarking.BenchmarkTarget.html#openstef_beam.benchmarking.BenchmarkTarget" title="openstef_beam.benchmarking.models.benchmark_target.BenchmarkTarget"><code class="xref py py-class docutils literal notranslate"><span class="pre">BenchmarkTarget</span></code></a><span class="pre">)],</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">MetricProvider</span></code><span class="pre">]]</span></em><a class="headerlink" href="#openstef_beam.benchmarking.SimpleTargetProvider.metrics" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
@@ -722,25 +712,15 @@ intervals and temporal alignment.</p>
 </dl>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="openstef_beam.benchmarking.SimpleTargetProvider.get_measurements_path_for_target">
-<span class="sig-name descname"><span class="pre">get_measurements_path_for_target</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">T</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="../../_modules/openstef_beam/benchmarking/target_provider.html#SimpleTargetProvider.get_measurements_path_for_target"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_beam.benchmarking.SimpleTargetProvider.get_measurements_path_for_target" title="Link to this definition">#</a></dt>
-<dd><p>Build file path for target measurements using configured template.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Path to the measurements file for the target.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>Path</p>
-</dd>
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>target</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code>(<code class="docutils literal notranslate"><span class="pre">T</span></code>, bound= <a class="reference internal" href="openstef_beam.benchmarking.BenchmarkTarget.html#openstef_beam.benchmarking.BenchmarkTarget" title="openstef_beam.benchmarking.models.benchmark_target.BenchmarkTarget"><code class="xref py py-class docutils literal notranslate"><span class="pre">BenchmarkTarget</span></code></a>)</span>)</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></span></p>
-</dd>
-</dl>
-</dd></dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef_beam.benchmarking.SimpleTargetProvider.measurements_path_for_target">
+<span class="sig-name descname"><span class="pre">measurements_path_for_target</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Callable</span></code><span class="pre">[[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code><span class="pre">(</span><code class="docutils literal notranslate"><span class="pre">T</span></code><span class="pre">,</span> <span class="pre">bound=</span> <a class="reference internal" href="openstef_beam.benchmarking.BenchmarkTarget.html#openstef_beam.benchmarking.BenchmarkTarget" title="openstef_beam.benchmarking.models.benchmark_target.BenchmarkTarget"><code class="xref py py-class docutils literal notranslate"><span class="pre">BenchmarkTarget</span></code></a><span class="pre">)],</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code><span class="pre">]</span></em><a class="headerlink" href="#openstef_beam.benchmarking.SimpleTargetProvider.measurements_path_for_target" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef_beam.benchmarking.SimpleTargetProvider.weather_path_for_target">
+<span class="sig-name descname"><span class="pre">weather_path_for_target</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Callable</span></code><span class="pre">[[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code><span class="pre">(</span><code class="docutils literal notranslate"><span class="pre">T</span></code><span class="pre">,</span> <span class="pre">bound=</span> <a class="reference internal" href="openstef_beam.benchmarking.BenchmarkTarget.html#openstef_beam.benchmarking.BenchmarkTarget" title="openstef_beam.benchmarking.models.benchmark_target.BenchmarkTarget"><code class="xref py py-class docutils literal notranslate"><span class="pre">BenchmarkTarget</span></code></a><span class="pre">)],</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code><span class="pre">]</span></em><a class="headerlink" href="#openstef_beam.benchmarking.SimpleTargetProvider.weather_path_for_target" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="openstef_beam.benchmarking.SimpleTargetProvider.get_measurements_for_target">
@@ -780,26 +760,6 @@ Only includes datasets that are enabled via configuration flags.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="openstef_core.datasets.VersionedTimeSeriesDataset.html#openstef_core.datasets.VersionedTimeSeriesDataset" title="openstef_core.datasets.versioned_timeseries.dataset.VersionedTimeSeriesDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">VersionedTimeSeriesDataset</span></code></a></span></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="openstef_beam.benchmarking.SimpleTargetProvider.get_weather_path_for_target">
-<span class="sig-name descname"><span class="pre">get_weather_path_for_target</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">T</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="../../_modules/openstef_beam/benchmarking/target_provider.html#SimpleTargetProvider.get_weather_path_for_target"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_beam.benchmarking.SimpleTargetProvider.get_weather_path_for_target" title="Link to this definition">#</a></dt>
-<dd><p>Build file path for target weather data using configured template.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Path to the weather data file for the target.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>Path</p>
-</dd>
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>target</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code>(<code class="docutils literal notranslate"><span class="pre">T</span></code>, bound= <a class="reference internal" href="openstef_beam.benchmarking.BenchmarkTarget.html#openstef_beam.benchmarking.BenchmarkTarget" title="openstef_beam.benchmarking.models.benchmark_target.BenchmarkTarget"><code class="xref py py-class docutils literal notranslate"><span class="pre">BenchmarkTarget</span></code></a>)</span>)</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -937,11 +897,9 @@ Only includes datasets that are enabled via configuration flags.</p>
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.benchmarking.SimpleTargetProvider"><code class="docutils literal notranslate"><span class="pre">SimpleTargetProvider</span></code></a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.benchmarking.SimpleTargetProvider.data_dir"><code class="docutils literal notranslate"><span class="pre">SimpleTargetProvider.data_dir</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.benchmarking.SimpleTargetProvider.measurements_path_template"><code class="docutils literal notranslate"><span class="pre">SimpleTargetProvider.measurements_path_template</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.benchmarking.SimpleTargetProvider.weather_path_template"><code class="docutils literal notranslate"><span class="pre">SimpleTargetProvider.weather_path_template</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.benchmarking.SimpleTargetProvider.profiles_path"><code class="docutils literal notranslate"><span class="pre">SimpleTargetProvider.profiles_path</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.benchmarking.SimpleTargetProvider.prices_path"><code class="docutils literal notranslate"><span class="pre">SimpleTargetProvider.prices_path</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.benchmarking.SimpleTargetProvider.targets_file"><code class="docutils literal notranslate"><span class="pre">SimpleTargetProvider.targets_file</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.benchmarking.SimpleTargetProvider.targets_file_path"><code class="docutils literal notranslate"><span class="pre">SimpleTargetProvider.targets_file_path</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.benchmarking.SimpleTargetProvider.use_profiles"><code class="docutils literal notranslate"><span class="pre">SimpleTargetProvider.use_profiles</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.benchmarking.SimpleTargetProvider.use_prices"><code class="docutils literal notranslate"><span class="pre">SimpleTargetProvider.use_prices</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.benchmarking.SimpleTargetProvider.data_sample_interval"><code class="docutils literal notranslate"><span class="pre">SimpleTargetProvider.data_sample_interval</span></code></a></li>
@@ -949,10 +907,10 @@ Only includes datasets that are enabled via configuration flags.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.benchmarking.SimpleTargetProvider.get_target_class"><code class="docutils literal notranslate"><span class="pre">SimpleTargetProvider.get_target_class</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.benchmarking.SimpleTargetProvider.get_targets"><code class="docutils literal notranslate"><span class="pre">SimpleTargetProvider.get_targets()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.benchmarking.SimpleTargetProvider.get_metrics_for_target"><code class="docutils literal notranslate"><span class="pre">SimpleTargetProvider.get_metrics_for_target()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.benchmarking.SimpleTargetProvider.get_measurements_path_for_target"><code class="docutils literal notranslate"><span class="pre">SimpleTargetProvider.get_measurements_path_for_target()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.benchmarking.SimpleTargetProvider.measurements_path_for_target"><code class="docutils literal notranslate"><span class="pre">SimpleTargetProvider.measurements_path_for_target</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.benchmarking.SimpleTargetProvider.weather_path_for_target"><code class="docutils literal notranslate"><span class="pre">SimpleTargetProvider.weather_path_for_target</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.benchmarking.SimpleTargetProvider.get_measurements_for_target"><code class="docutils literal notranslate"><span class="pre">SimpleTargetProvider.get_measurements_for_target()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.benchmarking.SimpleTargetProvider.get_predictors_for_target"><code class="docutils literal notranslate"><span class="pre">SimpleTargetProvider.get_predictors_for_target()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.benchmarking.SimpleTargetProvider.get_weather_path_for_target"><code class="docutils literal notranslate"><span class="pre">SimpleTargetProvider.get_weather_path_for_target()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.benchmarking.SimpleTargetProvider.get_weather_for_target"><code class="docutils literal notranslate"><span class="pre">SimpleTargetProvider.get_weather_for_target()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.benchmarking.SimpleTargetProvider.get_profiles"><code class="docutils literal notranslate"><span class="pre">SimpleTargetProvider.get_profiles()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.benchmarking.SimpleTargetProvider.get_prices"><code class="docutils literal notranslate"><span class="pre">SimpleTargetProvider.get_prices()</span></code></a></li>
