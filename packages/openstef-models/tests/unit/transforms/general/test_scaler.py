@@ -12,7 +12,7 @@ import pytest
 from pydantic import ValidationError
 
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.exceptions import TransformNotFittedError
+from openstef_core.exceptions import NotFittedError
 from openstef_models.transforms.general import Scaler
 
 
@@ -38,7 +38,7 @@ def test_scaler_not_fitted_error(sample_dataset: TimeSeriesDataset):
     scaler = Scaler(method="standard")
 
     # Act & Assert
-    with pytest.raises(TransformNotFittedError, match="Scaler"):
+    with pytest.raises(NotFittedError, match="Scaler"):
         scaler.transform(sample_dataset)
 
 

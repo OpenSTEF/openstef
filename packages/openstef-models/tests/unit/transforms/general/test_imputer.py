@@ -10,8 +10,9 @@ import pytest
 from pydantic import ValidationError
 
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.exceptions import TransformNotFittedError
+from openstef_core.exceptions import NotFittedError
 from openstef_models.transforms.general import EmptyFeatureRemover, Imputer
+from openstef_models.utils.feature_selection import FeatureSelection
 
 
 @pytest.fixture
@@ -94,15 +95,15 @@ def test_custom_missing_value_placeholder():
 
 
 @pytest.mark.parametrize(
-    ("columns", "expected_rows"),
+    ("selection", "expected_rows"),
     [
-        pytest.param({"radiation"}, 4, id="single_feature"),
-        pytest.param({"wind_speed"}, 4, id="feature_with_middle_nan"),
-        pytest.param({"nonexistent"}, 4, id="nonexistent_feature"),
+        pytest.param(FeatureSelection(include={"radiation"}), 4, id="single_feature"),
+        pytest.param(FeatureSelection(include={"wind_speed"}), 4, id="feature_with_middle_nan"),
+        pytest.param(FeatureSelection(include={"nonexistent"}), 4, id="nonexistent_feature"),
     ],
 )
 def test_trailing_null_preservation(
-    columns: set[str],
+    selection: FeatureSelection,
     expected_rows: int,
 ):
     """Test that trailing NaNs are preserved after imputation."""
@@ -116,7 +117,7 @@ def test_trailing_null_preservation(
         index=pd.date_range(datetime.fromisoformat("2025-01-01T00:00:00"), periods=4, freq="1h"),
     )
     dataset = TimeSeriesDataset(data, timedelta(hours=1))
-    transform = Imputer(imputation_strategy="mean", columns=columns)
+    transform = Imputer(imputation_strategy="mean", selection=selection)
 
     # Act
     transform.fit(dataset)
@@ -126,7 +127,7 @@ def test_trailing_null_preservation(
     assert len(result.data) == expected_rows
 
     # Check behavior for selected columns
-    for col in columns.intersection(result.data.columns):
+    for col in selection.resolve(result.feature_names):
         if col == "radiation":
             # Radiation: [100, 110, 120, NaN] - trailing NaN should remain
             assert pd.isna(result.data.loc[result.data.index[-1], col])
@@ -187,7 +188,7 @@ def test_remove_empty_then_impute_workflow():
 
 
 def test_transform_not_fitted_error():
-    """Test that TransformNotFittedError is raised when transform is called before fit."""
+    """Test that NotFittedError is raised when transform is called before fit."""
     # Arrange
     data = pd.DataFrame(
         {"radiation": [100.0, 110.0]},
@@ -197,7 +198,7 @@ def test_transform_not_fitted_error():
     transform = Imputer(imputation_strategy="mean")
 
     # Act & Assert
-    with pytest.raises(TransformNotFittedError, match="The transform 'Imputer' has not been fitted"):
+    with pytest.raises(NotFittedError):
         transform.transform(dataset)
 
 
@@ -229,7 +230,10 @@ def test_no_missing_values_data_preservation():
 def test_imputation_transform__state_roundtrip(sample_dataset: TimeSeriesDataset):
     """Test imputation transform state serialization and restoration."""
     # Arrange
-    original_transform = Imputer(imputation_strategy="mean", columns={"radiation", "temperature"})
+    original_transform = Imputer(
+        imputation_strategy="mean",
+        selection=FeatureSelection(include={"radiation", "temperature"}),
+    )
     original_transform.fit(sample_dataset)
 
     # Act

@@ -13,7 +13,7 @@ import pytest
 from openstef_core.datasets.versioned_timeseries.dataset import VersionedTimeSeriesDataset
 from openstef_core.exceptions import MissingColumnsError
 from openstef_core.types import LeadTime
-from openstef_models.transforms.time_domain.verioned_lags_adder import VersionedLagsAdder
+from openstef_models.transforms.time_domain.versioned_lags_adder import VersionedLagsAdder
 
 
 def test_multiple_lag_features():
@@ -43,7 +43,7 @@ def test_multiple_lag_features():
         }),
         sample_interval=timedelta(hours=1),
     )
-    transform = VersionedLagsAdder(column="load", lags=[timedelta(hours=-1), timedelta(hours=-2)])
+    transform = VersionedLagsAdder(feature="load", lags=[timedelta(hours=-1), timedelta(hours=-2)])
 
     # Act
     result = transform.transform(simple_versioned_dataset)
@@ -147,7 +147,7 @@ def test_lag_transform_with_horizon_filtering():
     )
 
     lead_time = LeadTime.from_string("P2D")  # 2-day forecast horizon
-    transform = VersionedLagsAdder(column="signal", lags=[timedelta(days=-5), timedelta(days=-7), timedelta(days=-12)])
+    transform = VersionedLagsAdder(feature="signal", lags=[timedelta(days=-5), timedelta(days=-7), timedelta(days=-12)])
 
     # Act
     result = transform.transform(multi_version_signal_dataset)
@@ -171,20 +171,20 @@ def test_lag_transform_with_horizon_filtering():
     if len(lag_12d_data) > 0:
         assert lag_12d_data.eq("best").all(), "12-day lag should access 'best' version when available"
 
-    # Verify that lag columns exist (even if empty due to filtering)
-    assert "signal_lag_-P5D" in snapshot.data.columns, "5-day lag column should exist"
-    assert "signal_lag_-P7D" in snapshot.data.columns, "7-day lag column should exist"
-    assert "signal_lag_-P12D" in snapshot.data.columns, "12-day lag column should exist"
+    # Verify that lag features exist (even if empty due to filtering)
+    assert "signal_lag_-P5D" in snapshot.feature_names, "5-day lag feature should exist"
+    assert "signal_lag_-P7D" in snapshot.feature_names, "7-day lag feature should exist"
+    assert "signal_lag_-P12D" in snapshot.feature_names, "12-day lag feature should exist"
 
     # Verify that the snapshot maintains the original timestamp range
     original_range = pd.date_range("2025-01-01T10:00:00", periods=5, freq="D")
     assert len(snapshot.data.index) == len(original_range), "Snapshot should maintain original timestamp range"
 
 
-def test_missing_column_error():
-    """Test that lag transform raises MissingColumnsError when trying to create lag of non-existent column.
+def test_missing_feature_error():
+    """Test that lag transform raises MissingColumnsError when trying to create lag of non-existent feature.
 
-    This ensures proper error handling when configuration specifies a column that doesn't exist
+    This ensures proper error handling when configuration specifies a feature that doesn't exist
     in the dataset, preventing silent failures in production pipelines.
     """
     # Arrange
@@ -206,10 +206,10 @@ def test_missing_column_error():
         }),
         sample_interval=timedelta(hours=1),
     )
-    transform = VersionedLagsAdder(column="non_existent", lags=[timedelta(hours=-1)])
+    transform = VersionedLagsAdder(feature="non_existent", lags=[timedelta(hours=-1)])
 
     # Act & Assert
-    # Verify that attempting to create lag features for a non-existent column fails appropriately
+    # Verify that attempting to create lag features for a non-existent feature fails appropriately
     with pytest.raises(MissingColumnsError) as exc_info:
         transform.transform(simple_versioned_dataset)
     assert "non_existent" in str(exc_info.value)

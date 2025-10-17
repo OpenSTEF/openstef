@@ -155,3 +155,7 @@ class FlatlineChecker(BaseConfig, TimeSeriesTransform):
     @override
     def from_state(self, state: State) -> Self:
         return self.model_validate(state)
+
+    @override
+    def features_added(self) -> list[str]:
+        return []

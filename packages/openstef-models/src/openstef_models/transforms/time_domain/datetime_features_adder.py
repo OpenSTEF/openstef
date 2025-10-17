@@ -105,5 +105,15 @@ class DatetimeFeaturesAdder(BaseConfig, TimeSeriesTransform):
     def from_state(self, state: State) -> Self:
         return self.model_validate(state)
 
+    @override
+    def features_added(self) -> list[str]:
+        return [
+            "is_week_day",
+            "is_weekend_day",
+            "is_sunday",
+            "month_of_year",
+            "quarter_of_year",
+        ]
+
 
 __all__ = ["DatetimeFeaturesAdder"]

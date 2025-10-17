@@ -11,8 +11,9 @@ import pytest
 from _pytest.logging import LogCaptureFixture
 
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.exceptions import TransformNotFittedError
+from openstef_core.exceptions import NotFittedError
 from openstef_models.transforms.general import EmptyFeatureRemover
+from openstef_models.utils.feature_selection import FeatureSelection
 
 
 @pytest.fixture
@@ -54,7 +55,7 @@ def test_removes_all_empty_columns(sample_dataset_with_empty_columns: TimeSeries
 def test_removes_only_specified_empty_columns(sample_dataset_with_empty_columns: TimeSeriesDataset):
     """Test that only specified empty columns are removed."""
     # Arrange
-    transform = EmptyFeatureRemover(columns={"empty_col1", "radiation"})
+    transform = EmptyFeatureRemover(selection=FeatureSelection(include={"empty_col1", "radiation"}))
 
     # Act
     transform.fit(sample_dataset_with_empty_columns)
@@ -112,7 +113,7 @@ def test_no_empty_columns_preserves_data():
 
 
 def test_transform_not_fitted_error():
-    """Test that TransformNotFittedError is raised when transform is called before fit."""
+    """Test that NotFittedError is raised when transform is called before fit."""
     # Arrange
     data = pd.DataFrame(
         {"radiation": [100.0, 110.0]},
@@ -122,7 +123,7 @@ def test_transform_not_fitted_error():
     transform = EmptyFeatureRemover()
 
     # Act & Assert
-    with pytest.raises(TransformNotFittedError, match="The transform 'EmptyFeatureRemover' has not been fitted"):
+    with pytest.raises(NotFittedError):
         transform.transform(dataset)
 
 
@@ -137,7 +138,7 @@ def test_nonexistent_columns_are_ignored():
         index=pd.date_range(datetime.fromisoformat("2025-01-01T00:00:00"), periods=3, freq="1h"),
     )
     dataset = TimeSeriesDataset(data, timedelta(hours=1))
-    transform = EmptyFeatureRemover(columns={"nonexistent", "empty_col"})
+    transform = EmptyFeatureRemover(selection=FeatureSelection(include={"nonexistent", "empty_col"}))
 
     # Act
     transform.fit(dataset)
@@ -150,7 +151,9 @@ def test_nonexistent_columns_are_ignored():
 def test_remove_empty_columns_transform__state_roundtrip(sample_dataset_with_empty_columns: TimeSeriesDataset):
     """Test remove empty columns transform state serialization and restoration."""
     # Arrange
-    original_transform = EmptyFeatureRemover(columns={"empty_col1", "radiation", "temperature"})
+    original_transform = EmptyFeatureRemover(
+        selection=FeatureSelection(include={"empty_col1", "radiation", "temperature"})
+    )
     original_transform.fit(sample_dataset_with_empty_columns)
 
     # Act

@@ -51,7 +51,8 @@ from openstef_models.models.forecasting_model import ForecastingModel
 from openstef_models.transforms import FeatureEngineeringPipeline, PostprocessingPipeline
 from openstef_models.transforms.general import Scaler
 from openstef_models.transforms.time_domain import HolidayFeatureAdder
-from openstef_models.transforms.time_domain.verioned_lags_adder import VersionedLagsAdder
+from openstef_models.transforms.time_domain.versioned_lags_adder import VersionedLagsAdder
+from openstef_models.utils.feature_selection import FeatureSelection
 from openstef_models.workflows import CustomForecastingWorkflow
 
 logging.basicConfig(level=logging.INFO, format="[%(asctime)s][%(levelname)s] %(message)s")
@@ -92,10 +93,10 @@ model = ForecastingModel(
     preprocessing=FeatureEngineeringPipeline.create(
         horizons=[LeadTime.from_string("PT36H")],
         horizon_transforms=[
-            Scaler(method="standard", columns=["temp", "wind", "radiation"]),
+            Scaler(method="standard", selection=FeatureSelection(include={"temp", "wind", "radiation"})),
             HolidayFeatureAdder(country_code=CountryAlpha2("NL")),
         ],
-        versioned_transforms=[VersionedLagsAdder(column="load", lags=[timedelta(days=-7)])],
+        versioned_transforms=[VersionedLagsAdder(feature="load", lags=[timedelta(days=-7)])],
     ),
     forecaster=GBLinearForecaster(
         config=GBLinearForecasterConfig(

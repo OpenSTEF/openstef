@@ -11,6 +11,7 @@ import pytest
 
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_models.transforms.general.dimensionality_reducer import DimensionalityReducer
+from openstef_models.utils.feature_selection import FeatureSelection
 
 
 @pytest.fixture
@@ -55,7 +56,9 @@ def test_dimensionality_reduction(
     """Test dimensionality reduction with different methods."""
     # Arrange
     transform = DimensionalityReducer(
-        columns=["feature1", "feature2", "feature3"], method=method, n_components=expected_components
+        selection=FeatureSelection(include={"feature1", "feature2", "feature3"}),
+        method=method,
+        n_components=expected_components,
     )
     assert not transform.is_fitted
 
@@ -92,7 +95,10 @@ def test_dimensionality_reduction_with_custom_parameters(
     """Test dimensionality reduction with method-specific parameters."""
     # Arrange
     transform = DimensionalityReducer(
-        columns=["feature1", "feature2", "feature3"], method=method, n_components=2, **method_params
+        selection=FeatureSelection(include={"feature1", "feature2", "feature3"}),
+        method=method,
+        n_components=2,
+        **method_params,
     )
 
     # Act
@@ -113,7 +119,9 @@ def test_dimensionality_reduction__state_roundtrip(sample_forecast_input_dataset
     """Test dimensionality reduction state round trip."""
     # Arrange
     original_transform = DimensionalityReducer(
-        columns=["feature1", "feature2", "feature3"], method="pca", n_components=2
+        selection=FeatureSelection(include={"feature1", "feature2", "feature3"}),
+        method="pca",
+        n_components=2,
     )
 
     original_transform.fit(sample_forecast_input_dataset)

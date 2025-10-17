@@ -17,9 +17,10 @@ from sklearn.impute import SimpleImputer
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.exceptions import TransformNotFittedError
+from openstef_core.exceptions import NotFittedError
 from openstef_core.mixins import State
 from openstef_core.transforms import TimeSeriesTransform
+from openstef_models.utils.feature_selection import FeatureSelection
 
 type ImputationStrategy = Literal["mean", "median", "most_frequent", "constant"]
 
@@ -87,9 +88,10 @@ class Imputer(BaseConfig, TimeSeriesTransform):
     >>> transform_all.fit(dataset)
     >>> result_all = transform_all.transform(dataset)
     >>> # Apply imputation only to specific columns
+    >>> from openstef_models.utils.feature_selection import FeatureSelection
     >>> transform_selective = Imputer(
     ...     imputation_strategy="mean",
-    ...     columns={"temperature", "wind_speed"}
+    ...     selection=FeatureSelection(include={"temperature", "wind_speed"})
     ... )
     >>> transform_selective.fit(dataset)
     >>> result_selective = transform_selective.transform(dataset)
@@ -111,14 +113,13 @@ class Imputer(BaseConfig, TimeSeriesTransform):
         default=None,
         description="Value to use when imputation_strategy is CONSTANT",
     )
-    columns: set[str] | None = Field(
-        default=None,
-        description="List of column names to apply imputation to. If None, applies to all columns.",
+    selection: FeatureSelection = Field(
+        default=FeatureSelection.ALL,
+        description="Features to impute.",
     )
 
     _imputer: SimpleImputer = PrivateAttr()
     _is_fitted: bool = PrivateAttr(default=False)
-    _transform_columns: set[str] = PrivateAttr()
 
     @model_validator(mode="after")
     def validate_fill_value_with_strategy(self) -> "Imputer":
@@ -151,14 +152,12 @@ class Imputer(BaseConfig, TimeSeriesTransform):
 
     @override
     def fit(self, data: TimeSeriesDataset) -> None:
-        transform_columns = (self.columns or set(data.data.columns)).intersection(data.data.columns)
-
-        if not transform_columns:
+        features = self.selection.resolve(data.feature_names)
+        if not features:
             self._is_fitted = True
-            self._transform_columns = set()
             return
 
-        data_subset = data.data[list(transform_columns)]
+        data_subset = data.data[features]
 
         # Check for completely empty columns and raise an error
         _check_for_empty_columns(data_subset, self.missing_value)
@@ -166,18 +165,17 @@ class Imputer(BaseConfig, TimeSeriesTransform):
         # Fit sklearn imputer
         self._imputer.fit(data_subset)
         self._is_fitted = True
-        self._transform_columns = transform_columns
 
     @override
     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
         if not self._is_fitted:
-            raise TransformNotFittedError(self.__class__.__name__)
+            raise NotFittedError(self.__class__.__name__)
 
-        transform_columns = self._transform_columns.intersection(data.data.columns)
-        if not transform_columns:
+        features = self.selection.resolve(data.feature_names)
+        if not features:
             return data
 
-        data_subset = data.data[list(transform_columns)]
+        data_subset = data.data[features]
         data_transformed = cast(pd.DataFrame, self._imputer.transform(data_subset))
 
         # Set imputed trailing NaNs back to NaN since they cannot be reasonably imputed
@@ -187,7 +185,7 @@ class Imputer(BaseConfig, TimeSeriesTransform):
 
         # Recombine transformed columns with untouched columns
         result_data = data.data.copy()
-        result_data[list(transform_columns)] = data_transformed
+        result_data[features] = data_transformed
 
         return TimeSeriesDataset(data=result_data, sample_interval=data.sample_interval)
 
@@ -199,7 +197,6 @@ class Imputer(BaseConfig, TimeSeriesTransform):
                 "config": self.model_dump(mode="json"),
                 "imputer": self._imputer.__getstate__(),  # pyright: ignore[reportUnknownMemberType]
                 "is_fitted": self._is_fitted,
-                "transform_columns": list(self._transform_columns),
             },
         )
 
@@ -209,5 +206,8 @@ class Imputer(BaseConfig, TimeSeriesTransform):
         instance = self.model_validate(state["config"])
         instance._imputer.__setstate__(state["imputer"])  # pyright: ignore[reportUnknownMemberType]  # noqa: SLF001
         instance._is_fitted = state["is_fitted"]  # noqa: SLF001
-        instance._transform_columns = set(state["transform_columns"])  # noqa: SLF001
         return instance
+
+    @override
+    def features_added(self) -> list[str]:
+        return []

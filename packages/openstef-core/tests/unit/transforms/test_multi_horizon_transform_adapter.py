@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 
 from datetime import timedelta
-from typing import Any, Self, cast
+from typing import Any, Self, cast, override
 
 import pandas as pd
 import pytest
@@ -28,14 +28,20 @@ class DummyTransform(TimeSeriesTransform):
         self.constant = constant
         self._fitted = False
 
+    @override
     def fit(self, data: TimeSeriesDataset) -> None:
         self._fitted = True
 
+    @override
     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
         transformed_data = data.data.copy()
         numeric_columns = transformed_data.select_dtypes(include=[float, int]).columns
         transformed_data[numeric_columns] += self.constant
         return TimeSeriesDataset(transformed_data, data.sample_interval)
+
+    @override
+    def features_added(self) -> list[str]:
+        return []
 
     def to_state(self) -> State:
         return {"constant": self.constant, "fitted": self._fitted}
