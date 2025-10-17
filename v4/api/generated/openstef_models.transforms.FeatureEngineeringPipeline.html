@@ -440,7 +440,6 @@
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.NotFittedError.html">NotFittedError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.PredictError.html">PredictError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.TimeSeriesValidationError.html">TimeSeriesValidationError</a></li>
-<li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.TransformNotFittedError.html">TransformNotFittedError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.UnreachableStateError.html">UnreachableStateError</a></li>
 </ul>
 </details></li>
@@ -626,7 +625,7 @@ versioned and unversioned (single horizon) datasets.</p>
 <span class="gp">... </span>    <span class="n">horizons</span><span class="o">=</span><span class="p">[</span><span class="n">LeadTime</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;PT1H&quot;</span><span class="p">),</span> <span class="n">LeadTime</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;PT24H&quot;</span><span class="p">)],</span>
 <span class="gp">... </span>    <span class="n">versioned_transforms</span><span class="o">=</span><span class="p">[],</span>  <span class="c1"># No versioned transforms available yet</span>
 <span class="gp">... </span>    <span class="n">horizon_transforms</span><span class="o">=</span><span class="p">[</span>
-<span class="gp">... </span>        <span class="n">CyclicFeaturesAdder</span><span class="p">(</span><span class="n">included_features</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;timeOfDay&quot;</span><span class="p">,</span> <span class="s2">&quot;season&quot;</span><span class="p">])</span>
+<span class="gp">... </span>        <span class="n">CyclicFeaturesAdder</span><span class="p">(</span><span class="n">included_features</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;time_of_day&quot;</span><span class="p">,</span> <span class="s2">&quot;season&quot;</span><span class="p">])</span>
 <span class="gp">... </span>    <span class="p">]</span>
 <span class="gp">... </span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt;</span>
@@ -639,7 +638,7 @@ versioned and unversioned (single horizon) datasets.</p>
 <span class="gp">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Check what columns are created (original + cyclic features)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">sorted</span><span class="p">(</span><span class="n">horizon_datasets</span><span class="p">[</span><span class="n">LeadTime</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;PT1H&quot;</span><span class="p">)]</span><span class="o">.</span><span class="n">feature_names</span><span class="p">)</span>
-<span class="go">[&#39;load&#39;, &#39;season_cosine&#39;, &#39;season_sine&#39;, &#39;temperature&#39;, &#39;timeOfDay_cosine&#39;, &#39;timeOfDay_sine&#39;]</span>
+<span class="go">[&#39;load&#39;, &#39;season_cosine&#39;, &#39;season_sine&#39;, &#39;temperature&#39;, &#39;time_of_day_cosine&#39;, &#39;time_of_day_sine&#39;]</span>
 </pre></div>
 </div>
 <p><strong>Example 2: Pipeline with simple time series dataset (single horizon)</strong></p>
@@ -657,7 +656,7 @@ versioned and unversioned (single horizon) datasets.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">single_pipeline</span> <span class="o">=</span> <span class="n">FeatureEngineeringPipeline</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="n">horizons</span><span class="o">=</span><span class="p">[</span><span class="n">LeadTime</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;PT36H&quot;</span><span class="p">)],</span>
 <span class="gp">... </span>    <span class="n">horizon_transforms</span><span class="o">=</span><span class="p">[</span>
-<span class="gp">... </span>        <span class="n">CyclicFeaturesAdder</span><span class="p">(</span><span class="n">included_features</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;timeOfDay&quot;</span><span class="p">])</span>
+<span class="gp">... </span>        <span class="n">CyclicFeaturesAdder</span><span class="p">(</span><span class="n">included_features</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;time_of_day&quot;</span><span class="p">])</span>
 <span class="gp">... </span>    <span class="p">]</span>
 <span class="gp">... </span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt;</span>
@@ -666,7 +665,7 @@ versioned and unversioned (single horizon) datasets.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">single_result</span><span class="p">)</span>
 <span class="go">1</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">sorted</span><span class="p">(</span><span class="n">single_result</span><span class="p">[</span><span class="n">LeadTime</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;PT36H&quot;</span><span class="p">)]</span><span class="o">.</span><span class="n">feature_names</span><span class="p">)</span>
-<span class="go">[&#39;load&#39;, &#39;temperature&#39;, &#39;timeOfDay_cosine&#39;, &#39;timeOfDay_sine&#39;]</span>
+<span class="go">[&#39;load&#39;, &#39;temperature&#39;, &#39;time_of_day_cosine&#39;, &#39;time_of_day_sine&#39;]</span>
 </pre></div>
 </div>
 <dl class="field-list simple">

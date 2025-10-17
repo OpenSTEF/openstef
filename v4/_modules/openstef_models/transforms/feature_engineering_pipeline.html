@@ -514,7 +514,7 @@
 <span class="sd">        ...     horizons=[LeadTime.from_string(&quot;PT1H&quot;), LeadTime.from_string(&quot;PT24H&quot;)],</span>
 <span class="sd">        ...     versioned_transforms=[],  # No versioned transforms available yet</span>
 <span class="sd">        ...     horizon_transforms=[</span>
-<span class="sd">        ...         CyclicFeaturesAdder(included_features=[&quot;timeOfDay&quot;, &quot;season&quot;])</span>
+<span class="sd">        ...         CyclicFeaturesAdder(included_features=[&quot;time_of_day&quot;, &quot;season&quot;])</span>
 <span class="sd">        ...     ]</span>
 <span class="sd">        ... )</span>
 <span class="sd">        &gt;&gt;&gt;</span>
@@ -527,7 +527,7 @@
 <span class="sd">        &gt;&gt;&gt;</span>
 <span class="sd">        &gt;&gt;&gt; # Check what columns are created (original + cyclic features)</span>
 <span class="sd">        &gt;&gt;&gt; sorted(horizon_datasets[LeadTime.from_string(&quot;PT1H&quot;)].feature_names)</span>
-<span class="sd">        [&#39;load&#39;, &#39;season_cosine&#39;, &#39;season_sine&#39;, &#39;temperature&#39;, &#39;timeOfDay_cosine&#39;, &#39;timeOfDay_sine&#39;]</span>
+<span class="sd">        [&#39;load&#39;, &#39;season_cosine&#39;, &#39;season_sine&#39;, &#39;temperature&#39;, &#39;time_of_day_cosine&#39;, &#39;time_of_day_sine&#39;]</span>
 
 <span class="sd">        **Example 2: Pipeline with simple time series dataset (single horizon)**</span>
 
@@ -546,7 +546,7 @@
 <span class="sd">        &gt;&gt;&gt; single_pipeline = FeatureEngineeringPipeline.create(</span>
 <span class="sd">        ...     horizons=[LeadTime.from_string(&quot;PT36H&quot;)],</span>
 <span class="sd">        ...     horizon_transforms=[</span>
-<span class="sd">        ...         CyclicFeaturesAdder(included_features=[&quot;timeOfDay&quot;])</span>
+<span class="sd">        ...         CyclicFeaturesAdder(included_features=[&quot;time_of_day&quot;])</span>
 <span class="sd">        ...     ]</span>
 <span class="sd">        ... )</span>
 <span class="sd">        &gt;&gt;&gt;</span>
@@ -555,7 +555,7 @@
 <span class="sd">        &gt;&gt;&gt; len(single_result)</span>
 <span class="sd">        1</span>
 <span class="sd">        &gt;&gt;&gt; sorted(single_result[LeadTime.from_string(&quot;PT36H&quot;)].feature_names)</span>
-<span class="sd">        [&#39;load&#39;, &#39;temperature&#39;, &#39;timeOfDay_cosine&#39;, &#39;timeOfDay_sine&#39;]</span>
+<span class="sd">        [&#39;load&#39;, &#39;temperature&#39;, &#39;time_of_day_cosine&#39;, &#39;time_of_day_sine&#39;]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">horizons</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">LeadTime</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
