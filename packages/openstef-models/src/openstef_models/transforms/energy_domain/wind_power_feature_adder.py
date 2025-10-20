@@ -116,16 +116,16 @@ class WindPowerFeatureAdder(BaseConfig, TimeSeriesTransform):
         if self.windspeed_reference_column not in data.feature_names:
             raise MissingColumnsError([self.windspeed_reference_column])
 
-        features = pd.DataFrame(index=data.data.index)
+        df = data.data.copy(deep=False)
         if self.windspeed_hub_height_column not in data.feature_names:
-            features[self.windspeed_hub_height_column] = self._calculate_wind_speed_at_hub_height(
-                data.data[self.windspeed_reference_column]
+            df[self.windspeed_hub_height_column] = self._calculate_wind_speed_at_hub_height(
+                df[self.windspeed_reference_column]
             )
-            features[self.feature_name] = self._calculate_wind_power(features[self.windspeed_hub_height_column])
+            df["wind_power"] = self._calculate_wind_power(df[self.windspeed_hub_height_column])
         else:
-            features[self.feature_name] = self._calculate_wind_power(data.data[self.windspeed_hub_height_column])
+            df["wind_power"] = self._calculate_wind_power(df[self.windspeed_hub_height_column])
 
-        return TimeSeriesDataset(data=pd.concat([data.data, features], axis=1), sample_interval=data.sample_interval)
+        return TimeSeriesDataset(data=df, sample_interval=data.sample_interval)
 
     @override
     def to_state(self) -> State:

@@ -7,10 +7,6 @@ from typing import Any, Self, cast, override
 
 import pandas as pd
 import pytest
-
-from openstef_core.datasets import MultiHorizon, TimeSeriesDataset, VersionedTimeSeriesDataset
-from openstef_core.mixins import State
-from openstef_core.transforms.dataset_transforms import TimeSeriesTransform
 from openstef_core.transforms.horizon_split_transform import (
     HorizonSplitTransform,
 )
@@ -18,6 +14,10 @@ from openstef_core.transforms.multi_horizon_transform_adapter import (
     MultiHorizonTransformAdapter,
     concat_horizon_datasets_rowwise,
 )
+
+from openstef_core.datasets import MultiHorizon, TimeSeriesDataset, VersionedTimeSeriesDataset
+from openstef_core.mixins import State
+from openstef_core.transforms.dataset_transforms import TimeSeriesTransform
 from openstef_core.types import LeadTime
 
 

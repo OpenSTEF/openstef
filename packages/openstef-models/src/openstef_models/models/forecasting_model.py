@@ -12,8 +12,7 @@ data transformation and validation.
 from datetime import datetime
 from typing import Any, Self, cast, override
 
-import numpy as np
-import pandas as pd
+from openstef_core.datasets.utils.data_split import DataSplitStrategy, StratifiedTrainTestSplitter
 from pydantic import Field, model_validator
 
 from openstef_beam.evaluation import EvaluationConfig, EvaluationPipeline, SubsetMetric
@@ -22,23 +21,21 @@ from openstef_core.base_model import BaseModel
 from openstef_core.datasets import (
     ForecastDataset,
     ForecastInputDataset,
-    MultiHorizon,
     TimeSeriesDataset,
     VersionedTimeSeriesDataset,
 )
-from openstef_core.datasets.data_split import DataSplitStrategy, StratifiedTrainTestSplitter
 from openstef_core.exceptions import ConfigurationError, NotFittedError
 from openstef_core.mixins import Predictor, State
-from openstef_models.models.forecasting import Forecaster, HorizonForecaster
+from openstef_models.models.forecasting import Forecaster
 from openstef_models.transforms import FeatureEngineeringPipeline, PostprocessingPipeline
 
 
 class ModelFitResult(BaseModel):
     input_dataset: VersionedTimeSeriesDataset | TimeSeriesDataset = Field()
 
-    input_data_train: MultiHorizon[ForecastInputDataset] = Field()
-    input_data_val: MultiHorizon[ForecastInputDataset] | None = Field(default=None)
-    input_data_test: MultiHorizon[ForecastInputDataset] | None = Field(default=None)
+    input_data_train: ForecastInputDataset = Field()
+    input_data_val: ForecastInputDataset | None = Field(default=None)
+    input_data_test: ForecastInputDataset | None = Field(default=None)
 
     metrics_train: SubsetMetric = Field()
     metrics_val: SubsetMetric | None = Field(default=None)
@@ -46,7 +43,7 @@ class ModelFitResult(BaseModel):
     metrics_full: SubsetMetric = Field()
 
 
-class ForecastingModel(BaseModel, Predictor[VersionedTimeSeriesDataset | TimeSeriesDataset, ForecastDataset]):
+class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset]):
     """Complete forecasting pipeline combining preprocessing, prediction, and postprocessing.
 
     Orchestrates the full forecasting workflow by managing feature engineering,
@@ -90,12 +87,12 @@ class ForecastingModel(BaseModel, Predictor[VersionedTimeSeriesDataset | TimeSer
         default=...,
         description="Feature engineering pipeline for transforming raw input data into model-ready features.",
     )
-    forecaster: Forecaster | HorizonForecaster = Field(
+    forecaster: Forecaster = Field(
         default=...,
         description="Underlying forecasting algorithm, either single-horizon or multi-horizon.",
     )
-    postprocessing: PostprocessingPipeline[MultiHorizon[ForecastInputDataset], ForecastDataset] = Field(
-        default_factory=PostprocessingPipeline[MultiHorizon[ForecastInputDataset], ForecastDataset],
+    postprocessing: PostprocessingPipeline[ForecastInputDataset, ForecastDataset] = Field(
+        default_factory=PostprocessingPipeline[ForecastInputDataset, ForecastDataset],
         description="Postprocessing pipeline for transforming model outputs into final forecasts.",
     )
     target_column: str = Field(
@@ -142,9 +139,9 @@ class ForecastingModel(BaseModel, Predictor[VersionedTimeSeriesDataset | TimeSer
     @override
     def fit(
         self,
-        data: VersionedTimeSeriesDataset | TimeSeriesDataset,
-        data_val: VersionedTimeSeriesDataset | TimeSeriesDataset | None = None,
-        data_test: VersionedTimeSeriesDataset | TimeSeriesDataset | None = None,
+        data: TimeSeriesDataset,
+        data_val: TimeSeriesDataset | None = None,
+        data_test: TimeSeriesDataset | None = None,
     ) -> ModelFitResult:
         """Train the forecasting model on the provided dataset.
 
@@ -173,7 +170,7 @@ class ForecastingModel(BaseModel, Predictor[VersionedTimeSeriesDataset | TimeSer
         )
 
         # Fit the model
-        prediction = self._fit_forecaster(data=input_data_train, data_val=input_data_val)
+        prediction = self.forecaster.fit_predict(data=input_data_train, data_val=input_data_val)
 
         # Fit the postprocessing transforms
         self.postprocessing.fit(data=(input_data_train, prediction))
@@ -203,9 +200,7 @@ class ForecastingModel(BaseModel, Predictor[VersionedTimeSeriesDataset | TimeSer
         )
 
     @override
-    def predict(
-        self, data: VersionedTimeSeriesDataset | TimeSeriesDataset, forecast_start: datetime | None = None
-    ) -> ForecastDataset:
+    def predict(self, data: TimeSeriesDataset, forecast_start: datetime | None = None) -> ForecastDataset:
         """Generate forecasts using the trained model.
 
         Transforms input data through the preprocessing pipeline, generates predictions
@@ -228,32 +223,9 @@ class ForecastingModel(BaseModel, Predictor[VersionedTimeSeriesDataset | TimeSer
         input_data = self._prepare_input(data=data, forecast_start=forecast_start)
 
         # Generate predictions
-        raw_forecasts = self._predict_forecaster(data=input_data)
+        raw_predictions = self.forecaster.predict(data=input_data)
 
-        return self.postprocessing.transform(data=(input_data, raw_forecasts))
-
-    def _fit_forecaster(
-        self,
-        data: MultiHorizon[ForecastInputDataset],
-        data_val: MultiHorizon[ForecastInputDataset] | None = None,
-    ) -> ForecastDataset:
-        if isinstance(self.forecaster, Forecaster):
-            prediction = self.forecaster.fit_predict(data=data, data_val=data_val)
-        else:
-            horizon_input_data = data[self.preprocessing.horizons[0]]
-            horizon_input_data_val = data_val[self.preprocessing.horizons[0]] if data_val else None
-            prediction = self.forecaster.fit_predict(data=horizon_input_data, data_val=horizon_input_data_val)
-
-        return prediction
-
-    def _predict_forecaster(self, data: MultiHorizon[ForecastInputDataset]) -> ForecastDataset:
-        if isinstance(self.forecaster, Forecaster):
-            prediction = self.forecaster.predict(data=data)
-        else:
-            horizon_input_data = data[self.preprocessing.horizons[0]]
-            prediction = self.forecaster.predict(data=horizon_input_data)
-
-        return prediction
+        return self.postprocessing.transform(data=(input_data, raw_predictions))
 
     def _prepare_split_input(
         self,
@@ -261,9 +233,9 @@ class ForecastingModel(BaseModel, Predictor[VersionedTimeSeriesDataset | TimeSer
         data_val: VersionedTimeSeriesDataset | TimeSeriesDataset | None = None,
         data_test: VersionedTimeSeriesDataset | TimeSeriesDataset | None = None,
     ) -> tuple[
-        MultiHorizon[ForecastInputDataset],
-        MultiHorizon[ForecastInputDataset] | None,
-        MultiHorizon[ForecastInputDataset] | None,
+        ForecastInputDataset,
+        ForecastInputDataset | None,
+        ForecastInputDataset | None,
     ]:
         """Prepare and split input data into train, validation, and test sets.
 
@@ -294,53 +266,24 @@ class ForecastingModel(BaseModel, Predictor[VersionedTimeSeriesDataset | TimeSer
             self._to_forecast_input(split_result.test, data) if split_result.test else None,
         )
 
-    def _to_forecast_input(
-        self,
-        data: MultiHorizon[TimeSeriesDataset],
-        original_data: VersionedTimeSeriesDataset | TimeSeriesDataset,
-    ) -> MultiHorizon[ForecastInputDataset]:
-        """Convert preprocessed data to ForecastInputDataset with restored target column.
-
-        Returns:
-            Multi-horizon forecast input dataset with target column restored from original data.
-        """
-        target_dataset = _dataset_to_target(data=original_data, target_column=self.target_column)
-        target_series = target_dataset.data[self.target_column]
-
-        input_data = _dataset_to_input(data)
-        return input_data.map_horizons(
-            lambda dataset: ForecastInputDataset(
-                data=dataset.data.assign(**{self.target_column: target_series}),
-                sample_interval=dataset.sample_interval,
-                target_column=self.target_column,
-            )
-        )
-
     def _prepare_input(
         self,
         data: VersionedTimeSeriesDataset | TimeSeriesDataset,
         forecast_start: datetime | None = None,
-    ) -> MultiHorizon[ForecastInputDataset]:
+    ) -> ForecastInputDataset:
         # Extract targets series to restore it later to ensure it is unchanged
         target_dataset = _dataset_to_target(data=data, target_column=self.target_column)
         target_series = target_dataset.data[self.target_column]
 
-        # Make sure future target values are NaN
-        if forecast_start is not None:
-            mask = cast(pd.Series, target_series.index) >= forecast_start
-            target_series = target_series.mask(cond=mask, other=np.nan)  # type: ignore
-
         # Apply preprocessing transforms
         input_data = self.preprocessing.transform(data=data)
 
-        return input_data.map_horizons(
-            lambda dataset: ForecastInputDataset(
-                # Reassign target column to ensure it exists and is unchanged
-                data=dataset.data.assign(**{self.target_column: target_series}),
-                sample_interval=data.sample_interval,
-                target_column=self.target_column,
-                forecast_start=forecast_start,
-            )
+        return ForecastInputDataset(
+            # Reassign target column to ensure it exists and is unchanged
+            data=input_data.data.assign(**{self.target_column: target_series}),
+            sample_interval=input_data.sample_interval,
+            target_column=self.target_column,
+            forecast_start=forecast_start,
         )
 
     def score(
@@ -415,16 +358,6 @@ class ForecastingModel(BaseModel, Predictor[VersionedTimeSeriesDataset | TimeSer
             forecaster=self.forecaster.from_state(state["forecaster"]),
             postprocessing=self.postprocessing.from_state(state["postprocessing"]),
         )
-
-
-def _dataset_to_input(data: MultiHorizon[TimeSeriesDataset]) -> MultiHorizon[ForecastInputDataset]:
-    return data.map_horizons(
-        lambda dataset: ForecastInputDataset(
-            data=dataset.data,
-            sample_interval=dataset.sample_interval,
-            target_column=dataset.feature_names[0],  # Assume first column is target
-        )
-    )
 
 
 def _dataset_to_target(

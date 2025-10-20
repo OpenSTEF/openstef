@@ -17,18 +17,16 @@ flexible dataset construction for complex forecasting pipelines.
 import functools
 import json
 import logging
-import operator
 from collections.abc import Sequence
 from datetime import datetime, timedelta
 from typing import Literal, Self, cast, override
 
 import pandas as pd
-from pydantic import FilePath
 
-from openstef_core.datasets.mixins import StoreableDatasetMixin, VersionedTimeSeriesMixin
+from openstef_core.datasets.mixins import DatasetMixin, VersionedTimeSeriesMixin
 from openstef_core.datasets.timeseries_dataset import TimeSeriesDataset
-from openstef_core.datasets.validation import validate_disjoint_columns, validate_same_sample_intervals
-from openstef_core.datasets.versioned_timeseries.dataset_part import VersionedTimeSeriesPart
+from openstef_core.datasets.utils.validation import validate_disjoint_columns, validate_same_sample_intervals
+from openstef_core.datasets.versioned_timeseries_dataset_part import VersionedTimeSeriesPart
 from openstef_core.exceptions import TimeSeriesValidationError
 from openstef_core.types import AvailableAt, LeadTime
 from openstef_core.utils import timedelta_from_isoformat, timedelta_to_isoformat
@@ -40,7 +38,10 @@ _logger = logging.getLogger(__name__)
 type ConcatMode = Literal["left", "outer", "inner"]
 
 
-class VersionedTimeSeriesDataset(VersionedTimeSeriesMixin, StoreableDatasetMixin):
+class VersionedTimeSeriesDataset(
+    VersionedTimeSeriesMixin,
+    DatasetMixin,
+):
     """A versioned time series dataset composed of multiple data parts.
 
     This class combines multiple VersionedTimeSeriesPart instances into a unified
@@ -104,62 +105,135 @@ class VersionedTimeSeriesDataset(VersionedTimeSeriesMixin, StoreableDatasetMixin
     """
 
     data_parts: list[VersionedTimeSeriesPart]
-    index: pd.DatetimeIndex
-    sample_interval: timedelta
-    feature_names: list[str]
+
+    _index: pd.DatetimeIndex
+    _sample_interval: timedelta
+    _feature_names: list[str]
 
     def __init__(
         self,
         data_parts: list[VersionedTimeSeriesPart],
+        *,
         index: pd.DatetimeIndex | None = None,
     ) -> None:
-        """Initialize a VersionedTimeSeriesDataset from multiple data parts.
-
-        Combines multiple VersionedTimeSeriesPart instances into a unified dataset
-        that maintains versioning information across all parts. Validates that
-        parts have compatible configurations before combining.
-
-        Args:
-            data_parts: List of VersionedTimeSeriesPart instances to combine.
-                Must have at least one part with disjoint feature sets and
-                identical sample intervals.
-            index: Optional predefined datetime index covering all parts.
-                If None, computed as union of all part indices.
-
-        Raises:
-            TimeSeriesValidationError: If no data parts provided, or if parts have
-                overlapping features or incompatible sample intervals.
-
-        Example:
-            Combine temperature and load data parts:
-
-            >>> # Create separate data parts for different features
-            >>> temp_data = pd.DataFrame({
-            ...     'timestamp': [datetime.fromisoformat('2025-01-01T10:00:00')],
-            ...     'available_at': [datetime.fromisoformat('2025-01-01T10:05:00')],
-            ...     'temperature': [20.0]
-            ... })
-            >>> load_data = pd.DataFrame({
-            ...     'timestamp': [datetime.fromisoformat('2025-01-01T10:00:00')],
-            ...     'available_at': [datetime.fromisoformat('2025-01-01T10:10:00')],
-            ...     'load': [100.0]
-            ... })
-            >>> temp_part = VersionedTimeSeriesPart(temp_data, timedelta(minutes=15))
-            >>> load_part = VersionedTimeSeriesPart(load_data, timedelta(minutes=15))
-            >>> dataset = VersionedTimeSeriesDataset([temp_part, load_part])
-            >>> sorted(dataset.feature_names)
-            ['load', 'temperature']
-        """
         if not data_parts:
             raise TimeSeriesValidationError("At least one data part must be provided.")
+        self._sample_interval = validate_same_sample_intervals(datasets=data_parts)
+        self._feature_names = validate_disjoint_columns(datasets=data_parts)
+        self._index = (
+            index if index is not None else combine_timeseries_indexes(indexes=[part.index for part in data_parts])
+        )
 
-        validate_same_sample_intervals(data_parts)
-        validate_disjoint_columns(data_parts)
+    @property
+    @override
+    def index(self) -> pd.DatetimeIndex:
+        return self._index
 
-        self.data_parts = data_parts
-        self.sample_interval = data_parts[0].sample_interval
-        self.index = combine_timeseries_indexes(indexes=[part.index for part in data_parts]) if index is None else index
-        self.feature_names = functools.reduce(operator.iadd, [part.feature_names for part in data_parts], [])
+    @property
+    @override
+    def sample_interval(self) -> timedelta:
+        return self._sample_interval
+
+    @property
+    @override
+    def feature_names(self) -> list[str]:
+        return self._feature_names
+
+    @classmethod
+    def from_timeseries(
+        cls,
+        dataset: TimeSeriesDataset,
+    ) -> Self:
+        if not dataset.has_horizons:
+            raise TimeSeriesValidationError(
+                "Input TimeSeriesDataset must have horizons to convert to VersionedTimeSeriesDataset."
+            )
+
+        available_at = dataset.index.to_series() - dataset.horizon_series
+        return cls.from_dataframe(
+            data=dataset.data.assign(available_at=available_at)
+            .reset_index(names="timestamp")
+            .drop(columns=[dataset.horizon_column]),
+            sample_interval=dataset.sample_interval,
+            timestamp_column="timestamp",
+            available_at_column="available_at",
+        )
+
+    @override
+    def _from_versioned_dataframe(self, data: pd.DataFrame) -> Self:
+        raise NotImplementedError("_from_versioned_dataframe is not supported for VersionedTimeSeriesDataset.")
+
+    @override
+    def _to_versioned_dataframe(self) -> pd.DataFrame:
+        raise NotImplementedError("_to_versioned_dataframe is not supported for VersionedTimeSeriesDataset.")
+
+    @override
+    def filter_by_range(
+        self, start: datetime | None = None, end: datetime | None = None, available_before: datetime | None = None
+    ) -> Self:
+        if start is not None or end is not None:
+            start_idx, end_idx = unsafe_sorted_range_slice_idxs(data=cast(pd.Series, self.index), start=start, end=end)
+            index = self.index[start_idx:end_idx]
+        else:
+            index = self.index
+
+        data_parts = [part.filter_by_range(start, end, available_before=available_before) for part in self.data_parts]
+
+        return self.__class__(data_parts=data_parts, index=index)
+
+    @override
+    def filter_by_available_at(self, available_at: AvailableAt) -> Self:
+        data_parts = [part.filter_by_available_at(available_at) for part in self.data_parts]
+        return self.__class__(data_parts=data_parts, index=self.index)
+
+    @override
+    def filter_by_lead_time(self, lead_time: LeadTime) -> Self:
+        data_parts = [part.filter_by_lead_time(lead_time) for part in self.data_parts]
+        return self.__class__(data_parts=data_parts, index=self.index)
+
+    @override
+    def select_version(self) -> TimeSeriesDataset:
+        selected_parts = [part.select_version().data for part in self.data_parts]
+        combined_data = pd.concat(selected_parts, axis=1).reindex(self.index)
+        return TimeSeriesDataset(data=combined_data, sample_interval=self.sample_interval)
+
+    @override
+    def _to_pandas(self) -> pd.DataFrame:
+        combined_data = pd.concat([part.data.assign(part_id=i) for i, part in enumerate(self.data_parts)], axis=0)
+        combined_data.attrs["sample_interval"] = timedelta_to_isoformat(self.sample_interval)
+        combined_data.attrs["structure"] = json.dumps({
+            "parts": [
+                {
+                    "columns": part.data.columns.tolist(),
+                    "timestamp_column": part.timestamp_column,
+                    "available_at_column": part.available_at_column,
+                }
+                for part in self.data_parts
+            ]
+        })
+        return combined_data
+
+    @override
+    @classmethod
+    def _from_pandas(cls, df: pd.DataFrame) -> Self:
+        sample_interval = timedelta_from_isoformat(df.attrs.get("sample_interval", "PT1H"))
+        structure = json.loads(df.attrs.get("structure", "{}"))
+
+        parts: list[VersionedTimeSeriesPart] = []
+        for i, part_info in enumerate(structure.get("parts", [])):
+            columns: list[str] = part_info["columns"]
+            part_data = df[df.part_id == i][columns]
+            parts.append(
+                VersionedTimeSeriesPart(
+                    data=part_data,
+                    sample_interval=sample_interval,
+                )
+            )
+
+        if len(parts) == 0:
+            raise TimeSeriesValidationError("No data parts found in the parquet file.")
+
+        return cls(data_parts=parts)
 
     @classmethod
     def from_dataframe(
@@ -208,47 +282,17 @@ class VersionedTimeSeriesDataset(VersionedTimeSeriesMixin, StoreableDatasetMixin
             wrapping it in a VersionedTimeSeriesDataset, but more convenient
             for simple cases.
         """
+        if timestamp_column != cls.timestamp_column:
+            data = data.rename(columns={timestamp_column: cls.timestamp_column})
+
+        if available_at_column != cls.available_at_column:
+            data = data.rename(columns={available_at_column: cls.available_at_column})
+
         part = VersionedTimeSeriesPart(
             data=data,
             sample_interval=sample_interval,
-            timestamp_column=timestamp_column,
-            available_at_column=available_at_column,
         )
         return cls(data_parts=[part])
-
-    @override
-    def filter_by_range(
-        self, start: datetime | None = None, end: datetime | None = None, available_before: datetime | None = None
-    ) -> Self:
-        start_idx, end_idx = unsafe_sorted_range_slice_idxs(data=cast(pd.Series, self.index), start=start, end=end)
-        index = self.index[start_idx:end_idx]
-
-        return self.__class__(
-            data_parts=[
-                part.filter_by_range(start, end, available_before=available_before) for part in self.data_parts
-            ],
-            index=index,
-        )
-
-    @override
-    def filter_by_available_at(self, available_at: AvailableAt) -> Self:
-        return self.__class__(
-            data_parts=[part.filter_by_available_at(available_at) for part in self.data_parts],
-            index=self.index,
-        )
-
-    @override
-    def filter_by_lead_time(self, lead_time: LeadTime) -> Self:
-        return self.__class__(
-            data_parts=[part.filter_by_lead_time(lead_time) for part in self.data_parts],
-            index=self.index,
-        )
-
-    @override
-    def select_version(self, available_before: datetime | None = None) -> TimeSeriesDataset:
-        selected_parts = [part.select_version(available_before).data for part in self.data_parts]
-        combined_data = pd.concat(selected_parts, axis=1).reindex(self.index)
-        return TimeSeriesDataset(data=combined_data, sample_interval=self.sample_interval)
 
     @classmethod
     def concat(cls, datasets: Sequence[Self], mode: ConcatMode) -> Self:
@@ -280,76 +324,24 @@ class VersionedTimeSeriesDataset(VersionedTimeSeriesMixin, StoreableDatasetMixin
         if not datasets:
             raise TimeSeriesValidationError("At least one dataset must be provided for concatenation.")
 
-        indexes = [d.index for d in datasets]
-        match mode:
-            case "left":
-                index = indexes[0]
-            case "outer":
-                index = functools.reduce(lambda x, y: cast(pd.DatetimeIndex, x.union(y)), indexes)
-            case "inner":
-                index = functools.reduce(lambda x, y: x.intersection(y), indexes)
+        data_parts = [part for dataset in datasets for part in dataset.data_parts]
+        if mode == "outer" or len(datasets) == 1:
+            return cls(data_parts=data_parts)
+
+        if mode == "left":
+            index = data_parts[0].index.unique()
+        elif mode == "inner":
+            index = functools.reduce(lambda x, y: x.intersection(y), [part.index.unique() for part in data_parts])
 
         return cls(
-            data_parts=[part for dataset in datasets for part in dataset.data_parts],
-            index=index,
-        )
-
-    @override
-    def to_parquet(self, path: FilePath) -> None:
-        """Save dataset to parquet file.
-
-        Args:
-            path: File path for saving.
-        """
-        combined_data = pd.concat([part.data.assign(part_id=i) for i, part in enumerate(self.data_parts)], axis=0)
-        combined_data.attrs["sample_interval"] = timedelta_to_isoformat(self.sample_interval)
-        combined_data.attrs["structure"] = json.dumps({
-            "parts": [
-                {
-                    "columns": part.data.columns.tolist(),
-                    "timestamp_column": part.timestamp_column,
-                    "available_at_column": part.available_at_column,
-                }
-                for part in self.data_parts
-            ]
-        })
-        combined_data.to_parquet(path)
-
-    @override
-    @classmethod
-    def read_parquet(cls, path: FilePath) -> Self:
-        """Load dataset from parquet file.
-
-        Args:
-            path: Path to parquet file.
-
-        Returns:
-            Loaded VersionedTimeSeriesDataset.
-
-        Raises:
-            TimeSeriesValidationError: If no data parts found in the file.
-        """
-        combined_data = pd.read_parquet(path)  # type: ignore
-        sample_interval = timedelta_from_isoformat(combined_data.attrs.get("sample_interval", "PT1H"))
-        structure = json.loads(combined_data.attrs.get("structure", "{}"))
-
-        parts: list[VersionedTimeSeriesPart] = []
-        for i, part_info in enumerate(structure.get("parts", [])):
-            columns: list[str] = part_info["columns"]
-            part_data = combined_data[combined_data.part_id == i][columns]
-            parts.append(
+            data_parts=[
                 VersionedTimeSeriesPart(
-                    data=part_data,
-                    sample_interval=sample_interval,
-                    timestamp_column=part_info["timestamp_column"],
-                    available_at_column=part_info["available_at_column"],
+                    data=part.data.loc[part.index.isin(index)],  # pyright: ignore[reportUnknownMemberType]
+                    sample_interval=part.sample_interval,
                 )
-            )
-
-        if len(parts) == 0:
-            raise TimeSeriesValidationError("No data parts found in the parquet file.")
-
-        return cls(data_parts=parts)
+                for part in data_parts
+            ],
+        )
 
 
 __all__ = [

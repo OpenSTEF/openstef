@@ -12,7 +12,6 @@ from typing import Self, override
 
 import pandas as pd
 
-from openstef_core.datasets import MultiHorizon
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import ModelLoadingError
 from openstef_models.models.forecasting import Forecaster, ForecasterConfig
@@ -90,21 +89,19 @@ class FlatlinerForecaster(Forecaster):
     @override
     def fit(
         self,
-        data: MultiHorizon[ForecastInputDataset],
-        data_val: MultiHorizon[ForecastInputDataset] | None = None,
+        data: ForecastInputDataset,
+        data_val: ForecastInputDataset | None = None,
     ) -> None:
         pass
 
     @override
-    def predict(self, data: MultiHorizon[ForecastInputDataset]) -> ForecastDataset:
-        input_data_list = [horizon_data.input_data(start=horizon_data.forecast_start) for horizon_data in data.values()]
+    def predict(self, data: ForecastInputDataset) -> ForecastDataset:
+        input_data = data.input_data(start=data.forecast_start)
+        index = input_data.index.duplicated(keep="first")
         return ForecastDataset(
-            data=pd.concat([
-                pd.DataFrame(
-                    data={quantile.format(): 0.0 for quantile in self.config.quantiles},
-                    index=input_data.index,
-                )
-                for input_data in input_data_list
-            ]),
-            sample_interval=next(iter(data.values())).sample_interval,
+            data=pd.DataFrame(
+                data={quantile.format(): 0.0 for quantile in self.config.quantiles},
+                index=index,
+            ),
+            sample_interval=data.sample_interval,
         )

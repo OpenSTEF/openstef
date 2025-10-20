@@ -19,7 +19,7 @@ import pandas as pd
 from openstef_beam.evaluation.models.window import Window
 from openstef_core.base_model import BaseModel, FloatOrNan
 from openstef_core.datasets import ForecastDataset, ForecastInputDataset
-from openstef_core.datasets.validation import validate_same_sample_intervals
+from openstef_core.datasets.utils.validation import validate_same_sample_intervals
 from openstef_core.exceptions import TimeSeriesValidationError
 from openstef_core.types import Quantile, QuantileOrGlobal
 

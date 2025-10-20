@@ -9,8 +9,8 @@ from datetime import timedelta
 import pandas as pd
 import pytest
 
-from openstef_core.datasets.versioned_timeseries.dataset import VersionedTimeSeriesDataset
-from openstef_core.datasets.versioned_timeseries.dataset_part import VersionedTimeSeriesPart
+from openstef_core.datasets.versioned_timeseries_dataset import VersionedTimeSeriesDataset
+from openstef_core.datasets.versioned_timeseries_dataset_part import VersionedTimeSeriesPart
 
 
 @pytest.fixture

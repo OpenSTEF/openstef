@@ -16,7 +16,7 @@ from pydantic import Field
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import VersionedTimeSeriesPart
-from openstef_core.datasets.versioned_timeseries.dataset import VersionedTimeSeriesDataset
+from openstef_core.datasets.versioned_timeseries_dataset import VersionedTimeSeriesDataset
 from openstef_core.exceptions import MissingColumnsError
 from openstef_core.mixins import State
 from openstef_core.transforms import VersionedTimeSeriesTransform

@@ -10,9 +10,9 @@ from typing import TYPE_CHECKING, Self, cast, override
 
 import pandas as pd
 import pytest
+from openstef_core.datasets.utils.data_split import DataSplitStrategy, StratifiedTrainTestSplitter
 
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.datasets.data_split import DataSplitStrategy, StratifiedTrainTestSplitter
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import ModelNotFoundError, SkipFitting
 from openstef_core.mixins import State

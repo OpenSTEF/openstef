@@ -19,7 +19,7 @@ from openstef_beam.evaluation import SubsetMetric
 from openstef_beam.evaluation.metric_providers import MetricDirection
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets.timeseries_dataset import TimeSeriesDataset
-from openstef_core.datasets.versioned_timeseries.dataset import VersionedTimeSeriesDataset
+from openstef_core.datasets.versioned_timeseries_dataset import VersionedTimeSeriesDataset
 from openstef_core.exceptions import ModelNotFoundError, SkipFitting
 from openstef_core.types import Q, QuantileOrGlobal
 from openstef_models.integrations.mlflow.mlflow_storage import MLFlowStorage

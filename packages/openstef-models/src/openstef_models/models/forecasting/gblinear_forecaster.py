@@ -20,14 +20,12 @@ import xgboost as xgb
 from pydantic import Field
 
 from openstef_core.base_model import BaseConfig
+from openstef_core.datasets.mixins import LeadTime
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import MissingExtraError, ModelLoadingError, NotFittedError
 from openstef_core.mixins.predictor import HyperParams
 from openstef_core.mixins.stateful import State
-from openstef_models.models.forecasting.forecaster import (
-    HorizonForecaster,
-    HorizonForecasterConfig,
-)
+from openstef_models.models.forecasting import Forecaster, ForecasterConfig
 
 try:
     import xgboost as xgb
@@ -82,8 +80,18 @@ class GBLinearHyperParams(HyperParams):
     )
 
 
-class GBLinearForecasterConfig(HorizonForecasterConfig):
+class GBLinearForecasterConfig(ForecasterConfig):
     """Configuration for GBLinear forecaster."""
+
+    horizons: list[LeadTime] = Field(
+        default=...,
+        description=(
+            "Lead times for predictions, accounting for data availability and versioning cutoffs. "
+            "Each horizon defines how far ahead the model should predict."
+        ),
+        min_length=1,
+        max_length=1,
+    )
 
     hyperparams: GBLinearHyperParams = Field(
         default=GBLinearHyperParams(),
@@ -109,7 +117,7 @@ class GBLinearState(BaseConfig):
     )
 
 
-class GBLinearForecaster(HorizonForecaster):
+class GBLinearForecaster(Forecaster):
     """GBLinear-based forecaster for probabilistic energy forecasting.
 
     Implements gradient boosted linear models using XGBoost's `gblinear` booster for

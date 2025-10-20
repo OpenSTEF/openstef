@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from openstef_core.datasets.versioned_timeseries.dataset import VersionedTimeSeriesDataset
+from openstef_core.datasets.versioned_timeseries_dataset import VersionedTimeSeriesDataset
 from openstef_core.exceptions import MissingColumnsError
 from openstef_core.types import LeadTime
 from openstef_models.transforms.time_domain.versioned_lags_adder import VersionedLagsAdder

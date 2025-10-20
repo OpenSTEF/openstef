@@ -99,16 +99,17 @@ class DimensionalityReducer(BaseConfig, TimeSeriesTransform):
         features = self.selection.resolve(data.feature_names)
         if not self._is_fitted:
             raise NotFittedError(self.__class__.__name__)
+
         transformed_data: np.ndarray = self._dimensionality_reducer.transform(data.data[features])  # type: ignore[reportUnknownMemberType]
         transformed_data_pd = pd.DataFrame(
-            transformed_data,
+            data=transformed_data,
             index=data.data.index,
             columns=[f"component_{i + 1}" for i in range(self.n_components)],
         )
         untransformed_columns = [feature_name for feature_name in data.feature_names if feature_name not in features]
 
         transformed_data_pd = pd.concat(
-            [transformed_data_pd, data.data[untransformed_columns]],
+            objs=[transformed_data_pd, data.data[untransformed_columns]],
             axis=1,
         )
 

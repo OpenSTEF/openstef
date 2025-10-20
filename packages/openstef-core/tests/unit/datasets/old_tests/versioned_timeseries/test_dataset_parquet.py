@@ -9,8 +9,8 @@ from pathlib import Path
 
 import pandas as pd
 
-from openstef_core.datasets.versioned_timeseries.dataset import VersionedTimeSeriesDataset
-from openstef_core.datasets.versioned_timeseries.dataset_part import VersionedTimeSeriesPart
+from openstef_core.datasets.versioned_timeseries_dataset import VersionedTimeSeriesDataset
+from openstef_core.datasets.versioned_timeseries_dataset_part import VersionedTimeSeriesPart
 
 
 def test_parquet_roundtrip(tmp_path: Path):

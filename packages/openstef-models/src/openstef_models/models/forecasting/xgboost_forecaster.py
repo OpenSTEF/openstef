@@ -23,7 +23,7 @@ from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import MissingExtraError, ModelLoadingError, NotFittedError
 from openstef_core.mixins import HyperParams, State
-from openstef_models.models.forecasting import ForecasterConfig, HorizonForecaster, HorizonForecasterConfig
+from openstef_models.models.forecasting import Forecaster, ForecasterConfig
 from openstef_models.utils.loss_functions import OBJECTIVE_MAP, ObjectiveFunctionType
 
 try:
@@ -161,7 +161,7 @@ class XGBoostHyperParams(HyperParams):
     )
 
 
-class XGBoostForecasterConfig(HorizonForecasterConfig):
+class XGBoostForecasterConfig(ForecasterConfig):
     """Configuration for XGBoost-based forecasting models.
 
     Combines hyperparameters with execution settings for XGBoost models.
@@ -213,7 +213,7 @@ class XGBoostForecasterState(BaseConfig):
     model: str = Field(..., description="Base64-encoded serialized XGBoost model.")
 
 
-class XGBoostForecaster(HorizonForecaster):
+class XGBoostForecaster(Forecaster):
     """XGBoost-based forecaster for probabilistic energy forecasting.
 
     Implements gradient boosting trees using XGBoost for multi-quantile forecasting.

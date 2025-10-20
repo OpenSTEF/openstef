@@ -9,7 +9,7 @@ from typing import cast
 import pandas as pd
 import pytest
 
-from openstef_core.datasets.versioned_timeseries.dataset_part import VersionedTimeSeriesPart
+from openstef_core.datasets.versioned_timeseries_dataset_part import VersionedTimeSeriesPart
 from openstef_core.exceptions import MissingColumnsError
 
 
@@ -135,7 +135,7 @@ def test_index_property(dataset_part: VersionedTimeSeriesPart, sample_data: pd.D
     pd.testing.assert_index_equal(index, expected_index)
 
 
-def test_to_parquet_and_read_parquet(tmp_path: Path):
+def test_to_parquet_and_read_parquet_roundtrip(tmp_path: Path):
     # Arrange
     data = pd.DataFrame({
         "timestamp": [datetime.fromisoformat("2023-01-01T10:00:00"), datetime.fromisoformat("2023-01-01T11:00:00")],

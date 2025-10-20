@@ -17,7 +17,7 @@ from pydantic import Field
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.datasets.validation import validate_required_columns
+from openstef_core.datasets.utils.validation import validate_required_columns
 from openstef_core.mixins import State
 from openstef_core.transforms import TimeSeriesTransform
 from openstef_core.utils import timedelta_to_isoformat
@@ -76,7 +76,7 @@ class RollingAggregatesAdder(BaseConfig, TimeSeriesTransform):
 
     @override
     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
-        validate_required_columns(dataset=data, required_columns=[self.feature])
+        validate_required_columns(df=data, required_columns=self.columns)
 
         agg_series: list[pd.DataFrame] = [data.data]
         # Compute rolling aggregations (pandas handles NaNs automatically)

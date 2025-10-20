@@ -9,13 +9,14 @@ of the forecasting pipeline. These datasets inherit from TimeSeriesDataset and a
 validation to catch data quality issues early.
 """
 
-from datetime import datetime, timedelta
-from typing import Self, cast, override
+from datetime import datetime
+from typing import Any, Self, override
 
 import pandas as pd
+from pydantic import Field, model_validator
 
 from openstef_core.datasets.timeseries_dataset import TimeSeriesDataset
-from openstef_core.exceptions import MissingColumnsError, TimeSeriesValidationError
+from openstef_core.exceptions import MissingColumnsError
 from openstef_core.types import EnergyComponentType, Quantile
 
 
@@ -58,39 +59,19 @@ class ForecastInputDataset(TimeSeriesDataset):
         TimeSeriesEnergyComponentDataset: For energy component analysis.
     """
 
-    @override
-    def __init__(
-        self,
-        data: pd.DataFrame,
-        sample_interval: timedelta,
-        target_column: str | None = None,
-        sample_weight_column: str = "sample_weight",
-        forecast_start: datetime | None = None,
-        *,
-        is_sorted: bool = False,
-    ) -> None:
-        """Initialize dataset with target column validation.
+    target_column: str = Field(default="load", description="Name of the target column to forecast.")
+    sample_weight_column: str = Field(
+        default="sample_weight", description="Name of the column containing sample weights."
+    )
+    forecast_start: datetime | None = Field(
+        default=None, description="Optional timestamp indicating when the forecast period starts."
+    )
 
-        Args:
-            data: Time series data with DatetimeIndex.
-            sample_interval: Time interval between consecutive data points.
-            target_column: Name of the target column to forecast.
-            sample_weight_column: Name of column with sample weights.
-            forecast_start: Optional timestamp indicating forecast start.
-            is_sorted: Whether the data is already sorted by index.
-
-        Raises:
-            MissingColumnsError: If target_column is not found in data.
-        """
-        super().__init__(data=data, sample_interval=sample_interval, is_sorted=is_sorted)
-
-        self.target_column: str = data.attrs.get("target_column", target_column) or "load"
+    @model_validator(mode="after")
+    def _validate_target_column(self) -> Self:
         if self.target_column not in self.feature_names:
             raise MissingColumnsError(missing_columns=[self.target_column])
-
-        self.sample_weight_column = sample_weight_column
-        self.forecast_start = forecast_start
-        self.data.attrs["target_column"] = self.target_column
+        return self
 
     def target_series(self) -> pd.Series:
         """Extract the target time series from the dataset.
@@ -130,7 +111,7 @@ class ForecastInputDataset(TimeSeriesDataset):
         return input_data
 
     @classmethod
-    def from_timeseries_dataset(
+    def from_timeseries(
         cls,
         dataset: TimeSeriesDataset,
         target_column: str = "load",
@@ -185,43 +166,21 @@ class ForecastDataset(TimeSeriesDataset):
         Quantile: Type for handling quantile values and naming conventions.
     """
 
+    forecast_start: datetime = Field(
+        default_factory=lambda data: data["data"].index.min().to_pydatetime(),
+        description="Timestamp indicating when the forecast period starts.",
+    )
+    quantiles: list[Quantile] = Field(
+        default=..., init=False, exclude=True, description="List of quantiles represented in the dataset."
+    )
+
     @override
-    def __init__(
-        self,
-        data: pd.DataFrame,
-        sample_interval: timedelta,
-        forecast_start: datetime | None = None,
-        *,
-        is_sorted: bool = False,
-    ) -> None:
-        """Initialize dataset with quantile column validation.
-
-        Args:
-            data: DataFrame with quantile columns (e.g., 'quantile_P50').
-            sample_interval: Time interval between consecutive forecast points.
-            forecast_start: Timestamp when forecast period begins. Defaults to
-                minimum timestamp from data if not provided.
-            is_sorted: Whether the data is already sorted by index.
-
-        Raises:
-            TimeSeriesValidationError: If any columns are not valid quantile strings.
-        """
-        super().__init__(data=data, sample_interval=sample_interval, is_sorted=is_sorted)
+    def model_post_init(self, context: Any) -> None:
+        super().model_post_init(context)
 
         if not all(Quantile.is_valid_quantile_string(col) for col in self.feature_names):
-            raise TimeSeriesValidationError("All feature names must be valid quantile strings.")
-
-        self._quantiles = [Quantile.parse(col) for col in self.feature_names]
-        self.forecast_start = forecast_start or cast("pd.Series[pd.Timestamp]", self.index).min().to_pydatetime()
-
-    @property
-    def quantiles(self) -> list[Quantile]:
-        """List of quantiles represented in the dataset.
-
-        Returns:
-            Quantile values (0-1 scale) corresponding to dataset columns.
-        """
-        return self._quantiles
+            raise ValueError("All feature names must be valid quantile strings.")
+        self.quantiles = [Quantile.parse(col) for col in self.feature_names]
 
     def median_series(self) -> pd.Series:
         """Extract the median (50th percentile) forecast series.
@@ -292,22 +251,13 @@ class EnergyComponentDataset(TimeSeriesDataset):
         EnergyComponentType: Enum defining required energy component types.
     """
 
-    @override
-    def __init__(self, data: pd.DataFrame, sample_interval: timedelta) -> None:
-        """Initialize dataset with energy component validation.
-
-        Args:
-            data: DataFrame with columns for each energy component type.
-            sample_interval: Time interval between consecutive data points.
-
-        Raises:
-            MissingColumnsError: If any required energy component columns are missing.
-        """
-        super().__init__(data, sample_interval)
-
+    @model_validator(mode="after")
+    def _validate_energy_components(self) -> Self:
         missing_columns = {item.value for item in EnergyComponentType} - set(self.feature_names)
         if missing_columns:
             raise MissingColumnsError(missing_columns=list(missing_columns))
+
+        return self
 
 
 __all__ = [

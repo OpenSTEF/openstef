@@ -102,7 +102,7 @@ class Clipper(BaseConfig, TimeSeriesTransform):
             raise NotFittedError(self.__class__.__name__)
 
         features = self.selection.resolve(data.feature_names)
-        transformed_data = data.data.copy()
+        transformed_data = data.data.copy(deep=False)
 
         if self.mode == "minmax":
             min_aligned = self._feature_mins.reindex(features)

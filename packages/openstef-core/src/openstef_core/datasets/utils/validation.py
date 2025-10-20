@@ -11,7 +11,7 @@ particularly for operations that combine multiple datasets.
 import functools
 import operator
 from collections import Counter
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from datetime import timedelta
 
 import pandas as pd
@@ -20,25 +20,25 @@ from openstef_core.datasets.mixins import TimeSeriesMixin
 from openstef_core.exceptions import InvalidColumnTypeError, MissingColumnsError, TimeSeriesValidationError
 
 
-def validate_required_columns(dataset: TimeSeriesMixin, required_columns: list[str]) -> None:
+def validate_required_columns(df: pd.DataFrame, required_columns: Sequence[str]) -> None:
     """Check if the dataset contains all required columns.
 
     Validates that the dataset includes all specified required columns,
     raising an error if any are missing.
 
     Args:
-        dataset: The time series dataset to validate.
+        df: The time series dataset to validate.
         required_columns: List of column names that must be present in the dataset.
 
     Raises:
         MissingColumnsError: If any required columns are missing from the dataset.
     """
-    missing_columns = [col for col in required_columns if col not in dataset.feature_names]
+    missing_columns = [col for col in required_columns if col not in df.columns]
     if missing_columns:
         raise MissingColumnsError(missing_columns=missing_columns)
 
 
-def validate_disjoint_columns(datasets: Iterable[TimeSeriesMixin]) -> None:
+def validate_disjoint_columns(datasets: Iterable[TimeSeriesMixin]) -> list[str]:
     """Check if the datasets have overlapping feature names.
 
     Validates that all datasets have completely disjoint feature sets,
@@ -47,6 +47,9 @@ def validate_disjoint_columns(datasets: Iterable[TimeSeriesMixin]) -> None:
     Args:
         datasets: Sequence of time series datasets to validate.
 
+    Returns:
+        The combined list of all feature names across the datasets.
+
     Raises:
         TimeSeriesValidationError: If any feature name appears in multiple datasets.
     """
@@ -54,6 +57,8 @@ def validate_disjoint_columns(datasets: Iterable[TimeSeriesMixin]) -> None:
     if len(all_features) != len(set(all_features)):
         duplicate_features = [item for item, count in Counter(all_features).items() if count > 1]
         raise TimeSeriesValidationError("Datasets have overlapping feature names: " + ", ".join(duplicate_features))
+
+    return all_features
 
 
 def validate_same_columns(datasets: Iterable[TimeSeriesMixin]) -> list[str]:
@@ -104,7 +109,7 @@ def validate_same_sample_intervals(datasets: Iterable[TimeSeriesMixin]) -> timed
     return sample_intervals.pop()
 
 
-def validate_datetime_column(series: pd.Series, column_name: str) -> None:
+def validate_datetime_column(series: pd.Series, column_name: str | None = None) -> None:
     """Validate that a pandas Series is of datetime type.
 
     Args:
@@ -115,7 +120,9 @@ def validate_datetime_column(series: pd.Series, column_name: str) -> None:
         InvalidColumnTypeError: If the series is not of datetime type.
     """
     if not pd.api.types.is_datetime64_any_dtype(series):
-        raise InvalidColumnTypeError(column_name, expected_type="datetime", actual_type=str(series.dtype))
+        raise InvalidColumnTypeError(
+            str(series.name or column_name), expected_type="datetime", actual_type=str(series.dtype)
+        )
 
 
 __all__ = [

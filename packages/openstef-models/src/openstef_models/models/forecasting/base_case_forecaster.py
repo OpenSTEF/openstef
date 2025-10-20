@@ -25,7 +25,7 @@ from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastI
 from openstef_core.exceptions import ModelLoadingError
 from openstef_core.mixins import State
 from openstef_core.mixins.predictor import HyperParams
-from openstef_models.models.forecasting.forecaster import HorizonForecaster, HorizonForecasterConfig
+from openstef_models.models.forecasting import Forecaster, ForecasterConfig
 
 
 class BaseCaseForecasterHyperParams(HyperParams):
@@ -41,7 +41,7 @@ class BaseCaseForecasterHyperParams(HyperParams):
     )
 
 
-class BaseCaseForecasterConfig(HorizonForecasterConfig):
+class BaseCaseForecasterConfig(ForecasterConfig):
     """Configuration for base case forecaster."""
 
     hyperparams: BaseCaseForecasterHyperParams = Field(
@@ -52,7 +52,7 @@ class BaseCaseForecasterConfig(HorizonForecasterConfig):
 MODEL_CODE_VERSION = 1
 
 
-class BaseCaseForecaster(HorizonForecaster):
+class BaseCaseForecaster(Forecaster):
     """Base case forecaster that repeats weekly patterns for predictions.
 
     A simple baseline forecasting model that uses pandas-native operations to repeat
@@ -145,8 +145,7 @@ class BaseCaseForecaster(HorizonForecaster):
 
     @override
     def fit(self, data: ForecastInputDataset, data_val: ForecastInputDataset | None = None) -> None:
-        # Base case forecaster requires no training - just validate data has target column
-        pass
+        pass  # Base case forecaster requires no training - just validate data has target column
 
     def _get_basecase_values(self, data: ForecastInputDataset) -> pd.Series:
         """Get basecase values using pandas-native lag approach.
@@ -193,38 +192,6 @@ class BaseCaseForecaster(HorizonForecaster):
 
         return primary_forecast
 
-    @staticmethod
-    def _calculate_hourly_std(basecase_values: pd.Series) -> pd.Series:
-        """Calculate standard deviation for each hour using basecase values.
-
-        Mimics the behavior of generate_basecase_confidence_interval from the old version.
-
-        Args:
-            basecase_values: Series containing the basecase values for calculating std.
-
-        Returns:
-            Series with hourly standard deviation values mapped to forecast timestamps.
-        """
-        if len(basecase_values.dropna()) == 0:
-            # If no valid basecase values, return zero std
-            return pd.Series(0.0, index=basecase_values.index)
-
-        # Create DataFrame with values and hours for grouping
-        basecase_value_with_hour = pd.DataFrame({
-            "values": basecase_values,
-            "hour": cast(pd.DatetimeIndex, basecase_values.index).hour,
-        }).dropna()  # pyright: ignore[reportUnknownMemberType]
-
-        if len(basecase_value_with_hour) == 0:
-            return pd.Series(0.0, index=basecase_values.index)
-
-        # Group by hour and calculate std
-        hourly_std = basecase_value_with_hour.groupby("hour")["values"].std().fillna(0.0)  # pyright: ignore[reportUnknownMemberType]
-
-        # Map std values to forecast timestamps
-        forecast_hours = cast(pd.DatetimeIndex, basecase_values.index).hour
-        return forecast_hours.map(hourly_std).fillna(0.0)  # pyright: ignore[reportUnknownVariableType, reportUnknownMemberType]
-
     @override
     def predict(self, data: ForecastInputDataset) -> ForecastDataset:
         """Generate predictions using repeated weekly patterns with confidence intervals.
@@ -239,11 +206,11 @@ class BaseCaseForecaster(HorizonForecaster):
         basecase_values = self._get_basecase_values(data)
 
         # Calculate hourly standard deviation for confidence intervals
-        hourly_std = self._calculate_hourly_std(basecase_values)
+        hourly_std = _calculate_hourly_std(basecase_values)
 
         # Create predictions for each quantile
         predictions_data = {}
-        for quantile in self.config.quantiles:
+        for quantile in self.config.quantiles:  # TODO(egordm): This duplicates logic from quantile adder postprocessor
             # Calculate z-score for the quantile
             z_score = norm.ppf(float(quantile))  # pyright: ignore[reportUnknownMemberType]
 
@@ -258,3 +225,35 @@ class BaseCaseForecaster(HorizonForecaster):
             ),
             sample_interval=data.sample_interval,
         )
+
+
+def _calculate_hourly_std(basecase_values: pd.Series) -> pd.Series:
+    """Calculate standard deviation for each hour using basecase values.
+
+    Mimics the behavior of generate_basecase_confidence_interval from the old version.
+
+    Args:
+        basecase_values: Series containing the basecase values for calculating std.
+
+    Returns:
+        Series with hourly standard deviation values mapped to forecast timestamps.
+    """
+    if len(basecase_values.dropna()) == 0:
+        # If no valid basecase values, return zero std
+        return pd.Series(0.0, index=basecase_values.index)
+
+    # Create DataFrame with values and hours for grouping
+    basecase_value_with_hour = pd.DataFrame({
+        "values": basecase_values,
+        "hour": cast(pd.DatetimeIndex, basecase_values.index).hour,
+    }).dropna()  # pyright: ignore[reportUnknownMemberType]
+
+    if len(basecase_value_with_hour) == 0:
+        return pd.Series(0.0, index=basecase_values.index)
+
+    # Group by hour and calculate std
+    hourly_std = basecase_value_with_hour.groupby("hour")["values"].std().fillna(0.0)  # pyright: ignore[reportUnknownMemberType]
+
+    # Map std values to forecast timestamps
+    forecast_hours = cast(pd.DatetimeIndex, basecase_values.index).hour
+    return forecast_hours.map(hourly_std).fillna(0.0)  # pyright: ignore[reportUnknownVariableType, reportUnknownMemberType]

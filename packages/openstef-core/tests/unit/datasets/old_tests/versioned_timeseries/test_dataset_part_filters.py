@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 import pandas as pd
 import pytest
 
-from openstef_core.datasets.versioned_timeseries.dataset_part import VersionedTimeSeriesPart
+from openstef_core.datasets.versioned_timeseries_dataset_part import VersionedTimeSeriesPart
 from openstef_core.types import AvailableAt, LeadTime
 
 

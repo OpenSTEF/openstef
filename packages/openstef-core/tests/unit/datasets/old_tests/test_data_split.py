@@ -10,14 +10,14 @@ import numpy as np
 import pandas as pd
 import pydantic
 import pytest
-
-from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesDataset
-from openstef_core.datasets.data_split import (
+from openstef_core.datasets.utils.data_split import (
     ChronologicalTrainTestSplitter,
     StratifiedTrainTestSplitter,
     split_by_date,
     split_by_dates,
 )
+
+from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesDataset
 from openstef_core.exceptions import NotFittedError
 
 
