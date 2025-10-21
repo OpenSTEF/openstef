@@ -255,13 +255,13 @@ class GBLinearForecaster(HorizonForecaster):
             input_data_val: pd.DataFrame = data_val.input_data()
             target_val: pd.Series = data_val.target_series()
             sample_weight_val: pd.Series = data_val.sample_weight_series()
-            
+
             # Remove rows with NaN values in validation target
             val_valid_mask = ~target_val.isna()
             input_data_val = input_data_val[val_valid_mask]
             target_val = target_val[val_valid_mask]
             sample_weight_val = sample_weight_val[val_valid_mask]
-            
+
             eval_set.append((input_data_val, target_val))
             sample_weight_eval_set.append(sample_weight_val)
 
