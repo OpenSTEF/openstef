@@ -128,7 +128,11 @@ def create_liander2024_target_provider(
         metrics=lambda target: [
             RMAEProvider(quantiles=[Quantile(0.5)], lower_quantile=0.01, upper_quantile=0.99),
             RCRPSProvider(lower_quantile=0.01, upper_quantile=0.99),
-            PeakMetricProvider(limit_pos=abs(target.upper_limit), limit_neg=-abs(target.lower_limit), beta=2),
+            PeakMetricProvider(
+                limit_pos=abs(target.upper_limit) if target.upper_limit is not None else 0.0,
+                limit_neg=-abs(target.lower_limit) if target.lower_limit is not None else 0.0,
+                beta=2,
+            ),
         ],
         use_profiles=True,
         use_prices=True,
