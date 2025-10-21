@@ -25,7 +25,7 @@ from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastI
 from openstef_core.exceptions import MissingExtraError, ModelLoadingError, NotFittedError
 from openstef_core.mixins.predictor import HyperParams
 from openstef_core.mixins.stateful import State
-from openstef_models.models.forecasting import Forecaster, ForecasterConfig
+from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
 
 try:
     import xgboost as xgb
@@ -247,16 +247,16 @@ class GBLinearForecaster(Forecaster):
     @override
     def fit(self, data: ForecastInputDataset, data_val: ForecastInputDataset | None = None) -> None:
         input_data: pd.DataFrame = data.input_data()
-        target: pd.Series = data.target_series()
-        sample_weight: pd.Series = data.sample_weight_series()
+        target: pd.Series = data.target_series
+        sample_weight: pd.Series = data.sample_weight_series
 
         eval_set = [(input_data, target)]
         sample_weight_eval_set = [sample_weight]
 
         if data_val is not None:
             input_data_val: pd.DataFrame = data_val.input_data()
-            target_val: pd.Series = data_val.target_series()
-            sample_weight_val: pd.Series = data_val.sample_weight_series()
+            target_val: pd.Series = data_val.target_series
+            sample_weight_val: pd.Series = data_val.sample_weight_series
             eval_set.append((input_data_val, target_val))
             sample_weight_eval_set.append(sample_weight_val)
 
@@ -274,14 +274,18 @@ class GBLinearForecaster(Forecaster):
         if not self.is_fitted:
             raise NotFittedError(self.__class__.__name__)
 
+        predict_index = data.create_forecast_range(horizon=self.config.max_horizon)
         input_data: pd.DataFrame = data.input_data(start=data.forecast_start)
 
-        predictions = self._gblinear_model.predict(input_data)
+        predictions_array = self._gblinear_model.predict(input_data)
+        predictions = pd.DataFrame(
+            data=predictions_array,
+            index=input_data.index,
+            columns=[quantile.format() for quantile in self.config.quantiles],
+        )
+        predictions = predictions.reindex(index=predict_index)
+
         return ForecastDataset(
-            data=pd.DataFrame(
-                data=predictions,
-                index=input_data.index,
-                columns=[quantile.format() for quantile in self.config.quantiles],
-            ),
+            data=predictions,
             sample_interval=data.sample_interval,
         )

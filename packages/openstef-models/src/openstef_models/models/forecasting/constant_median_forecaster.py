@@ -19,7 +19,7 @@ from openstef_core.exceptions import ModelLoadingError, NotFittedError
 from openstef_core.mixins import State
 from openstef_core.mixins.predictor import HyperParams
 from openstef_core.types import LeadTime, Quantile
-from openstef_models.models.forecasting import Forecaster, ForecasterConfig
+from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
 
 
 class ConstantMedianForecasterHyperParams(HyperParams):
@@ -129,18 +129,14 @@ class ConstantMedianForecaster(Forecaster):
 
     @override
     def fit(self, data: ForecastInputDataset, data_val: ForecastInputDataset | None = None) -> None:
-        self._quantile_values = {
-            quantile: data.target_series().quantile(quantile) for quantile in self.config.quantiles
-        }
+        self._quantile_values = {quantile: data.target_series.quantile(quantile) for quantile in self.config.quantiles}
 
     @override
     def predict(self, data: ForecastInputDataset) -> ForecastDataset:
         if not self.is_fitted:
             raise NotFittedError(self.__class__.__name__)
 
-        index = data.index.duplicated(keep="first")
-        if data.forecast_start is not None:
-            index = data.index[data.index > pd.Timestamp(data.forecast_start)]
+        forecast_index = data.create_forecast_range(horizon=self.config.max_horizon)
 
         return ForecastDataset(
             data=pd.DataFrame(
@@ -148,7 +144,7 @@ class ConstantMedianForecaster(Forecaster):
                     quantile.format(): self._quantile_values[quantile] + self.hyperparams.constant
                     for quantile in self.config.quantiles
                 },
-                index=index,
+                index=forecast_index,
             ),
             sample_interval=data.sample_interval,
         )

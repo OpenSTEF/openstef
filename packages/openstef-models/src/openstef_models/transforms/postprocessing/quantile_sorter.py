@@ -9,17 +9,16 @@ by sorting predictions across quantile columns. This fixes violations that can
 occur when quantiles are predicted independently.
 """
 
-from typing import Any, Self, override
+from typing import Self, override
 
 import numpy as np
 import pandas as pd
 
 from openstef_core.datasets import ForecastDataset
-from openstef_core.mixins import State
-from openstef_models.transforms.postprocessing_pipeline import PostprocessingTransform
+from openstef_core.mixins import State, Transform
 
 
-class QuantileSorter(PostprocessingTransform[Any, ForecastDataset]):
+class QuantileSorter(Transform[ForecastDataset, ForecastDataset]):
     """Sort quantile forecasts to enforce monotonic ordering.
 
     Probabilistic forecasts should have higher quantiles predict higher values
@@ -58,26 +57,22 @@ class QuantileSorter(PostprocessingTransform[Any, ForecastDataset]):
         return True
 
     @override
-    def fit(self, data: tuple[Any, ForecastDataset]) -> None:
+    def fit(self, data: ForecastDataset) -> None:
         pass  # noop - stateless transform
 
     @override
-    def transform(self, data: tuple[Any, ForecastDataset]) -> ForecastDataset:
-        _, forecast = data
+    def transform(self, data: ForecastDataset) -> ForecastDataset:
+        quantile_columns = [quantile.format() for quantile in sorted(data.quantiles)]
 
-        quantile_columns = [quantile.format() for quantile in sorted(forecast.quantiles)]
-        sorted_data = pd.DataFrame(
-            data=np.sort(forecast.data[quantile_columns].values, axis=1),
-            index=forecast.data.index,
+        # Replace quantile with their sorted values
+        predictions = data.data.copy(deep=False)
+        predictions[quantile_columns] = pd.DataFrame(
+            data=np.sort(predictions[quantile_columns].values, axis=1),
+            index=data.index,
             columns=quantile_columns,
         )
 
-        return ForecastDataset(
-            data=sorted_data,
-            sample_interval=forecast.sample_interval,
-            forecast_start=forecast.forecast_start,
-            is_sorted=True,
-        )
+        return data._copy_with_data(data=predictions)  # noqa: SLF001 - safe - invariant is preserved
 
     @override
     def to_state(self) -> State:

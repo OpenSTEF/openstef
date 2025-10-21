@@ -39,6 +39,7 @@ from pydantic_extra_types.country import CountryAlpha2
 
 from openstef_beam.analysis.plots import ForecastTimeSeriesPlotter
 from openstef_core.datasets import ForecastDataset, TimeSeriesDataset, VersionedTimeSeriesDataset
+from openstef_core.mixins import TransformPipeline
 from openstef_core.types import LeadTime, Q
 from openstef_models.integrations.mlflow import MLFlowStorageCallback
 from openstef_models.integrations.mlflow.mlflow_storage import MLFlowStorage
@@ -48,10 +49,8 @@ from openstef_models.models.forecasting.gblinear_forecaster import (
     GBLinearHyperParams,
 )
 from openstef_models.models.forecasting_model import ForecastingModel
-from openstef_models.transforms import FeatureEngineeringPipeline, PostprocessingPipeline
 from openstef_models.transforms.general import Scaler
 from openstef_models.transforms.time_domain import HolidayFeatureAdder
-from openstef_models.transforms.time_domain.versioned_lags_adder import VersionedLagsAdder
 from openstef_models.utils.feature_selection import FeatureSelection
 from openstef_models.workflows import CustomForecastingWorkflow
 
@@ -69,34 +68,36 @@ radiation = rng.standard_normal(size=n_samples)
 timestamps = pd.date_range("2025-01-01", periods=n_samples, freq="h")
 
 load_dataset = VersionedTimeSeriesDataset.from_dataframe(
-    data=pd.DataFrame({
-        "load": wind * -10 + temp * -3 + radiation * -5 + rng.standard_normal(size=n_samples) * 2,
-        "timestamp": timestamps,
-        "available_at": timestamps,
-    }),
+    data=pd.DataFrame(
+        {
+            "load": wind * -10 + temp * -3 + radiation * -5 + rng.standard_normal(size=n_samples) * 2,
+            "available_at": timestamps,
+        },
+        index=timestamps,
+    ),
     sample_interval=timedelta(hours=1),
 )
 predictor_dataset = VersionedTimeSeriesDataset.from_dataframe(
-    data=pd.DataFrame({
-        "temp": temp,
-        "wind": wind,
-        "radiation": radiation,
-        "timestamp": timestamps,
-        "available_at": timestamps - timedelta(days=7),
-    }),
+    data=pd.DataFrame(
+        {
+            "temp": temp,
+            "wind": wind,
+            "radiation": radiation,
+            "available_at": timestamps - timedelta(days=7),
+        },
+        index=timestamps,
+    ),
     sample_interval=timedelta(hours=1),
 )
 
 dataset = VersionedTimeSeriesDataset.concat([load_dataset, predictor_dataset], mode="inner")
 
 model = ForecastingModel(
-    preprocessing=FeatureEngineeringPipeline.create(
-        horizons=[LeadTime.from_string("PT36H")],
-        horizon_transforms=[
+    preprocessing=TransformPipeline(
+        transforms=[
             Scaler(method="standard", selection=FeatureSelection(include={"temp", "wind", "radiation"})),
             HolidayFeatureAdder(country_code=CountryAlpha2("NL")),
         ],
-        versioned_transforms=[VersionedLagsAdder(feature="load", lags=[timedelta(days=-7)])],
     ),
     forecaster=GBLinearForecaster(
         config=GBLinearForecasterConfig(
@@ -109,7 +110,6 @@ model = ForecastingModel(
             verbosity=True,
         )
     ),
-    postprocessing=PostprocessingPipeline(transforms=[]),
     target_column="load",
     tags={
         "model": "gblinear",
@@ -157,7 +157,7 @@ fig = (
     .add_model(
         model_name="gblinear",
         forecast=TimeSeriesDataset(
-            data=forecast.median_series().to_frame(name="load"),
+            data=forecast.median_series.to_frame(name="load"),
             sample_interval=dataset.sample_interval,
         ),
     )

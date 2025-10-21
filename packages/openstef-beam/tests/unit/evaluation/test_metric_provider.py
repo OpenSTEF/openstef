@@ -32,7 +32,11 @@ def test_peak_hours_filtering(start_peak_hours: int, end_peak_hours: int, num_ti
     index = pd.DatetimeIndex(times)
 
     predictions = ForecastDataset(
-        data=pd.DataFrame({"quantile_P50": range(len(times))}, index=index),
+        data=pd.DataFrame({
+            "load": 1.0,
+            "quantile_P50": range(len(times)),
+            "horizon": timedelta(hours=24),
+        }, index=index),
         sample_interval=timedelta(minutes=15),
     )
     ground_truth = ForecastInputDataset(
@@ -88,7 +92,11 @@ def test_riqd_provider_symmetric_quantile_logic(
         quantile_data[f"quantile_P{int(q * 100):02d}"] = [i * 10 + j for j in range(24)]
 
     predictions = ForecastDataset(
-        data=pd.DataFrame(quantile_data, index=index),
+        data=pd.DataFrame(data={
+            **quantile_data,
+            "horizon": timedelta(hours=24),
+            "load": range(24),
+        }, index=index),
         sample_interval=timedelta(hours=1),
     )
 

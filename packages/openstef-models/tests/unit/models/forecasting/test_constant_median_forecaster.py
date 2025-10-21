@@ -15,7 +15,6 @@ from openstef_models.models.forecasting.constant_median_forecaster import (
     ConstantMedianForecasterConfig,
     ConstantMedianForecasterHyperParams,
 )
-from openstef_models.models.forecasting.multi_horizon_forecaster_adapter import MultiHorizonForecasterConfig
 
 
 @pytest.fixture
@@ -117,40 +116,3 @@ def test_constant_median_forecaster__state_serialize_restore(
 
     pd.testing.assert_frame_equal(original_result.data, restored_result.data)
     assert original_result.sample_interval == restored_result.sample_interval
-
-
-@pytest.fixture
-def multi_horizon_config() -> MultiHorizonForecasterConfig[ConstantMedianForecasterConfig]:
-    """Create multi-horizon forecaster configuration for testing."""
-    return MultiHorizonForecasterConfig[ConstantMedianForecasterConfig](
-        horizons=[LeadTime(timedelta(hours=3)), LeadTime(timedelta(hours=6))],
-        quantiles=[Quantile(0.5)],
-        forecaster_config=ConstantMedianForecasterConfig(
-            quantiles=[Quantile(0.5)],
-            horizons=[LeadTime(timedelta(hours=1))],  # Will be overridden
-            hyperparams=ConstantMedianForecasterHyperParams(constant=0.0),  # No constant for clearer results
-        ),
-    )
-
-
-@pytest.fixture
-def multi_horizon_input_data() -> dict[LeadTime, ForecastInputDataset]:
-    """Create horizon-specific input data with different load patterns for testing."""
-    # Create horizon-specific data with different medians for distinguishable results
-    horizon_3h_data = pd.DataFrame(
-        {"load": [100.0, 200.0, 300.0]},  # Median = 200
-        index=pd.date_range(datetime.fromisoformat("2025-01-01T00:00:00"), periods=3, freq="1h"),
-    )
-    horizon_6h_data = pd.DataFrame(
-        {"load": [500.0, 600.0, 700.0]},  # Median = 600
-        index=pd.date_range(datetime.fromisoformat("2025-01-01T00:00:00"), periods=3, freq="1h"),
-    )
-
-    return {
-        LeadTime(timedelta(hours=3)): ForecastInputDataset(
-            data=horizon_3h_data, sample_interval=timedelta(hours=1), target_column="load"
-        ),
-        LeadTime(timedelta(hours=6)): ForecastInputDataset(
-            data=horizon_6h_data, sample_interval=timedelta(hours=1), target_column="load"
-        ),
-    }

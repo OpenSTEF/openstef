@@ -14,7 +14,7 @@ import pandas as pd
 
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import ModelLoadingError
-from openstef_models.models.forecasting import Forecaster, ForecasterConfig
+from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
 
 
 class FlatlinerForecasterConfig(ForecasterConfig):
@@ -96,12 +96,12 @@ class FlatlinerForecaster(Forecaster):
 
     @override
     def predict(self, data: ForecastInputDataset) -> ForecastDataset:
-        input_data = data.input_data(start=data.forecast_start)
-        index = input_data.index.duplicated(keep="first")
+        forecast_index = data.create_forecast_range(horizon=self.config.max_horizon)
+
         return ForecastDataset(
             data=pd.DataFrame(
                 data={quantile.format(): 0.0 for quantile in self.config.quantiles},
-                index=index,
+                index=forecast_index,
             ),
             sample_interval=data.sample_interval,
         )

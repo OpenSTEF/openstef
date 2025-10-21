@@ -125,6 +125,22 @@ def validate_datetime_column(series: pd.Series, column_name: str | None = None) 
         )
 
 
+def validate_timedelta_column(series: pd.Series, column_name: str | None = None) -> None:
+    """Validate that a pandas Series is of timedelta type.
+
+    Args:
+        series: The pandas Series to validate.
+        column_name: Name of the column being validated (for error messages).
+
+    Raises:
+        InvalidColumnTypeError: If the series is not of datetime type.
+    """
+    if not pd.api.types.is_timedelta64_dtype(series):
+        raise InvalidColumnTypeError(
+            str(series.name or column_name), expected_type="timedelta", actual_type=str(series.dtype)
+        )
+
+
 __all__ = [
     "validate_datetime_column",
     "validate_disjoint_columns",

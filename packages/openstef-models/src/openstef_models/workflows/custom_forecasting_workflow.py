@@ -83,9 +83,8 @@ class CustomForecastingWorkflow(BaseModel):
         >>> dataset = VersionedTimeSeriesDataset.from_dataframe(
         ...     data=pd.DataFrame({
         ...         "load": np.random.default_rng(42).standard_normal(size=48),
-        ...         "timestamp": pd.date_range("2025-01-01", periods=48, freq="h"),
         ...         "available_at": pd.date_range("2025-01-01", periods=48, freq="h"),
-        ...     }),
+        ...     }, index=pd.date_range("2025-01-01", periods=48, freq="h")),
         ...     sample_interval=timedelta(hours=1),
         ... )
         >>>

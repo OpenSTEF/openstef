@@ -38,7 +38,7 @@ from openstef_beam.benchmarking.storage.base import BenchmarkStorage
 from openstef_beam.benchmarking.target_provider import TargetProvider
 from openstef_beam.evaluation import EvaluationConfig, EvaluationPipeline, EvaluationReport
 from openstef_core.base_model import BaseConfig
-from openstef_core.datasets import VersionedTimeSeriesPart
+from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.types import Quantile
 from openstef_core.utils import run_parallel
 
@@ -262,7 +262,7 @@ class BenchmarkPipeline[T: BenchmarkTarget, F]:
         self,
         target: T,
         quantiles: list[Quantile],
-        predictions: VersionedTimeSeriesPart,
+        predictions: TimeSeriesDataset,
     ) -> None:
         """Runs evaluation for a single target and stores results."""
         if not self.callback_manager.on_evaluation_start(runner=self, target=target):

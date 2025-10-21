@@ -89,9 +89,9 @@ class MetricProvider(BaseConfig):
         Returns:
             QuantileMetricsDict mapping quantile keys to computed metric values.
         """
-        quantiles = np.array([Quantile.parse(quantile) for quantile in subset.predictions.feature_names])
-        y_true: npt.NDArray[np.floating] = subset.ground_truth.target_series().to_numpy()  # type: ignore
-        y_pred: npt.NDArray[np.floating] = subset.predictions.data.to_numpy()
+        quantiles = np.array(subset.predictions.quantiles)
+        y_true: npt.NDArray[np.floating] = subset.ground_truth.target_series.to_numpy()  # type: ignore
+        y_pred: npt.NDArray[np.floating] = subset.predictions.quantiles_data.to_numpy()
 
         return self.compute_probabilistic(y_true, y_pred, quantiles)
 
@@ -304,7 +304,7 @@ class RMAEPeakHoursProvider(MetricProvider):
         Returns:
             QuantileMetricsDict mapping peak/off-peak periods to computed metric values.
         """
-        quantiles = np.array([Quantile.parse(quantile) for quantile in subset.predictions.feature_names])
+        quantiles = np.array(subset.predictions.quantiles)
         y_true: npt.NDArray[np.floating] = cast(pd.Series, subset.ground_truth.data.squeeze()).to_numpy()  # type: ignore
         y_pred: npt.NDArray[np.floating] = subset.predictions.data.to_numpy()
 

@@ -9,21 +9,20 @@ import pytest
 
 from openstef_beam.evaluation.evaluation_pipeline import EvaluationConfig, EvaluationPipeline
 from openstef_beam.evaluation.models import EvaluationReport, EvaluationSubsetReport, SubsetMetric, Window
-from openstef_core.datasets import VersionedTimeSeriesDataset, VersionedTimeSeriesPart
+from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesDataset
 from openstef_core.exceptions import MissingColumnsError
 from openstef_core.types import AvailableAt, LeadTime, Quantile
 from tests.utils.mocks import DummyMetricProvider
 
 
 @pytest.fixture
-def predictions_dataset() -> VersionedTimeSeriesPart:
-    return VersionedTimeSeriesPart(
+def predictions_dataset() -> TimeSeriesDataset:
+    return TimeSeriesDataset(
         data=pd.DataFrame({
             "quantile_P50": [1, 2, 3, 4],
             "quantile_P90": [1, 2, 3, 4],
-            "timestamp": pd.date_range("2020-01-01T00:00", periods=4, freq="h"),
             "available_at": pd.date_range("2020-01-01T00:00", periods=4, freq="h") - timedelta(hours=48),
-        }),
+        }, index=pd.date_range("2020-01-01T00:00", periods=4, freq="h")),
         sample_interval=timedelta(hours=1),
     )
 
@@ -33,9 +32,8 @@ def minimal_ground_truth_dataset() -> VersionedTimeSeriesDataset:
     return VersionedTimeSeriesDataset.from_dataframe(
         data=pd.DataFrame({
             "target": [1, 2, 3, 4],
-            "timestamp": pd.date_range("2020-01-01T00:00", periods=4, freq="h"),
             "available_at": pd.date_range("2020-01-01T00:00", periods=4, freq="h"),
-        }),
+        }, index=pd.date_range("2020-01-01T00:00", periods=4, freq="h")),
         sample_interval=timedelta(hours=1),
     )
 

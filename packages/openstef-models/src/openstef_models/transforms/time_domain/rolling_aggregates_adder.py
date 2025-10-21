@@ -17,7 +17,7 @@ from pydantic import Field
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.datasets.utils.validation import validate_required_columns
+from openstef_core.datasets.validation import validate_required_columns
 from openstef_core.mixins import State
 from openstef_core.transforms import TimeSeriesTransform
 from openstef_core.utils import timedelta_to_isoformat
@@ -74,30 +74,22 @@ class RollingAggregatesAdder(BaseConfig, TimeSeriesTransform):
         description="List of aggregation functions to compute over the rolling window. ",
     )
 
+    def _transform_pandas(self, df: pd.DataFrame) -> pd.DataFrame:
+        rolling_df = cast(
+            pd.DataFrame,
+            df[self.feature].rolling(window=self.rolling_window_size).agg(self.aggregation_functions),  # type: ignore
+        )
+        suffix = timedelta_to_isoformat(td=self.rolling_window_size)
+        rolling_df = rolling_df.rename(
+            columns={func: f"rolling_{func}_{self.feature}_{suffix}" for func in self.aggregation_functions}
+        )
+
+        return pd.concat([df, rolling_df], axis=1)
+
     @override
     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
-        validate_required_columns(df=data, required_columns=self.columns)
-
-        agg_series: list[pd.DataFrame] = [data.data]
-        # Compute rolling aggregations (pandas handles NaNs automatically)
-        rolling_window_column = data.data[self.feature].rolling(window=self.rolling_window_size)
-
-        # Compute aggregations
-        aggregated_data: pd.DataFrame = cast(
-            pd.DataFrame,
-            rolling_window_column.agg(self.aggregation_functions),  # type: ignore[misc]
-        ).rename(
-            columns={
-                func: f"rolling_{func}_{self.feature}_{timedelta_to_isoformat(td=self.rolling_window_size)}"
-                for func in self.aggregation_functions
-            }
-        )
-        agg_series.append(aggregated_data)
-
-        return TimeSeriesDataset(
-            data=pd.concat(agg_series, axis=1),
-            sample_interval=data.sample_interval,
-        )
+        validate_required_columns(df=data.data, required_columns=[self.feature])
+        return data.pipe_pandas(self._transform_pandas)
 
     @override
     def to_state(self) -> State:

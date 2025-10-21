@@ -13,30 +13,44 @@ convenient methods for saving/loading datasets while preserving all metadata.
 """
 
 import logging
-from datetime import timedelta
-from typing import ClassVar, Self, cast, override
+from collections.abc import Callable
+from datetime import datetime, timedelta
+from typing import ClassVar, Concatenate, Self, cast, override
 
 import pandas as pd
+from pydantic import FilePath
 
-from openstef_core.datasets.mixins import DatasetMixin, VersionedTimeSeriesMixin
-from openstef_core.types import LeadTime
+from openstef_core.datasets.mixins import DatasetMixin, TimeSeriesMixin
+from openstef_core.datasets.validation import validate_datetime_column, validate_timedelta_column
+from openstef_core.types import AvailableAt, LeadTime
 from openstef_core.utils import timedelta_from_isoformat, timedelta_to_isoformat
+from openstef_core.utils.pandas import unsafe_sorted_range_slice_idxs
 
 _logger = logging.getLogger(__name__)
 
 
-class TimeSeriesDataset(VersionedTimeSeriesMixin, DatasetMixin):
-    """A time series dataset with regular sampling intervals.
+class TimeSeriesDataset(TimeSeriesMixin, DatasetMixin):
+    """A time series dataset with regular sampling intervals and optional versioning.
 
     This class represents time series data with a consistent sampling interval
-    and provides basic operations for data access and persistence. It ensures
-    that the data maintains temporal ordering and provides access to temporal
-    and feature metadata.
+    and provides operations for data access, persistence, and filtering. It supports
+    both regular time series and versioned datasets where data availability is tracked
+    over time through either a horizon column or an available_at column.
+
+    The dataset automatically detects versioning:
+    - If a horizon column exists, data is versioned by forecast horizon
+    - If an available_at column exists, data is versioned by availability time
+    - Otherwise, data is treated as a regular time series
 
     The dataset guarantees:
         - Data is sorted by timestamp in ascending order
         - Consistent sampling interval across all data points
         - DateTime index for temporal operations
+
+    Attributes:
+        data: DataFrame containing the time series data indexed by timestamp.
+        horizon_column: Name of the column storing forecast horizons (if versioned by horizon).
+        available_at_column: Name of the column storing availability times (if versioned).
 
     Example:
         Create a simple time series dataset:
@@ -50,44 +64,91 @@ class TimeSeriesDataset(VersionedTimeSeriesMixin, DatasetMixin):
         >>> dataset = TimeSeriesDataset(data, sample_interval=timedelta(minutes=15))
         >>> dataset.feature_names
         ['temperature', 'load']
-        >>> dataset.sample_interval
-        datetime.timedelta(seconds=900)
+        >>> dataset.is_versioned
+        False
+
+        Create a versioned dataset with horizons:
+
+        >>> data_with_horizon = pd.DataFrame({
+        ...     'load': [100, 120],
+        ...     'horizon': pd.to_timedelta(['1h', '2h'])
+        ... }, index=pd.date_range('2025-01-01', periods=2, freq='1h'))
+        >>> dataset = TimeSeriesDataset(data_with_horizon, sample_interval=timedelta(hours=1))
+        >>> dataset.is_versioned
+        True
+        >>> dataset.horizons is not None
+        True
     """
 
-    horizon_column: ClassVar[str] = "horizon"
+    index_name: ClassVar[str] = "timestamp"
 
     data: pd.DataFrame
-    _sample_interval: timedelta
-    _feature_names: list[str]
+    horizon_column: str
+    available_at_column: str
 
-    horizons: list[LeadTime] | None
+    _sample_interval: timedelta
+    _version_column: str | None
+    _feature_names: list[str]
+    _horizons: list[LeadTime] | None
+    _internal_columns: set[str]
 
     def __init__(
         self,
         data: pd.DataFrame,
         sample_interval: timedelta = timedelta(minutes=15),
+        *,
+        horizon_column: str = "horizon",
+        available_at_column: str = "available_at",
     ) -> None:
+        """Initialize a time series dataset.
+
+        The dataset automatically detects whether it's versioned based on column presence:
+        - If horizon_column exists: versioned by forecast horizon
+        - If available_at_column exists: versioned by availability time
+        - Otherwise: regular time series
+
+        Args:
+            data: DataFrame with DatetimeIndex containing the time series data.
+            sample_interval: Fixed interval between consecutive data points.
+            horizon_column: Name of the column storing forecast horizons.
+            available_at_column: Name of the column storing availability times.
+
+        Raises:
+            TypeError: If data index is not a pandas DatetimeIndex or if versioning
+                columns have incorrect types.
+        """
         if not isinstance(data.index, pd.DatetimeIndex):
             raise TypeError("Data index must be a pandas DatetimeIndex.")
 
-        if not data.attrs.get("is_sorted", False):
-            self.data = data.sort_index(ascending=True)
-
-        data.attrs["is_sorted"] = True
-
         self.data = data
+        self.horizon_column = horizon_column
+        self.available_at_column = available_at_column
         self._sample_interval = sample_interval
+        self._internal_columns = {self.horizon_column, self.available_at_column}
+        data.index.name = self.index_name
 
         if self.horizon_column in data.columns:
-            if not pd.api.types.is_timedelta64_dtype(data[self.horizon_column]):
-                msg = f"Horizon column '{self.horizon_column}' must be of type timedelta."
-                raise TypeError(msg)
-
-            self._feature_names = [col for col in data.columns if col != self.horizon_column]
-            self.horizons = list({LeadTime(value=td) for td in data[self.horizon_column].unique()})
+            validate_timedelta_column(data[self.horizon_column])
+            self._version_column = self.horizon_column
+            self._feature_names = [col for col in data.columns if col not in self._internal_columns]
+            self._horizons = list({LeadTime(value=td) for td in data[self.horizon_column].unique()})
+        elif self.available_at_column in data.columns:
+            validate_datetime_column(data[self.available_at_column])
+            self._version_column = self.available_at_column
+            self._feature_names = [col for col in data.columns if col not in self._internal_columns]
+            self._horizons = None
         else:
-            self._feature_names = data.columns.tolist()
-            self.horizons = None
+            self._version_column = None
+            self._feature_names = data.columns.to_list()
+            self._horizons = None
+
+        # Ensure invariants: data is sorted by timestamp
+        if self.data.attrs.get("is_sorted", False) is False:
+            if self._version_column is not None:
+                self.data = self.data.sort_values(by=[self.index_name, self._version_column], ascending=[True, True])
+            else:
+                self.data = self.data.sort_index(ascending=True)
+            self.data.attrs["is_sorted"] = True
 
     @property
     @override
@@ -96,82 +157,107 @@ class TimeSeriesDataset(VersionedTimeSeriesMixin, DatasetMixin):
 
     @property
     @override
+    def sample_interval(self) -> timedelta:
+        return self._sample_interval
+
+    @property
+    @override
     def feature_names(self) -> list[str]:
         return self._feature_names
 
     @property
     @override
-    def sample_interval(self) -> timedelta:
-        return self._sample_interval
-
-    @override
-    def _to_versioned_dataframe(self) -> pd.DataFrame:
-        if self.horizons is None:
-            raise ValueError("Non horizon dataset cannot be converted to versioned dataframe.")
-
-        data_versioned = self.data.reset_index(names=[self.timestamp_column])
-        data_versioned[self.available_at_column] = (
-            data_versioned[self.timestamp_column] - data_versioned[self.horizon_column]
-        ).drop(columns=[self.horizon_column])
-        return data_versioned
-
-    @override
-    def _from_versioned_dataframe(self, data: pd.DataFrame) -> Self:
-        horizon = data[self.timestamp_column] - data[self.available_at_column]
-        data = (
-            data.drop(columns=[self.available_at_column])
-            .assign(**{self.horizon_column: horizon})
-            .set_index(self.timestamp_column)
-        )
-        return self.__class__(
-            data=data,
-            sample_interval=self.sample_interval,
-        )
-
-    @override
-    def _to_pandas(self) -> pd.DataFrame:
-        self.data.attrs["sample_interval"] = timedelta_to_isoformat(self.sample_interval)
-        self.data.attrs["is_sorted"] = True
-        return self.data
-
-    @override
-    @classmethod
-    def _from_pandas(cls, df: pd.DataFrame) -> Self:
-        if "sample_interval" not in df.attrs:
-            _logger.warning(
-                "Parquet file does not contain 'sample_interval' attribute. Using default value of 15 minutes."
-            )
-
-        sample_interval = timedelta_from_isoformat(df.attrs.get("sample_interval", "PT15M"))
-
-        return cls(
-            data=df,
-            sample_interval=sample_interval,
-        )
+    def is_versioned(self) -> bool:
+        return self._version_column is not None
 
     @property
-    def has_horizons(self) -> bool:
-        """Indicates whether the dataset includes forecast horizons.
+    def horizons(self) -> list[LeadTime] | None:
+        """Get the list of forecast horizons present in the dataset.
 
         Returns:
-            bool: True if the dataset has a horizon column, False otherwise.
+            List of unique forecast horizons if the dataset is versioned by horizons,
+            None otherwise.
         """
-        return self.horizons is not None
+        return self._horizons
 
     @property
-    def horizon_series(self) -> "pd.Series[pd.Timedelta]":
-        """Get the horizon values as a pandas Series.
+    def available_at_series(self) -> pd.Series | None:
+        """Get the availability times as a pandas Series.
 
         Returns:
-            pd.Series: Series containing horizon values indexed by timestamp.
-
-        Raises:
-            ValueError: If the dataset does not contain horizon information.
+            Series containing availability times indexed by timestamp if versioned,
+            None for non-versioned datasets.
         """
-        if not self.has_horizons:
-            raise ValueError("Dataset does not contain horizon information.")
+        if self._version_column is None:
+            return None
+        if self._version_column == self.available_at_column:
+            return self.data[self.available_at_column]
+        return self.data.index - self.data[self.horizon_column]
 
-        return self.data[self.horizon_column]
+    @property
+    def lead_time_series(self) -> pd.Series | None:
+        """Get the lead times as a pandas Series.
+
+        Lead time is the gap between when data became available and the timestamp.
+
+        Returns:
+            Series containing lead times indexed by timestamp if versioned,
+            None for non-versioned datasets.
+        """
+        if self._version_column is None:
+            return None
+        if self._version_column == self.horizon_column:
+            return self.data[self.horizon_column]
+        return self.data.index - self.data[self.available_at_column]
+
+    def _copy_with_data(self, data: pd.DataFrame) -> Self:
+        # Fast way to copy self with new data and skipping validation since invariants are preserved.
+        new_instance = object.__new__(self.__class__)
+        new_instance.__dict__.update(self.__dict__)
+        new_instance.data = data
+        return new_instance
+
+    @override
+    def filter_by_range(self, start: datetime | None = None, end: datetime | None = None) -> Self:
+        if start is None and end is None:
+            return self
+
+        start_idx, end_idx = unsafe_sorted_range_slice_idxs(data=self.data.index, start=start, end=end)
+        data_filtered = self.data.iloc[start_idx:end_idx]
+        return self._copy_with_data(data=data_filtered)
+
+    @override
+    def filter_by_available_before(self, available_before: datetime) -> Self:
+        available_at_series = self.available_at_series
+        if available_at_series is None:
+            return self
+
+        data_filtered = self.data[available_at_series <= available_before]
+        return self._copy_with_data(data=data_filtered)
+
+    @override
+    def filter_by_available_at(self, available_at: AvailableAt) -> Self:
+        available_at_series = self.available_at_series
+        if available_at_series is None:
+            return self
+
+        cutoff = self.index.floor("D") - pd.Timedelta(available_at.lag_from_day)
+        data_filtered = self.data[available_at_series <= cutoff]
+        return self._copy_with_data(data=data_filtered)
+
+    @override
+    def filter_by_lead_time(self, lead_time: LeadTime) -> Self:
+        lead_time_series = self.lead_time_series
+        if lead_time_series is None:
+            return self
+
+        data_filtered = self.data[lead_time_series <= lead_time.value]
+        return self._copy_with_data(data=data_filtered)
+
+    @override
+    def select_version(self) -> Self:
+        data_selected = self.data[~self.data.index.duplicated(keep="first")].drop(columns=self._version_column)
+        return self._copy_with_data(data=data_selected)
 
     def select_horizon(self, horizon: LeadTime) -> Self:
         """Select data for a specific forecast horizon.
@@ -181,19 +267,84 @@ class TimeSeriesDataset(VersionedTimeSeriesMixin, DatasetMixin):
 
         Returns:
             A new TimeSeriesDataset instance containing only data for the specified horizon.
-
-        Raises:
-            ValueError: If the specified horizon is not present in the dataset.
         """
-        if self.horizons is None or horizon not in self.horizons:
-            msg = f"Horizon {horizon} not found in dataset."
-            raise ValueError(msg)
+        if self.horizons is None:
+            return self
 
-        filtered_data = self.data[self.data[self.horizon_column] == horizon.value]
-        return self.__class__(
-            data=filtered_data,
-            sample_interval=self.sample_interval,
+        data_selected = self.data[self.lead_time_series == horizon.value]
+        return self._copy_with_data(data=data_selected)
+
+    def to_pandas(self) -> pd.DataFrame:
+        """Convert the dataset to a pandas DataFrame with metadata stored in attrs.
+
+        Stores sample_interval, available_at_column, and horizon_column in the
+        DataFrame's attrs dictionary for later reconstruction.
+
+        Returns:
+            DataFrame with dataset data and metadata in attrs.
+        """
+        self.data.attrs["sample_interval"] = timedelta_to_isoformat(self.sample_interval)
+        self.data.attrs["available_at_column"] = self.available_at_column
+        self.data.attrs["horizon_column"] = self.horizon_column
+        return self.data
+
+    @classmethod
+    def from_pandas(cls, df: pd.DataFrame) -> Self:
+        """Create a dataset instance from a pandas DataFrame with metadata in attrs.
+
+        Reads sample_interval, available_at_column, and horizon_column from the
+        DataFrame's attrs dictionary.
+
+        Args:
+            df: DataFrame containing dataset data with metadata in attrs.
+
+        Returns:
+            New TimeSeriesDataset instance reconstructed from the DataFrame.
+        """
+        if "sample_interval" not in df.attrs:
+            _logger.warning(
+                "Parquet file does not contain 'sample_interval' attribute. Using default value of 15 minutes."
+            )
+
+        sample_interval = timedelta_from_isoformat(df.attrs.get("sample_interval", "PT15M"))
+        available_at_column = df.attrs.get("available_at_column", "available_at")
+        horizon_column = df.attrs.get("horizon_column", "horizon")
+
+        return cls(
+            data=df,
+            sample_interval=sample_interval,
+            available_at_column=available_at_column,
+            horizon_column=horizon_column,
         )
+
+    @override
+    def to_parquet(self, path: FilePath) -> None:
+        self.to_pandas().to_parquet(path=path)
+
+    @override
+    @classmethod
+    def read_parquet(cls, path: FilePath) -> Self:
+        df = pd.read_parquet(path=path)  # type: ignore
+        return cls.from_pandas(df)
+
+    def pipe_pandas[**P](
+        self, func: Callable[Concatenate[pd.DataFrame, P], pd.DataFrame], *args: P.args, **kwargs: P.kwargs
+    ) -> Self:
+        data_new = func(self.data, *args, **kwargs)
+        return self._copy_with_data(data=data_new)
+
+    def select_features(self, feature_names: list[str]) -> Self:
+        """Select a subset of features from the dataset.
+
+        Args:
+            feature_names: List of feature column names to retain in the dataset.
+
+        Returns:
+            A new TimeSeriesDataset instance containing only the specified features.
+        """
+        columns_to_select = list(self._internal_columns) + feature_names
+        data_selected = self.data[columns_to_select]
+        return self._copy_with_data(data=data_selected)
 
 
 __all__ = ["TimeSeriesDataset"]

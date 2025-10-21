@@ -11,51 +11,27 @@ import pandas as pd
 import pytest
 
 from openstef_core.datasets import ForecastDataset, ForecastInputDataset
-from openstef_core.datasets.multi_horizon_dataset import MultiHorizon
 from openstef_core.exceptions import NotFittedError
-from openstef_core.types import LeadTime, Quantile
+from openstef_core.types import Quantile
 from openstef_models.transforms.postprocessing.confidence_interval_applicator import (
     ConfidenceIntervalApplicator,
 )
 
 
 @pytest.fixture
-def validation_data() -> MultiHorizon[ForecastInputDataset]:
-    """Validation data with multiple horizons (6h and 12h) spanning 6 days."""
-    index = pd.date_range("2018-01-01 00:00:00", periods=144, freq="1h")
-    base_pattern = [4.0, 2.0, 5.0, 2.0, 4.0, 2.0, 5.0, 2.0]
-    actual_values = np.tile(base_pattern, 18)
-
-    data_6h = pd.DataFrame(
-        {"target": actual_values, "feature_1": np.arange(144)},
-        index=index,
-    )
-
-    data_12h = pd.DataFrame(
-        {"target": actual_values, "feature_1": np.arange(144)},
-        index=index,
-    )
-
-    return MultiHorizon({
-        LeadTime(timedelta(hours=6)): ForecastInputDataset(
-            data=data_6h, sample_interval=timedelta(minutes=15), target_column="target"
-        ),
-        LeadTime(timedelta(hours=12)): ForecastInputDataset(
-            data=data_12h, sample_interval=timedelta(minutes=15), target_column="target"
-        ),
-    })
-
-
-@pytest.fixture
 def validation_predictions() -> ForecastDataset:
     """Validation predictions spanning 6 days."""
     index = pd.date_range("2018-01-01 00:00:00", periods=144, freq="1h")
-    predictions = np.tile([5.0, 6.0, 7.0, 8.0], 36)
-
-    data = pd.DataFrame({Quantile(0.5).format(): predictions}, index=index)
 
     return ForecastDataset(
-        data=data,
+        data=pd.DataFrame(
+            {
+                "load": np.tile([4.0, 2.0, 5.0, 2.0, 4.0, 2.0, 5.0, 2.0], 18),
+                Quantile(0.5).format(): np.tile([5.0, 6.0, 7.0, 8.0], 36),
+                "horizon": [timedelta(hours=6)] * 72 + [timedelta(hours=12)] * 72,
+            },
+            index=index,
+        ),
         sample_interval=timedelta(minutes=15),
         forecast_start=datetime.fromisoformat("2018-01-01T00:00:00"),
     )
@@ -67,14 +43,17 @@ def predictions() -> ForecastDataset:
     forecast_start = datetime.fromisoformat("2018-01-03T00:00:00")
     forecast_index = pd.date_range(forecast_start, periods=10, freq="1h")
     return ForecastDataset(
-        data=pd.DataFrame({Quantile(0.5).format(): np.ones(10) * 10.0}, index=forecast_index),
+        data=pd.DataFrame({
+            "load": [4.0, 2.0, 5.0, 2.0, 4.0, 2.0, 5.0, 2.0, 4.0, 2.0],
+            Quantile(0.5).format(): np.ones(10) * 10.0,
+            "horizon": timedelta(days=6),
+        }, index=forecast_index),
         sample_interval=timedelta(minutes=15),
         forecast_start=forecast_start,
     )
 
 
 def test_single_horizon_workflow(
-    validation_data: MultiHorizon[ForecastInputDataset],
     validation_predictions: ForecastDataset,
     predictions: ForecastDataset,
 ):
@@ -84,8 +63,8 @@ def test_single_horizon_workflow(
     applicator = ConfidenceIntervalApplicator(quantiles=quantiles)
 
     # Act
-    applicator.fit((validation_data, validation_predictions))
-    result = applicator.transform((validation_data, predictions))
+    applicator.fit(validation_predictions)
+    result = applicator.transform(predictions)
 
     # Assert
     # Should have all quantile columns
@@ -110,7 +89,6 @@ def test_single_horizon_workflow(
 
 
 def test_multi_horizon_workflow(
-    validation_data: MultiHorizon[ForecastInputDataset],
     validation_predictions: ForecastDataset,
     predictions: ForecastDataset,
 ):
@@ -119,8 +97,8 @@ def test_multi_horizon_workflow(
     applicator = ConfidenceIntervalApplicator(quantiles=[Quantile(0.1), Quantile(0.5), Quantile(0.9)])
 
     # Act
-    applicator.fit((validation_data, validation_predictions))
-    result = applicator.transform((validation_data, predictions))
+    applicator.fit(validation_predictions)
+    result = applicator.transform(predictions)
 
     # Assert
     # Should learn stdev for both horizons
@@ -150,7 +128,6 @@ def test_multi_horizon_workflow(
 
 
 def test_fit__computes_hourly_standard_deviation_correctly(
-    validation_data: MultiHorizon[ForecastInputDataset],
     validation_predictions: ForecastDataset,
 ):
     """Test that fit() correctly computes hour-specific standard deviations."""
@@ -158,7 +135,7 @@ def test_fit__computes_hourly_standard_deviation_correctly(
     applicator = ConfidenceIntervalApplicator()
 
     # Act
-    applicator.fit((validation_data, validation_predictions))
+    applicator.fit(validation_predictions)
 
     # Assert
     stdev_df = applicator.standard_deviation
@@ -170,7 +147,6 @@ def test_fit__computes_hourly_standard_deviation_correctly(
 
 
 def test_transform__raises_error_when_not_fitted(
-    validation_data: MultiHorizon[ForecastInputDataset],
     predictions: ForecastDataset,
 ):
     """Test that transform() raises NotFittedError when called before fit()."""
@@ -179,17 +155,16 @@ def test_transform__raises_error_when_not_fitted(
 
     # Act & Assert
     with pytest.raises(NotFittedError, match="ConfidenceIntervalApplicator"):
-        applicator.transform((validation_data, predictions))
+        applicator.transform(predictions)
 
 
 def test_state_roundtrip(
-    validation_data: MultiHorizon[ForecastInputDataset],
     validation_predictions: ForecastDataset,
 ):
     """Test state serialization and restoration."""
     # Arrange
     original_transform = ConfidenceIntervalApplicator(quantiles=[Quantile(0.1), Quantile(0.9)])
-    original_transform.fit((validation_data, validation_predictions))
+    original_transform.fit(validation_predictions)
 
     # Act
     state = original_transform.to_state()

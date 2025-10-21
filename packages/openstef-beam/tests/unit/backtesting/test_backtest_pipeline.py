@@ -15,7 +15,7 @@ from openstef_beam.backtesting.backtest_forecaster.mixins import (
     BacktestForecasterMixin,
 )
 from openstef_beam.backtesting.restricted_horizon_timeseries import RestrictedHorizonVersionedTimeSeries
-from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesDataset, VersionedTimeSeriesPart
+from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesDataset
 from openstef_core.types import Quantile
 
 
@@ -80,17 +80,19 @@ def datasets() -> tuple[VersionedTimeSeriesDataset, VersionedTimeSeriesDataset]:
     timestamps = pd.date_range("2025-01-01", "2025-01-05", freq="1h")
 
     ground_truth = VersionedTimeSeriesDataset.from_dataframe(
-        data=pd.DataFrame({"timestamp": timestamps, "available_at": timestamps, "target": range(len(timestamps))}),
+        data=pd.DataFrame({"available_at": timestamps, "target": range(len(timestamps))}, index=timestamps),
         sample_interval=timedelta(hours=1),
     )
 
     predictors = VersionedTimeSeriesDataset.from_dataframe(
-        data=pd.DataFrame({
-            "timestamp": timestamps,
-            "available_at": timestamps,
-            "feature1": range(len(timestamps)),
-            "feature2": range(len(timestamps), 2 * len(timestamps)),
-        }),
+        data=pd.DataFrame(
+            {
+                "available_at": timestamps,
+                "feature1": range(len(timestamps)),
+                "feature2": range(len(timestamps), 2 * len(timestamps)),
+            },
+            index=timestamps,
+        ),
         sample_interval=timedelta(hours=1),
     )
 
@@ -136,7 +138,7 @@ def test_run_training_scenarios(
     )
 
     # Assert
-    assert isinstance(result, VersionedTimeSeriesPart)
+    assert isinstance(result, TimeSeriesDataset)
     assert result.sample_interval == forecaster_config.predict_sample_interval
 
     # Validate call counts
@@ -190,15 +192,14 @@ def test_run_date_boundary_handling(
     )
 
     # Assert
-    assert isinstance(result, VersionedTimeSeriesPart)
+    assert isinstance(result, TimeSeriesDataset)
 
     # Validate timestamps are within expected bounds
     if len(result.data) > 0:
-        result_timestamps = result.data["timestamp"]
         if start_dt:
-            assert (result_timestamps >= start_dt).all()
+            assert (result.index >= pd.Timestamp(start_dt)).all()
         if end_dt:
-            assert (result_timestamps <= end_dt).all()
+            assert (result.index <= pd.Timestamp(end_dt)).all()
 
 
 def test_run_output_validation_and_concatenation(
@@ -244,29 +245,18 @@ def test_run_output_validation_and_concatenation(
     )
 
     # Assert - Basic structure
-    assert isinstance(result, VersionedTimeSeriesPart)
     assert result.sample_interval == mock_forecaster.config.predict_sample_interval
     assert mock_forecaster.predict_call_count >= 2
 
     # Assert - Output validation
-    result_data = result.data
-    required_columns = ["timestamp", "available_at", "quantile_P50"]
-    assert all(col in result_data.columns for col in required_columns)
-
-    # Assert - Data types
-    assert pd.api.types.is_datetime64_any_dtype(result_data["timestamp"])
-    assert pd.api.types.is_datetime64_any_dtype(result_data["available_at"])
-    assert pd.api.types.is_numeric_dtype(result_data["quantile_P50"])
-
-    # Assert - Data quality
-    assert not result_data["timestamp"].isna().any()
-    assert not result_data["available_at"].isna().any()
-    assert result_data["timestamp"].is_monotonic_increasing
-    assert (result_data["quantile_P50"] >= 0).all()
+    assert result.feature_names == ["quantile_P50"]
+    assert result.is_versioned
+    assert pd.api.types.is_numeric_dtype(result.data["quantile_P50"])
+    assert (result.data["quantile_P50"] >= 0).all()
 
     # Assert - Concatenation worked (multiple predictions with incremental values)
-    assert len(result_data) >= 2
-    prediction_values = result_data["quantile_P50"].tolist()
+    assert len(result.data) >= 2
+    prediction_values = result.data["quantile_P50"].tolist()
     assert len(set(prediction_values)) > 1
     assert prediction_values == sorted(prediction_values)
 
@@ -307,11 +297,8 @@ def test_run_handles_none_predictions(datasets: tuple[VersionedTimeSeriesDataset
     )
 
     # Assert
-    assert isinstance(result, VersionedTimeSeriesPart)
-    result_data = result.data
-    required_columns = ["timestamp", "available_at"]
-    assert all(col in result_data.columns for col in required_columns)
-    assert len(result_data) == 0
+    assert result.is_versioned
+    assert len(result.data) == 0
 
 
 @pytest.mark.parametrize(
@@ -371,11 +358,11 @@ def test_run_edge_cases(
         end_time = "2025-01-01T20:00:00"
 
     ground_truth = VersionedTimeSeriesDataset.from_dataframe(
-        data=pd.DataFrame({"timestamp": timestamps, "available_at": timestamps, "target": range(len(timestamps))}),
+        data=pd.DataFrame({"available_at": timestamps, "target": range(len(timestamps))}, index=timestamps),
         sample_interval=timedelta(hours=1),
     )
     predictors = VersionedTimeSeriesDataset.from_dataframe(
-        data=pd.DataFrame({"timestamp": timestamps, "available_at": timestamps, "feature1": range(len(timestamps))}),
+        data=pd.DataFrame({"available_at": timestamps, "feature1": range(len(timestamps))}, index=timestamps),
         sample_interval=timedelta(hours=1),
     )
 
@@ -389,10 +376,8 @@ def test_run_edge_cases(
     )
 
     # Assert
-    assert isinstance(result, VersionedTimeSeriesPart)
     assert mock_forecaster.predict_call_count == expected_calls
     assert len(result.data) == 0
 
     # Validate empty result structure
-    required_columns = ["timestamp", "available_at"]
-    assert all(col in result.data.columns for col in required_columns)
+    assert result.is_versioned

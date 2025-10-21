@@ -12,8 +12,7 @@ data transformation and validation.
 from datetime import datetime
 from typing import Any, Self, cast, override
 
-from openstef_core.datasets.utils.data_split import DataSplitStrategy, StratifiedTrainTestSplitter
-from pydantic import Field, model_validator
+from pydantic import Field
 
 from openstef_beam.evaluation import EvaluationConfig, EvaluationPipeline, SubsetMetric
 from openstef_beam.evaluation.metric_providers import MetricProvider, ObservedProbabilityProvider, R2Provider
@@ -24,10 +23,10 @@ from openstef_core.datasets import (
     TimeSeriesDataset,
     VersionedTimeSeriesDataset,
 )
-from openstef_core.exceptions import ConfigurationError, NotFittedError
-from openstef_core.mixins import Predictor, State
+from openstef_core.exceptions import NotFittedError
+from openstef_core.mixins import Predictor, State, TransformPipeline
 from openstef_models.models.forecasting import Forecaster
-from openstef_models.transforms import FeatureEngineeringPipeline, PostprocessingPipeline
+from openstef_models.utils.data_split import stratified_train_test_split, train_val_test_split
 
 
 class ModelFitResult(BaseModel):
@@ -83,33 +82,40 @@ class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset])
     """
 
     # Forecasting components
-    preprocessing: FeatureEngineeringPipeline = Field(
-        default=...,
+    preprocessing: TransformPipeline[TimeSeriesDataset] = Field(
+        default_factory=TransformPipeline[TimeSeriesDataset],
         description="Feature engineering pipeline for transforming raw input data into model-ready features.",
     )
     forecaster: Forecaster = Field(
         default=...,
         description="Underlying forecasting algorithm, either single-horizon or multi-horizon.",
     )
-    postprocessing: PostprocessingPipeline[ForecastInputDataset, ForecastDataset] = Field(
-        default_factory=PostprocessingPipeline[ForecastInputDataset, ForecastDataset],
+    postprocessing: TransformPipeline[ForecastDataset] = Field(
+        default_factory=TransformPipeline[ForecastDataset],
         description="Postprocessing pipeline for transforming model outputs into final forecasts.",
     )
     target_column: str = Field(
         default="load",
         description="Name of the target variable column in datasets.",
     )
-    # Evaluation - Data splitting configuration
-    # Splits are applied in sequence: test_splitter first, then val_splitter on remaining data
-    # Example: With defaults, 100% → 80% train+val / 20% test → 60% train / 20% val / 20% test
-    split_strategy: DataSplitStrategy = Field(
-        default_factory=lambda: DataSplitStrategy(
-            test_splitter=StratifiedTrainTestSplitter(test_fraction=0.1),
-            val_splitter=StratifiedTrainTestSplitter(test_fraction=0.15),
-        ),
-        description="Strategy for splitting data into train/validation/test sets. "
-        "Handles explicit and automatic splitting scenarios.",
+    # Data splitting strategy
+    val_fraction: float = Field(
+        default=0.15,
+        description="Fraction of data to reserve for the validation set when automatic splitting is used.",
     )
+    test_fraction: float = Field(
+        default=0.1,
+        description="Fraction of data to reserve for the test set when automatic splitting is used.",
+    )
+    stratification_fraction: float = Field(
+        default=0.15,
+        description="Fraction of extreme values to use for stratified splitting into train/test sets.",
+    )
+    min_days_for_stratification: int = Field(
+        default=4,
+        description="Minimum number of unique days required to perform stratified splitting.",
+    )
+    # Evaluation
     evaluation_metrics: list[MetricProvider] = Field(
         default_factory=lambda: [R2Provider(), ObservedProbabilityProvider()],
         description="List of metric providers for evaluating model score.",
@@ -119,17 +125,6 @@ class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset])
         default_factory=dict,
         description="Optional metadata tags for the model.",
     )
-
-    @model_validator(mode="after")
-    def _validate_horizons_match(self) -> Self:
-        if self.forecaster.config.horizons != self.preprocessing.horizons:
-            message = (
-                f"The forecaster horizons ({self.forecaster.config.horizons}) do not match the "
-                f"preprocessing horizons ({self.preprocessing.horizons})."
-            )
-            raise ConfigurationError(message)
-
-        return self
 
     @property
     @override
@@ -162,11 +157,13 @@ class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset])
             FitResult containing training details and metrics.
         """
         # Fit the feature engineering transforms
-        self.preprocessing.fit(data=data)
+        input_data_train = self.preprocessing.fit_transform(data=data)
+        input_data_val = self.preprocessing.transform(data=data_val) if data_val else None
+        input_data_test = self.preprocessing.transform(data=data_test) if data_test else None
 
         # Transform the input data to a valid forecast input and split into train/val/test
-        input_data_train, input_data_val, input_data_test = self._prepare_split_input(
-            data=data, data_val=data_val, data_test=data_test
+        input_data_train, input_data_val, input_data_test = self._split_data(
+            data=input_data_train, data_val=input_data_val, data_test=input_data_test
         )
 
         # Fit the model
@@ -178,8 +175,8 @@ class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset])
         # Calculate training, validation, test, and full metrics
         target_dataset = _dataset_to_target(data=data, target_column=self.target_column)
 
-        def predict_and_score(input_data: MultiHorizon[ForecastInputDataset]) -> SubsetMetric:
-            prediction = self._predict_forecaster(data=input_data)
+        def predict_and_score(input_data: ForecastInputDataset) -> SubsetMetric:
+            prediction = self.forecaster.predict(data=input_data)
             prediction = self.postprocessing.transform(data=(input_data, prediction))
             return self._calculate_score(ground_truth=target_dataset, prediction=prediction)
 
@@ -227,16 +224,12 @@ class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset])
 
         return self.postprocessing.transform(data=(input_data, raw_predictions))
 
-    def _prepare_split_input(
+    def _split_data(
         self,
-        data: VersionedTimeSeriesDataset | TimeSeriesDataset,
-        data_val: VersionedTimeSeriesDataset | TimeSeriesDataset | None = None,
-        data_test: VersionedTimeSeriesDataset | TimeSeriesDataset | None = None,
-    ) -> tuple[
-        ForecastInputDataset,
-        ForecastInputDataset | None,
-        ForecastInputDataset | None,
-    ]:
+        data: TimeSeriesDataset,
+        data_val: TimeSeriesDataset | None = None,
+        data_test: TimeSeriesDataset | None = None,
+    ) -> tuple[TimeSeriesDataset, TimeSeriesDataset, TimeSeriesDataset]:
         """Prepare and split input data into train, validation, and test sets.
 
         Args:
@@ -247,28 +240,27 @@ class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset])
         Returns:
             Tuple of (train_data, val_data, test_data) where val_data and test_data may be None.
         """
-        # Preprocess all data
-        preprocessed_data = self.preprocessing.transform(data=data)
-        preprocessed_val = self.preprocessing.transform(data=data_val) if data_val else None
-        preprocessed_test = self.preprocessing.transform(data=data_test) if data_test else None
-
         # Apply splitting strategy
-        split_result = self.split_strategy.split_multihorizon(
-            data=preprocessed_data,
-            data_val=preprocessed_val,
-            data_test=preprocessed_test,
+        input_data_train, input_data_val, input_data_test = train_val_test_split(
+            dataset=data,
+            split_func=lambda dataset, fraction: stratified_train_test_split(
+                dataset=dataset,
+                test_fraction=fraction,
+                stratification_fraction=self.stratification_fraction,
+                target_column=self.target_column,
+                random_state=42,
+                min_days_for_stratification=self.min_days_for_stratification,
+            ),
+            val_fraction=self.val_fraction if data_val is None else 0.0,
+            test_fraction=self.test_fraction if data_test is None else 0.0,
         )
 
         # Convert to ForecastInputDataset with restored target column
-        return (
-            self._to_forecast_input(split_result.train, data),
-            self._to_forecast_input(split_result.val, data) if split_result.val else None,
-            self._to_forecast_input(split_result.test, data) if split_result.test else None,
-        )
+        return (input_data_train, data_val or input_data_val, data_test or input_data_test)
 
     def _prepare_input(
         self,
-        data: VersionedTimeSeriesDataset | TimeSeriesDataset,
+        data: TimeSeriesDataset,
         forecast_start: datetime | None = None,
     ) -> ForecastInputDataset:
         # Extract targets series to restore it later to ensure it is unchanged
@@ -288,7 +280,7 @@ class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset])
 
     def score(
         self,
-        data: TimeSeriesDataset | VersionedTimeSeriesDataset,
+        data: TimeSeriesDataset,
     ) -> SubsetMetric:
         """Evaluate model performance on the provided dataset.
 
@@ -360,21 +352,10 @@ class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset])
         )
 
 
-def _dataset_to_target(
-    data: TimeSeriesDataset | VersionedTimeSeriesDataset, target_column: str
-) -> ForecastInputDataset:
-    if isinstance(data, VersionedTimeSeriesDataset):
-        return ForecastInputDataset(
-            data=data.select_version().data[[target_column]],
-            sample_interval=data.sample_interval,
-            target_column=target_column,
-            is_sorted=True,
-        )
-    return ForecastInputDataset(
-        data=data.data[[target_column]],
-        sample_interval=data.sample_interval,
+def _dataset_to_target(data: TimeSeriesDataset, target_column: str) -> ForecastInputDataset:
+    return ForecastInputDataset.from_timeseries(
+        dataset=data.select_features([target_column]).select_version(),
         target_column=target_column,
-        is_sorted=True,
     )
 
 

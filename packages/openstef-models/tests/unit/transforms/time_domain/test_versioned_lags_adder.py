@@ -26,21 +26,23 @@ def test_multiple_lag_features():
     """
     # Arrange
     simple_versioned_dataset = VersionedTimeSeriesDataset.from_dataframe(
-        data=pd.DataFrame({
-            "timestamp": pd.to_datetime([
+        data=pd.DataFrame(
+            {
+                "available_at": pd.to_datetime([
+                    "2025-01-01T10:00:00",
+                    "2025-01-01T11:00:00",
+                    "2025-01-01T12:00:00",
+                    "2025-01-01T13:00:00",
+                ]),
+                "load": [100.0, 110.0, 120.0, 130.0],
+            },
+            index=pd.to_datetime([
                 "2025-01-01T10:00:00",
                 "2025-01-01T11:00:00",
                 "2025-01-01T12:00:00",
                 "2025-01-01T13:00:00",
             ]),
-            "available_at": pd.to_datetime([
-                "2025-01-01T10:00:00",
-                "2025-01-01T11:00:00",
-                "2025-01-01T12:00:00",
-                "2025-01-01T13:00:00",
-            ]),
-            "load": [100.0, 110.0, 120.0, 130.0],
-        }),
+        ),
         sample_interval=timedelta(hours=1),
     )
     transform = VersionedLagsAdder(feature="load", lags=[timedelta(hours=-1), timedelta(hours=-2)])
@@ -127,21 +129,27 @@ def test_lag_transform_with_horizon_filtering():
 
     multi_version_signal_dataset = VersionedTimeSeriesDataset.from_dataframe(
         data=pd.concat([
-            pd.DataFrame({
-                "timestamp": timestamps,
-                "available_at": timestamps + timedelta(days=3),
-                "signal": ["bad"] * len(timestamps),
-            }),
-            pd.DataFrame({
-                "timestamp": timestamps,
-                "available_at": timestamps + timedelta(days=5),
-                "signal": ["okay"] * len(timestamps),
-            }),
-            pd.DataFrame({
-                "timestamp": timestamps,
-                "available_at": timestamps + timedelta(days=10),
-                "signal": ["best"] * len(timestamps),
-            }),
+            pd.DataFrame(
+                {
+                    "available_at": timestamps + timedelta(days=3),
+                    "signal": ["bad"] * len(timestamps),
+                },
+                index=timestamps,
+            ),
+            pd.DataFrame(
+                {
+                    "available_at": timestamps + timedelta(days=5),
+                    "signal": ["okay"] * len(timestamps),
+                },
+                index=timestamps,
+            ),
+            pd.DataFrame(
+                {
+                    "available_at": timestamps + timedelta(days=10),
+                    "signal": ["best"] * len(timestamps),
+                },
+                index=timestamps,
+            ),
         ]),
         sample_interval=timedelta(days=1),
     )
@@ -153,7 +161,7 @@ def test_lag_transform_with_horizon_filtering():
     result = transform.transform(multi_version_signal_dataset)
 
     # Assert
-    snapshot = result.filter_by_lead_time(lead_time).select_version(available_before=None)
+    snapshot = result.filter_by_lead_time(lead_time).select_version()
 
     # With timestamp filtering, lag features are constrained to original timestamp range
     # The test verifies that the correct version quality is accessed when data is available
@@ -189,21 +197,23 @@ def test_missing_feature_error():
     """
     # Arrange
     simple_versioned_dataset = VersionedTimeSeriesDataset.from_dataframe(
-        data=pd.DataFrame({
-            "timestamp": pd.to_datetime([
+        data=pd.DataFrame(
+            {
+                "available_at": pd.to_datetime([
+                    "2025-01-01T10:00:00",
+                    "2025-01-01T11:00:00",
+                    "2025-01-01T12:00:00",
+                    "2025-01-01T13:00:00",
+                ]),
+                "load": [100.0, 110.0, 120.0, 130.0],
+            },
+            index=pd.to_datetime([
                 "2025-01-01T10:00:00",
                 "2025-01-01T11:00:00",
                 "2025-01-01T12:00:00",
                 "2025-01-01T13:00:00",
             ]),
-            "available_at": pd.to_datetime([
-                "2025-01-01T10:00:00",
-                "2025-01-01T11:00:00",
-                "2025-01-01T12:00:00",
-                "2025-01-01T13:00:00",
-            ]),
-            "load": [100.0, 110.0, 120.0, 130.0],
-        }),
+        ),
         sample_interval=timedelta(hours=1),
     )
     transform = VersionedLagsAdder(feature="non_existent", lags=[timedelta(hours=-1)])

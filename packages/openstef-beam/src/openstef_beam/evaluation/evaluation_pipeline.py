@@ -28,7 +28,8 @@ from openstef_beam.evaluation.models import (
 from openstef_beam.evaluation.models.subset import merge_quantile_metrics
 from openstef_beam.evaluation.window_iterators import iterate_subsets_by_window
 from openstef_core.base_model import BaseConfig
-from openstef_core.datasets import ForecastDataset, ForecastInputDataset, VersionedTimeSeriesMixin
+from openstef_core.datasets import ForecastDataset, ForecastInputDataset
+from openstef_core.datasets.mixins import TimeSeriesMixin
 from openstef_core.exceptions import MissingColumnsError
 from openstef_core.types import AvailableAt, LeadTime, Quantile
 
@@ -103,8 +104,8 @@ class EvaluationPipeline:
 
     def run(
         self,
-        predictions: VersionedTimeSeriesMixin,
-        ground_truth: VersionedTimeSeriesMixin,
+        predictions: TimeSeriesMixin,
+        ground_truth: TimeSeriesMixin,
         target_column: str,
         evaluation_mask: pd.DatetimeIndex | None = None,
     ) -> EvaluationReport:
@@ -198,8 +199,8 @@ class EvaluationPipeline:
 
     def _iterate_subsets(
         self,
-        predictions: VersionedTimeSeriesMixin,
-        ground_truth: VersionedTimeSeriesMixin,
+        predictions: TimeSeriesMixin,
+        ground_truth: TimeSeriesMixin,
         target_column: str,
         evaluation_mask: pd.DatetimeIndex | None = None,
     ) -> Iterator[tuple[Filtering, EvaluationSubset]]:
@@ -211,12 +212,9 @@ class EvaluationPipeline:
             Tuples of (filter_criteria, evaluation_subset)
         """
         quantile_columns = [quantile.format() for quantile in self.quantiles]
-
-        ground_truth_data = ForecastInputDataset(
-            data=ground_truth.select_version().data,
-            sample_interval=ground_truth.sample_interval,
+        ground_truth_data = ForecastInputDataset.from_timeseries(
+            dataset=ground_truth.select_version(),
             target_column=target_column,
-            is_sorted=True,
         )
 
         for available_at in self.config.available_ats:

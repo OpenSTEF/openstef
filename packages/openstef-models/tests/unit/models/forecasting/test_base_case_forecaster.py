@@ -52,7 +52,6 @@ def base_case_forecaster() -> BaseCaseForecaster:
     """Create sample forecaster configuration with standard quantiles."""
     return BaseCaseForecaster(
         config=BaseCaseForecasterConfig(
-            quantiles=[Quantile(0.1), Quantile(0.5), Quantile(0.9)],
             horizons=[LeadTime(timedelta(hours=6))],
             hyperparams=BaseCaseForecasterHyperParams(),
         )
@@ -95,13 +94,6 @@ def test_base_case_forecaster__fit_predict(
     for col in expected_columns:
         assert not pd.isna(actual_values[col])
 
-    # Check quantile ordering: Q10 <= Q50 <= Q90
-    q10_values = result.data[expected_columns[0]]
-    q50_values = result.data[expected_columns[1]]
-    q90_values = result.data[expected_columns[2]]
-    assert all(q10_values <= q50_values)
-    assert all(q50_values <= q90_values)
-
 
 def test_base_case_forecaster__weekly_pattern_repetition(
     base_case_forecaster: BaseCaseForecaster,
@@ -112,13 +104,7 @@ def test_base_case_forecaster__weekly_pattern_repetition(
     result = base_case_forecaster.predict(sample_forecast_input_dataset)
 
     # Assert - Simple check: Are we getting 300s (correct) or 200s (wrong)?
-    np.testing.assert_array_equal(
-        result.data["quantile_P50"].iloc[[0, 1, 23]].to_numpy(), np.array([300.0, 301.0, 323.0])
-    )
-
-    # Verify confidence intervals have spread (non-zero std)
-    assert result.data["quantile_P10"].std() > 0, "Confidence intervals should vary"
-    assert result.data["quantile_P90"].std() > 0, "Confidence intervals should vary"
+    np.testing.assert_array_equal(result.median_series.iloc[[0, 1, 23]].to_numpy(), np.array([300.0, 301.0, 323.0]))
 
 
 def test_base_case_forecaster__no_forecast_start(base_case_forecaster: BaseCaseForecaster):
@@ -164,7 +150,7 @@ def test_base_case_forecaster__no_historical_data(base_case_forecaster: BaseCase
 
     # Assert
     assert len(result.data) == 3
-    assert all(pd.isna(result.data["quantile_P50"]))
+    assert all(pd.isna(result.median_series))
 
 
 def test_base_case_forecaster__fallback_lag_usage():
@@ -261,34 +247,7 @@ def test_base_case_forecaster__different_frequencies(base_case_forecaster: BaseC
     # Assert
     assert result.sample_interval == timedelta(minutes=30)
     assert len(result.data) > 0
-    assert not result.data["quantile_P50"].isna().all()
-
-
-def test_base_case_forecaster__hourly_std_calculation(
-    base_case_forecaster: BaseCaseForecaster, sample_forecast_input_dataset: ForecastInputDataset
-):
-    """Test hourly standard deviation calculation for confidence intervals."""
-    # Arrange
-    basecase_values = base_case_forecaster._get_basecase_values(sample_forecast_input_dataset)
-
-    # Act
-    hourly_std = base_case_forecaster._calculate_hourly_std(basecase_values)
-
-    # Assert
-    assert len(hourly_std) == len(basecase_values)
-    assert all(hourly_std >= 0)
-
-
-def test_base_case_forecaster__empty_std_calculation(base_case_forecaster: BaseCaseForecaster):
-    """Test std calculation with empty data."""
-    # Arrange
-    empty_series = pd.Series(dtype=float, name="load")
-
-    # Act
-    hourly_std = base_case_forecaster._calculate_hourly_std(empty_series)
-
-    # Assert
-    assert len(hourly_std) == 0
+    assert not result.median_series.isna().all()
 
 
 @pytest.mark.parametrize(

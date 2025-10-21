@@ -111,21 +111,21 @@ class WindPowerFeatureAdder(BaseConfig, TimeSeriesTransform):
         generated_power = self.rated_power / (1 + np.exp(-self.steepness * (wind_speed_hub_height - self.slope_center)))
         return pd.Series(generated_power, index=wind_speed_hub_height.index)
 
+    def _transform_pandas(self, df: pd.DataFrame) -> pd.DataFrame:
+        if self.windspeed_hub_height_column not in df.columns:
+            df[self.windspeed_hub_height_column] = self._calculate_wind_speed_at_hub_height(
+                df[self.windspeed_reference_column]
+            )
+
+        df[self.feature_name] = self._calculate_wind_power(df[self.windspeed_hub_height_column])
+        return df
+
     @override
     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
         if self.windspeed_reference_column not in data.feature_names:
             raise MissingColumnsError([self.windspeed_reference_column])
 
-        df = data.data.copy(deep=False)
-        if self.windspeed_hub_height_column not in data.feature_names:
-            df[self.windspeed_hub_height_column] = self._calculate_wind_speed_at_hub_height(
-                df[self.windspeed_reference_column]
-            )
-            df["wind_power"] = self._calculate_wind_power(df[self.windspeed_hub_height_column])
-        else:
-            df["wind_power"] = self._calculate_wind_power(df[self.windspeed_hub_height_column])
-
-        return TimeSeriesDataset(data=df, sample_interval=data.sample_interval)
+        return data.pipe_pandas(self._transform_pandas)
 
     @override
     def to_state(self) -> State:

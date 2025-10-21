@@ -22,8 +22,8 @@ from openstef_beam.evaluation.models import EvaluationSubset
 from openstef_core.datasets import (
     ForecastDataset,
     ForecastInputDataset,
+    TimeSeriesDataset,
     VersionedTimeSeriesDataset,
-    VersionedTimeSeriesPart,
 )
 from openstef_core.types import AvailableAt
 
@@ -71,14 +71,16 @@ def target() -> BenchmarkTarget:
 
 
 @pytest.fixture
-def predictions() -> VersionedTimeSeriesPart:
+def predictions() -> TimeSeriesDataset:
     """Create test predictions."""
-    return VersionedTimeSeriesPart(
-        data=pd.DataFrame({
-            "quantile_P50": [1.0, 2.0],
-            "timestamp": pd.date_range("2023-01-07", periods=2, freq="1h"),
-            "available_at": pd.date_range("2023-01-01", periods=2, freq="1h"),
-        }),
+    return TimeSeriesDataset(
+        data=pd.DataFrame(
+            {
+                "quantile_P50": [1.0, 2.0],
+                "available_at": pd.date_range("2023-01-01", periods=2, freq="1h"),
+            },
+            index=pd.date_range("2023-01-07", periods=2, freq="1h"),
+        ),
         sample_interval=timedelta(hours=1),
     )
 
@@ -98,7 +100,7 @@ def evaluation_report() -> EvaluationReport:
                         target_column="value",
                     ),
                     predictions=ForecastDataset(
-                        data=pd.DataFrame({"quantile_P50": [1.0, 2.0]}, index=index),
+                        data=pd.DataFrame({"quantile_P50": [1.0, 2.0], "load": [1.0, 2.0], "horizon": timedelta(hours=1)}, index=index),
                         sample_interval=timedelta(hours=1),
                     ),
                     index=index,
@@ -199,9 +201,9 @@ def test_s3_upload_on_save(
         assert fs.exists(s3_path)  # pyright: ignore[reportUnknownMemberType]
         # Verify content
         with fs.open(s3_path, "rb") as f:  # pyright: ignore[reportUnknownMemberType]
-            uploaded_data = pd.read_parquet(f)  # pyright: ignore[reportArgumentType]
+            uploaded_data = pd.read_parquet(f)  # type: ignore
         local_path = local_storage.get_predictions_path_for_target(target)
-        local_data = pd.read_parquet(local_path)
+        local_data = pd.read_parquet(local_path)  # type: ignore
         pd.testing.assert_frame_equal(uploaded_data, local_data)
     else:
         s3_path = f"{bucket_name}/test-prefix/evaluation/default/test_target"
@@ -271,7 +273,7 @@ def test_missing_local_files_handling(
 def test_load_operations_delegate_to_local_storage(
     local_storage: LocalBenchmarkStorage,
     target: BenchmarkTarget,
-    predictions: VersionedTimeSeriesPart,
+    predictions: TimeSeriesDataset,
     evaluation_report: EvaluationReport,
 ):
     """Test that load operations delegate to local storage without accessing S3."""
@@ -291,5 +293,5 @@ def test_load_operations_delegate_to_local_storage(
     assert s3_storage.has_evaluation_output(target)
 
     # Verify data integrity
-    pd.testing.assert_frame_equal(loaded_predictions.data, predictions.data)
+    pd.testing.assert_frame_equal(loaded_predictions.data, predictions.data, check_freq=False)
     assert len(loaded_evaluation.subset_reports) == len(evaluation_report.subset_reports)

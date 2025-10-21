@@ -23,7 +23,7 @@ from openstef_beam.backtesting.backtest_event_generator import BacktestEventGene
 from openstef_beam.backtesting.backtest_forecaster.mixins import BacktestBatchForecasterMixin, BacktestForecasterMixin
 from openstef_beam.backtesting.restricted_horizon_timeseries import RestrictedHorizonVersionedTimeSeries
 from openstef_core.base_model import BaseConfig
-from openstef_core.datasets import VersionedTimeSeriesDataset, VersionedTimeSeriesPart
+from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesDataset
 
 _logger = logging.getLogger(__name__)
 
@@ -109,7 +109,7 @@ class BacktestPipeline:
         end: datetime | None,
         *,
         show_progress: bool = True,
-    ) -> VersionedTimeSeriesPart:
+    ) -> TimeSeriesDataset:
         """Execute the backtesting simulation and return predictions.
 
         Runs the complete backtesting process by generating events, processing
@@ -155,7 +155,7 @@ class BacktestPipeline:
             supports_batching = False
 
         _logger.info("Starting the backtest pipeline")
-        prediction_list: list[VersionedTimeSeriesPart] = []
+        prediction_list: list[TimeSeriesDataset] = []
 
         prediction_list.extend(
             self._process_events(
@@ -168,15 +168,17 @@ class BacktestPipeline:
 
         _logger.info("Finished backtest pipeline")
         if not prediction_list:
-            return VersionedTimeSeriesPart(
-                data=pd.DataFrame({
-                    "timestamp": pd.Series(dtype="datetime64[ns]"),
-                    "available_at": pd.Series(dtype="datetime64[ns]"),
-                }),
+            return TimeSeriesDataset(
+                data=pd.DataFrame(
+                    {
+                        "available_at": pd.Series(dtype="datetime64[ns]"),
+                    },
+                    index=pd.DatetimeIndex([]),
+                ),
                 sample_interval=self.config.prediction_sample_interval,
             )
 
-        return VersionedTimeSeriesPart(
+        return TimeSeriesDataset(
             data=pd.concat([pred.data for pred in prediction_list], axis=0),
             sample_interval=self.config.prediction_sample_interval,
         )
@@ -189,7 +191,7 @@ class BacktestPipeline:
 
     def _process_single_prediction(
         self, event: BacktestEvent, dataset: VersionedTimeSeriesDataset
-    ) -> list[VersionedTimeSeriesPart]:
+    ) -> list[TimeSeriesDataset]:
         """Process a single prediction event.
 
         Args:
@@ -211,7 +213,7 @@ class BacktestPipeline:
 
     def _process_batch_prediction(
         self, batch_events: list[BacktestEvent], dataset: VersionedTimeSeriesDataset
-    ) -> list[VersionedTimeSeriesPart]:
+    ) -> list[TimeSeriesDataset]:
         """Process a batch of prediction events and return valid predictions.
 
         Args:
@@ -251,7 +253,7 @@ class BacktestPipeline:
         batch_size: int | None,
         *,
         show_progress: bool = True,
-    ) -> list[VersionedTimeSeriesPart]:
+    ) -> list[TimeSeriesDataset]:
         """Process events using the factory's batching logic.
 
         Args:
@@ -263,7 +265,7 @@ class BacktestPipeline:
         Returns:
             List of all prediction datasets generated during processing.
         """
-        predictions: list[VersionedTimeSeriesPart] = []
+        predictions: list[TimeSeriesDataset] = []
 
         # Get total count for progress bar
         events = list(event_factory.iterate())
