@@ -262,7 +262,7 @@ class SimpleTargetProvider[T: BenchmarkTarget, F](TargetProvider[T, F]):
 
     @override
     def get_metrics_for_target(self, target: T) -> list[MetricProvider]:
-        return self.metrics if isinstance(self.metrics, list[MetricProvider]) else self.metrics(target)  # type: ignore[return-value]
+        return self.metrics if isinstance(self.metrics, list) else self.metrics(target)  # type: ignore[return-value]
 
     measurements_path_for_target: Callable[[T], Path] = Field(
         default=lambda target: Path(target.group_name) / f"load_data_{target.name}.parquet",
@@ -280,8 +280,12 @@ class SimpleTargetProvider[T: BenchmarkTarget, F](TargetProvider[T, F]):
         Returns:
             VersionedTimeSeriesDataset: The loaded measurements data.
         """
-        return VersionedTimeSeriesDataset.read_parquet(
-            path=self.measurements_path_for_target(target),
+        df = pd.read_parquet(  # type: ignore
+            path=self.data_dir / self.measurements_path_for_target(target),
+        )
+        return VersionedTimeSeriesDataset.from_dataframe(
+            data=df,
+            sample_interval=self.data_sample_interval,
         )
 
     def get_predictors_for_target(self, target: T) -> VersionedTimeSeriesDataset:
@@ -311,8 +315,12 @@ class SimpleTargetProvider[T: BenchmarkTarget, F](TargetProvider[T, F]):
         Returns:
             VersionedTimeSeriesDataset: The loaded weather data.
         """
-        return VersionedTimeSeriesDataset.read_parquet(
-            path=self.weather_path_for_target(target),
+        df = pd.read_parquet(  # type: ignore
+            path=self.data_dir / self.weather_path_for_target(target),
+        )
+        return VersionedTimeSeriesDataset.from_dataframe(
+            data=df,
+            sample_interval=self.data_sample_interval,
         )
 
     def get_profiles(self) -> VersionedTimeSeriesDataset:
@@ -321,8 +329,12 @@ class SimpleTargetProvider[T: BenchmarkTarget, F](TargetProvider[T, F]):
         Returns:
             VersionedTimeSeriesDataset: The loaded energy profiles data.
         """
-        return VersionedTimeSeriesDataset.read_parquet(
+        df = pd.read_parquet(  # type: ignore
             path=self.data_dir / self.profiles_path(),
+        )
+        return VersionedTimeSeriesDataset.from_dataframe(
+            data=df,
+            sample_interval=self.data_sample_interval,
         )
 
     def get_prices(self) -> VersionedTimeSeriesDataset:
@@ -331,8 +343,12 @@ class SimpleTargetProvider[T: BenchmarkTarget, F](TargetProvider[T, F]):
         Returns:
             VersionedTimeSeriesDataset: The loaded energy pricing data.
         """
-        return VersionedTimeSeriesDataset.read_parquet(
+        df = pd.read_parquet(  # type: ignore
             path=self.data_dir / self.prices_path(),
+        )
+        return VersionedTimeSeriesDataset.from_dataframe(
+            data=df,
+            sample_interval=self.data_sample_interval,
         )
 
     @override

@@ -372,6 +372,12 @@ class ForecastingModel(BaseModel, Predictor[VersionedTimeSeriesDataset | TimeSer
         ground_truth: ForecastInputDataset,
         prediction: ForecastDataset,
     ) -> SubsetMetric:
+        # We need to make sure there are no NaNs in the target label for metric calculation
+        ground_truth = ForecastInputDataset(
+            data=ground_truth.data.dropna(subset=[ground_truth.target_column]),  # type: ignore
+            sample_interval=ground_truth.sample_interval,
+            target_column=ground_truth.target_column,
+        )
         pipeline = EvaluationPipeline(
             # Needs only one horizon since we are using only a single prediction step
             # If a more comprehensive test is needed, a backtest should be run.
