@@ -367,6 +367,12 @@ class XGBoostForecaster(HorizonForecaster):
         )
         sample_weight = data.sample_weight_series()
 
+        # Remove rows with NaN values in target to prevent fitting errors
+        valid_mask = ~np.isnan(target)
+        input_data = input_data[valid_mask]
+        target_per_quantile = target_per_quantile[valid_mask]
+        sample_weight = sample_weight[valid_mask]
+
         # Prepare validation data if provided
         eval_set = None
         eval_set_sample_weight = None
@@ -377,6 +383,13 @@ class XGBoostForecaster(HorizonForecaster):
                 val_target[:, np.newaxis], repeats=len(self.config.quantiles), axis=1
             )
             val_sample_weight = data_val.sample_weight_series()
+            
+            # Remove rows with NaN values in validation target
+            val_valid_mask = ~np.isnan(val_target)
+            val_input_data = val_input_data[val_valid_mask]
+            val_target_per_quantile = val_target_per_quantile[val_valid_mask]
+            val_sample_weight = val_sample_weight[val_valid_mask]
+            
             eval_set = [(val_input_data, val_target_per_quantile)]
             eval_set_sample_weight = [val_sample_weight]
 
