@@ -27,36 +27,60 @@ from openstef_beam.evaluation.metric_providers import MetricProvider, PeakMetric
 from openstef_beam.evaluation.models.window import Window
 from openstef_core.types import AvailableAt, Quantile
 
-# TODO: #718 - find alternative for using functions instead of lambdas in target provider
+# TODO(#718): find alternative for using functions instead of lambdas in target provider  # noqa: FIX002
 
 
 def _measurements_path_for_target(target: BenchmarkTarget) -> Path:
-    """Build path for target measurements."""
+    """Build path for target measurements.
+
+    Returns:
+        Path: Path to the measurements parquet file
+    """
     return Path("load_measurements") / target.group_name / f"{target.name}.parquet"
 
 
 def _weather_path_for_target(target: BenchmarkTarget) -> Path:
-    """Build path for target weather data."""
+    """Build path for target weather data.
+
+    Returns:
+        Path: Path to the weather forecasts parquet file
+    """
     return Path("weather_forecasts_versioned") / target.group_name / f"{target.name}.parquet"
 
 
 def _profiles_path() -> Path:
-    """Build path for profiles data."""
+    """Build path for profiles data.
+
+    Returns:
+        Path: Path to the profiles parquet file
+    """
     return Path("profiles.parquet")
 
 
 def _prices_path() -> Path:
-    """Build path for prices data."""
+    """Build path for prices data.
+
+    Returns:
+        Path: Path to the EPEX prices parquet file
+    """
     return Path("EPEX.parquet")
 
 
 def _targets_file_path() -> Path:
-    """Build path for targets file."""
+    """Build path for targets file.
+
+    Returns:
+        Path: Path to the targets YAML file
+    """
     return Path("liander2024_targets.yaml")
 
 
 def _metrics_for_target(target: BenchmarkTarget) -> list[MetricProvider]:
-    """Build metrics list for a target."""
+    """Build metrics list for a target.
+
+    Returns:
+        list[MetricProvider]: List of metric providers for evaluation
+    """
     return [
         RMAEProvider(quantiles=[Quantile(0.5)], lower_quantile=0.01, upper_quantile=0.99),
         RCRPSProvider(lower_quantile=0.01, upper_quantile=0.99),

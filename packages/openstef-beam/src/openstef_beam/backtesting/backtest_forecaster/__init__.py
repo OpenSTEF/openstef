@@ -16,10 +16,14 @@ from openstef_beam.backtesting.backtest_forecaster.mixins import (
     BacktestForecasterConfig,
     BacktestForecasterMixin,
 )
+from openstef_beam.backtesting.backtest_forecaster.openstef4_forecaster import (
+    OpenSTEF4Forecaster,
+)
 
 __all__ = [
     "BacktestBatchForecasterMixin",
     "BacktestForecasterConfig",
     "BacktestForecasterMixin",
     "DummyForecaster",
+    "OpenSTEF4Forecaster",
 ]
