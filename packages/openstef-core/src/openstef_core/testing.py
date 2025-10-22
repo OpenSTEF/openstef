@@ -12,6 +12,8 @@ from typing import override
 
 import pandas as pd
 
+from openstef_core.datasets import TimeSeriesDataset
+
 
 class IsSamePandas:
     """Utility class to allow comparison of pandas DataFrames in assertion / calls."""
@@ -27,3 +29,11 @@ class IsSamePandas:
     @override
     def __hash__(self) -> int:
         return hash(self.pandas_obj)
+
+
+def assert_timeseries_equal(actual: TimeSeriesDataset, expected: TimeSeriesDataset):
+    """Assert that two TimeSeriesDataset objects are equal."""
+    pd.testing.assert_frame_equal(actual.data, expected.data)
+    assert actual.sample_interval == expected.sample_interval, (  # noqa: S101 - exception - testing utility
+        f"Sample intervals differ: {actual.sample_interval} != {expected.sample_interval}"
+    )

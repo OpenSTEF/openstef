@@ -8,15 +8,15 @@ The transform computes saturation vapour pressure, vapour pressure, dewpoint, an
 based on temperature, pressure, and relative humidity columns using established physical equations.
 """
 
+import logging
 from typing import Any, Literal, Self, override
 
 import numpy as np
 import pandas as pd
-from pydantic import Field
+from pydantic import Field, PrivateAttr
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.exceptions import MissingColumnsError
 from openstef_core.mixins import State
 from openstef_core.transforms import TimeSeriesTransform
 
@@ -78,6 +78,8 @@ class AtmosphereDerivedFeaturesAdder(BaseConfig, TimeSeriesTransform):
         default="relative_humidity",
         description="Name of the relative humidity (%) column.",
     )
+
+    _logger: logging.Logger = PrivateAttr(default=logging.getLogger(__name__))
 
     @staticmethod
     def _calculate_saturation_vapour_pressure(temperature: pd.Series) -> pd.Series:
@@ -158,38 +160,45 @@ class AtmosphereDerivedFeaturesAdder(BaseConfig, TimeSeriesTransform):
 
     @override
     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
-        missing_columns: list[str] = [
-            col
-            for col in [self.temperature_column, self.pressure_column, self.relative_humidity_column]
-            if col not in data.feature_names
-        ]
-
-        if missing_columns:
-            raise MissingColumnsError(missing_columns)
-
-        temperature = data.data[self.temperature_column]
-        pressure = data.data[self.pressure_column]
-        relative_humidity = data.data[self.relative_humidity_column]
-
-        atmosphere_derived_features = pd.DataFrame(index=data.data.index)
-        if "saturation_vapour_pressure" in self.included_features:
-            atmosphere_derived_features["saturation_vapour_pressure"] = self._calculate_saturation_vapour_pressure(
-                temperature
-            )
-        if "vapour_pressure" in self.included_features:
-            atmosphere_derived_features["vapour_pressure"] = self._calculate_vapour_pressure(
-                temperature, relative_humidity
-            )
-        if "dewpoint" in self.included_features:
-            atmosphere_derived_features["dewpoint"] = self._calculate_dewpoint(temperature, relative_humidity)
-        if "air_density" in self.included_features:
-            atmosphere_derived_features["air_density"] = self._calculate_air_density(
-                temperature, relative_humidity, pressure
-            )
-
-        return TimeSeriesDataset(
-            data=pd.concat([data.data, atmosphere_derived_features], axis=1), sample_interval=data.sample_interval
+        missing_features = {self.temperature_column, self.pressure_column, self.relative_humidity_column} - set(
+            data.feature_names
         )
+        if missing_features:
+            self._logger.warning(
+                "Input data is missing required columns for AtmosphereDerivedFeaturesAdder: %s",
+                ", ".join(missing_features),
+            )
+
+        has_temperature, has_pressure, has_humidity = (
+            self.temperature_column in data.feature_names,
+            self.pressure_column in data.feature_names,
+            self.relative_humidity_column in data.feature_names,
+        )
+
+        new_df = data.data.copy(deep=False)
+        if "saturation_vapour_pressure" in self.included_features and has_temperature:
+            new_df["saturation_vapour_pressure"] = self._calculate_saturation_vapour_pressure(
+                temperature=new_df[self.temperature_column]
+            )
+
+        if "vapour_pressure" in self.included_features and has_humidity and has_temperature:
+            new_df["vapour_pressure"] = self._calculate_vapour_pressure(
+                temperature=new_df[self.temperature_column], relative_humidity=new_df[self.relative_humidity_column]
+            )
+
+        if "dewpoint" in self.included_features and has_temperature and has_humidity:
+            new_df["dewpoint"] = self._calculate_dewpoint(
+                temperature=new_df[self.temperature_column], relative_humidity=new_df[self.relative_humidity_column]
+            )
+
+        if "air_density" in self.included_features and has_temperature and has_humidity and has_pressure:
+            new_df["air_density"] = self._calculate_air_density(
+                temperature=new_df[self.temperature_column],
+                relative_humidity=new_df[self.relative_humidity_column],
+                pressure=new_df[self.pressure_column],
+            )
+
+        return data.copy_with(new_df)
 
     @override
     def to_state(self) -> State:

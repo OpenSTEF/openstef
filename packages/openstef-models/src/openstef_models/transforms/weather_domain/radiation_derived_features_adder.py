@@ -12,12 +12,12 @@ import logging
 from typing import Literal, Self, cast, override
 
 import pandas as pd
-from pydantic import Field
+from pydantic import Field, PrivateAttr
 from pydantic_extra_types.coordinate import Coordinate
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.exceptions import MissingColumnsError, MissingExtraError, TimeSeriesValidationError
+from openstef_core.exceptions import MissingExtraError, TimeSeriesValidationError
 from openstef_core.mixins import State
 from openstef_core.transforms import TimeSeriesTransform
 
@@ -97,18 +97,25 @@ class RadiationDerivedFeaturesAdder(BaseConfig, TimeSeriesTransform):
         description="Name of the column in the dataset containing radiation data in J/m².",
     )
 
+    _logger: logging.Logger = PrivateAttr(default=logging.getLogger(__name__))
+
     @override
     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
-        if not data.index.tz:
-            raise TimeSeriesValidationError("The datetime index must be timezone-aware.")
-
-        if self.radiation_column not in data.feature_names:
-            raise MissingColumnsError([self.radiation_column])
-
         try:
             import pvlib  # noqa: PLC0415 - delayed import due to optional dependency
         except ImportError as e:
             raise MissingExtraError("pvlib", package="openstef-models") from e
+
+        if not data.index.tz:
+            raise TimeSeriesValidationError("The datetime index must be timezone-aware.")
+
+        if self.radiation_column not in data.feature_names:
+            self._logger.info(
+                "Radiation column '%s' not found in dataset features: %s",
+                self.radiation_column,
+                data.feature_names,
+            )
+            return data
 
         # Convert radiation from J/m² to kWh/m² and rename to 'ghi'
         ghi = (data.data[self.radiation_column] / 3600).rename("ghi")
@@ -137,7 +144,7 @@ class RadiationDerivedFeaturesAdder(BaseConfig, TimeSeriesTransform):
             ),
         ).fillna(0.0)
 
-        result = data.data.copy()
+        result = data.data.copy(deep=False)
         if "dni" in self.included_features:
             result["dni"] = dni
 
@@ -152,10 +159,7 @@ class RadiationDerivedFeaturesAdder(BaseConfig, TimeSeriesTransform):
                 dhi=clearsky_radiation["dhi"],
             )["poa_global"]
 
-        return TimeSeriesDataset(
-            data=result,
-            sample_interval=data.sample_interval,
-        )
+        return data.copy_with(result)
 
     @override
     def to_state(self) -> State:

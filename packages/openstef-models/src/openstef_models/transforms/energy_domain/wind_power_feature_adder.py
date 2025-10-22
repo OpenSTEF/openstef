@@ -8,15 +8,15 @@ The transform computes wind speed at hub height and wind power output
 based on wind speed data from measurements, forecasts, or model outputs.
 """
 
+import logging
 from typing import Self, override
 
 import numpy as np
 import pandas as pd
-from pydantic import Field
+from pydantic import Field, PrivateAttr
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.exceptions import MissingColumnsError
 from openstef_core.mixins.stateful import State
 from openstef_core.transforms import TimeSeriesTransform
 
@@ -81,6 +81,8 @@ class WindPowerFeatureAdder(BaseConfig, TimeSeriesTransform):
         description="Name of the generated wind power feature.",
     )
 
+    _logger: logging.Logger = PrivateAttr(default=logging.getLogger(__name__))
+
     def _calculate_wind_speed_at_hub_height(self, wind_speed: pd.Series) -> pd.Series:
         """Calculates wind speed at hub height based on wind speed at reference height.
 
@@ -123,7 +125,10 @@ class WindPowerFeatureAdder(BaseConfig, TimeSeriesTransform):
     @override
     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
         if self.windspeed_reference_column not in data.feature_names:
-            raise MissingColumnsError([self.windspeed_reference_column])
+            self._logger.warning(
+                "Input data is missing wind speed reference column: %s", self.windspeed_reference_column
+            )
+            return data
 
         return data.pipe_pandas(self._transform_pandas)
 

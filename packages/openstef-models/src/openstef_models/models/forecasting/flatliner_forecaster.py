@@ -49,6 +49,8 @@ class FlatlinerForecaster(Forecaster):
         Forecaster: Base class for forecasting models that predict multiple horizons.
     """
 
+    Config = FlatlinerForecasterConfig
+
     _config: FlatlinerForecasterConfig
 
     def __init__(

@@ -53,5 +53,46 @@ class FeatureSelection(BaseConfig):
             and (self.exclude is None or feature not in self.exclude)
         ]
 
+    def combine(self, other: Self | None) -> Self:
+        """Create a new FeatureSelection that is the union of this and another.
+
+        Args:
+            other: Another FeatureSelection instance.
+
+        Returns:
+            A new FeatureSelection instance that is the union of this and the other instance.
+        """
+        if other is None:
+            return self
+
+        return self.__class__(
+            include=((self.include or set()) | (other.include or set())),
+            exclude=((self.exclude or set()) | (other.exclude or set())),
+        )
+
 
 FeatureSelection.ALL = FeatureSelection(include=None, exclude=None)
+
+
+def Include(*features: str) -> FeatureSelection:  # noqa: N802
+    """Helper to create a FeatureSelection that includes only specified features.
+
+    Args:
+        *features: Feature names to include.
+
+    Returns:
+        FeatureSelection instance with specified features included.
+    """
+    return FeatureSelection(include={*features}, exclude=None)
+
+
+def Exclude(*features: str) -> FeatureSelection:  # noqa: N802
+    """Helper to create a FeatureSelection that excludes specified features.
+
+    Args:
+        *features: Feature names to exclude.
+
+    Returns:
+        FeatureSelection instance with specified features excluded.
+    """
+    return FeatureSelection(include=None, exclude={*features})

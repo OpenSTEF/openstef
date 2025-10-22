@@ -13,7 +13,7 @@ from openstef_beam.analysis.plots import ForecastTimeSeriesPlotter
 from openstef_beam.analysis.visualizations import TimeSeriesVisualization
 from openstef_beam.analysis.visualizations.base import AnalysisAggregation, ReportTuple, RunName
 from openstef_beam.evaluation.models.report import EvaluationSubsetReport
-from openstef_core.testing.utils import IsSamePandas
+from openstef_core.testing import IsSamePandas
 from tests.utils.mocks import MockFigure
 
 

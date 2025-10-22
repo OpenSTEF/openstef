@@ -167,6 +167,9 @@ class GBLinearForecaster(Forecaster):
         XGBoostForecaster: Tree-based alternative for non-linear patterns.
     """
 
+    Config = GBLinearForecasterConfig
+    HyperParams = GBLinearHyperParams
+
     _config: GBLinearForecasterConfig
     _gblinear_model: xgb.XGBRegressor
 

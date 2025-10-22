@@ -255,6 +255,9 @@ class XGBoostForecaster(Forecaster):
         GBLinearForecaster: Alternative linear model using XGBoost.
     """
 
+    Config = XGBoostForecasterConfig
+    HyperParams = XGBoostHyperParams
+
     _config: XGBoostForecasterConfig
     _xgboost_model: xgb.XGBRegressor
 

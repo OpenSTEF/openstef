@@ -391,6 +391,22 @@ class TimeSeriesDataset(TimeSeriesMixin, DatasetMixin):  # noqa: PLR0904 - impor
         data_selected.attrs["is_sorted"] = True
         return TimeSeriesDataset(data=data_selected)
 
+    def copy_with(self, data: pd.DataFrame) -> "TimeSeriesDataset":
+        """Create a copy of the dataset with new data.
+
+        Args:
+            data: New DataFrame to use for the dataset.
+
+        Returns:
+            New TimeSeriesDataset instance with the provided data and same metadata.
+        """
+        return TimeSeriesDataset(
+            data=data,
+            sample_interval=self.sample_interval,
+            horizon_column=self.horizon_column,
+            available_at_column=self.available_at_column,
+        )
+
 
 def validate_horizons_present(dataset: TimeSeriesDataset, horizons: list[LeadTime]) -> None:
     """Validate that the specified forecast horizons are present in the dataset.
