@@ -36,7 +36,6 @@ class OpenSTEF4BacktestForecaster(BacktestForecasterMixin):
     @property
     @override
     def quantiles(self) -> list[Q]:
-        """Return the list of quantiles that this forecaster predicts."""
         # Create a workflow instance if needed to get quantiles
         if self._workflow is None:
             self._workflow = self.workflow_factory()
@@ -45,13 +44,6 @@ class OpenSTEF4BacktestForecaster(BacktestForecasterMixin):
 
     @override
     def fit(self, data: RestrictedHorizonVersionedTimeSeries) -> None:
-        """Train the model using data from the restricted horizon time series.
-
-        Creates a new workflow instance for each fit call to ensure fresh model training.
-
-        Args:
-            data: Time series data with horizon restrictions for training.
-        """
         # Create a new workflow for this training cycle
         self._workflow = self.workflow_factory()
 
@@ -67,17 +59,6 @@ class OpenSTEF4BacktestForecaster(BacktestForecasterMixin):
 
     @override
     def predict(self, data: RestrictedHorizonVersionedTimeSeries) -> TimeSeriesDataset | None:
-        """Generate predictions using the latest trained workflow.
-
-        Args:
-            data: Time series data with horizon restrictions for prediction.
-
-        Returns:
-            TimeSeriesDataset with predictions, or None if prediction cannot be performed.
-
-        Raises:
-            NotFittedError: If predict is called before fit.
-        """
         if self._workflow is None:
             raise NotFittedError("Must call fit() before predict()")
 
