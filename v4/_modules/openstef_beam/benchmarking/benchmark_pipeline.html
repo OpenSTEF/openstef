@@ -768,6 +768,8 @@
             <span class="n">run_name</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">run_name</span><span class="p">,</span>
             <span class="n">filtering</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">limit</span><span class="o">=</span><span class="n">target</span><span class="o">.</span><span class="n">limit</span><span class="p">,</span>
+            <span class="n">upper_limit</span><span class="o">=</span><span class="n">target</span><span class="o">.</span><span class="n">upper_limit</span><span class="p">,</span>
+            <span class="n">lower_limit</span><span class="o">=</span><span class="n">target</span><span class="o">.</span><span class="n">lower_limit</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="n">visualizations</span> <span class="o">=</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">run_for_reports</span><span class="p">(</span>
@@ -850,6 +852,8 @@
                 <span class="n">run_name</span><span class="o">=</span><span class="n">run_name</span><span class="p">,</span>
                 <span class="n">filtering</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                 <span class="n">limit</span><span class="o">=</span><span class="n">target</span><span class="o">.</span><span class="n">limit</span><span class="p">,</span>
+                <span class="n">upper_limit</span><span class="o">=</span><span class="n">target</span><span class="o">.</span><span class="n">upper_limit</span><span class="p">,</span>
+                <span class="n">lower_limit</span><span class="o">=</span><span class="n">target</span><span class="o">.</span><span class="n">lower_limit</span><span class="p">,</span>
             <span class="p">),</span>
             <span class="n">storage</span><span class="o">.</span><span class="n">load_evaluation_output</span><span class="p">(</span><span class="n">target</span><span class="p">),</span>
         <span class="p">)</span>

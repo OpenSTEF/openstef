@@ -453,7 +453,7 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">Field</span><span class="p">,</span> <span class="n">field_validator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">Field</span><span class="p">,</span> <span class="n">field_validator</span><span class="p">,</span> <span class="n">model_validator</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_core.core_schema</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidationInfo</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.base_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseConfig</span>
@@ -468,7 +468,9 @@
 <span class="sd">    a consistent interface across different benchmark implementations.</span>
 
 <span class="sd">    Raises:</span>
-<span class="sd">        ValueError: When benchmark_end &lt;= benchmark_start or train_start &gt;= benchmark_start.</span>
+<span class="sd">        ValueError: When benchmark_end &lt;= benchmark_start, train_start &gt;= benchmark_start,</span>
+<span class="sd">                   or when limit constraints are not met (either &#39;limit&#39; alone or both</span>
+<span class="sd">                   &#39;upper_limit&#39; and &#39;lower_limit&#39; must be specified).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Unique identifier for the benchmark target&quot;</span><span class="p">)</span>
@@ -477,11 +479,46 @@
 
     <span class="n">latitude</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Geographical latitude of the target location&quot;</span><span class="p">)</span>
     <span class="n">longitude</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Geographical longitude of the target location&quot;</span><span class="p">)</span>
-    <span class="n">limit</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Capacity limit of the target in appropriate units&quot;</span><span class="p">)</span>
+    <span class="n">limit</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Capacity limit of the target in appropriate units&quot;</span><span class="p">)</span>
+    <span class="n">upper_limit</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Upper capacity limit of the target in appropriate units&quot;</span>
+    <span class="p">)</span>
+    <span class="n">lower_limit</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Lower capacity limit of the target in appropriate units&quot;</span>
+    <span class="p">)</span>
 
     <span class="n">benchmark_start</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Start timestamp of the benchmark period&quot;</span><span class="p">)</span>
     <span class="n">benchmark_end</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;End timestamp of the benchmark period&quot;</span><span class="p">)</span>
     <span class="n">train_start</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Start timestamp of the training period&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="BenchmarkTarget.validate_limits">
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.BenchmarkTarget.html#openstef_beam.benchmarking.BenchmarkTarget.validate_limits">[docs]</a>
+    <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_limits</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;BenchmarkTarget&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate that either limit or both upper_limit and lower_limit are provided.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The validated BenchmarkTarget instance.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If neither limit nor (upper_limit and lower_limit) are provided,</span>
+<span class="sd">                       or if both limit and (upper_limit or lower_limit) are provided.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">has_limit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">limit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="n">has_upper</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">upper_limit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="n">has_lower</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lower_limit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">has_limit</span> <span class="ow">and</span> <span class="p">(</span><span class="n">has_upper</span> <span class="ow">or</span> <span class="n">has_lower</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Cannot specify both &#39;limit&#39; and &#39;upper_limit&#39;/&#39;lower_limit&#39;. &quot;</span>
+                <span class="s2">&quot;Use either &#39;limit&#39; alone or both &#39;upper_limit&#39; and &#39;lower_limit&#39;.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">has_limit</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="n">has_upper</span> <span class="ow">and</span> <span class="n">has_lower</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Must specify either &#39;limit&#39; or both &#39;upper_limit&#39; and &#39;lower_limit&#39;.&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span></div>
+
 
 <div class="viewcode-block" id="BenchmarkTarget.validate_benchmark_end">
 <a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.BenchmarkTarget.html#openstef_beam.benchmarking.BenchmarkTarget.validate_benchmark_end">[docs]</a>

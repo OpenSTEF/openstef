@@ -592,7 +592,9 @@
 a consistent interface across different benchmark implementations.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>ValueError</strong> – When benchmark_end &lt;= benchmark_start or train_start &gt;= benchmark_start.</p>
+<dd class="field-odd"><p><strong>ValueError</strong> – When benchmark_end &lt;= benchmark_start, train_start &gt;= benchmark_start,
+    or when limit constraints are not met (either ‘limit’ alone or both
+    ‘upper_limit’ and ‘lower_limit’ must be specified).</p>
 </dd>
 <dt class="field-even">Parameters<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>data</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></span>)</p>
@@ -625,7 +627,17 @@ a consistent interface across different benchmark implementations.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_beam.benchmarking.BenchmarkTarget.limit">
-<span class="sig-name descname"><span class="pre">limit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></em><a class="headerlink" href="#openstef_beam.benchmarking.BenchmarkTarget.limit" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">limit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code> <span class="pre">|</span> <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></em><a class="headerlink" href="#openstef_beam.benchmarking.BenchmarkTarget.limit" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef_beam.benchmarking.BenchmarkTarget.upper_limit">
+<span class="sig-name descname"><span class="pre">upper_limit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code> <span class="pre">|</span> <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></em><a class="headerlink" href="#openstef_beam.benchmarking.BenchmarkTarget.upper_limit" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef_beam.benchmarking.BenchmarkTarget.lower_limit">
+<span class="sig-name descname"><span class="pre">lower_limit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code> <span class="pre">|</span> <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></em><a class="headerlink" href="#openstef_beam.benchmarking.BenchmarkTarget.lower_limit" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -642,6 +654,24 @@ a consistent interface across different benchmark implementations.</p>
 <dt class="sig sig-object py" id="openstef_beam.benchmarking.BenchmarkTarget.train_start">
 <span class="sig-name descname"><span class="pre">train_start</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code></em><a class="headerlink" href="#openstef_beam.benchmarking.BenchmarkTarget.train_start" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef_beam.benchmarking.BenchmarkTarget.validate_limits">
+<span class="sig-name descname"><span class="pre">validate_limits</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#openstef_beam.benchmarking.BenchmarkTarget" title="openstef_beam.benchmarking.models.benchmark_target.BenchmarkTarget"><span class="pre">BenchmarkTarget</span></a></span></span><a class="reference internal" href="../../_modules/openstef_beam/benchmarking/models/benchmark_target.html#BenchmarkTarget.validate_limits"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_beam.benchmarking.BenchmarkTarget.validate_limits" title="Link to this definition">#</a></dt>
+<dd><p>Validate that either limit or both upper_limit and lower_limit are provided.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#openstef_beam.benchmarking.BenchmarkTarget" title="openstef_beam.benchmarking.models.benchmark_target.BenchmarkTarget"><code class="xref py py-class docutils literal notranslate"><span class="pre">BenchmarkTarget</span></code></a></span></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The validated BenchmarkTarget instance.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – If neither limit nor (upper_limit and lower_limit) are provided,
+    or if both limit and (upper_limit or lower_limit) are provided.</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="openstef_beam.benchmarking.BenchmarkTarget.validate_benchmark_end">
@@ -757,9 +787,12 @@ a consistent interface across different benchmark implementations.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.benchmarking.BenchmarkTarget.latitude"><code class="docutils literal notranslate"><span class="pre">BenchmarkTarget.latitude</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.benchmarking.BenchmarkTarget.longitude"><code class="docutils literal notranslate"><span class="pre">BenchmarkTarget.longitude</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.benchmarking.BenchmarkTarget.limit"><code class="docutils literal notranslate"><span class="pre">BenchmarkTarget.limit</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.benchmarking.BenchmarkTarget.upper_limit"><code class="docutils literal notranslate"><span class="pre">BenchmarkTarget.upper_limit</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.benchmarking.BenchmarkTarget.lower_limit"><code class="docutils literal notranslate"><span class="pre">BenchmarkTarget.lower_limit</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.benchmarking.BenchmarkTarget.benchmark_start"><code class="docutils literal notranslate"><span class="pre">BenchmarkTarget.benchmark_start</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.benchmarking.BenchmarkTarget.benchmark_end"><code class="docutils literal notranslate"><span class="pre">BenchmarkTarget.benchmark_end</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.benchmarking.BenchmarkTarget.train_start"><code class="docutils literal notranslate"><span class="pre">BenchmarkTarget.train_start</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.benchmarking.BenchmarkTarget.validate_limits"><code class="docutils literal notranslate"><span class="pre">BenchmarkTarget.validate_limits()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.benchmarking.BenchmarkTarget.validate_benchmark_end"><code class="docutils literal notranslate"><span class="pre">BenchmarkTarget.validate_benchmark_end()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.benchmarking.BenchmarkTarget.validate_train_start"><code class="docutils literal notranslate"><span class="pre">BenchmarkTarget.validate_train_start()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.benchmarking.BenchmarkTarget.model_config"><code class="docutils literal notranslate"><span class="pre">BenchmarkTarget.model_config</span></code></a></li>

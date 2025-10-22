@@ -824,6 +824,12 @@
         <span class="n">ground_truth</span><span class="p">:</span> <span class="n">ForecastInputDataset</span><span class="p">,</span>
         <span class="n">prediction</span><span class="p">:</span> <span class="n">ForecastDataset</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SubsetMetric</span><span class="p">:</span>
+        <span class="c1"># We need to make sure there are no NaNs in the target label for metric calculation</span>
+        <span class="n">ground_truth</span> <span class="o">=</span> <span class="n">ForecastInputDataset</span><span class="p">(</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">ground_truth</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="n">ground_truth</span><span class="o">.</span><span class="n">target_column</span><span class="p">]),</span>  <span class="c1"># type: ignore</span>
+            <span class="n">sample_interval</span><span class="o">=</span><span class="n">ground_truth</span><span class="o">.</span><span class="n">sample_interval</span><span class="p">,</span>
+            <span class="n">target_column</span><span class="o">=</span><span class="n">ground_truth</span><span class="o">.</span><span class="n">target_column</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="n">pipeline</span> <span class="o">=</span> <span class="n">EvaluationPipeline</span><span class="p">(</span>
             <span class="c1"># Needs only one horizon since we are using only a single prediction step</span>
             <span class="c1"># If a more comprehensive test is needed, a backtest should be run.</span>
