@@ -216,8 +216,10 @@ class ForecastDataset(TimeSeriesDataset):
 
     Example:
         >>> import pandas as pd
+        >>> import numpy as np
         >>> from datetime import timedelta
         >>> forecast_data = pd.DataFrame({
+        ...     'load': [100, np.nan],
         ...     'quantile_P10': [90, 95],
         ...     'quantile_P50': [100, 110],
         ...     'quantile_P90': [115, 125]

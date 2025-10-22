@@ -33,16 +33,30 @@ from openstef_models.utils.data_split import stratified_train_test_split, train_
 
 
 class ModelFitResult(BaseModel):
-    input_dataset: TimeSeriesDataset = Field()
+    """Result of fitting a forecasting model.
 
-    input_data_train: ForecastInputDataset = Field()
-    input_data_val: ForecastInputDataset | None = Field(default=None)
-    input_data_test: ForecastInputDataset | None = Field(default=None)
+    Contains the original input dataset, split datasets used for training/validation/testing,
+    and evaluation metrics computed on each subset.
+    """
 
-    metrics_train: SubsetMetric = Field()
-    metrics_val: SubsetMetric | None = Field(default=None)
-    metrics_test: SubsetMetric | None = Field(default=None)
-    metrics_full: SubsetMetric = Field()
+    input_dataset: TimeSeriesDataset = Field(description="Original time series dataset used for model fitting.")
+
+    input_data_train: ForecastInputDataset = Field(description="Training dataset after preprocessing and splitting.")
+    input_data_val: ForecastInputDataset | None = Field(
+        default=None, description="Validation dataset after preprocessing and splitting, or None if not used."
+    )
+    input_data_test: ForecastInputDataset | None = Field(
+        default=None, description="Test dataset after preprocessing and splitting, or None if not used."
+    )
+
+    metrics_train: SubsetMetric = Field(description="Evaluation metrics computed on the training dataset.")
+    metrics_val: SubsetMetric | None = Field(
+        default=None, description="Evaluation metrics computed on the validation dataset, or None if not used."
+    )
+    metrics_test: SubsetMetric | None = Field(
+        default=None, description="Evaluation metrics computed on the test dataset, or None if not used."
+    )
+    metrics_full: SubsetMetric = Field(description="Evaluation metrics computed on the full original dataset.")
 
 
 class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset]):
@@ -289,7 +303,7 @@ class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset])
     ) -> ForecastInputDataset:
         # Transform and restore target column
         input_data = self.preprocessing.transform(data=data)
-        input_data = _restore_target(dataset=input_data, original_dataset=data, target_column=self.target_column)
+        input_data = restore_target(dataset=input_data, original_dataset=data, target_column=self.target_column)
 
         return ForecastInputDataset.from_timeseries(
             dataset=input_data,
@@ -300,7 +314,7 @@ class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset])
     def _predict(self, input_data: ForecastInputDataset) -> ForecastDataset:
         # Predict and restore target column
         prediction = self.forecaster.predict(data=input_data)
-        return _restore_target(dataset=prediction, original_dataset=input_data, target_column=self.target_column)
+        return restore_target(dataset=prediction, original_dataset=input_data, target_column=self.target_column)
 
     def score(
         self,
@@ -375,11 +389,24 @@ class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset])
         )
 
 
-def _restore_target[T: TimeSeriesDataset](
+def restore_target[T: TimeSeriesDataset](
     dataset: T,
     original_dataset: TimeSeriesDataset,
     target_column: str,
 ) -> T:
+    """Restore the target column from the original dataset to the given dataset.
+
+    Maps target values from the original dataset to the dataset using index alignment.
+    Ensures the target column is present in the dataset for downstream processing.
+
+    Args:
+        dataset: Dataset to modify by adding the target column.
+        original_dataset: Source dataset containing the target values.
+        target_column: Name of the target column to restore.
+
+    Returns:
+        Dataset with the target column restored from the original dataset.
+    """
     target_series = original_dataset.select_features([target_column]).select_version().data[target_column]
 
     def _transform_restore_target(df: pd.DataFrame) -> pd.DataFrame:
@@ -388,4 +415,4 @@ def _restore_target[T: TimeSeriesDataset](
     return dataset.pipe_pandas(_transform_restore_target)
 
 
-__all__ = ["ForecastingModel"]
+__all__ = ["ForecastingModel", "ModelFitResult", "restore_target"]

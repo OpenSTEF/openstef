@@ -251,6 +251,7 @@ class VersionedTimeSeriesDataset(TimeSeriesMixin, DatasetMixin):
         data: pd.DataFrame,
         sample_interval: timedelta,
         *,
+        timestamp_column: str = "timestamp",
         available_at_column: str = "available_at",
     ) -> Self:
         """Create a VersionedTimeSeriesDataset from a single DataFrame.
@@ -264,6 +265,8 @@ class VersionedTimeSeriesDataset(TimeSeriesMixin, DatasetMixin):
             sample_interval: The regular interval between consecutive data points.
             available_at_column: Name of the column indicating when data became available.
                 Default is 'available_at'.
+            timestamp_column: Name of the column indicating the timestamps of the data.
+                Default is 'timestamp'.
 
         Returns:
             New VersionedTimeSeriesDataset instance containing the data.
@@ -289,6 +292,10 @@ class VersionedTimeSeriesDataset(TimeSeriesMixin, DatasetMixin):
             wrapping it in a VersionedTimeSeriesDataset, but more convenient
             for simple cases.
         """
+        if not isinstance(data.index, pd.DatetimeIndex) and timestamp_column in data.columns:
+            # Backwards compatibility: datasets with explicit timestamp column
+            data = data.set_index(timestamp_column)
+
         return cls(
             data_parts=[
                 TimeSeriesDataset(

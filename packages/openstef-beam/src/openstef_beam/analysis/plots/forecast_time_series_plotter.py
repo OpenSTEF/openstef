@@ -8,7 +8,7 @@ This module provides comprehensive time series plotting capabilities for compari
 forecasts, measurements, and uncertainty quantiles across multiple models.
 """
 
-from typing import Any, ClassVar, TypedDict, cast
+from typing import Any, ClassVar, Self, TypedDict, cast
 
 import numpy as np
 import pandas as pd
@@ -147,7 +147,7 @@ class ForecastTimeSeriesPlotter:
         # Reindex the series to the complete index, automatically filling missing values with NaN
         return series.reindex(complete_index)
 
-    def add_measurements(self, measurements: pd.Series) -> "ForecastTimeSeriesPlotter":
+    def add_measurements(self, measurements: pd.Series) -> Self:
         """Add measurements (realized values) to the plot.
 
         Args:

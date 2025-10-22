@@ -60,9 +60,7 @@ class HolidayFeatureAdder(BaseConfig, TimeSeriesTransform):
         [0, 0, 1, 0, 0]
     """
 
-    country_code: CountryAlpha2 = Field(
-        default=CountryAlpha2("NL"), description="Country code for holiday calculation."
-    )
+    country_code: CountryAlpha2 = Field(description="Country code for holiday calculation.")
 
     @override
     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:

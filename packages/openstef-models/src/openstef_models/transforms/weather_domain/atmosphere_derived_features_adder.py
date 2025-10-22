@@ -165,8 +165,9 @@ class AtmosphereDerivedFeaturesAdder(BaseConfig, TimeSeriesTransform):
         )
         if missing_features:
             self._logger.warning(
-                "Input data is missing required columns for AtmosphereDerivedFeaturesAdder: %s",
+                "Missing columns (%s) for AtmosphereDerivedFeaturesAdder in %s",
                 ", ".join(missing_features),
+                data.feature_names,
             )
 
         has_temperature, has_pressure, has_humidity = (
@@ -198,7 +199,7 @@ class AtmosphereDerivedFeaturesAdder(BaseConfig, TimeSeriesTransform):
                 pressure=new_df[self.pressure_column],
             )
 
-        return data.copy_with(new_df)
+        return data.copy_with(new_df, is_sorted=True)
 
     @override
     def to_state(self) -> State:

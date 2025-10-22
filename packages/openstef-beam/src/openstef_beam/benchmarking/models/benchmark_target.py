@@ -14,6 +14,7 @@ from datetime import datetime
 
 from pydantic import Field, field_validator, model_validator
 from pydantic_core.core_schema import ValidationInfo
+from pydantic_extra_types.coordinate import Latitude, Longitude
 
 from openstef_core.base_model import BaseConfig
 
@@ -34,8 +35,8 @@ class BenchmarkTarget(BaseConfig):
     description: str = Field(description="Human-readable description of the target")
     group_name: str = Field(default="default", description="Group name for categorizing targets")
 
-    latitude: float = Field(description="Geographical latitude of the target location")
-    longitude: float = Field(description="Geographical longitude of the target location")
+    latitude: Latitude = Field(description="Geographical latitude of the target location")
+    longitude: Longitude = Field(description="Geographical longitude of the target location")
     limit: float | None = Field(default=None, description="Capacity limit of the target in appropriate units")
     upper_limit: float | None = Field(
         default=None, description="Upper capacity limit of the target in appropriate units"

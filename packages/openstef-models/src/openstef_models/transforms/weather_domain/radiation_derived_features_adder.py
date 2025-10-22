@@ -77,7 +77,6 @@ class RadiationDerivedFeaturesAdder(BaseConfig, TimeSeriesTransform):
         min_length=1,
     )
     coordinate: Coordinate = Field(
-        default=...,
         description="Geographical coordinates (latitude and longitude) for solar calculations.",
     )
     surface_tilt: float = Field(

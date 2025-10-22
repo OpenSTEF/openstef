@@ -391,15 +391,19 @@ class TimeSeriesDataset(TimeSeriesMixin, DatasetMixin):  # noqa: PLR0904 - impor
         data_selected.attrs["is_sorted"] = True
         return TimeSeriesDataset(data=data_selected)
 
-    def copy_with(self, data: pd.DataFrame) -> "TimeSeriesDataset":
+    def copy_with(self, data: pd.DataFrame, *, is_sorted: bool = False) -> "TimeSeriesDataset":
         """Create a copy of the dataset with new data.
 
         Args:
             data: New DataFrame to use for the dataset.
+            is_sorted: Whether the new data is already sorted by timestamp.
 
         Returns:
             New TimeSeriesDataset instance with the provided data and same metadata.
         """
+        if is_sorted:
+            data.attrs["is_sorted"] = True
+
         return TimeSeriesDataset(
             data=data,
             sample_interval=self.sample_interval,

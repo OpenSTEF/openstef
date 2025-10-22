@@ -9,11 +9,12 @@ long-term patterns and movements in time series data, helping improve forecastin
 accuracy by identifying underlying trends.
 """
 
+import logging
 from datetime import timedelta
 from typing import Literal, Self, cast, override
 
 import pandas as pd
-from pydantic import Field
+from pydantic import Field, PrivateAttr
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
@@ -75,6 +76,8 @@ class RollingAggregatesAdder(BaseConfig, TimeSeriesTransform):
         description="List of aggregation functions to compute over the rolling window. ",
     )
 
+    _logger: logging.Logger = PrivateAttr(default=logging.getLogger(__name__))
+
     def _transform_pandas(self, df: pd.DataFrame) -> pd.DataFrame:
         rolling_df = cast(
             pd.DataFrame,
@@ -89,6 +92,12 @@ class RollingAggregatesAdder(BaseConfig, TimeSeriesTransform):
 
     @override
     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
+        if len(self.aggregation_functions) == 0:
+            self._logger.warning(
+                "No aggregation functions specified for RollingAggregatesAdder. Returning original data."
+            )
+            return data
+
         validate_required_columns(df=data.data, required_columns=[self.feature])
         return data.pipe_pandas(self._transform_pandas)
 
