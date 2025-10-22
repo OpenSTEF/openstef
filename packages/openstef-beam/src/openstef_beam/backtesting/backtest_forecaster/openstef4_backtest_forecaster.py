@@ -5,10 +5,12 @@
 """OpenSTEF 4.0 forecaster for backtesting pipelines."""
 
 from collections.abc import Callable
+from typing import override
 
 from openstef_beam.backtesting.backtest_forecaster.mixins import BacktestForecasterConfig, BacktestForecasterMixin
 from openstef_beam.backtesting.restricted_horizon_timeseries import RestrictedHorizonVersionedTimeSeries
 from openstef_core.datasets import TimeSeriesDataset
+from openstef_core.exceptions import NotFittedError
 from openstef_core.types import Q
 from openstef_models.workflows.custom_forecasting_workflow import CustomForecastingWorkflow
 
@@ -32,6 +34,7 @@ class OpenSTEF4BacktestForecaster(BacktestForecasterMixin):
         self._workflow: CustomForecastingWorkflow | None = None
 
     @property
+    @override
     def quantiles(self) -> list[Q]:
         """Return the list of quantiles that this forecaster predicts."""
         # Create a workflow instance if needed to get quantiles
@@ -40,6 +43,7 @@ class OpenSTEF4BacktestForecaster(BacktestForecasterMixin):
         # Extract quantiles from the workflow's model
         return self._workflow.model.forecaster.config.quantiles
 
+    @override
     def fit(self, data: RestrictedHorizonVersionedTimeSeries) -> None:
         """Train the model using data from the restricted horizon time series.
 
@@ -61,6 +65,7 @@ class OpenSTEF4BacktestForecaster(BacktestForecasterMixin):
         # Use the workflow's fit method
         self._workflow.fit(data=training_data)
 
+    @override
     def predict(self, data: RestrictedHorizonVersionedTimeSeries) -> TimeSeriesDataset | None:
         """Generate predictions using the latest trained workflow.
 
@@ -71,10 +76,10 @@ class OpenSTEF4BacktestForecaster(BacktestForecasterMixin):
             TimeSeriesDataset with predictions, or None if prediction cannot be performed.
 
         Raises:
-            RuntimeError: If predict is called before fit.
+            NotFittedError: If predict is called before fit.
         """
         if self._workflow is None:
-            raise RuntimeError("Must call fit() before predict()")
+            raise NotFittedError("Must call fit() before predict()")
 
         # Define the time windows:
         # - Historical context: used for features (lags, etc.)
