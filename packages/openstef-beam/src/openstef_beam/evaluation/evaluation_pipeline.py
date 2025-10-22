@@ -174,7 +174,6 @@ class EvaluationPipeline:
 
         Args:
             filtering: The filtering criteria describing this subset.
-            ground_truth: TimeSeriesDataset containing the ground truth values.
             predictions: TimeSeriesDataset containing the predicted values.
             evaluation_mask: Optional datetime index to limit evaluation period.
 

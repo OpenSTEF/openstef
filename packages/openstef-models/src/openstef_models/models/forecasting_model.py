@@ -10,6 +10,7 @@ data transformation and validation.
 """
 
 from datetime import datetime
+from functools import partial
 from typing import Any, Self, cast, override
 
 import pandas as pd
@@ -27,6 +28,7 @@ from openstef_core.datasets.timeseries_dataset import validate_horizons_present
 from openstef_core.exceptions import NotFittedError
 from openstef_core.mixins import Predictor, State, TransformPipeline
 from openstef_models.models.forecasting import Forecaster
+from openstef_models.models.forecasting.forecaster import ForecasterConfig
 from openstef_models.utils.data_split import stratified_train_test_split, train_val_test_split
 
 
@@ -127,6 +129,11 @@ class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset])
     )
 
     @property
+    def config(self) -> ForecasterConfig:
+        """Returns the configuration of the underlying forecaster."""
+        return self.forecaster.config
+
+    @property
     @override
     def is_fitted(self) -> bool:
         return self.forecaster.is_fitted
@@ -165,6 +172,12 @@ class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset])
         input_data_train = self._prepare_input(data=data)
         input_data_val = self._prepare_input(data=data_val) if data_val else None
         input_data_test = self._prepare_input(data=data_test) if data_test else None
+
+        # Drop target column nan's from training data. One can not train on missing targets.
+        target_dropna = partial(pd.DataFrame.dropna, subset=[self.target_column])  # pyright: ignore[reportUnknownMemberType]
+        input_data_train = input_data_train.pipe_pandas(target_dropna)
+        input_data_val = input_data_val.pipe_pandas(target_dropna) if input_data_val else None
+        input_data_test = input_data_test.pipe_pandas(target_dropna) if input_data_test else None
 
         # Transform the input data to a valid forecast input and split into train/val/test
         input_data_train, input_data_val, input_data_test = self._split_data(
@@ -315,8 +328,8 @@ class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset])
         if prediction.target_series is None:
             raise ValueError("Prediction dataset must contain target series for scoring.")
 
-        # Remove NaN values from target column before scoring
-        prediction = prediction.pipe_pandas(lambda df: df.dropna(subset=[prediction.target_column]))  # pyright: ignore[reportUnknownMemberType]
+        # We need to make sure there are no NaNs in the target label for metric calculation
+        prediction = prediction.pipe_pandas(pd.DataFrame.dropna, subset=[self.target_column])  # pyright: ignore[reportUnknownArgumentType, reportUnknownMemberType]
 
         pipeline = EvaluationPipeline(
             # Needs only one horizon since we are using only a single prediction step

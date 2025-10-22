@@ -262,7 +262,6 @@ class VersionedTimeSeriesDataset(TimeSeriesMixin, DatasetMixin):
             data: DataFrame containing versioned time series data with timestamp
                 and available_at columns.
             sample_interval: The regular interval between consecutive data points.
-            timestamp_column: Name of the column containing timestamps. Default is 'timestamp'.
             available_at_column: Name of the column indicating when data became available.
                 Default is 'available_at'.
 

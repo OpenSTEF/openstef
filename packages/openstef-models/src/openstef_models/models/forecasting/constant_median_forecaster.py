@@ -86,7 +86,6 @@ class ConstantMedianForecaster(Forecaster):
 
         Args:
             config: Configuration specifying quantiles and hyperparameters.
-            state: Optional pre-trained state for restored models.
         """
         self._config = config or ConstantMedianForecasterConfig()
         self._quantile_values: dict[Quantile, float] = {}

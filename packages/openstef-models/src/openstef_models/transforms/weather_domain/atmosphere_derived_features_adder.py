@@ -137,7 +137,6 @@ class AtmosphereDerivedFeaturesAdder(BaseConfig, TimeSeriesTransform):
             temperature: Air temperature in degrees Celsius.
             relative_humidity: Relative humidity in %.
             pressure: Air pressure in hPa.
-            vapour_pressure: Water vapour pressure in Pa.
 
         Returns:
             Air density in kg/m^3.
