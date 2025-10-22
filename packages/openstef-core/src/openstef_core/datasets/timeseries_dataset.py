@@ -277,6 +277,11 @@ class TimeSeriesDataset(TimeSeriesMixin, DatasetMixin):  # noqa: PLR0904 - impor
         return result
 
     def filter_index(self, mask: pd.Index) -> Self:
+        """Filter dataset to include only timestamps present in the mask.
+
+        Returns:
+            New dataset containing only rows with timestamps in the mask.
+        """
         if self._version_column is not None:
             data_filtered = self.data.loc[self.index.isin(mask)]  # pyright: ignore[reportUnknownMemberType]
         else:
@@ -355,6 +360,14 @@ class TimeSeriesDataset(TimeSeriesMixin, DatasetMixin):  # noqa: PLR0904 - impor
     def pipe_pandas[**P](
         self, func: Callable[Concatenate[pd.DataFrame, P], pd.DataFrame], *args: P.args, **kwargs: P.kwargs
     ) -> Self:
+        """Apply a pandas DataFrame transformation function to the dataset.
+
+        Executes a function on the underlying DataFrame and wraps the result
+        back into a TimeSeriesDataset, preserving all metadata.
+
+        Returns:
+            New dataset with the transformation applied.
+        """
         data_new = func(self.data, *args, **kwargs)
         return self._copy_with_data(data=data_new)
 

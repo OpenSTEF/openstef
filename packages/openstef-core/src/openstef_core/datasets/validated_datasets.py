@@ -303,6 +303,11 @@ class ForecastDataset(TimeSeriesDataset):
         return self.data[quantile_columns]
 
     def quantiles_dataset(self) -> TimeSeriesDataset:
+        """Extract quantile columns as a separate TimeSeriesDataset.
+
+        Returns:
+            TimeSeriesDataset containing only quantile forecast columns.
+        """
         return TimeSeriesDataset(
             data=self.quantiles_data,
             sample_interval=self.sample_interval,

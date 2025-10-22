@@ -301,6 +301,14 @@ class VersionedTimeSeriesDataset(TimeSeriesMixin, DatasetMixin):
         )
 
     def to_horizons(self, horizons: list[LeadTime]) -> TimeSeriesDataset:
+        """Convert versioned dataset to horizon-based format for multiple lead times.
+
+        Selects data for each specified horizon, adds a horizon column, and combines
+        into a single TimeSeriesDataset. Useful for creating multi-horizon training data.
+
+        Returns:
+            TimeSeriesDataset with horizon column indicating forecast lead time.
+        """
         horizon_dfs = [
             self.filter_by_lead_time(lead_time=horizon).select_version().data.assign(horizon=horizon.value)
             for horizon in horizons

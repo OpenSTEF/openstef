@@ -2,6 +2,12 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+"""Testing utilities for comparing pandas objects.
+
+Provides matcher classes for use in test assertions when comparing pandas
+DataFrames and Series with equality semantics.
+"""
+
 from typing import override
 
 import pandas as pd

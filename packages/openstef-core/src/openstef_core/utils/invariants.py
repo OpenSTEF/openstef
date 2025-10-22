@@ -2,6 +2,12 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+"""Runtime invariant checking utilities.
+
+Provides helper functions for asserting runtime invariants and contracts,
+particularly for checking nullable values and other preconditions.
+"""
+
 
 def not_none[T](value: T | None) -> T:
     """Assert that a value is not None.

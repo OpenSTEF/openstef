@@ -2,6 +2,16 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+"""Time series dataset splitting utilities for training and evaluation.
+
+Provides various strategies for splitting time series datasets into training,
+validation, and test sets. Supports chronological splits, stratified splits
+based on extreme values, and custom date-based splits.
+
+Key functions handle the temporal nature of forecasting data, ensuring that
+training data always precedes test data to prevent information leakage.
+"""
+
 from collections.abc import Callable
 from datetime import datetime
 from typing import cast
