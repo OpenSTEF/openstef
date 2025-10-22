@@ -127,7 +127,6 @@ def xgboost_forecaster_factory(
         predict_sample_interval=timedelta(minutes=15),
     )
 
-    # Wrap the workflow factory in the adapter to make it compatible with BacktestForecasterMixin
     return OpenSTEF4Forecaster(config=backtest_config, workflow_factory=create_workflow)
 
 
@@ -200,7 +199,6 @@ def gblinear_forecaster_factory(
         predict_sample_interval=timedelta(minutes=15),
     )
 
-    # Wrap the workflow factory in the adapter to make it compatible with BacktestForecasterMixin
     return OpenSTEF4Forecaster(config=backtest_config, workflow_factory=create_workflow)
 
 

@@ -51,8 +51,6 @@ class OpenSTEF4Forecaster(BacktestForecasterMixin):
         # Create a new workflow for this training cycle
         self._workflow = self.workflow_factory()
 
-        # A nice future improvement would be to check if the new model is better than the previous one
-
         # Get training data window based on config
         training_end = data.horizon
         training_start = training_end - self.config.training_context_length
