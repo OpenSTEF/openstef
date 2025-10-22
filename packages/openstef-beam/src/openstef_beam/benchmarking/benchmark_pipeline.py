@@ -308,6 +308,8 @@ class BenchmarkPipeline[T: BenchmarkTarget, F]:
             run_name=context.run_name,
             filtering=None,
             limit=target.limit,
+            upper_limit=target.upper_limit,
+            lower_limit=target.lower_limit,
         )
 
         visualizations = pipeline.run_for_reports(
@@ -383,6 +385,8 @@ def read_evaluation_reports[T: BenchmarkTarget](
                 run_name=run_name,
                 filtering=None,
                 limit=target.limit,
+                upper_limit=target.upper_limit,
+                lower_limit=target.lower_limit,
             ),
             storage.load_evaluation_output(target),
         )

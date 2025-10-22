@@ -54,15 +54,25 @@ class TimeSeriesVisualization(VisualizationProvider):
         return {AnalysisAggregation.NONE, AnalysisAggregation.RUN_AND_NONE}
 
     @staticmethod
-    def _add_capacity_limits(plotter: ForecastTimeSeriesPlotter, limit: float) -> None:
+    def _add_capacity_limits(
+        plotter: ForecastTimeSeriesPlotter,
+        metadata: TargetMetadata,
+    ) -> None:
         """Add upper and lower capacity limits to the plot.
+
+        If upper_limit and lower_limit are provided, they are used directly.
+        Otherwise, falls back to the symmetric limit field.
 
         Args:
             plotter: The forecast time series plotter instance
-            limit: The capacity limit value (positive)
+            metadata: Target metadata containing limit information
         """
-        plotter.add_limit(value=limit, name="Upper Limit")
-        plotter.add_limit(value=-limit, name="Lower Limit")
+        if metadata.upper_limit is not None and metadata.lower_limit is not None:
+            plotter.add_limit(value=metadata.upper_limit, name="Upper Limit")
+            plotter.add_limit(value=metadata.lower_limit, name="Lower Limit")
+        elif metadata.limit is not None:
+            plotter.add_limit(value=metadata.limit, name="Upper Limit")
+            plotter.add_limit(value=-metadata.limit, name="Lower Limit")
 
     @staticmethod
     def _get_first_target_data(reports: dict[RunName, list[ReportTuple]]) -> ReportTuple:
@@ -104,7 +114,7 @@ class TimeSeriesVisualization(VisualizationProvider):
         )
 
         # Add capacity limits for context
-        TimeSeriesVisualization._add_capacity_limits(plotter, metadata.limit)
+        TimeSeriesVisualization._add_capacity_limits(plotter, metadata)
 
         figure = plotter.plot(title=f"Measurements vs Forecasts for {metadata.name}")
         return VisualizationOutput(name=self.name, figure=figure)
@@ -123,7 +133,7 @@ class TimeSeriesVisualization(VisualizationProvider):
         plotter.add_measurements(first_report.subset.ground_truth)
 
         # Add capacity limits for context
-        TimeSeriesVisualization._add_capacity_limits(plotter, first_metadata.limit)
+        TimeSeriesVisualization._add_capacity_limits(plotter, first_metadata)
 
         # Add forecast models for each run
         for run_name, run_reports in reports.items():

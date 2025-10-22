@@ -122,3 +122,6 @@ certificates/
 # Output artifacts
 *.html
 *.pkl
+
+# Benchmark outputs
+benchmark_results/

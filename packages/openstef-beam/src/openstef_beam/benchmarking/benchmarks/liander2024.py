@@ -23,9 +23,74 @@ from openstef_beam.benchmarking.models.benchmark_target import BenchmarkTarget
 from openstef_beam.benchmarking.storage.base import BenchmarkStorage
 from openstef_beam.benchmarking.target_provider import SimpleTargetProvider
 from openstef_beam.evaluation import EvaluationConfig
-from openstef_beam.evaluation.metric_providers import PeakMetricProvider, RCRPSProvider, RMAEProvider
+from openstef_beam.evaluation.metric_providers import MetricProvider, PeakMetricProvider, RCRPSProvider, RMAEProvider
 from openstef_beam.evaluation.models.window import Window
 from openstef_core.types import AvailableAt, Quantile
+
+# TODO(#718): find alternative for using functions instead of lambdas in target provider
+
+
+def _measurements_path_for_target(target: BenchmarkTarget) -> Path:
+    """Build path for target measurements.
+
+    Returns:
+        Path: Path to the measurements parquet file
+    """
+    return Path("load_measurements") / target.group_name / f"{target.name}.parquet"
+
+
+def _weather_path_for_target(target: BenchmarkTarget) -> Path:
+    """Build path for target weather data.
+
+    Returns:
+        Path: Path to the weather forecasts parquet file
+    """
+    return Path("weather_forecasts_versioned") / target.group_name / f"{target.name}.parquet"
+
+
+def _profiles_path() -> Path:
+    """Build path for profiles data.
+
+    Returns:
+        Path: Path to the profiles parquet file
+    """
+    return Path("profiles.parquet")
+
+
+def _prices_path() -> Path:
+    """Build path for prices data.
+
+    Returns:
+        Path: Path to the EPEX prices parquet file
+    """
+    return Path("EPEX.parquet")
+
+
+def _targets_file_path() -> Path:
+    """Build path for targets file.
+
+    Returns:
+        Path: Path to the targets YAML file
+    """
+    return Path("liander2024_targets.yaml")
+
+
+def _metrics_for_target(target: BenchmarkTarget) -> list[MetricProvider]:
+    """Build metrics list for a target.
+
+    Returns:
+        list[MetricProvider]: List of metric providers for evaluation
+    """
+    return [
+        RMAEProvider(quantiles=[Quantile(0.5)], lower_quantile=0.01, upper_quantile=0.99),
+        RCRPSProvider(lower_quantile=0.01, upper_quantile=0.99),
+        PeakMetricProvider(
+            limit_pos=abs(target.upper_limit) if target.upper_limit is not None else 0.0,
+            limit_neg=-abs(target.lower_limit) if target.lower_limit is not None else 0.0,
+            beta=2,
+        ),
+    ]
+
 
 LIANDER2024_ANALYSIS_CONFIG = AnalysisConfig(
     visualization_providers=[
@@ -115,21 +180,13 @@ def create_liander2024_target_provider(
 
     return SimpleTargetProvider(
         data_dir=Path(data_dir),
-        measurements_path_for_target=lambda target: Path("load_measurements")
-        / target.group_name
-        / f"load_data_{target.name}.parquet",
-        weather_path_for_target=lambda target: Path("weather_forecasts_versioned")
-        / target.group_name
-        / f"weather_forecast_{target.name}.parquet",
-        profiles_path=lambda: Path("profiles.parquet"),
-        prices_path=lambda: Path("EPEX.parquet"),
-        targets_file_path=lambda: Path("liander2024_targets.yaml"),
+        measurements_path_for_target=_measurements_path_for_target,
+        weather_path_for_target=_weather_path_for_target,
+        profiles_path=_profiles_path,
+        prices_path=_prices_path,
+        targets_file_path=_targets_file_path,
         data_sample_interval=timedelta(minutes=15),
-        metrics=lambda target: [
-            RMAEProvider(quantiles=[Quantile(0.5)], lower_quantile=0.01, upper_quantile=0.99),
-            RCRPSProvider(lower_quantile=0.01, upper_quantile=0.99),
-            PeakMetricProvider(limit_pos=abs(target.limit), limit_neg=-abs(target.limit), beta=2),
-        ],
+        metrics=_metrics_for_target,
         use_profiles=True,
         use_prices=True,
     )
