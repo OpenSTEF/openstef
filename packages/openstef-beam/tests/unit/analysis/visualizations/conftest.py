@@ -11,8 +11,7 @@ import pytest
 
 from openstef_beam.analysis.models import TargetMetadata
 from openstef_beam.evaluation import EvaluationSubsetReport, SubsetMetric, Window
-from openstef_beam.evaluation.models import EvaluationSubset
-from openstef_core.datasets import TimeSeriesDataset
+from openstef_core.datasets import ForecastDataset
 from openstef_core.types import LeadTime, Quantile
 from tests.utils.mocks import MockFigure
 
@@ -40,34 +39,16 @@ def multiple_target_metadata() -> list[TargetMetadata]:
 
 
 @pytest.fixture
-def sample_evaluation_subset() -> EvaluationSubset:
-    """Create a minimal evaluation subset for testing."""
-    predictions = TimeSeriesDataset(
+def sample_evaluation_subset() -> ForecastDataset:
+    return ForecastDataset(
         data=pd.DataFrame(
-            {
-                "quantile_0.1": [1.0, 2.0],
-                "quantile_0.5": [2.0, 3.0],
-                "quantile_0.9": [3.0, 4.0],
-            },
+            {"quantile_P10": [1.0, 2.0], "quantile_P50": [2.0, 3.0], "quantile_P90": [3.0, 4.0], "load": [1.5, 2.5]},
             index=pd.to_datetime([
                 datetime.fromisoformat("2023-01-01T00:00:00"),
                 datetime.fromisoformat("2023-01-01T01:00:00"),
             ]),
         ),
         sample_interval=timedelta(hours=1),
-    )
-
-    ground_truth = TimeSeriesDataset(
-        data=pd.DataFrame(
-            data={"load": [1.5, 2.5]},
-            index=predictions.index,
-        ),
-        sample_interval=timedelta(hours=1),
-    )
-
-    return EvaluationSubset(
-        predictions=predictions,
-        ground_truth=ground_truth,
     )
 
 
@@ -147,7 +128,7 @@ def sample_subset_metrics_with_effective() -> list[SubsetMetric]:
 
 @pytest.fixture
 def sample_evaluation_report(
-    sample_evaluation_subset: EvaluationSubset, sample_subset_metrics: list[SubsetMetric]
+    sample_evaluation_subset: ForecastDataset, sample_subset_metrics: list[SubsetMetric]
 ) -> EvaluationSubsetReport:
     """Create a complete evaluation subset report for testing."""
     return EvaluationSubsetReport(
@@ -159,7 +140,7 @@ def sample_evaluation_report(
 
 @pytest.fixture
 def sample_evaluation_report_with_effective_metrics(
-    sample_evaluation_subset: EvaluationSubset, sample_subset_metrics_with_effective: list[SubsetMetric]
+    sample_evaluation_subset: ForecastDataset, sample_subset_metrics_with_effective: list[SubsetMetric]
 ) -> EvaluationSubsetReport:
     """Create a complete evaluation subset report with effective metrics for testing selector functionality."""
     return EvaluationSubsetReport(
@@ -172,15 +153,9 @@ def sample_evaluation_report_with_effective_metrics(
 @pytest.fixture
 def empty_evaluation_report() -> EvaluationSubsetReport:
     """Create an empty evaluation report for testing error cases."""
-    empty_subset = EvaluationSubset(
-        predictions=TimeSeriesDataset(
-            data=pd.DataFrame(index=pd.DatetimeIndex([])),
-            sample_interval=timedelta(hours=1),
-        ),
-        ground_truth=TimeSeriesDataset(
-            data=pd.DataFrame(index=pd.DatetimeIndex([])),
-            sample_interval=timedelta(hours=1),
-        ),
+    empty_subset = ForecastDataset(
+        data=pd.DataFrame(index=pd.DatetimeIndex([]), columns=["load"]),
+        sample_interval=timedelta(hours=1),
     )
     return EvaluationSubsetReport(filtering=LeadTime.from_string("PT1H"), subset=empty_subset, metrics=[])
 
@@ -198,7 +173,7 @@ def mock_plotly_figure() -> MockFigure:
 
 
 @pytest.fixture
-def sample_evaluation_report_with_probabilities(sample_evaluation_subset: EvaluationSubset) -> EvaluationSubsetReport:
+def sample_evaluation_report_with_probabilities(sample_evaluation_subset: ForecastDataset) -> EvaluationSubsetReport:
     """Create evaluation report containing probability metrics for quantile visualization testing."""
     subset_metrics_with_probs = [
         SubsetMetric(

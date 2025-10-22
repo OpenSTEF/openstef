@@ -94,6 +94,8 @@ class VersionedTimeSeriesDataset(TimeSeriesMixin, DatasetMixin):
         Args:
             data_parts: List of TimeSeriesDataset instances to combine. Must have
                 identical sample intervals and disjoint feature sets.
+            index: Optional explicit index for the combined dataset. If not provided,
+                the union of all part indices will be used.
 
         Raises:
             TimeSeriesValidationError: If no data parts provided or validation fails.
@@ -273,13 +275,12 @@ class VersionedTimeSeriesDataset(TimeSeriesMixin, DatasetMixin):
             >>> import pandas as pd
             >>> from datetime import datetime, timedelta
             >>> data = pd.DataFrame({
-            ...     'timestamp': [datetime.fromisoformat('2025-01-01T10:00:00'),
-            ...                   datetime.fromisoformat('2025-01-01T10:15:00')],
             ...     'available_at': [datetime.fromisoformat('2025-01-01T10:05:00'),
             ...                      datetime.fromisoformat('2025-01-01T10:20:00')],
             ...     'load': [100.0, 120.0],
             ...     'temperature': [20.0, 22.0]
-            ... })
+            ... }, index=pd.DatetimeIndex([datetime.fromisoformat('2025-01-01T10:00:00'),
+            ...                            datetime.fromisoformat('2025-01-01T10:15:00')], name='timestamp'))
             >>> dataset = VersionedTimeSeriesDataset.from_dataframe(data, timedelta(minutes=15))
             >>> sorted(dataset.feature_names)
             ['load', 'temperature']

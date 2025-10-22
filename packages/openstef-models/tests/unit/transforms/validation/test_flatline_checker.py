@@ -46,7 +46,7 @@ def test_detect_ongoing_flatliner(
         sample_interval=timedelta(hours=1),
     )
     transform = FlatlineChecker(
-        flatliner_threshold_minutes=threshold_minutes,
+        flatliner_threshold=timedelta(minutes=threshold_minutes),
         detect_non_zero_flatliner=detect_non_zero,
         absolute_tolerance=absolute_tolerance,
         relative_tolerance=relative_tolerance,

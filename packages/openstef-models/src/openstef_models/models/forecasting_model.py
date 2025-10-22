@@ -12,6 +12,7 @@ data transformation and validation.
 from datetime import datetime
 from typing import Any, Self, cast, override
 
+import pandas as pd
 from pydantic import Field
 
 from openstef_beam.evaluation import EvaluationConfig, EvaluationPipeline, SubsetMetric
@@ -21,7 +22,6 @@ from openstef_core.datasets import (
     ForecastDataset,
     ForecastInputDataset,
     TimeSeriesDataset,
-    VersionedTimeSeriesDataset,
 )
 from openstef_core.exceptions import NotFittedError
 from openstef_core.mixins import Predictor, State, TransformPipeline
@@ -30,7 +30,7 @@ from openstef_models.utils.data_split import stratified_train_test_split, train_
 
 
 class ModelFitResult(BaseModel):
-    input_dataset: VersionedTimeSeriesDataset | TimeSeriesDataset = Field()
+    input_dataset: TimeSeriesDataset = Field()
 
     input_data_train: ForecastInputDataset = Field()
     input_data_val: ForecastInputDataset | None = Field(default=None)
@@ -60,7 +60,6 @@ class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset])
         >>> from openstef_models.models.forecasting.constant_median_forecaster import (
         ...     ConstantMedianForecaster, ConstantMedianForecasterConfig
         ... )
-        >>> from openstef_models.transforms import FeatureEngineeringPipeline
         >>> from openstef_core.types import LeadTime
         >>>
         >>> # Note: This is a conceptual example showing the API structure
@@ -68,12 +67,9 @@ class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset])
         >>> forecaster = ConstantMedianForecaster(
         ...     config=ConstantMedianForecasterConfig(horizons=[LeadTime.from_string("PT36H")])
         ... )
-        >>> preprocessing = FeatureEngineeringPipeline(horizons=forecaster.config.horizons)
-        >>>
         >>> # Create and train model
         >>> model = ForecastingModel(
         ...     forecaster=forecaster,
-        ...     preprocessing=preprocessing
         ... )
         >>> model.fit(training_data)  # doctest: +SKIP
         >>>
@@ -85,14 +81,17 @@ class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset])
     preprocessing: TransformPipeline[TimeSeriesDataset] = Field(
         default_factory=TransformPipeline[TimeSeriesDataset],
         description="Feature engineering pipeline for transforming raw input data into model-ready features.",
+        exclude=True,
     )
     forecaster: Forecaster = Field(
         default=...,
         description="Underlying forecasting algorithm, either single-horizon or multi-horizon.",
+        exclude=True,
     )
     postprocessing: TransformPipeline[ForecastDataset] = Field(
         default_factory=TransformPipeline[ForecastDataset],
         description="Postprocessing pipeline for transforming model outputs into final forecasts.",
+        exclude=True,
     )
     target_column: str = Field(
         default="load",
@@ -157,9 +156,12 @@ class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset])
             FitResult containing training details and metrics.
         """
         # Fit the feature engineering transforms
-        input_data_train = self.preprocessing.fit_transform(data=data)
-        input_data_val = self.preprocessing.transform(data=data_val) if data_val else None
-        input_data_test = self.preprocessing.transform(data=data_test) if data_test else None
+        self.preprocessing.fit(data=data)
+
+        # Transform and split input data
+        input_data_train = self._prepare_input(data=data)
+        input_data_val = self._prepare_input(data=data_val) if data_val else None
+        input_data_test = self._prepare_input(data=data_test) if data_test else None
 
         # Transform the input data to a valid forecast input and split into train/val/test
         input_data_train, input_data_val, input_data_test = self._split_data(
@@ -167,22 +169,21 @@ class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset])
         )
 
         # Fit the model
-        prediction = self.forecaster.fit_predict(data=input_data_train, data_val=input_data_val)
+        self.forecaster.fit(data=input_data_train, data_val=input_data_val)
+        prediction_raw = self._predict(input_data=input_data_train)
 
         # Fit the postprocessing transforms
-        self.postprocessing.fit(data=(input_data_train, prediction))
+        prediction = self.postprocessing.fit_transform(data=prediction_raw)
 
         # Calculate training, validation, test, and full metrics
-        target_dataset = _dataset_to_target(data=data, target_column=self.target_column)
+        def _predict_and_score(input_data: ForecastInputDataset) -> SubsetMetric:
+            prediction_raw = self._predict(input_data=input_data)
+            prediction = self.postprocessing.transform(data=prediction_raw)
+            return self._calculate_score(prediction=prediction)
 
-        def predict_and_score(input_data: ForecastInputDataset) -> SubsetMetric:
-            prediction = self.forecaster.predict(data=input_data)
-            prediction = self.postprocessing.transform(data=(input_data, prediction))
-            return self._calculate_score(ground_truth=target_dataset, prediction=prediction)
-
-        metrics_train = predict_and_score(input_data_train)
-        metrics_val = predict_and_score(input_data_val) if input_data_val else None
-        metrics_test = predict_and_score(input_data_test) if input_data_test else None
+        metrics_train = self._calculate_score(prediction=prediction)
+        metrics_val = _predict_and_score(input_data=input_data_val) if input_data_val else None
+        metrics_test = _predict_and_score(input_data=input_data_test) if input_data_test else None
         metrics_full = self.score(data=data)
 
         return ModelFitResult(
@@ -220,16 +221,16 @@ class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset])
         input_data = self._prepare_input(data=data, forecast_start=forecast_start)
 
         # Generate predictions
-        raw_predictions = self.forecaster.predict(data=input_data)
+        raw_predictions = self._predict(input_data=input_data)
 
-        return self.postprocessing.transform(data=(input_data, raw_predictions))
+        return self.postprocessing.transform(data=raw_predictions)
 
-    def _split_data(
+    def _split_data[T: TimeSeriesDataset](
         self,
-        data: TimeSeriesDataset,
-        data_val: TimeSeriesDataset | None = None,
-        data_test: TimeSeriesDataset | None = None,
-    ) -> tuple[TimeSeriesDataset, TimeSeriesDataset, TimeSeriesDataset]:
+        data: T,
+        data_val: T | None = None,
+        data_test: T | None = None,
+    ) -> tuple[T, T | None, T | None]:
         """Prepare and split input data into train, validation, and test sets.
 
         Args:
@@ -254,29 +255,36 @@ class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset])
             val_fraction=self.val_fraction if data_val is None else 0.0,
             test_fraction=self.test_fraction if data_test is None else 0.0,
         )
+        input_data_val = data_val or input_data_val
+        input_data_test = data_test or input_data_test
+
+        if input_data_val.index.empty:
+            input_data_val = None
+        if input_data_test.index.empty:
+            input_data_test = None
 
         # Convert to ForecastInputDataset with restored target column
-        return (input_data_train, data_val or input_data_val, data_test or input_data_test)
+        return (input_data_train, input_data_val, input_data_test)
 
     def _prepare_input(
         self,
         data: TimeSeriesDataset,
         forecast_start: datetime | None = None,
     ) -> ForecastInputDataset:
-        # Extract targets series to restore it later to ensure it is unchanged
-        target_dataset = _dataset_to_target(data=data, target_column=self.target_column)
-        target_series = target_dataset.data[self.target_column]
-
-        # Apply preprocessing transforms
+        # Transform and restore target column
         input_data = self.preprocessing.transform(data=data)
+        input_data = _restore_target(dataset=input_data, original_dataset=data, target_column=self.target_column)
 
-        return ForecastInputDataset(
-            # Reassign target column to ensure it exists and is unchanged
-            data=input_data.data.assign(**{self.target_column: target_series}),
-            sample_interval=input_data.sample_interval,
+        return ForecastInputDataset.from_timeseries(
+            dataset=input_data,
             target_column=self.target_column,
             forecast_start=forecast_start,
         )
+
+    def _predict(self, input_data: ForecastInputDataset) -> ForecastDataset:
+        # Predict and restore target column
+        prediction = self.forecaster.predict(data=input_data)
+        return _restore_target(dataset=prediction, original_dataset=input_data, target_column=self.target_column)
 
     def score(
         self,
@@ -296,17 +304,17 @@ class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset])
             Evaluation metrics including configured providers (e.g., R2, observed
             probability) computed at the maximum forecast horizon.
         """
-        ground_truth = _dataset_to_target(data=data, target_column=self.target_column)
-
         prediction = self.predict(data=data)
 
-        return self._calculate_score(ground_truth=ground_truth, prediction=prediction)
+        return self._calculate_score(prediction=prediction)
 
-    def _calculate_score(
-        self,
-        ground_truth: ForecastInputDataset,
-        prediction: ForecastDataset,
-    ) -> SubsetMetric:
+    def _calculate_score(self, prediction: ForecastDataset) -> SubsetMetric:
+        if prediction.target_series is None:
+            raise ValueError("Prediction dataset must contain target series for scoring.")
+
+        # Remove NaN values from target column before scoring
+        prediction = prediction.pipe_pandas(lambda df: df.dropna(subset=[prediction.target_column]))  # pyright: ignore[reportUnknownMemberType]
+
         pipeline = EvaluationPipeline(
             # Needs only one horizon since we are using only a single prediction step
             # If a more comprehensive test is needed, a backtest should be run.
@@ -319,14 +327,13 @@ class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset])
 
         evaluation_result = pipeline.run_for_subset(
             filtering=self.forecaster.config.max_horizon,
-            ground_truth=ground_truth,
             predictions=prediction,
         )
         global_metric = evaluation_result.get_global_metric()
         if not global_metric:
             return SubsetMetric(
                 window="global",
-                timestamp=ground_truth.index.min().to_pydatetime(),  # type: ignore
+                timestamp=prediction.forecast_start,
                 metrics={},
             )
 
@@ -352,11 +359,17 @@ class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset])
         )
 
 
-def _dataset_to_target(data: TimeSeriesDataset, target_column: str) -> ForecastInputDataset:
-    return ForecastInputDataset.from_timeseries(
-        dataset=data.select_features([target_column]).select_version(),
-        target_column=target_column,
-    )
+def _restore_target[T: TimeSeriesDataset](
+    dataset: T,
+    original_dataset: TimeSeriesDataset,
+    target_column: str,
+) -> T:
+    target_series = original_dataset.select_features([target_column]).select_version().data[target_column]
+
+    def _transform_restore_target(df: pd.DataFrame) -> pd.DataFrame:
+        return df.assign(**{str(target_series.name): df.index.map(target_series)})  # pyright: ignore[reportUnknownMemberType]
+
+    return dataset.pipe_pandas(_transform_restore_target)
 
 
 __all__ = ["ForecastingModel"]

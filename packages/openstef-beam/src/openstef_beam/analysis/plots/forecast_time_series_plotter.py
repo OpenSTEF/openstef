@@ -15,15 +15,13 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
-from openstef_core.datasets import TimeSeriesDataset
-
 
 class ModelData(TypedDict):
     """TypedDict for storing model data."""
 
     model_name: str
-    forecast: TimeSeriesDataset | None
-    quantiles: TimeSeriesDataset | None
+    forecast: pd.Series | None
+    quantiles: pd.DataFrame | None
 
 
 class LineData(TypedDict):
@@ -81,19 +79,13 @@ class ForecastTimeSeriesPlotter:
         >>> from datetime import timedelta
         >>> # Create sample data
         >>> dates = pd.date_range('2024-01-01', periods=10, freq='h')
-        >>> measurements = TimeSeriesDataset(
-        ...     data=pd.DataFrame({'load': range(10)}, index=dates),
-        ...     sample_interval=timedelta(hours=1)
-        ... )
-        >>> forecast_data = TimeSeriesDataset(
-        ...     data=pd.DataFrame({'load': range(1, 11)}, index=dates),
-        ...     sample_interval=timedelta(hours=1)
-        ... )
-
+        >>> measurements = pd.Series(data=range(10), index=dates, name="measurements")
+        >>> forecast = pd.Series(data=[x + 1 for x in range(10)], index=dates, name="forecast")
+        >>>
         >>> # Create and configure plotter
         >>> plotter = ForecastTimeSeriesPlotter()
         >>> _ = plotter.add_measurements(measurements)
-        >>> _ = plotter.add_model("XGBoost", forecast=forecast_data)
+        >>> _ = plotter.add_model("XGBoost", forecast=forecast)
         >>> fig = plotter.plot(title="Energy Forecast Comparison")
         >>> type(fig).__name__
         'Figure'
@@ -124,7 +116,7 @@ class ForecastTimeSeriesPlotter:
             connect_gaps: If True, connects data points across missing timestamps with lines.
                 If False, leaves gaps where data is missing (no interpolation).
         """
-        self.measurements: TimeSeriesDataset | None = None
+        self.measurements: pd.Series | None = None
         self.models_data: list[ModelData] = []
         self.limits: list[dict[str, Any]] = []
         self.connect_gaps = connect_gaps
@@ -155,37 +147,30 @@ class ForecastTimeSeriesPlotter:
         # Reindex the series to the complete index, automatically filling missing values with NaN
         return series.reindex(complete_index)
 
-    def add_measurements(self, measurements: TimeSeriesDataset) -> "ForecastTimeSeriesPlotter":
+    def add_measurements(self, measurements: pd.Series) -> "ForecastTimeSeriesPlotter":
         """Add measurements (realized values) to the plot.
 
         Args:
-            measurements (TimeSeriesDataset): A TimeSeriesDataset containing the realized values.
+            measurements: A Pandas Series containing the realized values.
 
         Returns:
             ForecastTimeSeriesPlotter: The current instance for method chaining.
-
-        Raises:
-            ValueError: If measurements dataset contains more than one feature/column.
         """
-        if len(measurements.feature_names) > 1:
-            msg = "Measurements dataset must contain exactly one feature/column."
-            raise ValueError(msg)
-
         self.measurements = measurements
         return self
 
     def add_model(
         self,
         model_name: str,
-        forecast: TimeSeriesDataset | None = None,
-        quantiles: TimeSeriesDataset | None = None,
+        forecast: pd.Series | None = None,
+        quantiles: pd.DataFrame | None = None,
     ) -> "ForecastTimeSeriesPlotter":
         """Add a model's forecast and/or quantile data to the plot.
 
         Args:
-            model_name (str): The name of the model.
-            forecast (TimeSeriesDataset | None): A TimeSeriesDataset containing the forecasted values.
-            quantiles (TimeSeriesDataset | None): A TimeSeriesDataset containing quantile data.
+            model_name: The name of the model.
+            forecast: A pd.Series containing the forecasted values.
+            quantiles: A pd.DataFrame containing quantile data.
                 Column names should follow the format 'quantile_P{percentile:02d}',
                 e.g., 'quantile_P10', 'quantile_P90'.
 
@@ -202,7 +187,7 @@ class ForecastTimeSeriesPlotter:
 
         # Validate quantile columns if provided
         if quantiles is not None:
-            for col in quantiles.feature_names:
+            for col in quantiles.columns:
                 if not col.startswith("quantile_P"):
                     msg = f"Column '{col}' does not follow the expected format 'quantile_P{{percentile:02d}}'."
                     raise ValueError(msg)
@@ -394,7 +379,7 @@ class ForecastTimeSeriesPlotter:
             quantiles = model_data["quantiles"]
 
             # Extract and sort quantile percentages
-            quantile_cols = [col for col in quantiles.feature_names if col.startswith("quantile_P")]
+            quantile_cols = [col for col in quantiles.columns if col.startswith("quantile_P")]
             percentiles = sorted([int(col.split("P")[1]) for col in quantile_cols])
 
             # Create band data from widest to narrowest
@@ -404,16 +389,14 @@ class ForecastTimeSeriesPlotter:
                     continue
 
                 # type: ignore construct a BandData-compatible dict
-                bands.append(
-                    {
-                        "model_name": model_name,
-                        "model_index": model_index,
-                        "lower_quantile": lower_quantile,
-                        "upper_quantile": upper_quantile,
-                        "lower_data": quantiles.data[f"quantile_P{lower_quantile:02d}"],
-                        "upper_data": quantiles.data[f"quantile_P{upper_quantile:02d}"],
-                    }  # type: ignore[typeddict-item]
-                )
+                bands.append({
+                    "model_name": model_name,
+                    "model_index": model_index,
+                    "lower_quantile": lower_quantile,
+                    "upper_quantile": upper_quantile,
+                    "lower_data": quantiles[f"quantile_P{lower_quantile:02d}"],
+                    "upper_data": quantiles[f"quantile_P{upper_quantile:02d}"],
+                })
         return bands
 
     def _prepare_forecast_lines(self) -> list[LineData]:
@@ -432,7 +415,7 @@ class ForecastTimeSeriesPlotter:
                     LineData(
                         model_name=model_name,
                         model_index=model_index,
-                        data=cast(pd.Series, forecast.data.squeeze()),
+                        data=forecast,
                         type="forecast",
                     )
                 )
@@ -452,12 +435,12 @@ class ForecastTimeSeriesPlotter:
 
             if quantiles is not None and forecast is None:
                 median_col = f"quantile_P{int(self.MEDIAN_QUANTILE):02d}"
-                if median_col in quantiles.feature_names:
+                if median_col in quantiles.columns:
                     lines.append(
                         LineData(
                             model_name=model_name,
                             model_index=model_index,
-                            data=quantiles.data[median_col],
+                            data=quantiles[median_col],
                             type="quantile_50th",
                         )
                     )
@@ -517,12 +500,12 @@ class ForecastTimeSeriesPlotter:
         if self.measurements is not None:
             if self.connect_gaps:
                 # Original behavior - use data as-is
-                measurements_data = cast(pd.Series, self.measurements.data.squeeze())
+                measurements_data = self.measurements
                 x_data = measurements_data.index
                 y_data = measurements_data
             else:
                 # Process data to insert gaps for missing timestamps
-                measurements_data = cast(pd.Series, self.measurements.data.squeeze())
+                measurements_data = self.measurements
                 processed_data = self._insert_gaps_for_missing_timestamps(
                     measurements_data, pd.Timedelta(self.measurements.sample_interval)
                 )

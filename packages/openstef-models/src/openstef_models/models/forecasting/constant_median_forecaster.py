@@ -137,7 +137,6 @@ class ConstantMedianForecaster(Forecaster):
             raise NotFittedError(self.__class__.__name__)
 
         forecast_index = data.create_forecast_range(horizon=self.config.max_horizon)
-
         return ForecastDataset(
             data=pd.DataFrame(
                 data={

@@ -11,7 +11,7 @@ import pytest
 
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
-from openstef_core.exceptions import ConfigurationError, NotFittedError
+from openstef_core.exceptions import NotFittedError
 from openstef_core.mixins import State, TransformPipeline
 from openstef_core.types import LeadTime, Quantile, override
 from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
@@ -95,17 +95,6 @@ def test_forecasting_model__init__uses_defaults():
     assert model.preprocessing is not None
     assert model.postprocessing is not None
     assert model.target_column == "load"  # Default value
-
-
-def test_forecasting_model__init__raises_error_when_horizons_mismatch():
-    """Test initialization raises error when forecaster and preprocessing horizons don't match."""
-    # Arrange
-    config = ForecasterConfig(quantiles=[Quantile(0.5)], horizons=[LeadTime(timedelta(hours=1))])
-    forecaster = SimpleForecaster(config=config)
-
-    # Act & Assert
-    with pytest.raises(ConfigurationError, match=r"forecaster horizons.*do not match.*preprocessing horizons"):
-        ForecastingModel(forecaster=forecaster)
 
 
 def test_forecasting_model__fit(sample_timeseries_dataset: TimeSeriesDataset):

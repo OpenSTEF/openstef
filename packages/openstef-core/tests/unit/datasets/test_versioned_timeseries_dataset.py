@@ -7,6 +7,7 @@
 from datetime import timedelta
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -151,8 +152,8 @@ def test_filter_by_range(versioned_dataset: VersionedTimeSeriesDataset):
     filtered = versioned_dataset.filter_by_range(start=start, end=end)
 
     # Assert - keeps 10:00-12:00 window, retaining both versions per timestamp in lead-time order
-    assert filtered.data_parts[0].data["feature_a"].tolist() == [150, 100, 250, 200, 300, 275]
-    assert filtered.data_parts[1].data["feature_b"].tolist() == [1.6, 1.0, 2.6, 2.0, 3.8, 3.2]
+    np.testing.assert_array_equal(filtered.data_parts[0].data["feature_a"].values, [100, 150, 200, 250, 275, 300])
+    np.testing.assert_array_equal(filtered.data_parts[1].data["feature_b"].values, [1.0, 1.6, 2.0, 2.6, 3.2, 3.8])
 
 
 def test_filter_by_available_before(versioned_dataset: VersionedTimeSeriesDataset):
@@ -164,8 +165,8 @@ def test_filter_by_available_before(versioned_dataset: VersionedTimeSeriesDatase
     filtered = versioned_dataset.filter_by_available_before(cutoff)
 
     # Assert - drops forecasts arriving after 12:30 (feature_a value 275 and later)
-    assert filtered.data_parts[0].data["feature_a"].tolist() == [150, 100, 250, 200, 300]
-    assert filtered.data_parts[1].data["feature_b"].tolist() == [1.6, 1.0, 2.6, 2.0, 3.8, 3.2]
+    np.testing.assert_array_equal(filtered.data_parts[0].data["feature_a"].values, [100, 150, 200, 250, 300])
+    np.testing.assert_array_equal(filtered.data_parts[1].data["feature_b"].values, [1.0, 1.6, 2.0, 2.6, 3.2, 3.8])
 
 
 def test_filter_by_available_at(versioned_dataset: VersionedTimeSeriesDataset):
@@ -177,21 +178,20 @@ def test_filter_by_available_at(versioned_dataset: VersionedTimeSeriesDataset):
     filtered = versioned_dataset.filter_by_available_at(available_at)
 
     # Assert - keeps forecasts available before 13:00 while retaining both versions per timestamp
-    assert filtered.data_parts[0].data["feature_a"].tolist() == [150, 100, 250, 200, 300, 275]
-    assert filtered.data_parts[1].data["feature_b"].tolist() == [1.6, 1.0, 2.6, 2.0, 3.8, 3.2]
+    np.testing.assert_array_equal(filtered.data_parts[0].data["feature_a"].values, [100, 150, 200, 250, 275, 300])
+    np.testing.assert_array_equal(filtered.data_parts[1].data["feature_b"].values, [1.0, 1.6, 2.0, 2.6, 3.2, 3.8])
 
 
 def test_filter_by_lead_time(versioned_dataset: VersionedTimeSeriesDataset):
     """Filter dataset based on latest permissible lead time."""
-    # Arrange
-    lead_time = LeadTime(timedelta(minutes=-10))
-
     # Act
-    filtered = versioned_dataset.filter_by_lead_time(lead_time)
+    filtered = versioned_dataset.filter_by_lead_time(lead_time=LeadTime(timedelta(minutes=-10)))
 
-    # Assert - excludes the 10:05 forecast (lead -5 minutes) but retains all other versions
-    assert filtered.data_parts[0].data["feature_a"].tolist() == [100, 250, 200, 300, 275, 330, 360]
-    assert filtered.data_parts[1].data["feature_b"].tolist() == [1.6, 1.0, 2.6, 2.0, 3.2, 4.2, 4.8]
+    # Assert - keeps only data with lead_time >= -10 minutes (available at or before 10 minutes after timestamp)
+    # Part A: row 1 (10:00/10:05, lead=-5min) and row 5 (12:00/12:10, lead=-10min) → values 150, 300
+    # Part B: row 5 (12:00/12:08, lead=-8min) and row 6 (13:00/13:10, lead=-10min) → values 3.8, 4.2
+    assert filtered.data_parts[0].data["feature_a"].tolist() == [150, 300]
+    assert filtered.data_parts[1].data["feature_b"].tolist() == [3.8, 4.2]
 
 
 def test_select_version(versioned_dataset: VersionedTimeSeriesDataset):
@@ -202,8 +202,8 @@ def test_select_version(versioned_dataset: VersionedTimeSeriesDataset):
     # Assert - older forecasts (100, 200, 275 for feature_a) are dropped in favor of fresher updates
     pd.testing.assert_index_equal(selected.data.index, versioned_dataset.index)
     assert sorted(selected.feature_names) == ["feature_a", "feature_b"]
-    assert selected.data["feature_a"].tolist() == [150, 250, 300, 330, 360]
-    assert selected.data["feature_b"].tolist() == [1.6, 2.6, 3.8, 4.2, 4.8]
+    np.testing.assert_array_equal(selected.data["feature_a"].values, [100, 200, 275, 330, 360])
+    np.testing.assert_array_equal(selected.data["feature_b"].values, [1.0, 2.0, 3.2, 4.2, 4.8])
     assert not selected.is_versioned
 
 

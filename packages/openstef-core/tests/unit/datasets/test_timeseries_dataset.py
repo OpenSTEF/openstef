@@ -23,12 +23,12 @@ def simple_dataset() -> TimeSeriesDataset:
         data=pd.DataFrame(
             data={
                 "available_at": pd.to_datetime([
-                    "2023-01-01T10:15:00",  # -15min
-                    "2023-01-01T11:15:00",  # -15min
-                    "2023-01-01T12:15:00",  # -15min
-                    "2023-01-01T13:15:00",  # -15min
-                    "2023-01-01T14:15:00",  # -15min
-                    "2023-01-01T14:30:00",  # -30min
+                    "2023-01-01T09:50:00",  # lead time = 10:00 - 09:50 = +10min
+                    "2023-01-01T10:55:00",  # lead time = 11:00 - 10:55 = +5min
+                    "2023-01-01T12:10:00",  # lead time = 12:00 - 12:10 = -10min
+                    "2023-01-01T13:20:00",  # lead time = 13:00 - 13:20 = -20min
+                    "2023-01-01T14:15:00",  # lead time = 14:00 - 14:15 = -15min
+                    "2023-01-01T14:30:00",  # lead time = 14:00 - 14:30 = -30min
                 ]),
                 "value1": [10, 20, 30, 40, 50, 55],  # 55 should override 50 for 14:00
             },
@@ -86,7 +86,7 @@ def test_horizons_property_parses_correctly(horizons_input: list[timedelta], exp
     [
         (datetime.fromisoformat("2023-01-01T10:00:00"), datetime.fromisoformat("2023-01-01T13:00:00"), [10, 20, 30]),
         (None, datetime.fromisoformat("2023-01-01T13:00:00"), [10, 20, 30]),
-        (datetime.fromisoformat("2023-01-01T11:00:00"), None, [20, 30, 40, 50, 55]),
+        (datetime.fromisoformat("2023-01-01T11:00:00"), None, [20, 30, 40, 55, 50]),
     ],
 )
 def test_filter_by_range(simple_dataset: TimeSeriesDataset, start: datetime, end: datetime, expected_values: list[int]):
@@ -102,7 +102,7 @@ def test_filter_by_range(simple_dataset: TimeSeriesDataset, start: datetime, end
     [
         (datetime.fromisoformat("2023-01-01T12:15:00"), [10, 20, 30]),
         (datetime.fromisoformat("2023-01-01T14:15:00"), [10, 20, 30, 40, 50]),
-        (datetime.fromisoformat("2023-01-01T14:30:00"), [10, 20, 30, 40, 50, 55]),
+        (datetime.fromisoformat("2023-01-01T14:30:00"), [10, 20, 30, 40, 55, 50]),
     ],
 )
 def test_filter_by_available_before(
@@ -119,7 +119,7 @@ def test_filter_by_available_before(
     ("available_at", "expected_values"),
     [
         (AvailableAt(timedelta(hours=-13)), [10, 20, 30]),
-        (AvailableAt(timedelta(hours=-15)), [10, 20, 30, 40, 50, 55]),
+        (AvailableAt(timedelta(hours=-15)), [10, 20, 30, 40, 55, 50]),
     ],
 )
 def test_filter_by_available_at(
@@ -135,9 +135,12 @@ def test_filter_by_available_at(
 @pytest.mark.parametrize(
     ("lead_time", "expected_values"),
     [
-        (LeadTime(timedelta(minutes=-20)), [55]),
-        (LeadTime(timedelta(minutes=-10)), [10, 20, 30, 40, 50, 55]),
-        (LeadTime(timedelta(minutes=0)), [10, 20, 30, 40, 50, 55]),
+        # Keep rows where lead_time >= -15min: keeps +10min, +5min, -10min, -15min but NOT -20min, -30min
+        (LeadTime(timedelta(minutes=-15)), [10, 20, 30, 50]),
+        # Keep rows where lead_time >= 0min: keeps only +10min, +5min (positive lead times)
+        (LeadTime(timedelta(minutes=0)), [10, 20]),
+        # Keep rows where lead_time >= +6min: keeps only +10min
+        (LeadTime(timedelta(minutes=6)), [10]),
     ],
 )
 def test_filter_by_lead_time(simple_dataset: TimeSeriesDataset, lead_time: LeadTime, expected_values: list[int]):
@@ -153,7 +156,7 @@ def test_select_version(simple_dataset: TimeSeriesDataset):
     selected = simple_dataset.select_version()
 
     # Assert
-    assert list(selected.data["value1"]) == [10, 20, 30, 40, 50]
+    assert list(selected.data["value1"]) == [10, 20, 30, 40, 55]
     assert "available_at" not in selected.data.columns
     assert not selected.is_versioned
 

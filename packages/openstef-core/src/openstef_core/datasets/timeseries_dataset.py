@@ -29,7 +29,7 @@ from openstef_core.utils.pandas import unsafe_sorted_range_slice_idxs
 _logger = logging.getLogger(__name__)
 
 
-class TimeSeriesDataset(TimeSeriesMixin, DatasetMixin):
+class TimeSeriesDataset(TimeSeriesMixin, DatasetMixin):  # noqa: PLR0904 - important utility class, allow too many public methods
     """A time series dataset with regular sampling intervals and optional versioning.
 
     This class represents time series data with a consistent sampling interval
@@ -124,17 +124,19 @@ class TimeSeriesDataset(TimeSeriesMixin, DatasetMixin):
         self.horizon_column = horizon_column
         self.available_at_column = available_at_column
         self._sample_interval = sample_interval
-        self._internal_columns = {self.horizon_column, self.available_at_column}
+        self._internal_columns = set()
         data.index.name = self.index_name
 
         if self.horizon_column in data.columns:
             validate_timedelta_column(data[self.horizon_column])
             self._version_column = self.horizon_column
+            self._internal_columns.add(self.horizon_column)
             self._feature_names = [col for col in data.columns if col not in self._internal_columns]
             self._horizons = list({LeadTime(value=td) for td in data[self.horizon_column].unique()})
         elif self.available_at_column in data.columns:
             validate_datetime_column(data[self.available_at_column])
             self._version_column = self.available_at_column
+            self._internal_columns.add(self.available_at_column)
             self._feature_names = [col for col in data.columns if col not in self._internal_columns]
             self._horizons = None
         else:
@@ -144,8 +146,16 @@ class TimeSeriesDataset(TimeSeriesMixin, DatasetMixin):
 
         # Ensure invariants: data is sorted by timestamp
         if self.data.attrs.get("is_sorted", False) is False:
-            if self._version_column is not None:
-                self.data = self.data.sort_values(by=[self.index_name, self._version_column], ascending=[True, True])
+            if self._version_column == self.available_at_column:
+                self.data = self.data.sort_values(
+                    by=[self.index_name, self.available_at_column],
+                    ascending=[True, False],  # timestamp ascending, available_at descending
+                )
+            elif self._version_column == self.horizon_column:
+                self.data = self.data.sort_values(
+                    by=[self.index_name, self.horizon_column],
+                    ascending=[True, True],  # timestamp ascending, horizon ascending
+                )
             else:
                 self.data = self.data.sort_index(ascending=True)
             self.data.attrs["is_sorted"] = True
@@ -215,6 +225,7 @@ class TimeSeriesDataset(TimeSeriesMixin, DatasetMixin):
         new_instance = object.__new__(self.__class__)
         new_instance.__dict__.update(self.__dict__)
         new_instance.data = data
+        new_instance._feature_names = [col for col in data.columns if col not in self._internal_columns]  # noqa: SLF001
         return new_instance
 
     @override
@@ -251,13 +262,27 @@ class TimeSeriesDataset(TimeSeriesMixin, DatasetMixin):
         if lead_time_series is None:
             return self
 
-        data_filtered = self.data[lead_time_series <= lead_time.value]
+        data_filtered = self.data[lead_time_series >= lead_time.value]
         return self._copy_with_data(data=data_filtered)
 
     @override
     def select_version(self) -> Self:
-        data_selected = self.data[~self.data.index.duplicated(keep="first")].drop(columns=self._version_column)
-        return self._copy_with_data(data=data_selected)
+        if self._version_column is None:
+            return self
+
+        data_selected = self.data[~self.data.index.duplicated(keep="first")].drop(columns=[self._version_column])
+        result = self._copy_with_data(data=data_selected)
+        result._horizons = None  # noqa: SLF001 - Clear out all versioning metadata
+        result._version_column = None  # noqa: SLF001 - Clear out all versioning metadata
+        return result
+
+    def filter_index(self, mask: pd.Index) -> Self:
+        if self._version_column is not None:
+            data_filtered = self.data.loc[self.index.isin(mask)]  # pyright: ignore[reportUnknownMemberType]
+        else:
+            data_filtered = self.data.loc[mask]
+
+        return self._copy_with_data(data=data_filtered)
 
     def select_horizon(self, horizon: LeadTime) -> Self:
         """Select data for a specific forecast horizon.
@@ -333,7 +358,7 @@ class TimeSeriesDataset(TimeSeriesMixin, DatasetMixin):
         data_new = func(self.data, *args, **kwargs)
         return self._copy_with_data(data=data_new)
 
-    def select_features(self, feature_names: list[str]) -> Self:
+    def select_features(self, feature_names: list[str]) -> "TimeSeriesDataset":
         """Select a subset of features from the dataset.
 
         Args:
@@ -342,9 +367,12 @@ class TimeSeriesDataset(TimeSeriesMixin, DatasetMixin):
         Returns:
             A new TimeSeriesDataset instance containing only the specified features.
         """
-        columns_to_select = list(self._internal_columns) + feature_names
+        columns_to_select = list(feature_names)
+        if self._version_column is not None:
+            columns_to_select.append(self._version_column)
         data_selected = self.data[columns_to_select]
-        return self._copy_with_data(data=data_selected)
+        data_selected.attrs["is_sorted"] = True
+        return TimeSeriesDataset(data=data_selected)
 
 
 __all__ = ["TimeSeriesDataset"]

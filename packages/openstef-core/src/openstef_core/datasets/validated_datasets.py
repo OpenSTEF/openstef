@@ -10,7 +10,7 @@ validation to catch data quality issues early.
 """
 
 from datetime import datetime, timedelta
-from typing import Self, cast, override
+from typing import Self, override
 
 import pandas as pd
 
@@ -53,9 +53,9 @@ class ForecastInputDataset(TimeSeriesDataset):
         'load'
         >>> dataset.sample_weight_column
         'weights'
-        >>> len(dataset.target_series())
+        >>> len(dataset.target_series)
         3
-        >>> len(dataset.sample_weight_series())
+        >>> len(dataset.sample_weight_series)
         3
 
     See Also:
@@ -66,7 +66,8 @@ class ForecastInputDataset(TimeSeriesDataset):
 
     target_column: str
     sample_weight_column: str
-    forecast_start: datetime
+
+    _forecast_start: datetime | None
 
     @override
     def __init__(
@@ -83,9 +84,9 @@ class ForecastInputDataset(TimeSeriesDataset):
         self.target_column = data.attrs.get("target_column", target_column)
         self.sample_weight_column = data.attrs.get("sample_weight_column", sample_weight_column)
         if "forecast_start" in data.attrs:
-            self.forecast_start = datetime.fromisoformat(data.attrs["forecast_start"])
+            self._forecast_start = datetime.fromisoformat(data.attrs["forecast_start"])
         else:
-            self.forecast_start = forecast_start or data.index.min().to_pydatetime()
+            self._forecast_start = forecast_start
 
         validate_required_columns(data, required_columns=[self.target_column])
 
@@ -97,6 +98,15 @@ class ForecastInputDataset(TimeSeriesDataset):
         )
         self._internal_columns.add(self.sample_weight_column)
         self._feature_names = [col for col in self.data.columns if col not in self._internal_columns]
+
+    @property
+    def forecast_start(self) -> datetime:
+        """Get the forecast start timestamp.
+
+        Returns:
+            Datetime indicating when the forecast period starts.
+        """
+        return self._forecast_start if self._forecast_start is not None else self.data.index.min().to_pydatetime()
 
     @property
     def target_series(self) -> pd.Series:
@@ -175,8 +185,9 @@ class ForecastInputDataset(TimeSeriesDataset):
             start=self.forecast_start,
             end=self.forecast_start + horizon.value,
             freq=self.sample_interval,
+            name="timestamp",
         )
-    
+
     @override
     def to_pandas(self) -> pd.DataFrame:
         df = super().to_pandas()
@@ -249,8 +260,6 @@ class ForecastDataset(TimeSeriesDataset):
             available_at_column=available_at_column,
         )
 
-        validate_required_columns(data, required_columns=[self.target_column, self.horizon_column])
-
         quantile_feature_names = [col for col in self.feature_names if col != target_column]
         if not all(Quantile.is_valid_quantile_string(col) for col in quantile_feature_names):
             raise ValueError("All feature names must be valid quantile strings.")
@@ -258,17 +267,14 @@ class ForecastDataset(TimeSeriesDataset):
         self.quantiles = [Quantile.parse(col) for col in quantile_feature_names]
 
     @property
-    @override
-    def horizons(self) -> list[LeadTime]:
-        return cast(list[LeadTime], super().horizons)
-
-    @property
-    def target_series(self) -> pd.Series:
+    def target_series(self) -> pd.Series | None:
         """Extract the target time series from the dataset.
 
         Returns:
             Time series containing target values with original datetime index.
         """
+        if self.target_column not in self.data.columns:
+            return None
         return self.data[self.target_column]
 
     @property
@@ -296,7 +302,15 @@ class ForecastDataset(TimeSeriesDataset):
         quantile_columns = [q.format() for q in self.quantiles]
         return self.data[quantile_columns]
 
-    def select_quantiles(self, quantiles: list[Quantile]) -> Self:
+    def quantiles_dataset(self) -> TimeSeriesDataset:
+        return TimeSeriesDataset(
+            data=self.quantiles_data,
+            sample_interval=self.sample_interval,
+            horizon_column=self.horizon_column,
+            available_at_column=self.available_at_column,
+        )
+
+    def filter_quantiles(self, quantiles: list[Quantile]) -> Self:
         """Select a subset of quantiles from the forecast dataset.
 
         Args:
@@ -305,9 +319,14 @@ class ForecastDataset(TimeSeriesDataset):
         Returns:
             New ForecastDataset containing only the specified quantile columns.
         """
-        quantile_columns = [q.format() for q in quantiles]
-        validate_required_columns(self.data, required_columns=quantile_columns)
-        result = self._copy_with_data(data=self.data[quantile_columns])
+        selected_quantiles = [q.format() for q in quantiles]
+        validate_required_columns(self.data, required_columns=selected_quantiles)
+
+        all_quantiles = [q.format() for q in self.quantiles]
+        drop_columns = list(set(all_quantiles) - set(selected_quantiles))
+        data_filtered = self.data.drop(columns=drop_columns)
+
+        result = self._copy_with_data(data=data_filtered)
         result.quantiles = quantiles
         return result
 

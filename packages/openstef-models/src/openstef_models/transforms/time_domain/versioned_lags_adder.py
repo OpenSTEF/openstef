@@ -51,14 +51,13 @@ class VersionedLagsAdder(BaseConfig, VersionedTimeSeriesTransform):
 
         >>> from datetime import timedelta
         >>> import pandas as pd
-        >>> from openstef_core.datasets.versioned_timeseries.dataset import VersionedTimeSeriesDataset
+        >>> from openstef_core.datasets import VersionedTimeSeriesDataset
 
         >>> # Create sample energy data
         >>> data = pd.DataFrame({
-        ...     'timestamp': pd.date_range('2025-01-01 10:00', periods=4, freq='h'),
         ...     'available_at': pd.date_range('2025-01-01 10:00', periods=4, freq='h'),
         ...     'load': [100.0, 110.0, 120.0, 130.0]
-        ... })
+        ... }, index=pd.date_range('2025-01-01 10:00', periods=4, freq='h'))
         >>> dataset = VersionedTimeSeriesDataset.from_dataframe(data, timedelta(hours=1))
 
         >>> # Create 1-hour and 2-hour lag features

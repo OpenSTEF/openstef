@@ -77,13 +77,12 @@ class CustomForecastingWorkflow(BaseModel):
         ...     ConstantMedianForecaster, ConstantMedianForecasterConfig
         ... )
         >>> from openstef_models.models.forecasting_model import ForecastingModel
-        >>> from openstef_models.transforms import FeatureEngineeringPipeline
         >>>
         >>> # Create sample data
-        >>> dataset = VersionedTimeSeriesDataset.from_dataframe(
+        >>> dataset = TimeSeriesDataset(
         ...     data=pd.DataFrame({
         ...         "load": np.random.default_rng(42).standard_normal(size=48),
-        ...         "available_at": pd.date_range("2025-01-01", periods=48, freq="h"),
+        ...         "temperature": np.random.default_rng(42).standard_normal(size=48),
         ...     }, index=pd.date_range("2025-01-01", periods=48, freq="h")),
         ...     sample_interval=timedelta(hours=1),
         ... )
@@ -91,7 +90,6 @@ class CustomForecastingWorkflow(BaseModel):
         >>> # Create model and workflow
         >>> horizons = [LeadTime.from_string("PT24H")]
         >>> model = ForecastingModel(
-        ...     preprocessing=FeatureEngineeringPipeline(horizons=horizons),
         ...     forecaster=ConstantMedianForecaster(
         ...         config=ConstantMedianForecasterConfig(
         ...             horizons=horizons, quantiles=[Q(0.5)]
@@ -129,8 +127,8 @@ class CustomForecastingWorkflow(BaseModel):
 
     def fit(
         self,
-        data: VersionedTimeSeriesDataset | TimeSeriesDataset,
-        data_val: VersionedTimeSeriesDataset | TimeSeriesDataset | None = None,
+        data: TimeSeriesDataset,
+        data_val: TimeSeriesDataset | None = None,
     ) -> ModelFitResult | None:
         """Train the forecasting model with callback execution.
 
@@ -161,9 +159,7 @@ class CustomForecastingWorkflow(BaseModel):
 
         return result
 
-    def predict(
-        self, data: VersionedTimeSeriesDataset | TimeSeriesDataset, forecast_start: datetime | None = None
-    ) -> ForecastDataset:
+    def predict(self, data: TimeSeriesDataset, forecast_start: datetime | None = None) -> ForecastDataset:
         """Generate forecasts with callback execution.
 
         Executes the complete prediction workflow including pre-prediction callbacks,

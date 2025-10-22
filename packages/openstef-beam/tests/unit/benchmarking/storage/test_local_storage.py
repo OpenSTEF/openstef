@@ -16,8 +16,7 @@ from openstef_beam.analysis.models import AnalysisAggregation
 from openstef_beam.benchmarking.models import BenchmarkTarget
 from openstef_beam.benchmarking.storage import LocalBenchmarkStorage
 from openstef_beam.evaluation import EvaluationReport, EvaluationSubsetReport, Filtering, SubsetMetric
-from openstef_beam.evaluation.models import EvaluationSubset
-from openstef_core.datasets import ForecastDataset, ForecastInputDataset, TimeSeriesDataset
+from openstef_core.datasets import ForecastDataset, TimeSeriesDataset
 from openstef_core.types import AvailableAt, LeadTime
 
 
@@ -58,10 +57,13 @@ def target() -> BenchmarkTarget:
 def predictions() -> TimeSeriesDataset:
     """Create test predictions."""
     return TimeSeriesDataset(
-        data=pd.DataFrame({
-            "value": [1.0, 2.0],
-            "available_at": pd.date_range("2023-01-01", periods=2, freq="1h"),
-        }, index=pd.DatetimeIndex(pd.date_range("2023-01-07", periods=2, freq="1h"))),
+        data=pd.DataFrame(
+            {
+                "value": [1.0, 2.0],
+                "available_at": pd.date_range("2023-01-01", periods=2, freq="1h"),
+            },
+            index=pd.DatetimeIndex(pd.date_range("2023-01-07", periods=2, freq="1h")),
+        ),
         sample_interval=timedelta(hours=1),
     )
 
@@ -69,22 +71,16 @@ def predictions() -> TimeSeriesDataset:
 @pytest.fixture
 def evaluation_report() -> EvaluationReport:
     """Create a test evaluation report."""
-    index = pd.date_range("2023-01-07", periods=2, freq="1h")
     return EvaluationReport(
         subset_reports=[
             EvaluationSubsetReport(
                 filtering=AvailableAt.from_string("D-1T06:00"),
-                subset=EvaluationSubset.create(
-                    ground_truth=ForecastInputDataset(
-                        data=pd.DataFrame({"value": [1.0, 2.0]}, index=index),
-                        sample_interval=timedelta(hours=1),
-                        target_column="value",
+                subset=ForecastDataset(
+                    data=pd.DataFrame(
+                        data={"quantile_P50": [1.0, 2.0], "load": [3.0, 4.0]},
+                        index=pd.date_range("2023-01-07", periods=2, freq="1h"),
                     ),
-                    predictions=ForecastDataset(
-                        data=pd.DataFrame(data={"quantile_P50": [1.0, 2.0], "load": [3.0, 4.0], "horizon": timedelta(hours=1)}, index=index),
-                        sample_interval=timedelta(hours=1),
-                    ),
-                    index=index,
+                    sample_interval=timedelta(hours=1),
                 ),
                 metrics=[
                     SubsetMetric(

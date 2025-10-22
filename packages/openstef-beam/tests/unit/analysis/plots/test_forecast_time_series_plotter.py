@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
 #
 # SPDX-License-Identifier: MPL-2.0
+# pyright: basic, reportAttributeAccessIssue=false
 
 from typing import cast
 
@@ -11,17 +12,11 @@ import pytest
 
 from openstef_beam.analysis.plots import ForecastTimeSeriesPlotter
 from openstef_beam.analysis.plots.forecast_time_series_plotter import BandData, QuantilePolygonStyle
-from openstef_core.datasets import TimeSeriesDataset
 
 
 def test_add_model_with_forecast_only():
     # Arrange
-    forecast = TimeSeriesDataset(
-        data=pd.Series(data=[1, 2, 3], index=pd.date_range("2023-01-01", periods=3, freq="D")).to_frame(
-            name="measurement"
-        ),
-        sample_interval=pd.Timedelta("1D"),
-    )
+    forecast = pd.Series(data=[1, 2, 3], index=pd.date_range("2023-01-01", periods=3, freq="D"))
 
     # Act
     plotter = ForecastTimeSeriesPlotter()
@@ -30,18 +25,16 @@ def test_add_model_with_forecast_only():
     # Assert
     assert len(plotter.models_data) == 1
     assert plotter.models_data[0]["model_name"] == "Model A"
-    assert plotter.models_data[0]["forecast"] == forecast
+    assert plotter.models_data[0]["forecast"] is not None
+    pd.testing.assert_series_equal(plotter.models_data[0]["forecast"], forecast)
     assert plotter.models_data[0]["quantiles"] is None
 
 
 def test_add_model_with_quantiles_only():
     # Arrange
-    quantiles = TimeSeriesDataset(
-        data=pd.DataFrame(
-            data={"quantile_P10": [1, 2], "quantile_P90": [3, 4]},
-            index=pd.date_range("2023-01-01", periods=2, freq="D"),
-        ),
-        sample_interval=pd.Timedelta("1D"),
+    quantiles = pd.DataFrame(
+        data={"quantile_P10": [1, 2], "quantile_P90": [3, 4]},
+        index=pd.date_range("2023-01-01", periods=2, freq="D"),
     )
 
     # Act
@@ -52,24 +45,19 @@ def test_add_model_with_quantiles_only():
     assert len(plotter.models_data) == 1
     assert plotter.models_data[0]["model_name"] == "Model B"
     assert plotter.models_data[0]["forecast"] is None
-    assert plotter.models_data[0]["quantiles"] == quantiles
+    assert plotter.models_data[0]["quantiles"] is not None
+    pd.testing.assert_frame_equal(plotter.models_data[0]["quantiles"], quantiles)
 
 
 def test_add_model_with_forecast_and_quantiles():
     # Arrange
     index = pd.date_range("2023-01-01", periods=3, freq="D")
 
-    forecast = TimeSeriesDataset(
-        data=pd.Series(
-            data=[1, 2, 3],
-            index=index,
-        ).to_frame(name="measurement"),
-        sample_interval=pd.Timedelta("1D"),
+    forecast = pd.Series(
+        data=[1, 2, 3],
+        index=index,
     )
-    quantiles = TimeSeriesDataset(
-        data=pd.DataFrame(data={"quantile_P10": [1, 2, 3], "quantile_P90": [4, 5, 6]}, index=index),
-        sample_interval=pd.Timedelta("1D"),
-    )
+    quantiles = pd.DataFrame(data={"quantile_P10": [1, 2, 3], "quantile_P90": [4, 5, 6]}, index=index)
 
     # Act
     plotter = ForecastTimeSeriesPlotter()
@@ -78,25 +66,18 @@ def test_add_model_with_forecast_and_quantiles():
     # Assert
     assert len(plotter.models_data) == 1
     assert plotter.models_data[0]["model_name"] == "Model C"
-    assert plotter.models_data[0]["forecast"] == forecast
-    assert plotter.models_data[0]["quantiles"] == quantiles
+    assert plotter.models_data[0]["forecast"] is not None
+    pd.testing.assert_series_equal(plotter.models_data[0]["forecast"], forecast)
+    assert plotter.models_data[0]["quantiles"] is not None
+    pd.testing.assert_frame_equal(plotter.models_data[0]["quantiles"], quantiles)
 
 
 def test_method_chaining():
     # Arrange
     index = pd.date_range("2024-01-01", periods=3, freq="D")
-    measurements = TimeSeriesDataset(
-        data=pd.Series([10, 20, 30], index=index).to_frame(name="value"),
-        sample_interval=pd.Timedelta("1D"),
-    )
-    forecast1 = TimeSeriesDataset(
-        data=pd.Series([1, 2, 3], index=index).to_frame(name="value"),
-        sample_interval=pd.Timedelta("1D"),
-    )
-    forecast2 = TimeSeriesDataset(
-        data=pd.Series([4, 5, 6], index=index).to_frame(name="value"),
-        sample_interval=pd.Timedelta("1D"),
-    )
+    measurements = pd.Series([10, 20, 30], index=index)
+    forecast1 = pd.Series([1, 2, 3], index=index)
+    forecast2 = pd.Series([4, 5, 6], index=index)
 
     # Act - test method chaining
     plotter = (
@@ -108,7 +89,7 @@ def test_method_chaining():
 
     # Assert
     assert plotter.measurements is not None
-    assert plotter.measurements == measurements
+    pd.testing.assert_series_equal(plotter.measurements, measurements)
     assert len(plotter.models_data) == 2
     assert plotter.models_data[0]["model_name"] == "Model 1"
     assert plotter.models_data[1]["model_name"] == "Model 2"
@@ -125,11 +106,9 @@ def test_add_model_raises_if_no_data():
 
 def test_add_model_raises_if_quantile_column_wrong_format():
     # Arrange
-    quantiles = TimeSeriesDataset(
-        data=pd.DataFrame(
-            {"bad_column": [1, 2], "quantile_P90": [3, 4]}, index=pd.date_range("2023-01-01", periods=2, freq="D")
-        ),
-        sample_interval=pd.Timedelta("1D"),
+    quantiles = pd.DataFrame(
+        {"bad_column": [1, 2], "quantile_P90": [3, 4]},
+        index=pd.date_range("2023-01-01", periods=2, freq="D"),
     )
     plotter = ForecastTimeSeriesPlotter()
 
@@ -140,12 +119,7 @@ def test_add_model_raises_if_quantile_column_wrong_format():
 
 def test_add_measurements():
     # Arrange
-    measurements = TimeSeriesDataset(
-        data=pd.Series(data=[10, 20, 30], index=pd.date_range("2024-01-01", periods=3, freq="D")).to_frame(
-            name="measurement"
-        ),
-        sample_interval=pd.Timedelta("1D"),
-    )
+    measurements = pd.Series([10, 20, 30], index=pd.date_range("2024-01-01", periods=3, freq="D"), name="measurement")
 
     # Act
     plotter = ForecastTimeSeriesPlotter()
@@ -153,7 +127,7 @@ def test_add_measurements():
 
     # Assert
     assert plotter.measurements is not None
-    assert plotter.measurements == measurements
+    pd.testing.assert_series_equal(plotter.measurements, measurements)
 
 
 def test_plot_with_no_data_raises():
@@ -168,10 +142,7 @@ def test_plot_with_no_data_raises():
 def test_plot_with_only_measurements():
     # Arrange
     index = pd.date_range("2024-01-01", periods=3, freq="D")
-    measurements = TimeSeriesDataset(
-        data=pd.Series([10, 20, 30], index=index).to_frame(name="value"),
-        sample_interval=pd.Timedelta("1D"),
-    )
+    measurements = pd.Series([10, 20, 30], index=index, name="value")
 
     plotter = ForecastTimeSeriesPlotter()
     plotter.add_measurements(measurements)
@@ -188,14 +159,8 @@ def test_plot_with_only_measurements():
 def test_plot_with_forecasts_and_no_quantiles():
     # Arrange
     index = pd.date_range("2024-01-01", periods=3, freq="D")
-    forecast1 = TimeSeriesDataset(
-        data=pd.Series([1, 2, 3], index=index).to_frame(name="value"),
-        sample_interval=pd.Timedelta("1D"),
-    )
-    forecast2 = TimeSeriesDataset(
-        data=pd.Series([4, 5, 6], index=index).to_frame(name="value"),
-        sample_interval=pd.Timedelta("1D"),
-    )
+    forecast1 = pd.Series([1, 2, 3], index=index, name="value")
+    forecast2 = pd.Series([4, 5, 6], index=index, name="value")
 
     plotter = (
         ForecastTimeSeriesPlotter()
@@ -214,14 +179,8 @@ def test_plot_with_forecasts_and_no_quantiles():
 def test_plot_with_measurements_and_forecasts():
     # Arrange
     index = pd.date_range("2024-01-01", periods=3, freq="D")
-    measurements = TimeSeriesDataset(
-        data=pd.Series([10, 20, 30], index=index).to_frame(name="value"),
-        sample_interval=pd.Timedelta("1D"),
-    )
-    forecast = TimeSeriesDataset(
-        data=pd.Series([1, 2, 3], index=index).to_frame(name="value"),
-        sample_interval=pd.Timedelta("1D"),
-    )
+    measurements = pd.Series([10, 20, 30], index=index, name="value")
+    forecast = pd.Series([1, 2, 3], index=index, name="value")
 
     plotter = (
         ForecastTimeSeriesPlotter().add_measurements(measurements).add_model(model_name="Model 1", forecast=forecast)
@@ -238,15 +197,10 @@ def test_plot_with_measurements_and_forecasts():
 def test_plot_with_forecasts_and_quantiles():
     # Arrange
     index = pd.date_range("2024-01-01", periods=3, freq="D")
-    forecast = TimeSeriesDataset(
-        data=pd.Series([1, 2, 3], index=index).to_frame(name="value"),
-        sample_interval=pd.Timedelta("1D"),
-    )
-    quantiles = TimeSeriesDataset(
-        data=pd.DataFrame(
-            {"quantile_P10": [0, 1, 2], "quantile_P50": [1, 2, 3], "quantile_P90": [2, 3, 4]}, index=index
-        ),
-        sample_interval=pd.Timedelta("1D"),
+    forecast = pd.Series([1, 2, 3], index=index, name="value")
+    quantiles = pd.DataFrame(
+        {"quantile_P10": [0, 1, 2], "quantile_P50": [1, 2, 3], "quantile_P90": [2, 3, 4]},
+        index=index,
     )
 
     plotter = ForecastTimeSeriesPlotter()
@@ -267,32 +221,19 @@ def test_plot_with_forecasts_and_quantiles():
 def test_plot_with_measurements_forecasts_and_quantiles_multiple_models():
     # Arrange
     index = pd.date_range("2024-01-01", periods=3, freq="D")
-    measurements = TimeSeriesDataset(
-        data=pd.Series([10, 20, 30], index=index).to_frame(name="value"),
-        sample_interval=pd.Timedelta("1D"),
+    measurements = pd.Series([10, 20, 30], index=index, name="value")
+
+    forecast1 = pd.Series([1, 2, 3], index=index, name="value")
+
+    quantiles1 = pd.DataFrame(
+        {"quantile_P10": [0, 1, 2], "quantile_P50": [1, 2, 3], "quantile_P90": [2, 3, 4]},
+        index=index,
     )
 
-    forecast1 = TimeSeriesDataset(
-        data=pd.Series([1, 2, 3], index=index).to_frame(name="value"),
-        sample_interval=pd.Timedelta("1D"),
-    )
-
-    quantiles1 = TimeSeriesDataset(
-        data=pd.DataFrame(
-            {"quantile_P10": [0, 1, 2], "quantile_P50": [1, 2, 3], "quantile_P90": [2, 3, 4]}, index=index
-        ),
-        sample_interval=pd.Timedelta("1D"),
-    )
-
-    forecast2 = TimeSeriesDataset(
-        data=pd.Series([4, 5, 6], index=index).to_frame(name="value"),
-        sample_interval=pd.Timedelta("1D"),
-    )
-    quantiles2 = TimeSeriesDataset(
-        data=pd.DataFrame(
-            {"quantile_P10": [3, 4, 5], "quantile_P50": [4, 5, 6], "quantile_P90": [5, 6, 7]}, index=index
-        ),
-        sample_interval=pd.Timedelta("1D"),
+    forecast2 = pd.Series([4, 5, 6], index=index, name="value")
+    quantiles2 = pd.DataFrame(
+        {"quantile_P10": [3, 4, 5], "quantile_P50": [4, 5, 6], "quantile_P90": [5, 6, 7]},
+        index=index,
     )
 
     plotter = (
@@ -312,11 +253,10 @@ def test_plot_with_measurements_forecasts_and_quantiles_multiple_models():
 
 def test_custom_title():
     # Arrange
-    measurements = TimeSeriesDataset(
-        data=pd.Series(data=[10, 20, 30], index=pd.date_range("2024-01-01", periods=3, freq="D")).to_frame(
-            name="measurement"
-        ),
-        sample_interval=pd.Timedelta("1D"),
+    measurements = pd.Series(
+        data=[10, 20, 30],
+        index=pd.date_range("2024-01-01", periods=3, freq="D"),
+        name="measurement",
     )
     plotter = ForecastTimeSeriesPlotter()
     plotter.add_measurements(measurements)
@@ -331,11 +271,9 @@ def test_custom_title():
 def test_plot_with_only_quantiles_includes_50th():
     # Arrange
     index = pd.date_range("2024-01-01", periods=3, freq="D")
-    quantiles = TimeSeriesDataset(
-        data=pd.DataFrame(
-            {"quantile_P10": [0, 1, 2], "quantile_P50": [1, 2, 3], "quantile_P90": [2, 3, 4]}, index=index
-        ),
-        sample_interval=pd.Timedelta("1D"),
+    quantiles = pd.DataFrame(
+        {"quantile_P10": [0, 1, 2], "quantile_P50": [1, 2, 3], "quantile_P90": [2, 3, 4]},
+        index=index,
     )
 
     plotter = ForecastTimeSeriesPlotter()

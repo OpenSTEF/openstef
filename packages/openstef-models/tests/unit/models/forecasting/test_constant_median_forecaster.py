@@ -63,7 +63,7 @@ def test_constant_median_forecaster__fit_predict(
     # Check that model is fitted and produces forecast
     assert forecaster.is_fitted
     assert isinstance(result, ForecastDataset)
-    assert len(result.data) == 2  # Only forecasts after forecast_start (2025-01-01T02:00:00)
+    assert len(result.data) == 7  # Only forecasts after forecast_start (2025-01-01T02:00:00)
 
     # Check quantile values: quantiles of [90, 100, 110, 120, 130] plus constant 5.0
     expected_p10 = 99.0  # 94 + 5

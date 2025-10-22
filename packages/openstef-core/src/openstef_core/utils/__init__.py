@@ -13,6 +13,9 @@ from openstef_core.utils.datetime import (
     align_datetime,
     align_datetime_to_time,
 )
+from openstef_core.utils.invariants import (
+    not_none,
+)
 from openstef_core.utils.multiprocessing import (
     run_parallel,
 )
@@ -24,6 +27,7 @@ from openstef_core.utils.pydantic import (
 __all__ = [
     "align_datetime",
     "align_datetime_to_time",
+    "not_none",
     "run_parallel",
     "timedelta_from_isoformat",
     "timedelta_to_isoformat",

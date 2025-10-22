@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from openstef_core.datasets import ForecastDataset, ForecastInputDataset
+from openstef_core.datasets import ForecastDataset
 from openstef_core.exceptions import NotFittedError
 from openstef_core.types import Quantile
 from openstef_models.transforms.postprocessing.confidence_interval_applicator import (
@@ -43,11 +43,14 @@ def predictions() -> ForecastDataset:
     forecast_start = datetime.fromisoformat("2018-01-03T00:00:00")
     forecast_index = pd.date_range(forecast_start, periods=10, freq="1h")
     return ForecastDataset(
-        data=pd.DataFrame({
-            "load": [4.0, 2.0, 5.0, 2.0, 4.0, 2.0, 5.0, 2.0, 4.0, 2.0],
-            Quantile(0.5).format(): np.ones(10) * 10.0,
-            "horizon": timedelta(days=6),
-        }, index=forecast_index),
+        data=pd.DataFrame(
+            {
+                "load": [4.0, 2.0, 5.0, 2.0, 4.0, 2.0, 5.0, 2.0, 4.0, 2.0],
+                Quantile(0.5).format(): np.ones(10) * 10.0,
+                "horizon": timedelta(days=6),
+            },
+            index=forecast_index,
+        ),
         sample_interval=timedelta(minutes=15),
         forecast_start=forecast_start,
     )

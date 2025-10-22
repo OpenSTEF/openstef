@@ -45,7 +45,7 @@ class QuantileSorter(Transform[ForecastDataset, ForecastDataset]):
         ...     sample_interval=timedelta(hours=1)
         ... )
         >>> sorter = QuantileSorter()
-        >>> sorted_dataset = sorter.transform(data=(None, dataset))
+        >>> sorted_dataset = sorter.transform(data=dataset)
         >>> # Now quantile_P10 <= quantile_P50 <= quantile_P90 for each time step
         >>> sorted_dataset.data.iloc[0].values.tolist()
         [0.5, 1.0, 2.0]

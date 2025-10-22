@@ -19,7 +19,6 @@ from pydantic import Field
 from openstef_beam.evaluation.metric_providers import MetricProvider, ObservedProbabilityProvider
 from openstef_beam.evaluation.models import (
     EvaluationReport,
-    EvaluationSubset,
     EvaluationSubsetReport,
     Filtering,
     SubsetMetric,
@@ -166,7 +165,6 @@ class EvaluationPipeline:
     def run_for_subset(
         self,
         filtering: Filtering,
-        ground_truth: ForecastInputDataset,
         predictions: ForecastDataset,
         evaluation_mask: pd.DatetimeIndex | None = None,
     ) -> EvaluationSubsetReport:
@@ -183,11 +181,9 @@ class EvaluationPipeline:
         Returns:
             EvaluationSubsetReport containing computed metrics for the subset.
         """
-        subset = EvaluationSubset.create(
-            ground_truth=ground_truth,
-            predictions=predictions.select_quantiles(quantiles=self.quantiles),
-            index=evaluation_mask,
-        )
+        subset = predictions.filter_quantiles(quantiles=self.quantiles)
+        if evaluation_mask is not None:
+            subset = subset.filter_index(evaluation_mask)
 
         subset_metrics = self._evaluate_subset(subset=subset)
 
@@ -203,7 +199,7 @@ class EvaluationPipeline:
         ground_truth: TimeSeriesMixin,
         target_column: str,
         evaluation_mask: pd.DatetimeIndex | None = None,
-    ) -> Iterator[tuple[Filtering, EvaluationSubset]]:
+    ) -> Iterator[tuple[Filtering, ForecastDataset]]:
         """Yields evaluation subsets filtered by available_at and lead_time.
 
         For ground truth, the data with the latest lead time is used.
@@ -211,7 +207,6 @@ class EvaluationPipeline:
         Yields:
             Tuples of (filter_criteria, evaluation_subset)
         """
-        quantile_columns = [quantile.format() for quantile in self.quantiles]
         ground_truth_data = ForecastInputDataset.from_timeseries(
             dataset=ground_truth.select_version(),
             target_column=target_column,
@@ -219,35 +214,35 @@ class EvaluationPipeline:
 
         for available_at in self.config.available_ats:
             predictions_filtered = predictions.filter_by_available_at(available_at=available_at).select_version()
+            if evaluation_mask is not None:
+                predictions_filtered = predictions_filtered.filter_index(evaluation_mask)
+
             yield (
                 available_at,
-                EvaluationSubset.create(
-                    ground_truth=ground_truth_data,
-                    predictions=ForecastDataset(
-                        data=predictions_filtered.data[quantile_columns],
-                        sample_interval=predictions.sample_interval,
-                    ),
-                    index=evaluation_mask,
-                ),
+                ForecastDataset(
+                    data=ground_truth_data.data.join(predictions_filtered.data, how="inner"),
+                    sample_interval=predictions.sample_interval,
+                    target_column=target_column,
+                ).filter_quantiles(quantiles=self.quantiles),
             )
 
         for lead_time in self.config.lead_times:
             predictions_filtered = predictions.filter_by_lead_time(lead_time=lead_time).select_version()
+            if evaluation_mask is not None:
+                predictions_filtered = predictions_filtered.filter_index(evaluation_mask)
+
             yield (
                 lead_time,
-                EvaluationSubset.create(
-                    ground_truth=ground_truth_data,
-                    predictions=ForecastDataset(
-                        data=predictions_filtered.data[quantile_columns],
-                        sample_interval=predictions.sample_interval,
-                    ),
-                    index=evaluation_mask,
-                ),
+                ForecastDataset(
+                    data=ground_truth_data.data.join(predictions_filtered.data, how="inner"),
+                    sample_interval=predictions.sample_interval,
+                    target_column=target_column,
+                ).filter_quantiles(quantiles=self.quantiles),
             )
 
     def _evaluate_subset(
         self,
-        subset: EvaluationSubset,
+        subset: ForecastDataset,
     ) -> list[SubsetMetric]:
         """Computes metrics for a given evaluation subset.
 

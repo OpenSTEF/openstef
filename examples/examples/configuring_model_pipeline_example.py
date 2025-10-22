@@ -38,7 +38,7 @@ import pandas as pd
 from pydantic_extra_types.country import CountryAlpha2
 
 from openstef_beam.analysis.plots import ForecastTimeSeriesPlotter
-from openstef_core.datasets import ForecastDataset, TimeSeriesDataset, VersionedTimeSeriesDataset
+from openstef_core.datasets import ForecastDataset, TimeSeriesDataset
 from openstef_core.mixins import TransformPipeline
 from openstef_core.types import LeadTime, Q
 from openstef_models.integrations.mlflow import MLFlowStorageCallback
@@ -67,19 +67,10 @@ wind = rng.standard_normal(size=n_samples)
 radiation = rng.standard_normal(size=n_samples)
 timestamps = pd.date_range("2025-01-01", periods=n_samples, freq="h")
 
-load_dataset = VersionedTimeSeriesDataset.from_dataframe(
+dataset = TimeSeriesDataset(
     data=pd.DataFrame(
         {
             "load": wind * -10 + temp * -3 + radiation * -5 + rng.standard_normal(size=n_samples) * 2,
-            "available_at": timestamps,
-        },
-        index=timestamps,
-    ),
-    sample_interval=timedelta(hours=1),
-)
-predictor_dataset = VersionedTimeSeriesDataset.from_dataframe(
-    data=pd.DataFrame(
-        {
             "temp": temp,
             "wind": wind,
             "radiation": radiation,
@@ -89,8 +80,6 @@ predictor_dataset = VersionedTimeSeriesDataset.from_dataframe(
     ),
     sample_interval=timedelta(hours=1),
 )
-
-dataset = VersionedTimeSeriesDataset.concat([load_dataset, predictor_dataset], mode="inner")
 
 model = ForecastingModel(
     preprocessing=TransformPipeline(
@@ -148,19 +137,8 @@ print(forecast.data.tail())
 logger.info("Storing forecast plot to forecast_plot.html")
 fig = (
     ForecastTimeSeriesPlotter()
-    .add_measurements(
-        measurements=TimeSeriesDataset(
-            data=dataset.select_version().data[["load"]],
-            sample_interval=dataset.sample_interval,
-        )
-    )
-    .add_model(
-        model_name="gblinear",
-        forecast=TimeSeriesDataset(
-            data=forecast.median_series.to_frame(name="load"),
-            sample_interval=dataset.sample_interval,
-        ),
-    )
+    .add_measurements(measurements=dataset.select_version().data["load"])
+    .add_model(model_name="gblinear", forecast=forecast.median_series)
     .plot()
 )
 

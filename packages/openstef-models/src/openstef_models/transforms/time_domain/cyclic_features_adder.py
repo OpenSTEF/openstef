@@ -62,6 +62,7 @@ class CyclicFeaturesAdder(BaseConfig, TimeSeriesTransform):
         >>> result = transformed.data[['season_sine', 'time_of_day_sine']].round(3)
         >>> print(result.head(2))
                              season_sine  time_of_day_sine
+        timestamp
         2025-01-01 12:00:00        0.017            -0.000
         2025-01-01 13:00:00        0.017            -0.259
     """

@@ -394,16 +394,13 @@ class XGBoostForecaster(Forecaster):
         if not self.is_fitted:
             raise NotFittedError(self.__class__.__name__)
 
-        predict_index = data.create_forecast_range(horizon=self.config.max_horizon)
         input_data: pd.DataFrame = data.input_data(start=data.forecast_start)
-
         predictions_array = self._xgboost_model.predict(input_data)
         predictions = pd.DataFrame(
             data=predictions_array,
             index=input_data.index,
             columns=[quantile.format() for quantile in self.config.quantiles],
         )
-        predictions = predictions.reindex(index=predict_index)
 
         return ForecastDataset(
             data=predictions,

@@ -94,7 +94,7 @@ class BaseCaseForecaster(Forecaster):
         >>>
         >>> # Default configuration (7-day primary, 14-day fallback)
         >>> config = BaseCaseForecasterConfig(
-        ...     quantiles=[Quantile(0.5), Quantile(0.1), Quantile(0.9)],
+        ...     quantiles=[Quantile(0.1)],
         ...     horizons=[LeadTime(timedelta(hours=1))],
         ... )
         >>> forecaster = BaseCaseForecaster(config)
@@ -167,46 +167,6 @@ class BaseCaseForecaster(Forecaster):
     def fit(self, data: ForecastInputDataset, data_val: ForecastInputDataset | None = None) -> None:
         pass  # Base case forecaster requires no training - just validate data has target column
 
-    def _get_basecase_values(self, data: ForecastInputDataset) -> pd.Series:
-        """Get basecase values using pandas-native lag approach.
-
-        Creates lagged target data by shifting timestamps, similar to LagTransform.
-        Falls back to secondary lag if primary lag has missing values.
-
-        Args:
-            data: Input dataset containing target variable history and forecast range
-
-        Returns:
-            Series with basecase values for forecast timestamps
-        """
-        if data.forecast_start is None:
-            # No forecast period specified - return empty series with DatetimeIndex
-            empty_index = pd.DatetimeIndex([], freq=data.sample_interval)  # pyright: ignore[reportArgumentType] - bad type stubs
-            return pd.Series(dtype=float, index=empty_index, name=data.target_column)
-
-        # The range to forecast
-        forecast_index = pd.date_range(
-            start=data.forecast_start,
-            end=data.forecast_start + self.config.max_horizon.value,
-            freq=data.sample_interval,
-        )
-
-        # Get target series from historical data only (before forecast_start)
-        # Use all available data but only up to forecast_start for lag calculations
-        target_series = data.target_series[data.index < pd.Timestamp(data.forecast_start)]
-
-        # Create primary lag series (shift timestamps forward by primary_lag)
-        # Following LagTransform approach: subtract negative lag from timestamps
-        primary_forecast = target_series.shift(freq=self.hyperparams.primary_lag).reindex(forecast_index)
-
-        # Fill missing values with fallback lag if needed
-        if primary_forecast.isna().any():
-            # Create fallback lag series
-            fallback_forecast = target_series.shift(freq=self.hyperparams.fallback_lag).reindex(forecast_index)
-            primary_forecast = primary_forecast.fillna(fallback_forecast)  # pyright: ignore[reportUnknownMemberType]
-
-        return primary_forecast
-
     @override
     def predict(self, data: ForecastInputDataset) -> ForecastDataset:
         """Generate predictions using repeated weekly patterns with confidence intervals.
@@ -235,6 +195,11 @@ class BaseCaseForecaster(Forecaster):
             prediction = prediction.fillna(prediction_fallback)  # pyright: ignore[reportUnknownMemberType]
 
         return ForecastDataset(
-            data=forecast_index.to_frame(name=self.config.quantiles[0].format()),
+            data=pd.DataFrame(
+                {
+                    self.config.quantiles[0].format(): prediction,
+                },
+                index=forecast_index,
+            ),
             sample_interval=data.sample_interval,
         )

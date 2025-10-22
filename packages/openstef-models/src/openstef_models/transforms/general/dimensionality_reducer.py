@@ -59,6 +59,7 @@ class DimensionalityReducer(BaseConfig, TimeSeriesTransform):
         >>> transformed_dataset = dim_reducer.transform(dataset)
         >>> transformed_dataset.data.head().round(3)
                              component_1  component_2  load
+        timestamp
         2025-01-01 00:00:00       -2.383       -1.166   100
         2025-01-01 01:00:00        3.596        0.335   120
         2025-01-01 02:00:00        0.606       -0.416   110

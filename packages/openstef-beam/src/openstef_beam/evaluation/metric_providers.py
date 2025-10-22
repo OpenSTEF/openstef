@@ -16,7 +16,6 @@ import numpy.typing as npt
 import pandas as pd
 from pydantic import Field
 
-from openstef_beam.evaluation.models import EvaluationSubset
 from openstef_beam.evaluation.models.subset import MetricsDict, QuantileMetricsDict
 from openstef_beam.metrics import (
     confusion_matrix,
@@ -32,7 +31,9 @@ from openstef_beam.metrics import (
     rmae,
 )
 from openstef_core.base_model import BaseConfig
+from openstef_core.datasets import ForecastDataset
 from openstef_core.types import Quantile
+from openstef_core.utils.invariants import not_none
 
 type MetricDirection = Literal["higher_is_better", "lower_is_better"]
 
@@ -77,7 +78,7 @@ class MetricProvider(BaseConfig):
         description="List of quantiles to compute metrics for. If None, all quantiles are processed.",
     )
 
-    def __call__(self, subset: EvaluationSubset) -> QuantileMetricsDict:
+    def __call__(self, subset: ForecastDataset) -> QuantileMetricsDict:
         """Process an evaluation subset and return metrics.
 
         Extracts predictions and ground truth from the subset, then computes
@@ -89,9 +90,11 @@ class MetricProvider(BaseConfig):
         Returns:
             QuantileMetricsDict mapping quantile keys to computed metric values.
         """
-        quantiles = np.array(subset.predictions.quantiles)
-        y_true: npt.NDArray[np.floating] = subset.ground_truth.target_series.to_numpy()  # type: ignore
-        y_pred: npt.NDArray[np.floating] = subset.predictions.quantiles_data.to_numpy()
+        quantiles = np.array(subset.quantiles)
+        y_true: npt.NDArray[np.floating] = cast(
+            pd.DataFrame, not_none(subset.target_series)
+        ).to_numpy()  # type workaround
+        y_pred: npt.NDArray[np.floating] = subset.quantiles_data.to_numpy()
 
         return self.compute_probabilistic(y_true, y_pred, quantiles)
 
@@ -292,7 +295,7 @@ class RMAEPeakHoursProvider(MetricProvider):
     )
 
     @override
-    def __call__(self, subset: EvaluationSubset) -> QuantileMetricsDict:
+    def __call__(self, subset: ForecastDataset) -> QuantileMetricsDict:
         """Process an evaluation subset and return metrics.
 
         Extracts predictions and ground truth from the subset, then computes
@@ -304,9 +307,9 @@ class RMAEPeakHoursProvider(MetricProvider):
         Returns:
             QuantileMetricsDict mapping peak/off-peak periods to computed metric values.
         """
-        quantiles = np.array(subset.predictions.quantiles)
-        y_true: npt.NDArray[np.floating] = cast(pd.Series, subset.ground_truth.data.squeeze()).to_numpy()  # type: ignore
-        y_pred: npt.NDArray[np.floating] = subset.predictions.data.to_numpy()
+        quantiles = np.array(subset.quantiles)
+        y_true: npt.NDArray[np.floating] = cast(pd.DataFrame, not_none(subset.target_series)).to_numpy()
+        y_pred: npt.NDArray[np.floating] = subset.quantiles_data.to_numpy()
 
         hours = subset.index.hour
         peak_hours_mask = (hours >= self.start_peak_hours) & (hours < self.end_peak_hours)

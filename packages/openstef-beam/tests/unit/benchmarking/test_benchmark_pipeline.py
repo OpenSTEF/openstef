@@ -21,8 +21,7 @@ from openstef_beam.benchmarking import (
     BenchmarkTarget,
 )
 from openstef_beam.evaluation import EvaluationConfig, EvaluationReport, EvaluationSubsetReport, SubsetMetric
-from openstef_beam.evaluation.models import EvaluationSubset
-from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesDataset
+from openstef_core.datasets import ForecastDataset, TimeSeriesDataset, VersionedTimeSeriesDataset
 from openstef_core.types import AvailableAt
 from tests.utils.mocks import MockForecaster, MockMetricsProvider, MockTargetProvider
 
@@ -71,20 +70,26 @@ def test_datasets(test_targets: list[BenchmarkTarget]) -> tuple[VersionedTimeSer
 
     # Create measurements dataset with value column and necessary metadata
     measurements = VersionedTimeSeriesDataset.from_dataframe(
-        data=pd.DataFrame({
-            "value": range(len(timestamps)),
-            "available_at": timestamps,  # Make available immediately for simplicity
-        }, index=timestamps),
+        data=pd.DataFrame(
+            {
+                "value": range(len(timestamps)),
+                "available_at": timestamps,  # Make available immediately for simplicity
+            },
+            index=timestamps,
+        ),
         sample_interval=sample_interval,
     )
 
     # Create predictors dataset with the same sample interval
     predictors = VersionedTimeSeriesDataset.from_dataframe(
-        data=pd.DataFrame({
-            "feature1": range(len(timestamps)),
-            "feature2": range(len(timestamps), 2 * len(timestamps)),
-            "available_at": timestamps,  # Make available immediately for simplicity
-        }, index=timestamps),
+        data=pd.DataFrame(
+            {
+                "feature1": range(len(timestamps)),
+                "feature2": range(len(timestamps), 2 * len(timestamps)),
+                "available_at": timestamps,  # Make available immediately for simplicity
+            },
+            index=timestamps,
+        ),
         sample_interval=sample_interval,
     )
 
@@ -126,7 +131,20 @@ def mock_eval_run():
             subset_reports=[
                 EvaluationSubsetReport(
                     filtering=AvailableAt.from_string("D-1T06:00"),
-                    subset=MagicMock(EvaluationSubset),
+                    subset=ForecastDataset(
+                        data=pd.DataFrame(
+                            {
+                                "load": 30,
+                                "quantile_P50": 30,
+                            },
+                            index=pd.date_range(
+                                "2023-01-15T00:00:00",
+                                periods=3,
+                                freq="1h",
+                            ),
+                        ),
+                        sample_interval=timedelta(hours=1),
+                    ),
                     metrics=[
                         SubsetMetric(
                             window="global",

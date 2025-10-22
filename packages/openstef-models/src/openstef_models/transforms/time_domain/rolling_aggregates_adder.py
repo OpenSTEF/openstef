@@ -57,6 +57,7 @@ class RollingAggregatesAdder(BaseConfig, TimeSeriesTransform):
         >>> result = transformed_dataset.data[['rolling_mean_load_PT2H', 'rolling_max_load_PT2H']]
         >>> print(result.round(1).head(3))
                              rolling_mean_load_PT2H  rolling_max_load_PT2H
+        timestamp
         2025-01-01 00:00:00                   100.0                  100.0
         2025-01-01 01:00:00                   110.0                  120.0
         2025-01-01 02:00:00                   115.0                  120.0

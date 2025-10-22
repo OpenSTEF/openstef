@@ -20,6 +20,7 @@ from openstef_core.datasets import ForecastDataset
 from openstef_core.exceptions import NotFittedError
 from openstef_core.mixins import State, Transform
 from openstef_core.types import LeadTime, Quantile
+from openstef_core.utils.invariants import not_none
 
 
 class ConfidenceIntervalApplicator(BaseModel, Transform[ForecastDataset, ForecastDataset]):
@@ -93,12 +94,15 @@ class ConfidenceIntervalApplicator(BaseModel, Transform[ForecastDataset, Forecas
 
     @override
     def fit(self, data: ForecastDataset) -> None:
+        if data.target_series is None:
+            raise ValueError("Input data must contain target series for error computation.")
+
         # Compute hourly standard deviation for each horizon
         std_by_horizon: dict[str, pd.Series] = {}
-        for horizon in data.horizons:
+        for horizon in data.horizons or [LeadTime.from_string("PT0H")]:
             horizon_data = data.select_horizon(horizon)
             # Compute hourly standard deviation for each horizon
-            errors = horizon_data.target_series - horizon_data.median_series
+            errors = not_none(horizon_data.target_series) - horizon_data.median_series
             # Group by hour and compute std
             std_by_horizon[str(horizon)] = errors.pipe(_calculate_hourly_std)
 

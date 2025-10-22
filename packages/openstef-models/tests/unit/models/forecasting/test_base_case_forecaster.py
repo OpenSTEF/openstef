@@ -27,7 +27,7 @@ def sample_forecast_input_dataset() -> ForecastInputDataset:
     )
     forecast_start = dates[2 * 7 * 24]  # Start of 3rd week (2 weeks of history)
 
-    load_values = []
+    load_values: list[float] = []
     for timestamp in dates:
         if timestamp < forecast_start:
             # Week 1: Pattern 200 + hour (should NOT be used for forecasting)
@@ -52,7 +52,7 @@ def base_case_forecaster() -> BaseCaseForecaster:
     """Create sample forecaster configuration with standard quantiles."""
     return BaseCaseForecaster(
         config=BaseCaseForecasterConfig(
-            horizons=[LeadTime(timedelta(hours=6))],
+            horizons=[LeadTime(timedelta(days=1))],
             hyperparams=BaseCaseForecasterHyperParams(),
         )
     )
@@ -84,8 +84,9 @@ def test_base_case_forecaster__fit_predict(
     assert base_case_forecaster.is_fitted
     assert isinstance(result, ForecastDataset)
 
-    expected_index = sample_forecast_input_dataset.input_data(start=sample_forecast_input_dataset.forecast_start).index
-    pd.testing.assert_index_equal(result.index, expected_index)
+    pd.testing.assert_index_equal(
+        result.index, sample_forecast_input_dataset.create_forecast_range(base_case_forecaster.config.max_horizon)
+    )
 
     expected_columns = [q.format() for q in base_case_forecaster.config.quantiles]
     assert list(result.data.columns) == expected_columns
@@ -104,19 +105,20 @@ def test_base_case_forecaster__weekly_pattern_repetition(
     result = base_case_forecaster.predict(sample_forecast_input_dataset)
 
     # Assert - Simple check: Are we getting 300s (correct) or 200s (wrong)?
-    np.testing.assert_array_equal(result.median_series.iloc[[0, 1, 23]].to_numpy(), np.array([300.0, 301.0, 323.0]))
+    np.testing.assert_array_equal(
+        actual=result.median_series.iloc[[0, 1, 23]].to_numpy(),  # type: ignore
+        desired=np.array([300.0, 301.0, 323.0]),
+    )
 
 
 def test_base_case_forecaster__no_forecast_start(base_case_forecaster: BaseCaseForecaster):
     """Test behavior when no forecast_start is specified."""
     # Arrange
-    data = pd.DataFrame(
-        {"load": [100.0, 110.0, 120.0]},
-        index=pd.date_range(start=datetime.fromisoformat("2025-01-01T00:00:00"), periods=3, freq="1h"),
-    )
-
     input_dataset = ForecastInputDataset(
-        data=data,
+        data=pd.DataFrame(
+            {"load": [100.0, 110.0, 120.0]},
+            index=pd.date_range(start=datetime.fromisoformat("2025-01-01T00:00:00"), periods=3, freq="1h"),
+        ),
         sample_interval=timedelta(hours=1),
         target_column="load",
         forecast_start=None,
@@ -126,7 +128,7 @@ def test_base_case_forecaster__no_forecast_start(base_case_forecaster: BaseCaseF
     result = base_case_forecaster.predict(input_dataset)
 
     # Assert
-    assert len(result.data) == 0
+    assert len(result.data) == 25
     assert result.sample_interval == input_dataset.sample_interval
 
 
@@ -149,7 +151,7 @@ def test_base_case_forecaster__no_historical_data(base_case_forecaster: BaseCase
     result = base_case_forecaster.predict(input_dataset)
 
     # Assert
-    assert len(result.data) == 3
+    assert len(result.data) == 25
     assert all(pd.isna(result.median_series))
 
 
@@ -158,7 +160,7 @@ def test_base_case_forecaster__fallback_lag_usage():
     # Arrange
     dates = pd.date_range(start=datetime.fromisoformat("2025-01-01T00:00:00"), periods=3 * 7 * 24, freq="1h")
 
-    load_values = []
+    load_values: list[float] = []
     for i, timestamp in enumerate(dates):
         if i < 7 * 24:
             load_values.append(100.0 + timestamp.hour)
@@ -212,7 +214,7 @@ def test_base_case_forecaster__state_serialization(base_case_forecaster: BaseCas
     state = base_case_forecaster.to_state()
     new_forecaster = BaseCaseForecaster(
         config=BaseCaseForecasterConfig(
-            quantiles=[Quantile(0.1), Quantile(0.5), Quantile(0.9)],
+            quantiles=[Quantile(0.5)],
             horizons=[LeadTime(timedelta(hours=6))],
             hyperparams=BaseCaseForecasterHyperParams(),
         )

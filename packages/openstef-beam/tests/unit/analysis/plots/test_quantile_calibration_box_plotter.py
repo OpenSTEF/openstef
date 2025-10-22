@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
 #
 # SPDX-License-Identifier: MPL-2.0
+# pyright: basic
 
 """Tests for QuantileCalibrationBoxPlotter - focuses on boxplot-specific functionality only.
 Rest of functionality is tested in test_quantile_probability_plotter.py"""
@@ -28,19 +29,19 @@ def test_plot_calculates_calibration_errors_correctly():
 
     # Assert
     # Find the boxplot traces and verify calibration errors are calculated correctly
-    box_traces = [trace for trace in fig.data if trace.type == "box"]
+    box_traces = [trace for trace in fig.data if trace.type == "box"]  # pyright: ignore[reportAttributeAccessIssue]
 
     # Find model1 trace
-    model1_trace = next(trace for trace in box_traces if trace.name == "model1")
-    model1_errors = list(model1_trace.y)
+    model1_trace = next(trace for trace in box_traces if trace.name == "model1")  # pyright: ignore[reportAttributeAccessIssue]
+    model1_errors = list(model1_trace.y)  # pyright: ignore[reportAttributeAccessIssue]
     expected_model1_errors = [0.05, 0.2, -0.05]
     assert np.allclose(model1_errors, expected_model1_errors), (
         f"Expected errors {expected_model1_errors}, got {model1_errors}"
     )
 
     # Find model2 trace
-    model2_trace = next(trace for trace in box_traces if trace.name == "model2")
-    model2_errors = list(model2_trace.y)
+    model2_trace = next(trace for trace in box_traces if trace.name == "model2")  # pyright: ignore[reportAttributeAccessIssue]
+    model2_errors = list(model2_trace.y)  # pyright: ignore[reportAttributeAccessIssue]
     expected_model2_errors = [0.02, -0.15, 0.02]
     assert np.allclose(model2_errors, expected_model2_errors), (
         f"Expected errors {expected_model2_errors}, got {model2_errors}"
@@ -62,10 +63,10 @@ def test_plot_formats_quantile_labels_correctly():
 
     # Assert
     # Get x-axis tick labels to verify quantile formatting
-    box_traces = [trace for trace in fig.data if trace.type == "box"]
+    box_traces = [trace for trace in fig.data if trace.type == "box"]  # pyright: ignore[reportAttributeAccessIssue]
     x_values = []
     for trace in box_traces:
-        x_values.extend(trace.x)
+        x_values.extend(trace.x)  # pyright: ignore[reportAttributeAccessIssue]
 
     unique_x_values = set(x_values)
     expected_labels = {"quantile_P10", "quantile_P25", "quantile_P50", "quantile_P75", "quantile_P90"}
@@ -90,14 +91,14 @@ def test_plot_with_multiple_targets_creates_distributions():
     fig = plotter.plot()
 
     # Assert
-    box_traces = [trace for trace in fig.data if trace.type == "box"]
+    box_traces = [trace for trace in fig.data if trace.type == "box"]  # pyright: ignore[reportAttributeAccessIssue]
 
     # Should have 2 box traces (one per model)
     assert len(box_traces) == 2
 
     # Verify we have the right models
-    model_a_traces = [trace for trace in box_traces if trace.name == "ModelA"]
-    model_b_traces = [trace for trace in box_traces if trace.name == "ModelB"]
+    model_a_traces = [trace for trace in box_traces if trace.name == "ModelA"]  # pyright: ignore[reportAttributeAccessIssue]
+    model_b_traces = [trace for trace in box_traces if trace.name == "ModelB"]  # pyright: ignore[reportAttributeAccessIssue]
 
     assert len(model_a_traces) == 1  # One trace per model
     assert len(model_b_traces) == 1  # One trace per model
@@ -105,9 +106,9 @@ def test_plot_with_multiple_targets_creates_distributions():
     # Each ModelA trace should have 9 data points (3 targets * 3 quantiles), ModelB should have 6
     model_a_trace = model_a_traces[0]
     model_b_trace = model_b_traces[0]
-    assert len(model_a_trace.y) == 9, (
-        f"ModelA should have 9 data points (3 targets * 3 quantiles), got {len(model_a_trace.y)}"
+    assert len(model_a_trace.y) == 9, (  # pyright: ignore[reportAttributeAccessIssue]
+        f"ModelA should have 9 data points (3 targets * 3 quantiles), got {len(model_a_trace.y)}"  # pyright: ignore[reportAttributeAccessIssue]
     )
-    assert len(model_b_trace.y) == 6, (
-        f"ModelB should have 6 data points (2 targets * 3 quantiles), got {len(model_b_trace.y)}"
+    assert len(model_b_trace.y) == 6, (  # pyright: ignore[reportAttributeAccessIssue]
+        f"ModelB should have 6 data points (2 targets * 3 quantiles), got {len(model_b_trace.y)}"  # pyright: ignore[reportAttributeAccessIssue]
     )

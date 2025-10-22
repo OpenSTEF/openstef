@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+#
+# SPDX-License-Identifier: MPL-2.0
+
 """Protocol definitions for time series dataset interfaces.
 
 This module provides protocol classes that define the core interfaces for time series
@@ -14,12 +18,13 @@ from collections.abc import Callable
 from datetime import datetime, timedelta
 from typing import TYPE_CHECKING, Concatenate, Protocol, Self
 
-import pandas as pd
 from pydantic import FilePath
 
 from openstef_core.types import AvailableAt, LeadTime
 
 if TYPE_CHECKING:
+    import pandas as pd
+
     from openstef_core.datasets.timeseries_dataset import TimeSeriesDataset
 
 
@@ -113,7 +118,7 @@ class TimeSeriesMixin(Protocol):
 
     @abstractmethod
     def filter_by_lead_time(self, lead_time: LeadTime) -> Self:
-        """Filter to include only data available with the specified lead time.
+        """Filter to include only data available at or longer than the specified lead time.
 
         Args:
             lead_time: Minimum time gap required between data availability and timestamp.

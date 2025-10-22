@@ -56,6 +56,9 @@ class SimpleTestForecaster(Forecaster):
 
     @override
     def fit(self, data: ForecastInputDataset, data_val: ForecastInputDataset | None = None) -> None:
+        if self._is_fitted:
+            return
+
         self._median_value = float(data.target_series.median())
         self._is_fitted = True
 
@@ -88,12 +91,13 @@ def callback(storage: MLFlowStorage) -> MLFlowStorageCallback:
 
 @pytest.fixture
 def sample_dataset() -> TimeSeriesDataset:
-    """Create sample dataset for testing."""
-    data = pd.DataFrame(
-        {"load": [100.0, 110.0, 120.0, 105.0, 95.0, 115.0, 125.0, 130.0]},
-        index=pd.date_range("2025-01-01", periods=8, freq="h"),
+    return TimeSeriesDataset(
+        data=pd.DataFrame(
+            {"load": [100.0, 110.0, 120.0, 105.0, 95.0, 115.0, 125.0, 130.0], "value": 100.0},
+            index=pd.date_range("2025-01-01", periods=8, freq="h"),
+        ),
+        sample_interval=timedelta(hours=1),
     )
-    return TimeSeriesDataset(data, timedelta(hours=1))
 
 
 @pytest.fixture
@@ -177,8 +181,7 @@ def test_mlflow_storage_callback__on_predict_start__raises_error_when_no_model_e
     unfitted_workflow = CustomForecastingWorkflow(
         model_id="nonexistent_model",
         model=ForecastingModel(
-            preprocessing=FeatureEngineeringPipeline(horizons=horizons),
-            forecaster=SimpleTestForecaster(config=HorizonForecasterConfig(horizons=horizons, quantiles=[Q(0.5)])),
+            forecaster=SimpleTestForecaster(config=ForecasterConfig(horizons=horizons, quantiles=[Q(0.5)])),
         ),
     )
     context = WorkflowContext(workflow=unfitted_workflow)

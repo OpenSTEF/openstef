@@ -18,10 +18,8 @@ from openstef_beam.benchmarking import S3BenchmarkStorage
 from openstef_beam.benchmarking.models import BenchmarkTarget
 from openstef_beam.benchmarking.storage import LocalBenchmarkStorage
 from openstef_beam.evaluation import EvaluationReport, EvaluationSubsetReport, SubsetMetric
-from openstef_beam.evaluation.models import EvaluationSubset
 from openstef_core.datasets import (
     ForecastDataset,
-    ForecastInputDataset,
     TimeSeriesDataset,
     VersionedTimeSeriesDataset,
 )
@@ -93,17 +91,9 @@ def evaluation_report() -> EvaluationReport:
         subset_reports=[
             EvaluationSubsetReport(
                 filtering=AvailableAt.from_string("D-1T06:00"),
-                subset=EvaluationSubset.create(
-                    ground_truth=ForecastInputDataset(
-                        data=pd.DataFrame({"value": [1.0, 2.0]}, index=index),
-                        sample_interval=timedelta(hours=1),
-                        target_column="value",
-                    ),
-                    predictions=ForecastDataset(
-                        data=pd.DataFrame({"quantile_P50": [1.0, 2.0], "load": [1.0, 2.0], "horizon": timedelta(hours=1)}, index=index),
-                        sample_interval=timedelta(hours=1),
-                    ),
-                    index=index,
+                subset=ForecastDataset(
+                    data=pd.DataFrame({"quantile_P50": [1.0, 2.0], "load": [1.0, 2.0]}, index=index),
+                    sample_interval=timedelta(hours=1),
                 ),
                 metrics=[
                     SubsetMetric(
