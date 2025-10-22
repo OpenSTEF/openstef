@@ -113,10 +113,10 @@ lint.ignore = [
   "D203",   # Conflicting rules (a), ruff itself suggest disabling them
   "D213",   # Conflicting rules (a), ruff itself suggest disabling them
   "EM101",  # do not enforce message in variable when raising an exception
+  "FIX002", # TODO's are allowed when they are linked ot an issue (TD003 handles that part)
   "PGH003", # Allow generic type ignores, since sometimes there are multiple unresolvable issues
   "TC006",  # Let's not force quoting the first param of typing.cast
   "TRY003", # simplify exception messages
-  "FIX002", # TODO's are allowed when they are linked ot an issue (TD003 handles that part)
 ]
 lint.per-file-ignores."./packages/*/tests/*" = [
   "ARG",     # Unused function args -> fixtures nevertheless are functionally relevant...
