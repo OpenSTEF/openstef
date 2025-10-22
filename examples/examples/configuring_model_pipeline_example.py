@@ -74,7 +74,6 @@ dataset = TimeSeriesDataset(
             "temp": temp,
             "wind": wind,
             "radiation": radiation,
-            "available_at": timestamps - timedelta(days=7),
         },
         index=timestamps,
     ),
@@ -138,7 +137,7 @@ logger.info("Storing forecast plot to forecast_plot.html")
 fig = (
     ForecastTimeSeriesPlotter()
     .add_measurements(measurements=dataset.select_version().data["load"])
-    .add_model(model_name="gblinear", forecast=forecast.median_series)
+    .add_model(model_name="gblinear", forecast=forecast.median_series, quantiles=forecast.quantiles_data)
     .plot()
 )
 

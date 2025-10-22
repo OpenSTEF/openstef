@@ -21,7 +21,11 @@ import pandas as pd
 from pydantic import FilePath
 
 from openstef_core.datasets.mixins import DatasetMixin, TimeSeriesMixin
-from openstef_core.datasets.validation import validate_datetime_column, validate_timedelta_column
+from openstef_core.datasets.validation import (
+    TimeSeriesValidationError,
+    validate_datetime_column,
+    validate_timedelta_column,
+)
 from openstef_core.types import AvailableAt, LeadTime
 from openstef_core.utils import timedelta_from_isoformat, timedelta_to_isoformat
 from openstef_core.utils.pandas import unsafe_sorted_range_slice_idxs
@@ -388,4 +392,23 @@ class TimeSeriesDataset(TimeSeriesMixin, DatasetMixin):  # noqa: PLR0904 - impor
         return TimeSeriesDataset(data=data_selected)
 
 
-__all__ = ["TimeSeriesDataset"]
+def validate_horizons_present(dataset: TimeSeriesDataset, horizons: list[LeadTime]) -> None:
+    """Validate that the specified forecast horizons are present in the dataset.
+
+    Args:
+        dataset: The time series dataset to validate.
+        horizons: List of forecast horizons to check for presence in the dataset.
+
+    Raises:
+        TimeSeriesValidationError: If any of the specified horizons are not present.
+    """
+    if dataset.horizons is None and len(horizons) == 1:
+        return  # Non-versioned dataset can satisfy single-horizon requests
+
+    required_horizons = set(horizons or [])
+    missing_horizons = [h for h in horizons if h not in required_horizons]
+    if missing_horizons:
+        raise TimeSeriesValidationError("Missing forecast horizons: " + ", ".join(map(str, missing_horizons)))
+
+
+__all__ = ["TimeSeriesDataset", "validate_horizons_present"]

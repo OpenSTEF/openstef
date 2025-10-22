@@ -23,6 +23,7 @@ from openstef_core.datasets import (
     ForecastInputDataset,
     TimeSeriesDataset,
 )
+from openstef_core.datasets.timeseries_dataset import validate_horizons_present
 from openstef_core.exceptions import NotFittedError
 from openstef_core.mixins import Predictor, State, TransformPipeline
 from openstef_models.models.forecasting import Forecaster
@@ -155,6 +156,8 @@ class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset])
         Returns:
             FitResult containing training details and metrics.
         """
+        validate_horizons_present(data, self.forecaster.config.horizons)
+
         # Fit the feature engineering transforms
         self.preprocessing.fit(data=data)
 

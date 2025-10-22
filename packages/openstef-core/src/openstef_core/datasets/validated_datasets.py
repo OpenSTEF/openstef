@@ -140,9 +140,11 @@ class ForecastInputDataset(TimeSeriesDataset):
         Returns:
             DataFrame containing input features with original datetime index.
         """
-        input_data: pd.DataFrame = self.data.drop(
-            columns=[self.target_column, self.sample_weight_column], errors="ignore"
-        )
+        drop_columns = [self.target_column, self.sample_weight_column]
+        if self._version_column is not None:
+            drop_columns.append(self._version_column)
+
+        input_data: pd.DataFrame = self.data.drop(columns=drop_columns, errors="ignore")
         if start is not None:
             input_data = input_data[input_data.index >= pd.Timestamp(start)]
 
@@ -301,19 +303,6 @@ class ForecastDataset(TimeSeriesDataset):
         """
         quantile_columns = [q.format() for q in self.quantiles]
         return self.data[quantile_columns]
-
-    def quantiles_dataset(self) -> TimeSeriesDataset:
-        """Extract quantile columns as a separate TimeSeriesDataset.
-
-        Returns:
-            TimeSeriesDataset containing only quantile forecast columns.
-        """
-        return TimeSeriesDataset(
-            data=self.quantiles_data,
-            sample_interval=self.sample_interval,
-            horizon_column=self.horizon_column,
-            available_at_column=self.available_at_column,
-        )
 
     def filter_quantiles(self, quantiles: list[Quantile]) -> Self:
         """Select a subset of quantiles from the forecast dataset.
