@@ -16,7 +16,7 @@ from pathlib import Path
 
 from pydantic_extra_types.country import CountryAlpha2
 
-from openstef_beam.backtesting.backtest_forecaster import BacktestForecasterConfig, OpenSTEF4Forecaster
+from openstef_beam.backtesting.backtest_forecaster import BacktestForecasterConfig, OpenSTEF4BacktestForecaster
 from openstef_beam.benchmarking.benchmark_pipeline import BenchmarkContext
 from openstef_beam.benchmarking.benchmarks.liander2024 import create_liander2024_benchmark_runner
 from openstef_beam.benchmarking.callbacks.strict_execution_callback import StrictExecutionCallback
@@ -46,7 +46,7 @@ logging.basicConfig(level=logging.INFO, format="[%(asctime)s][%(levelname)s] %(m
 
 BENCHMARK_RESULTS_PATH_XGBOOST = Path("./benchmark_results/XGBoost")
 BENCHMARK_RESULTS_PATH_GBLINEAR = Path("./benchmark_results/GBLinear")
-N_PROCESSES = 1  # Amount of parallel processes to use for the benchmark
+N_PROCESSES = 8  # Amount of parallel processes to use for the benchmark
 
 # Model configuration
 FORECAST_HORIZONS = [LeadTime.from_string("PT12H")]  # Forecast horizon(s)
@@ -61,7 +61,7 @@ GBLINEAR_VERBOSITY = 1
 def xgboost_forecaster_factory(
     context: BenchmarkContext,  # noqa: ARG001
     target: BenchmarkTarget,
-) -> OpenSTEF4Forecaster:
+) -> OpenSTEF4BacktestForecaster:
     """Factory function that creates a WorkflowBacktestAdapter with XGBoost model.
 
     Args:
@@ -69,7 +69,7 @@ def xgboost_forecaster_factory(
         target: Target specification for the benchmark
 
     Returns:
-        OpenSTEF4Forecaster: Forecaster wrapping the configured forecasting workflow
+        OpenSTEF4BacktestForecaster: Forecaster wrapping the configured forecasting workflow
     """
 
     def create_workflow() -> CustomForecastingWorkflow:
@@ -127,13 +127,13 @@ def xgboost_forecaster_factory(
         predict_sample_interval=timedelta(minutes=15),
     )
 
-    return OpenSTEF4Forecaster(config=backtest_config, workflow_factory=create_workflow)
+    return OpenSTEF4BacktestForecaster(config=backtest_config, workflow_factory=create_workflow)
 
 
 def gblinear_forecaster_factory(
     context: BenchmarkContext,  # noqa: ARG001
     target: BenchmarkTarget,
-) -> OpenSTEF4Forecaster:
+) -> OpenSTEF4BacktestForecaster:
     """Factory function that creates a WorkflowBacktestAdapter with GBLinear model.
 
     Args:
@@ -141,7 +141,7 @@ def gblinear_forecaster_factory(
         target: Target specification for the benchmark
 
     Returns:
-        OpenSTEF4Forecaster: Forecaster wrapping the configured forecasting workflow
+        OpenSTEF4BacktestForecaster: Forecaster wrapping the configured forecasting workflow
     """
 
     def create_workflow() -> CustomForecastingWorkflow:
@@ -199,7 +199,7 @@ def gblinear_forecaster_factory(
         predict_sample_interval=timedelta(minutes=15),
     )
 
-    return OpenSTEF4Forecaster(config=backtest_config, workflow_factory=create_workflow)
+    return OpenSTEF4BacktestForecaster(config=backtest_config, workflow_factory=create_workflow)
 
 
 if __name__ == "__main__":

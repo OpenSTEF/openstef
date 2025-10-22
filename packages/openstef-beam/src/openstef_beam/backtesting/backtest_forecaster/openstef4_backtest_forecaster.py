@@ -13,7 +13,7 @@ from openstef_core.types import Q
 from openstef_models.workflows.custom_forecasting_workflow import CustomForecastingWorkflow
 
 
-class OpenSTEF4Forecaster(BacktestForecasterMixin):
+class OpenSTEF4BacktestForecaster(BacktestForecasterMixin):
     """Forecaster that allows using a ForecastingWorkflow to be used in backtesting, specifically for OpenSTEF4 models.
 
     A new workflow is created each time fit() is called using the provided workflow_factory,

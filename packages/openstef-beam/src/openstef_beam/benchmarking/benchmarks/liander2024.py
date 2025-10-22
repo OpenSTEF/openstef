@@ -27,7 +27,7 @@ from openstef_beam.evaluation.metric_providers import MetricProvider, PeakMetric
 from openstef_beam.evaluation.models.window import Window
 from openstef_core.types import AvailableAt, Quantile
 
-# TODO(#718): find alternative for using functions instead of lambdas in target provider  # noqa: FIX002
+# TODO(#718): find alternative for using functions instead of lambdas in target provider
 
 
 def _measurements_path_for_target(target: BenchmarkTarget) -> Path:
