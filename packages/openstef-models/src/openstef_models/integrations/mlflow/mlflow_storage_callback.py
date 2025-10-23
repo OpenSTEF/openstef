@@ -22,6 +22,7 @@ from openstef_core.datasets.timeseries_dataset import TimeSeriesDataset
 from openstef_core.datasets.versioned_timeseries_dataset import VersionedTimeSeriesDataset
 from openstef_core.exceptions import ModelNotFoundError, SkipFitting
 from openstef_core.types import Q, QuantileOrGlobal
+from openstef_models.explainability import ExplainableForecaster
 from openstef_models.integrations.mlflow.mlflow_storage import MLFlowStorage
 from openstef_models.mixins.callbacks import WorkflowContext
 from openstef_models.models.forecasting_model import ModelFitResult
@@ -47,6 +48,11 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
     model_selection_old_model_penalty: float = Field(
         default=1.2,
         description="Penalty to apply to the old model's metric to bias selection towards newer models.",
+    )
+
+    store_feature_importance_plot: bool = Field(
+        default=True,
+        description="Whether to store feature importance plots in MLflow artifacts if available.",
     )
 
     _logger: logging.Logger = PrivateAttr(default=logging.getLogger(__name__))
@@ -105,6 +111,11 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
         data_path.mkdir(parents=True, exist_ok=True)
         result.input_dataset.to_parquet(path=data_path / "data.parquet")
         self._logger.info("Stored training data at %s for run %s", data_path, run_id)
+
+        # Store feature importance plot if enabled
+        if self.store_feature_importance_plot and isinstance(context.workflow.model.forecaster, ExplainableForecaster):
+            fig = context.workflow.model.forecaster.plot_feature_importances()
+            fig.write_html(data_path / "feature_importances.html")  # pyright: ignore[reportUnknownMemberType]
 
         # Store the trained model
         self.storage.save_run_model(model_id=context.workflow.model_id, run_id=run_id, model=context.workflow.model)

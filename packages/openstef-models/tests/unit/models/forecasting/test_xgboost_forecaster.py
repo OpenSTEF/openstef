@@ -200,3 +200,28 @@ def test_xgboost_forecaster__different_objectives(
     stds = result.data.std()
     # At least one quantile should have variation (the model should not be completely degenerate)
     assert (stds > 0).any(), f"At least one column should have variation with {objective}, got stds: {dict(stds)}"
+
+
+def test_xgboost_forecaster__feature_importances(
+    sample_forecast_input_dataset: ForecastInputDataset,
+    base_config: XGBoostForecasterConfig,
+):
+    """Test that feature_importances returns correct normalized importance scores."""
+    # Arrange
+    forecaster = XGBoostForecaster(config=base_config)
+    forecaster.fit(sample_forecast_input_dataset)
+
+    # Act
+    feature_importances = forecaster.feature_importances
+
+    # Assert
+    assert len(feature_importances.index) > 0
+
+    # Columns should match expected quantile formats
+    expected_columns = pd.Index([q.format() for q in base_config.quantiles], name="quantiles")
+    pd.testing.assert_index_equal(feature_importances.columns, expected_columns)
+
+    # Values should be normalized (sum to 1.0 per quantile column) and non-negative
+    col_sums = feature_importances.sum(axis=0)
+    pd.testing.assert_series_equal(col_sums, pd.Series(1.0, index=expected_columns), atol=1e-10)
+    assert (feature_importances >= 0).all().all()

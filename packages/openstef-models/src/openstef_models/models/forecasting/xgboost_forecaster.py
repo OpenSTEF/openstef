@@ -23,6 +23,7 @@ from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import MissingExtraError, ModelLoadingError, NotFittedError
 from openstef_core.mixins import HyperParams, State
+from openstef_models.explainability.mixins import ExplainableForecaster
 from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
 from openstef_models.utils.loss_functions import OBJECTIVE_MAP, ObjectiveFunctionType
 
@@ -213,7 +214,7 @@ class XGBoostForecasterState(BaseConfig):
     model: str = Field(..., description="Base64-encoded serialized XGBoost model.")
 
 
-class XGBoostForecaster(Forecaster):
+class XGBoostForecaster(Forecaster, ExplainableForecaster):
     """XGBoost-based forecaster for probabilistic energy forecasting.
 
     Implements gradient boosting trees using XGBoost for multi-quantile forecasting.
@@ -409,6 +410,22 @@ class XGBoostForecaster(Forecaster):
             data=predictions,
             sample_interval=data.sample_interval,
         )
+
+    @property
+    @override
+    def feature_importances(self) -> pd.DataFrame:
+        booster = self._xgboost_model.get_booster()
+        weights_df = pd.DataFrame(
+            data=booster.get_score(importance_type="gain"),
+            index=[quantile.format() for quantile in self.config.quantiles],
+        ).transpose()
+        weights_df.index.name = "feature_name"
+        weights_df.columns.name = "quantiles"
+
+        weights_abs = weights_df.abs()
+        total = weights_abs.sum(axis=0).replace(to_replace=0, value=1.0)  # pyright: ignore[reportUnknownMemberType]
+
+        return weights_abs / total
 
 
 __all__ = ["XGBoostForecaster", "XGBoostForecasterConfig", "XGBoostHyperParams"]

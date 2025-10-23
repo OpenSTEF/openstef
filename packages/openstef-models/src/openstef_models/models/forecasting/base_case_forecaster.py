@@ -25,6 +25,7 @@ from openstef_core.exceptions import ModelLoadingError
 from openstef_core.mixins import State
 from openstef_core.mixins.predictor import HyperParams
 from openstef_core.types import LeadTime, Quantile
+from openstef_models.explainability.mixins import ExplainableForecaster
 from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
 
 
@@ -72,7 +73,7 @@ class BaseCaseForecasterConfig(ForecasterConfig):
 MODEL_CODE_VERSION = 1
 
 
-class BaseCaseForecaster(Forecaster):
+class BaseCaseForecaster(Forecaster, ExplainableForecaster):
     """Base case forecaster that repeats weekly patterns for predictions.
 
     A simple baseline forecasting model that uses pandas-native operations to repeat
@@ -202,4 +203,13 @@ class BaseCaseForecaster(Forecaster):
                 index=forecast_index,
             ),
             sample_interval=data.sample_interval,
+        )
+
+    @property
+    @override
+    def feature_importances(self) -> pd.DataFrame:
+        return pd.DataFrame(
+            data=[1.0],
+            index=["load"],
+            columns=[quantile.format() for quantile in self.config.quantiles],
         )
