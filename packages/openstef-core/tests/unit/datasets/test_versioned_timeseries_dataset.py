@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from openstef_core.datasets import VersionedTimeSeriesDataset, TimeSeriesDataset
+from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesDataset
 from openstef_core.exceptions import TimeSeriesValidationError
 from openstef_core.testing import create_timeseries_dataset
 from openstef_core.types import AvailableAt, LeadTime
