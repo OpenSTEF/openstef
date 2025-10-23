@@ -11,6 +11,7 @@ DataFrames and Series with equality semantics.
 from datetime import datetime, timedelta
 from typing import Any, override
 
+import numpy as np
 import pandas as pd
 
 from openstef_core.datasets import TimeSeriesDataset
@@ -66,3 +67,65 @@ def create_timeseries_dataset(
         data["horizon"] = horizons
 
     return TimeSeriesDataset(data=pd.DataFrame(data=data, index=index), sample_interval=sample_interval)
+
+
+def create_synthetic_forecasting_dataset(  # noqa: PLR0913, PLR0917 - complex function - testing utility
+    start: datetime = datetime.fromisoformat("2025-01-01T00:00:00+00:00"),  # noqa: B008
+    length: timedelta = timedelta(days=30 * 9),
+    sample_interval: timedelta = timedelta(hours=1),
+    random_seed: int = 42,
+    wind_influence: float | None = -0.2,
+    temp_influence: float | None = 0.3,
+    radiation_influence: float | None = -0.2,
+    stochastic_influence: float | None = 0.1,
+    other_components: dict[str, float] | None = None,
+) -> TimeSeriesDataset:
+    """Create synthetic forecasting dataset for testing.
+
+    Generates time series data with configurable components influencing load.
+
+    Args:
+        start: Start datetime for the dataset.
+        length: Total duration of the dataset.
+        sample_interval: Time interval between consecutive samples.
+        random_seed: Random seed for reproducible random components.
+        wind_influence: Coefficient for wind speed component on load.
+        temp_influence: Coefficient for temperature component on load.
+        radiation_influence: Coefficient for radiation component on load.
+        stochastic_influence: Coefficient for random noise component.
+        other_components: Additional components with their influence coefficients.
+
+    Returns:
+        TimeSeriesDataset containing synthetic load and component data.
+    """
+    timestamps = pd.date_range(start=start, periods=length // sample_interval, freq=sample_interval, tz="UTC")
+
+    # Build load as a combination of various components
+    component_influence = other_components or {}
+    if wind_influence is not None:
+        component_influence["windspeed"] = wind_influence
+    if temp_influence is not None:
+        component_influence["temperature"] = temp_influence
+    if radiation_influence is not None:
+        component_influence["radiation"] = radiation_influence
+    if stochastic_influence is not None:
+        component_influence["stochastic"] = stochastic_influence
+
+    rng = np.random.default_rng(random_seed)
+    load = pd.Series(np.zeros(len(timestamps)), index=timestamps, name="load")
+    components: dict[str, pd.Series] = {}
+    for component_name, influence in component_influence.items():
+        component = pd.Series(rng.standard_normal(size=len(timestamps)), index=timestamps, name=component_name)
+        load += component * influence
+        components[component_name] = component
+
+    return TimeSeriesDataset(
+        data=pd.DataFrame(
+            data={
+                "load": load,
+                **components,
+            },
+            index=timestamps,
+        ),
+        sample_interval=sample_interval,
+    )

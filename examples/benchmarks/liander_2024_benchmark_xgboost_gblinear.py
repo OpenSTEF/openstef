@@ -15,6 +15,7 @@ from datetime import timedelta
 from pathlib import Path
 
 from pydantic_extra_types.coordinate import Coordinate
+from pydantic_extra_types.country import CountryAlpha2
 
 from openstef_beam.backtesting.backtest_forecaster import BacktestForecasterConfig, OpenSTEF4BacktestForecaster
 from openstef_beam.benchmarking.benchmark_pipeline import BenchmarkContext
@@ -28,6 +29,7 @@ from openstef_models.presets import (
     ForecastingWorkflowConfig,
     create_forecasting_workflow,
 )
+from openstef_models.presets.forecasting_workflow import LocationConfig
 from openstef_models.workflows import CustomForecastingWorkflow
 
 logging.basicConfig(level=logging.INFO, format="[%(asctime)s][%(levelname)s] %(message)s")
@@ -93,10 +95,14 @@ def _target_forecaster_factory(
             config=base_config.model_copy(
                 update={
                     "model_id": f"{prefix}_{target.name}",
-                    "name": f"{prefix}_{target.name}",
-                    "coordinate": Coordinate(
-                        latitude=target.latitude,
-                        longitude=target.longitude,
+                    "location": LocationConfig(
+                        name=target.name,
+                        description=target.description,
+                        coordinate=Coordinate(
+                            latitude=target.latitude,
+                            longitude=target.longitude,
+                        ),
+                        country_code=CountryAlpha2("NL"),
                     ),
                 }
             )

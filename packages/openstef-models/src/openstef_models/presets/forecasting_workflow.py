@@ -42,7 +42,7 @@ from openstef_models.transforms.time_domain import (
 )
 from openstef_models.transforms.time_domain.lags_adder import LagsAdder
 from openstef_models.transforms.time_domain.rolling_aggregates_adder import AggregationFunction
-from openstef_models.transforms.validation import CompletenessChecker, FlatlineChecker
+from openstef_models.transforms.validation import CompletenessChecker, FlatlineChecker, InputConsistencyChecker
 from openstef_models.transforms.weather_domain import DaylightFeatureAdder, RadiationDerivedFeaturesAdder
 from openstef_models.transforms.weather_domain.atmosphere_derived_features_adder import AtmosphereDerivedFeaturesAdder
 from openstef_models.utils.data_split import DataSplitter
@@ -216,6 +216,7 @@ def create_forecasting_workflow(config: ForecastingWorkflowConfig) -> CustomFore
         ValueError: If an unsupported model type is specified.
     """
     checks = [
+        InputConsistencyChecker(),
         FlatlineChecker(
             load_column=config.target_column,
             flatliner_threshold=config.flatliner_threshold,

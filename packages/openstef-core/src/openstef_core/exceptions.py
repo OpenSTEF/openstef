@@ -31,14 +31,22 @@ class MissingExtraError(Exception):
 class MissingColumnsError(ValueError):
     """Exception raised when required columns are missing from a DataFrame."""
 
-    def __init__(self, missing_columns: Sequence[str]):
+    def __init__(self, missing_columns: Sequence[str], columns: Sequence[str] | None = None):
         """Initialize the exception with the list of missing columns.
 
         Args:
             missing_columns: List of column names that are missing from the DataFrame.
+            columns: Optional list of available column names in the DataFrame.
         """
         self.missing_columns = missing_columns
-        super().__init__(f"Missing required columns: {', '.join(missing_columns)}")
+        self.columns = columns
+        if columns is not None:
+            message = (
+                f"Missing required columns: {', '.join(missing_columns)}. Available columns: {', '.join(columns)}."
+            )
+        else:
+            message = f"Missing required columns: {', '.join(missing_columns)}."
+        super().__init__(message)
 
 
 class InvalidColumnTypeError(TypeError):

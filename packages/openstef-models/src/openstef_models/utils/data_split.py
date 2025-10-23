@@ -257,6 +257,12 @@ def train_val_test_split[T](
 
 
 class DataSplitter(BaseConfig):
+    """Handles splitting of time series data into train, validation, and test sets.
+
+    Supports stratified splitting to ensure representative data distribution
+    across splits, particularly for extreme values in forecasting scenarios.
+    """
+
     val_fraction: float = Field(
         default=0.15,
         description="Fraction of data to reserve for the validation set when automatic splitting is used.",
@@ -287,6 +293,7 @@ class DataSplitter(BaseConfig):
             data: Full dataset to split.
             data_val: Optional pre-split validation data.
             data_test: Optional pre-split test data.
+            target_column: Column name containing the target variable for stratification.
 
         Returns:
             Tuple of (train_data, val_data, test_data) where val_data and test_data may be None.
