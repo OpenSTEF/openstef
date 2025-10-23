@@ -21,6 +21,7 @@ from openstef_models.transforms.time_domain.holiday_features_adder import (
 # Expected holidays for Netherlands in 2025 for testing
 NL_2025_HOLIDAYS = [
     (date(2025, 1, 1), "New Year's Day", "new_year_s_day"),
+    (date(2025, 4, 18), "Good Friday", "good_friday"),
     (date(2025, 4, 20), "Easter Sunday", "easter_sunday"),
     (date(2025, 4, 21), "Easter Monday", "easter_monday"),
     (date(2025, 4, 26), "King's Day", "king_s_day"),
@@ -57,7 +58,7 @@ def test_sanitize_holiday_name(input_name: str, expected_output: str):
     [
         pytest.param(
             CountryAlpha2("NL"),
-            10,
+            11,
             ["christmas_day", "new_year_s_day", "king_s_day", "liberation_day"],
             id="netherlands",
         ),

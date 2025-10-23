@@ -2,17 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-"""Versioned time series dataset for efficient multi-part composition.
-
-This module provides an enhanced implementation of versioned time series datasets
-that track data availability over time. The new architecture supports composable
-datasets from multiple parts and improved filtering capabilities for realistic
-backtesting and forecasting scenarios.
-
-The key improvement over the previous implementation is the ability to combine
-multiple data sources while maintaining versioning information, enabling more
-flexible dataset construction for complex forecasting pipelines.
-"""
+"""Versioned time series dataset for efficient multi-part composition."""
 
 import functools
 import json
