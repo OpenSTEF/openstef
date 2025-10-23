@@ -177,11 +177,24 @@ class LagsAdder(BaseConfig, TimeSeriesTransform):
 
     @override
     def to_state(self) -> State:
-        return self.model_dump(mode="json")
+        return cast(
+            State,
+            {
+                "config": self.model_dump(mode="json"),
+                "lags": self._lags,
+                "horizon_lags": self._horizon_lags,
+                "is_fitted": self._is_fitted,
+            },
+        )
 
     @override
     def from_state(self, state: State) -> Self:
-        return self.model_validate(state)
+        state = cast(dict[str, Any], state)
+        instance = self.model_validate(state["config"])
+        instance._lags = state["lags"]  # noqa: SLF001
+        instance._horizon_lags = state["horizon_lags"]  # noqa: SLF001
+        instance._is_fitted = state["is_fitted"]  # noqa: SLF001
+        return instance
 
     def _lag_feature(self, lag: timedelta) -> str:
         return f"{self.target_column}_lag_{timedelta_to_isoformat(lag)}"
