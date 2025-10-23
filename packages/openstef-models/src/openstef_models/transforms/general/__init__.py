@@ -14,6 +14,7 @@ from openstef_models.transforms.general.empty_feature_remover import (
     EmptyFeatureRemover,
 )
 from openstef_models.transforms.general.imputer import Imputer
+from openstef_models.transforms.general.sample_weighter import SampleWeighter
 from openstef_models.transforms.general.scaler import Scaler
 
 __all__ = [
@@ -21,5 +22,6 @@ __all__ = [
     "DimensionalityReducer",
     "EmptyFeatureRemover",
     "Imputer",
+    "SampleWeighter",
     "Scaler",
 ]
