@@ -901,6 +901,8 @@
 
 
 
+<div class="viewcode-block" id="validate_horizons_present">
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.validate_horizons_present.html#openstef_core.datasets.validate_horizons_present">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">validate_horizons_present</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="n">TimeSeriesDataset</span><span class="p">,</span> <span class="n">horizons</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">LeadTime</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate that the specified forecast horizons are present in the dataset.</span>
 
@@ -917,7 +919,8 @@
     <span class="n">required_horizons</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">horizons</span> <span class="ow">or</span> <span class="p">[])</span>
     <span class="n">missing_horizons</span> <span class="o">=</span> <span class="p">[</span><span class="n">h</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">horizons</span> <span class="k">if</span> <span class="n">h</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">required_horizons</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">missing_horizons</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">TimeSeriesValidationError</span><span class="p">(</span><span class="s2">&quot;Missing forecast horizons: &quot;</span> <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">missing_horizons</span><span class="p">)))</span>
+        <span class="k">raise</span> <span class="n">TimeSeriesValidationError</span><span class="p">(</span><span class="s2">&quot;Missing forecast horizons: &quot;</span> <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">missing_horizons</span><span class="p">)))</span></div>
+
 
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;TimeSeriesDataset&quot;</span><span class="p">,</span> <span class="s2">&quot;validate_horizons_present&quot;</span><span class="p">]</span>

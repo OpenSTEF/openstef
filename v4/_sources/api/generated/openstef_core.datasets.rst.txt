@@ -35,6 +35,16 @@ Submodules
 
 
 
+Functions
+---------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_function.rst
+
+   validate_horizons_present
+
+
 
 Classes
 -------

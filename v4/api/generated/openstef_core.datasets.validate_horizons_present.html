@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Window &#8212; OpenSTEF 0.0.0 documentation</title>
+    <title>validate_horizons_present &#8212; OpenSTEF 0.0.0 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../_static/copybutton.js?v=97f0b27d"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'api/generated/openstef_beam.evaluation.Window';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/generated/openstef_core.datasets.validate_horizons_present';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = '_static/versions.json';
@@ -59,8 +59,8 @@
     <link rel="icon" href="../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="openstef_beam.benchmarking" href="openstef_beam.benchmarking.html" />
-    <link rel="prev" title="SubsetMetric" href="openstef_beam.evaluation.SubsetMetric.html" />
+    <link rel="next" title="EnergyComponentDataset" href="openstef_core.datasets.EnergyComponentDataset.html" />
+    <link rel="prev" title="TimeSeriesMixin" href="openstef_core.datasets.mixins.TimeSeriesMixin.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="0.0.0" />
@@ -393,14 +393,14 @@
 <nav class="bd-docs-nav bd-links"
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
-  <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
-<li class="toctree-l1 has-children"><a class="reference internal" href="openstef_core.datasets.html">openstef_core.datasets</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="openstef_core.datasets.html">openstef_core.datasets</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2 has-children"><a class="reference internal" href="openstef_core.datasets.mixins.html">openstef_core.datasets.mixins</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="openstef_core.datasets.mixins.DatasetMixin.html">DatasetMixin</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_core.datasets.mixins.TimeSeriesMixin.html">TimeSeriesMixin</a></li>
 </ul>
 </details></li>
-<li class="toctree-l2"><a class="reference internal" href="openstef_core.datasets.validate_horizons_present.html">validate_horizons_present</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">validate_horizons_present</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.datasets.EnergyComponentDataset.html">EnergyComponentDataset</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.datasets.ForecastDataset.html">ForecastDataset</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.datasets.ForecastInputDataset.html">ForecastInputDataset</a></li>
@@ -450,7 +450,7 @@
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="openstef_models.explainability.html">openstef_models.explainability</a></li>
 </ul>
-<ul class="current nav bd-sidenav">
+<ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="openstef_beam.metrics.html">openstef_beam.metrics</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.confusion_matrix.html">confusion_matrix</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.crps.html">crps</a></li>
@@ -481,13 +481,13 @@
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.analysis.VisualizationOutput.html">VisualizationOutput</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="openstef_beam.evaluation.html">openstef_beam.evaluation</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="openstef_beam.evaluation.html">openstef_beam.evaluation</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.evaluation.EvaluationConfig.html">EvaluationConfig</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.evaluation.EvaluationPipeline.html">EvaluationPipeline</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.evaluation.EvaluationReport.html">EvaluationReport</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.evaluation.EvaluationSubsetReport.html">EvaluationSubsetReport</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.evaluation.SubsetMetric.html">SubsetMetric</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">Window</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_beam.evaluation.Window.html">Window</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="openstef_beam.benchmarking.html">openstef_beam.benchmarking</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -552,9 +552,9 @@
     <li class="breadcrumb-item"><a href="../index.html" class="nav-link">API Reference</a></li>
     
     
-    <li class="breadcrumb-item"><a href="openstef_beam.evaluation.html" class="nav-link">openstef_beam.evaluation</a></li>
+    <li class="breadcrumb-item"><a href="openstef_core.datasets.html" class="nav-link">openstef_core.datasets</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Window</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">validate_horizons_present</span></li>
   </ul>
 </nav>
 </div>
@@ -571,108 +571,28 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="window">
-<h1>Window<a class="headerlink" href="#window" title="Link to this heading">#</a></h1>
-<dl class="py class">
-<dt class="sig sig-object py" id="openstef_beam.evaluation.Window">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef_beam.evaluation.</span></span><span class="sig-name descname"><span class="pre">Window</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">timedelta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">timedelta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stride</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">timedelta</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">timedelta(days=1)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minimum_coverage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/openstef_beam/evaluation/models/window.html#Window"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_beam.evaluation.Window" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="openstef_core.base_model.PydanticStringPrimitive.html#openstef_core.base_model.PydanticStringPrimitive" title="openstef_core.base_model.PydanticStringPrimitive"><code class="xref py py-class docutils literal notranslate"><span class="pre">PydanticStringPrimitive</span></code></a></p>
-<p>Represents a time window with lag, size, and stride parameters.</p>
-<p>Used for defining sliding windows for time series analysis with:
-- lag: How far back from the reference point to start the window
-- size: The duration of the window
-- stride: How much to advance for the next window
-- minimum_coverage: Minimum required data coverage (0.0-1.0)</p>
+  <section id="validate-horizons-present">
+<h1>validate_horizons_present<a class="headerlink" href="#validate-horizons-present" title="Link to this heading">#</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="openstef_core.datasets.validate_horizons_present">
+<span class="sig-prename descclassname"><span class="pre">openstef_core.datasets.</span></span><span class="sig-name descname"><span class="pre">validate_horizons_present</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><span class="pre">TimeSeriesDataset</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">horizons</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">LeadTime</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/timeseries_dataset.html#validate_horizons_present"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.validate_horizons_present" title="Link to this definition">#</a></dt>
+<dd><p>Validate that the specified forecast horizons are present in the dataset.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>lag</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">timedelta</span></code></span>)</p></li>
-<li><p><strong>size</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">timedelta</span></code></span>)</p></li>
-<li><p><strong>stride</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">timedelta</span></code></span>)</p></li>
-<li><p><strong>minimum_coverage</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>)</p></li>
+<li><p><strong>dataset</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeSeriesDataset</span></code></a></span>) – The time series dataset to validate.</p></li>
+<li><p><strong>horizons</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">LeadTime</span></code>]</span>) – List of forecast horizons to check for presence in the dataset.</p></li>
+<li><p><strong>dataset</strong></p></li>
+<li><p><strong>horizons</strong></p></li>
 </ul>
 </dd>
-</dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="openstef_beam.evaluation.Window.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">timedelta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">timedelta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stride</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">timedelta</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">timedelta(days=1)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minimum_coverage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/openstef_beam/evaluation/models/window.html#Window.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_beam.evaluation.Window.__init__" title="Link to this definition">#</a></dt>
-<dd><p>Initialize a time window with the specified parameters.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>lag</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">timedelta</span></code></span>) – How far back from the reference point to start the window.</p></li>
-<li><p><strong>size</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">timedelta</span></code></span>) – The duration of the window.</p></li>
-<li><p><strong>stride</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">timedelta</span></code></span>) – How much to advance for the next window.</p></li>
-<li><p><strong>minimum_coverage</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – Minimum required data coverage (0.0-1.0).</p></li>
-<li><p><strong>lag</strong></p></li>
-<li><p><strong>size</strong></p></li>
-<li><p><strong>stride</strong></p></li>
-<li><p><strong>minimum_coverage</strong></p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="openstef_beam.evaluation.Window.__str__">
-<span class="sig-name descname"><span class="pre">__str__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../../_modules/openstef_beam/evaluation/models/window.html#Window.__str__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_beam.evaluation.Window.__str__" title="Link to this definition">#</a></dt>
-<dd><p>Converts to string in ‘(lag=X,size=Y,stride=Z)’ format.</p>
-<p>Timedeltas are serialized in ISO 8601 format.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span></p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>String representation of the window parameters.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="openstef_beam.evaluation.Window.from_string">
-<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Self</span></span></span><a class="reference internal" href="../../_modules/openstef_beam/evaluation/models/window.html#Window.from_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_beam.evaluation.Window.from_string" title="Link to this definition">#</a></dt>
-<dd><p>Creates an instance from a string in ‘(lag=X,size=Y,stride=Z)’ format.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>s</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – String representation to parse.</p></li>
-<li><p><strong>s</strong></p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Window instance parsed from the string.</p>
-</dd>
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>ValueError</strong> – If the string format is invalid.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Self</span></code></span></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="openstef_beam.evaluation.Window.validate">
-<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Self</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Self</span></span></span><a class="reference internal" href="../../_modules/openstef_beam/evaluation/models/window.html#Window.validate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_beam.evaluation.Window.validate" title="Link to this definition">#</a></dt>
-<dd><p>Validates and converts various input types to Window.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>v</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Self</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]]</span>) – Input value to validate (Window, string, or dict).</p></li>
-<li><p><strong>_info</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></span>) – Additional validation info (unused).</p></li>
-<li><p><strong>v</strong></p></li>
-<li><p><strong>_info</strong></p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Validated Window instance.</p>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="openstef_core.exceptions.TimeSeriesValidationError.html#openstef_core.exceptions.TimeSeriesValidationError" title="openstef_core.exceptions.TimeSeriesValidationError"><strong>TimeSeriesValidationError</strong></a> – If any of the specified horizons are not present.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Self</span></code></span></p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
 </dd>
 </dl>
-</dd></dl>
-
 </dd></dl>
 
 </section>
@@ -688,20 +608,20 @@
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="openstef_beam.evaluation.SubsetMetric.html"
+       href="openstef_core.datasets.mixins.TimeSeriesMixin.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">SubsetMetric</p>
+        <p class="prev-next-title">TimeSeriesMixin</p>
       </div>
     </a>
     <a class="right-next"
-       href="openstef_beam.benchmarking.html"
+       href="openstef_core.datasets.EnergyComponentDataset.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">openstef_beam.benchmarking</p>
+        <p class="prev-next-title">EnergyComponentDataset</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -724,13 +644,7 @@
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.evaluation.Window"><code class="docutils literal notranslate"><span class="pre">Window</span></code></a><ul class="visible nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.evaluation.Window.__init__"><code class="docutils literal notranslate"><span class="pre">Window.__init__()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.evaluation.Window.__str__"><code class="docutils literal notranslate"><span class="pre">Window.__str__()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.evaluation.Window.from_string"><code class="docutils literal notranslate"><span class="pre">Window.from_string()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.evaluation.Window.validate"><code class="docutils literal notranslate"><span class="pre">Window.validate()</span></code></a></li>
-</ul>
-</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.datasets.validate_horizons_present"><code class="docutils literal notranslate"><span class="pre">validate_horizons_present()</span></code></a></li>
 </ul>
   </nav></div>
 
@@ -738,7 +652,7 @@
 
   
   <div class="tocsection editthispage">
-    <a href="https://github.com/OpenSTEF/openstef/edit/release/v4.0.0/docs/source/api/generated/openstef_beam.evaluation.Window.rst">
+    <a href="https://github.com/OpenSTEF/openstef/edit/release/v4.0.0/docs/source/api/generated/openstef_core.datasets.validate_horizons_present.rst">
       <i class="fa-solid fa-pencil"></i>
       
       
