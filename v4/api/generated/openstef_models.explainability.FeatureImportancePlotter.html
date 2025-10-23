@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>MissingExtraError &#8212; OpenSTEF 0.0.0 documentation</title>
+    <title>FeatureImportancePlotter &#8212; OpenSTEF 0.0.0 documentation</title>
   
   
   
@@ -48,7 +48,7 @@
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../_static/copybutton.js?v=97f0b27d"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'api/generated/openstef_core.exceptions.MissingExtraError';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/generated/openstef_models.explainability.FeatureImportancePlotter';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = '_static/versions.json';
@@ -59,8 +59,8 @@
     <link rel="icon" href="../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="ModelLoadingError" href="openstef_core.exceptions.ModelLoadingError.html" />
-    <link rel="prev" title="MissingColumnsError" href="openstef_core.exceptions.MissingColumnsError.html" />
+    <link rel="next" title="openstef_beam.metrics" href="openstef_beam.metrics.html" />
+    <link rel="prev" title="ExplainableForecaster" href="openstef_models.explainability.ExplainableForecaster.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="0.0.0" />
@@ -393,7 +393,7 @@
 <nav class="bd-docs-nav bd-links"
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
-  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+  <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="openstef_core.datasets.html">openstef_core.datasets</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="openstef_core.datasets.mixins.html">openstef_core.datasets.mixins</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="openstef_core.datasets.mixins.DatasetMixin.html">DatasetMixin</a></li>
@@ -425,13 +425,13 @@
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.base_model.PydanticStringPrimitive.html">PydanticStringPrimitive</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="openstef_core.exceptions.html">openstef_core.exceptions</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="openstef_core.exceptions.html">openstef_core.exceptions</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.ConfigurationError.html">ConfigurationError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.FlatlinerDetectedError.html">FlatlinerDetectedError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.InsufficientlyCompleteError.html">InsufficientlyCompleteError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.InvalidColumnTypeError.html">InvalidColumnTypeError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.MissingColumnsError.html">MissingColumnsError</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">MissingExtraError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.MissingExtraError.html">MissingExtraError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.ModelLoadingError.html">ModelLoadingError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.ModelNotFoundError.html">ModelNotFoundError</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.exceptions.NotFittedError.html">NotFittedError</a></li>
@@ -441,16 +441,16 @@
 </ul>
 </details></li>
 </ul>
-<ul class="nav bd-sidenav">
+<ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="openstef_models.transforms.html">openstef_models.transforms</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="openstef_models.models.html">openstef_models.models</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="openstef_models.models.ComponentSplittingModel.html">ComponentSplittingModel</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_models.models.ForecastingModel.html">ForecastingModel</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="openstef_models.explainability.html">openstef_models.explainability</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="openstef_models.explainability.html">openstef_models.explainability</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="openstef_models.explainability.ExplainableForecaster.html">ExplainableForecaster</a></li>
-<li class="toctree-l2"><a class="reference internal" href="openstef_models.explainability.FeatureImportancePlotter.html">FeatureImportancePlotter</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">FeatureImportancePlotter</a></li>
 </ul>
 </details></li>
 </ul>
@@ -556,9 +556,9 @@
     <li class="breadcrumb-item"><a href="../index.html" class="nav-link">API Reference</a></li>
     
     
-    <li class="breadcrumb-item"><a href="openstef_core.exceptions.html" class="nav-link">openstef_core.exceptions</a></li>
+    <li class="breadcrumb-item"><a href="openstef_models.explainability.html" class="nav-link">openstef_models.explainability</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">MissingExtraError</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">FeatureImportancePlotter</span></li>
   </ul>
 </nav>
 </div>
@@ -575,35 +575,50 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="missingextraerror">
-<h1>MissingExtraError<a class="headerlink" href="#missingextraerror" title="Link to this heading">#</a></h1>
+  <section id="featureimportanceplotter">
+<h1>FeatureImportancePlotter<a class="headerlink" href="#featureimportanceplotter" title="Link to this heading">#</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="openstef_core.exceptions.MissingExtraError">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef_core.exceptions.</span></span><span class="sig-name descname"><span class="pre">MissingExtraError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">extra</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">package</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'openstef-beam'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/openstef_core/exceptions.html#MissingExtraError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.exceptions.MissingExtraError" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
-<p>Exception raised when an extra is missing in the extras list.</p>
+<dt class="sig sig-object py" id="openstef_models.explainability.FeatureImportancePlotter">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef_models.explainability.</span></span><span class="sig-name descname"><span class="pre">FeatureImportancePlotter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/openstef_models/explainability/plotters/feature_importance_plotter.html#FeatureImportancePlotter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_models.explainability.FeatureImportancePlotter" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="openstef_core.base_model.BaseConfig.html#openstef_core.base_model.BaseConfig" title="openstef_core.base_model.BaseConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseConfig</span></code></a></p>
+<p>Creates treemap visualizations of feature importance scores.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>extra</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>)</p></li>
-<li><p><strong>package</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>)</p></li>
-</ul>
+<dd class="field-odd"><p><strong>data</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></span>)</p>
 </dd>
 </dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="openstef_core.exceptions.MissingExtraError.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">extra</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">package</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'openstef-beam'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/openstef_core/exceptions.html#MissingExtraError.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.exceptions.MissingExtraError.__init__" title="Link to this definition">#</a></dt>
-<dd><p>Initialize the exception with the name of the missing extra.</p>
+<dt class="sig sig-object py" id="openstef_models.explainability.FeatureImportancePlotter.plot">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scores</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantile</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Quantile</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">Q(0.5)</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Figure</span></span></span><a class="reference internal" href="../../_modules/openstef_models/explainability/plotters/feature_importance_plotter.html#FeatureImportancePlotter.plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_models.explainability.FeatureImportancePlotter.plot" title="Link to this definition">#</a></dt>
+<dd><p>Generate interactive treemap showing feature importance.</p>
+<p>Creates a color-coded treemap where each box size and color intensity
+represents the relative importance of a feature. Useful for quickly
+identifying which features contribute most to model predictions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>extra</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Name of the missing extra package.</p></li>
-<li><p><strong>package</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Name of the package requiring the extra.</p></li>
-<li><p><strong>extra</strong></p></li>
-<li><p><strong>package</strong></p></li>
+<li><p><strong>scores</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></span>) – Feature importance scores with feature names as index and
+quantiles as columns (e.g., ‘q0.5’, ‘q0.95’). Values should be
+normalized to sum to 1.0.</p></li>
+<li><p><strong>quantile</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Quantile</span></code></span>) – Which quantile column to visualize. Defaults to median (0.5).</p></li>
+<li><p><strong>scores</strong></p></li>
+<li><p><strong>quantile</strong></p></li>
 </ul>
 </dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Plotly Figure containing interactive treemap with hover information.
+Larger boxes and darker green colors indicate higher importance.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Figure</span></code></span></p>
+</dd>
 </dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef_models.explainability.FeatureImportancePlotter.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar[ConfigDict]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'arbitrary_types_allowed':</span> <span class="pre">False,</span> <span class="pre">'extra':</span> <span class="pre">'ignore',</span> <span class="pre">'protected_namespaces':</span> <span class="pre">()}</span></em><a class="headerlink" href="#openstef_models.explainability.FeatureImportancePlotter.model_config" title="Link to this definition">#</a></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
 </dd></dl>
 
 </dd></dl>
@@ -621,20 +636,20 @@
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="openstef_core.exceptions.MissingColumnsError.html"
+       href="openstef_models.explainability.ExplainableForecaster.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">MissingColumnsError</p>
+        <p class="prev-next-title">ExplainableForecaster</p>
       </div>
     </a>
     <a class="right-next"
-       href="openstef_core.exceptions.ModelLoadingError.html"
+       href="openstef_beam.metrics.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">ModelLoadingError</p>
+        <p class="prev-next-title">openstef_beam.metrics</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -657,8 +672,9 @@
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.exceptions.MissingExtraError"><code class="docutils literal notranslate"><span class="pre">MissingExtraError</span></code></a><ul class="visible nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_core.exceptions.MissingExtraError.__init__"><code class="docutils literal notranslate"><span class="pre">MissingExtraError.__init__()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.explainability.FeatureImportancePlotter"><code class="docutils literal notranslate"><span class="pre">FeatureImportancePlotter</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.explainability.FeatureImportancePlotter.plot"><code class="docutils literal notranslate"><span class="pre">FeatureImportancePlotter.plot()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.explainability.FeatureImportancePlotter.model_config"><code class="docutils literal notranslate"><span class="pre">FeatureImportancePlotter.model_config</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -668,7 +684,7 @@
 
   
   <div class="tocsection editthispage">
-    <a href="https://github.com/OpenSTEF/openstef/edit/release/v4.0.0/docs/source/api/generated/openstef_core.exceptions.MissingExtraError.rst">
+    <a href="https://github.com/OpenSTEF/openstef/edit/release/v4.0.0/docs/source/api/generated/openstef_models.explainability.FeatureImportancePlotter.rst">
       <i class="fa-solid fa-pencil"></i>
       
       

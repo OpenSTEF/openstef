@@ -59,7 +59,7 @@
     <link rel="icon" href="../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="openstef_beam.metrics" href="openstef_beam.metrics.html" />
+    <link rel="next" title="ExplainableForecaster" href="openstef_models.explainability.ExplainableForecaster.html" />
     <link rel="prev" title="ForecastingModel" href="openstef_models.models.ForecastingModel.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -448,7 +448,11 @@
 <li class="toctree-l2"><a class="reference internal" href="openstef_models.models.ForecastingModel.html">ForecastingModel</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">openstef_models.explainability</a></li>
+<li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">openstef_models.explainability</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="openstef_models.explainability.ExplainableForecaster.html">ExplainableForecaster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_models.explainability.FeatureImportancePlotter.html">FeatureImportancePlotter</a></li>
+</ul>
+</details></li>
 </ul>
 <ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="openstef_beam.metrics.html">openstef_beam.metrics</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -572,6 +576,20 @@
 <span id="openstef-models-explainability"></span><h1>openstef_models.explainability<a class="headerlink" href="#module-openstef_models.explainability" title="Link to this heading">#</a></h1>
 <p>Explainability utilities for OpenSTEF.</p>
 <p>Tools for feature importance, attribution and model interpretation.</p>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="openstef_models.explainability.ExplainableForecaster.html#openstef_models.explainability.ExplainableForecaster" title="openstef_models.explainability.ExplainableForecaster"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ExplainableForecaster</span></code></a>()</p></td>
+<td><p>Mixin for forecasters that can explain feature importance.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="openstef_models.explainability.FeatureImportancePlotter.html#openstef_models.explainability.FeatureImportancePlotter" title="openstef_models.explainability.FeatureImportancePlotter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FeatureImportancePlotter</span></code></a>(**data)</p></td>
+<td><p>Creates treemap visualizations of feature importance scores.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
 </section>
 
 
@@ -594,11 +612,11 @@
       </div>
     </a>
     <a class="right-next"
-       href="openstef_beam.metrics.html"
+       href="openstef_models.explainability.ExplainableForecaster.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">openstef_beam.metrics</p>
+        <p class="prev-next-title">ExplainableForecaster</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -612,6 +630,18 @@
                 <dialog id="pst-secondary-sidebar-modal"></dialog>
                 <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
 
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+</ul>
+  </nav></div>
 
   <div class="sidebar-secondary-item">
 

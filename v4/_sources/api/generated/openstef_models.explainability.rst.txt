@@ -21,7 +21,15 @@ openstef_models.explainability
 
 
 
+Classes
+-------
 
+.. autosummary::
+   :toctree: .
+   :template: custom_class.rst
+
+   ExplainableForecaster
+   FeatureImportancePlotter
 
 
 

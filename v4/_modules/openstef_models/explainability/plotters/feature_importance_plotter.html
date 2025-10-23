@@ -2,12 +2,12 @@
 <!DOCTYPE html>
 
 
-<html lang="en" data-content_root="../" >
+<html lang="en" data-content_root="../../../../" >
 
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Overview: module code &#8212; OpenSTEF 0.0.0 documentation</title>
+    <title>openstef_models.explainability.plotters.feature_importance_plotter &#8212; OpenSTEF 0.0.0 documentation</title>
   
   
   
@@ -26,28 +26,28 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+  <link href="../../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
-    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=76f329c7" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/css/custom.css?v=76f329c7" />
   
   <!-- So that users can add custom icons -->
-  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <script src="../../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=7026087e"></script>
-    <script src="../_static/doctools.js?v=9bcbadda"></script>
-    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
-    <script src="../_static/copybutton.js?v=97f0b27d"></script>
-    <script src="../_static/design-tabs.js?v=f930bc37"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/index';</script>
+    <script src="../../../../_static/documentation_options.js?v=7026087e"></script>
+    <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../../_static/copybutton.js?v=97f0b27d"></script>
+    <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/openstef_models/explainability/plotters/feature_importance_plotter';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = '_static/versions.json';
@@ -55,9 +55,9 @@
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
-    <link rel="icon" href="../_static/favicon.ico"/>
-    <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" />
+    <link rel="icon" href="../../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="0.0.0" />
@@ -79,7 +79,7 @@
   <dialog id="pst-search-dialog">
     
 <form class="bd-search d-flex align-items-center"
-      action="../search.html"
+      action="../../../../search.html"
       method="get">
   <i class="fa-solid fa-magnifying-glass"></i>
   <input type="search"
@@ -115,7 +115,7 @@
     
   
 
-<a class="navbar-brand logo" href="../index.html">
+<a class="navbar-brand logo" href="../../../../index.html">
   
   
   
@@ -126,8 +126,8 @@
       
     
     
-    <img src="../_static/openstef-horizontal-color.svg" class="logo__image only-light" alt="OpenSTEF homepage"/>
-    <img src="../_static/openstef-horizontal-white.svg" class="logo__image only-dark pst-js-only" alt="OpenSTEF homepage"/>
+    <img src="../../../../_static/openstef-horizontal-color.svg" class="logo__image only-light" alt="OpenSTEF homepage"/>
+    <img src="../../../../_static/openstef-horizontal-white.svg" class="logo__image only-dark pst-js-only" alt="OpenSTEF homepage"/>
   
   
 </a></div>
@@ -143,35 +143,35 @@
   <ul class="bd-navbar-elements navbar-nav">
     
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../user_guide/index.html">
+  <a class="nav-link nav-internal" href="../../../../user_guide/index.html">
     User Guide
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../api/index.html">
+  <a class="nav-link nav-internal" href="../../../../api/index.html">
     API
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../project/index.html">
+  <a class="nav-link nav-internal" href="../../../../project/index.html">
     Community
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../contribute/index.html">
+  <a class="nav-link nav-internal" href="../../../../contribute/index.html">
     Contributing
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../changelog.html">
+  <a class="nav-link nav-internal" href="../../../../changelog.html">
     Changelog
   </a>
 </li>
@@ -185,7 +185,7 @@
                 <ul id="pst-nav-more-links" class="dropdown-menu">
                     
 <li class=" ">
-  <a class="nav-link dropdown-item nav-internal" href="../examples.html">
+  <a class="nav-link dropdown-item nav-internal" href="../../../../examples.html">
     Examples
   </a>
 </li>
@@ -293,42 +293,42 @@
   <ul class="bd-navbar-elements navbar-nav">
     
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../user_guide/index.html">
+  <a class="nav-link nav-internal" href="../../../../user_guide/index.html">
     User Guide
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../api/index.html">
+  <a class="nav-link nav-internal" href="../../../../api/index.html">
     API
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../project/index.html">
+  <a class="nav-link nav-internal" href="../../../../project/index.html">
     Community
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../contribute/index.html">
+  <a class="nav-link nav-internal" href="../../../../contribute/index.html">
     Contributing
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../changelog.html">
+  <a class="nav-link nav-internal" href="../../../../changelog.html">
     Changelog
   </a>
 </li>
 
 
 <li class="nav-item ">
-  <a class="nav-link nav-internal" href="../examples.html">
+  <a class="nav-link nav-internal" href="../../../../examples.html">
     Examples
   </a>
 </li>
@@ -414,11 +414,14 @@
   <ul class="bd-breadcrumbs">
     
     <li class="breadcrumb-item breadcrumb-home">
-      <a href="../index.html" class="nav-link" aria-label="Home">
+      <a href="../../../../index.html" class="nav-link" aria-label="Home">
         <i class="fa-solid fa-home"></i>
       </a>
     </li>
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Overview: module code</span></li>
+    
+    <li class="breadcrumb-item"><a href="../../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">openstef_models.explainability.plotters.feature_importance_plotter</span></li>
   </ul>
 </nav>
 </div>
@@ -435,41 +438,73 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <h1>All modules for which code is available</h1>
-<ul><li><a href="openstef_beam/analysis/analysis_pipeline.html">openstef_beam.analysis.analysis_pipeline</a></li>
-<li><a href="openstef_beam/analysis/models/visualization_aggregation.html">openstef_beam.analysis.models.visualization_aggregation</a></li>
-<li><a href="openstef_beam/analysis/models/visualization_output.html">openstef_beam.analysis.models.visualization_output</a></li>
-<li><a href="openstef_beam/backtesting/backtest_pipeline.html">openstef_beam.backtesting.backtest_pipeline</a></li>
-<li><a href="openstef_beam/benchmarking/benchmark_comparison_pipeline.html">openstef_beam.benchmarking.benchmark_comparison_pipeline</a></li>
-<li><a href="openstef_beam/benchmarking/benchmark_pipeline.html">openstef_beam.benchmarking.benchmark_pipeline</a></li>
-<li><a href="openstef_beam/benchmarking/callbacks/base.html">openstef_beam.benchmarking.callbacks.base</a></li>
-<li><a href="openstef_beam/benchmarking/callbacks/strict_execution_callback.html">openstef_beam.benchmarking.callbacks.strict_execution_callback</a></li>
-<li><a href="openstef_beam/benchmarking/models/benchmark_target.html">openstef_beam.benchmarking.models.benchmark_target</a></li>
-<li><a href="openstef_beam/benchmarking/storage/base.html">openstef_beam.benchmarking.storage.base</a></li>
-<li><a href="openstef_beam/benchmarking/storage/local_storage.html">openstef_beam.benchmarking.storage.local_storage</a></li>
-<li><a href="openstef_beam/benchmarking/storage/s3_storage.html">openstef_beam.benchmarking.storage.s3_storage</a></li>
-<li><a href="openstef_beam/benchmarking/target_provider.html">openstef_beam.benchmarking.target_provider</a></li>
-<li><a href="openstef_beam/evaluation/evaluation_pipeline.html">openstef_beam.evaluation.evaluation_pipeline</a></li>
-<li><a href="openstef_beam/evaluation/models/report.html">openstef_beam.evaluation.models.report</a></li>
-<li><a href="openstef_beam/evaluation/models/subset.html">openstef_beam.evaluation.models.subset</a></li>
-<li><a href="openstef_beam/evaluation/models/window.html">openstef_beam.evaluation.models.window</a></li>
-<li><a href="openstef_beam/metrics/metrics_deterministic.html">openstef_beam.metrics.metrics_deterministic</a></li>
-<li><a href="openstef_beam/metrics/metrics_probabilistic.html">openstef_beam.metrics.metrics_probabilistic</a></li>
-<li><a href="openstef_core/base_model.html">openstef_core.base_model</a></li>
-<li><a href="openstef_core/datasets/mixins.html">openstef_core.datasets.mixins</a></li>
-<li><a href="openstef_core/datasets/timeseries_dataset.html">openstef_core.datasets.timeseries_dataset</a></li>
-<li><a href="openstef_core/datasets/validated_datasets.html">openstef_core.datasets.validated_datasets</a></li>
-<li><a href="openstef_core/datasets/versioned_timeseries_dataset.html">openstef_core.datasets.versioned_timeseries_dataset</a></li>
-<li><a href="openstef_core/exceptions.html">openstef_core.exceptions</a></li>
-<li><a href="openstef_core/utils/datetime.html">openstef_core.utils.datetime</a></li>
-<li><a href="openstef_core/utils/invariants.html">openstef_core.utils.invariants</a></li>
-<li><a href="openstef_core/utils/multiprocessing.html">openstef_core.utils.multiprocessing</a></li>
-<li><a href="openstef_core/utils/pydantic.html">openstef_core.utils.pydantic</a></li>
-<li><a href="openstef_models/explainability/mixins.html">openstef_models.explainability.mixins</a></li>
-<li><a href="openstef_models/explainability/plotters/feature_importance_plotter.html">openstef_models.explainability.plotters.feature_importance_plotter</a></li>
-<li><a href="openstef_models/models/component_splitting_model.html">openstef_models.models.component_splitting_model</a></li>
-<li><a href="openstef_models/models/forecasting_model.html">openstef_models.models.forecasting_model</a></li>
-</ul>
+  <h1>Source code for openstef_models.explainability.plotters.feature_importance_plotter</h1><div class="highlight"><pre>
+<span></span><span class="c1"># SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project &lt;short.term.energy.forecasts@alliander.com&gt;</span>
+<span class="c1">#</span>
+<span class="c1"># SPDX-License-Identifier: MPL-2.0</span>
+
+<span class="sd">&quot;&quot;&quot;Interactive treemap visualization for feature importance scores.</span>
+
+<span class="sd">Creates color-coded treemaps showing relative importance of features in</span>
+<span class="sd">forecasting models.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">plotly.graph_objects</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">go</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.base_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets.validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_required_columns</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Q</span><span class="p">,</span> <span class="n">Quantile</span>
+
+
+<div class="viewcode-block" id="FeatureImportancePlotter">
+<a class="viewcode-back" href="../../../../api/generated/openstef_models.explainability.FeatureImportancePlotter.html#openstef_models.explainability.FeatureImportancePlotter">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FeatureImportancePlotter</span><span class="p">(</span><span class="n">BaseConfig</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Creates treemap visualizations of feature importance scores.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="FeatureImportancePlotter.plot">
+<a class="viewcode-back" href="../../../../api/generated/openstef_models.explainability.FeatureImportancePlotter.html#openstef_models.explainability.FeatureImportancePlotter.plot">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">plot</span><span class="p">(</span><span class="n">scores</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">quantile</span><span class="p">:</span> <span class="n">Quantile</span> <span class="o">=</span> <span class="n">Q</span><span class="p">(</span><span class="mf">0.5</span><span class="p">))</span> <span class="o">-&gt;</span> <span class="n">go</span><span class="o">.</span><span class="n">Figure</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate interactive treemap showing feature importance.</span>
+
+<span class="sd">        Creates a color-coded treemap where each box size and color intensity</span>
+<span class="sd">        represents the relative importance of a feature. Useful for quickly</span>
+<span class="sd">        identifying which features contribute most to model predictions.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            scores: Feature importance scores with feature names as index and</span>
+<span class="sd">                quantiles as columns (e.g., &#39;q0.5&#39;, &#39;q0.95&#39;). Values should be</span>
+<span class="sd">                normalized to sum to 1.0.</span>
+<span class="sd">            quantile: Which quantile column to visualize. Defaults to median (0.5).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Plotly Figure containing interactive treemap with hover information.</span>
+<span class="sd">            Larger boxes and darker green colors indicate higher importance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">quantile_column</span> <span class="o">=</span> <span class="n">quantile</span><span class="o">.</span><span class="n">format</span><span class="p">()</span>
+        <span class="n">validate_required_columns</span><span class="p">(</span><span class="n">scores</span><span class="p">,</span> <span class="n">required_columns</span><span class="o">=</span><span class="p">[</span><span class="n">quantile_column</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">go</span><span class="o">.</span><span class="n">Figure</span><span class="p">(</span>
+            <span class="n">go</span><span class="o">.</span><span class="n">Treemap</span><span class="p">(</span>
+                <span class="n">labels</span><span class="o">=</span><span class="n">scores</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+                <span class="n">parents</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Feature importance&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">scores</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="n">scores</span><span class="o">.</span><span class="n">index</span><span class="p">),</span>
+                <span class="n">values</span><span class="o">=</span><span class="n">scores</span><span class="p">[</span><span class="n">quantile_column</span><span class="p">],</span>
+                <span class="n">marker</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;colors&quot;</span><span class="p">:</span> <span class="n">scores</span><span class="p">[</span><span class="n">quantile_column</span><span class="p">],</span> <span class="s2">&quot;colorscale&quot;</span><span class="p">:</span> <span class="s2">&quot;greens&quot;</span><span class="p">},</span>
+                <span class="n">hovertemplate</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;&lt;b&gt;%</span><span class="si">{label}</span><span class="s2">&lt;/b&gt;&lt;br&gt;importance: %</span><span class="si">{value:.1%}</span><span class="s2">&lt;extra&gt;&lt;/extra&gt;&quot;</span><span class="p">),</span>
+            <span class="p">),</span>
+            <span class="n">layout</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;margin&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;t&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                    <span class="s2">&quot;r&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                    <span class="s2">&quot;b&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                    <span class="s2">&quot;l&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">},</span>
+        <span class="p">)</span></div>
+</div>
+
+</pre></div>
 
                 </article>
               
@@ -498,8 +533,8 @@
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
-<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+  <script defer src="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
