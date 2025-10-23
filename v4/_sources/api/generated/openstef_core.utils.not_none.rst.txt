@@ -2,11 +2,9 @@
 ..
 .. SPDX-License-Identifier: MPL-2.0
 
-MultiHorizon
-============
+not_none
+========
 
-.. currentmodule:: openstef_core.datasets
+.. currentmodule:: openstef_core.utils
 
-.. autoclass:: MultiHorizon
-   :show-inheritance:
-   :members:
+.. autofunction:: not_none

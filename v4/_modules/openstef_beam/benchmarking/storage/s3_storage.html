@@ -459,7 +459,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.benchmarking.storage.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BenchmarkStorage</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.benchmarking.storage.local_storage</span><span class="w"> </span><span class="kn">import</span> <span class="n">LocalBenchmarkStorage</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.evaluation</span><span class="w"> </span><span class="kn">import</span> <span class="n">EvaluationReport</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">VersionedTimeSeriesPart</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">TimeSeriesDataset</span>
 
 <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -518,7 +518,7 @@
 <div class="viewcode-block" id="S3BenchmarkStorage.save_backtest_output">
 <a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.S3BenchmarkStorage.html#openstef_beam.benchmarking.S3BenchmarkStorage.save_backtest_output">[docs]</a>
     <span class="nd">@override</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">save_backtest_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">,</span> <span class="n">output</span><span class="p">:</span> <span class="n">VersionedTimeSeriesPart</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save_backtest_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">,</span> <span class="n">output</span><span class="p">:</span> <span class="n">TimeSeriesDataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Save backtest predictions locally and sync to S3.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">local_storage</span><span class="o">.</span><span class="n">save_backtest_output</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span>
 
@@ -529,11 +529,11 @@
 <div class="viewcode-block" id="S3BenchmarkStorage.load_backtest_output">
 <a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.S3BenchmarkStorage.html#openstef_beam.benchmarking.S3BenchmarkStorage.load_backtest_output">[docs]</a>
     <span class="nd">@override</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">load_backtest_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VersionedTimeSeriesPart</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_backtest_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TimeSeriesDataset</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Load backtest predictions from local storage.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            VersionedTimeSeriesDataset: The loaded prediction data.</span>
+<span class="sd">            TimeSeriesDataset: The loaded prediction data.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">local_storage</span><span class="o">.</span><span class="n">load_backtest_output</span><span class="p">(</span><span class="n">target</span><span class="p">)</span></div>
 

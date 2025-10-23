@@ -458,7 +458,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.benchmarking.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">BenchmarkTarget</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.benchmarking.storage.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BenchmarkStorage</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.evaluation</span><span class="w"> </span><span class="kn">import</span> <span class="n">EvaluationReport</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">VersionedTimeSeriesPart</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">TimeSeriesDataset</span>
 
 
 <div class="viewcode-block" id="LocalBenchmarkStorage">
@@ -520,7 +520,7 @@
 <div class="viewcode-block" id="LocalBenchmarkStorage.save_backtest_output">
 <a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.LocalBenchmarkStorage.html#openstef_beam.benchmarking.LocalBenchmarkStorage.save_backtest_output">[docs]</a>
     <span class="nd">@override</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">save_backtest_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">,</span> <span class="n">output</span><span class="p">:</span> <span class="n">VersionedTimeSeriesPart</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save_backtest_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">,</span> <span class="n">output</span><span class="p">:</span> <span class="n">TimeSeriesDataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Save backtest predictions to a parquet file.&quot;&quot;&quot;</span>
         <span class="n">predictions_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_predictions_path_for_target</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
         <span class="n">predictions_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -530,13 +530,13 @@
 <div class="viewcode-block" id="LocalBenchmarkStorage.load_backtest_output">
 <a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.LocalBenchmarkStorage.html#openstef_beam.benchmarking.LocalBenchmarkStorage.load_backtest_output">[docs]</a>
     <span class="nd">@override</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">load_backtest_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VersionedTimeSeriesPart</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_backtest_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TimeSeriesDataset</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Load backtest predictions from a parquet file.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            VersionedTimeSeriesPart: The loaded prediction data.</span>
+<span class="sd">            TimeSeriesDataset: The loaded prediction data.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">VersionedTimeSeriesPart</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span>
+        <span class="k">return</span> <span class="n">TimeSeriesDataset</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span>
             <span class="n">path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_predictions_path_for_target</span><span class="p">(</span><span class="n">target</span><span class="p">),</span>
         <span class="p">)</span></div>
 

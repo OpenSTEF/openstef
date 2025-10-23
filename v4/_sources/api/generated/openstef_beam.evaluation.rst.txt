@@ -31,7 +31,6 @@ Classes
    EvaluationConfig
    EvaluationPipeline
    EvaluationReport
-   EvaluationSubset
    EvaluationSubsetReport
    SubsetMetric
    Window

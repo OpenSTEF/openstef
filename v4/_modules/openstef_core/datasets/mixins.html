@@ -443,52 +443,161 @@
 <span class="c1">#</span>
 <span class="c1"># SPDX-License-Identifier: MPL-2.0</span>
 
-<span class="sd">&quot;&quot;&quot;Abstract base classes for time series dataset functionality.</span>
+<span class="sd">&quot;&quot;&quot;Protocol definitions for time series dataset interfaces.</span>
 
-<span class="sd">This module provides mixins that define the core interfaces for time series</span>
-<span class="sd">datasets in OpenSTEF. The mixins separate concerns between basic time series</span>
-<span class="sd">operations and versioned data access capabilities.</span>
+<span class="sd">This module provides protocol classes that define the core interfaces for time series</span>
+<span class="sd">datasets in OpenSTEF. Protocols enable type checking and documentation of expected</span>
+<span class="sd">behavior without requiring inheritance.</span>
+
+<span class="sd">Key protocols:</span>
+<span class="sd">    - TimeSeries: Core interface for all time series datasets with filtering and versioning</span>
+<span class="sd">    - DatasetMixin: Interface for dataset persistence operations</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">abstractmethod</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Self</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Concatenate</span><span class="p">,</span> <span class="n">Protocol</span><span class="p">,</span> <span class="n">Self</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">FilePath</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">AvailableAt</span><span class="p">,</span> <span class="n">LeadTime</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">TimeSeriesDataset</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets.timeseries_dataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">TimeSeriesDataset</span>
 
 
 <div class="viewcode-block" id="TimeSeriesMixin">
-<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.mixins.TimeSeriesMixin.html#openstef_core.datasets.TimeSeriesMixin">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">TimeSeriesMixin</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract base class for time series dataset functionality.</span>
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.mixins.TimeSeriesMixin.html#openstef_core.datasets.mixins.TimeSeriesMixin">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TimeSeriesMixin</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Interface defining the interface for time series datasets.</span>
 
-<span class="sd">    This mixin defines the essential interface that all time series datasets</span>
+<span class="sd">    This interface defines the essential operations that all time series datasets</span>
 <span class="sd">    must implement. It provides access to feature metadata, temporal properties,</span>
-<span class="sd">    and the dataset&#39;s temporal index.</span>
+<span class="sd">    the dataset&#39;s temporal index, and filtering/versioning capabilities.</span>
 
-<span class="sd">    Classes implementing this mixin must set the required attributes in their __init__ method.</span>
-<span class="sd">    This interface enables consistent access patterns across different time series</span>
-<span class="sd">    dataset implementations.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        feature_names: Names of all available features, excluding metadata columns.</span>
-<span class="sd">        sample_interval: The fixed interval between consecutive samples.</span>
-<span class="sd">        index: Datetime index representing all timestamps in the dataset.</span>
+<span class="sd">    Classes implementing this interface must provide:</span>
+<span class="sd">        - Access to the datetime index</span>
+<span class="sd">        - Sample interval information</span>
+<span class="sd">        - Feature names list</span>
+<span class="sd">        - Versioning status indicator</span>
+<span class="sd">        - Filtering methods for time ranges, availability, and lead times</span>
+<span class="sd">        - Version selection for point-in-time data reconstruction</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">feature_names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
-    <span class="n">sample_interval</span><span class="p">:</span> <span class="n">timedelta</span>
-    <span class="n">index</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span>
+    <span class="nd">@property</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">index</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;pd.DatetimeIndex&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the datetime index of the dataset.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DatetimeIndex representing all timestamps in the dataset.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sample_interval</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">timedelta</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the fixed time interval between consecutive data points.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The sample interval as a timedelta.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">feature_names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the names of all available features in the dataset.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List of feature names, excluding metadata columns like timestamp,</span>
+<span class="sd">            available_at, or horizon.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_versioned</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if the dataset tracks data availability over time.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            True if the dataset is versioned (tracks availability via horizon</span>
+<span class="sd">            or available_at columns), False for regular time series.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TimeSeriesMixin.filter_by_range">
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.mixins.TimeSeriesMixin.html#openstef_core.datasets.mixins.TimeSeriesMixin.filter_by_range">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">filter_by_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Filter the dataset to include only data within the specified time range.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            start: Inclusive start time of the range. If None, no start boundary applied.</span>
+<span class="sd">            end: Exclusive end time of the range. If None, no end boundary applied.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            New instance containing only data within [start, end).</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="TimeSeriesMixin.filter_by_available_before">
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.mixins.TimeSeriesMixin.html#openstef_core.datasets.mixins.TimeSeriesMixin.filter_by_available_before">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">filter_by_available_before</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">available_before</span><span class="p">:</span> <span class="n">datetime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Filter to include only data available before the specified timestamp.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            available_before: Cutoff time for data availability.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            New instance containing only data available before the cutoff.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="TimeSeriesMixin.filter_by_available_at">
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.mixins.TimeSeriesMixin.html#openstef_core.datasets.mixins.TimeSeriesMixin.filter_by_available_at">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">filter_by_available_at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">available_at</span><span class="p">:</span> <span class="n">AvailableAt</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Filter based on realistic daily data availability constraints.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            available_at: Specification defining when data becomes available.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            New instance with data filtered by availability pattern.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="TimeSeriesMixin.filter_by_lead_time">
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.mixins.TimeSeriesMixin.html#openstef_core.datasets.mixins.TimeSeriesMixin.filter_by_lead_time">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">filter_by_lead_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lead_time</span><span class="p">:</span> <span class="n">LeadTime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Filter to include only data available at or longer than the specified lead time.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            lead_time: Minimum time gap required between data availability and timestamp.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            New instance containing only data available with the required lead time.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="TimeSeriesMixin.select_version">
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.mixins.TimeSeriesMixin.html#openstef_core.datasets.mixins.TimeSeriesMixin.select_version">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_version</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;TimeSeriesDataset&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Select a specific version of the dataset based on data availability.</span>
+
+<span class="sd">        Creates a point-in-time snapshot by selecting the latest available version</span>
+<span class="sd">        for each timestamp. Essential for preventing lookahead bias in backtesting.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            TimeSeriesDataset containing the selected version of the data.</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
 
 <div class="viewcode-block" id="TimeSeriesMixin.calculate_time_coverage">
-<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.mixins.TimeSeriesMixin.html#openstef_core.datasets.TimeSeriesMixin.calculate_time_coverage">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.mixins.TimeSeriesMixin.html#openstef_core.datasets.mixins.TimeSeriesMixin.calculate_time_coverage">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">calculate_time_coverage</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">timedelta</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculates the total time span covered by the dataset.</span>
 
@@ -499,138 +608,13 @@
 <span class="sd">            timedelta: Total time coverage of the dataset.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_interval</span></div>
-
-
-<div class="viewcode-block" id="TimeSeriesMixin.pipe">
-<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.mixins.TimeSeriesMixin.html#openstef_core.datasets.TimeSeriesMixin.pipe">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">pipe</span><span class="p">[</span><span class="n">T</span><span class="p">](</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Self</span><span class="p">],</span> <span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Applies a function to the dataset and returns the result.</span>
-
-<span class="sd">        This method allows for functional-style transformations and operations</span>
-<span class="sd">        on the dataset, enabling method chaining and cleaner code.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            func: A callable that takes the dataset instance and returns a value of type T.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            The result of applying the function to the dataset.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 </div>
 
 
 
-<div class="viewcode-block" id="VersionedTimeSeriesMixin">
-<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.mixins.VersionedTimeSeriesMixin.html#openstef_core.datasets.VersionedTimeSeriesMixin">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">VersionedTimeSeriesMixin</span><span class="p">(</span><span class="n">TimeSeriesMixin</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract base class for versioned time series dataset functionality.</span>
-
-<span class="sd">    This mixin defines the interface for datasets that track data availability</span>
-<span class="sd">    over time. It provides methods to filter datasets by time ranges, availability,</span>
-<span class="sd">    and lead times, as well as select specific versions of the data.</span>
-
-<span class="sd">    The key concept is that data points have both a timestamp (when they</span>
-<span class="sd">    occurred) and an availability time (when they became available for use).</span>
-<span class="sd">    This separation allows for accurate simulation of real-world forecasting</span>
-<span class="sd">    constraints where data arrives with delays or gets revised.</span>
-
-<span class="sd">    Classes implementing this mixin should provide:</span>
-<span class="sd">    - Time range filtering capabilities</span>
-<span class="sd">    - Availability-based filtering using AvailableAt specifications</span>
-<span class="sd">    - Lead time-based filtering using LeadTime specifications</span>
-<span class="sd">    - Version selection for point-in-time data reconstruction</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-<div class="viewcode-block" id="VersionedTimeSeriesMixin.filter_by_range">
-<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.mixins.VersionedTimeSeriesMixin.html#openstef_core.datasets.VersionedTimeSeriesMixin.filter_by_range">[docs]</a>
-    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">filter_by_range</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">available_before</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Filter the dataset to include only data within the specified time range.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            start: The inclusive start time of the range. If None, no start boundary is applied.</span>
-<span class="sd">            end: The exclusive end time of the range. If None, no end boundary is applied.</span>
-<span class="sd">            available_before: Optional cutoff time for data availability. If provided, only data</span>
-<span class="sd">                available before this time will be included.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            A new instance of the same type containing only data within [start, end).</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
-
-
-<div class="viewcode-block" id="VersionedTimeSeriesMixin.filter_by_available_at">
-<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.mixins.VersionedTimeSeriesMixin.html#openstef_core.datasets.VersionedTimeSeriesMixin.filter_by_available_at">[docs]</a>
-    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">filter_by_available_at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">available_at</span><span class="p">:</span> <span class="n">AvailableAt</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Filter the dataset to include only data available according to the AvailableAt specification.</span>
-
-<span class="sd">        This method filters data based on realistic availability constraints,</span>
-<span class="sd">        considering when data typically becomes available relative to the end of each day.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            available_at: Specification defining when data becomes available.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            A new instance of the same type containing only data that would be available</span>
-<span class="sd">            according to the specified availability pattern.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
-
-
-<div class="viewcode-block" id="VersionedTimeSeriesMixin.filter_by_lead_time">
-<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.mixins.VersionedTimeSeriesMixin.html#openstef_core.datasets.VersionedTimeSeriesMixin.filter_by_lead_time">[docs]</a>
-    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">filter_by_lead_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lead_time</span><span class="p">:</span> <span class="n">LeadTime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Filter the dataset to include only data available with the specified lead time.</span>
-
-<span class="sd">        This method ensures that only data points that were available at least</span>
-<span class="sd">        `lead_time` before their timestamp are included, simulating real-world</span>
-<span class="sd">        constraints where predictions must be made with limited recent data.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            lead_time: The minimum time gap required between data availability and timestamp.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            A new instance of the same type containing only data available with the required lead time.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
-
-
-<div class="viewcode-block" id="VersionedTimeSeriesMixin.select_version">
-<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.mixins.VersionedTimeSeriesMixin.html#openstef_core.datasets.VersionedTimeSeriesMixin.select_version">[docs]</a>
-    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">select_version</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">available_before</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;TimeSeriesDataset&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Select a specific version of the dataset based on data availability.</span>
-
-<span class="sd">        Creates a point-in-time snapshot of the dataset containing only data that</span>
-<span class="sd">        was available before the specified timestamp. This enables realistic</span>
-<span class="sd">        backtesting by reconstructing what the dataset would have looked like</span>
-<span class="sd">        at a specific point in time.</span>
-
-<span class="sd">        This method is essential for preventing lookahead bias in backtesting.</span>
-<span class="sd">        Without it, models would appear to have access to future data that</span>
-<span class="sd">        wasn&#39;t available when the forecast was made.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            available_before: Cutoff timestamp for data availability. If None,</span>
-<span class="sd">                uses all available data. Data with availability times after</span>
-<span class="sd">                this cutoff will be excluded.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            TimeSeriesDataset containing only data available before the cutoff,</span>
-<span class="sd">            with the latest available version for each timestamp.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
-</div>
-
-
-
-<div class="viewcode-block" id="StoreableDatasetMixin">
-<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.mixins.StoreableDatasetMixin.html#openstef_core.datasets.StoreableDatasetMixin">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">StoreableDatasetMixin</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<div class="viewcode-block" id="DatasetMixin">
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.mixins.DatasetMixin.html#openstef_core.datasets.mixins.DatasetMixin">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DatasetMixin</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract base class for dataset persistence operations.</span>
 
 <span class="sd">    This mixin defines the interface for saving and loading datasets to/from</span>
@@ -644,13 +628,13 @@
 
 <span class="sd">    See Also:</span>
 <span class="sd">        TimeSeriesDataset: Implementation for standard time series datasets.</span>
-<span class="sd">        VersionedTimeSeriesPart: Implementation for versioned dataset segments.</span>
+<span class="sd">        VersionedTimeSeriesDataset: Implementation for versioned dataset segments.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="StoreableDatasetMixin.to_parquet">
-<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.mixins.StoreableDatasetMixin.html#openstef_core.datasets.StoreableDatasetMixin.to_parquet">[docs]</a>
+<div class="viewcode-block" id="DatasetMixin.to_parquet">
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.mixins.DatasetMixin.html#openstef_core.datasets.mixins.DatasetMixin.to_parquet">[docs]</a>
     <span class="nd">@abstractmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">to_parquet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_parquet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">FilePath</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Save the dataset to a parquet file.</span>
 
 <span class="sd">        Stores both the dataset&#39;s data and all necessary metadata for complete</span>
@@ -665,11 +649,11 @@
 <span class="sd">        &quot;&quot;&quot;</span></div>
 
 
-<div class="viewcode-block" id="StoreableDatasetMixin.read_parquet">
-<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.mixins.StoreableDatasetMixin.html#openstef_core.datasets.StoreableDatasetMixin.read_parquet">[docs]</a>
+<div class="viewcode-block" id="DatasetMixin.read_parquet">
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.mixins.DatasetMixin.html#openstef_core.datasets.mixins.DatasetMixin.read_parquet">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="nd">@abstractmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">read_parquet</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read_parquet</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">FilePath</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Load a dataset from a parquet file.</span>
 
 <span class="sd">        Reconstructs a dataset from a parquet file created with to_parquet,</span>
@@ -685,11 +669,27 @@
 <span class="sd">        See Also:</span>
 <span class="sd">            to_parquet: Counterpart method for saving datasets.</span>
 <span class="sd">        &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="DatasetMixin.pipe">
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.mixins.DatasetMixin.html#openstef_core.datasets.mixins.DatasetMixin.pipe">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">pipe</span><span class="p">[</span><span class="n">T</span><span class="p">,</span> <span class="o">**</span><span class="n">P</span><span class="p">](</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="n">Concatenate</span><span class="p">[</span><span class="n">Self</span><span class="p">,</span> <span class="n">P</span><span class="p">],</span> <span class="n">T</span><span class="p">],</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Applies a function to the dataset and returns the result.</span>
+
+<span class="sd">        This method allows for functional-style transformations and operations</span>
+<span class="sd">        on the dataset, enabling method chaining and cleaner code.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            func: A callable that takes the dataset instance and returns a value of type T.</span>
+<span class="sd">            *args: Positional arguments to pass to the function.</span>
+<span class="sd">            **kwargs: Keyword arguments to pass to the function.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The result of applying the function to the dataset.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 </div>
 
-
-
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;StoreableDatasetMixin&quot;</span><span class="p">,</span> <span class="s2">&quot;TimeSeriesMixin&quot;</span><span class="p">,</span> <span class="s2">&quot;VersionedTimeSeriesMixin&quot;</span><span class="p">]</span>
 </pre></div>
 
                 </article>

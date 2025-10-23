@@ -29,6 +29,7 @@ Functions
 
    align_datetime
    align_datetime_to_time
+   not_none
    run_parallel
    timedelta_from_isoformat
    timedelta_to_isoformat

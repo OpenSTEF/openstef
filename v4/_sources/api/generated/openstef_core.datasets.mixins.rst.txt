@@ -24,9 +24,8 @@ Classes
    :toctree: .
    :template: custom_class.rst
 
-   StoreableDatasetMixin
+   DatasetMixin
    TimeSeriesMixin
-   VersionedTimeSeriesMixin
 
 
 

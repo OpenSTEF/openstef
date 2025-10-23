@@ -454,12 +454,14 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Self</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">TypeAdapter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">TypeAdapter</span><span class="p">,</span> <span class="n">field_validator</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.evaluation.models.subset</span><span class="w"> </span><span class="kn">import</span> <span class="n">EvaluationSubset</span><span class="p">,</span> <span class="n">SubsetMetric</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.evaluation.models.subset</span><span class="w"> </span><span class="kn">import</span> <span class="n">SubsetMetric</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.evaluation.models.window</span><span class="w"> </span><span class="kn">import</span> <span class="n">Filtering</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.base_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">TimeSeriesDataset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">ForecastDataset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets.validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_required_columns</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">not_none</span>
 
 
 <div class="viewcode-block" id="EvaluationSubsetReport">
@@ -473,8 +475,14 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">filtering</span><span class="p">:</span> <span class="n">Filtering</span>
-    <span class="n">subset</span><span class="p">:</span> <span class="n">EvaluationSubset</span>
+    <span class="n">subset</span><span class="p">:</span> <span class="n">ForecastDataset</span>
     <span class="n">metrics</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">SubsetMetric</span><span class="p">]</span>
+
+    <span class="nd">@field_validator</span><span class="p">(</span><span class="s2">&quot;subset&quot;</span><span class="p">)</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validate_subset_has_target</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">ForecastDataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ForecastDataset</span><span class="p">:</span>
+        <span class="n">validate_required_columns</span><span class="p">(</span><span class="n">subset</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="p">[</span><span class="n">subset</span><span class="o">.</span><span class="n">target_column</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">subset</span>
 
 <div class="viewcode-block" id="EvaluationSubsetReport.to_parquet">
 <a class="viewcode-back" href="../../../../api/generated/openstef_beam.evaluation.EvaluationSubsetReport.html#openstef_beam.evaluation.EvaluationSubsetReport.to_parquet">[docs]</a>
@@ -486,7 +494,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">path</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="p">(</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;metrics.json&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_bytes</span><span class="p">(</span><span class="n">TypeAdapter</span><span class="p">(</span><span class="nb">list</span><span class="p">[</span><span class="n">SubsetMetric</span><span class="p">])</span><span class="o">.</span><span class="n">dump_json</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metrics</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">subset</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">subset</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;subset.parquet&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="EvaluationSubsetReport.read_parquet">
@@ -505,7 +513,7 @@
             <span class="p">(</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;metrics.json&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_bytes</span><span class="p">()</span>
         <span class="p">)</span>
         <span class="n">filtering</span> <span class="o">=</span> <span class="n">TypeAdapter</span><span class="p">[</span><span class="n">Filtering</span><span class="p">](</span><span class="n">Filtering</span><span class="p">)</span><span class="o">.</span><span class="n">validate_python</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-        <span class="n">subset</span> <span class="o">=</span> <span class="n">EvaluationSubset</span><span class="o">.</span><span class="n">from_parquet</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">subset</span> <span class="o">=</span> <span class="n">ForecastDataset</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">path</span> <span class="o">/</span> <span class="s2">&quot;subset.parquet&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
             <span class="n">filtering</span><span class="o">=</span><span class="n">filtering</span><span class="p">,</span>
             <span class="n">subset</span><span class="o">=</span><span class="n">subset</span><span class="p">,</span>
@@ -535,18 +543,18 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            Ground truth measurements as a pandas Series.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">subset</span><span class="o">.</span><span class="n">ground_truth</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;load&quot;</span><span class="p">]</span></div>
+        <span class="k">return</span> <span class="n">not_none</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">subset</span><span class="o">.</span><span class="n">target_series</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="EvaluationSubsetReport.get_quantile_predictions">
 <a class="viewcode-back" href="../../../../api/generated/openstef_beam.evaluation.EvaluationSubsetReport.html#openstef_beam.evaluation.EvaluationSubsetReport.get_quantile_predictions">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_quantile_predictions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TimeSeriesDataset</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_quantile_predictions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Extract forecasted quantiles from the report.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Dataset containing forecasted quantile predictions.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">subset</span><span class="o">.</span><span class="n">predictions</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">subset</span><span class="o">.</span><span class="n">quantiles_data</span></div>
 </div>
 
 

@@ -59,7 +59,7 @@
     <link rel="icon" href="../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="StoreableDatasetMixin" href="openstef_core.datasets.mixins.StoreableDatasetMixin.html" />
+    <link rel="next" title="DatasetMixin" href="openstef_core.datasets.mixins.DatasetMixin.html" />
     <link rel="prev" title="openstef_core.datasets" href="openstef_core.datasets.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -396,25 +396,21 @@
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="openstef_core.datasets.html">openstef_core.datasets</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2 current active has-children"><a class="current reference internal" href="#">openstef_core.datasets.mixins</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="openstef_core.datasets.mixins.StoreableDatasetMixin.html">StoreableDatasetMixin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="openstef_core.datasets.mixins.DatasetMixin.html">DatasetMixin</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_core.datasets.mixins.TimeSeriesMixin.html">TimeSeriesMixin</a></li>
-<li class="toctree-l3"><a class="reference internal" href="openstef_core.datasets.mixins.VersionedTimeSeriesMixin.html">VersionedTimeSeriesMixin</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.datasets.EnergyComponentDataset.html">EnergyComponentDataset</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.datasets.ForecastDataset.html">ForecastDataset</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.datasets.ForecastInputDataset.html">ForecastInputDataset</a></li>
-<li class="toctree-l2"><a class="reference internal" href="openstef_core.datasets.MultiHorizon.html">MultiHorizon</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.datasets.TimeSeriesDataset.html">TimeSeriesDataset</a></li>
-<li class="toctree-l2"><a class="reference internal" href="openstef_core.datasets.TimeSeriesMixin.html">TimeSeriesMixin</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.datasets.VersionedTimeSeriesDataset.html">VersionedTimeSeriesDataset</a></li>
-<li class="toctree-l2"><a class="reference internal" href="openstef_core.datasets.VersionedTimeSeriesMixin.html">VersionedTimeSeriesMixin</a></li>
-<li class="toctree-l2"><a class="reference internal" href="openstef_core.datasets.VersionedTimeSeriesPart.html">VersionedTimeSeriesPart</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="openstef_core.utils.html">openstef_core.utils</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.utils.align_datetime.html">align_datetime</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.utils.align_datetime_to_time.html">align_datetime_to_time</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_core.utils.not_none.html">not_none</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.utils.run_parallel.html">run_parallel</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.utils.timedelta_from_isoformat.html">timedelta_from_isoformat</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_core.utils.timedelta_to_isoformat.html">timedelta_to_isoformat</a></li>
@@ -445,13 +441,7 @@
 </details></li>
 </ul>
 <ul class="nav bd-sidenav">
-<li class="toctree-l1 has-children"><a class="reference internal" href="openstef_models.transforms.html">openstef_models.transforms</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="openstef_models.transforms.FeatureEngineeringPipeline.html">FeatureEngineeringPipeline</a></li>
-<li class="toctree-l2"><a class="reference internal" href="openstef_models.transforms.HorizonSplitTransform.html">HorizonSplitTransform</a></li>
-<li class="toctree-l2"><a class="reference internal" href="openstef_models.transforms.PostprocessingPipeline.html">PostprocessingPipeline</a></li>
-<li class="toctree-l2"><a class="reference internal" href="openstef_models.transforms.PostprocessingTransform.html">PostprocessingTransform</a></li>
-</ul>
-</details></li>
+<li class="toctree-l1"><a class="reference internal" href="openstef_models.transforms.html">openstef_models.transforms</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="openstef_models.models.html">openstef_models.models</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="openstef_models.models.ComponentSplittingModel.html">ComponentSplittingModel</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_models.models.ForecastingModel.html">ForecastingModel</a></li>
@@ -494,7 +484,6 @@
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.evaluation.EvaluationConfig.html">EvaluationConfig</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.evaluation.EvaluationPipeline.html">EvaluationPipeline</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.evaluation.EvaluationReport.html">EvaluationReport</a></li>
-<li class="toctree-l2"><a class="reference internal" href="openstef_beam.evaluation.EvaluationSubset.html">EvaluationSubset</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.evaluation.EvaluationSubsetReport.html">EvaluationSubsetReport</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.evaluation.SubsetMetric.html">SubsetMetric</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.evaluation.Window.html">Window</a></li>
@@ -583,22 +572,26 @@
                   
   <section id="module-openstef_core.datasets.mixins">
 <span id="openstef-core-datasets-mixins"></span><h1>openstef_core.datasets.mixins<a class="headerlink" href="#module-openstef_core.datasets.mixins" title="Link to this heading">#</a></h1>
-<p>Abstract base classes for time series dataset functionality.</p>
-<p>This module provides mixins that define the core interfaces for time series
-datasets in OpenSTEF. The mixins separate concerns between basic time series
-operations and versioned data access capabilities.</p>
+<p>Protocol definitions for time series dataset interfaces.</p>
+<p>This module provides protocol classes that define the core interfaces for time series
+datasets in OpenSTEF. Protocols enable type checking and documentation of expected
+behavior without requiring inheritance.</p>
+<dl class="simple">
+<dt>Key protocols:</dt><dd><ul class="simple">
+<li><p>TimeSeries: Core interface for all time series datasets with filtering and versioning</p></li>
+<li><p>DatasetMixin: Interface for dataset persistence operations</p></li>
+</ul>
+</dd>
+</dl>
 <section id="classes">
 <h2>Classes<a class="headerlink" href="#classes" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="openstef_core.datasets.mixins.StoreableDatasetMixin.html#openstef_core.datasets.mixins.StoreableDatasetMixin" title="openstef_core.datasets.mixins.StoreableDatasetMixin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StoreableDatasetMixin</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="openstef_core.datasets.mixins.DatasetMixin.html#openstef_core.datasets.mixins.DatasetMixin" title="openstef_core.datasets.mixins.DatasetMixin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DatasetMixin</span></code></a>(*args, **kwargs)</p></td>
 <td><p>Abstract base class for dataset persistence operations.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="openstef_core.datasets.mixins.TimeSeriesMixin.html#openstef_core.datasets.mixins.TimeSeriesMixin" title="openstef_core.datasets.mixins.TimeSeriesMixin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TimeSeriesMixin</span></code></a>()</p></td>
-<td><p>Abstract base class for time series dataset functionality.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="openstef_core.datasets.mixins.VersionedTimeSeriesMixin.html#openstef_core.datasets.mixins.VersionedTimeSeriesMixin" title="openstef_core.datasets.mixins.VersionedTimeSeriesMixin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VersionedTimeSeriesMixin</span></code></a>()</p></td>
-<td><p>Abstract base class for versioned time series dataset functionality.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="openstef_core.datasets.mixins.TimeSeriesMixin.html#openstef_core.datasets.mixins.TimeSeriesMixin" title="openstef_core.datasets.mixins.TimeSeriesMixin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TimeSeriesMixin</span></code></a>(*args, **kwargs)</p></td>
+<td><p>Interface defining the interface for time series datasets.</p></td>
 </tr>
 </tbody>
 </table>
@@ -626,11 +619,11 @@ operations and versioned data access capabilities.</p>
       </div>
     </a>
     <a class="right-next"
-       href="openstef_core.datasets.mixins.StoreableDatasetMixin.html"
+       href="openstef_core.datasets.mixins.DatasetMixin.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">StoreableDatasetMixin</p>
+        <p class="prev-next-title">DatasetMixin</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

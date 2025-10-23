@@ -454,27 +454,40 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">timedelta</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Self</span><span class="p">,</span> <span class="n">cast</span><span class="p">,</span> <span class="n">override</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClassVar</span><span class="p">,</span> <span class="n">Concatenate</span><span class="p">,</span> <span class="n">Self</span><span class="p">,</span> <span class="n">cast</span><span class="p">,</span> <span class="n">override</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">FilePath</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets.mixins</span><span class="w"> </span><span class="kn">import</span> <span class="n">StoreableDatasetMixin</span><span class="p">,</span> <span class="n">TimeSeriesMixin</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets.mixins</span><span class="w"> </span><span class="kn">import</span> <span class="n">DatasetMixin</span><span class="p">,</span> <span class="n">TimeSeriesMixin</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets.validation</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">TimeSeriesValidationError</span><span class="p">,</span>
+    <span class="n">validate_datetime_column</span><span class="p">,</span>
+    <span class="n">validate_timedelta_column</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">AvailableAt</span><span class="p">,</span> <span class="n">LeadTime</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">timedelta_from_isoformat</span><span class="p">,</span> <span class="n">timedelta_to_isoformat</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.utils.pandas</span><span class="w"> </span><span class="kn">import</span> <span class="n">unsafe_sorted_range_slice_idxs</span>
 
 <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="TimeSeriesDataset">
 <a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">TimeSeriesDataset</span><span class="p">(</span><span class="n">TimeSeriesMixin</span><span class="p">,</span> <span class="n">StoreableDatasetMixin</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A time series dataset with regular sampling intervals.</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TimeSeriesDataset</span><span class="p">(</span><span class="n">TimeSeriesMixin</span><span class="p">,</span> <span class="n">DatasetMixin</span><span class="p">):</span>  <span class="c1"># noqa: PLR0904 - important utility class, allow too many public methods</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A time series dataset with regular sampling intervals and optional versioning.</span>
 
 <span class="sd">    This class represents time series data with a consistent sampling interval</span>
-<span class="sd">    and provides basic operations for data access and persistence. It ensures</span>
-<span class="sd">    that the data maintains temporal ordering and provides access to temporal</span>
-<span class="sd">    and feature metadata.</span>
+<span class="sd">    and provides operations for data access, persistence, and filtering. It supports</span>
+<span class="sd">    both regular time series and versioned datasets where data availability is tracked</span>
+<span class="sd">    over time through either a horizon column or an available_at column.</span>
+
+<span class="sd">    The dataset automatically detects versioning:</span>
+<span class="sd">    - If a horizon column exists, data is versioned by forecast horizon</span>
+<span class="sd">    - If an available_at column exists, data is versioned by availability time</span>
+<span class="sd">    - Otherwise, data is treated as a regular time series</span>
 
 <span class="sd">    The dataset guarantees:</span>
 <span class="sd">        - Data is sorted by timestamp in ascending order</span>
@@ -482,10 +495,9 @@
 <span class="sd">        - DateTime index for temporal operations</span>
 
 <span class="sd">    Attributes:</span>
-<span class="sd">        data: DataFrame with DatetimeIndex containing time series data.</span>
-<span class="sd">        sample_interval: Fixed time interval between consecutive data points.</span>
-<span class="sd">        index: Datetime index representing all timestamps in the dataset.</span>
-<span class="sd">        feature_names: Names of all available features, excluding metadata columns.</span>
+<span class="sd">        data: DataFrame containing the time series data indexed by timestamp.</span>
+<span class="sd">        horizon_column: Name of the column storing forecast horizons (if versioned by horizon).</span>
+<span class="sd">        available_at_column: Name of the column storing availability times (if versioned).</span>
 
 <span class="sd">    Example:</span>
 <span class="sd">        Create a simple time series dataset:</span>
@@ -499,142 +511,416 @@
 <span class="sd">        &gt;&gt;&gt; dataset = TimeSeriesDataset(data, sample_interval=timedelta(minutes=15))</span>
 <span class="sd">        &gt;&gt;&gt; dataset.feature_names</span>
 <span class="sd">        [&#39;temperature&#39;, &#39;load&#39;]</span>
-<span class="sd">        &gt;&gt;&gt; dataset.sample_interval</span>
-<span class="sd">        datetime.timedelta(seconds=900)</span>
+<span class="sd">        &gt;&gt;&gt; dataset.is_versioned</span>
+<span class="sd">        False</span>
+
+<span class="sd">        Create a versioned dataset with horizons:</span>
+
+<span class="sd">        &gt;&gt;&gt; data_with_horizon = pd.DataFrame({</span>
+<span class="sd">        ...     &#39;load&#39;: [100, 120],</span>
+<span class="sd">        ...     &#39;horizon&#39;: pd.to_timedelta([&#39;1h&#39;, &#39;2h&#39;])</span>
+<span class="sd">        ... }, index=pd.date_range(&#39;2025-01-01&#39;, periods=2, freq=&#39;1h&#39;))</span>
+<span class="sd">        &gt;&gt;&gt; dataset = TimeSeriesDataset(data_with_horizon, sample_interval=timedelta(hours=1))</span>
+<span class="sd">        &gt;&gt;&gt; dataset.is_versioned</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; dataset.horizons is not None</span>
+<span class="sd">        True</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+    <span class="n">index_name</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;timestamp&quot;</span>
+
     <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>
-    <span class="n">sample_interval</span><span class="p">:</span> <span class="n">timedelta</span>
-    <span class="n">index</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span>
-    <span class="n">feature_names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">horizon_column</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">available_at_column</span><span class="p">:</span> <span class="nb">str</span>
+
+    <span class="n">_sample_interval</span><span class="p">:</span> <span class="n">timedelta</span>
+    <span class="n">_version_column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span>
+    <span class="n">_feature_names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">_horizons</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">LeadTime</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span>
+    <span class="n">_internal_columns</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
 
 <div class="viewcode-block" id="TimeSeriesDataset.__init__">
 <a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
-        <span class="n">sample_interval</span><span class="p">:</span> <span class="n">timedelta</span><span class="p">,</span>
+        <span class="n">sample_interval</span><span class="p">:</span> <span class="n">timedelta</span> <span class="o">=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="mi">15</span><span class="p">),</span>
         <span class="o">*</span><span class="p">,</span>
-        <span class="n">is_sorted</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">horizon_column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;horizon&quot;</span><span class="p">,</span>
+        <span class="n">available_at_column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;available_at&quot;</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize a TimeSeriesDataset with the given data and sampling interval.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize a time series dataset.</span>
+
+<span class="sd">        The dataset automatically detects whether it&#39;s versioned based on column presence:</span>
+<span class="sd">        - If horizon_column exists: versioned by forecast horizon</span>
+<span class="sd">        - If available_at_column exists: versioned by availability time</span>
+<span class="sd">        - Otherwise: regular time series</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            data: DataFrame with DatetimeIndex containing time series data.</span>
-<span class="sd">                Must have a pandas DatetimeIndex.</span>
-<span class="sd">            sample_interval: Fixed time interval between consecutive data points.</span>
-<span class="sd">                Must be positive.</span>
-<span class="sd">            is_sorted: If True, assumes data is already sorted by timestamp.</span>
-<span class="sd">                If False, data will be sorted during initialization</span>
+<span class="sd">            data: DataFrame with DatetimeIndex containing the time series data.</span>
+<span class="sd">            sample_interval: Fixed interval between consecutive data points.</span>
+<span class="sd">            horizon_column: Name of the column storing forecast horizons.</span>
+<span class="sd">            available_at_column: Name of the column storing availability times.</span>
 
 <span class="sd">        Raises:</span>
-<span class="sd">            TypeError: If data index is not a pandas DatetimeIndex.</span>
-
-<span class="sd">        Note:</span>
-<span class="sd">            Data is automatically sorted by timestamp if not already sorted.</span>
-<span class="sd">            The &#39;is_sorted&#39; attribute is set to track sorting state.</span>
+<span class="sd">            TypeError: If data index is not a pandas DatetimeIndex or if versioning</span>
+<span class="sd">                columns have incorrect types.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Data index must be a pandas DatetimeIndex.&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;is_sorted&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_sorted</span><span class="p">:</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">sort_index</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-        <span class="n">data</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;is_sorted&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sample_interval</span> <span class="o">=</span> <span class="n">sample_interval</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">feature_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">horizon_column</span> <span class="o">=</span> <span class="n">horizon_column</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">available_at_column</span> <span class="o">=</span> <span class="n">available_at_column</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sample_interval</span> <span class="o">=</span> <span class="n">sample_interval</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_internal_columns</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index_name</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">horizon_column</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">validate_timedelta_column</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">horizon_column</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_version_column</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">horizon_column</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_internal_columns</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">horizon_column</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_feature_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_internal_columns</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_horizons</span> <span class="o">=</span> <span class="nb">list</span><span class="p">({</span><span class="n">LeadTime</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">td</span><span class="p">)</span> <span class="k">for</span> <span class="n">td</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">horizon_column</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()})</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">available_at_column</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">validate_datetime_column</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">available_at_column</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_version_column</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">available_at_column</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_internal_columns</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">available_at_column</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_feature_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_internal_columns</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_horizons</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_version_column</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_feature_names</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">to_list</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_horizons</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># Ensure invariants: data is sorted by timestamp</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;is_sorted&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_version_column</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">available_at_column</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span>
+                    <span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">index_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">available_at_column</span><span class="p">],</span>
+                    <span class="n">ascending</span><span class="o">=</span><span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">],</span>  <span class="c1"># timestamp ascending, available_at descending</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_version_column</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">horizon_column</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span>
+                    <span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">index_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">horizon_column</span><span class="p">],</span>
+                    <span class="n">ascending</span><span class="o">=</span><span class="p">[</span><span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">],</span>  <span class="c1"># timestamp ascending, horizon ascending</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">sort_index</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;is_sorted&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="nd">@override</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">index</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@override</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sample_interval</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">timedelta</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sample_interval</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@override</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">feature_names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_feature_names</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@override</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_versioned</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_version_column</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">horizons</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">LeadTime</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the list of forecast horizons present in the dataset.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List of unique forecast horizons if the dataset is versioned by horizons,</span>
+<span class="sd">            None otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_horizons</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">available_at_series</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the availability times as a pandas Series.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Series containing availability times indexed by timestamp if versioned,</span>
+<span class="sd">            None for non-versioned datasets.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_version_column</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_version_column</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">available_at_column</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">available_at_column</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">index</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">horizon_column</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">lead_time_series</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the lead times as a pandas Series.</span>
+
+<span class="sd">        Lead time is the gap between when data became available and the timestamp.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Series containing lead times indexed by timestamp if versioned,</span>
+<span class="sd">            None for non-versioned datasets.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_version_column</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_version_column</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">horizon_column</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">horizon_column</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">index</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">available_at_column</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_copy_with_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+        <span class="c1"># Fast way to copy self with new data and skipping validation since invariants are preserved.</span>
+        <span class="n">new_instance</span> <span class="o">=</span> <span class="nb">object</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)</span>
+        <span class="n">new_instance</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
+        <span class="n">new_instance</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="n">new_instance</span><span class="o">.</span><span class="n">_feature_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_internal_columns</span><span class="p">]</span>  <span class="c1"># noqa: SLF001</span>
+        <span class="k">return</span> <span class="n">new_instance</span>
+
+<div class="viewcode-block" id="TimeSeriesDataset.filter_by_range">
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset.filter_by_range">[docs]</a>
+    <span class="nd">@override</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">filter_by_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">start</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">end</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span>
+
+        <span class="n">start_idx</span><span class="p">,</span> <span class="n">end_idx</span> <span class="o">=</span> <span class="n">unsafe_sorted_range_slice_idxs</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">end</span><span class="p">)</span>
+        <span class="n">data_filtered</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">start_idx</span><span class="p">:</span><span class="n">end_idx</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_copy_with_data</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data_filtered</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TimeSeriesDataset.filter_by_available_before">
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset.filter_by_available_before">[docs]</a>
+    <span class="nd">@override</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">filter_by_available_before</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">available_before</span><span class="p">:</span> <span class="n">datetime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+        <span class="n">available_at_series</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">available_at_series</span>
+        <span class="k">if</span> <span class="n">available_at_series</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span>
+
+        <span class="n">data_filtered</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">available_at_series</span> <span class="o">&lt;=</span> <span class="n">available_before</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_copy_with_data</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data_filtered</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TimeSeriesDataset.filter_by_available_at">
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset.filter_by_available_at">[docs]</a>
+    <span class="nd">@override</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">filter_by_available_at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">available_at</span><span class="p">:</span> <span class="n">AvailableAt</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+        <span class="n">available_at_series</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">available_at_series</span>
+        <span class="k">if</span> <span class="n">available_at_series</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span>
+
+        <span class="n">cutoff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="s2">&quot;D&quot;</span><span class="p">)</span> <span class="o">-</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">available_at</span><span class="o">.</span><span class="n">lag_from_day</span><span class="p">)</span>
+        <span class="n">data_filtered</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">available_at_series</span> <span class="o">&lt;=</span> <span class="n">cutoff</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_copy_with_data</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data_filtered</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TimeSeriesDataset.filter_by_lead_time">
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset.filter_by_lead_time">[docs]</a>
+    <span class="nd">@override</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">filter_by_lead_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lead_time</span><span class="p">:</span> <span class="n">LeadTime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+        <span class="n">lead_time_series</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lead_time_series</span>
+        <span class="k">if</span> <span class="n">lead_time_series</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span>
+
+        <span class="n">data_filtered</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">lead_time_series</span> <span class="o">&gt;=</span> <span class="n">lead_time</span><span class="o">.</span><span class="n">value</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_copy_with_data</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data_filtered</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TimeSeriesDataset.select_version">
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset.select_version">[docs]</a>
+    <span class="nd">@override</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_version</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_version_column</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span>
+
+        <span class="n">data_selected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="o">~</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span><span class="n">keep</span><span class="o">=</span><span class="s2">&quot;first&quot;</span><span class="p">)]</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_version_column</span><span class="p">])</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_copy_with_data</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data_selected</span><span class="p">)</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">_horizons</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># noqa: SLF001 - Clear out all versioning metadata</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">_version_column</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># noqa: SLF001 - Clear out all versioning metadata</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="TimeSeriesDataset.filter_index">
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset.filter_index">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">filter_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mask</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Filter dataset to include only timestamps present in the mask.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            New dataset containing only rows with timestamps in the mask.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_version_column</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">data_filtered</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">mask</span><span class="p">)]</span>  <span class="c1"># pyright: ignore[reportUnknownMemberType]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">data_filtered</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_copy_with_data</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data_filtered</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TimeSeriesDataset.select_horizon">
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset.select_horizon">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_horizon</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">horizon</span><span class="p">:</span> <span class="n">LeadTime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Select data for a specific forecast horizon.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            horizon: The forecast horizon to filter the dataset by.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A new TimeSeriesDataset instance containing only data for the specified horizon.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">horizons</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span>
+
+        <span class="n">data_selected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">lead_time_series</span> <span class="o">==</span> <span class="n">horizon</span><span class="o">.</span><span class="n">value</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_copy_with_data</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data_selected</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TimeSeriesDataset.to_pandas">
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset.to_pandas">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_pandas</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert the dataset to a pandas DataFrame with metadata stored in attrs.</span>
+
+<span class="sd">        Stores sample_interval, available_at_column, and horizon_column in the</span>
+<span class="sd">        DataFrame&#39;s attrs dictionary for later reconstruction.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            DataFrame with dataset data and metadata in attrs.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;sample_interval&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">timedelta_to_isoformat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sample_interval</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;available_at_column&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">available_at_column</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;horizon_column&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">horizon_column</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span></div>
+
+
+<div class="viewcode-block" id="TimeSeriesDataset.from_pandas">
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset.from_pandas">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_pandas</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a dataset instance from a pandas DataFrame with metadata in attrs.</span>
+
+<span class="sd">        Reads sample_interval, available_at_column, and horizon_column from the</span>
+<span class="sd">        DataFrame&#39;s attrs dictionary.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            df: DataFrame containing dataset data with metadata in attrs.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            New TimeSeriesDataset instance reconstructed from the DataFrame.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s2">&quot;sample_interval&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">attrs</span><span class="p">:</span>
+            <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;Parquet file does not contain &#39;sample_interval&#39; attribute. Using default value of 15 minutes.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">sample_interval</span> <span class="o">=</span> <span class="n">timedelta_from_isoformat</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sample_interval&quot;</span><span class="p">,</span> <span class="s2">&quot;PT15M&quot;</span><span class="p">))</span>
+        <span class="n">available_at_column</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;available_at_column&quot;</span><span class="p">,</span> <span class="s2">&quot;available_at&quot;</span><span class="p">)</span>
+        <span class="n">horizon_column</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;horizon_column&quot;</span><span class="p">,</span> <span class="s2">&quot;horizon&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
+            <span class="n">sample_interval</span><span class="o">=</span><span class="n">sample_interval</span><span class="p">,</span>
+            <span class="n">available_at_column</span><span class="o">=</span><span class="n">available_at_column</span><span class="p">,</span>
+            <span class="n">horizon_column</span><span class="o">=</span><span class="n">horizon_column</span><span class="p">,</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TimeSeriesDataset.to_parquet">
 <a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset.to_parquet">[docs]</a>
     <span class="nd">@override</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">to_parquet</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Save the dataset to a parquet file.</span>
-
-<span class="sd">        Stores both the time series data and metadata (sample interval, sort status, ...)</span>
-<span class="sd">        in the parquet file for complete reconstruction.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            path: File path where the dataset should be saved.</span>
-
-<span class="sd">        Note:</span>
-<span class="sd">            The sample interval is stored as an ISO 8601 duration string</span>
-<span class="sd">            in the file&#39;s metadata attributes.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;sample_interval&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">timedelta_to_isoformat</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sample_interval</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;is_sorted&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_parquet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">FilePath</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TimeSeriesDataset.read_parquet">
 <a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset.read_parquet">[docs]</a>
     <span class="nd">@override</span>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">read_parquet</span><span class="p">(</span>
-        <span class="bp">cls</span><span class="p">,</span>
-        <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read_parquet</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">FilePath</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_pandas</span><span class="p">(</span><span class="n">df</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TimeSeriesDataset.pipe_pandas">
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset.pipe_pandas">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">pipe_pandas</span><span class="p">[</span><span class="o">**</span><span class="n">P</span><span class="p">](</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="n">Concatenate</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">P</span><span class="p">],</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">kwargs</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a TimeSeriesDataset from a parquet file.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply a pandas DataFrame transformation function to the dataset.</span>
 
-<span class="sd">        Loads time series data and metadata from a parquet file created with</span>
-<span class="sd">        the `to_parquet` method. Handles missing metadata gracefully with</span>
-<span class="sd">        reasonable defaults.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            path: Path to the parquet file to load.</span>
+<span class="sd">        Executes a function on the underlying DataFrame and wraps the result</span>
+<span class="sd">        back into a TimeSeriesDataset, preserving all metadata.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            New TimeSeriesDataset instance with data and metadata from the file.</span>
-
-<span class="sd">        Example:</span>
-<span class="sd">            Save and reload a dataset:</span>
-
-<span class="sd">            &gt;&gt;&gt; from pathlib import Path</span>
-<span class="sd">            &gt;&gt;&gt; import tempfile</span>
-<span class="sd">            &gt;&gt;&gt; import pandas as pd</span>
-<span class="sd">            &gt;&gt;&gt; from datetime import timedelta</span>
-<span class="sd">            &gt;&gt;&gt; # Create a simple dataset</span>
-<span class="sd">            &gt;&gt;&gt; data = pd.DataFrame({</span>
-<span class="sd">            ...     &#39;temperature&#39;: [20.1, 22.3],</span>
-<span class="sd">            ...     &#39;load&#39;: [100, 120]</span>
-<span class="sd">            ... }, index=pd.date_range(&#39;2025-01-01&#39;, periods=2, freq=&#39;15min&#39;))</span>
-<span class="sd">            &gt;&gt;&gt; dataset = TimeSeriesDataset(data, sample_interval=timedelta(minutes=15))</span>
-<span class="sd">            &gt;&gt;&gt; # Test save/load cycle</span>
-<span class="sd">            &gt;&gt;&gt; with tempfile.TemporaryDirectory() as tmpdir:</span>
-<span class="sd">            ...     file_path = Path(tmpdir) / &quot;data.parquet&quot;</span>
-<span class="sd">            ...     dataset.to_parquet(file_path)</span>
-<span class="sd">            ...     loaded = TimeSeriesDataset.read_parquet(file_path)</span>
-<span class="sd">            ...     loaded.feature_names == dataset.feature_names</span>
-<span class="sd">            True</span>
-
-<span class="sd">        Note:</span>
-<span class="sd">            If the parquet file lacks a sample_interval attribute, defaults</span>
-<span class="sd">            to 15 minutes with a warning logged.</span>
+<span class="sd">            New dataset with the transformation applied.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
-        <span class="k">if</span> <span class="s2">&quot;sample_interval&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">attrs</span><span class="p">:</span>
-            <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="s2">&quot;Parquet file does not contain &#39;sample_interval&#39; attribute. Using default value of 15 minutes.&quot;</span>
-            <span class="p">)</span>
+        <span class="n">data_new</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_copy_with_data</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data_new</span><span class="p">)</span></div>
 
-        <span class="n">sample_interval</span> <span class="o">=</span> <span class="n">timedelta_from_isoformat</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sample_interval&quot;</span><span class="p">,</span> <span class="s2">&quot;PT15M&quot;</span><span class="p">))</span>
 
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+<div class="viewcode-block" id="TimeSeriesDataset.select_features">
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset.select_features">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">select_features</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feature_names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;TimeSeriesDataset&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Select a subset of features from the dataset.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            feature_names: List of feature column names to retain in the dataset.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A new TimeSeriesDataset instance containing only the specified features.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">columns_to_select</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">feature_names</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_version_column</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">columns_to_select</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_version_column</span><span class="p">)</span>
+        <span class="n">data_selected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">columns_to_select</span><span class="p">]</span>
+        <span class="n">data_selected</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;is_sorted&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="n">TimeSeriesDataset</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data_selected</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TimeSeriesDataset.copy_with">
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset.copy_with">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">copy_with</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">is_sorted</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;TimeSeriesDataset&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a copy of the dataset with new data.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data: New DataFrame to use for the dataset.</span>
+<span class="sd">            is_sorted: Whether the new data is already sorted by timestamp.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            New TimeSeriesDataset instance with the provided data and same metadata.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">is_sorted</span><span class="p">:</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;is_sorted&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">return</span> <span class="n">TimeSeriesDataset</span><span class="p">(</span>
             <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
-            <span class="n">sample_interval</span><span class="o">=</span><span class="n">sample_interval</span><span class="p">,</span>
+            <span class="n">sample_interval</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sample_interval</span><span class="p">,</span>
+            <span class="n">horizon_column</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">horizon_column</span><span class="p">,</span>
+            <span class="n">available_at_column</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">available_at_column</span><span class="p">,</span>
         <span class="p">)</span></div>
 </div>
 
 
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;TimeSeriesDataset&quot;</span><span class="p">]</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">validate_horizons_present</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="n">TimeSeriesDataset</span><span class="p">,</span> <span class="n">horizons</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">LeadTime</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate that the specified forecast horizons are present in the dataset.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dataset: The time series dataset to validate.</span>
+<span class="sd">        horizons: List of forecast horizons to check for presence in the dataset.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        TimeSeriesValidationError: If any of the specified horizons are not present.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">dataset</span><span class="o">.</span><span class="n">horizons</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">horizons</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span>  <span class="c1"># Non-versioned dataset can satisfy single-horizon requests</span>
+
+    <span class="n">required_horizons</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">horizons</span> <span class="ow">or</span> <span class="p">[])</span>
+    <span class="n">missing_horizons</span> <span class="o">=</span> <span class="p">[</span><span class="n">h</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">horizons</span> <span class="k">if</span> <span class="n">h</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">required_horizons</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">missing_horizons</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">TimeSeriesValidationError</span><span class="p">(</span><span class="s2">&quot;Missing forecast horizons: &quot;</span> <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">missing_horizons</span><span class="p">)))</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;TimeSeriesDataset&quot;</span><span class="p">,</span> <span class="s2">&quot;validate_horizons_present&quot;</span><span class="p">]</span>
 </pre></div>
 
                 </article>

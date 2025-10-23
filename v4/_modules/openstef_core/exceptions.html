@@ -477,7 +477,7 @@
 
 <div class="viewcode-block" id="MissingColumnsError">
 <a class="viewcode-back" href="../../api/generated/openstef_core.exceptions.MissingColumnsError.html#openstef_core.exceptions.MissingColumnsError">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">MissingColumnsError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MissingColumnsError</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Exception raised when required columns are missing from a DataFrame.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="MissingColumnsError.__init__">
@@ -496,7 +496,7 @@
 
 <div class="viewcode-block" id="InvalidColumnTypeError">
 <a class="viewcode-back" href="../../api/generated/openstef_core.exceptions.InvalidColumnTypeError.html#openstef_core.exceptions.InvalidColumnTypeError">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">InvalidColumnTypeError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">InvalidColumnTypeError</span><span class="p">(</span><span class="ne">TypeError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Exception raised when a DataFrame column has an invalid type.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="InvalidColumnTypeError.__init__">
@@ -517,7 +517,7 @@
 
 <div class="viewcode-block" id="TimeSeriesValidationError">
 <a class="viewcode-back" href="../../api/generated/openstef_core.exceptions.TimeSeriesValidationError.html#openstef_core.exceptions.TimeSeriesValidationError">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">TimeSeriesValidationError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TimeSeriesValidationError</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Exception raised for validation errors in time series datasets.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="TimeSeriesValidationError.__init__">

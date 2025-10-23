@@ -7,7 +7,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>openstef_models.transforms.postprocessing_pipeline &#8212; OpenSTEF 0.0.0 documentation</title>
+    <title>openstef_core.utils.invariants &#8212; OpenSTEF 0.0.0 documentation</title>
   
   
   
@@ -47,7 +47,7 @@
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../../_static/copybutton.js?v=97f0b27d"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/openstef_models/transforms/postprocessing_pipeline';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/openstef_core/utils/invariants';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = '_static/versions.json';
@@ -421,7 +421,7 @@
     
     <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">openstef_models.transforms.postprocessing_pipeline</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">openstef_core.utils.invariants</span></li>
   </ul>
 </nav>
 </div>
@@ -438,145 +438,41 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <h1>Source code for openstef_models.transforms.postprocessing_pipeline</h1><div class="highlight"><pre>
+  <h1>Source code for openstef_core.utils.invariants</h1><div class="highlight"><pre>
 <span></span><span class="c1"># SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project &lt;short.term.energy.forecasts@alliander.com&gt;</span>
 <span class="c1">#</span>
 <span class="c1"># SPDX-License-Identifier: MPL-2.0</span>
 
-<span class="sd">&quot;&quot;&quot;Postprocessing pipeline for forecast transformations.</span>
+<span class="sd">&quot;&quot;&quot;Runtime invariant checking utilities.</span>
 
-<span class="sd">Provides specialized pipeline for postprocessing transforms that need access to both</span>
-<span class="sd">input data and predictions. Unlike standard TransformPipeline, this maintains the input</span>
-<span class="sd">context throughout the transformation chain.</span>
+<span class="sd">Provides helper functions for asserting runtime invariants and contracts,</span>
+<span class="sd">particularly for checking nullable values and other preconditions.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Self</span><span class="p">,</span> <span class="n">cast</span><span class="p">,</span> <span class="n">override</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">ConfigDict</span><span class="p">,</span> <span class="n">Field</span>
+<div class="viewcode-block" id="not_none">
+<a class="viewcode-back" href="../../../api/generated/openstef_core.utils.not_none.html#openstef_core.utils.not_none">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">not_none</span><span class="p">[</span><span class="n">T</span><span class="p">](</span><span class="n">value</span><span class="p">:</span> <span class="n">T</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Assert that a value is not None.</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.mixins</span><span class="w"> </span><span class="kn">import</span> <span class="n">State</span><span class="p">,</span> <span class="n">Transform</span>
+<span class="sd">    Args:</span>
+<span class="sd">        value: The value to check.</span>
 
+<span class="sd">    Returns:</span>
+<span class="sd">        The value if it is not None.</span>
 
-<div class="viewcode-block" id="PostprocessingTransform">
-<a class="viewcode-back" href="../../../api/generated/openstef_models.transforms.PostprocessingTransform.html#openstef_models.transforms.PostprocessingTransform">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">PostprocessingTransform</span><span class="p">[</span><span class="n">I</span><span class="p">,</span> <span class="n">O</span><span class="p">](</span><span class="n">Transform</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">I</span><span class="p">,</span> <span class="n">O</span><span class="p">],</span> <span class="n">O</span><span class="p">]):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for postprocessing transforms that operate on (input, output) tuples.</span>
-
-<span class="sd">    This transform type receives both the input data and current forecast/output,</span>
-<span class="sd">    allowing transforms to use input context when modifying predictions. Common use</span>
-<span class="sd">    cases include adding uncertainty estimates based on input features or applying</span>
-<span class="sd">    input-dependent corrections.</span>
-
-<span class="sd">    Type parameters:</span>
-<span class="sd">        I: Input data type (e.g., ForecastInputDataset, MultiHorizon)</span>
-<span class="sd">        O: Output/forecast type (e.g., ForecastDataset)</span>
-<span class="sd">    &quot;&quot;&quot;</span></div>
-
-
-
-<div class="viewcode-block" id="PostprocessingPipeline">
-<a class="viewcode-back" href="../../../api/generated/openstef_models.transforms.PostprocessingPipeline.html#openstef_models.transforms.PostprocessingPipeline">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">PostprocessingPipeline</span><span class="p">[</span><span class="n">I</span><span class="p">,</span> <span class="n">O</span><span class="p">](</span><span class="n">BaseModel</span><span class="p">,</span> <span class="n">PostprocessingTransform</span><span class="p">[</span><span class="n">I</span><span class="p">,</span> <span class="n">O</span><span class="p">]):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sequential pipeline of postprocessing transformations.</span>
-
-<span class="sd">    Applies multiple PostprocessingTransform instances in order, passing both the</span>
-<span class="sd">    original input data and the evolving forecast through each transform. This allows</span>
-<span class="sd">    transforms to use input context when modifying predictions.</span>
-
-<span class="sd">    Unlike TransformPipeline which threads data through (out1 → in2 → out2 → in3),</span>
-<span class="sd">    this pipeline maintains the input and threads only the output:</span>
-<span class="sd">        (input, out1) → transform1 → out1&#39;</span>
-<span class="sd">        (input, out1&#39;) → transform2 → out2&#39;</span>
-<span class="sd">        ...</span>
-
-<span class="sd">    Invariants:</span>
-<span class="sd">        - Input data remains unchanged throughout the pipeline</span>
-<span class="sd">        - Transforms are applied in order, each receiving original input and current forecast</span>
-<span class="sd">        - Pipeline is fitted only when all transforms are fitted</span>
-
-<span class="sd">    Example:</span>
-<span class="sd">        &gt;&gt;&gt; from openstef_core.datasets import ForecastDataset, ForecastInputDataset</span>
-<span class="sd">        &gt;&gt;&gt; from openstef_models.transforms.postprocessing import (</span>
-<span class="sd">        ...     ConfidenceIntervalApplicator,</span>
-<span class="sd">        ...     QuantileSorter</span>
-<span class="sd">        ... )</span>
-<span class="sd">        &gt;&gt;&gt; from openstef_core.types import Quantile</span>
-<span class="sd">        &gt;&gt;&gt;</span>
-<span class="sd">        &gt;&gt;&gt; # Create pipeline with multiple postprocessing transforms</span>
-<span class="sd">        &gt;&gt;&gt; pipeline = PostprocessingPipeline[ForecastInputDataset, ForecastDataset](</span>
-<span class="sd">        ...     transforms=[</span>
-<span class="sd">        ...         ConfidenceIntervalApplicator(</span>
-<span class="sd">        ...             quantiles=[Quantile(0.1), Quantile(0.5), Quantile(0.9)]</span>
-<span class="sd">        ...         ),</span>
-<span class="sd">        ...         QuantileSorter(),</span>
-<span class="sd">        ...     ]</span>
-<span class="sd">        ... )</span>
-<span class="sd">        &gt;&gt;&gt;</span>
-<span class="sd">        &gt;&gt;&gt; # Fit on validation data</span>
-<span class="sd">        &gt;&gt;&gt; pipeline.fit((validation_input, validation_predictions))  # doctest: +SKIP</span>
-<span class="sd">        &gt;&gt;&gt;</span>
-<span class="sd">        &gt;&gt;&gt; # Transform new predictions using input context</span>
-<span class="sd">        &gt;&gt;&gt; final_forecast = pipeline.transform((new_input, raw_predictions)) # doctest: +SKIP</span>
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If the value is None.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">arbitrary_types_allowed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-    <span class="n">transforms</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">PostprocessingTransform</span><span class="p">[</span><span class="n">I</span><span class="p">,</span> <span class="n">O</span><span class="p">]]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
-        <span class="n">default</span><span class="o">=</span><span class="p">[],</span>
-        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Sequence of postprocessing transforms to apply. If empty, returns forecast unchanged.&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-
-<div class="viewcode-block" id="PostprocessingPipeline.to_state">
-<a class="viewcode-back" href="../../../api/generated/openstef_models.transforms.PostprocessingPipeline.html#openstef_models.transforms.PostprocessingPipeline.to_state">[docs]</a>
-    <span class="nd">@override</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">to_state</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">State</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">transform</span><span class="o">.</span><span class="n">to_state</span><span class="p">()</span> <span class="k">for</span> <span class="n">transform</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">transforms</span><span class="p">]</span></div>
-
-
-<div class="viewcode-block" id="PostprocessingPipeline.from_state">
-<a class="viewcode-back" href="../../../api/generated/openstef_models.transforms.PostprocessingPipeline.html#openstef_models.transforms.PostprocessingPipeline.from_state">[docs]</a>
-    <span class="nd">@override</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">State</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
-        <span class="n">state</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">Sequence</span><span class="p">[</span><span class="n">State</span><span class="p">],</span> <span class="n">state</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span>
-            <span class="n">transforms</span><span class="o">=</span><span class="p">[</span><span class="n">transform</span><span class="o">.</span><span class="n">from_state</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">transform</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transforms</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)]</span>
-        <span class="p">)</span></div>
-
-
-    <span class="nd">@property</span>
-    <span class="nd">@override</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">is_fitted</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="n">transform</span><span class="o">.</span><span class="n">is_fitted</span> <span class="k">for</span> <span class="n">transform</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">transforms</span><span class="p">)</span>
-
-<div class="viewcode-block" id="PostprocessingPipeline.fit">
-<a class="viewcode-back" href="../../../api/generated/openstef_models.transforms.PostprocessingPipeline.html#openstef_models.transforms.PostprocessingPipeline.fit">[docs]</a>
-    <span class="nd">@override</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">I</span><span class="p">,</span> <span class="n">O</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">input_data</span><span class="p">,</span> <span class="n">forecast</span> <span class="o">=</span> <span class="n">data</span>
-
-        <span class="c1"># Fit each transform on the evolving forecast while keeping input constant</span>
-        <span class="k">for</span> <span class="n">transform</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">transforms</span><span class="p">:</span>
-            <span class="n">forecast</span> <span class="o">=</span> <span class="n">transform</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">(</span><span class="n">input_data</span><span class="p">,</span> <span class="n">forecast</span><span class="p">))</span></div>
-
-
-<div class="viewcode-block" id="PostprocessingPipeline.transform">
-<a class="viewcode-back" href="../../../api/generated/openstef_models.transforms.PostprocessingPipeline.html#openstef_models.transforms.PostprocessingPipeline.transform">[docs]</a>
-    <span class="nd">@override</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">I</span><span class="p">,</span> <span class="n">O</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">O</span><span class="p">:</span>
-        <span class="n">input_data</span><span class="p">,</span> <span class="n">forecast</span> <span class="o">=</span> <span class="n">data</span>
-
-        <span class="c1"># Apply each transform, threading the forecast through while keeping input constant</span>
-        <span class="k">for</span> <span class="n">transform</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">transforms</span><span class="p">:</span>
-            <span class="n">forecast</span> <span class="o">=</span> <span class="n">transform</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">(</span><span class="n">input_data</span><span class="p">,</span> <span class="n">forecast</span><span class="p">))</span>
-
-        <span class="k">return</span> <span class="n">forecast</span></div>
-</div>
+    <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expected value to be not None&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">value</span></div>
 
 
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;PostprocessingPipeline&quot;</span><span class="p">,</span> <span class="s2">&quot;PostprocessingTransform&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;not_none&quot;</span><span class="p">,</span>
+<span class="p">]</span>
 </pre></div>
 
                 </article>

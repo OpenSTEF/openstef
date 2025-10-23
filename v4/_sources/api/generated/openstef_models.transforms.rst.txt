@@ -21,17 +21,7 @@ openstef_models.transforms
 
 
 
-Classes
--------
 
-.. autosummary::
-   :toctree: .
-   :template: custom_class.rst
-
-   FeatureEngineeringPipeline
-   HorizonSplitTransform
-   PostprocessingPipeline
-   PostprocessingTransform
 
 
 
