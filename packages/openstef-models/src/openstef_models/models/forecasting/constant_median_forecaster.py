@@ -19,6 +19,7 @@ from openstef_core.exceptions import ModelLoadingError, NotFittedError
 from openstef_core.mixins import State
 from openstef_core.mixins.predictor import HyperParams
 from openstef_core.types import LeadTime, Quantile
+from openstef_models.explainability.mixins import ExplainableForecaster
 from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
 
 
@@ -52,7 +53,7 @@ class ConstantMedianForecasterConfig(ForecasterConfig):
 MODEL_CODE_VERSION = 2
 
 
-class ConstantMedianForecaster(Forecaster):
+class ConstantMedianForecaster(Forecaster, ExplainableForecaster):
     """Constant median-based forecaster for single horizon predictions.
 
     Predicts constant values based on historical quantiles from training data.
@@ -145,4 +146,13 @@ class ConstantMedianForecaster(Forecaster):
                 index=forecast_index,
             ),
             sample_interval=data.sample_interval,
+        )
+
+    @property
+    @override
+    def feature_importances(self) -> pd.DataFrame:
+        return pd.DataFrame(
+            data=[1.0],
+            index=["load"],
+            columns=[quantile.format() for quantile in self.config.quantiles],
         )

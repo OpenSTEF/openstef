@@ -143,6 +143,9 @@ lint.fixable = [ "ALL" ]
 lint.flake8-annotations.allow-star-arg-any = true # *args and **kwargs are allowed to be Any
 lint.flake8-annotations.suppress-dummy-args = true # do not type _ arguments/variables
 lint.flake8-annotations.suppress-none-returning = true # do not require annotation if None is returned/there is no return
+lint.flake8-bugbear.extend-immutable-calls = [
+  "openstef_core.types.Q",
+] # Q is immutable, so adding it here to avoid false positives
 lint.isort.known-first-party = [
   "src",
   "tests",

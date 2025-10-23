@@ -9,6 +9,7 @@ including XGBoost, GBLinear, and Flatliner models with appropriate preprocessing
 """
 
 from datetime import timedelta
+from decimal import Decimal
 from typing import Literal
 
 from pydantic import Field
@@ -84,8 +85,8 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
     description: str = Field(default="", description="Description of the forecasting workflow.")
     coordinate: Coordinate = Field(
         default=Coordinate(
-            latitude=Latitude(52.132633),
-            longitude=Longitude(5.291266),
+            latitude=Latitude(Decimal("52.132633")),
+            longitude=Longitude(Decimal("5.291266")),
         ),
         description="Geographic coordinate of the location.",
     )
