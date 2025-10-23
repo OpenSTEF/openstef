@@ -10,133 +10,14 @@ that support both quantile-specific and global performance measurements.
 """
 
 from collections import defaultdict
-from datetime import datetime, timedelta
-from pathlib import Path
-from typing import Literal, Self
+from datetime import datetime
+from typing import Literal
 
 import pandas as pd
 
 from openstef_beam.evaluation.models.window import Window
 from openstef_core.base_model import BaseModel, FloatOrNan
-from openstef_core.datasets import ForecastDataset, ForecastInputDataset
-from openstef_core.datasets.validation import validate_same_sample_intervals
-from openstef_core.exceptions import TimeSeriesValidationError
 from openstef_core.types import Quantile, QuantileOrGlobal
-
-
-class EvaluationSubset:
-    """A paired dataset of ground truth and predictions for evaluation.
-
-    Ensures temporal alignment between ground truth measurements and forecast
-    predictions to enable accurate performance assessment. Validates index
-    consistency and sample intervals for reliable metric computation.
-    """
-
-    ground_truth: ForecastInputDataset
-    predictions: ForecastDataset
-
-    def __init__(
-        self,
-        ground_truth: ForecastInputDataset,
-        predictions: ForecastDataset,
-    ):
-        """Initialize evaluation subset with aligned ground truth and predictions.
-
-        Args:
-            ground_truth: Historical measurements dataset.
-            predictions: Forecast predictions dataset.
-
-        Raises:
-            TimeSeriesValidationError: If indices don't match or sample intervals differ.
-        """
-        super().__init__()
-        if not ground_truth.index.equals(predictions.index):  # type: ignore[reportUnknownMemberType]
-            raise TimeSeriesValidationError("Ground truth and predictions must have the same index.")
-
-        validate_same_sample_intervals([ground_truth, predictions])
-
-        self.ground_truth = ground_truth
-        self.predictions = predictions
-
-    @property
-    def index(self) -> pd.DatetimeIndex:
-        """Get the common temporal index for both datasets.
-
-        Returns:
-            DatetimeIndex shared by ground truth and predictions.
-        """
-        return self.ground_truth.index
-
-    @property
-    def sample_interval(self) -> timedelta:
-        """Get the sampling interval of the datasets.
-
-        Returns:
-            Temporal resolution of the time series data.
-        """
-        return self.ground_truth.sample_interval
-
-    @classmethod
-    def create(
-        cls,
-        ground_truth: ForecastInputDataset,
-        predictions: ForecastDataset,
-        index: pd.DatetimeIndex | None = None,
-    ) -> Self:
-        """Create an evaluation subset with optional index filtering.
-
-        Args:
-            ground_truth: Historical measurements dataset.
-            predictions: Forecast predictions dataset.
-            index: Optional index to filter both datasets.
-
-        Returns:
-            New EvaluationSubset with aligned and optionally filtered data.
-        """
-        combined_index = ground_truth.index.intersection(predictions.index)
-        if index is not None:
-            combined_index = combined_index.intersection(index)
-
-        return cls(
-            ground_truth=ForecastInputDataset(
-                data=ground_truth.data.loc[combined_index],
-                sample_interval=ground_truth.sample_interval,
-                target_column=ground_truth.target_column,
-            ),
-            predictions=ForecastDataset(
-                data=predictions.data.loc[combined_index],
-                sample_interval=predictions.sample_interval,
-                forecast_start=None,
-            ),
-        )
-
-    def to_parquet(self, path: Path):
-        """Save the evaluation subset to parquet files.
-
-        Args:
-            path: Directory where to save ground truth and predictions data.
-        """
-        path.mkdir(parents=True, exist_ok=True)
-        self.ground_truth.to_parquet(path / "ground_truth.parquet")
-        self.predictions.to_parquet(path / "predictions.parquet")
-
-    @classmethod
-    def from_parquet(cls, path: Path) -> Self:
-        """Load an evaluation subset from parquet files.
-
-        Args:
-            path: Directory containing saved ground truth and predictions data.
-
-        Returns:
-            Loaded EvaluationSubset instance.
-        """
-        ground_truth = ForecastInputDataset.read_parquet(path / "ground_truth.parquet")
-        predictions = ForecastDataset.read_parquet(path / "predictions.parquet")
-        return cls(
-            ground_truth=ground_truth,
-            predictions=predictions,
-        )
-
 
 MetricsDict = dict[str, FloatOrNan]
 QuantileMetricsDict = dict[QuantileOrGlobal, MetricsDict]

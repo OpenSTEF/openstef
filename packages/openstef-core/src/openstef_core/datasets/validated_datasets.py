@@ -10,13 +10,14 @@ validation to catch data quality issues early.
 """
 
 from datetime import datetime, timedelta
-from typing import Self, cast, override
+from typing import Self, override
 
 import pandas as pd
 
 from openstef_core.datasets.timeseries_dataset import TimeSeriesDataset
-from openstef_core.exceptions import MissingColumnsError, TimeSeriesValidationError
-from openstef_core.types import EnergyComponentType, Quantile
+from openstef_core.datasets.validation import validate_required_columns
+from openstef_core.exceptions import MissingColumnsError
+from openstef_core.types import EnergyComponentType, LeadTime, Quantile
 
 
 class ForecastInputDataset(TimeSeriesDataset):
@@ -28,6 +29,11 @@ class ForecastInputDataset(TimeSeriesDataset):
     Invariants:
         - Target column must exist in the dataset
         - Inherits all TimeSeriesDataset guarantees (sorted timestamps, consistent intervals)
+
+    Attrs:
+        target_column: Name of the target column to forecast.
+        sample_weight_column: Name of the column containing sample weights.
+        forecast_start: Optional timestamp indicating when the forecast period starts.
 
     Example:
         >>> import pandas as pd
@@ -47,9 +53,9 @@ class ForecastInputDataset(TimeSeriesDataset):
         'load'
         >>> dataset.sample_weight_column
         'weights'
-        >>> len(dataset.target_series())
+        >>> len(dataset.target_series)
         3
-        >>> len(dataset.sample_weight_series())
+        >>> len(dataset.sample_weight_series)
         3
 
     See Also:
@@ -58,40 +64,51 @@ class ForecastInputDataset(TimeSeriesDataset):
         TimeSeriesEnergyComponentDataset: For energy component analysis.
     """
 
+    target_column: str
+    sample_weight_column: str
+
+    _forecast_start: datetime | None
+
     @override
     def __init__(
         self,
         data: pd.DataFrame,
-        sample_interval: timedelta,
-        target_column: str | None = None,
-        sample_weight_column: str = "sample_weight",
+        sample_interval: timedelta = timedelta(minutes=15),
         forecast_start: datetime | None = None,
         *,
-        is_sorted: bool = False,
+        horizon_column: str = "horizon",
+        available_at_column: str = "available_at",
+        sample_weight_column: str = "sample_weight",
+        target_column: str = "load",
     ) -> None:
-        """Initialize dataset with target column validation.
+        self.target_column = data.attrs.get("target_column", target_column)
+        self.sample_weight_column = data.attrs.get("sample_weight_column", sample_weight_column)
+        if "forecast_start" in data.attrs:
+            self._forecast_start = datetime.fromisoformat(data.attrs["forecast_start"])
+        else:
+            self._forecast_start = forecast_start
 
-        Args:
-            data: Time series data with DatetimeIndex.
-            sample_interval: Time interval between consecutive data points.
-            target_column: Name of the target column to forecast.
-            sample_weight_column: Name of column with sample weights.
-            forecast_start: Optional timestamp indicating forecast start.
-            is_sorted: Whether the data is already sorted by index.
+        validate_required_columns(data, required_columns=[self.target_column])
 
-        Raises:
-            MissingColumnsError: If target_column is not found in data.
+        super().__init__(
+            data=data,
+            sample_interval=sample_interval,
+            horizon_column=horizon_column,
+            available_at_column=available_at_column,
+        )
+        self._internal_columns.add(self.sample_weight_column)
+        self._feature_names = [col for col in self.data.columns if col not in self._internal_columns]
+
+    @property
+    def forecast_start(self) -> datetime:
+        """Get the forecast start timestamp.
+
+        Returns:
+            Datetime indicating when the forecast period starts.
         """
-        super().__init__(data=data, sample_interval=sample_interval, is_sorted=is_sorted)
+        return self._forecast_start if self._forecast_start is not None else self.data.index.min().to_pydatetime()
 
-        self.target_column: str = data.attrs.get("target_column", target_column) or "load"
-        if self.target_column not in self.feature_names:
-            raise MissingColumnsError(missing_columns=[self.target_column])
-
-        self.sample_weight_column = sample_weight_column
-        self.forecast_start = forecast_start
-        self.data.attrs["target_column"] = self.target_column
-
+    @property
     def target_series(self) -> pd.Series:
         """Extract the target time series from the dataset.
 
@@ -100,6 +117,7 @@ class ForecastInputDataset(TimeSeriesDataset):
         """
         return self.data[self.target_column]
 
+    @property
     def sample_weight_series(self) -> pd.Series:
         """Extract the sample weight time series from the dataset, if it exists.
 
@@ -107,8 +125,9 @@ class ForecastInputDataset(TimeSeriesDataset):
             Time series containing sample weights with original datetime index,
             or None if the sample weight column does not exist.
         """
-        if self.sample_weight_column in self.feature_names:
+        if self.sample_weight_column in self.data.columns:
             return self.data[self.sample_weight_column]
+
         return pd.Series(1, index=self.index)
 
     def input_data(self, start: datetime | None = None) -> pd.DataFrame:
@@ -121,16 +140,18 @@ class ForecastInputDataset(TimeSeriesDataset):
         Returns:
             DataFrame containing input features with original datetime index.
         """
-        input_data: pd.DataFrame = self.data.drop(
-            columns=[self.target_column, self.sample_weight_column], errors="ignore"
-        )
+        drop_columns = [self.target_column, self.sample_weight_column]
+        if self._version_column is not None:
+            drop_columns.append(self._version_column)
+
+        input_data: pd.DataFrame = self.data.drop(columns=drop_columns, errors="ignore")
         if start is not None:
             input_data = input_data[input_data.index >= pd.Timestamp(start)]
 
         return input_data
 
     @classmethod
-    def from_timeseries_dataset(
+    def from_timeseries(
         cls,
         dataset: TimeSeriesDataset,
         target_column: str = "load",
@@ -153,6 +174,30 @@ class ForecastInputDataset(TimeSeriesDataset):
             forecast_start=forecast_start,
         )
 
+    def create_forecast_range(self, horizon: LeadTime) -> pd.DatetimeIndex:
+        """Create forecast index for given horizon starting from forecast_start.
+
+        Args:
+            horizon: Lead time horizon for the forecast.
+
+        Returns:
+            DatetimeIndex representing the forecast timestamps.
+        """
+        return pd.date_range(
+            start=self.forecast_start,
+            end=self.forecast_start + horizon.value,
+            freq=self.sample_interval,
+            name="timestamp",
+        )
+
+    @override
+    def to_pandas(self) -> pd.DataFrame:
+        df = super().to_pandas()
+        df.attrs["target_column"] = self.target_column
+        df.attrs["sample_weight_column"] = self.sample_weight_column
+        df.attrs["forecast_start"] = self.forecast_start.isoformat()
+        return df
+
 
 class ForecastDataset(TimeSeriesDataset):
     """Time series dataset containing probabilistic forecasts with quantile estimates.
@@ -165,10 +210,16 @@ class ForecastDataset(TimeSeriesDataset):
         - All columns must be valid quantile strings (e.g., 'quantile_P10')
         - Inherits all TimeSeriesDataset guarantees (sorted timestamps, consistent intervals)
 
+    Attrs:
+        forecast_start: Timestamp indicating when the forecast period starts.
+        quantiles: List of Quantile values represented in the dataset.
+
     Example:
         >>> import pandas as pd
+        >>> import numpy as np
         >>> from datetime import timedelta
         >>> forecast_data = pd.DataFrame({
+        ...     'load': [100, np.nan],
         ...     'quantile_P10': [90, 95],
         ...     'quantile_P50': [100, 110],
         ...     'quantile_P90': [115, 125]
@@ -185,44 +236,52 @@ class ForecastDataset(TimeSeriesDataset):
         Quantile: Type for handling quantile values and naming conventions.
     """
 
+    forecast_start: datetime
+    quantiles: list[Quantile]
+    target_column: str
+
     @override
     def __init__(
         self,
         data: pd.DataFrame,
-        sample_interval: timedelta,
+        sample_interval: timedelta = timedelta(minutes=15),
         forecast_start: datetime | None = None,
+        target_column: str = "load",
         *,
-        is_sorted: bool = False,
+        horizon_column: str = "horizon",
+        available_at_column: str = "available_at",
     ) -> None:
-        """Initialize dataset with quantile column validation.
+        if "forecast_start" in data.attrs:
+            self.forecast_start = datetime.fromisoformat(data.attrs["forecast_start"])
+        else:
+            self.forecast_start = forecast_start if forecast_start is not None else data.index.min().to_pydatetime()
+        self.target_column = data.attrs.get("target_column", target_column)
 
-        Args:
-            data: DataFrame with quantile columns (e.g., 'quantile_P50').
-            sample_interval: Time interval between consecutive forecast points.
-            forecast_start: Timestamp when forecast period begins. Defaults to
-                minimum timestamp from data if not provided.
-            is_sorted: Whether the data is already sorted by index.
+        super().__init__(
+            data=data,
+            sample_interval=sample_interval,
+            horizon_column=horizon_column,
+            available_at_column=available_at_column,
+        )
 
-        Raises:
-            TimeSeriesValidationError: If any columns are not valid quantile strings.
-        """
-        super().__init__(data=data, sample_interval=sample_interval, is_sorted=is_sorted)
+        quantile_feature_names = [col for col in self.feature_names if col != target_column]
+        if not all(Quantile.is_valid_quantile_string(col) for col in quantile_feature_names):
+            raise ValueError("All feature names must be valid quantile strings.")
 
-        if not all(Quantile.is_valid_quantile_string(col) for col in self.feature_names):
-            raise TimeSeriesValidationError("All feature names must be valid quantile strings.")
-
-        self._quantiles = [Quantile.parse(col) for col in self.feature_names]
-        self.forecast_start = forecast_start or cast("pd.Series[pd.Timestamp]", self.index).min().to_pydatetime()
+        self.quantiles = [Quantile.parse(col) for col in quantile_feature_names]
 
     @property
-    def quantiles(self) -> list[Quantile]:
-        """List of quantiles represented in the dataset.
+    def target_series(self) -> pd.Series | None:
+        """Extract the target time series from the dataset.
 
         Returns:
-            Quantile values (0-1 scale) corresponding to dataset columns.
+            Time series containing target values with original datetime index.
         """
-        return self._quantiles
+        if self.target_column not in self.data.columns:
+            return None
+        return self.data[self.target_column]
 
+    @property
     def median_series(self) -> pd.Series:
         """Extract the median (50th percentile) forecast series.
 
@@ -237,7 +296,17 @@ class ForecastDataset(TimeSeriesDataset):
             raise MissingColumnsError(missing_columns=[median_col])
         return self.data[median_col]
 
-    def select_quantiles(self, quantiles: list[Quantile]) -> Self:
+    @property
+    def quantiles_data(self) -> pd.DataFrame:
+        """Extract DataFrame containing only the quantile forecast columns.
+
+        Returns:
+            DataFrame with quantile columns and original datetime index.
+        """
+        quantile_columns = [q.format() for q in self.quantiles]
+        return self.data[quantile_columns]
+
+    def filter_quantiles(self, quantiles: list[Quantile]) -> Self:
         """Select a subset of quantiles from the forecast dataset.
 
         Args:
@@ -245,21 +314,24 @@ class ForecastDataset(TimeSeriesDataset):
 
         Returns:
             New ForecastDataset containing only the specified quantile columns.
-
-        Raises:
-            MissingColumnsError: If any requested quantile columns are not found.
         """
-        quantile_columns = [q.format() for q in quantiles]
-        missing_columns = set(quantile_columns) - set(self.feature_names)
-        if missing_columns:
-            raise MissingColumnsError(missing_columns=list(missing_columns))
+        selected_quantiles = [q.format() for q in quantiles]
+        validate_required_columns(self.data, required_columns=selected_quantiles)
 
-        return self.__class__(
-            data=self.data[quantile_columns],
-            sample_interval=self.sample_interval,
-            forecast_start=self.forecast_start,
-            is_sorted=True,
-        )
+        all_quantiles = [q.format() for q in self.quantiles]
+        drop_columns = list(set(all_quantiles) - set(selected_quantiles))
+        data_filtered = self.data.drop(columns=drop_columns)
+
+        result = self._copy_with_data(data=data_filtered)
+        result.quantiles = quantiles
+        return result
+
+    @override
+    def to_pandas(self) -> pd.DataFrame:
+        df = super().to_pandas()
+        df.attrs["target_column"] = self.target_column
+        df.attrs["forecast_start"] = self.forecast_start.isoformat()
+        return df
 
 
 class EnergyComponentDataset(TimeSeriesDataset):
@@ -293,21 +365,24 @@ class EnergyComponentDataset(TimeSeriesDataset):
     """
 
     @override
-    def __init__(self, data: pd.DataFrame, sample_interval: timedelta) -> None:
-        """Initialize dataset with energy component validation.
-
-        Args:
-            data: DataFrame with columns for each energy component type.
-            sample_interval: Time interval between consecutive data points.
-
-        Raises:
-            MissingColumnsError: If any required energy component columns are missing.
-        """
-        super().__init__(data, sample_interval)
-
-        missing_columns = {item.value for item in EnergyComponentType} - set(self.feature_names)
-        if missing_columns:
-            raise MissingColumnsError(missing_columns=list(missing_columns))
+    def __init__(
+        self,
+        data: pd.DataFrame,
+        sample_interval: timedelta = timedelta(minutes=15),
+        *,
+        horizon_column: str = "horizon",
+        available_at_column: str = "available_at",
+    ) -> None:
+        validate_required_columns(
+            data,
+            required_columns=[item.value for item in EnergyComponentType],
+        )
+        super().__init__(
+            data=data,
+            sample_interval=sample_interval,
+            horizon_column=horizon_column,
+            available_at_column=available_at_column,
+        )
 
 
 __all__ = [

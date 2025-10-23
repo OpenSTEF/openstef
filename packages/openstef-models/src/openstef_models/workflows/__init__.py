@@ -4,10 +4,13 @@
 
 """Pipeline orchestrations for OpenSTEF.
 
-High-level training, forecasting and evaluation pipelines that compose
-smaller components (transforms, models, storages, callbacks).
+High-level training, forecasting workflows.
 """
 
+from .custom_component_split_workflow import CustomComponentSplitWorkflow
 from .custom_forecasting_workflow import CustomForecastingWorkflow
 
-__all__ = ["CustomForecastingWorkflow"]
+__all__ = [
+    "CustomComponentSplitWorkflow",
+    "CustomForecastingWorkflow",
+]

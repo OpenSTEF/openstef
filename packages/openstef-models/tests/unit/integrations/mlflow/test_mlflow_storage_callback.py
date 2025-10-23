@@ -12,32 +12,30 @@ import pandas as pd
 import pytest
 
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.datasets.data_split import DataSplitStrategy, StratifiedTrainTestSplitter
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import ModelNotFoundError, SkipFitting
 from openstef_core.mixins import State
 from openstef_core.types import LeadTime, Q
 from openstef_models.integrations.mlflow import MLFlowStorage, MLFlowStorageCallback
 from openstef_models.mixins.callbacks import WorkflowContext
-from openstef_models.models.forecasting import HorizonForecaster, HorizonForecasterConfig
+from openstef_models.models.forecasting import Forecaster, ForecasterConfig
 from openstef_models.models.forecasting_model import ForecastingModel, ModelFitResult
-from openstef_models.transforms import FeatureEngineeringPipeline
 from openstef_models.workflows.custom_forecasting_workflow import CustomForecastingWorkflow
 
 if TYPE_CHECKING:
     from pathlib import Path
 
 
-class SimpleTestForecaster(HorizonForecaster):
+class SimpleTestForecaster(Forecaster):
     """Simple forecaster for testing that stores and restores median value."""
 
-    def __init__(self, config: HorizonForecasterConfig):
+    def __init__(self, config: ForecasterConfig):
         self._config = config
         self._median_value: float = 0.0
         self._is_fitted = False
 
     @property
-    def config(self) -> HorizonForecasterConfig:
+    def config(self) -> ForecasterConfig:
         return self._config
 
     @property
@@ -58,7 +56,10 @@ class SimpleTestForecaster(HorizonForecaster):
 
     @override
     def fit(self, data: ForecastInputDataset, data_val: ForecastInputDataset | None = None) -> None:
-        self._median_value = float(data.target_series().median())
+        if self._is_fitted:
+            return
+
+        self._median_value = float(data.target_series.median())
         self._is_fitted = True
 
     @override
@@ -90,12 +91,13 @@ def callback(storage: MLFlowStorage) -> MLFlowStorageCallback:
 
 @pytest.fixture
 def sample_dataset() -> TimeSeriesDataset:
-    """Create sample dataset for testing."""
-    data = pd.DataFrame(
-        {"load": [100.0, 110.0, 120.0, 105.0, 95.0, 115.0, 125.0, 130.0]},
-        index=pd.date_range("2025-01-01", periods=8, freq="h"),
+    return TimeSeriesDataset(
+        data=pd.DataFrame(
+            {"load": [100.0, 110.0, 120.0, 105.0, 95.0, 115.0, 125.0, 130.0], "value": 100.0},
+            index=pd.date_range("2025-01-01", periods=8, freq="h"),
+        ),
+        sample_interval=timedelta(hours=1),
     )
-    return TimeSeriesDataset(data, timedelta(hours=1))
 
 
 @pytest.fixture
@@ -107,12 +109,9 @@ def workflow(sample_dataset: TimeSeriesDataset) -> CustomForecastingWorkflow:
     # Disable train/val/test splitting to avoid R^2 warnings with small dataset
     # (R^2 is undefined with less than 2 samples, and splitting 8 samples creates tiny sets)
     model = ForecastingModel(
-        preprocessing=FeatureEngineeringPipeline(horizons=horizons),
-        forecaster=SimpleTestForecaster(config=HorizonForecasterConfig(horizons=horizons, quantiles=quantiles)),
-        split_strategy=DataSplitStrategy(
-            test_splitter=StratifiedTrainTestSplitter(test_fraction=0.0),  # No test split
-            val_splitter=StratifiedTrainTestSplitter(test_fraction=0.0),  # No val split
-        ),
+        forecaster=SimpleTestForecaster(config=ForecasterConfig(horizons=horizons, quantiles=quantiles)),
+        test_fraction=0.0,
+        val_fraction=0.0,
     )
 
     return CustomForecastingWorkflow(model_id="test_model", model=model)
@@ -161,8 +160,7 @@ def test_mlflow_storage_callback__on_predict_start__loads_model_when_not_fitted(
     unfitted_workflow = CustomForecastingWorkflow(
         model_id="test_model",
         model=ForecastingModel(
-            preprocessing=FeatureEngineeringPipeline(horizons=horizons),
-            forecaster=SimpleTestForecaster(config=HorizonForecasterConfig(horizons=horizons, quantiles=[Q(0.5)])),
+            forecaster=SimpleTestForecaster(config=ForecasterConfig(horizons=horizons, quantiles=[Q(0.5)])),
         ),
     )
     unfitted_context = WorkflowContext(workflow=unfitted_workflow)
@@ -183,8 +181,7 @@ def test_mlflow_storage_callback__on_predict_start__raises_error_when_no_model_e
     unfitted_workflow = CustomForecastingWorkflow(
         model_id="nonexistent_model",
         model=ForecastingModel(
-            preprocessing=FeatureEngineeringPipeline(horizons=horizons),
-            forecaster=SimpleTestForecaster(config=HorizonForecasterConfig(horizons=horizons, quantiles=[Q(0.5)])),
+            forecaster=SimpleTestForecaster(config=ForecasterConfig(horizons=horizons, quantiles=[Q(0.5)])),
         ),
     )
     context = WorkflowContext(workflow=unfitted_workflow)
@@ -249,18 +246,15 @@ def test_mlflow_storage_callback__model_selection__keeps_better_model(
 
     # Create a new "worse" model by manually setting a bad median value
     worse_horizons = [LeadTime(timedelta(hours=1))]
-    worse_forecaster = SimpleTestForecaster(config=HorizonForecasterConfig(horizons=worse_horizons, quantiles=[Q(0.5)]))
+    worse_forecaster = SimpleTestForecaster(config=ForecasterConfig(horizons=worse_horizons, quantiles=[Q(0.5)]))
     worse_forecaster._median_value = 50.0  # Much lower than actual values (~110)
     worse_forecaster._is_fitted = True
 
     # Disable splits for worse model too to avoid R^2 warnings
     worse_model = ForecastingModel(
-        preprocessing=FeatureEngineeringPipeline(horizons=worse_horizons),
         forecaster=worse_forecaster,
-        split_strategy=DataSplitStrategy(
-            test_splitter=StratifiedTrainTestSplitter(test_fraction=0.0),
-            val_splitter=StratifiedTrainTestSplitter(test_fraction=0.0),
-        ),
+        test_fraction=0.0,
+        val_fraction=0.0,
     )
 
     # Create a worse result by fitting with the worse model

@@ -59,6 +59,7 @@ class DimensionalityReducer(BaseConfig, TimeSeriesTransform):
         >>> transformed_dataset = dim_reducer.transform(dataset)
         >>> transformed_dataset.data.head().round(3)
                              component_1  component_2  load
+        timestamp
         2025-01-01 00:00:00       -2.383       -1.166   100
         2025-01-01 01:00:00        3.596        0.335   120
         2025-01-01 02:00:00        0.606       -0.416   110
@@ -99,16 +100,17 @@ class DimensionalityReducer(BaseConfig, TimeSeriesTransform):
         features = self.selection.resolve(data.feature_names)
         if not self._is_fitted:
             raise NotFittedError(self.__class__.__name__)
+
         transformed_data: np.ndarray = self._dimensionality_reducer.transform(data.data[features])  # type: ignore[reportUnknownMemberType]
         transformed_data_pd = pd.DataFrame(
-            transformed_data,
+            data=transformed_data,
             index=data.data.index,
             columns=[f"component_{i + 1}" for i in range(self.n_components)],
         )
         untransformed_columns = [feature_name for feature_name in data.feature_names if feature_name not in features]
 
         transformed_data_pd = pd.concat(
-            [transformed_data_pd, data.data[untransformed_columns]],
+            objs=[transformed_data_pd, data.data[untransformed_columns]],
             axis=1,
         )
 

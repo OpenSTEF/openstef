@@ -97,7 +97,7 @@ class ComponentSplittingModel(BaseModel, ComponentSplitter):
 
     @override
     def fit(self, data: TimeSeriesDataset, data_val: TimeSeriesDataset | None = None) -> None:
-        validate_required_columns(dataset=data, required_columns=[self.source_column, *self.config.components])
+        validate_required_columns(df=data.data, required_columns=[self.source_column, *self.config.components])
 
         input_data_train = self.preprocessing.fit_transform(data=data)
         input_data_val = self.preprocessing.transform(data=data_val) if data_val else None
@@ -108,7 +108,7 @@ class ComponentSplittingModel(BaseModel, ComponentSplitter):
 
     @override
     def predict(self, data: TimeSeriesDataset) -> EnergyComponentDataset:
-        validate_required_columns(dataset=data, required_columns=[self.source_column])
+        validate_required_columns(df=data.data, required_columns=[self.source_column])
 
         input_data = self.preprocessing.transform(data=data)
 

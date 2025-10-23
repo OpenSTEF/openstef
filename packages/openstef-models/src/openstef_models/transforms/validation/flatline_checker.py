@@ -94,9 +94,6 @@ class FlatlineChecker(BaseConfig, TimeSeriesTransform):
 
         Args:
             data: A timeseries of measured load with a DatetimeIndex.
-            duration_threshold_minutes: A flatliner is only detected if it exceeds the threshold duration.
-            detect_non_zero_flatliner: If True, a flatliner is detected for non-zero values. If False,
-                a flatliner is detected for zero values only.
 
         Returns:
             Boolean indicating whether or not there is a flatliner ongoing for the given data.

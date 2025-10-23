@@ -16,17 +16,14 @@ import pandas as pd
 from pydantic import BaseModel, Field, PrivateAttr
 from scipy import stats
 
-from openstef_core.datasets import ForecastDataset, ForecastInputDataset
-from openstef_core.datasets.multi_horizon_dataset import MultiHorizon
+from openstef_core.datasets import ForecastDataset
 from openstef_core.exceptions import NotFittedError
-from openstef_core.mixins import State
+from openstef_core.mixins import State, Transform
 from openstef_core.types import LeadTime, Quantile
-from openstef_models.transforms.postprocessing_pipeline import PostprocessingTransform
+from openstef_core.utils.invariants import not_none
 
 
-class ConfidenceIntervalApplicator(
-    BaseModel, PostprocessingTransform[MultiHorizon[ForecastInputDataset], ForecastDataset]
-):
+class ConfidenceIntervalApplicator(BaseModel, Transform[ForecastDataset, ForecastDataset]):
     """Add quantile predictions to forecasts based on learned uncertainty patterns.
 
     This transform learns hour-specific uncertainty from validation errors and applies
@@ -96,21 +93,20 @@ class ConfidenceIntervalApplicator(
         return self._is_fitted
 
     @override
-    def fit(self, data: tuple[MultiHorizon[ForecastInputDataset], ForecastDataset]) -> None:
-        validation_data, predictions = data
+    def fit(self, data: ForecastDataset) -> None:
+        if data.target_series is None:
+            raise ValueError("Input data must contain target series for error computation.")
 
         # Compute hourly standard deviation for each horizon
         std_by_horizon: dict[str, pd.Series] = {}
-        for horizon, input_data in validation_data.items():
-            actual = input_data.target_series()
-            predicted = predictions.median_series()
-
-            common_index = actual.index.intersection(predicted.index)
-            errors = actual.loc[common_index] - predicted.loc[common_index]
-
+        for horizon in data.horizons or [LeadTime.from_string("PT0H")]:
+            horizon_data = data.select_horizon(horizon)
+            # Compute hourly standard deviation for each horizon
+            errors = not_none(horizon_data.target_series) - horizon_data.median_series
             # Group by hour and compute std
             std_by_horizon[str(horizon)] = errors.pipe(_calculate_hourly_std)
 
+        # Group by hour and compute std
         self._standard_deviation = pd.DataFrame(std_by_horizon)
         self._is_fitted = True
 
@@ -135,34 +131,26 @@ class ConfidenceIntervalApplicator(
     def _add_quantiles_from_stdev(
         forecast: ForecastDataset, stdev_series: pd.Series, quantiles: list[Quantile]
     ) -> ForecastDataset:
-        median_col = Quantile(0.5).format()
         # quantile = median + z_score * std (normal distribution assumption)
-        quantile_data = {
-            quantile.format(): forecast.data[median_col] + stats.norm.ppf(quantile) * stdev_series  # pyright: ignore[reportUnknownMemberType]
-            for quantile in quantiles
-        }
+        data = forecast.data.copy(deep=False)
+        for quantile in quantiles:
+            data[quantile.format()] = forecast.median_series + stats.norm.ppf(quantile) * stdev_series  # pyright: ignore[reportUnknownMemberType]
 
-        return ForecastDataset(
-            data=pd.DataFrame(quantile_data, index=forecast.index),
-            sample_interval=forecast.sample_interval,
-            forecast_start=forecast.forecast_start,
-        )
+        return forecast._copy_with_data(data=data)  # noqa: SLF001 - safe - invariant preserved
 
     @override
-    def transform(self, data: tuple[MultiHorizon[ForecastInputDataset], ForecastDataset]) -> ForecastDataset:
+    def transform(self, data: ForecastDataset) -> ForecastDataset:
         if not self._is_fitted:
             raise NotFittedError(self.__class__.__name__)
 
-        _, forecast = data
-
         if self.quantiles is None:
-            return forecast
+            return data
 
         # Compute standard deviation series
-        stdev_series = self._compute_stdev_series(forecast)
+        stdev_series = self._compute_stdev_series(data)
 
         # Add quantiles based on standard deviation
-        return self._add_quantiles_from_stdev(forecast, stdev_series, self.quantiles)
+        return self._add_quantiles_from_stdev(forecast=data, stdev_series=stdev_series, quantiles=self.quantiles)
 
     @override
     def to_state(self) -> State:

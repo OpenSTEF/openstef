@@ -177,6 +177,7 @@ filterwarnings = [
   # Using spawn instead breaks test infrastructure (fixtures not picklable)
   "ignore:This process.*is multi-threaded.*use of fork.*may lead to deadlocks:DeprecationWarning",
 ]
+doctest_optionflags = "NORMALIZE_WHITESPACE"
 
 [tool.coverage.report]
 fail_under = 20

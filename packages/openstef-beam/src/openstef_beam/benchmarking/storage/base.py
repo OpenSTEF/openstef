@@ -20,7 +20,7 @@ from typing import override
 from openstef_beam.analysis import AnalysisOutput, AnalysisScope
 from openstef_beam.benchmarking.models import BenchmarkTarget
 from openstef_beam.evaluation import EvaluationReport
-from openstef_core.datasets import VersionedTimeSeriesPart
+from openstef_core.datasets import TimeSeriesDataset
 
 
 class BenchmarkStorage(ABC):
@@ -104,7 +104,7 @@ class BenchmarkStorage(ABC):
     """
 
     @abstractmethod
-    def save_backtest_output(self, target: BenchmarkTarget, output: VersionedTimeSeriesPart) -> None:
+    def save_backtest_output(self, target: BenchmarkTarget, output: TimeSeriesDataset) -> None:
         """Save the backtest output for a specific benchmark target.
 
         Stores the results of a backtest execution, associating it with the target
@@ -113,11 +113,11 @@ class BenchmarkStorage(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def load_backtest_output(self, target: BenchmarkTarget) -> VersionedTimeSeriesPart:
+    def load_backtest_output(self, target: BenchmarkTarget) -> TimeSeriesDataset:
         """Load previously saved backtest output for a benchmark target.
 
         Returns:
-            The stored backtest results as a VersionedTimeSeriesPart.
+            The stored backtest results as a TimeSeriesDataset.
 
         Raises:
             KeyError: When no backtest output exists for the given target.
@@ -198,16 +198,16 @@ class InMemoryBenchmarkStorage(BenchmarkStorage):
 
     def __init__(self):
         """Initialize empty in-memory storage containers."""
-        self._backtest_outputs: dict[str, VersionedTimeSeriesPart] = {}
+        self._backtest_outputs: dict[str, TimeSeriesDataset] = {}
         self._evaluation_outputs: dict[str, EvaluationReport] = {}
         self._analytics_outputs: dict[AnalysisScope, AnalysisOutput] = {}
 
     @override
-    def save_backtest_output(self, target: BenchmarkTarget, output: VersionedTimeSeriesPart) -> None:
+    def save_backtest_output(self, target: BenchmarkTarget, output: TimeSeriesDataset) -> None:
         self._backtest_outputs[target.name] = output
 
     @override
-    def load_backtest_output(self, target: BenchmarkTarget) -> VersionedTimeSeriesPart:
+    def load_backtest_output(self, target: BenchmarkTarget) -> TimeSeriesDataset:
         return self._backtest_outputs[target.name]
 
     @override

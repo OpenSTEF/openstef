@@ -28,7 +28,7 @@ class MissingExtraError(Exception):
         )
 
 
-class MissingColumnsError(Exception):
+class MissingColumnsError(ValueError):
     """Exception raised when required columns are missing from a DataFrame."""
 
     def __init__(self, missing_columns: Sequence[str]):
@@ -41,7 +41,7 @@ class MissingColumnsError(Exception):
         super().__init__(f"Missing required columns: {', '.join(missing_columns)}")
 
 
-class InvalidColumnTypeError(Exception):
+class InvalidColumnTypeError(TypeError):
     """Exception raised when a DataFrame column has an invalid type."""
 
     def __init__(self, column: str, expected_type: str, actual_type: str):
@@ -56,7 +56,7 @@ class InvalidColumnTypeError(Exception):
         super().__init__(message)
 
 
-class TimeSeriesValidationError(Exception):
+class TimeSeriesValidationError(ValueError):
     """Exception raised for validation errors in time series datasets."""
 
     def __init__(self, message: str):

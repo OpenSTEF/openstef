@@ -13,12 +13,14 @@ from pathlib import Path
 from typing import Self
 
 import pandas as pd
-from pydantic import TypeAdapter
+from pydantic import TypeAdapter, field_validator
 
-from openstef_beam.evaluation.models.subset import EvaluationSubset, SubsetMetric
+from openstef_beam.evaluation.models.subset import SubsetMetric
 from openstef_beam.evaluation.models.window import Filtering
 from openstef_core.base_model import BaseModel
-from openstef_core.datasets import TimeSeriesDataset
+from openstef_core.datasets import ForecastDataset
+from openstef_core.datasets.validation import validate_required_columns
+from openstef_core.utils import not_none
 
 
 class EvaluationSubsetReport(BaseModel):
@@ -30,8 +32,14 @@ class EvaluationSubsetReport(BaseModel):
     """
 
     filtering: Filtering
-    subset: EvaluationSubset
+    subset: ForecastDataset
     metrics: list[SubsetMetric]
+
+    @field_validator("subset")
+    @classmethod
+    def _validate_subset_has_target(cls, subset: ForecastDataset) -> ForecastDataset:
+        validate_required_columns(subset.data, [subset.target_column])
+        return subset
 
     def to_parquet(self, path: Path):
         """Save the subset report to parquet files in the specified directory.
@@ -41,7 +49,7 @@ class EvaluationSubsetReport(BaseModel):
         """
         path.mkdir(parents=True, exist_ok=True)
         (path / "metrics.json").write_bytes(TypeAdapter(list[SubsetMetric]).dump_json(self.metrics))
-        self.subset.to_parquet(path)
+        self.subset.to_parquet(path / "subset.parquet")
 
     @classmethod
     def read_parquet(cls, path: Path) -> Self:
@@ -57,7 +65,7 @@ class EvaluationSubsetReport(BaseModel):
             (path / "metrics.json").read_bytes()
         )
         filtering = TypeAdapter[Filtering](Filtering).validate_python(path.name)
-        subset = EvaluationSubset.from_parquet(path)
+        subset = ForecastDataset.read_parquet(path / "subset.parquet")
         return cls(
             filtering=filtering,
             subset=subset,
@@ -78,15 +86,15 @@ class EvaluationSubsetReport(BaseModel):
         Returns:
             Ground truth measurements as a pandas Series.
         """
-        return self.subset.ground_truth.data["load"]
+        return not_none(self.subset.target_series)
 
-    def get_quantile_predictions(self) -> TimeSeriesDataset:
+    def get_quantile_predictions(self) -> pd.DataFrame:
         """Extract forecasted quantiles from the report.
 
         Returns:
             Dataset containing forecasted quantile predictions.
         """
-        return self.subset.predictions
+        return self.subset.quantiles_data
 
 
 class EvaluationReport(BaseModel):

@@ -8,15 +8,15 @@ The transform computes wind speed at hub height and wind power output
 based on wind speed data from measurements, forecasts, or model outputs.
 """
 
+import logging
 from typing import Self, override
 
 import numpy as np
 import pandas as pd
-from pydantic import Field
+from pydantic import Field, PrivateAttr
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.exceptions import MissingColumnsError
 from openstef_core.mixins.stateful import State
 from openstef_core.transforms import TimeSeriesTransform
 
@@ -81,6 +81,8 @@ class WindPowerFeatureAdder(BaseConfig, TimeSeriesTransform):
         description="Name of the generated wind power feature.",
     )
 
+    _logger: logging.Logger = PrivateAttr(default=logging.getLogger(__name__))
+
     def _calculate_wind_speed_at_hub_height(self, wind_speed: pd.Series) -> pd.Series:
         """Calculates wind speed at hub height based on wind speed at reference height.
 
@@ -114,18 +116,20 @@ class WindPowerFeatureAdder(BaseConfig, TimeSeriesTransform):
     @override
     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
         if self.windspeed_reference_column not in data.feature_names:
-            raise MissingColumnsError([self.windspeed_reference_column])
-
-        features = pd.DataFrame(index=data.data.index)
-        if self.windspeed_hub_height_column not in data.feature_names:
-            features[self.windspeed_hub_height_column] = self._calculate_wind_speed_at_hub_height(
-                data.data[self.windspeed_reference_column]
+            self._logger.warning(
+                "Missing wind speed reference column (%s) in %s", self.windspeed_reference_column, data.feature_names
             )
-            features[self.feature_name] = self._calculate_wind_power(features[self.windspeed_hub_height_column])
-        else:
-            features[self.feature_name] = self._calculate_wind_power(data.data[self.windspeed_hub_height_column])
+            return data
 
-        return TimeSeriesDataset(data=pd.concat([data.data, features], axis=1), sample_interval=data.sample_interval)
+        df = data.data.copy(deep=False)
+        if self.windspeed_hub_height_column not in df.columns:
+            df[self.windspeed_hub_height_column] = self._calculate_wind_speed_at_hub_height(
+                df[self.windspeed_reference_column]
+            )
+
+        df[self.feature_name] = self._calculate_wind_power(df[self.windspeed_hub_height_column])
+
+        return data.copy_with(data=df, is_sorted=True)
 
     @override
     def to_state(self) -> State:

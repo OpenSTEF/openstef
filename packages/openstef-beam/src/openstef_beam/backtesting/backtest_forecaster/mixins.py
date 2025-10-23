@@ -17,7 +17,7 @@ from pydantic import Field
 
 from openstef_beam.backtesting.restricted_horizon_timeseries import RestrictedHorizonVersionedTimeSeries
 from openstef_core.base_model import BaseConfig
-from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesPart
+from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.types import Quantile
 
 
@@ -148,7 +148,7 @@ class BacktestForecasterMixin:
         """
         raise NotImplementedError
 
-    def predict_versioned(self, data: RestrictedHorizonVersionedTimeSeries) -> VersionedTimeSeriesPart | None:
+    def predict_versioned(self, data: RestrictedHorizonVersionedTimeSeries) -> TimeSeriesDataset | None:
         """Predicts a versioned time series with the model.
 
         Guarantees:
@@ -165,7 +165,7 @@ class BacktestForecasterMixin:
         prediction = self.predict(data)
 
         return (
-            _version_timeseries_by_horizon(prediction=prediction, horizon=data.horizon)
+            _version_timeseries_by_timestamp(prediction=prediction, available_at=data.horizon)
             if prediction is not None
             else None
         )
@@ -197,7 +197,7 @@ class BacktestBatchForecasterMixin:
 
     def predict_batch_versioned(
         self, batch: list[RestrictedHorizonVersionedTimeSeries]
-    ) -> Sequence[VersionedTimeSeriesPart | None]:
+    ) -> Sequence[TimeSeriesDataset | None]:
         """Predicts a batch of versioned time series with the model.
 
         Args:
@@ -209,26 +209,24 @@ class BacktestBatchForecasterMixin:
         predictions = self.predict_batch(batch)
 
         return [
-            _version_timeseries_by_horizon(prediction=prediction, horizon=data.horizon)
+            _version_timeseries_by_timestamp(prediction=prediction, available_at=data.horizon)
             if prediction is not None
             else None
             for prediction, data in zip(predictions, batch, strict=True)
         ]
 
 
-def _version_timeseries_by_horizon(prediction: TimeSeriesDataset, horizon: datetime) -> VersionedTimeSeriesPart:
+def _version_timeseries_by_timestamp(prediction: TimeSeriesDataset, available_at: datetime) -> TimeSeriesDataset:
     """Adds the 'available_at' column to the prediction DataFrame.
 
     Args:
         prediction: DataFrame with predictions.
-        horizon: Timestamp indicating when the prediction is available.
+        available_at: Timestamp indicating when the prediction is available.
 
     Returns:
         DataFrame with 'available_at' column added.
     """
-    prediction_data = prediction.data.reset_index(names=["timestamp"])
-    prediction_data["available_at"] = horizon
-    return VersionedTimeSeriesPart(
-        data=prediction_data,
+    return TimeSeriesDataset(
+        data=prediction.data.assign(available_at=available_at),
         sample_interval=prediction.sample_interval,
     )

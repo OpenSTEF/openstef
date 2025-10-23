@@ -18,8 +18,8 @@ from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastI
 from openstef_core.exceptions import ModelLoadingError, NotFittedError
 from openstef_core.mixins import State
 from openstef_core.mixins.predictor import HyperParams
-from openstef_core.types import Quantile
-from openstef_models.models.forecasting.forecaster import HorizonForecaster, HorizonForecasterConfig
+from openstef_core.types import LeadTime, Quantile
+from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
 
 
 class ConstantMedianForecasterHyperParams(HyperParams):
@@ -31,8 +31,18 @@ class ConstantMedianForecasterHyperParams(HyperParams):
     )
 
 
-class ConstantMedianForecasterConfig(HorizonForecasterConfig):
+class ConstantMedianForecasterConfig(ForecasterConfig):
     """Configuration for constant median forecaster."""
+
+    horizons: list[LeadTime] = Field(
+        default=...,
+        description=(
+            "Lead times for predictions, accounting for data availability and versioning cutoffs. "
+            "Each horizon defines how far ahead the model should predict."
+        ),
+        min_length=1,
+        max_length=1,
+    )
 
     hyperparams: ConstantMedianForecasterHyperParams = Field(
         default=ConstantMedianForecasterHyperParams(),
@@ -42,7 +52,7 @@ class ConstantMedianForecasterConfig(HorizonForecasterConfig):
 MODEL_CODE_VERSION = 2
 
 
-class ConstantMedianForecaster(HorizonForecaster):
+class ConstantMedianForecaster(Forecaster):
     """Constant median-based forecaster for single horizon predictions.
 
     Predicts constant values based on historical quantiles from training data.
@@ -76,7 +86,6 @@ class ConstantMedianForecaster(HorizonForecaster):
 
         Args:
             config: Configuration specifying quantiles and hyperparameters.
-            state: Optional pre-trained state for restored models.
         """
         self._config = config or ConstantMedianForecasterConfig()
         self._quantile_values: dict[Quantile, float] = {}
@@ -119,26 +128,21 @@ class ConstantMedianForecaster(HorizonForecaster):
 
     @override
     def fit(self, data: ForecastInputDataset, data_val: ForecastInputDataset | None = None) -> None:
-        self._quantile_values = {
-            quantile: data.target_series().quantile(quantile) for quantile in self.config.quantiles
-        }
+        self._quantile_values = {quantile: data.target_series.quantile(quantile) for quantile in self.config.quantiles}
 
     @override
     def predict(self, data: ForecastInputDataset) -> ForecastDataset:
         if not self.is_fitted:
             raise NotFittedError(self.__class__.__name__)
 
+        forecast_index = data.create_forecast_range(horizon=self.config.max_horizon)
         return ForecastDataset(
             data=pd.DataFrame(
                 data={
                     quantile.format(): self._quantile_values[quantile] + self.hyperparams.constant
                     for quantile in self.config.quantiles
                 },
-                index=(
-                    data.index[data.index > pd.Timestamp(data.forecast_start)]
-                    if data.forecast_start is not None
-                    else data.index
-                ),
+                index=forecast_index,
             ),
             sample_interval=data.sample_interval,
         )

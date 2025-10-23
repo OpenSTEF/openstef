@@ -41,7 +41,11 @@ class RestrictedHorizonVersionedTimeSeries:
         Returns:
             DataFrame with data from the specified window.
         """
-        return self.dataset.filter_by_range(start=start, end=end).select_version(available_before=available_before)
+        dataset = self.dataset.filter_by_range(start=start, end=end)
+        if available_before is not None:
+            dataset = dataset.filter_by_available_before(available_before=available_before)
+
+        return dataset.select_version()
 
     def get_window_versioned(
         self, start: datetime, end: datetime, available_before: datetime | None = None
@@ -51,7 +55,11 @@ class RestrictedHorizonVersionedTimeSeries:
         Returns:
             DataFrame with data from the specified window.
         """
-        return self.dataset.filter_by_range(start=start, end=end, available_before=available_before)
+        dataset = self.dataset.filter_by_range(start=start, end=end)
+        if available_before is not None:
+            dataset = dataset.filter_by_available_before(available_before=available_before)
+
+        return dataset
 
 
 __all__ = [

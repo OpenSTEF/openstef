@@ -26,7 +26,7 @@ from typing import Self
 from pydantic import Field
 
 from openstef_core.base_model import BaseConfig
-from openstef_core.datasets import ForecastDataset, ForecastInputDataset, MultiHorizon
+from openstef_core.datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.mixins import BatchPredictor, HyperParams
 from openstef_core.types import LeadTime, Quantile
 
@@ -97,6 +97,20 @@ class ForecasterConfig(BaseConfig):
         """
         return max(self.horizons)
 
+    def with_horizon(self, horizon: LeadTime) -> Self:
+        """Create a new configuration with a different horizon.
+
+        Useful for creating multiple forecaster instances for different prediction
+        horizons from a single base configuration.
+
+        Args:
+            horizon: The new lead time to use for predictions.
+
+        Returns:
+            New configuration instance with the specified horizon.
+        """
+        return self.model_copy(update={"horizons": [horizon]})
+
 
 class ConfigurableForecaster:
     @property
@@ -123,7 +137,7 @@ class ConfigurableForecaster:
         return HyperParams()
 
 
-class Forecaster(BatchPredictor[MultiHorizon[ForecastInputDataset], ForecastDataset], ConfigurableForecaster):
+class Forecaster(BatchPredictor[ForecastInputDataset, ForecastDataset], ConfigurableForecaster):
     """Base for forecasters that handle multiple horizons simultaneously.
 
     Designed for models that train and predict across multiple prediction horizons
@@ -141,7 +155,7 @@ class Forecaster(BatchPredictor[MultiHorizon[ForecastInputDataset], ForecastData
         Implementation for a model that handles multiple horizons:
 
         >>> from typing import override
-        >>> class MultiHorizonForecaster(Forecaster):
+        >>> class CustomForecaster(Forecaster):
         ...     def __init__(self, config: ForecasterConfig):
         ...         self._config = config
         ...         self._fitted = False
@@ -184,103 +198,7 @@ class Forecaster(BatchPredictor[MultiHorizon[ForecastInputDataset], ForecastData
     """
 
 
-class HorizonForecasterConfig(ForecasterConfig):
-    """Configuration for single-horizon forecasting models.
-
-    Specialized configuration that restricts forecasters to operate on exactly one horizon
-    at a time. Used by models that need to be trained and predict for specific lead times
-    separately, such as those that cannot handle missing data or conditional features.
-
-    Example:
-        Configuration for a 6-hour ahead forecaster:
-
-        >>> config = HorizonForecasterConfig(
-        ...     quantiles=[Quantile(0.1), Quantile(0.5), Quantile(0.9)],
-        ...     horizons=[LeadTime.from_string("PT6H")]
-        ... )
-        >>> new_config = config.with_horizon(LeadTime.from_string("PT24H"))
-        >>> str(new_config.horizons[0])
-        'P1D'
-    """
-
-    horizons: list[LeadTime] = Field(
-        default=...,
-        max_length=1,
-        description="Single horizon for prediction. Must contain exactly one lead time.",
-    )
-
-    def with_horizon(self, horizon: LeadTime) -> Self:
-        """Create a new configuration with a different horizon.
-
-        Useful for creating multiple forecaster instances for different prediction
-        horizons from a single base configuration.
-
-        Args:
-            horizon: The new lead time to use for predictions.
-
-        Returns:
-            New configuration instance with the specified horizon.
-        """
-        return self.model_copy(update={"horizons": [horizon]})
-
-
-class HorizonForecaster(BatchPredictor[ForecastInputDataset, ForecastDataset], ConfigurableForecaster):
-    """Base for forecasters that predict one specific horizon at a time.
-
-    Designed for models that operate on a single prediction horizon. Common for models
-    that need specialized training for each lead time, such as those that cannot handle
-    missing data or conditional features.
-
-    These forecasters are typically used as building blocks in multi-horizon systems
-    where separate models handle different prediction distances.
-
-    Invariants:
-        - Predictions must include all quantiles specified in the configuration
-        - predict_horizon_batch() only called when supports_batching returns True
-
-    Example:
-        Basic implementation for a simple horizon-specific model:
-
-        >>> class SimpleHorizonForecaster(HorizonForecaster):
-        ...     def __init__(self, config: HorizonForecasterConfig):
-        ...         self._config = config
-        ...         self._model_params = None
-        ...
-        ...     @property
-        ...     def config(self):
-        ...         return self._config
-        ...
-        ...     @property
-        ...     def is_fitted(self):
-        ...         return self._model_params is not None
-        ...
-        ...     def get_state(self):
-        ...         return {"config": self._config, "params": self._model_params}
-        ...
-        ...     def from_state(self, state):
-        ...         instance = self.__class__(state["config"])
-        ...         instance._model_params = state["params"]
-        ...         return instance
-        ...
-        ...     def fit(self, data, data_val=None):
-        ...         # Train model for the specific horizon
-        ...         self._model_params = "trained"
-        ...
-        ...     def predict(self, data):
-        ...         # Generate predictions for the trained horizon
-        ...         from openstef_core.datasets.validated_datasets import ForecastDataset
-        ...         import pandas as pd
-        ...         return ForecastDataset(
-        ...             data=pd.DataFrame(),
-        ...             sample_interval=pd.Timedelta("15min"),
-        ...             forecast_start=pd.Timestamp.now()
-        ...         )
-    """
-
-
 __all__ = [
     "Forecaster",
     "ForecasterConfig",
-    "HorizonForecaster",
-    "HorizonForecasterConfig",
 ]

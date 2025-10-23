@@ -13,20 +13,9 @@ forecasting use cases.
 from abc import abstractmethod
 from typing import override
 
-from openstef_core.datasets import MultiHorizon, VersionedTimeSeriesDataset
+from openstef_core.datasets import VersionedTimeSeriesDataset
 from openstef_core.datasets.timeseries_dataset import TimeSeriesDataset
 from openstef_core.mixins import Transform
-
-
-class MultiHorizonTimeSeriesTransform(Transform[MultiHorizon[TimeSeriesDataset], MultiHorizon[TimeSeriesDataset]]):
-    """Abstract base class for transforms that operate on multiple forecast horizons.
-
-    This class provides an interface for data transformations that need to handle
-    multiple forecast horizons simultaneously, such as feature engineering that
-    requires learning parameters across different lead times.
-
-    Subclasses must implement the fit, transform, to_state, and from_state methods.
-    """
 
 
 class TimeSeriesTransform(Transform[TimeSeriesDataset, TimeSeriesDataset]):
@@ -78,19 +67,6 @@ class TimeSeriesTransform(Transform[TimeSeriesDataset, TimeSeriesDataset]):
     def fit(self, data: TimeSeriesDataset) -> None:
         pass
 
-    def to_multi_horizon(self) -> MultiHorizonTimeSeriesTransform:
-        """Convert this transform to work with multi-horizon datasets.
-
-        Returns:
-            A MultiHorizonTransformAdapter that applies this transform
-            to each horizon in a multi-horizon dataset.
-        """
-        from openstef_core.transforms.multi_horizon_transform_adapter import (  # noqa: PLC0415
-            MultiHorizonTransformAdapter,
-        )
-
-        return MultiHorizonTransformAdapter(time_series_transform=self)
-
     @abstractmethod
     def features_added(self) -> list[str]:
         """List of feature names added by this transform.
@@ -112,4 +88,4 @@ class VersionedTimeSeriesTransform(Transform[VersionedTimeSeriesDataset, Version
     """
 
 
-__all__ = ["MultiHorizonTimeSeriesTransform", "TimeSeriesTransform", "VersionedTimeSeriesTransform"]
+__all__ = ["TimeSeriesTransform", "VersionedTimeSeriesTransform"]

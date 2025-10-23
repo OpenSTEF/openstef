@@ -18,7 +18,7 @@ from openstef_beam.benchmarking.models import BenchmarkTarget
 from openstef_beam.benchmarking.storage.base import BenchmarkStorage
 from openstef_beam.benchmarking.storage.local_storage import LocalBenchmarkStorage
 from openstef_beam.evaluation import EvaluationReport
-from openstef_core.datasets import VersionedTimeSeriesPart
+from openstef_core.datasets import TimeSeriesDataset
 
 _logger = logging.getLogger(__name__)
 
@@ -70,7 +70,7 @@ class S3BenchmarkStorage(BenchmarkStorage):
             raise ImportError("s3fs package is required for S3StorageCallback") from e
 
     @override
-    def save_backtest_output(self, target: BenchmarkTarget, output: VersionedTimeSeriesPart) -> None:
+    def save_backtest_output(self, target: BenchmarkTarget, output: TimeSeriesDataset) -> None:
         """Save backtest predictions locally and sync to S3."""
         self.local_storage.save_backtest_output(target, output)
 
@@ -78,11 +78,11 @@ class S3BenchmarkStorage(BenchmarkStorage):
         self._put_path_to_s3(local_path=output_path, artifact_name=self._get_s3_path(output_path))
 
     @override
-    def load_backtest_output(self, target: BenchmarkTarget) -> VersionedTimeSeriesPart:
+    def load_backtest_output(self, target: BenchmarkTarget) -> TimeSeriesDataset:
         """Load backtest predictions from local storage.
 
         Returns:
-            VersionedTimeSeriesDataset: The loaded prediction data.
+            TimeSeriesDataset: The loaded prediction data.
         """
         return self.local_storage.load_backtest_output(target)
 

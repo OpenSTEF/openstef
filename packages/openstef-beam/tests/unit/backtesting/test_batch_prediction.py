@@ -78,12 +78,12 @@ def mock_data() -> tuple[VersionedTimeSeriesDataset, VersionedTimeSeriesDataset]
     timestamps = pd.date_range(start="2024-01-01", periods=100, freq="1h")
 
     ground_truth = VersionedTimeSeriesDataset.from_dataframe(
-        data=pd.DataFrame({"timestamp": timestamps, "available_at": timestamps, "target": range(100)}),
+        data=pd.DataFrame({"available_at": timestamps, "target": range(100)}, index=timestamps),
         sample_interval=timedelta(hours=1),
     )
 
     predictors = VersionedTimeSeriesDataset.from_dataframe(
-        data=pd.DataFrame({"timestamp": timestamps, "available_at": timestamps, "feature": range(100)}),
+        data=pd.DataFrame({"available_at": timestamps, "feature": range(100)}, index=timestamps),
         sample_interval=timedelta(hours=1),
     )
 
@@ -93,18 +93,22 @@ def mock_data() -> tuple[VersionedTimeSeriesDataset, VersionedTimeSeriesDataset]
 def test_batch_processing_efficiency():
     """Test that batch processing handles mixed events correctly and efficiently."""
     # This test validates the behavior without testing internal implementation details
-    ground_truth_data = pd.DataFrame({
-        "timestamp": pd.date_range(start="2024-01-01", periods=10, freq="1h"),
-        "available_at": pd.date_range(start="2024-01-01", periods=10, freq="1h"),
-        "target": range(10),
-    })
+    ground_truth_data = pd.DataFrame(
+        {
+            "available_at": pd.date_range(start="2024-01-01", periods=10, freq="1h"),
+            "target": range(10),
+        },
+        index=pd.date_range(start="2024-01-01", periods=10, freq="1h"),
+    )
     ground_truth = VersionedTimeSeriesDataset.from_dataframe(data=ground_truth_data, sample_interval=timedelta(hours=1))
 
-    predictors_data = pd.DataFrame({
-        "timestamp": pd.date_range(start="2024-01-01", periods=10, freq="1h"),
-        "available_at": pd.date_range(start="2024-01-01", periods=10, freq="1h"),
-        "feature": range(10),
-    })
+    predictors_data = pd.DataFrame(
+        {
+            "available_at": pd.date_range(start="2024-01-01", periods=10, freq="1h"),
+            "feature": range(10),
+        },
+        index=pd.date_range(start="2024-01-01", periods=10, freq="1h"),
+    )
     predictors = VersionedTimeSeriesDataset.from_dataframe(data=predictors_data, sample_interval=timedelta(hours=1))
 
     # Test with batch size 3

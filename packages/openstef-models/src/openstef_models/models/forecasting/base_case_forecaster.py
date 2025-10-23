@@ -15,17 +15,17 @@ back to the fallback lag (default: 14-day) when primary lag data is not availabl
 """
 
 from datetime import timedelta
-from typing import Self, cast, override
+from typing import Self, override
 
 import pandas as pd
 from pydantic import Field
-from scipy.stats import norm
 
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import ModelLoadingError
 from openstef_core.mixins import State
 from openstef_core.mixins.predictor import HyperParams
-from openstef_models.models.forecasting.forecaster import HorizonForecaster, HorizonForecasterConfig
+from openstef_core.types import LeadTime, Quantile
+from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
 
 
 class BaseCaseForecasterHyperParams(HyperParams):
@@ -41,8 +41,28 @@ class BaseCaseForecasterHyperParams(HyperParams):
     )
 
 
-class BaseCaseForecasterConfig(HorizonForecasterConfig):
+class BaseCaseForecasterConfig(ForecasterConfig):
     """Configuration for base case forecaster."""
+
+    quantiles: list[Quantile] = Field(
+        default=[Quantile(0.5)],
+        description=(
+            "Probability levels for uncertainty estimation. Each quantile represents a confidence level "
+            "(e.g., 0.1 = 10th percentile, 0.5 = median, 0.9 = 90th percentile). "
+            "Models must generate predictions for all specified quantiles."
+        ),
+        min_length=1,
+        max_length=1,
+    )
+    horizons: list[LeadTime] = Field(
+        default=...,
+        description=(
+            "Lead times for predictions, accounting for data availability and versioning cutoffs. "
+            "Each horizon defines how far ahead the model should predict."
+        ),
+        min_length=1,
+        max_length=1,
+    )
 
     hyperparams: BaseCaseForecasterHyperParams = Field(
         default_factory=BaseCaseForecasterHyperParams,
@@ -52,7 +72,7 @@ class BaseCaseForecasterConfig(HorizonForecasterConfig):
 MODEL_CODE_VERSION = 1
 
 
-class BaseCaseForecaster(HorizonForecaster):
+class BaseCaseForecaster(Forecaster):
     """Base case forecaster that repeats weekly patterns for predictions.
 
     A simple baseline forecasting model that uses pandas-native operations to repeat
@@ -74,7 +94,7 @@ class BaseCaseForecaster(HorizonForecaster):
         >>>
         >>> # Default configuration (7-day primary, 14-day fallback)
         >>> config = BaseCaseForecasterConfig(
-        ...     quantiles=[Quantile(0.5), Quantile(0.1), Quantile(0.9)],
+        ...     quantiles=[Quantile(0.1)],
         ...     horizons=[LeadTime(timedelta(hours=1))],
         ... )
         >>> forecaster = BaseCaseForecaster(config)
@@ -145,85 +165,7 @@ class BaseCaseForecaster(HorizonForecaster):
 
     @override
     def fit(self, data: ForecastInputDataset, data_val: ForecastInputDataset | None = None) -> None:
-        # Base case forecaster requires no training - just validate data has target column
-        pass
-
-    def _get_basecase_values(self, data: ForecastInputDataset) -> pd.Series:
-        """Get basecase values using pandas-native lag approach.
-
-        Creates lagged target data by shifting timestamps, similar to LagTransform.
-        Falls back to secondary lag if primary lag has missing values.
-
-        Args:
-            data: Input dataset containing target variable history and forecast range
-
-        Returns:
-            Series with basecase values for forecast timestamps
-        """
-        if data.forecast_start is None:
-            # No forecast period specified - return empty series with DatetimeIndex
-            empty_index = pd.DatetimeIndex([], freq=data.sample_interval)  # pyright: ignore[reportArgumentType] - bad type stubs
-            return pd.Series(dtype=float, index=empty_index, name=data.target_column)
-
-        # Get target series from historical data only (before forecast_start)
-        # Use all available data but only up to forecast_start for lag calculations
-        all_data = data.data
-        historical_data = all_data[all_data.index < pd.Timestamp(data.forecast_start)]
-        target_series = historical_data[data.target_column]
-
-        # Create primary lag series (shift timestamps forward by primary_lag)
-        # Following LagTransform approach: subtract negative lag from timestamps
-        primary_lag_series = target_series.copy()
-        primary_lag_series.index = cast(pd.DatetimeIndex, primary_lag_series.index) + self.hyperparams.primary_lag
-
-        # Get forecast period data
-        forecast_index = data.index[data.index >= pd.Timestamp(data.forecast_start)]
-        primary_forecast = primary_lag_series.reindex(forecast_index)
-
-        # Fill missing values with fallback lag if needed
-        if primary_forecast.isna().any():
-            # Create fallback lag series
-            fallback_lag_series = target_series.copy()
-            fallback_lag_series.index = (
-                cast(pd.DatetimeIndex, fallback_lag_series.index) + self.hyperparams.fallback_lag
-            )
-
-            fallback_forecast = fallback_lag_series.reindex(forecast_index)
-            primary_forecast = primary_forecast.fillna(fallback_forecast)  # pyright: ignore[reportUnknownMemberType]
-
-        return primary_forecast
-
-    @staticmethod
-    def _calculate_hourly_std(basecase_values: pd.Series) -> pd.Series:
-        """Calculate standard deviation for each hour using basecase values.
-
-        Mimics the behavior of generate_basecase_confidence_interval from the old version.
-
-        Args:
-            basecase_values: Series containing the basecase values for calculating std.
-
-        Returns:
-            Series with hourly standard deviation values mapped to forecast timestamps.
-        """
-        if len(basecase_values.dropna()) == 0:
-            # If no valid basecase values, return zero std
-            return pd.Series(0.0, index=basecase_values.index)
-
-        # Create DataFrame with values and hours for grouping
-        basecase_value_with_hour = pd.DataFrame({
-            "values": basecase_values,
-            "hour": cast(pd.DatetimeIndex, basecase_values.index).hour,
-        }).dropna()  # pyright: ignore[reportUnknownMemberType]
-
-        if len(basecase_value_with_hour) == 0:
-            return pd.Series(0.0, index=basecase_values.index)
-
-        # Group by hour and calculate std
-        hourly_std = basecase_value_with_hour.groupby("hour")["values"].std().fillna(0.0)  # pyright: ignore[reportUnknownMemberType]
-
-        # Map std values to forecast timestamps
-        forecast_hours = cast(pd.DatetimeIndex, basecase_values.index).hour
-        return forecast_hours.map(hourly_std).fillna(0.0)  # pyright: ignore[reportUnknownVariableType, reportUnknownMemberType]
+        pass  # Base case forecaster requires no training - just validate data has target column
 
     @override
     def predict(self, data: ForecastInputDataset) -> ForecastDataset:
@@ -235,26 +177,29 @@ class BaseCaseForecaster(HorizonForecaster):
         Returns:
             ForecastDataset containing quantile predictions for the forecast period.
         """
-        # Get basecase values by repeating last week of target data
-        basecase_values = self._get_basecase_values(data)
+        # The range to forecast
+        forecast_index = data.create_forecast_range(horizon=self.config.max_horizon)
 
-        # Calculate hourly standard deviation for confidence intervals
-        hourly_std = self._calculate_hourly_std(basecase_values)
+        # Get target series from historical data only (before forecast_start)
+        # Use all available data but only up to forecast_start for lag calculations
+        target_series = data.target_series[data.index < pd.Timestamp(data.forecast_start)]
 
-        # Create predictions for each quantile
-        predictions_data = {}
-        for quantile in self.config.quantiles:
-            # Calculate z-score for the quantile
-            z_score = norm.ppf(float(quantile))  # pyright: ignore[reportUnknownMemberType]
+        # Create primary lag series (shift timestamps forward by primary_lag)
+        # Following LagTransform approach: subtract negative lag from timestamps
+        prediction = target_series.shift(freq=self.hyperparams.primary_lag).reindex(forecast_index)
 
-            # Apply confidence interval: base_value + z_score * std
-            quantile_values = basecase_values + z_score * hourly_std
-            predictions_data[quantile.format()] = quantile_values
+        # Fill missing values with fallback lag if needed
+        if prediction.isna().any():
+            # Create fallback lag series
+            prediction_fallback = target_series.shift(freq=self.hyperparams.fallback_lag).reindex(forecast_index)
+            prediction = prediction.fillna(prediction_fallback)  # pyright: ignore[reportUnknownMemberType]
 
         return ForecastDataset(
             data=pd.DataFrame(
-                data=predictions_data,
-                index=basecase_values.index,
+                {
+                    self.config.quantiles[0].format(): prediction,
+                },
+                index=forecast_index,
             ),
             sample_interval=data.sample_interval,
         )

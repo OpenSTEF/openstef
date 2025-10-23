@@ -17,9 +17,11 @@ def test_quantile_sorter_transform_enforces_monotonic_ordering():
     unsorted_dataset = ForecastDataset(
         data=pd.DataFrame(
             {
+                "load": [0.7, 1.7, 2.7],
                 "quantile_P10": [1.0, 2.0, 3.0],
                 "quantile_P50": [0.5, 1.5, 2.5],  # Violates ordering
                 "quantile_P90": [2.0, 3.0, 4.0],
+                "horizon": timedelta(hours=1),
             },
             index=pd.date_range("2025-01-01", periods=3, freq="1h"),
         ),
@@ -35,11 +37,11 @@ def test_quantile_sorter_transform_enforces_monotonic_ordering():
     )
 
     # Act - PostprocessingTransform expects tuple[I, O] where I is input data (unused here)
-    sorted_dataset = sorter.transform((None, unsorted_dataset))
+    sorted_dataset = sorter.transform(unsorted_dataset)
 
     # Assert
     # Check that all rows have the expected sorted values
-    pd.testing.assert_frame_equal(sorted_dataset.data, expected_sorted_data)
+    pd.testing.assert_frame_equal(sorted_dataset.quantiles_data, expected_sorted_data)
 
     # Check that sample interval and index are preserved
     assert sorted_dataset.sample_interval == unsorted_dataset.sample_interval

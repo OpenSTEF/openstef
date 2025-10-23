@@ -24,7 +24,6 @@ from openstef_beam.evaluation import metric_providers
 from openstef_beam.evaluation.evaluation_pipeline import EvaluationConfig, EvaluationPipeline
 from openstef_beam.evaluation.models import (
     EvaluationReport,
-    EvaluationSubset,
     EvaluationSubsetReport,
     Filtering,
     SubsetMetric,
@@ -35,7 +34,6 @@ __all__ = [
     "EvaluationConfig",
     "EvaluationPipeline",
     "EvaluationReport",
-    "EvaluationSubset",
     "EvaluationSubsetReport",
     "Filtering",
     "SubsetMetric",

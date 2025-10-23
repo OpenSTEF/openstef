@@ -17,7 +17,7 @@ from openstef_beam.analysis.models import AnalysisAggregation
 from openstef_beam.benchmarking.models import BenchmarkTarget
 from openstef_beam.benchmarking.storage.base import BenchmarkStorage
 from openstef_beam.evaluation import EvaluationReport
-from openstef_core.datasets import VersionedTimeSeriesPart
+from openstef_core.datasets import TimeSeriesDataset
 
 
 class LocalBenchmarkStorage(BenchmarkStorage):
@@ -72,20 +72,20 @@ class LocalBenchmarkStorage(BenchmarkStorage):
         self.analysis_dirname = analysis_dirname
 
     @override
-    def save_backtest_output(self, target: BenchmarkTarget, output: VersionedTimeSeriesPart) -> None:
+    def save_backtest_output(self, target: BenchmarkTarget, output: TimeSeriesDataset) -> None:
         """Save backtest predictions to a parquet file."""
         predictions_path = self.get_predictions_path_for_target(target)
         predictions_path.parent.mkdir(parents=True, exist_ok=True)
         output.to_parquet(predictions_path)
 
     @override
-    def load_backtest_output(self, target: BenchmarkTarget) -> VersionedTimeSeriesPart:
+    def load_backtest_output(self, target: BenchmarkTarget) -> TimeSeriesDataset:
         """Load backtest predictions from a parquet file.
 
         Returns:
-            VersionedTimeSeriesPart: The loaded prediction data.
+            TimeSeriesDataset: The loaded prediction data.
         """
-        return VersionedTimeSeriesPart.read_parquet(
+        return TimeSeriesDataset.read_parquet(
             path=self.get_predictions_path_for_target(target),
         )
 

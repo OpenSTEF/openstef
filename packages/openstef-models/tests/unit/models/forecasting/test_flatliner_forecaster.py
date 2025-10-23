@@ -19,21 +19,9 @@ def config() -> FlatlinerForecasterConfig:
     )
 
 
-@pytest.fixture
-def sample_multi_horizon_dataset(
-    sample_forecast_input_dataset: ForecastInputDataset,
-) -> dict[LeadTime, ForecastInputDataset]:
-    return {
-        LeadTime(timedelta(hours=1)): sample_forecast_input_dataset,
-        LeadTime(timedelta(hours=2)): sample_forecast_input_dataset,
-    }
-
-
-def test_predict_returns_zeros(
-    config: FlatlinerForecasterConfig, sample_multi_horizon_dataset: dict[LeadTime, ForecastInputDataset]
-):
+def test_predict_returns_zeros(config: FlatlinerForecasterConfig, sample_forecast_input_dataset: ForecastInputDataset):
     forecaster = FlatlinerForecaster(config)
-    result = forecaster.predict(sample_multi_horizon_dataset)
+    result = forecaster.predict(sample_forecast_input_dataset)
     assert isinstance(result.data, pd.DataFrame)
     assert (result.data == 0.0).all().all()
     assert set(result.data.columns) == {q.format() for q in config.quantiles}

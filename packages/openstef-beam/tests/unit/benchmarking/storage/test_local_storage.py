@@ -16,8 +16,7 @@ from openstef_beam.analysis.models import AnalysisAggregation
 from openstef_beam.benchmarking.models import BenchmarkTarget
 from openstef_beam.benchmarking.storage import LocalBenchmarkStorage
 from openstef_beam.evaluation import EvaluationReport, EvaluationSubsetReport, Filtering, SubsetMetric
-from openstef_beam.evaluation.models import EvaluationSubset
-from openstef_core.datasets import ForecastDataset, ForecastInputDataset, VersionedTimeSeriesPart
+from openstef_core.datasets import ForecastDataset, TimeSeriesDataset
 from openstef_core.types import AvailableAt, LeadTime
 
 
@@ -55,14 +54,16 @@ def target() -> BenchmarkTarget:
 
 
 @pytest.fixture
-def predictions() -> VersionedTimeSeriesPart:
+def predictions() -> TimeSeriesDataset:
     """Create test predictions."""
-    return VersionedTimeSeriesPart(
-        data=pd.DataFrame({
-            "value": [1.0, 2.0],
-            "timestamp": pd.date_range("2023-01-07", periods=2, freq="1h"),
-            "available_at": pd.date_range("2023-01-01", periods=2, freq="1h"),
-        }),
+    return TimeSeriesDataset(
+        data=pd.DataFrame(
+            {
+                "value": [1.0, 2.0],
+                "available_at": pd.date_range("2023-01-01", periods=2, freq="1h"),
+            },
+            index=pd.DatetimeIndex(pd.date_range("2023-01-07", periods=2, freq="1h")),
+        ),
         sample_interval=timedelta(hours=1),
     )
 
@@ -70,22 +71,16 @@ def predictions() -> VersionedTimeSeriesPart:
 @pytest.fixture
 def evaluation_report() -> EvaluationReport:
     """Create a test evaluation report."""
-    index = pd.date_range("2023-01-07", periods=2, freq="1h")
     return EvaluationReport(
         subset_reports=[
             EvaluationSubsetReport(
                 filtering=AvailableAt.from_string("D-1T06:00"),
-                subset=EvaluationSubset.create(
-                    ground_truth=ForecastInputDataset(
-                        data=pd.DataFrame({"value": [1.0, 2.0]}, index=index),
-                        sample_interval=timedelta(hours=1),
-                        target_column="value",
+                subset=ForecastDataset(
+                    data=pd.DataFrame(
+                        data={"quantile_P50": [1.0, 2.0], "load": [3.0, 4.0]},
+                        index=pd.date_range("2023-01-07", periods=2, freq="1h"),
                     ),
-                    predictions=ForecastDataset(
-                        data=pd.DataFrame(data={"quantile_P50": [1.0, 2.0]}, index=index),
-                        sample_interval=timedelta(hours=1),
-                    ),
-                    index=index,
+                    sample_interval=timedelta(hours=1),
                 ),
                 metrics=[
                     SubsetMetric(
@@ -135,7 +130,7 @@ def test_predictions_path_construction(
 
 
 def test_save_and_load_backtest_output(
-    local_storage: LocalBenchmarkStorage, target: BenchmarkTarget, predictions: VersionedTimeSeriesPart
+    local_storage: LocalBenchmarkStorage, target: BenchmarkTarget, predictions: TimeSeriesDataset
 ):
     """Test saving and loading backtest output."""
     # Arrange & Act
@@ -145,7 +140,7 @@ def test_save_and_load_backtest_output(
     assert local_storage.has_backtest_output(target)
 
     loaded_predictions = local_storage.load_backtest_output(target)
-    pd.testing.assert_frame_equal(loaded_predictions.data, predictions.data)
+    pd.testing.assert_frame_equal(loaded_predictions.data, predictions.data, check_freq=False)
     assert loaded_predictions.sample_interval == predictions.sample_interval
 
 
@@ -165,7 +160,7 @@ def test_save_and_load_evaluation_output(
 
 
 def test_save_backtest_creates_directory_structure(
-    local_storage: LocalBenchmarkStorage, target: BenchmarkTarget, predictions: VersionedTimeSeriesPart
+    local_storage: LocalBenchmarkStorage, target: BenchmarkTarget, predictions: TimeSeriesDataset
 ):
     """Test that saving backtest output creates proper directory structure."""
     # Arrange

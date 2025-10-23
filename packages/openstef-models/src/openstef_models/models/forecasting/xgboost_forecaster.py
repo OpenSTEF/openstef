@@ -23,7 +23,7 @@ from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import MissingExtraError, ModelLoadingError, NotFittedError
 from openstef_core.mixins import HyperParams, State
-from openstef_models.models.forecasting import ForecasterConfig, HorizonForecaster, HorizonForecasterConfig
+from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
 from openstef_models.utils.loss_functions import OBJECTIVE_MAP, ObjectiveFunctionType
 
 try:
@@ -161,7 +161,7 @@ class XGBoostHyperParams(HyperParams):
     )
 
 
-class XGBoostForecasterConfig(HorizonForecasterConfig):
+class XGBoostForecasterConfig(ForecasterConfig):
     """Configuration for XGBoost-based forecasting models.
 
     Combines hyperparameters with execution settings for XGBoost models.
@@ -213,7 +213,7 @@ class XGBoostForecasterState(BaseConfig):
     model: str = Field(..., description="Base64-encoded serialized XGBoost model.")
 
 
-class XGBoostForecaster(HorizonForecaster):
+class XGBoostForecaster(Forecaster):
     """XGBoost-based forecaster for probabilistic energy forecasting.
 
     Implements gradient boosting trees using XGBoost for multi-quantile forecasting.
@@ -254,6 +254,9 @@ class XGBoostForecaster(HorizonForecaster):
         HorizonForecaster: Base interface for all forecasting models.
         GBLinearForecaster: Alternative linear model using XGBoost.
     """
+
+    Config = XGBoostForecasterConfig
+    HyperParams = XGBoostHyperParams
 
     _config: XGBoostForecasterConfig
     _xgboost_model: xgb.XGBRegressor
@@ -360,36 +363,23 @@ class XGBoostForecaster(HorizonForecaster):
     @override
     def fit(self, data: ForecastInputDataset, data_val: ForecastInputDataset | None = None) -> None:
         input_data: pd.DataFrame = data.input_data()
-        target: npt.NDArray[np.floating] = data.target_series().to_numpy()  # type: ignore
+        target: npt.NDArray[np.floating] = data.target_series.to_numpy()  # type: ignore
         # Multi output setting requires a target per output (quantile)
         target_per_quantile: npt.NDArray[np.floating] = np.repeat(
             target[:, np.newaxis], repeats=len(self.config.quantiles), axis=1
         )
-        sample_weight = data.sample_weight_series()
-
-        # Remove rows with NaN values in target to prevent fitting errors
-        valid_mask = ~np.isnan(target)
-        input_data = input_data[valid_mask]
-        target_per_quantile = target_per_quantile[valid_mask]
-        sample_weight = sample_weight[valid_mask]
+        sample_weight = data.sample_weight_series
 
         # Prepare validation data if provided
         eval_set = None
         eval_set_sample_weight = None
         if data_val is not None:
             val_input_data: pd.DataFrame = data_val.input_data()
-            val_target: npt.NDArray[np.floating] = data_val.target_series().to_numpy()  # type: ignore
+            val_target: npt.NDArray[np.floating] = data_val.target_series.to_numpy()  # type: ignore
             val_target_per_quantile: npt.NDArray[np.floating] = np.repeat(
                 val_target[:, np.newaxis], repeats=len(self.config.quantiles), axis=1
             )
-            val_sample_weight = data_val.sample_weight_series()
-
-            # Remove rows with NaN values in validation target
-            val_valid_mask = ~np.isnan(val_target)
-            val_input_data = val_input_data[val_valid_mask]
-            val_target_per_quantile = val_target_per_quantile[val_valid_mask]
-            val_sample_weight = val_sample_weight[val_valid_mask]
-
+            val_sample_weight = data_val.sample_weight_series
             eval_set = [(val_input_data, val_target_per_quantile)]
             eval_set_sample_weight = [val_sample_weight]
 
@@ -408,14 +398,15 @@ class XGBoostForecaster(HorizonForecaster):
             raise NotFittedError(self.__class__.__name__)
 
         input_data: pd.DataFrame = data.input_data(start=data.forecast_start)
-        prediction: npt.NDArray[np.floating] = self._xgboost_model.predict(X=input_data)
+        predictions_array = self._xgboost_model.predict(input_data)
+        predictions = pd.DataFrame(
+            data=predictions_array,
+            index=input_data.index,
+            columns=[quantile.format() for quantile in self.config.quantiles],
+        )
 
         return ForecastDataset(
-            data=pd.DataFrame(
-                data=prediction,
-                index=input_data.index,
-                columns=[quantile.format() for quantile in self.config.quantiles],
-            ),
+            data=predictions,
             sample_interval=data.sample_interval,
         )
 

@@ -10,20 +10,18 @@ forecasting where temporal dependencies matter but data availability varies.
 """
 
 from datetime import timedelta
-from typing import TYPE_CHECKING, Self, override
+from typing import Self, cast, override
 
+import pandas as pd
 from pydantic import Field
 
 from openstef_core.base_model import BaseConfig
-from openstef_core.datasets import VersionedTimeSeriesPart
-from openstef_core.datasets.versioned_timeseries.dataset import VersionedTimeSeriesDataset
+from openstef_core.datasets import TimeSeriesDataset
+from openstef_core.datasets.versioned_timeseries_dataset import VersionedTimeSeriesDataset
 from openstef_core.exceptions import MissingColumnsError
 from openstef_core.mixins import State
 from openstef_core.transforms import VersionedTimeSeriesTransform
 from openstef_core.utils import timedelta_to_isoformat
-
-if TYPE_CHECKING:
-    import pandas as pd
 
 
 class VersionedLagsAdder(BaseConfig, VersionedTimeSeriesTransform):
@@ -53,14 +51,13 @@ class VersionedLagsAdder(BaseConfig, VersionedTimeSeriesTransform):
 
         >>> from datetime import timedelta
         >>> import pandas as pd
-        >>> from openstef_core.datasets.versioned_timeseries.dataset import VersionedTimeSeriesDataset
+        >>> from openstef_core.datasets import VersionedTimeSeriesDataset
 
         >>> # Create sample energy data
         >>> data = pd.DataFrame({
-        ...     'timestamp': pd.date_range('2025-01-01 10:00', periods=4, freq='h'),
         ...     'available_at': pd.date_range('2025-01-01 10:00', periods=4, freq='h'),
         ...     'load': [100.0, 110.0, 120.0, 130.0]
-        ... })
+        ... }, index=pd.date_range('2025-01-01 10:00', periods=4, freq='h'))
         >>> dataset = VersionedTimeSeriesDataset.from_dataframe(data, timedelta(hours=1))
 
         >>> # Create 1-hour and 2-hour lag features
@@ -112,7 +109,7 @@ class VersionedLagsAdder(BaseConfig, VersionedTimeSeriesTransform):
             raise MissingColumnsError(missing_columns=[self.feature])
 
         source_part = next(part for part in data.data_parts if self.feature in part.feature_names)
-        lag_parts: list[VersionedTimeSeriesPart] = [
+        lag_parts: list[TimeSeriesDataset] = [
             _transform_to_lag(data=source_part, feature=self.feature, lag=lag) for lag in self.lags
         ]
 
@@ -132,21 +129,18 @@ class VersionedLagsAdder(BaseConfig, VersionedTimeSeriesTransform):
         return self.model_validate(state)
 
 
-def _transform_to_lag(data: VersionedTimeSeriesPart, feature: str, lag: timedelta) -> VersionedTimeSeriesPart:
+def _transform_to_lag(data: TimeSeriesDataset, feature: str, lag: timedelta) -> TimeSeriesDataset:
     # Shift timestamps forward by the lag duration
     data_df = data.data.rename(columns={feature: f"{feature}_lag_{timedelta_to_isoformat(lag)}"})
-    data_df[data.timestamp_column] = data_df[data.timestamp_column].sub(lag)  # pyright: ignore[reportArgumentType]
+    data_df.index = cast(pd.Series, data_df.index) - lag  # pyright: ignore[reportArgumentType]
 
     # Lagging adds a lot of new timepoints outside the original range.
     # We filter to only keep timepoints within the original timestamp range.
-    mask: pd.Series = (data_df[data.timestamp_column] >= data.data[data.timestamp_column].min()) & (
-        data_df[data.timestamp_column] <= data.data[data.timestamp_column].max()
-    )
+    mask: pd.Series = (data_df.index >= data.data.index.min()) & (data_df.index <= data.data.index.max())
     data_df = data_df[mask]
 
-    return VersionedTimeSeriesPart(
+    return TimeSeriesDataset(
         data=data_df,
-        timestamp_column=data.timestamp_column,
-        available_at_column=data.available_at_column,
         sample_interval=data.sample_interval,
+        available_at_column=data.available_at_column,
     )

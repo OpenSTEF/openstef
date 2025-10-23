@@ -14,8 +14,8 @@ from datetime import datetime, timedelta
 
 import pandas as pd
 
-from openstef_beam.evaluation.models import EvaluationSubset, Window
-from openstef_core.datasets import ForecastDataset, ForecastInputDataset
+from openstef_beam.evaluation.models import Window
+from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.utils import align_datetime
 
 
@@ -56,10 +56,10 @@ def iterate_by_window(
         )
 
 
-def iterate_subsets_by_window(
-    subset: EvaluationSubset,
+def iterate_subsets_by_window[T: TimeSeriesDataset](
+    subset: T,
     window: Window,
-) -> Iterator[tuple[datetime, EvaluationSubset]]:
+) -> Iterator[tuple[datetime, T]]:
     """Yields evaluation subsets for each window with sufficient data coverage.
 
     Guarantees:
@@ -79,30 +79,14 @@ def iterate_subsets_by_window(
         window=window,
         sample_interval=subset.sample_interval,
     ):
-        mutual_index = window_index.intersection(subset.ground_truth.index).intersection(subset.predictions.index)
-        window_ground_truth = ForecastInputDataset(
-            data=subset.ground_truth.data.loc[mutual_index],
-            sample_interval=subset.sample_interval,
-            target_column=subset.ground_truth.target_column,
-        )
-        window_predictions = ForecastDataset(
-            data=subset.predictions.data.loc[mutual_index],
-            sample_interval=subset.sample_interval,
-            forecast_start=None,
-        )
+        window_data = subset.filter_index(window_index)
 
         # If there is not enough data in the window, then skip it
-        window_coverage = window_ground_truth.calculate_time_coverage() / window.size
+        window_coverage = window_data.calculate_time_coverage() / window.size
         if window_coverage < window.minimum_coverage:
             continue
 
-        yield (
-            window_timestamp,
-            EvaluationSubset.create(
-                ground_truth=window_ground_truth,
-                predictions=window_predictions,
-            ),
-        )
+        yield (window_timestamp, window_data)
 
 
 __all__ = [

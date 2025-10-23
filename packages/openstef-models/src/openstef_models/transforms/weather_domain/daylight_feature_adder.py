@@ -13,7 +13,7 @@ from typing import Self, override
 
 import pandas as pd
 from pydantic import Field
-from pydantic_extra_types.coordinate import Coordinate, Latitude, Longitude
+from pydantic_extra_types.coordinate import Coordinate
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
@@ -48,8 +48,7 @@ class DaylightFeatureAdder(BaseConfig, TimeSeriesTransform):
     """
 
     coordinate: Coordinate = Field(
-        default=Coordinate(latitude=Latitude(52.0), longitude=Longitude(5.0)),
-        description="Geographical coordinates (latitude and longitude) for daylight calculation.",
+        description="Geographical coordinates (latitude and longitude) for daylight calculation."
     )
 
     @override

@@ -9,7 +9,6 @@ import pandas as pd
 import pytest
 
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.exceptions import MissingColumnsError
 from openstef_models.transforms.weather_domain.atmosphere_derived_features_adder import (
     AtmosphereDerivedFeaturesAdder,
 )
@@ -45,7 +44,7 @@ def test_transform_included_features_subset(sample_data: TimeSeriesDataset):
     assert "vapour_pressure" not in result.data.columns
 
 
-def test_transform_missing_columns_raises():
+def test_transform_missing_columns():
     data = pd.DataFrame(
         {
             "temperature": [10, 15, 20, 25, 30],  # Celsius
@@ -55,8 +54,14 @@ def test_transform_missing_columns_raises():
     )
     dataset = TimeSeriesDataset(data=data, sample_interval=timedelta(hours=1))
     transform = AtmosphereDerivedFeaturesAdder()
-    with pytest.raises(MissingColumnsError, match="Missing required columns: pressure"):
-        transform.transform(dataset)
+
+    # Act
+    result = transform.transform(dataset)
+
+    # Assert
+    assert "saturation_vapour_pressure" in result.feature_names
+    assert "vapour_pressure" in result.feature_names
+    assert "dewpoint" in result.feature_names
 
 
 def test_saturation_vapour_pressure_calculation():

@@ -21,8 +21,7 @@ from openstef_beam.benchmarking import (
     BenchmarkTarget,
 )
 from openstef_beam.evaluation import EvaluationConfig, EvaluationReport, EvaluationSubsetReport, SubsetMetric
-from openstef_beam.evaluation.models import EvaluationSubset
-from openstef_core.datasets import VersionedTimeSeriesDataset, VersionedTimeSeriesPart
+from openstef_core.datasets import ForecastDataset, TimeSeriesDataset, VersionedTimeSeriesDataset
 from openstef_core.types import AvailableAt
 from tests.utils.mocks import MockForecaster, MockMetricsProvider, MockTargetProvider
 
@@ -71,22 +70,26 @@ def test_datasets(test_targets: list[BenchmarkTarget]) -> tuple[VersionedTimeSer
 
     # Create measurements dataset with value column and necessary metadata
     measurements = VersionedTimeSeriesDataset.from_dataframe(
-        data=pd.DataFrame({
-            "timestamp": timestamps,
-            "value": range(len(timestamps)),
-            "available_at": timestamps,  # Make available immediately for simplicity
-        }),
+        data=pd.DataFrame(
+            {
+                "value": range(len(timestamps)),
+                "available_at": timestamps,  # Make available immediately for simplicity
+            },
+            index=timestamps,
+        ),
         sample_interval=sample_interval,
     )
 
     # Create predictors dataset with the same sample interval
     predictors = VersionedTimeSeriesDataset.from_dataframe(
-        data=pd.DataFrame({
-            "timestamp": timestamps,
-            "feature1": range(len(timestamps)),
-            "feature2": range(len(timestamps), 2 * len(timestamps)),
-            "available_at": timestamps,  # Make available immediately for simplicity
-        }),
+        data=pd.DataFrame(
+            {
+                "feature1": range(len(timestamps)),
+                "feature2": range(len(timestamps), 2 * len(timestamps)),
+                "available_at": timestamps,  # Make available immediately for simplicity
+            },
+            index=timestamps,
+        ),
         sample_interval=sample_interval,
     )
 
@@ -98,20 +101,22 @@ def mock_backtest_run(request: pytest.FixtureRequest, test_targets: list[Benchma
     """Fixture to patch the BacktestPipeline.run method."""
     with patch("openstef_beam.backtesting.backtest_pipeline.BacktestPipeline.run") as mock:
         # Create a mock prediction dataset with proper structure
-        predictions_df = pd.DataFrame({
-            "timestamp": pd.date_range(
+        predictions_df = pd.DataFrame(
+            {
+                "available_at": pd.Timestamp.now(),
+            },
+            index=pd.date_range(
                 test_targets[0].benchmark_start,
                 test_targets[0].benchmark_end,
                 freq="1h",
             ),
-            "available_at": pd.Timestamp.now(),
-        })
+        )
 
         # Add quantile columns based on the standard quantiles
         for q in [0.05, 0.1, 0.3, 0.5, 0.7, 0.9, 0.95]:
             predictions_df[f"quantile_P{int(q * 100)}"] = 50.0
 
-        mock.return_value = VersionedTimeSeriesPart(
+        mock.return_value = TimeSeriesDataset(
             data=predictions_df,
             sample_interval=timedelta(hours=1),
         )
@@ -126,7 +131,20 @@ def mock_eval_run():
             subset_reports=[
                 EvaluationSubsetReport(
                     filtering=AvailableAt.from_string("D-1T06:00"),
-                    subset=MagicMock(EvaluationSubset),
+                    subset=ForecastDataset(
+                        data=pd.DataFrame(
+                            {
+                                "load": 30,
+                                "quantile_P50": 30,
+                            },
+                            index=pd.date_range(
+                                "2023-01-15T00:00:00",
+                                periods=3,
+                                freq="1h",
+                            ),
+                        ),
+                        sample_interval=timedelta(hours=1),
+                    ),
                     metrics=[
                         SubsetMetric(
                             window="global",
@@ -244,7 +262,7 @@ def test_benchmark_runner_end_to_end(
 
         backtest_complete_call = callback.on_backtest_complete.call_args_list[i]
         assert backtest_complete_call[1]["target"] == target
-        assert isinstance(backtest_complete_call[1]["predictions"], VersionedTimeSeriesPart)
+        assert isinstance(backtest_complete_call[1]["predictions"], TimeSeriesDataset)
 
         evaluation_start_call = callback.on_evaluation_start.call_args_list[i]
         assert evaluation_start_call[1]["target"] == target

@@ -9,11 +9,12 @@ long-term patterns and movements in time series data, helping improve forecastin
 accuracy by identifying underlying trends.
 """
 
+import logging
 from datetime import timedelta
 from typing import Literal, Self, cast, override
 
 import pandas as pd
-from pydantic import Field
+from pydantic import Field, PrivateAttr
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
@@ -57,6 +58,7 @@ class RollingAggregatesAdder(BaseConfig, TimeSeriesTransform):
         >>> result = transformed_dataset.data[['rolling_mean_load_PT2H', 'rolling_max_load_PT2H']]
         >>> print(result.round(1).head(3))
                              rolling_mean_load_PT2H  rolling_max_load_PT2H
+        timestamp
         2025-01-01 00:00:00                   100.0                  100.0
         2025-01-01 01:00:00                   110.0                  120.0
         2025-01-01 02:00:00                   115.0                  120.0
@@ -74,30 +76,30 @@ class RollingAggregatesAdder(BaseConfig, TimeSeriesTransform):
         description="List of aggregation functions to compute over the rolling window. ",
     )
 
+    _logger: logging.Logger = PrivateAttr(default=logging.getLogger(__name__))
+
+    def _transform_pandas(self, df: pd.DataFrame) -> pd.DataFrame:
+        rolling_df = cast(
+            pd.DataFrame,
+            df[self.feature].rolling(window=self.rolling_window_size).agg(self.aggregation_functions),  # type: ignore
+        )
+        suffix = timedelta_to_isoformat(td=self.rolling_window_size)
+        rolling_df = rolling_df.rename(
+            columns={func: f"rolling_{func}_{self.feature}_{suffix}" for func in self.aggregation_functions}
+        )
+
+        return pd.concat([df, rolling_df], axis=1)
+
     @override
     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
-        validate_required_columns(dataset=data, required_columns=[self.feature])
+        if len(self.aggregation_functions) == 0:
+            self._logger.warning(
+                "No aggregation functions specified for RollingAggregatesAdder. Returning original data."
+            )
+            return data
 
-        agg_series: list[pd.DataFrame] = [data.data]
-        # Compute rolling aggregations (pandas handles NaNs automatically)
-        rolling_window_column = data.data[self.feature].rolling(window=self.rolling_window_size)
-
-        # Compute aggregations
-        aggregated_data: pd.DataFrame = cast(
-            pd.DataFrame,
-            rolling_window_column.agg(self.aggregation_functions),  # type: ignore[misc]
-        ).rename(
-            columns={
-                func: f"rolling_{func}_{self.feature}_{timedelta_to_isoformat(td=self.rolling_window_size)}"
-                for func in self.aggregation_functions
-            }
-        )
-        agg_series.append(aggregated_data)
-
-        return TimeSeriesDataset(
-            data=pd.concat(agg_series, axis=1),
-            sample_interval=data.sample_interval,
-        )
+        validate_required_columns(df=data.data, required_columns=[self.feature])
+        return data.pipe_pandas(self._transform_pandas)
 
     @override
     def to_state(self) -> State:

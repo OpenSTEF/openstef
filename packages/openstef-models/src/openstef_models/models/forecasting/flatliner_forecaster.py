@@ -12,10 +12,9 @@ from typing import Self, override
 
 import pandas as pd
 
-from openstef_core.datasets import MultiHorizon
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import ModelLoadingError
-from openstef_models.models.forecasting import Forecaster, ForecasterConfig
+from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
 
 
 class FlatlinerForecasterConfig(ForecasterConfig):
@@ -49,6 +48,8 @@ class FlatlinerForecaster(Forecaster):
         FlatlineChecker: Transform to detect flatliner patterns in time series data.
         Forecaster: Base class for forecasting models that predict multiple horizons.
     """
+
+    Config = FlatlinerForecasterConfig
 
     _config: FlatlinerForecasterConfig
 
@@ -90,21 +91,19 @@ class FlatlinerForecaster(Forecaster):
     @override
     def fit(
         self,
-        data: MultiHorizon[ForecastInputDataset],
-        data_val: MultiHorizon[ForecastInputDataset] | None = None,
+        data: ForecastInputDataset,
+        data_val: ForecastInputDataset | None = None,
     ) -> None:
         pass
 
     @override
-    def predict(self, data: MultiHorizon[ForecastInputDataset]) -> ForecastDataset:
-        input_data_list = [horizon_data.input_data(start=horizon_data.forecast_start) for horizon_data in data.values()]
+    def predict(self, data: ForecastInputDataset) -> ForecastDataset:
+        forecast_index = data.create_forecast_range(horizon=self.config.max_horizon)
+
         return ForecastDataset(
-            data=pd.concat([
-                pd.DataFrame(
-                    data={quantile.format(): 0.0 for quantile in self.config.quantiles},
-                    index=input_data.index,
-                )
-                for input_data in input_data_list
-            ]),
-            sample_interval=next(iter(data.values())).sample_interval,
+            data=pd.DataFrame(
+                data={quantile.format(): 0.0 for quantile in self.config.quantiles},
+                index=forecast_index,
+            ),
+            sample_interval=data.sample_interval,
         )

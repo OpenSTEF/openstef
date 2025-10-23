@@ -15,8 +15,7 @@ from openstef_beam.analysis.analysis_pipeline import AnalysisConfig, AnalysisPip
 from openstef_beam.analysis.models import AnalysisAggregation, AnalysisScope, TargetMetadata, VisualizationOutput
 from openstef_beam.analysis.visualizations import VisualizationProvider
 from openstef_beam.evaluation import EvaluationReport, EvaluationSubsetReport
-from openstef_beam.evaluation.models import EvaluationSubset
-from openstef_core.datasets import TimeSeriesDataset
+from openstef_core.datasets import ForecastDataset
 from openstef_core.types import LeadTime
 
 
@@ -45,20 +44,14 @@ class MockVisualizationProvider(VisualizationProvider):
         )
 
 
-def create_empty_evaluation_subset() -> EvaluationSubset:
+def create_empty_evaluation_subset() -> ForecastDataset:
     """Create an empty EvaluationSubset for testing."""
-    # Create minimal DataFrames with compatible indices
-    index = pd.date_range("2020-01-01", periods=1, freq="h")
-    ground_truth = TimeSeriesDataset(
-        data=pd.DataFrame({"load": [0.0]}, index=index),
+    return ForecastDataset(
+        data=pd.DataFrame(
+            {"quantile_P50": [0.0], "load": [0.0]}, index=pd.date_range("2020-01-01", periods=1, freq="h")
+        ),
         sample_interval=timedelta(hours=1),
     )
-    predictions = TimeSeriesDataset(
-        data=pd.DataFrame({"quantile_P50": [0.0]}, index=index),
-        sample_interval=timedelta(hours=1),
-    )
-
-    return EvaluationSubset(ground_truth=ground_truth, predictions=predictions)
 
 
 @pytest.fixture

@@ -20,14 +20,12 @@ import xgboost as xgb
 from pydantic import Field
 
 from openstef_core.base_model import BaseConfig
+from openstef_core.datasets.mixins import LeadTime
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import MissingExtraError, ModelLoadingError, NotFittedError
 from openstef_core.mixins.predictor import HyperParams
 from openstef_core.mixins.stateful import State
-from openstef_models.models.forecasting.forecaster import (
-    HorizonForecaster,
-    HorizonForecasterConfig,
-)
+from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
 
 try:
     import xgboost as xgb
@@ -82,8 +80,18 @@ class GBLinearHyperParams(HyperParams):
     )
 
 
-class GBLinearForecasterConfig(HorizonForecasterConfig):
+class GBLinearForecasterConfig(ForecasterConfig):
     """Configuration for GBLinear forecaster."""
+
+    horizons: list[LeadTime] = Field(
+        default=...,
+        description=(
+            "Lead times for predictions, accounting for data availability and versioning cutoffs. "
+            "Each horizon defines how far ahead the model should predict."
+        ),
+        min_length=1,
+        max_length=1,
+    )
 
     hyperparams: GBLinearHyperParams = Field(
         default=GBLinearHyperParams(),
@@ -109,7 +117,7 @@ class GBLinearState(BaseConfig):
     )
 
 
-class GBLinearForecaster(HorizonForecaster):
+class GBLinearForecaster(Forecaster):
     """GBLinear-based forecaster for probabilistic energy forecasting.
 
     Implements gradient boosted linear models using XGBoost's `gblinear` booster for
@@ -158,6 +166,9 @@ class GBLinearForecaster(HorizonForecaster):
         HorizonForecaster: Base interface for all forecasting models.
         XGBoostForecaster: Tree-based alternative for non-linear patterns.
     """
+
+    Config = GBLinearForecasterConfig
+    HyperParams = GBLinearHyperParams
 
     _config: GBLinearForecasterConfig
     _gblinear_model: xgb.XGBRegressor
@@ -239,29 +250,16 @@ class GBLinearForecaster(HorizonForecaster):
     @override
     def fit(self, data: ForecastInputDataset, data_val: ForecastInputDataset | None = None) -> None:
         input_data: pd.DataFrame = data.input_data()
-        target: pd.Series = data.target_series()
-        sample_weight: pd.Series = data.sample_weight_series()
-
-        # Remove rows with NaN values in target to prevent fitting errors
-        valid_mask = ~target.isna()
-        input_data = input_data[valid_mask]
-        target = target[valid_mask]
-        sample_weight = sample_weight[valid_mask]
+        target: pd.Series = data.target_series
+        sample_weight: pd.Series = data.sample_weight_series
 
         eval_set = [(input_data, target)]
         sample_weight_eval_set = [sample_weight]
 
         if data_val is not None:
             input_data_val: pd.DataFrame = data_val.input_data()
-            target_val: pd.Series = data_val.target_series()
-            sample_weight_val: pd.Series = data_val.sample_weight_series()
-
-            # Remove rows with NaN values in validation target
-            val_valid_mask = ~target_val.isna()
-            input_data_val = input_data_val[val_valid_mask]
-            target_val = target_val[val_valid_mask]
-            sample_weight_val = sample_weight_val[val_valid_mask]
-
+            target_val: pd.Series = data_val.target_series
+            sample_weight_val: pd.Series = data_val.sample_weight_series
             eval_set.append((input_data_val, target_val))
             sample_weight_eval_set.append(sample_weight_val)
 
@@ -280,13 +278,14 @@ class GBLinearForecaster(HorizonForecaster):
             raise NotFittedError(self.__class__.__name__)
 
         input_data: pd.DataFrame = data.input_data(start=data.forecast_start)
+        predictions_array = self._gblinear_model.predict(input_data)
+        predictions = pd.DataFrame(
+            data=predictions_array,
+            index=input_data.index,
+            columns=[quantile.format() for quantile in self.config.quantiles],
+        )
 
-        predictions = self._gblinear_model.predict(input_data)
         return ForecastDataset(
-            data=pd.DataFrame(
-                data=predictions,
-                index=input_data.index,
-                columns=[quantile.format() for quantile in self.config.quantiles],
-            ),
+            data=predictions,
             sample_interval=data.sample_interval,
         )

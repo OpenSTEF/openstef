@@ -105,12 +105,12 @@ class TimeSeriesVisualization(VisualizationProvider):
         plotter = ForecastTimeSeriesPlotter(connect_gaps=self.connect_gaps)
 
         # Add measurements as the baseline
-        plotter.add_measurements(report.subset.ground_truth)
+        plotter.add_measurements(report.get_measurements())
 
         # Add forecast model with quantile predictions
         plotter.add_model(
             model_name=metadata.run_name,
-            quantiles=report.subset.predictions,
+            quantiles=report.get_quantile_predictions(),
         )
 
         # Add capacity limits for context
@@ -130,7 +130,7 @@ class TimeSeriesVisualization(VisualizationProvider):
         first_metadata, first_report = TimeSeriesVisualization._get_first_target_data(reports)
 
         # Add measurements once (shared across all runs)
-        plotter.add_measurements(first_report.subset.ground_truth)
+        plotter.add_measurements(first_report.get_measurements())
 
         # Add capacity limits for context
         TimeSeriesVisualization._add_capacity_limits(plotter, first_metadata)
@@ -140,7 +140,7 @@ class TimeSeriesVisualization(VisualizationProvider):
             for _metadata, report in run_reports:
                 plotter.add_model(
                     model_name=run_name,
-                    quantiles=report.subset.predictions,
+                    quantiles=report.get_quantile_predictions(),
                 )
 
         figure = plotter.plot(title="Forecast Time Series Comparison")

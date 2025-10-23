@@ -94,7 +94,7 @@ def test_gblinear_forecaster__rejects_other_booster_state(
     """Test that GBLinear forecaster rejects states from gbtree booster using XGBoostRegressor directly."""
     # Arrange: Create and train a gbtree XGBoost model directly
     input_data = sample_forecast_input_dataset.input_data()
-    target = sample_forecast_input_dataset.target_series()
+    target = sample_forecast_input_dataset.target_series
 
     # Create XGBoost regressor with gbtree booster (default)
     xgb_model = xgb.XGBRegressor(
