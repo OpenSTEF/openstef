@@ -14,6 +14,7 @@ import pandas as pd
 
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import ModelLoadingError
+from openstef_models.explainability.mixins import ExplainableForecaster
 from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
 
 
@@ -24,7 +25,7 @@ class FlatlinerForecasterConfig(ForecasterConfig):
 MODEL_CODE_VERSION = 1
 
 
-class FlatlinerForecaster(Forecaster):
+class FlatlinerForecaster(Forecaster, ExplainableForecaster):
     """Flatliner forecaster that predicts a flatline of zeros.
 
     A simple forecasting model that always predicts zero for all horizons and quantiles.
@@ -106,4 +107,13 @@ class FlatlinerForecaster(Forecaster):
                 index=forecast_index,
             ),
             sample_interval=data.sample_interval,
+        )
+
+    @property
+    @override
+    def feature_importances(self) -> pd.DataFrame:
+        return pd.DataFrame(
+            data=[0.0],
+            index=["load"],
+            columns=[quantile.format() for quantile in self.config.quantiles],
         )

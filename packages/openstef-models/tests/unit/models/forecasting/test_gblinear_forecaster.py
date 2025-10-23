@@ -165,3 +165,28 @@ def test_gblinear_forecaster__with_sample_weights(
     # (This is a statistical test - with different weights, predictions should differ)
     differences = (result_with_weights.data - result_without_weights.data).abs()
     assert differences.sum().sum() > 0, "Sample weights should affect model predictions"
+
+
+def test_gblinear_forecaster__feature_importances(
+    sample_forecast_input_dataset: ForecastInputDataset,
+    base_config: GBLinearForecasterConfig,
+):
+    """Test that feature_importances returns correct normalized importance scores."""
+    # Arrange
+    forecaster = GBLinearForecaster(config=base_config)
+    forecaster.fit(sample_forecast_input_dataset)
+
+    # Act
+    feature_importances = forecaster.feature_importances
+
+    # Assert
+    assert len(feature_importances.index) > 0
+
+    # Columns should match expected quantile formats
+    expected_columns = pd.Index([q.format() for q in base_config.quantiles], name="quantiles")
+    pd.testing.assert_index_equal(feature_importances.columns, expected_columns)
+
+    # Values should be normalized (sum to 1.0 per quantile column) and non-negative
+    col_sums = feature_importances.sum(axis=0)
+    pd.testing.assert_series_equal(col_sums, pd.Series(1.0, index=expected_columns), atol=1e-10)
+    assert (feature_importances >= 0).all().all()

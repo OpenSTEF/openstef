@@ -25,6 +25,7 @@ from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastI
 from openstef_core.exceptions import MissingExtraError, ModelLoadingError, NotFittedError
 from openstef_core.mixins.predictor import HyperParams
 from openstef_core.mixins.stateful import State
+from openstef_models.explainability.mixins import ExplainableForecaster
 from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
 
 try:
@@ -117,7 +118,7 @@ class GBLinearState(BaseConfig):
     )
 
 
-class GBLinearForecaster(Forecaster):
+class GBLinearForecaster(Forecaster, ExplainableForecaster):
     """GBLinear-based forecaster for probabilistic energy forecasting.
 
     Implements gradient boosted linear models using XGBoost's `gblinear` booster for
@@ -289,3 +290,19 @@ class GBLinearForecaster(Forecaster):
             data=predictions,
             sample_interval=data.sample_interval,
         )
+
+    @property
+    @override
+    def feature_importances(self) -> pd.DataFrame:
+        booster = self._gblinear_model.get_booster()
+        weights_df = pd.DataFrame(
+            data=booster.get_score(importance_type="weight"),
+            index=[quantile.format() for quantile in self.config.quantiles],
+        ).transpose()
+        weights_df.index.name = "feature_name"
+        weights_df.columns.name = "quantiles"
+
+        weights_abs = weights_df.abs()
+        total = weights_abs.sum(axis=0).replace(to_replace=0, value=1.0)  # pyright: ignore[reportUnknownMemberType]
+
+        return weights_abs / total

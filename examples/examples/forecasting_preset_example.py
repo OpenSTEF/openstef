@@ -39,6 +39,7 @@ import pandas as pd
 from openstef_beam.analysis.plots import ForecastTimeSeriesPlotter
 from openstef_core.datasets import ForecastDataset, TimeSeriesDataset
 from openstef_core.types import LeadTime, Q
+from openstef_models.explainability.mixins import ExplainableForecaster
 from openstef_models.integrations.mlflow import MLFlowStorage
 from openstef_models.presets import ForecastingWorkflowConfig, create_forecasting_workflow
 
@@ -104,3 +105,8 @@ fig = (
 )
 
 fig.write_html("forecast_plot.html")  # pyright: ignore[reportUnknownMemberType]
+
+
+if isinstance(workflow.model.forecaster, ExplainableForecaster):
+    fig_importance = workflow.model.forecaster.plot_feature_importances()
+    fig_importance.write_html("feature_importances.html")  # pyright: ignore[reportUnknownMemberType]
