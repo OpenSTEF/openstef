@@ -70,6 +70,7 @@ dev = [
   "pytest-xdist>=3.8",
   "reuse>=5.0.2",
   "ruff>=0.12.8",
+  "scipy-stubs>=1.16.2.4",
 ]
 
 [tool.hatch.build.targets.wheel]

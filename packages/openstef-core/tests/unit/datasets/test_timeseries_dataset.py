@@ -12,9 +12,8 @@ import pandas as pd
 import pytest
 
 from openstef_core.datasets.timeseries_dataset import TimeSeriesDataset
+from openstef_core.testing import create_timeseries_dataset
 from openstef_core.types import AvailableAt, LeadTime
-
-from .utils import create_test_timeseries_dataset
 
 
 @pytest.fixture
@@ -66,7 +65,7 @@ def test_horizons_property_parses_correctly(horizons_input: list[timedelta], exp
     # Arrange
     index = pd.to_datetime(["2023-01-01T10:00:00", "2023-01-01T11:00:00", "2023-01-01T12:00:00", "2023-01-01T13:00:00"])
     horizons_series = pd.Series(horizons_input, index=index)
-    dataset = create_test_timeseries_dataset(
+    dataset = create_timeseries_dataset(
         values=[10, 20, 30, 40],
         index=index,
         horizons=horizons_series,
@@ -187,13 +186,13 @@ def test_select_version_empty(empty_dataset: TimeSeriesDataset):
 def test_available_at_and_lead_time_series_equivalence():
     # Arrange
     index = pd.to_datetime(["2023-01-01T10:00:00", "2023-01-01T11:00:00"])
-    available_at_dataset = create_test_timeseries_dataset(
+    available_at_dataset = create_timeseries_dataset(
         values=[10, 20],
         index=index,
         available_ats=cast(pd.Series, index) - timedelta(hours=5),
     )
 
-    horizon_dataset = create_test_timeseries_dataset(
+    horizon_dataset = create_timeseries_dataset(
         values=[10, 20],
         index=index,
         horizons=pd.to_timedelta([5, 5], unit="h"),  # type: ignore
@@ -244,7 +243,7 @@ def test_select_horizon(horizon: LeadTime, expected_values: list[int]):
         "2023-01-01T14:00:00",
     ])
     horizons = pd.Series([timedelta(hours=1)] * 6, index=index)
-    dataset = create_test_timeseries_dataset(
+    dataset = create_timeseries_dataset(
         value1=[10, 20, 30, 40, 50, 55],
         index=index,
         horizons=horizons,

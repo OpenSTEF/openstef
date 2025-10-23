@@ -14,14 +14,13 @@ import pytest
 from openstef_core.datasets.timeseries_dataset import TimeSeriesDataset
 from openstef_core.datasets.versioned_timeseries_dataset import VersionedTimeSeriesDataset
 from openstef_core.exceptions import TimeSeriesValidationError
+from openstef_core.testing import create_timeseries_dataset
 from openstef_core.types import AvailableAt, LeadTime
-
-from .utils import create_test_timeseries_dataset
 
 
 @pytest.fixture
 def dataset_part_a() -> TimeSeriesDataset:
-    return create_test_timeseries_dataset(
+    return create_timeseries_dataset(
         feature_a=[20.0, 22.0, 24.0, 23.0],
         available_ats=pd.to_datetime([
             "2023-01-01T10:05:00",
@@ -41,7 +40,7 @@ def dataset_part_a() -> TimeSeriesDataset:
 
 @pytest.fixture
 def dataset_part_b() -> TimeSeriesDataset:
-    return create_test_timeseries_dataset(
+    return create_timeseries_dataset(
         feature_b=[100.0, 120.0, 110.0, 105.0, 125.0],
         available_ats=pd.to_datetime([
             "2023-01-01T10:10:00",
@@ -74,7 +73,7 @@ def versioned_dataset() -> VersionedTimeSeriesDataset:
         "2023-01-01T14:00:00",
     ])
 
-    part_a = create_test_timeseries_dataset(
+    part_a = create_timeseries_dataset(
         index=index,
         available_ats=pd.to_datetime([
             "2023-01-01T10:20:00",
@@ -89,7 +88,7 @@ def versioned_dataset() -> VersionedTimeSeriesDataset:
         feature_a=[100, 150, 200, 250, 275, 300, 330, 360],
     )
 
-    part_b = create_test_timeseries_dataset(
+    part_b = create_timeseries_dataset(
         index=index,
         available_ats=pd.to_datetime([
             "2023-01-01T10:40:00",
@@ -233,7 +232,7 @@ def test_to_horizons_returns_expected_labels_when_splitting_versions():
     ]
     sample_interval = timedelta(hours=1)
     dataset = VersionedTimeSeriesDataset([
-        create_test_timeseries_dataset(
+        create_timeseries_dataset(
             index=index,
             available_ats=available_ats,
             feature=feature_values,
@@ -273,12 +272,12 @@ def test_filter_by_available_before_realistic_energy_forecasting_scenario():
     """Integration-style check using realistic forecast and actual availability patterns."""
     # Arrange - simulate hourly forecasts ready 30 minutes ahead and actuals with 1-hour delay
     timestamps = pd.date_range("2023-01-01T10:00:00", periods=6, freq="1h")
-    forecast_part = create_test_timeseries_dataset(
+    forecast_part = create_timeseries_dataset(
         index=timestamps,
         available_ats=timestamps - pd.Timedelta(minutes=30),
         forecast=[100, 95, 105, 110, 98, 102],
     )
-    actual_part = create_test_timeseries_dataset(
+    actual_part = create_timeseries_dataset(
         index=timestamps,
         available_ats=timestamps + pd.Timedelta(hours=1),
         actual=[102, 97, 108, 107, 96, 104],
