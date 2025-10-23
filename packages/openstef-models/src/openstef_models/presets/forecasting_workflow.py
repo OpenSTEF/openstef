@@ -31,7 +31,7 @@ from openstef_models.models.forecasting.flatliner_forecaster import FlatlinerFor
 from openstef_models.models.forecasting.gblinear_forecaster import GBLinearForecaster
 from openstef_models.models.forecasting.xgboost_forecaster import XGBoostForecaster
 from openstef_models.transforms.energy_domain import WindPowerFeatureAdder
-from openstef_models.transforms.general import Clipper, EmptyFeatureRemover, Imputer
+from openstef_models.transforms.general import Clipper, EmptyFeatureRemover, Imputer, SampleWeighter
 from openstef_models.transforms.postprocessing import ConfidenceIntervalApplicator, QuantileSorter
 from openstef_models.transforms.time_domain import (
     CyclicFeaturesAdder,
@@ -39,6 +39,7 @@ from openstef_models.transforms.time_domain import (
     HolidayFeatureAdder,
     RollingAggregatesAdder,
 )
+from openstef_models.transforms.time_domain.lags_adder import LagsAdder
 from openstef_models.transforms.time_domain.rolling_aggregates_adder import AggregationFunction
 from openstef_models.transforms.validation import CompletenessChecker, FlatlineChecker
 from openstef_models.transforms.weather_domain import DaylightFeatureAdder, RadiationDerivedFeaturesAdder
@@ -104,6 +105,10 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
     relative_humidity_column: str = Field(
         default="relative_humidity", description="Name of the relative humidity column in datasets."
     )
+    predict_history: timedelta = Field(
+        default=timedelta(days=14),
+        description="Amount of historical data available at prediction time.",
+    )
 
     # Feature engineering and validation
     completeness_threshold: float = Field(
@@ -124,6 +129,15 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
     clip_features: FeatureSelection = Field(
         default=FeatureSelection(include=None, exclude=None),
         description="Feature selection for which features to clip.",
+    )
+    sample_weight_exponent: float = Field(
+        default=0.0,
+        description="Exponent applied to to scale the sample weights. "
+        "0=uniform weights, 1=linear scaling, >1=stronger emphasis on high values.",
+    )
+    sample_weight_floor: float = Field(
+        default=0.1,
+        description="Minimum weight value to ensure all samples contribute to training.",
     )
 
     # Data splitting strategy
@@ -204,6 +218,12 @@ def create_forecasting_workflow(config: ForecastingWorkflowConfig) -> CustomFore
         CompletenessChecker(completeness_threshold=config.completeness_threshold),
     ]
     feature_adders = [
+        LagsAdder(
+            history_available=config.predict_history,
+            horizons=config.horizons,
+            add_trivial_lags=True,
+            target_column=config.target_column,
+        ),
         WindPowerFeatureAdder(
             windspeed_reference_column=config.wind_speed_column,
         ),
@@ -224,11 +244,15 @@ def create_forecasting_workflow(config: ForecastingWorkflowConfig) -> CustomFore
             feature=config.target_column,
             aggregation_functions=config.rolling_aggregate_features,
         ),
-        # TODO(#724): Add normal horizon based lags.
     ]
     feature_standardizers = [
         Clipper(selection=Include(config.energy_price_column).combine(config.clip_features), mode="standard"),
         EmptyFeatureRemover(),
+        SampleWeighter(
+            target_column=config.target_column,
+            weight_exponent=config.sample_weight_exponent,
+            weight_floor=config.sample_weight_floor,
+        ),
     ]
 
     if config.model == "xgboost":
