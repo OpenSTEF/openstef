@@ -35,7 +35,7 @@ def validate_required_columns(df: pd.DataFrame, required_columns: Sequence[str])
     """
     missing_columns = [col for col in required_columns if col not in df.columns]
     if missing_columns:
-        raise MissingColumnsError(missing_columns=missing_columns)
+        raise MissingColumnsError(missing_columns=missing_columns, columns=df.columns.tolist())
 
 
 def validate_disjoint_columns(datasets: Iterable[TimeSeriesMixin]) -> list[str]:

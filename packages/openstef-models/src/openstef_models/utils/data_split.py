@@ -18,7 +18,9 @@ from typing import cast
 
 import numpy as np
 import pandas as pd
+from pydantic import Field
 
+from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
 
 
@@ -252,3 +254,80 @@ def train_val_test_split[T](
     train, val = split_func(train_val, adjusted_val_fraction)
 
     return train, val, test
+
+
+class DataSplitter(BaseConfig):
+    """Handles splitting of time series data into train, validation, and test sets.
+
+    Supports stratified splitting to ensure representative data distribution
+    across splits, particularly for extreme values in forecasting scenarios.
+    """
+
+    val_fraction: float = Field(
+        default=0.15,
+        description="Fraction of data to reserve for the validation set when automatic splitting is used.",
+    )
+    test_fraction: float = Field(
+        default=0.1,
+        description="Fraction of data to reserve for the test set when automatic splitting is used.",
+    )
+    stratification_fraction: float = Field(
+        default=0.15,
+        description="Fraction of extreme values to use for stratified splitting into train/test sets.",
+    )
+    min_days_for_stratification: int = Field(
+        default=4,
+        description="Minimum number of unique days required to perform stratified splitting.",
+    )
+
+    def split_dataset[T: TimeSeriesDataset](
+        self,
+        data: T,
+        data_val: T | None = None,
+        data_test: T | None = None,
+        target_column: str = "load",
+    ) -> tuple[T, T | None, T | None]:
+        """Prepare and split input data into train, validation, and test sets.
+
+        Args:
+            data: Full dataset to split.
+            data_val: Optional pre-split validation data.
+            data_test: Optional pre-split test data.
+            target_column: Column name containing the target variable for stratification.
+
+        Returns:
+            Tuple of (train_data, val_data, test_data) where val_data and test_data may be None.
+        """
+        # Apply splitting strategy
+        input_data_train, input_data_val, input_data_test = train_val_test_split(
+            dataset=data,
+            split_func=lambda dataset, fraction: stratified_train_test_split(
+                dataset=dataset,
+                test_fraction=fraction,
+                stratification_fraction=self.stratification_fraction,
+                target_column=target_column,
+                random_state=42,
+                min_days_for_stratification=self.min_days_for_stratification,
+            ),
+            val_fraction=self.val_fraction if data_val is None else 0.0,
+            test_fraction=self.test_fraction if data_test is None else 0.0,
+        )
+        input_data_val = data_val or input_data_val
+        input_data_test = data_test or input_data_test
+
+        if input_data_val.index.empty:
+            input_data_val = None
+        if input_data_test.index.empty:
+            input_data_test = None
+
+        return (input_data_train, input_data_val, input_data_test)
+
+
+__all__ = [
+    "DataSplitter",
+    "chronological_train_test_split",
+    "split_by_date",
+    "split_by_dates",
+    "stratified_train_test_split",
+    "train_val_test_split",
+]
