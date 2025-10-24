@@ -33,11 +33,9 @@ import logging
 from datetime import timedelta
 from pathlib import Path
 
-import numpy as np
-import pandas as pd
-
 from openstef_beam.analysis.plots import ForecastTimeSeriesPlotter
-from openstef_core.datasets import ForecastDataset, TimeSeriesDataset
+from openstef_core.datasets import ForecastDataset
+from openstef_core.testing import create_synthetic_forecasting_dataset
 from openstef_core.types import LeadTime, Q
 from openstef_models.integrations.mlflow import MLFlowStorage
 from openstef_models.presets import ForecastingWorkflowConfig, create_forecasting_workflow
@@ -48,23 +46,12 @@ logger = logging.getLogger(__name__)
 workspace_dir = Path(__file__).parent.resolve()
 
 # Create synthetic time series data
-n_samples = 24 * 31 * 3  # 3 months of hourly data
-rng = np.random.default_rng(42)
-temp = rng.standard_normal(size=n_samples)
-wind = rng.standard_normal(size=n_samples)
-radiation = rng.standard_normal(size=n_samples)
-timestamps = pd.date_range("2025-01-01", periods=n_samples, freq="h", tz="UTC")
-
-dataset = TimeSeriesDataset(
-    data=pd.DataFrame(
-        {
-            "load": wind * -10 + temp * -3 + radiation * -5 + rng.standard_normal(size=n_samples) * 2,
-            "temp": temp,
-            "wind": wind,
-            "radiation": radiation,
-        },
-        index=timestamps,
-    ),
+dataset = create_synthetic_forecasting_dataset(
+    length=timedelta(days=90),
+    wind_influence=-10.0,
+    temp_influence=5.0,
+    radiation_influence=-7.0,
+    stochastic_influence=2.0,
     sample_interval=timedelta(hours=1),
 )
 

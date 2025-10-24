@@ -11,5 +11,6 @@ data quality before model training and inference.
 
 from openstef_models.transforms.validation.completeness_checker import CompletenessChecker
 from openstef_models.transforms.validation.flatline_checker import FlatlineChecker
+from openstef_models.transforms.validation.input_consistency_checker import InputConsistencyChecker
 
-__all__ = ["CompletenessChecker", "FlatlineChecker"]
+__all__ = ["CompletenessChecker", "FlatlineChecker", "InputConsistencyChecker"]

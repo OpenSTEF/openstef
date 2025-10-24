@@ -42,11 +42,39 @@ from openstef_models.transforms.time_domain import (
 )
 from openstef_models.transforms.time_domain.lags_adder import LagsAdder
 from openstef_models.transforms.time_domain.rolling_aggregates_adder import AggregationFunction
-from openstef_models.transforms.validation import CompletenessChecker, FlatlineChecker
+from openstef_models.transforms.validation import CompletenessChecker, FlatlineChecker, InputConsistencyChecker
 from openstef_models.transforms.weather_domain import DaylightFeatureAdder, RadiationDerivedFeaturesAdder
 from openstef_models.transforms.weather_domain.atmosphere_derived_features_adder import AtmosphereDerivedFeaturesAdder
+from openstef_models.utils.data_split import DataSplitter
 from openstef_models.utils.feature_selection import Exclude, FeatureSelection, Include
 from openstef_models.workflows.custom_forecasting_workflow import CustomForecastingWorkflow
+
+
+class LocationConfig(BaseConfig):
+    """Configuration for location information in forecasting workflows."""
+
+    name: str = Field(default="test_location", description="Name of the forecasting location or workflow.")
+    description: str = Field(default="", description="Description of the forecasting workflow.")
+    coordinate: Coordinate = Field(
+        default=Coordinate(
+            latitude=Latitude(Decimal("52.132633")),
+            longitude=Longitude(Decimal("5.291266")),
+        ),
+        description="Geographic coordinate of the location.",
+    )
+    country_code: CountryAlpha2 = Field(
+        default=CountryAlpha2("NL"), description="Country code for holiday feature generation."
+    )
+
+    @property
+    def tags(self) -> dict[str, str]:
+        """Generate tags dictionary from location information."""
+        return {
+            "location_name": self.name,
+            "location_description": self.description,
+            "location_coordinate": str(self.coordinate),
+            "location_country_code": str(self.country_code),
+        }
 
 
 class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
@@ -80,18 +108,8 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
         default=GBLinearForecaster.HyperParams(), description="Hyperparameters for GBLinear forecaster."
     )
 
-    # Location information
-    name: str = Field(default="test_location", description="Name of the forecasting location or workflow.")
-    description: str = Field(default="", description="Description of the forecasting workflow.")
-    coordinate: Coordinate = Field(
-        default=Coordinate(
-            latitude=Latitude(Decimal("52.132633")),
-            longitude=Longitude(Decimal("5.291266")),
-        ),
-        description="Geographic coordinate of the location.",
-    )
-    country_code: CountryAlpha2 = Field(
-        default=CountryAlpha2("NL"), description="Country code for holiday feature generation."
+    location: LocationConfig = Field(
+        default=LocationConfig(), description="Location information for the forecasting workflow."
     )
 
     # Data properties
@@ -142,21 +160,9 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
     )
 
     # Data splitting strategy
-    val_fraction: float = Field(
-        default=0.15,
-        description="Fraction of data to reserve for the validation set when automatic splitting is used.",
-    )
-    test_fraction: float = Field(
-        default=0.1,
-        description="Fraction of data to reserve for the test set when automatic splitting is used.",
-    )
-    stratification_fraction: float = Field(
-        default=0.15,
-        description="Fraction of extreme values to use for stratified splitting into train/test sets.",
-    )
-    min_days_for_stratification: int = Field(
-        default=4,
-        description="Minimum number of unique days required to perform stratified splitting.",
+    data_splitter: DataSplitter = Field(
+        default_factory=DataSplitter,
+        description="Configuration for splitting data into training, validation, and test sets.",
     )
 
     # Evaluation
@@ -210,6 +216,7 @@ def create_forecasting_workflow(config: ForecastingWorkflowConfig) -> CustomFore
         ValueError: If an unsupported model type is specified.
     """
     checks = [
+        InputConsistencyChecker(),
         FlatlineChecker(
             load_column=config.target_column,
             flatliner_threshold=config.flatliner_threshold,
@@ -234,12 +241,12 @@ def create_forecasting_workflow(config: ForecastingWorkflowConfig) -> CustomFore
             temperature_column=config.temperature_column,
         ),
         RadiationDerivedFeaturesAdder(
-            coordinate=config.coordinate,
+            coordinate=config.location.coordinate,
             radiation_column=config.radiation_column,
         ),
         CyclicFeaturesAdder(),
         DaylightFeatureAdder(
-            coordinate=config.coordinate,
+            coordinate=config.location.coordinate,
         ),
         RollingAggregatesAdder(
             feature=config.target_column,
@@ -260,7 +267,7 @@ def create_forecasting_workflow(config: ForecastingWorkflowConfig) -> CustomFore
         preprocessing = [
             *checks,
             *feature_adders,
-            HolidayFeatureAdder(country_code=config.country_code),
+            HolidayFeatureAdder(country_code=config.location.country_code),
             DatetimeFeaturesAdder(onehot_encode=False),
             *feature_standardizers,
         ]
@@ -304,10 +311,7 @@ def create_forecasting_workflow(config: ForecastingWorkflowConfig) -> CustomFore
         raise ValueError(msg)
 
     tags = {
-        "workflow_name": config.name,
-        "workflow_description": config.description,
-        "location": str(config.coordinate),
-        "country_code": str(config.country_code),
+        **config.location.tags,
         "model_type": config.model,
         **config.tags,
     }
@@ -318,11 +322,7 @@ def create_forecasting_workflow(config: ForecastingWorkflowConfig) -> CustomFore
             forecaster=forecaster,
             postprocessing=TransformPipeline(transforms=postprocessing),
             target_column=config.target_column,
-            # Data splitting strategy
-            val_fraction=config.val_fraction,
-            test_fraction=config.test_fraction,
-            stratification_fraction=config.stratification_fraction,
-            min_days_for_stratification=config.min_days_for_stratification,
+            data_splitter=config.data_splitter,
             # Evaluation
             evaluation_metrics=config.evaluation_metrics,
             # Other

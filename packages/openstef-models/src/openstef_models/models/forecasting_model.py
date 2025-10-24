@@ -29,7 +29,7 @@ from openstef_core.exceptions import NotFittedError
 from openstef_core.mixins import Predictor, State, TransformPipeline
 from openstef_models.models.forecasting import Forecaster
 from openstef_models.models.forecasting.forecaster import ForecasterConfig
-from openstef_models.utils.data_split import stratified_train_test_split, train_val_test_split
+from openstef_models.utils.data_split import DataSplitter
 
 
 class ModelFitResult(BaseModel):
@@ -114,22 +114,9 @@ class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset])
         default="load",
         description="Name of the target variable column in datasets.",
     )
-    # Data splitting strategy
-    val_fraction: float = Field(
-        default=0.15,
-        description="Fraction of data to reserve for the validation set when automatic splitting is used.",
-    )
-    test_fraction: float = Field(
-        default=0.1,
-        description="Fraction of data to reserve for the test set when automatic splitting is used.",
-    )
-    stratification_fraction: float = Field(
-        default=0.15,
-        description="Fraction of extreme values to use for stratified splitting into train/test sets.",
-    )
-    min_days_for_stratification: int = Field(
-        default=4,
-        description="Minimum number of unique days required to perform stratified splitting.",
+    data_splitter: DataSplitter = Field(
+        default_factory=DataSplitter,
+        description="Data splitting strategy for train/validation/test sets.",
     )
     # Evaluation
     evaluation_metrics: list[MetricProvider] = Field(
@@ -194,8 +181,8 @@ class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset])
         input_data_test = input_data_test.pipe_pandas(target_dropna) if input_data_test else None
 
         # Transform the input data to a valid forecast input and split into train/val/test
-        input_data_train, input_data_val, input_data_test = self._split_data(
-            data=input_data_train, data_val=input_data_val, data_test=input_data_test
+        input_data_train, input_data_val, input_data_test = self.data_splitter.split_dataset(
+            data=input_data_train, data_val=input_data_val, data_test=input_data_test, target_column=self.target_column
         )
 
         # Fit the model
@@ -254,47 +241,6 @@ class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset])
         raw_predictions = self._predict(input_data=input_data)
 
         return self.postprocessing.transform(data=raw_predictions)
-
-    def _split_data[T: TimeSeriesDataset](
-        self,
-        data: T,
-        data_val: T | None = None,
-        data_test: T | None = None,
-    ) -> tuple[T, T | None, T | None]:
-        """Prepare and split input data into train, validation, and test sets.
-
-        Args:
-            data: Full dataset to split.
-            data_val: Optional pre-split validation data.
-            data_test: Optional pre-split test data.
-
-        Returns:
-            Tuple of (train_data, val_data, test_data) where val_data and test_data may be None.
-        """
-        # Apply splitting strategy
-        input_data_train, input_data_val, input_data_test = train_val_test_split(
-            dataset=data,
-            split_func=lambda dataset, fraction: stratified_train_test_split(
-                dataset=dataset,
-                test_fraction=fraction,
-                stratification_fraction=self.stratification_fraction,
-                target_column=self.target_column,
-                random_state=42,
-                min_days_for_stratification=self.min_days_for_stratification,
-            ),
-            val_fraction=self.val_fraction if data_val is None else 0.0,
-            test_fraction=self.test_fraction if data_test is None else 0.0,
-        )
-        input_data_val = data_val or input_data_val
-        input_data_test = data_test or input_data_test
-
-        if input_data_val.index.empty:
-            input_data_val = None
-        if input_data_test.index.empty:
-            input_data_test = None
-
-        # Convert to ForecastInputDataset with restored target column
-        return (input_data_train, input_data_val, input_data_test)
 
     def _prepare_input(
         self,
