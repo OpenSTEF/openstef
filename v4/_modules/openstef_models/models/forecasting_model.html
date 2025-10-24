@@ -470,7 +470,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.mixins</span><span class="w"> </span><span class="kn">import</span> <span class="n">Predictor</span><span class="p">,</span> <span class="n">State</span><span class="p">,</span> <span class="n">TransformPipeline</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.models.forecasting</span><span class="w"> </span><span class="kn">import</span> <span class="n">Forecaster</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.models.forecasting.forecaster</span><span class="w"> </span><span class="kn">import</span> <span class="n">ForecasterConfig</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.utils.data_split</span><span class="w"> </span><span class="kn">import</span> <span class="n">stratified_train_test_split</span><span class="p">,</span> <span class="n">train_val_test_split</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.utils.data_split</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataSplitter</span>
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">ModelFitResult</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
@@ -557,22 +557,9 @@
         <span class="n">default</span><span class="o">=</span><span class="s2">&quot;load&quot;</span><span class="p">,</span>
         <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Name of the target variable column in datasets.&quot;</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="c1"># Data splitting strategy</span>
-    <span class="n">val_fraction</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
-        <span class="n">default</span><span class="o">=</span><span class="mf">0.15</span><span class="p">,</span>
-        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Fraction of data to reserve for the validation set when automatic splitting is used.&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">test_fraction</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
-        <span class="n">default</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
-        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Fraction of data to reserve for the test set when automatic splitting is used.&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">stratification_fraction</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
-        <span class="n">default</span><span class="o">=</span><span class="mf">0.15</span><span class="p">,</span>
-        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Fraction of extreme values to use for stratified splitting into train/test sets.&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">min_days_for_stratification</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
-        <span class="n">default</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
-        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Minimum number of unique days required to perform stratified splitting.&quot;</span><span class="p">,</span>
+    <span class="n">data_splitter</span><span class="p">:</span> <span class="n">DataSplitter</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default_factory</span><span class="o">=</span><span class="n">DataSplitter</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Data splitting strategy for train/validation/test sets.&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="c1"># Evaluation</span>
     <span class="n">evaluation_metrics</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">MetricProvider</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
@@ -639,8 +626,8 @@
         <span class="n">input_data_test</span> <span class="o">=</span> <span class="n">input_data_test</span><span class="o">.</span><span class="n">pipe_pandas</span><span class="p">(</span><span class="n">target_dropna</span><span class="p">)</span> <span class="k">if</span> <span class="n">input_data_test</span> <span class="k">else</span> <span class="kc">None</span>
 
         <span class="c1"># Transform the input data to a valid forecast input and split into train/val/test</span>
-        <span class="n">input_data_train</span><span class="p">,</span> <span class="n">input_data_val</span><span class="p">,</span> <span class="n">input_data_test</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_split_data</span><span class="p">(</span>
-            <span class="n">data</span><span class="o">=</span><span class="n">input_data_train</span><span class="p">,</span> <span class="n">data_val</span><span class="o">=</span><span class="n">input_data_val</span><span class="p">,</span> <span class="n">data_test</span><span class="o">=</span><span class="n">input_data_test</span>
+        <span class="n">input_data_train</span><span class="p">,</span> <span class="n">input_data_val</span><span class="p">,</span> <span class="n">input_data_test</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_splitter</span><span class="o">.</span><span class="n">split_dataset</span><span class="p">(</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">input_data_train</span><span class="p">,</span> <span class="n">data_val</span><span class="o">=</span><span class="n">input_data_val</span><span class="p">,</span> <span class="n">data_test</span><span class="o">=</span><span class="n">input_data_test</span><span class="p">,</span> <span class="n">target_column</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">target_column</span>
         <span class="p">)</span>
 
         <span class="c1"># Fit the model</span>
@@ -703,47 +690,6 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">postprocessing</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">raw_predictions</span><span class="p">)</span></div>
 
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">_split_data</span><span class="p">[</span><span class="n">T</span><span class="p">:</span> <span class="n">TimeSeriesDataset</span><span class="p">](</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">data</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span>
-        <span class="n">data_val</span><span class="p">:</span> <span class="n">T</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">data_test</span><span class="p">:</span> <span class="n">T</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">T</span><span class="p">,</span> <span class="n">T</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">T</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Prepare and split input data into train, validation, and test sets.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            data: Full dataset to split.</span>
-<span class="sd">            data_val: Optional pre-split validation data.</span>
-<span class="sd">            data_test: Optional pre-split test data.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            Tuple of (train_data, val_data, test_data) where val_data and test_data may be None.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Apply splitting strategy</span>
-        <span class="n">input_data_train</span><span class="p">,</span> <span class="n">input_data_val</span><span class="p">,</span> <span class="n">input_data_test</span> <span class="o">=</span> <span class="n">train_val_test_split</span><span class="p">(</span>
-            <span class="n">dataset</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
-            <span class="n">split_func</span><span class="o">=</span><span class="k">lambda</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">fraction</span><span class="p">:</span> <span class="n">stratified_train_test_split</span><span class="p">(</span>
-                <span class="n">dataset</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span>
-                <span class="n">test_fraction</span><span class="o">=</span><span class="n">fraction</span><span class="p">,</span>
-                <span class="n">stratification_fraction</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">stratification_fraction</span><span class="p">,</span>
-                <span class="n">target_column</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">target_column</span><span class="p">,</span>
-                <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
-                <span class="n">min_days_for_stratification</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">min_days_for_stratification</span><span class="p">,</span>
-            <span class="p">),</span>
-            <span class="n">val_fraction</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">val_fraction</span> <span class="k">if</span> <span class="n">data_val</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="mf">0.0</span><span class="p">,</span>
-            <span class="n">test_fraction</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">test_fraction</span> <span class="k">if</span> <span class="n">data_test</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="mf">0.0</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">input_data_val</span> <span class="o">=</span> <span class="n">data_val</span> <span class="ow">or</span> <span class="n">input_data_val</span>
-        <span class="n">input_data_test</span> <span class="o">=</span> <span class="n">data_test</span> <span class="ow">or</span> <span class="n">input_data_test</span>
-
-        <span class="k">if</span> <span class="n">input_data_val</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
-            <span class="n">input_data_val</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="n">input_data_test</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
-            <span class="n">input_data_test</span> <span class="o">=</span> <span class="kc">None</span>
-
-        <span class="c1"># Convert to ForecastInputDataset with restored target column</span>
-        <span class="k">return</span> <span class="p">(</span><span class="n">input_data_train</span><span class="p">,</span> <span class="n">input_data_val</span><span class="p">,</span> <span class="n">input_data_test</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_prepare_input</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
