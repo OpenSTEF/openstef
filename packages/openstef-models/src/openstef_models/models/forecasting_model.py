@@ -72,6 +72,13 @@ class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset])
         - fit() must be called before predict()
         - Forecaster and preprocessing horizons must match during initialization
 
+    Important:
+        The `cutoff_history` parameter is crucial when using lag-based features in
+        preprocessing. For example, a lag-14 transformation creates NaN values for
+        the first 14 days of data. Set `cutoff_history` to exclude these incomplete
+        rows from training. You must configure this manually based on your preprocessing
+        pipeline since lags cannot be automatically inferred from the transforms.
+
     Example:
         Basic forecasting workflow:
 
@@ -88,6 +95,7 @@ class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset])
         >>> # Create and train model
         >>> model = ForecastingModel(
         ...     forecaster=forecaster,
+        ...     cutoff_history=timedelta(days=14),  # Match your maximum lag in preprocessing
         ... )
         >>> model.fit(training_data)  # doctest: +SKIP
         >>>
@@ -121,7 +129,10 @@ class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset])
     )
     cutoff_history: timedelta = Field(
         default=timedelta(days=0),
-        description="Amount of historical data that is used for preprocessing and may be incomplete because of that.",
+        description="Amount of historical data to exclude from training due to incomplete features from lag-based "
+        "preprocessing. When using lag transforms (e.g., lag-14), the first N days contain NaN values. "
+        "Set this to match your maximum lag duration (e.g., timedelta(days=14)). "
+        "Default of 0 assumes no invalid rows are created by preprocessing.",
     )
     # Evaluation
     evaluation_metrics: list[MetricProvider] = Field(
