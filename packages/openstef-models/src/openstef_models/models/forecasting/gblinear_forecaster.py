@@ -258,7 +258,7 @@ class GBLinearForecaster(Forecaster, ExplainableForecaster):
 
         # Scale the target variable
         target: np.ndarray = np.asarray(data.target_series.values)
-        target = self._target_scaler.transform(target.reshape(-1, 1)).flatten()  # pyright: ignore[reportUnknownMemberType]
+        target = self._target_scaler.transform(target.reshape(-1, 1)).flatten()
         # Reshape target for multi-quantile objectives
         target = xgb_prepare_target_for_objective(
             target=target,
@@ -275,7 +275,7 @@ class GBLinearForecaster(Forecaster, ExplainableForecaster):
     def fit(self, data: ForecastInputDataset, data_val: ForecastInputDataset | None = None) -> None:
         # Fit the target scaler
         target: np.ndarray = np.asarray(data.target_series.values)
-        self._target_scaler.fit(target.reshape(-1, 1))  # pyright: ignore[reportUnknownMemberType]
+        self._target_scaler.fit(target.reshape(-1, 1))
 
         # Prepare training data
         input_data, target, sample_weight = self._prepare_fit_input(data)

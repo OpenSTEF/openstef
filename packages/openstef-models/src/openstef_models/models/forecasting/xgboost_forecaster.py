@@ -153,10 +153,13 @@ class XGBoostHyperParams(HyperParams):
     random_state: int | None = Field(
         default=None, alias="seed", description="Random seed for reproducibility. Controls tree structure randomness."
     )
-
     early_stopping_rounds: int | None = Field(
         default=10,
         description="Training will stop if performance doesn't improve for this many rounds. Requires validation data.",
+    )
+    use_target_scaling: bool = Field(
+        default=True,
+        description="Whether to apply standard scaling to the target variable before training. Improves convergence.",
     )
 
 
@@ -246,7 +249,7 @@ class XGBoostForecaster(Forecaster, ExplainableForecaster):
 
     _config: XGBoostForecasterConfig
     _xgboost_model: xgb.XGBRegressor
-    _target_scaler: StandardScaler
+    _target_scaler: StandardScaler | None
 
     def __init__(self, config: XGBoostForecasterConfig) -> None:
         """Initialize XGBoost forecaster with configuration.
@@ -298,7 +301,7 @@ class XGBoostForecaster(Forecaster, ExplainableForecaster):
             # Objective
             objective=objective,
         )
-        self._target_scaler = StandardScaler()
+        self._target_scaler = StandardScaler() if self._config.hyperparams.use_target_scaling else None
 
     @property
     @override
@@ -356,7 +359,8 @@ class XGBoostForecaster(Forecaster, ExplainableForecaster):
 
         # Scale the target variable
         target: np.ndarray = np.asarray(data.target_series.values)
-        target = self._target_scaler.transform(target.reshape(-1, 1)).flatten()  # pyright: ignore[reportUnknownMemberType]
+        if self._target_scaler is not None:
+            target = self._target_scaler.transform(target.reshape(-1, 1)).flatten()
         # Reshape target for multi-quantile objectives
         target = xgb_prepare_target_for_objective(
             target=target,
@@ -373,7 +377,8 @@ class XGBoostForecaster(Forecaster, ExplainableForecaster):
     def fit(self, data: ForecastInputDataset, data_val: ForecastInputDataset | None = None) -> None:
         # Fit the target scaler
         target: np.ndarray = np.asarray(data.target_series.values)
-        self._target_scaler.fit(target.reshape(-1, 1))  # pyright: ignore[reportUnknownMemberType]
+        if self._target_scaler is not None:
+            self._target_scaler.fit(target.reshape(-1, 1))
 
         # Prepare training data
         input_data, target, sample_weight = self._prepare_fit_input(data)
@@ -408,7 +413,8 @@ class XGBoostForecaster(Forecaster, ExplainableForecaster):
         predictions_array: np.ndarray = self._xgboost_model.predict(input_data)
 
         # Inverse transform the scaled predictions
-        predictions_array = self._target_scaler.inverse_transform(predictions_array)
+        if self._target_scaler is not None:
+            predictions_array = self._target_scaler.inverse_transform(predictions_array)
 
         # Construct DataFrame with appropriate quantile columns
         predictions = pd.DataFrame(
