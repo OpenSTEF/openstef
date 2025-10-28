@@ -12,6 +12,7 @@ analysis of how model performance varies across different operational conditions
 import logging
 from collections.abc import Iterator
 from datetime import timedelta
+from typing import cast
 
 import pandas as pd
 from pydantic import Field
@@ -280,7 +281,7 @@ class EvaluationPipeline:
         windowed_metrics.append(
             SubsetMetric(
                 window="global",
-                timestamp=subset.index.min().to_pydatetime(),  # type: ignore[reportUnknownMemberType]
+                timestamp=cast("pd.Series[pd.Timestamp]", subset.index).min().to_pydatetime(),
                 metrics=merge_quantile_metrics([provider(subset) for provider in self.global_metric_providers]),
             )
         )

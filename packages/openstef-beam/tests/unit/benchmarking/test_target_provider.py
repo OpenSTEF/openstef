@@ -2,12 +2,17 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-from datetime import datetime
+from datetime import datetime, timedelta
+from pathlib import Path
+from typing import override
 
+import pandas as pd
 import pytest
 from pydantic import ValidationError
 
 from openstef_beam.benchmarking.models import BenchmarkTarget
+from openstef_beam.benchmarking.target_provider import SimpleTargetProvider
+from openstef_core.datasets import VersionedTimeSeriesDataset
 
 
 @pytest.mark.parametrize(
@@ -65,3 +70,43 @@ def test_target() -> BenchmarkTarget:
         benchmark_end=datetime.fromisoformat("2023-02-15"),
         train_start=datetime.fromisoformat("2023-01-01"),
     )
+
+
+def test_get_predictors_for_target(tmp_path: Path, test_target: BenchmarkTarget):
+    """Test that predictors are correctly concatenated from multiple sources."""
+    # Arrange
+    index = pd.date_range("2023-01-01", periods=3, freq="h")
+    interval = timedelta(hours=1)
+
+    weather = VersionedTimeSeriesDataset.from_dataframe(
+        pd.DataFrame({"temp": range(3), "available_at": index}, index=index), interval
+    )
+    profiles = VersionedTimeSeriesDataset.from_dataframe(
+        pd.DataFrame({"prof": range(3), "available_at": index}, index=index), interval
+    )
+    prices = VersionedTimeSeriesDataset.from_dataframe(
+        pd.DataFrame({"price": range(3), "available_at": index}, index=index), interval
+    )
+
+    class TestProvider(SimpleTargetProvider[BenchmarkTarget, None]):
+        @override
+        def get_weather_for_target(self, target: BenchmarkTarget) -> VersionedTimeSeriesDataset:
+            return weather
+
+        @override
+        def get_profiles(self) -> VersionedTimeSeriesDataset:
+            return profiles
+
+        @override
+        def get_prices(self) -> VersionedTimeSeriesDataset:
+            return prices
+
+    provider = TestProvider(data_dir=tmp_path, use_profiles=True, use_prices=True)
+
+    # Act
+    result = provider.get_predictors_for_target(test_target)
+
+    # Assert
+    assert isinstance(result, VersionedTimeSeriesDataset)
+    assert {"temp", "prof", "price"} <= set(result.feature_names)
+    assert len(result.index) == 3
