@@ -11,8 +11,9 @@ Stateful interface.
 """
 
 from abc import abstractmethod
-from collections.abc import Sequence
-from typing import override
+from collections.abc import Callable, Sequence
+from functools import partial
+from typing import Any, override
 
 from pydantic import Field
 
@@ -128,6 +129,25 @@ class TransformPipeline[T](BaseModel, Transform[T, T]):
         default=[],
         description="Sequence of transforms to apply in sequence. If empty, the pipeline is a nop.",
     )
+
+    def __reduce__(self) -> tuple[Callable[[], "TransformPipeline[Any]"], tuple[()], Any]:
+        """Support pickling of generic TransformPipeline instances.
+
+        When TransformPipeline is parameterized (e.g., TransformPipeline[TimeSeriesDataset]),
+        Python creates a dynamic type that pickle cannot find by its module path.
+        This method provides custom pickling support by reducing to the base class
+        and reconstructing through __setstate__.
+
+        Returns:
+            Tuple of (callable, args, state) for pickle reconstruction.
+        """
+        # Use partial to create a callable that reconstructs the instance
+        # without needing a dedicated helper function
+        return (
+            partial(TransformPipeline.__new__, TransformPipeline),
+            (),
+            self.__getstate__(),
+        )
 
     @property
     @override

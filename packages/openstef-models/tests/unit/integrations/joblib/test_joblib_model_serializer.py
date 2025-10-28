@@ -28,8 +28,9 @@ def test_joblib_model_serializer__roundtrip__preserves_model_integrity():
     # Act - Serialize then deserialize
     serializer.serialize(model, buffer)
     buffer.seek(0)
-    restored_model = serializer.deserialize(SimpleSerializableModel(), buffer)
+    restored_model = serializer.deserialize(buffer)
 
     # Assert - Model state should be identical
+    assert isinstance(restored_model, SimpleSerializableModel)
     assert restored_model.target_column == model.target_column
     assert restored_model.is_fitted == model.is_fitted

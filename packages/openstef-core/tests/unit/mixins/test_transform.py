@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+import pickle  # noqa: S403 - controlled test
 from datetime import timedelta
 from typing import override
 
@@ -95,3 +96,37 @@ def test_transform_pipeline__fit_transform_functionality(
     # Assert
     assert result.data["load"].tolist() == expected_values
     assert result.sample_interval == sample_timeseries_dataset.sample_interval
+
+
+def test_transform_pipeline__pickle_roundtrip(
+    sample_timeseries_dataset: TimeSeriesDataset,
+):
+    """Test that TransformPipeline with generic types can be pickled and unpickled.
+
+    This verifies that the __reduce__ implementation correctly handles the
+    pickling of generic TransformPipeline[T] instances, which would otherwise
+    fail with: "Can't pickle <class 'openstef_core.mixins.transform.TransformPipeline[T]'>".
+    """
+    # Arrange - create a pipeline with generic type parameter and multiple transforms
+    pipeline = TransformPipeline[TimeSeriesDataset](
+        transforms=[
+            SimpleAddTransform(add_value=10.0),
+            SimpleMultiplyTransform(multiplier=2.0),
+        ]
+    )
+
+    # Fit the pipeline
+    pipeline.fit(sample_timeseries_dataset)
+
+    # Get expected result before pickling
+    expected_result = pipeline.transform(sample_timeseries_dataset)
+
+    # Act - pickle and unpickle
+    pickled = pickle.dumps(pipeline)
+    restored_pipeline = pickle.loads(pickled)  # noqa: S301 - Controlled test
+
+    # Assert - verify the restored pipeline works correctly
+    assert restored_pipeline.is_fitted
+    actual_result = restored_pipeline.transform(sample_timeseries_dataset)
+    assert actual_result.data["load"].tolist() == expected_result.data["load"].tolist()
+    assert actual_result.sample_interval == expected_result.sample_interval
