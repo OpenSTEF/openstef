@@ -3,13 +3,13 @@
 # SPDX-License-Identifier: MPL-2.0
 
 from datetime import timedelta
-from typing import Self, cast, override
+from typing import override
 
 import pandas as pd
 import pytest
 
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.mixins import State, Transform, TransformPipeline
+from openstef_core.mixins import Transform, TransformPipeline
 
 
 class SimpleAddTransform(Transform[TimeSeriesDataset, TimeSeriesDataset]):
@@ -34,14 +34,6 @@ class SimpleAddTransform(Transform[TimeSeriesDataset, TimeSeriesDataset]):
             sample_interval=data.sample_interval,
         )
 
-    @override
-    def to_state(self) -> State:
-        return self
-
-    @override
-    def from_state(self, state: State) -> Self:
-        return cast(Self, state)
-
 
 class SimpleMultiplyTransform(Transform[TimeSeriesDataset, TimeSeriesDataset]):
     """Simple transform that multiplies all time series values by a constant."""
@@ -64,14 +56,6 @@ class SimpleMultiplyTransform(Transform[TimeSeriesDataset, TimeSeriesDataset]):
             data=data.data * self.multiplier,
             sample_interval=data.sample_interval,
         )
-
-    @override
-    def to_state(self) -> State:
-        return self
-
-    @override
-    def from_state(self, state: State) -> Self:
-        return cast(Self, state)
 
 
 @pytest.fixture

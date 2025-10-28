@@ -25,6 +25,7 @@ from openstef_core.types import Q, QuantileOrGlobal
 from openstef_models.explainability import ExplainableForecaster
 from openstef_models.integrations.mlflow.mlflow_storage import MLFlowStorage
 from openstef_models.mixins.callbacks import WorkflowContext
+from openstef_models.models import ForecastingModel
 from openstef_models.models.forecasting_model import ModelFitResult
 from openstef_models.workflows.custom_forecasting_workflow import (
     CustomForecastingWorkflow,
@@ -148,7 +149,15 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
 
         # Load the model from the latest run
         run_id: str = run.info.run_id
-        context.workflow.model = self.storage.load_run_model(run_id=run_id, model=context.workflow.model)
+        old_model = self.storage.load_run_model(run_id=run_id)
+        if not isinstance(old_model, ForecastingModel):
+            self._logger.warning(
+                "Loaded model from run %s is not a ForecastingModel, cannot use for prediction",
+                cast(str, run.info.run_id),
+            )
+            return
+
+        context.workflow.model = old_model
         self._logger.info("Loaded model from MLflow run %s for model %s", run_id, context.workflow.model_id)
 
     def _run_model_selection(self, workflow: CustomForecastingWorkflow, result: ModelFitResult) -> None:
@@ -159,15 +168,21 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
             return
 
         # Backup the new model
-        new_model, new_state = workflow.model, workflow.model.to_state()
+        new_model = workflow.model
         new_metrics = result.metrics_full
 
         # Restore the old model and evaluate
-        old_model = self.storage.load_run_model(run_id=cast(str, run.info.run_id), model=workflow.model)
+        old_model = self.storage.load_run_model(run_id=cast(str, run.info.run_id))
+        if not isinstance(old_model, ForecastingModel):
+            self._logger.warning(
+                "Loaded old model from run %s is not a ForecastingModel, skipping model selection",
+                cast(str, run.info.run_id),
+            )
+            return
         old_metrics = old_model.score(result.input_dataset)
 
         if self._check_is_new_model_better(old_metrics=old_metrics, new_metrics=new_metrics):
-            workflow.model = new_model.from_state(new_state)
+            workflow.model = new_model
         else:
             workflow.model = old_model
             self._logger.info(

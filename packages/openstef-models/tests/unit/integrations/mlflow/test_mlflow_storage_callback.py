@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import time
 from datetime import timedelta
-from typing import TYPE_CHECKING, Self, cast, override
+from typing import TYPE_CHECKING, cast, override
 
 import pandas as pd
 import pytest
@@ -14,7 +14,6 @@ import pytest
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import ModelNotFoundError, SkipFitting
-from openstef_core.mixins import State
 from openstef_core.types import LeadTime, Q
 from openstef_models.integrations.mlflow import MLFlowStorage, MLFlowStorageCallback
 from openstef_models.mixins.callbacks import WorkflowContext
@@ -42,17 +41,6 @@ class SimpleTestForecaster(Forecaster):
     @override
     def is_fitted(self) -> bool:
         return self._is_fitted
-
-    @override
-    def to_state(self) -> State:
-        return cast(State, {"median": self._median_value, "fitted": self._is_fitted})
-
-    @override
-    def from_state(self, state: State) -> Self:
-        state_dict = cast(dict[str, object], state)
-        self._median_value = cast(float, state_dict.get("median", 0.0))
-        self._is_fitted = cast(bool, state_dict.get("fitted", False))
-        return self
 
     @override
     def fit(self, data: ForecastInputDataset, data_val: ForecastInputDataset | None = None) -> None:

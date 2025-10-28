@@ -9,13 +9,13 @@ by sorting predictions across quantile columns. This fixes violations that can
 occur when quantiles are predicted independently.
 """
 
-from typing import Self, override
+from typing import override
 
 import numpy as np
 import pandas as pd
 
 from openstef_core.datasets import ForecastDataset
-from openstef_core.mixins import State, Transform
+from openstef_core.mixins import Transform
 
 
 class QuantileSorter(Transform[ForecastDataset, ForecastDataset]):
@@ -73,14 +73,6 @@ class QuantileSorter(Transform[ForecastDataset, ForecastDataset]):
         )
 
         return data._copy_with_data(data=predictions)  # noqa: SLF001 - safe - invariant is preserved
-
-    @override
-    def to_state(self) -> State:
-        return None
-
-    @override
-    def from_state(self, state: State) -> Self:
-        return self
 
 
 __all__ = ["QuantileSorter"]

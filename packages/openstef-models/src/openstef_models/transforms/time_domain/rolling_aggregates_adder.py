@@ -11,7 +11,7 @@ accuracy by identifying underlying trends.
 
 import logging
 from datetime import timedelta
-from typing import Literal, Self, cast, override
+from typing import Literal, cast, override
 
 import pandas as pd
 from pydantic import Field, PrivateAttr
@@ -19,7 +19,6 @@ from pydantic import Field, PrivateAttr
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.datasets.validation import validate_required_columns
-from openstef_core.mixins import State
 from openstef_core.transforms import TimeSeriesTransform
 from openstef_core.utils import timedelta_to_isoformat
 
@@ -100,14 +99,6 @@ class RollingAggregatesAdder(BaseConfig, TimeSeriesTransform):
 
         validate_required_columns(df=data.data, required_columns=[self.feature])
         return data.pipe_pandas(self._transform_pandas)
-
-    @override
-    def to_state(self) -> State:
-        return self.model_dump(mode="json")
-
-    @override
-    def from_state(self, state: State) -> Self:
-        return self.model_validate(state)
 
     @override
     def features_added(self) -> list[str]:

@@ -9,15 +9,14 @@ Handles data transformation and validation while providing consistent component
 analysis across different splitting algorithms.
 """
 
-from typing import Any, cast, override
+from typing import override
 
 from pydantic import Field
 
 from openstef_core.base_model import BaseModel
 from openstef_core.datasets import EnergyComponentDataset, TimeSeriesDataset
-from openstef_core.datasets.mixins import Self
 from openstef_core.datasets.validation import validate_required_columns
-from openstef_core.mixins import State, TransformPipeline
+from openstef_core.mixins import TransformPipeline
 from openstef_models.models.component_splitting.component_splitter import ComponentSplitter, ComponentSplitterConfig
 
 
@@ -115,25 +114,6 @@ class ComponentSplittingModel(BaseModel, ComponentSplitter):
         prediction = self.component_splitter.predict(data=input_data)
 
         return self.postprocessing.transform(data=prediction)
-
-    @override
-    def to_state(self) -> State:
-        return {
-            "source_column": self.source_column,
-            "preprocessing": self.preprocessing.to_state(),
-            "component_splitter": self.component_splitter.to_state(),
-            "postprocessing": self.postprocessing.to_state(),
-        }
-
-    @override
-    def from_state(self, state: State) -> Self:
-        state = cast(dict[str, Any], state)
-        return self.__class__(
-            source_column=state["source_column"],
-            preprocessing=self.preprocessing.from_state(state["preprocessing"]),
-            component_splitter=self.component_splitter.from_state(state["component_splitter"]),
-            postprocessing=self.postprocessing.from_state(state["postprocessing"]),
-        )
 
 
 __all__ = ["ComponentSplittingModel"]

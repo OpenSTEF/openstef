@@ -9,14 +9,13 @@ from scikit-learn to normalize and standardize features in time series datasets
 for improved machine learning model performance.
 """
 
-from typing import Any, Literal, Self, cast, override
+from typing import Any, Literal, override
 
 from pydantic import Field, PrivateAttr
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.exceptions import MissingExtraError, NotFittedError
-from openstef_core.mixins import State
 from openstef_core.transforms import TimeSeriesTransform
 from openstef_models.utils.feature_selection import FeatureSelection
 
@@ -116,25 +115,6 @@ class Scaler(BaseConfig, TimeSeriesTransform):
             data=scaled_data,
             sample_interval=data.sample_interval,
         )
-
-    @override
-    def to_state(self) -> State:
-        return cast(
-            State,
-            {
-                "config": self.model_dump(mode="json"),
-                "scaler": self._scaler.__getstate__(),  # pyright: ignore[reportUnknownMemberType]
-                "is_fitted": self._is_fitted,
-            },
-        )
-
-    @override
-    def from_state(self, state: State) -> Self:
-        state = cast(dict[str, Any], state)
-        instance = self.model_validate(state["config"])
-        instance._scaler.__setstate__(state["scaler"])  # pyright: ignore[reportUnknownMemberType]  # noqa: SLF001
-        instance._is_fitted = state["is_fitted"]  # noqa: SLF001
-        return instance
 
     @override
     def features_added(self) -> list[str]:

@@ -5,7 +5,7 @@
 """Input consistency validation for time series transforms."""
 
 import logging
-from typing import Any, Self, cast, override
+from typing import override
 
 from pydantic import PrivateAttr
 
@@ -61,20 +61,6 @@ class InputConsistencyChecker(BaseConfig, TimeSeriesTransform):
 
         df = data.data[columns_ordered]
         return data.copy_with(data=df)
-
-    @override
-    def to_state(self) -> object:
-        return {
-            "feature_names": self._feature_names,
-            "is_fitted": self._is_fitted,
-        }
-
-    @override
-    def from_state(self, state: object) -> Self:
-        state = cast(dict[str, Any], state)
-        self._feature_names = state["feature_names"]
-        self._is_fitted = state["is_fitted"]
-        return self
 
     @override
     def features_added(self) -> list[str]:

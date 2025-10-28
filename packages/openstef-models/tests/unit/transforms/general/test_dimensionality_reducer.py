@@ -113,26 +113,3 @@ def test_dimensionality_reduction_with_custom_parameters(
     # Verify method-specific parameters are set correctly
     if method in {"factor_analysis", "fastica"}:
         assert transform.max_iter == method_params.get("max_iter", 1000)
-
-
-def test_dimensionality_reduction__state_roundtrip(sample_forecast_input_dataset: TimeSeriesDataset) -> None:
-    """Test dimensionality reduction state round trip."""
-    # Arrange
-    original_transform = DimensionalityReducer(
-        selection=FeatureSelection(include={"feature1", "feature2", "feature3"}),
-        method="pca",
-        n_components=2,
-    )
-
-    original_transform.fit(sample_forecast_input_dataset)
-
-    state = original_transform.to_state()
-
-    restored_transform = DimensionalityReducer()
-    restored_transform = restored_transform.from_state(state)
-
-    original_result = original_transform.transform(sample_forecast_input_dataset)
-    restored_result = restored_transform.transform(sample_forecast_input_dataset)
-
-    # Assert
-    pd.testing.assert_frame_equal(original_result.data, restored_result.data)

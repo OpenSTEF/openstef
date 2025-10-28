@@ -225,24 +225,3 @@ def test_no_missing_values_data_preservation():
     pd.testing.assert_frame_equal(result.data, original_data)
     # Sample interval should be preserved
     assert result.sample_interval == dataset.sample_interval
-
-
-def test_imputation_transform__state_roundtrip(sample_dataset: TimeSeriesDataset):
-    """Test imputation transform state serialization and restoration."""
-    # Arrange
-    original_transform = Imputer(
-        imputation_strategy="mean",
-        selection=FeatureSelection(include={"radiation", "temperature"}),
-    )
-    original_transform.fit(sample_dataset)
-
-    # Act
-    state = original_transform.to_state()
-    restored_transform = Imputer(imputation_strategy="mean")
-    restored_transform = restored_transform.from_state(state)
-
-    original_result = original_transform.transform(sample_dataset)
-    restored_result = restored_transform.transform(sample_dataset)
-
-    # Assert
-    pd.testing.assert_frame_equal(original_result.data, restored_result.data)

@@ -12,12 +12,12 @@ Stateful interface.
 
 from abc import abstractmethod
 from collections.abc import Sequence
-from typing import Self, cast, override
+from typing import override
 
 from pydantic import Field
 
 from openstef_core.base_model import BaseModel
-from openstef_core.mixins.stateful import State, Stateful
+from openstef_core.mixins.stateful import Stateful
 
 
 class Transform[I, O](Stateful):
@@ -52,15 +52,6 @@ class Transform[I, O](Stateful):
         ...     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
         ...         scaled_data = data.data / self.scale_factor
         ...         return TimeSeriesDataset(scaled_data, data.sample_interval)
-        ...
-        ...     def to_state(self):
-        ...         return {"scale_factor": self.scale_factor}
-        ...
-        ...     @classmethod
-        ...     def from_state(cls, state):
-        ...         instance = cls()
-        ...         instance.scale_factor = state["scale_factor"]
-        ...         return instance
     """
 
     @property
@@ -137,20 +128,6 @@ class TransformPipeline[T](BaseModel, Transform[T, T]):
         default=[],
         description="Sequence of transforms to apply in sequence. If empty, the pipeline is a nop.",
     )
-
-    @override
-    def to_state(self) -> State:
-        return [transform.to_state() for transform in self.transforms]
-
-    @override
-    def from_state(self, state: State) -> Self:
-        state = cast(Sequence[State], state)
-
-        return self.__class__(
-            transforms=[
-                transform.from_state(state=state) for transform, state in zip(self.transforms, state, strict=True)
-            ]
-        )
 
     @property
     @override

@@ -114,34 +114,3 @@ def test_clipper__transform_without_fit(test_dataset: TimeSeriesDataset):
     # Act & Assert
     with pytest.raises(NotFittedError, match=r"Clipper.*has not been fitted"):
         clipper.transform(test_dataset)
-
-
-@pytest.mark.parametrize(
-    "mode",
-    [
-        pytest.param("minmax", id="minmax"),
-        pytest.param("standard", id="standard"),
-    ],
-)
-def test_clipper__state_roundtrip(
-    train_dataset: TimeSeriesDataset,
-    test_dataset: TimeSeriesDataset,
-    mode: str,
-):
-    """Test clipper state serialization and restoration for both modes."""
-    # Arrange
-    original_transform = Clipper(selection=FeatureSelection(include={"A", "B"}), mode=mode, n_std=3.0)  # type: ignore[arg-type]
-    original_transform.fit(train_dataset)
-
-    # Act
-    state = original_transform.to_state()
-    restored_transform = Clipper(selection=FeatureSelection(include={"A", "B"}))
-    restored_transform = restored_transform.from_state(state)
-
-    original_result = original_transform.transform(test_dataset)
-    restored_result = restored_transform.transform(test_dataset)
-
-    # Assert
-    pd.testing.assert_frame_equal(original_result.data, restored_result.data)
-    assert restored_transform.mode == mode
-    assert restored_transform.n_std == 3.0  # Non-default value should be restored

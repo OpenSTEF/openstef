@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: MPL-2.0
 
 from datetime import datetime, timedelta
-from typing import Self, cast
 
 import numpy as np
 import pandas as pd
@@ -12,7 +11,7 @@ import pytest
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import NotFittedError
-from openstef_core.mixins import State, TransformPipeline
+from openstef_core.mixins import TransformPipeline
 from openstef_core.types import LeadTime, Quantile, override
 from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
 from openstef_models.models.forecasting_model import ForecastingModel
@@ -33,14 +32,6 @@ class SimpleForecaster(Forecaster):
     @override
     def is_fitted(self) -> bool:
         return self._is_fitted
-
-    @override
-    def to_state(self) -> State:
-        return cast(State, self)
-
-    @override
-    def from_state(self, state: State) -> Self:  # noqa: PLR6301
-        return cast(Self, state)
 
     @override
     def fit(self, data: ForecastInputDataset, data_val: ForecastInputDataset | None = None) -> None:
@@ -180,24 +171,3 @@ def test_forecasting_model__score__returns_metrics(sample_timeseries_dataset: Ti
     assert Quantile(0.5) in metrics.metrics
     # R2 metric should be present (default evaluation metric)
     assert "R2" in metrics.metrics[Quantile(0.5)]
-
-
-def test_forecasting_model__state_roundtrip(sample_timeseries_dataset: TimeSeriesDataset):
-    """Test that model state can be serialized and restored."""
-    # Arrange
-    horizons = [LeadTime(timedelta(hours=6))]
-    config = ForecasterConfig(quantiles=[Quantile(0.5)], horizons=horizons)
-    forecaster = SimpleForecaster(config=config)
-
-    original_model = ForecastingModel(forecaster=forecaster)
-    original_model.fit(data=sample_timeseries_dataset)
-
-    # Act - Serialize and restore
-    state = original_model.to_state()
-    restored_model = ForecastingModel(forecaster=SimpleForecaster(config=config)).from_state(state)
-
-    # Assert - Restored model is fitted and produces same predictions
-    assert restored_model.is_fitted
-    original_pred = original_model.predict(data=sample_timeseries_dataset)
-    restored_pred = restored_model.predict(data=sample_timeseries_dataset)
-    assert original_pred.data.equals(restored_pred.data)
