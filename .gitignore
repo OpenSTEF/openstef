@@ -125,3 +125,4 @@ certificates/
 
 # Benchmark outputs
 benchmark_results/
+examples/debug

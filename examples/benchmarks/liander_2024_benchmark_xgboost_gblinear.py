@@ -42,7 +42,7 @@ N_PROCESSES = 1  # Amount of parallel processes to use for the benchmark
 
 
 # Model configuration
-FORECAST_HORIZONS = [LeadTime.from_string("PT12H")]  # Forecast horizon(s)
+FORECAST_HORIZONS = [LeadTime.from_string("P3D")]  # Forecast horizon(s)
 PREDICTION_QUANTILES = [Q(0.1), Q(0.3), Q(0.5), Q(0.7), Q(0.9)]  # Quantiles for probabilistic forecasts
 LAG_FEATURES = [timedelta(days=-7)]  # Lag features to include
 
@@ -77,6 +77,7 @@ gblinear_config = common_config.model_copy(
     update={
         "model_id": "gblinear_model_",
         "model": "gblinear",
+        "sample_weight_exponent": 1.0,
     }
 )
 
@@ -120,7 +121,12 @@ def _target_forecaster_factory(
         predict_sample_interval=timedelta(minutes=15),
     )
 
-    return OpenSTEF4BacktestForecaster(config=backtest_config, workflow_factory=_create_workflow)
+    return OpenSTEF4BacktestForecaster(
+        config=backtest_config,
+        workflow_factory=_create_workflow,
+        debug=False,
+        cache_dir=OUTPUT_PATH / "cache" / f"{context.run_name}_{target.name}",
+    )
 
 
 if __name__ == "__main__":
@@ -132,6 +138,7 @@ if __name__ == "__main__":
         forecaster_factory=_target_forecaster_factory,
         run_name="gblinear",
         n_processes=N_PROCESSES,
+        filter_args=["transformer"],
     )
 
     # Run for XGBoost model
@@ -142,4 +149,5 @@ if __name__ == "__main__":
         forecaster_factory=_target_forecaster_factory,
         run_name="xgboost",
         n_processes=N_PROCESSES,
+        filter_args=["transformer"],
     )

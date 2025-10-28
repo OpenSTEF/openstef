@@ -15,17 +15,16 @@ from functools import partial
 from typing import Any, Literal, Self, cast, override
 
 import numpy as np
-import numpy.typing as npt
 import pandas as pd
 from pydantic import Field
+from sklearn.preprocessing import StandardScaler
 
-from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import MissingExtraError, ModelLoadingError, NotFittedError
 from openstef_core.mixins import HyperParams, State
 from openstef_models.explainability.mixins import ExplainableForecaster
 from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
-from openstef_models.utils.loss_functions import OBJECTIVE_MAP, ObjectiveFunctionType
+from openstef_models.utils.loss_functions import OBJECTIVE_MAP, ObjectiveFunctionType, xgb_prepare_target_for_objective
 
 try:
     import xgboost as xgb
@@ -64,7 +63,7 @@ class XGBoostHyperParams(HyperParams):
 
     # Core Tree Boosting Parameters
     n_estimators: int = Field(
-        default=100,
+        default=500,
         description="Number of boosting rounds/trees to fit. Higher values may improve performance but "
         "increase training time and risk overfitting.",
     )
@@ -91,9 +90,8 @@ class XGBoostHyperParams(HyperParams):
         "conservative. Range: [0,∞]",
     )
     objective: ObjectiveFunctionType = Field(
-        default="pinball_loss_magnitude_weighted",
-        description="Objective function for training. 'pinball_loss_magnitude_weighted' is recommended for "
-        "probabilistic forecasting.",
+        default="pinball_loss",
+        description="Objective function for training. 'pinball_loss' is recommended for probabilistic forecasting.",
     )
 
     # Regularization
@@ -157,7 +155,7 @@ class XGBoostHyperParams(HyperParams):
     )
 
     early_stopping_rounds: int | None = Field(
-        default=None,
+        default=10,
         description="Training will stop if performance doesn't improve for this many rounds. Requires validation data.",
     )
 
@@ -199,19 +197,6 @@ class XGBoostForecasterConfig(ForecasterConfig):
 
 
 MODEL_CODE_VERSION = 1
-
-
-class XGBoostForecasterState(BaseConfig):
-    """Serializable state for XGBoost forecaster persistence.
-
-    Contains all information needed to restore a trained XGBoost model,
-    including configuration and the serialized model weights. Used for
-    model saving, loading, and version management in production systems.
-    """
-
-    version: int = Field(default=MODEL_CODE_VERSION, description="Version of the model code.")
-    config: XGBoostForecasterConfig = Field(..., description="Forecaster configuration.")
-    model: str = Field(..., description="Base64-encoded serialized XGBoost model.")
 
 
 class XGBoostForecaster(Forecaster, ExplainableForecaster):
@@ -261,6 +246,7 @@ class XGBoostForecaster(Forecaster, ExplainableForecaster):
 
     _config: XGBoostForecasterConfig
     _xgboost_model: xgb.XGBRegressor
+    _target_scaler: StandardScaler
 
     def __init__(self, config: XGBoostForecasterConfig) -> None:
         """Initialize XGBoost forecaster with configuration.
@@ -312,6 +298,7 @@ class XGBoostForecaster(Forecaster, ExplainableForecaster):
             # Objective
             objective=objective,
         )
+        self._target_scaler = StandardScaler()
 
     @property
     @override
@@ -327,11 +314,12 @@ class XGBoostForecaster(Forecaster, ExplainableForecaster):
     def to_state(self) -> State:
         model_raw = self._xgboost_model.get_booster().save_raw()
 
-        return XGBoostForecasterState(
-            config=self._config,
-            version=MODEL_CODE_VERSION,
-            model=base64.b64encode(model_raw).decode("utf-8"),
-        ).model_dump(mode="json")
+        return {
+            "config": self._config,
+            "version": MODEL_CODE_VERSION,
+            "model": base64.b64encode(model_raw).decode("utf-8"),
+            "scaler": self._target_scaler,
+        }
 
     @override
     def from_state(self, state: State) -> Self:
@@ -343,9 +331,8 @@ class XGBoostForecaster(Forecaster, ExplainableForecaster):
             msg = f"Unsupported model version: {state['version']}"
             raise ModelLoadingError(msg)
 
-        state_parsed: XGBoostForecasterState = XGBoostForecasterState.model_validate(state)
-        instance = self.__class__(config=state_parsed.config)
-        model_raw = bytearray(base64.b64decode(state_parsed.model))
+        instance = self.__class__(config=state["config"])
+        model_raw = bytearray(base64.b64decode(state["model"]))
         instance._xgboost_model.load_model(model_raw)  # pyright: ignore[reportUnknownMemberType]  # noqa: SLF001
 
         booster = instance._xgboost_model.get_booster()  # noqa: SLF001
@@ -354,6 +341,9 @@ class XGBoostForecaster(Forecaster, ExplainableForecaster):
         if loaded_booster_type != "gbtree":
             msg = f"Invalid booster type in state: expected 'gbtree', got '{loaded_booster_type}'"
             raise ModelLoadingError(msg)
+
+        instance._target_scaler = state["scaler"]  # noqa: SLF001
+
         return instance
 
     @property
@@ -361,35 +351,48 @@ class XGBoostForecaster(Forecaster, ExplainableForecaster):
     def is_fitted(self) -> bool:
         return self._xgboost_model.__sklearn_is_fitted__()
 
+    def _prepare_fit_input(self, data: ForecastInputDataset) -> tuple[pd.DataFrame, np.ndarray, pd.Series]:
+        input_data: pd.DataFrame = data.input_data()
+
+        # Scale the target variable
+        target: np.ndarray = np.asarray(data.target_series.values)
+        target = self._target_scaler.transform(target.reshape(-1, 1)).flatten()  # pyright: ignore[reportUnknownMemberType]
+        # Reshape target for multi-quantile objectives
+        target = xgb_prepare_target_for_objective(
+            target=target,
+            quantiles=self.config.quantiles,
+            objective=self._config.hyperparams.objective,
+        )
+
+        # Prepare sample weights
+        sample_weight: pd.Series = data.sample_weight_series
+
+        return input_data, target, sample_weight
+
     @override
     def fit(self, data: ForecastInputDataset, data_val: ForecastInputDataset | None = None) -> None:
-        input_data: pd.DataFrame = data.input_data()
-        target: npt.NDArray[np.floating] = data.target_series.to_numpy()  # type: ignore
-        # Multi output setting requires a target per output (quantile)
-        target_per_quantile: npt.NDArray[np.floating] = np.repeat(
-            target[:, np.newaxis], repeats=len(self.config.quantiles), axis=1
-        )
-        sample_weight = data.sample_weight_series
+        # Fit the target scaler
+        target: np.ndarray = np.asarray(data.target_series.values)
+        self._target_scaler.fit(target.reshape(-1, 1))  # pyright: ignore[reportUnknownMemberType]
 
-        # Prepare validation data if provided
-        eval_set = None
-        eval_set_sample_weight = None
+        # Prepare training data
+        input_data, target, sample_weight = self._prepare_fit_input(data)
+
+        # Evaluation sets
+        eval_set = [(input_data, target)]
+        sample_weight_eval_set = [sample_weight]
+
         if data_val is not None:
-            val_input_data: pd.DataFrame = data_val.input_data()
-            val_target: npt.NDArray[np.floating] = data_val.target_series.to_numpy()  # type: ignore
-            val_target_per_quantile: npt.NDArray[np.floating] = np.repeat(
-                val_target[:, np.newaxis], repeats=len(self.config.quantiles), axis=1
-            )
-            val_sample_weight = data_val.sample_weight_series
-            eval_set = [(val_input_data, val_target_per_quantile)]
-            eval_set_sample_weight = [val_sample_weight]
+            input_data_val, target_val, sample_weight_val = self._prepare_fit_input(data_val)
+            eval_set.append((input_data_val, target_val))
+            sample_weight_eval_set.append(sample_weight_val)
 
         self._xgboost_model.fit(
             X=input_data,
-            y=target_per_quantile,
+            y=target,
             sample_weight=sample_weight,
             eval_set=eval_set,
-            sample_weight_eval_set=eval_set_sample_weight,
+            sample_weight_eval_set=sample_weight_eval_set,
             verbose=self._config.verbosity,
         )
 
@@ -398,8 +401,16 @@ class XGBoostForecaster(Forecaster, ExplainableForecaster):
         if not self.is_fitted:
             raise NotFittedError(self.__class__.__name__)
 
+        # Get input features for prediction
         input_data: pd.DataFrame = data.input_data(start=data.forecast_start)
-        predictions_array = self._xgboost_model.predict(input_data)
+
+        # Generate predictions
+        predictions_array: np.ndarray = self._xgboost_model.predict(input_data)
+
+        # Inverse transform the scaled predictions
+        predictions_array = self._target_scaler.inverse_transform(predictions_array)
+
+        # Construct DataFrame with appropriate quantile columns
         predictions = pd.DataFrame(
             data=predictions_array,
             index=input_data.index,

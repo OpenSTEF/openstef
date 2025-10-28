@@ -286,10 +286,7 @@ class TimeSeriesDataset(TimeSeriesMixin, DatasetMixin):  # noqa: PLR0904 - impor
         Returns:
             New dataset containing only rows with timestamps in the mask.
         """
-        if self._version_column is not None:
-            data_filtered = self.data.loc[self.index.isin(mask)]  # pyright: ignore[reportUnknownMemberType]
-        else:
-            data_filtered = self.data.loc[mask]
+        data_filtered = self.data.loc[self.index.isin(mask)]  # pyright: ignore[reportUnknownMemberType]
 
         return self._copy_with_data(data=data_filtered)
 
@@ -323,7 +320,14 @@ class TimeSeriesDataset(TimeSeriesMixin, DatasetMixin):  # noqa: PLR0904 - impor
         return self.data
 
     @classmethod
-    def from_pandas(cls, df: pd.DataFrame) -> Self:
+    def from_pandas(
+        cls,
+        df: pd.DataFrame,
+        *,
+        sample_interval: timedelta | None = None,
+        available_at_column: str = "available_at",
+        horizon_column: str = "horizon",
+    ) -> Self:
         """Create a dataset instance from a pandas DataFrame with metadata in attrs.
 
         Reads sample_interval, available_at_column, and horizon_column from the
@@ -331,18 +335,24 @@ class TimeSeriesDataset(TimeSeriesMixin, DatasetMixin):  # noqa: PLR0904 - impor
 
         Args:
             df: DataFrame containing dataset data with metadata in attrs.
+            sample_interval: Fixed interval between consecutive data points. If None, reads from attrs.
+            available_at_column: Name of the column storing availability times.
+            horizon_column: Name of the column storing forecast horizons.
 
         Returns:
             New TimeSeriesDataset instance reconstructed from the DataFrame.
         """
-        if "sample_interval" not in df.attrs:
-            _logger.warning(
-                "Parquet file does not contain 'sample_interval' attribute. Using default value of 15 minutes."
-            )
+        if sample_interval is None:
+            if "sample_interval" not in df.attrs:
+                _logger.warning(
+                    "Parquet file does not contain 'sample_interval' attribute. Using default value of 15 minutes."
+                )
+                sample_interval = timedelta(minutes=15)
+            else:
+                sample_interval = timedelta_from_isoformat(df.attrs.get("sample_interval", "PT15M"))
 
-        sample_interval = timedelta_from_isoformat(df.attrs.get("sample_interval", "PT15M"))
-        available_at_column = df.attrs.get("available_at_column", "available_at")
-        horizon_column = df.attrs.get("horizon_column", "horizon")
+        available_at_column = df.attrs.get("available_at_column", available_at_column)
+        horizon_column = df.attrs.get("horizon_column", horizon_column)
 
         return cls(
             data=df,
@@ -357,9 +367,29 @@ class TimeSeriesDataset(TimeSeriesMixin, DatasetMixin):  # noqa: PLR0904 - impor
 
     @override
     @classmethod
-    def read_parquet(cls, path: FilePath) -> Self:
-        df = pd.read_parquet(path=path)  # type: ignore
-        return cls.from_pandas(df)
+    def read_parquet(
+        cls,
+        path: FilePath,
+        *,
+        sample_interval: timedelta | None = None,
+        timestamp_column: str = "timestamp",
+        available_at_column: str = "available_at",
+        horizon_column: str = "horizon",
+    ) -> Self:
+        df = pd.read_parquet(path=path)  # pyright: ignore[reportUnknownMemberType]
+        if not isinstance(df.index, pd.DatetimeIndex):
+            if timestamp_column not in df.columns:
+                raise TimeSeriesValidationError(
+                    "Parquet file does not have a DatetimeIndex. Please provide 'timestamp_column' to read the dataset."
+                )
+            df = df.set_index(timestamp_column)
+
+        return cls.from_pandas(
+            df=df,
+            sample_interval=sample_interval or None,
+            available_at_column=available_at_column,
+            horizon_column=horizon_column,
+        )
 
     def pipe_pandas[**P](
         self, func: Callable[Concatenate[pd.DataFrame, P], pd.DataFrame], *args: P.args, **kwargs: P.kwargs

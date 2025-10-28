@@ -32,7 +32,7 @@ from openstef_models.models.forecasting.flatliner_forecaster import FlatlinerFor
 from openstef_models.models.forecasting.gblinear_forecaster import GBLinearForecaster
 from openstef_models.models.forecasting.xgboost_forecaster import XGBoostForecaster
 from openstef_models.transforms.energy_domain import WindPowerFeatureAdder
-from openstef_models.transforms.general import Clipper, EmptyFeatureRemover, Imputer, SampleWeighter
+from openstef_models.transforms.general import Clipper, EmptyFeatureRemover, Imputer, SampleWeighter, Scaler
 from openstef_models.transforms.postprocessing import ConfidenceIntervalApplicator, QuantileSorter
 from openstef_models.transforms.time_domain import (
     CyclicFeaturesAdder,
@@ -47,7 +47,7 @@ from openstef_models.transforms.weather_domain import DaylightFeatureAdder, Radi
 from openstef_models.transforms.weather_domain.atmosphere_derived_features_adder import AtmosphereDerivedFeaturesAdder
 from openstef_models.utils.data_split import DataSplitter
 from openstef_models.utils.feature_selection import Exclude, FeatureSelection, Include
-from openstef_models.workflows.custom_forecasting_workflow import CustomForecastingWorkflow
+from openstef_models.workflows.custom_forecasting_workflow import CustomForecastingWorkflow, ForecastingCallback
 
 
 class LocationConfig(BaseConfig):
@@ -172,7 +172,7 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
     )
 
     # Callbacks
-    mlflow_storage: MLFlowStorage = Field(
+    mlflow_storage: MLFlowStorage | None = Field(
         default_factory=MLFlowStorage, description="Configuration for MLflow experiment tracking and model storage."
     )
 
@@ -224,6 +224,7 @@ def create_forecasting_workflow(config: ForecastingWorkflowConfig) -> CustomFore
             error_on_flatliner=True,
         ),
         CompletenessChecker(completeness_threshold=config.completeness_threshold),
+        EmptyFeatureRemover(),
     ]
     feature_adders = [
         LagsAdder(
@@ -255,7 +256,7 @@ def create_forecasting_workflow(config: ForecastingWorkflowConfig) -> CustomFore
     ]
     feature_standardizers = [
         Clipper(selection=Include(config.energy_price_column).combine(config.clip_features), mode="standard"),
-        EmptyFeatureRemover(),
+        Scaler(selection=Exclude(config.target_column), method="standard"),
         SampleWeighter(
             target_column=config.target_column,
             weight_exponent=config.sample_weight_exponent,
@@ -316,20 +317,9 @@ def create_forecasting_workflow(config: ForecastingWorkflowConfig) -> CustomFore
         **config.tags,
     }
 
-    return CustomForecastingWorkflow(
-        model=ForecastingModel(
-            preprocessing=TransformPipeline(transforms=preprocessing),
-            forecaster=forecaster,
-            postprocessing=TransformPipeline(transforms=postprocessing),
-            target_column=config.target_column,
-            data_splitter=config.data_splitter,
-            # Evaluation
-            evaluation_metrics=config.evaluation_metrics,
-            # Other
-            tags=tags,
-        ),
-        model_id=config.model_id,
-        callbacks=[
+    callbacks: list[ForecastingCallback] = []
+    if config.mlflow_storage is not None:
+        callbacks.append(
             MLFlowStorageCallback(
                 storage=config.mlflow_storage,
                 model_reuse_enable=config.model_reuse_enable,
@@ -338,5 +328,21 @@ def create_forecasting_workflow(config: ForecastingWorkflowConfig) -> CustomFore
                 model_selection_metric=config.model_selection_metric,
                 model_selection_old_model_penalty=config.model_selection_old_model_penalty,
             )
-        ],
+        )
+
+    return CustomForecastingWorkflow(
+        model=ForecastingModel(
+            preprocessing=TransformPipeline(transforms=preprocessing),
+            forecaster=forecaster,
+            postprocessing=TransformPipeline(transforms=postprocessing),
+            target_column=config.target_column,
+            data_splitter=config.data_splitter,
+            cutoff_history=config.predict_history,
+            # Evaluation
+            evaluation_metrics=config.evaluation_metrics,
+            # Other
+            tags=tags,
+        ),
+        model_id=config.model_id,
+        callbacks=callbacks,
     )

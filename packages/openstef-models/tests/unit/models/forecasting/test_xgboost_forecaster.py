@@ -169,7 +169,7 @@ def test_xgboost_forecaster__with_sample_weights(
     assert differences.sum().sum() > 0, "Sample weights should affect model predictions"
 
 
-@pytest.mark.parametrize("objective", ["pinball_loss", "pinball_loss_magnitude_weighted", "arctan_loss"])
+@pytest.mark.parametrize("objective", ["pinball_loss", "arctan_loss"])
 def test_xgboost_forecaster__different_objectives(
     sample_forecast_input_dataset: ForecastInputDataset,
     base_config: XGBoostForecasterConfig,

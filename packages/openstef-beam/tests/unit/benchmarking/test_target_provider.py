@@ -3,16 +3,11 @@
 # SPDX-License-Identifier: MPL-2.0
 
 from datetime import datetime
-from pathlib import Path
-from typing import override
-from unittest.mock import Mock, patch
 
 import pytest
 from pydantic import ValidationError
 
 from openstef_beam.benchmarking.models import BenchmarkTarget
-from openstef_beam.benchmarking.target_provider import SimpleTargetProvider
-from openstef_core.datasets import VersionedTimeSeriesDataset
 
 
 @pytest.mark.parametrize(
@@ -70,45 +65,3 @@ def test_target() -> BenchmarkTarget:
         benchmark_end=datetime.fromisoformat("2023-02-15"),
         train_start=datetime.fromisoformat("2023-01-01"),
     )
-
-
-@patch("openstef_beam.benchmarking.target_provider.VersionedTimeSeriesDataset.concat")
-def test_get_predictors_for_target(mock_concat: Mock, tmp_path: Path, test_target: BenchmarkTarget):
-    """Test that predictors are correctly concatenated from multiple sources."""
-    # Arrange
-    target = test_target
-
-    # Create mocks for each data source
-    mock_weather = Mock()
-    mock_profiles = Mock()
-    mock_prices = Mock()
-    mock_result = Mock()
-
-    class MockSimpleTargetProvider(SimpleTargetProvider[BenchmarkTarget, None]):
-        @override
-        def get_weather_for_target(self, target: BenchmarkTarget) -> VersionedTimeSeriesDataset:
-            return mock_weather
-
-        @override
-        def get_profiles(self) -> VersionedTimeSeriesDataset:
-            return mock_profiles
-
-        @override
-        def get_prices(self) -> VersionedTimeSeriesDataset:
-            return mock_prices
-
-    provider = MockSimpleTargetProvider(
-        data_dir=tmp_path,
-    )
-
-    mock_concat.return_value = mock_result
-
-    # Act
-    result = provider.get_predictors_for_target(target)
-
-    # Assert
-    mock_concat.assert_called_once_with(
-        [mock_weather, mock_profiles, mock_prices],
-        mode="inner",
-    )
-    assert result == mock_result

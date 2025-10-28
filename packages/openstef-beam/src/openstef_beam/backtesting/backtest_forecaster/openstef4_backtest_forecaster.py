@@ -5,10 +5,14 @@
 """OpenSTEF 4.0 forecaster for backtesting pipelines."""
 
 from collections.abc import Callable
-from typing import override
+from pathlib import Path
+from typing import Any, override
+
+from pydantic import Field, PrivateAttr
 
 from openstef_beam.backtesting.backtest_forecaster.mixins import BacktestForecasterConfig, BacktestForecasterMixin
 from openstef_beam.backtesting.restricted_horizon_timeseries import RestrictedHorizonVersionedTimeSeries
+from openstef_core.base_model import BaseModel
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.exceptions import NotFittedError
 from openstef_core.types import Q
@@ -16,23 +20,32 @@ from openstef_models.models.forecasting_model import restore_target
 from openstef_models.workflows.custom_forecasting_workflow import CustomForecastingWorkflow
 
 
-class OpenSTEF4BacktestForecaster(BacktestForecasterMixin):
+class OpenSTEF4BacktestForecaster(BaseModel, BacktestForecasterMixin):
     """Forecaster that allows using a ForecastingWorkflow to be used in backtesting, specifically for OpenSTEF4 models.
 
     A new workflow is created each time fit() is called using the provided workflow_factory,
     ensuring fresh model instances for each training cycle during benchmarking.
     """
 
-    def __init__(self, config: BacktestForecasterConfig, workflow_factory: Callable[[], CustomForecastingWorkflow]):
-        """Initialize the forecaster.
+    config: BacktestForecasterConfig = Field(
+        description="Configuration for the backtest forecaster interface",
+    )
+    workflow_factory: Callable[[], CustomForecastingWorkflow] = Field(
+        description="Factory function that creates a new CustomForecastingWorkflow instance",
+    )
+    cache_dir: Path = Field(
+        description="Directory to use for caching model artifacts during backtesting",
+    )
+    debug: bool = Field(
+        default=False,
+        description="When True, saves intermediate input data for debugging",
+    )
 
-        Args:
-            config: Configuration for the backtest forecaster interface
-            workflow_factory: Factory function that creates a new CustomForecastingWorkflow instance
-        """
-        self.config = config
-        self.workflow_factory = workflow_factory
-        self._workflow: CustomForecastingWorkflow | None = None
+    _workflow: CustomForecastingWorkflow | None = PrivateAttr(default=None)
+
+    @override
+    def model_post_init(self, context: Any) -> None:
+        self.cache_dir.mkdir(parents=True, exist_ok=True)
 
     @property
     @override
@@ -64,8 +77,18 @@ class OpenSTEF4BacktestForecaster(BacktestForecasterMixin):
             target_column=self._workflow.model.target_column,
         )
 
+        if self.debug:
+            id_str = data.horizon.strftime("%Y%m%d%H%M%S")
+            training_data.to_parquet(path=self.cache_dir / f"debug_{id_str}_training.parquet")
+
         # Use the workflow's fit method
         self._workflow.fit(data=training_data)
+
+        if self.debug:
+            id_str = data.horizon.strftime("%Y%m%d%H%M%S")
+            self._workflow.model.prepare_input(training_data).to_parquet(  # pyright: ignore[reportPrivateUsage]
+                path=self.cache_dir / f"debug_{id_str}_prepared_training.parquet"
+            )
 
     @override
     def predict(self, data: RestrictedHorizonVersionedTimeSeries) -> TimeSeriesDataset | None:
@@ -92,10 +115,17 @@ class OpenSTEF4BacktestForecaster(BacktestForecasterMixin):
             target_column=self._workflow.model.target_column,
         )
 
-        return self._workflow.predict(
+        forecast = self._workflow.predict(
             data=predict_data,
             forecast_start=data.horizon,  # Where historical data ends and forecasting begins
         )
+
+        if self.debug:
+            id_str = data.horizon.strftime("%Y%m%d%H%M%S")
+            predict_data.to_parquet(path=self.cache_dir / f"debug_{id_str}_predict.parquet")
+            forecast.to_parquet(path=self.cache_dir / f"debug_{id_str}_forecast.parquet")
+
+        return forecast
 
 
 __all__ = ["OpenSTEF4BacktestForecaster"]

@@ -173,19 +173,42 @@ class VersionedTimeSeriesDataset(TimeSeriesMixin, DatasetMixin):
 
     @override
     @classmethod
-    def read_parquet(cls, path: FilePath) -> Self:
+    def read_parquet(
+        cls,
+        path: FilePath,
+        *,
+        sample_interval: timedelta | None = None,
+        timestamp_column: str = "timestamp",
+        available_at_column: str = "available_at",
+        horizon_column: str = "horizon",
+    ) -> Self:
         df = pd.read_parquet(path=path)  # type: ignore
-        parts_metadata = json.loads(df.attrs.get("parts", "{}")).get("parts", [])
-        if len(parts_metadata) == 0:
-            raise TimeSeriesValidationError("No data parts found in the parquet file.")
+        if "parts" in df.attrs:
+            parts_metadata = json.loads(df.attrs.get("parts", "{}")).get("parts", [])
+            if len(parts_metadata) == 0:
+                raise TimeSeriesValidationError("No data parts found in the parquet file.")
 
-        parts: list[TimeSeriesDataset] = [
-            TimeSeriesDataset(
-                data=df.loc[df.part_id == i, part_info["columns"]],
-                sample_interval=timedelta_from_isoformat(part_info.get("sample_interval", "PT1H")),
+            parts: list[TimeSeriesDataset] = [
+                TimeSeriesDataset(
+                    data=df.loc[df.part_id == i, part_info["columns"]],
+                    sample_interval=timedelta_from_isoformat(part_info.get("sample_interval", "PT1H")),
+                )
+                for i, part_info in enumerate(parts_metadata)
+            ]
+        else:
+            part = TimeSeriesDataset.read_parquet(
+                path=path,
+                sample_interval=sample_interval,
+                timestamp_column=timestamp_column,
+                available_at_column=available_at_column,
+                horizon_column=horizon_column,
             )
-            for i, part_info in enumerate(parts_metadata)
-        ]
+            if not part.is_versioned and not part._version_column != part.available_at_column:  # noqa: SLF001
+                raise TimeSeriesValidationError(
+                    "Parquet file does not contain versioned data. Use TimeSeriesDataset.read_parquet() instead."
+                )
+            parts = [part]
+
         return cls(data_parts=parts)
 
     @classmethod
