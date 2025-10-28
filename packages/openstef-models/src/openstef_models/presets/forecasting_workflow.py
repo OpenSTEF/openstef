@@ -150,9 +150,10 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
         description="Feature selection for which features to clip.",
     )
     sample_weight_exponent: float = Field(
-        default=0.0,
-        description="Exponent applied to to scale the sample weights. "
-        "0=uniform weights, 1=linear scaling, >1=stronger emphasis on high values.",
+        default_factory=lambda data: 1.0 if data.get("model") == "gblinear" else 0.0,
+        description="Exponent applied to scale the sample weights. "
+        "0=uniform weights, 1=linear scaling, >1=stronger emphasis on high values. "
+        "Note: Defaults to 1.0 for gblinear congestion models.",
     )
     sample_weight_floor: float = Field(
         default=0.1,

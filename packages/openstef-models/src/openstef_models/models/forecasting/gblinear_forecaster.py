@@ -43,7 +43,7 @@ class GBLinearHyperParams(HyperParams):
     # Learning Parameters
     n_steps: int = Field(
         default=500,
-        description="Nomber for steps (boosting rounds) to train the GBLinear model.",
+        description="Number for steps (boosting rounds) to train the GBLinear model.",
     )
     updater: str = Field(
         default="shotgun",

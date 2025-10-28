@@ -19,7 +19,7 @@ from pydantic_extra_types.country import CountryAlpha2
 
 from openstef_beam.backtesting.backtest_forecaster import BacktestForecasterConfig, OpenSTEF4BacktestForecaster
 from openstef_beam.benchmarking.benchmark_pipeline import BenchmarkContext
-from openstef_beam.benchmarking.benchmarks.liander2024 import create_liander2024_benchmark_runner
+from openstef_beam.benchmarking.benchmarks.liander2024 import Liander2024Category, create_liander2024_benchmark_runner
 from openstef_beam.benchmarking.callbacks.strict_execution_callback import StrictExecutionCallback
 from openstef_beam.benchmarking.models.benchmark_target import BenchmarkTarget
 from openstef_beam.benchmarking.storage.local_storage import LocalBenchmarkStorage
@@ -46,6 +46,8 @@ FORECAST_HORIZONS = [LeadTime.from_string("P3D")]  # Forecast horizon(s)
 PREDICTION_QUANTILES = [Q(0.1), Q(0.3), Q(0.5), Q(0.7), Q(0.9)]  # Quantiles for probabilistic forecasts
 LAG_FEATURES = [timedelta(days=-7)]  # Lag features to include
 
+BENCHMARK_FILTER: list[Liander2024Category] | None = None
+
 storage = MLFlowStorage(
     tracking_uri=str(OUTPUT_PATH / "mlflow_artifacts"),
     local_artifacts_path=OUTPUT_PATH / "mlflow_tracking_artifacts",
@@ -66,20 +68,9 @@ common_config = ForecastingWorkflowConfig(
     relative_humidity_column="relative_humidity_2m",
 )
 
-xgboost_config = common_config.model_copy(
-    update={
-        "model_id": "xgboost_model_",
-        "model": "xgboost",
-    }
-)
+xgboost_config = common_config.model_copy(update={"model": "xgboost"})
 
-gblinear_config = common_config.model_copy(
-    update={
-        "model_id": "gblinear_model_",
-        "model": "gblinear",
-        "sample_weight_exponent": 1.0,
-    }
-)
+gblinear_config = common_config.model_copy(update={"model": "gblinear"})
 
 
 def _target_forecaster_factory(
@@ -138,7 +129,7 @@ if __name__ == "__main__":
         forecaster_factory=_target_forecaster_factory,
         run_name="gblinear",
         n_processes=N_PROCESSES,
-        filter_args=["transformer"],
+        filter_args=BENCHMARK_FILTER,
     )
 
     # Run for XGBoost model
@@ -149,5 +140,5 @@ if __name__ == "__main__":
         forecaster_factory=_target_forecaster_factory,
         run_name="xgboost",
         n_processes=N_PROCESSES,
-        filter_args=["transformer"],
+        filter_args=BENCHMARK_FILTER,
     )
