@@ -92,7 +92,7 @@ model = ForecastingModel(
             horizons=[LeadTime.from_string("PT36H")],
             quantiles=[Q(0.5), Q(0.1), Q(0.9)],
             hyperparams=GBLinearHyperParams(
-                n_estimators=1000,
+                n_steps=1000,
                 learning_rate=0.3,
             ),
             verbosity=True,

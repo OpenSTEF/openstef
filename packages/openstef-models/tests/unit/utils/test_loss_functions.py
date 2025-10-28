@@ -8,7 +8,6 @@ import pytest
 from openstef_core.types import Quantile
 from openstef_models.utils.loss_functions import (
     arctan_loss_multi_objective,
-    pinball_loss_magnitude_weighted_multi_objective,
     pinball_loss_multi_objective,
 )
 
@@ -32,11 +31,19 @@ def sample_weights() -> np.ndarray:
 @pytest.mark.parametrize(
     ("y_pred", "sample_weight", "expected_gradient"),
     [
-        (np.ones(2) * 1.5, None, np.array([[0.45, 0.05]])),  # overprediction, no weights
-        (np.zeros(2), None, np.array([[-0.05, -0.45]])),  # underprediction, no weights
-        (np.ones(2) * 1.5, np.array([2.0]), np.array([[0.9, 0.1]])),  # overprediction, with weights
-        (np.zeros(2), np.array([2.0]), np.array([[-0.1, -0.9]])),  # underprediction, with weights
-        (np.ones(2), None, np.array([[0.45, 0.05]])),  # zero error case
+        (np.ones(2) * 1.5, None, np.array([[0.225, 0.025]])),  # overprediction, no weights (error=0.5)
+        (np.zeros(2), None, np.array([[-0.05, -0.45]])),  # underprediction, no weights (error=-1.0)
+        (
+            np.ones(2) * 1.5,
+            np.array([2.0]),
+            np.array([[0.45, 0.05]]),
+        ),  # overprediction, with weights (error=0.5, weight=2)
+        (
+            np.zeros(2),
+            np.array([2.0]),
+            np.array([[-0.1, -0.9]]),
+        ),  # underprediction, with weights (error=-1.0, weight=2)
+        (np.ones(2), None, np.array([[0.0, 0.0]])),  # zero error case
     ],
 )
 def test_pinball_loss_multi_objective__returns_expected_values_with_weights(
@@ -69,17 +76,15 @@ def test_pinball_loss_multi_objective__returns_expected_values_with_weights(
         ([Quantile(0.1), Quantile(0.9)], np.ones(2), None, np.array([[0.0, 0.0]])),
     ],
 )
-def test_pinball_loss_magnitude_weighted_multi_objective__returns_expected_values_with_weights(
+def test_pinball_loss_multi_objective__different_quantiles_and_weights(
     quantiles: list[Quantile], y_pred: np.ndarray, sample_weight: np.ndarray | None, expected_gradient: np.ndarray
 ) -> None:
-    """Test magnitude-weighted pinball loss with different quantiles, predictions, and weights."""
+    """Test pinball loss with different quantiles, predictions, and weights."""
     # Arrange
     y_true = np.ones(len(quantiles))
 
     # Act
-    gradient, hessian = pinball_loss_magnitude_weighted_multi_objective(
-        y_true, y_pred, quantiles, sample_weight=sample_weight
-    )
+    gradient, hessian = pinball_loss_multi_objective(y_true, y_pred, quantiles, sample_weight=sample_weight)
 
     # Assert
     np.testing.assert_array_almost_equal(gradient, expected_gradient)
@@ -93,7 +98,7 @@ def test_pinball_loss_magnitude_weighted_multi_objective__returns_expected_value
         (np.array([2.0, 2.0]), None, np.array([[False, False]])),  # overprediction, no weights
         (np.array([0.0, 0.0]), np.array([2.0]), np.array([[True, True]])),  # underprediction, with weights
         (np.array([2.0, 2.0]), np.array([2.0]), np.array([[False, False]])),  # overprediction, with weights
-        (np.array([1.0, 1.0]), None, np.array([[False, True]])),  # zero error case (arctan: [0.2, -0.2])
+        (np.array([1.0, 1.0]), None, np.array([[None, None]])),  # zero error case (gradient ~0)
     ],
 )
 def test_arctan_loss_multi_objective__returns_expected_values_with_weights(
@@ -112,7 +117,10 @@ def test_arctan_loss_multi_objective__returns_expected_values_with_weights(
     expected_flat = expected_gradient_negative.flatten()
 
     for i, expected_neg in enumerate(expected_flat):
-        if expected_neg:
+        if expected_neg is None:
+            # Zero error case - gradient should be very close to zero
+            assert np.abs(gradient_flat[i]) < 1e-10
+        elif expected_neg:
             assert gradient_flat[i] < 0
         else:
             assert gradient_flat[i] > 0
@@ -131,12 +139,11 @@ def test_arctan_loss_multi_objective__smoothing_parameter_affects_hessian(s: flo
     _, hessian = arctan_loss_multi_objective(y_true, y_pred, quantiles, s=s)
 
     # Assert
-    # Hessians should be positive
+    # Hessians should be positive and constant (for numerical stability)
     assert np.all(hessian > 0)
-    # For smaller s, hessian should be smaller
-    if s == 0.01:
-        _, hessian_large = arctan_loss_multi_objective(y_true, y_pred, quantiles, s=1.0)
-        assert np.all(hessian < hessian_large)
+    # Hessian should be constant regardless of s parameter
+    _, hessian_large = arctan_loss_multi_objective(y_true, y_pred, quantiles, s=1.0)
+    np.testing.assert_array_almost_equal(hessian, hessian_large)
 
 
 def test_loss_functions__raise_error_on_mismatched_lengths() -> None:
@@ -151,28 +158,24 @@ def test_loss_functions__raise_error_on_mismatched_lengths() -> None:
         pinball_loss_multi_objective(y_true, y_pred, quantiles)
 
     with pytest.raises(ValueError):  # noqa: PT011
-        pinball_loss_magnitude_weighted_multi_objective(y_true, y_pred, quantiles)
-
-    with pytest.raises(ValueError):  # noqa: PT011
         arctan_loss_multi_objective(y_true, y_pred, quantiles)
 
 
-def test_pinball_loss_magnitude_weighted_multi_objective__quantile_properties() -> None:
-    """Test that magnitude-weighted pinball loss respects quantile properties."""
+def test_pinball_loss_multi_objective__larger_errors_produce_larger_gradients() -> None:
+    """Test that pinball loss produces larger gradients for larger errors (magnitude-aware property)."""
     # Arrange
+    quantiles = [Quantile(0.5), Quantile(0.5)]
     y_true = np.array([1.0, 1.0])
-    y_pred = np.array([2.0, 2.0])  # overprediction
-    quantiles_low = [Quantile(0.1), Quantile(0.1)]
-    quantiles_high = [Quantile(0.9), Quantile(0.9)]
+    y_pred_small_error = np.array([1.5, 1.5])  # error = 0.5
+    y_pred_large_error = np.array([2.0, 2.0])  # error = 1.0
 
     # Act
-    grad_low, _ = pinball_loss_magnitude_weighted_multi_objective(y_true, y_pred, quantiles_low)
-    grad_high, _ = pinball_loss_magnitude_weighted_multi_objective(y_true, y_pred, quantiles_high)
+    grad_small, _ = pinball_loss_multi_objective(y_true, y_pred_small_error, quantiles)
+    grad_large, _ = pinball_loss_multi_objective(y_true, y_pred_large_error, quantiles)
 
     # Assert
-    # For overprediction, higher quantile should have smaller gradient magnitude
-    # Flatten for comparison
-    assert np.abs(grad_high.flatten()[0]) < np.abs(grad_low.flatten()[0])
+    # Larger errors should produce larger gradients
+    assert np.abs(grad_large.flatten()[0]) > np.abs(grad_small.flatten()[0])
 
 
 def test_arctan_loss_multi_objective__quantile_properties() -> None:
@@ -226,20 +229,16 @@ def test_loss_functions__numerical_stability(y_true: np.ndarray, y_pred: np.ndar
 
     # Act & Assert - all functions should handle extreme values without errors
     grad_pinball, hess_pinball = pinball_loss_multi_objective(y_true, y_pred, quantiles)
-    grad_weighted, hess_weighted = pinball_loss_magnitude_weighted_multi_objective(y_true, y_pred, quantiles)
     grad_arctan, hess_arctan = arctan_loss_multi_objective(y_true, y_pred, quantiles)
 
     # All gradients should be finite
     assert np.all(np.isfinite(grad_pinball)), f"Pinball gradients not finite for {description}"
-    assert np.all(np.isfinite(grad_weighted)), f"Weighted gradients not finite for {description}"
     assert np.all(np.isfinite(grad_arctan)), f"Arctan gradients not finite for {description}"
 
     # All hessians should be finite and positive
     assert np.all(np.isfinite(hess_pinball)), f"Pinball hessians not finite for {description}"
-    assert np.all(np.isfinite(hess_weighted)), f"Weighted hessians not finite for {description}"
     assert np.all(np.isfinite(hess_arctan)), f"Arctan hessians not finite for {description}"
     assert np.all(hess_pinball > 0), f"Pinball hessians not positive for {description}"
-    assert np.all(hess_weighted > 0), f"Weighted hessians not positive for {description}"
     assert np.all(hess_arctan > 0), f"Arctan hessians not positive for {description}"
 
 
@@ -263,8 +262,8 @@ def test_pinball_loss_multi_objective__medium_length_with_varied_weights() -> No
     assert not np.allclose(grad_weighted, grad_unweighted)
 
 
-def test_pinball_loss_magnitude_weighted_multi_objective__medium_length_with_varied_weights() -> None:
-    """Test magnitude-weighted pinball loss with medium-length arrays and varied sample weights."""
+def test_pinball_loss_multi_objective__magnitude_aware_property() -> None:
+    """Test pinball loss magnitude-aware property: larger errors produce larger gradients."""
     # Arrange
     quantiles = [Quantile(0.25), Quantile(0.75)]
     y_true = np.array([1.0, 2.0, 3.0, 4.0, 5.0] * len(quantiles))  # 10 elements
@@ -272,16 +271,14 @@ def test_pinball_loss_magnitude_weighted_multi_objective__medium_length_with_var
     sample_weights = np.array([2.0, 1.0, 3.0, 0.5, 1.5])
 
     # Act
-    grad_weighted, hess_weighted = pinball_loss_magnitude_weighted_multi_objective(
-        y_true, y_pred, quantiles, sample_weight=sample_weights
-    )
-    grad_unweighted, _ = pinball_loss_magnitude_weighted_multi_objective(y_true, y_pred, quantiles)
+    grad_weighted, hess_weighted = pinball_loss_multi_objective(y_true, y_pred, quantiles, sample_weight=sample_weights)
+    grad_unweighted, _ = pinball_loss_multi_objective(y_true, y_pred, quantiles)
 
     # Assert - shape should be (n_samples, n_quantiles) = (5, 2)
     assert grad_weighted.shape == (5, 2)
     assert hess_weighted.shape == (5, 2)
     assert np.all(hess_weighted > 0)
-    # Larger errors should have larger gradient magnitudes (magnitude-weighted property)
+    # Larger errors should have larger gradient magnitudes (magnitude-aware property)
     error_magnitudes = np.abs(y_pred - y_true)
     grad_magnitudes = np.abs(grad_unweighted)
     # Reshape to (n_samples, n_quantiles)
@@ -331,33 +328,26 @@ def test_loss_functions__cross_function_consistency() -> None:
     for y_true, y_pred in test_cases:
         # Act
         grad_pinball, hess_pinball = pinball_loss_multi_objective(y_true, y_pred, quantiles)
-        grad_weighted, hess_weighted = pinball_loss_magnitude_weighted_multi_objective(y_true, y_pred, quantiles)
         grad_arctan, hess_arctan = arctan_loss_multi_objective(y_true, y_pred, quantiles)
 
         # Flatten for easier comparison
         grad_pinball_flat = grad_pinball.flatten()
-        grad_weighted_flat = grad_weighted.flatten()
         grad_arctan_flat = grad_arctan.flatten()
 
         # Assert - gradient signs should be consistent across functions
         for i in range(len(grad_pinball_flat)):
             pinball_sign = np.sign(grad_pinball_flat[i])
-            weighted_sign = np.sign(grad_weighted_flat[i])
             arctan_sign = np.sign(grad_arctan_flat[i])
 
             # For zero errors, some functions may have slightly different behavior
             sample_idx = i // len(quantiles)
-            if not np.isclose(y_true[sample_idx], y_pred[sample_idx]):
-                assert pinball_sign == weighted_sign, (
-                    f"Gradient sign mismatch between pinball and weighted at index {i}"
+            # Note: arctan may have slightly different zero-error behavior, so we're more lenient
+            if not np.isclose(y_true[sample_idx], y_pred[sample_idx]) and abs(grad_pinball_flat[i]) > 1e-10:
+                # Only check sign consistency for non-negligible gradients
+                assert pinball_sign == arctan_sign or abs(grad_arctan_flat[i]) < 1e-6, (
+                    f"Gradient sign mismatch between pinball and arctan at index {i}"
                 )
-                # Note: arctan may have slightly different zero-error behavior, so we're more lenient
-                if abs(grad_pinball_flat[i]) > 1e-10:  # Only check sign consistency for non-negligible gradients
-                    assert pinball_sign == arctan_sign or abs(grad_arctan_flat[i]) < 1e-6, (
-                        f"Gradient sign mismatch between pinball and arctan at index {i}"
-                    )
 
         # All hessians should be positive
         assert np.all(hess_pinball > 0)
-        assert np.all(hess_weighted > 0)
         assert np.all(hess_arctan > 0)

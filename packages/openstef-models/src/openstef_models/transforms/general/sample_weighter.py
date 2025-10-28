@@ -9,14 +9,17 @@ emphasizing high-value periods for improved model performance on peak loads.
 """
 
 import logging
-from typing import Self, override
+from typing import Any, Self, cast, override
 
 import numpy as np
 from pydantic import Field, PrivateAttr
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets.timeseries_dataset import TimeSeriesDataset
+from openstef_core.exceptions import NotFittedError
+from openstef_core.mixins import State
 from openstef_core.transforms.dataset_transforms import TimeSeriesTransform
+from openstef_models.transforms.general.scaler import StandardScaler
 
 
 class SampleWeighter(BaseConfig, TimeSeriesTransform):
@@ -47,15 +50,15 @@ class SampleWeighter(BaseConfig, TimeSeriesTransform):
         ...     sample_interval=timedelta(hours=1),
         ... )
         >>> transform = SampleWeighter()
-        >>> result = transform.transform(dataset)
+        >>> result = transform.fit_transform(dataset)
         >>> result.data[["load", "sample_weight"]]
                               load  sample_weight
         timestamp
-        2025-01-01 00:00:00   10.0       0.100000
-        2025-01-01 01:00:00   50.0       0.263158
-        2025-01-01 02:00:00  100.0       0.526316
+        2025-01-01 00:00:00   10.0       0.950413
+        2025-01-01 01:00:00   50.0       0.537190
+        2025-01-01 02:00:00  100.0       0.100000
         2025-01-01 03:00:00  200.0       1.000000
-        2025-01-01 04:00:00  150.0       0.789474
+        2025-01-01 04:00:00  150.0       0.495868
     """
 
     weight_scale_percentile: int = Field(
@@ -81,10 +84,33 @@ class SampleWeighter(BaseConfig, TimeSeriesTransform):
         description="Name of the column where computed weights will be stored.",
     )
 
+    _scaler: StandardScaler = PrivateAttr(default_factory=StandardScaler)
+    _is_fitted: bool = PrivateAttr(default=False)
     _logger: logging.Logger = PrivateAttr(default=logging.getLogger(__name__))
+
+    @property
+    @override
+    def is_fitted(self) -> bool:
+        return self._is_fitted
+
+    @override
+    def fit(self, data: TimeSeriesDataset) -> None:
+        if self.target_column not in data.feature_names:
+            self._logger.warning(
+                "Target column '%s' not found in data features. Skipping sample weighting fit.", self.target_column
+            )
+            return
+
+        target = np.asarray(data.data[self.target_column].dropna().values)
+        self._scaler.fit(target.reshape(-1, 1))
+
+        self._is_fitted = True
 
     @override
     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
+        if not self._is_fitted:
+            raise NotFittedError(self.__class__.__name__)
+
         if self.target_column not in data.feature_names:
             self._logger.warning(
                 "Target column '%s' not found in data features. Skipping sample weighting.", self.target_column
@@ -92,14 +118,18 @@ class SampleWeighter(BaseConfig, TimeSeriesTransform):
             return data
 
         df = data.data.copy(deep=False)
-
         df[self.sample_weight_column] = 1.0  # default uniform weight
 
         # Set weights only for rows where target is not NaN
         mask = df[self.target_column].notna()
         target_series = df.loc[mask, self.target_column]
+
+        # Normalize target values using the fitted scaler
+        target = np.asarray(target_series.values, dtype=np.float64)
+        target_scaled = self._scaler.transform(target.reshape(-1, 1)).flatten()
+
         df.loc[mask, self.sample_weight_column] = exponential_sample_weight(
-            x=np.asarray(target_series.values, dtype=np.float64),
+            x=target_scaled,
             scale_percentile=self.weight_scale_percentile,
             exponent=self.weight_exponent,
             floor=self.weight_floor,
@@ -108,11 +138,19 @@ class SampleWeighter(BaseConfig, TimeSeriesTransform):
         return data.copy_with(df)
 
     @override
-    def to_state(self) -> object:
-        return None
+    def to_state(self) -> State:
+        return {
+            "config": self.model_dump(mode="json"),
+            "is_fitted": self._is_fitted,
+            "scaler": self._scaler,
+        }
 
     @override
     def from_state(self, state: object) -> Self:
+        state = cast(dict[str, Any], state)
+        instance = self.model_validate(state["config"])
+        instance._is_fitted = state["is_fitted"]  # noqa: SLF001
+        instance._scaler = state["scaler"]  # noqa: SLF001
         return self
 
     @override

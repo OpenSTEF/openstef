@@ -12,6 +12,7 @@ analysis of how model performance varies across different operational conditions
 import logging
 from collections.abc import Iterator
 from datetime import timedelta
+from typing import cast
 
 import pandas as pd
 from pydantic import Field
@@ -210,6 +211,8 @@ class EvaluationPipeline:
             dataset=ground_truth.select_version(),
             target_column=target_column,
         )
+        # Drop nans from ground truth to ensure clean join with predictions
+        ground_truth_data = ground_truth_data.pipe_pandas(pd.DataFrame.dropna)  # type: ignore
 
         for available_at in self.config.available_ats:
             predictions_filtered = predictions.filter_by_available_at(available_at=available_at).select_version()
@@ -278,7 +281,7 @@ class EvaluationPipeline:
         windowed_metrics.append(
             SubsetMetric(
                 window="global",
-                timestamp=subset.index.min().to_pydatetime(),  # type: ignore[reportUnknownMemberType]
+                timestamp=cast("pd.Series[pd.Timestamp]", subset.index).min().to_pydatetime(),
                 metrics=merge_quantile_metrics([provider(subset) for provider in self.global_metric_providers]),
             )
         )

@@ -4,92 +4,90 @@
 
 """Liander 2024 Short Term Energy Forecasting Benchmark Setup."""
 
-from datetime import timedelta
+from datetime import datetime, timedelta
 from pathlib import Path
+from typing import Literal, override
 
 from huggingface_hub import snapshot_download  # type: ignore[reportUnknownVariableType]
+from pydantic import Field
 
 from openstef_beam.analysis import AnalysisConfig
+from openstef_beam.analysis.visualizations import WindowedMetricVisualization
 from openstef_beam.analysis.visualizations.grouped_target_metric_visualization import GroupedTargetMetricVisualization
 from openstef_beam.analysis.visualizations.precision_recall_curve_visualization import PrecisionRecallCurveVisualization
 from openstef_beam.analysis.visualizations.quantile_probability_visualization import QuantileProbabilityVisualization
 from openstef_beam.analysis.visualizations.summary_table_visualization import SummaryTableVisualization
 from openstef_beam.analysis.visualizations.timeseries_visualization import TimeSeriesVisualization
-from openstef_beam.analysis.visualizations.windowed_metric_visualization import WindowedMetricVisualization
 from openstef_beam.backtesting import BacktestConfig
 from openstef_beam.benchmarking.benchmark_pipeline import BenchmarkPipeline
 from openstef_beam.benchmarking.callbacks.base import BenchmarkCallback
 from openstef_beam.benchmarking.models.benchmark_target import BenchmarkTarget
 from openstef_beam.benchmarking.storage.base import BenchmarkStorage
 from openstef_beam.benchmarking.target_provider import SimpleTargetProvider
-from openstef_beam.evaluation import EvaluationConfig
+from openstef_beam.evaluation import EvaluationConfig, Window
 from openstef_beam.evaluation.metric_providers import MetricProvider, PeakMetricProvider, RCRPSProvider, RMAEProvider
-from openstef_beam.evaluation.models.window import Window
 from openstef_core.types import AvailableAt, Quantile
 
-# TODO(#718): find alternative for using functions instead of lambdas in target provider
+type Liander2024Category = Literal["mv_feeder", "station_installation", "transformer", "solar_park", "wind_park"]
 
 
-def _measurements_path_for_target(target: BenchmarkTarget) -> Path:
-    """Build path for target measurements.
+class Liander2024TargetProvider(SimpleTargetProvider[BenchmarkTarget, list[Liander2024Category]]):
+    """Target provider for Liander 2024 STEF benchmark."""
 
-    Returns:
-        Path: Path to the measurements parquet file
-    """
-    return Path("load_measurements") / target.group_name / f"{target.name}.parquet"
+    measurements_path_template: str = Field(default="{name}.parquet", init=False)
+    weather_path_template: str = Field(default="{name}.parquet", init=False)
+    profiles_path: str = Field(default="profiles.parquet", init=False)
+    prices_path: str = Field(default="EPEX.parquet", init=False)
+    targets_file_path: str = Field(default="liander2024_targets.yaml", init=False)
 
+    data_start: datetime = Field(
+        default=datetime.fromisoformat("2024-02-01T00:00:00Z"),
+        init=False,
+        frozen=True,
+        description="Earliest timestamp to consider for training and benchmarking",
+    )
 
-def _weather_path_for_target(target: BenchmarkTarget) -> Path:
-    """Build path for target weather data.
+    @override
+    def get_targets(self, filter_args: list[Liander2024Category] | None = None) -> list[BenchmarkTarget]:
+        targets = super().get_targets(filter_args)
+        if filter_args is not None:
+            targets = [t for t in targets if t.group_name in filter_args]
 
-    Returns:
-        Path: Path to the weather forecasts parquet file
-    """
-    return Path("weather_forecasts_versioned") / target.group_name / f"{target.name}.parquet"
+        for target in targets:
+            target.train_start = max(target.train_start, self.data_start)
+            target.benchmark_start = max(target.benchmark_start, self.data_start)
 
+        return targets
 
-def _profiles_path() -> Path:
-    """Build path for profiles data.
+    @override
+    def get_metrics_for_target(self, target: BenchmarkTarget) -> list[MetricProvider]:
+        return [
+            RMAEProvider(quantiles=[Quantile(0.5)], lower_quantile=0.01, upper_quantile=0.99),
+            RCRPSProvider(lower_quantile=0.01, upper_quantile=0.99),
+            PeakMetricProvider(
+                limit_pos=target.upper_limit if target.upper_limit is not None else 0.0,
+                limit_neg=target.lower_limit if target.lower_limit is not None else 0.0,
+                beta=2,
+            ),
+        ]
 
-    Returns:
-        Path: Path to the profiles parquet file
-    """
-    return Path("profiles.parquet")
+    @override
+    def _get_measurements_path_for_target(self, target: BenchmarkTarget) -> Path:
+        return (
+            self.data_dir
+            / "load_measurements"
+            / target.group_name
+            / self.measurements_path_template.format(name=target.name)
+        )
 
-
-def _prices_path() -> Path:
-    """Build path for prices data.
-
-    Returns:
-        Path: Path to the EPEX prices parquet file
-    """
-    return Path("EPEX.parquet")
-
-
-def _targets_file_path() -> Path:
-    """Build path for targets file.
-
-    Returns:
-        Path: Path to the targets YAML file
-    """
-    return Path("liander2024_targets.yaml")
-
-
-def _metrics_for_target(target: BenchmarkTarget) -> list[MetricProvider]:
-    """Build metrics list for a target.
-
-    Returns:
-        list[MetricProvider]: List of metric providers for evaluation
-    """
-    return [
-        RMAEProvider(quantiles=[Quantile(0.5)], lower_quantile=0.01, upper_quantile=0.99),
-        RCRPSProvider(lower_quantile=0.01, upper_quantile=0.99),
-        PeakMetricProvider(
-            limit_pos=abs(target.upper_limit) if target.upper_limit is not None else 0.0,
-            limit_neg=-abs(target.lower_limit) if target.lower_limit is not None else 0.0,
-            beta=2,
-        ),
-    ]
+    @override
+    def _get_weather_path_for_target(self, target: BenchmarkTarget) -> Path:
+        return (
+            self.data_dir
+            / "weather_forecasts_versioned"
+            / target.group_name
+            / self.weather_path_template.format(name=target.name)
+        )
 
 
 LIANDER2024_ANALYSIS_CONFIG = AnalysisConfig(
@@ -159,50 +157,19 @@ LIANDER2024_ANALYSIS_CONFIG = AnalysisConfig(
 )
 
 
-def create_liander2024_target_provider(
-    data_dir: Path | None = None,
-) -> SimpleTargetProvider[BenchmarkTarget, None]:
-    """Create target provider for Liander2024 dataset.
-
-    Args:
-        data_dir: Dataset directory. Downloads from HuggingFace if None.
-
-    Returns:
-        Configured target provider instance.
-    """
-    if data_dir is None:
-        data_dir = Path(
-            snapshot_download(
-                repo_id="OpenSTEF/liander2024-stef-benchmark",
-                repo_type="dataset",
-            )
-        )
-
-    return SimpleTargetProvider(
-        data_dir=Path(data_dir),
-        measurements_path_for_target=_measurements_path_for_target,
-        weather_path_for_target=_weather_path_for_target,
-        profiles_path=_profiles_path,
-        prices_path=_prices_path,
-        targets_file_path=_targets_file_path,
-        data_sample_interval=timedelta(minutes=15),
-        metrics=_metrics_for_target,
-        use_profiles=True,
-        use_prices=True,
-    )
-
-
 def create_liander2024_benchmark_runner(
     data_dir: Path | None = None,
     storage: BenchmarkStorage | None = None,
     callbacks: list[BenchmarkCallback] | None = None,
-) -> BenchmarkPipeline[BenchmarkTarget, None]:
+    target_provider: Liander2024TargetProvider | None = None,
+) -> BenchmarkPipeline[BenchmarkTarget, list[Liander2024Category]]:
     """Create benchmark pipeline for Liander2024 dataset.
 
     Args:
         data_dir: Dataset directory. Downloads from HuggingFace if None.
         storage: Storage backend for results.
         callbacks: Callbacks to use during benchmarking.
+        target_provider: Custom target provider. Creates default if None.
 
     Returns:
         Configured benchmark pipeline.
@@ -213,7 +180,15 @@ def create_liander2024_benchmark_runner(
         ...     data_dir=Path("./liander2024_dataset")
         ... )
     """
-    return BenchmarkPipeline[BenchmarkTarget, None](
+    if data_dir is None:
+        data_dir = Path(
+            snapshot_download(
+                repo_id="OpenSTEF/liander2024-stef-benchmark",
+                repo_type="dataset",
+            )
+        )
+
+    return BenchmarkPipeline[BenchmarkTarget, list[Liander2024Category]](
         backtest_config=BacktestConfig(
             prediction_sample_interval=timedelta(minutes=15),
             predict_interval=timedelta(hours=6),
@@ -229,7 +204,7 @@ def create_liander2024_benchmark_runner(
             ],
         ),
         analysis_config=LIANDER2024_ANALYSIS_CONFIG,
-        target_provider=create_liander2024_target_provider(data_dir),
+        target_provider=target_provider or Liander2024TargetProvider(data_dir=data_dir),
         storage=storage,
         callbacks=callbacks,
     )

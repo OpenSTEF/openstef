@@ -58,7 +58,7 @@ def test_exponential_sample_weight__exponents(exponent: float, expected_weights:
     np.testing.assert_allclose(result, expected_weights, rtol=1e-10)
 
 
-def test_sample_weighter__transform():
+def test_sample_weighter__fit_transform():
     """Test that SampleWeighter correctly computes sample weights based on target values."""
     # Arrange
     dataset = create_timeseries_dataset(
@@ -75,7 +75,7 @@ def test_sample_weighter__transform():
     )
 
     # Act
-    result = transform.transform(dataset)
+    result = transform.fit_transform(dataset)
 
     # Assert - verify sample_weight column was added
     assert "sample_weight" in result.data.columns
@@ -84,13 +84,7 @@ def test_sample_weighter__transform():
     # With scale_percentile=95, the 95th percentile of [10, 50, 100, 200, 150] is 190
     # Each value is scaled by dividing by 190, raised to exponent 1.0, and clipped to [0.1, 1.0]
     expected_weights = pd.Series(
-        [
-            0.1,  # 10/190 = 0.0526 -> clipped to floor 0.1
-            0.263,  # 50/190 = 0.263
-            0.526,  # 100/190 = 0.526
-            1.0,  # 200/190 = 1.053 -> clipped to max 1.0
-            0.789,  # 150/190 = 0.789
-        ],
+        [0.9504, 0.5372, 0.1, 1.0, 0.495868],
         index=dataset.index,
         name="sample_weight",
     )

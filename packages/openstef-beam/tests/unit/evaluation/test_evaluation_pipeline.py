@@ -4,6 +4,7 @@
 
 from datetime import timedelta
 
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -11,6 +12,7 @@ from openstef_beam.evaluation.evaluation_pipeline import EvaluationConfig, Evalu
 from openstef_beam.evaluation.models import EvaluationReport, EvaluationSubsetReport, SubsetMetric, Window
 from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesDataset
 from openstef_core.exceptions import MissingColumnsError
+from openstef_core.testing import create_timeseries_dataset
 from openstef_core.types import AvailableAt, LeadTime, Quantile
 from tests.utils.mocks import DummyMetricProvider
 
@@ -113,3 +115,39 @@ def test_run_returns_evaluation_report(
             for m in subset_report.metrics
             if m.window == "global"
         )
+
+
+def test_ground_truth_with_nans_are_dropped(minimal_config: EvaluationConfig):
+    """Test that ground truth with NaNs doesn't cause issues in evaluation."""
+    # Arrange
+    index = pd.date_range("2020-01-01T00:00", periods=4, freq="h")
+
+    ground_truth = create_timeseries_dataset(
+        index=index,
+        target=[1.0, 2.0, np.nan, 4.0],
+        available_at=index,
+    )
+
+    predictions = create_timeseries_dataset(
+        index=index,
+        quantile_P50=[1.0, 2.0, 3.0, 4.0],
+        quantile_P90=[1.5, 2.5, 3.5, 4.5],
+        available_at=index - timedelta(hours=48),
+    )
+
+    pipeline = EvaluationPipeline(
+        config=minimal_config,
+        window_metric_providers=[DummyMetricProvider()],
+        global_metric_providers=[DummyMetricProvider()],
+        quantiles=[Quantile(0.5), Quantile(0.9)],
+    )
+
+    # Act
+    report = pipeline.run(predictions=predictions, ground_truth=ground_truth, target_column="target")
+
+    # Assert - NaNs should be dropped, evaluation should succeed
+    assert isinstance(report, EvaluationReport)
+    for subset_report in report.subset_reports:
+        target = subset_report.subset.target_series
+        assert target is not None
+        assert not target.isna().any()
