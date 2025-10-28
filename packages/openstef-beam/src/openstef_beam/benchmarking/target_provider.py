@@ -199,11 +199,11 @@ class SimpleTargetProvider[T: BenchmarkTarget, F](TargetProvider[T, F]):
         >>> from openstef_beam.evaluation.metric_providers import RMAEProvider, RCRPSProvider
         >>> provider = SimpleTargetProvider(
         ...     data_dir=Path("./benchmark_data"),
-        ...     measurements_path_for_target=lambda t: Path(t.group_name) / f"load_{t.name}.parquet",
-        ...     weather_path_for_target=lambda t: Path(t.group_name) / f"weather_{t.name}.parquet",
-        ...     profiles_path=lambda: Path("standard_profiles.parquet"),
-        ...     prices_path=lambda: Path("energy_prices.parquet"),
-        ...     targets_file_path=lambda: Path("energy_targets.yaml"),
+        ...     measurements_path_template="load_{name}.parquet",
+        ...     weather_path_template="weather_{name}.parquet",
+        ...     profiles_path="standard_profiles.parquet",
+        ...     prices_path="energy_prices.parquet",
+        ...     targets_file_path="energy_targets.yaml",
         ...     data_sample_interval=timedelta(minutes=15),
         ...     metrics=[RMAEProvider(), RCRPSProvider()],
         ...     use_profiles=True,
@@ -213,21 +213,26 @@ class SimpleTargetProvider[T: BenchmarkTarget, F](TargetProvider[T, F]):
 
     data_dir: Path = Field(description="Root directory containing all benchmark data files")
 
-    profiles_path: Callable[[], Path] = Field(
-        default=lambda: Path("profiles_data.parquet"),
-        description="Function to build file path for shared profiles data",
+    # Data Paths
+    measurements_path_template: str = Field(
+        default="load_data_{name}.parquet",
+        description="Template for target-specific measurement files with {name} placeholder",
+        frozen=True,
+    )
+    weather_path_template: str = Field(
+        default="weather_data_{name}.parquet",
+        description="Template for target-specific weather files with {name} placeholder",
+        frozen=True,
+    )
+    profiles_path: str = Field(
+        default="profiles_data.parquet", description="Path to shared profiles data file.", frozen=True
+    )
+    prices_path: str = Field(default="prices_data.parquet", description="Path to shared prices data file.", frozen=True)
+    targets_file_path: str = Field(
+        default="targets.yaml", description="Path to the target definitions file", frozen=True
     )
 
-    prices_path: Callable[[], Path] = Field(
-        default=lambda: Path("prices_data.parquet"),
-        description="Function to build file path for shared prices data",
-    )
-
-    targets_file_path: Callable[[], Path] = Field(
-        default=lambda: Path("targets.yaml"),
-        description="Function to build file path for target definitions",
-    )
-
+    # Data Loading Options
     use_profiles: bool = Field(
         default=True,
         description="Whether to use shared profiles data for predictors",
@@ -236,12 +241,12 @@ class SimpleTargetProvider[T: BenchmarkTarget, F](TargetProvider[T, F]):
         default=True,
         description="Whether to use shared prices data for predictors",
     )
-
     data_sample_interval: timedelta = Field(
         default=timedelta(minutes=15),
         description="Temporal resolution for all datasets in this provider, used for alignment",
     )
 
+    # Evaluation Metrics
     metrics: list[MetricProvider] | Callable[[T], list[MetricProvider]] = Field(
         default_factory=list[MetricProvider],
         description="List of metric providers to evaluate target forecasts",
@@ -254,9 +259,8 @@ class SimpleTargetProvider[T: BenchmarkTarget, F](TargetProvider[T, F]):
 
     @override
     def get_targets(self, filter_args: F | None = None) -> list[T]:
-        targets_path = self.data_dir / self.targets_file_path()
         return read_yaml_config(
-            path=targets_path,
+            path=self.data_dir / self.targets_file_path,
             class_type=TypeAdapter(list[self.get_target_class]),
         )
 
@@ -274,19 +278,19 @@ class SimpleTargetProvider[T: BenchmarkTarget, F](TargetProvider[T, F]):
         description="Function to build file path for target weather data using configured template",
     )
 
+    def _get_measurements_path_for_target(self, target: T) -> Path:
+        return self.data_dir / str(target.group_name) / self.measurements_path_template.format(name=target.name)
+
     def get_measurements_for_target(self, target: T) -> VersionedTimeSeriesDataset:
         """Load ground truth measurements from target-specific Parquet file.
 
         Returns:
             VersionedTimeSeriesDataset: The loaded measurements data.
         """
-        df = pd.read_parquet(  # type: ignore
-            path=self.data_dir / self.measurements_path_for_target(target),
-        )
-        return VersionedTimeSeriesDataset.from_dataframe(
-            data=df,
+        return VersionedTimeSeriesDataset.read_parquet(
+            path=self._get_measurements_path_for_target(target),
             sample_interval=self.data_sample_interval,
-        )
+        ).filter_by_range(start=target.train_start, end=target.benchmark_end)
 
     def get_predictors_for_target(self, target: T) -> VersionedTimeSeriesDataset:
         """Combine weather, profiles, and prices into aligned predictor dataset.
@@ -307,7 +311,12 @@ class SimpleTargetProvider[T: BenchmarkTarget, F](TargetProvider[T, F]):
         if self.use_prices:
             datasets.append(self.get_prices())
 
-        return VersionedTimeSeriesDataset.concat(datasets, mode="inner")
+        return VersionedTimeSeriesDataset.concat(datasets=datasets, mode="inner").filter_by_range(
+            start=target.train_start, end=target.benchmark_end
+        )
+
+    def _get_weather_path_for_target(self, target: T) -> Path:
+        return self.data_dir / str(target.group_name) / self.weather_path_template.format(name=target.name)
 
     def get_weather_for_target(self, target: T) -> VersionedTimeSeriesDataset:
         """Load weather features from target-specific Parquet file.
@@ -315,11 +324,8 @@ class SimpleTargetProvider[T: BenchmarkTarget, F](TargetProvider[T, F]):
         Returns:
             VersionedTimeSeriesDataset: The loaded weather data.
         """
-        df = pd.read_parquet(  # type: ignore
-            path=self.data_dir / self.weather_path_for_target(target),
-        )
-        return VersionedTimeSeriesDataset.from_dataframe(
-            data=df,
+        return VersionedTimeSeriesDataset.read_parquet(
+            path=self._get_weather_path_for_target(target),
             sample_interval=self.data_sample_interval,
         )
 
@@ -329,11 +335,8 @@ class SimpleTargetProvider[T: BenchmarkTarget, F](TargetProvider[T, F]):
         Returns:
             VersionedTimeSeriesDataset: The loaded energy profiles data.
         """
-        df = pd.read_parquet(  # type: ignore
-            path=self.data_dir / self.profiles_path(),
-        )
-        return VersionedTimeSeriesDataset.from_dataframe(
-            data=df,
+        return VersionedTimeSeriesDataset.read_parquet(
+            path=self.data_dir / self.profiles_path,
             sample_interval=self.data_sample_interval,
         )
 
@@ -343,11 +346,8 @@ class SimpleTargetProvider[T: BenchmarkTarget, F](TargetProvider[T, F]):
         Returns:
             VersionedTimeSeriesDataset: The loaded energy pricing data.
         """
-        df = pd.read_parquet(  # type: ignore
-            path=self.data_dir / self.prices_path(),
-        )
-        return VersionedTimeSeriesDataset.from_dataframe(
-            data=df,
+        return VersionedTimeSeriesDataset.read_parquet(
+            path=self.data_dir / self.prices_path,
             sample_interval=self.data_sample_interval,
         )
 

@@ -41,7 +41,7 @@ class InputConsistencyChecker(BaseConfig, TimeSeriesTransform):
 
     @override
     def fit(self, data: TimeSeriesDataset) -> None:
-        self._feature_names = list(data.data.columns)
+        self._feature_names = list(data.feature_names)
         self._is_fitted = True
 
     @override

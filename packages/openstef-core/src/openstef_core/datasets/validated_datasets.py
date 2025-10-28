@@ -333,6 +333,30 @@ class ForecastDataset(TimeSeriesDataset):
         df.attrs["forecast_start"] = self.forecast_start.isoformat()
         return df
 
+    @classmethod
+    def from_timeseries(
+        cls,
+        dataset: TimeSeriesDataset,
+        target_column: str = "load",
+        forecast_start: datetime | None = None,
+    ) -> Self:
+        """Create ForecastInputDataset from a generic TimeSeriesDataset.
+
+        Args:
+            dataset: Input TimeSeriesDataset to convert.
+            target_column: Name of the target column to forecast.
+            forecast_start: Optional timestamp indicating forecast start.
+
+        Returns:
+            Instance of ForecastInputDataset with specified target column.
+        """
+        return cls(
+            data=dataset.data,
+            sample_interval=dataset.sample_interval,
+            target_column=target_column,
+            forecast_start=forecast_start,
+        )
+
 
 class EnergyComponentDataset(TimeSeriesDataset):
     """Time series dataset for energy generation by component type.

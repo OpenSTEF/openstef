@@ -9,12 +9,13 @@ Handles both single-horizon and multi-horizon forecasters while providing consis
 data transformation and validation.
 """
 
-from datetime import datetime
+import logging
+from datetime import datetime, timedelta
 from functools import partial
 from typing import Any, Self, cast, override
 
 import pandas as pd
-from pydantic import Field
+from pydantic import Field, PrivateAttr
 
 from openstef_beam.evaluation import EvaluationConfig, EvaluationPipeline, SubsetMetric
 from openstef_beam.evaluation.metric_providers import MetricProvider, ObservedProbabilityProvider, R2Provider
@@ -71,6 +72,13 @@ class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset])
         - fit() must be called before predict()
         - Forecaster and preprocessing horizons must match during initialization
 
+    Important:
+        The `cutoff_history` parameter is crucial when using lag-based features in
+        preprocessing. For example, a lag-14 transformation creates NaN values for
+        the first 14 days of data. Set `cutoff_history` to exclude these incomplete
+        rows from training. You must configure this manually based on your preprocessing
+        pipeline since lags cannot be automatically inferred from the transforms.
+
     Example:
         Basic forecasting workflow:
 
@@ -87,6 +95,7 @@ class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset])
         >>> # Create and train model
         >>> model = ForecastingModel(
         ...     forecaster=forecaster,
+        ...     cutoff_history=timedelta(days=14),  # Match your maximum lag in preprocessing
         ... )
         >>> model.fit(training_data)  # doctest: +SKIP
         >>>
@@ -118,6 +127,13 @@ class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset])
         default_factory=DataSplitter,
         description="Data splitting strategy for train/validation/test sets.",
     )
+    cutoff_history: timedelta = Field(
+        default=timedelta(days=0),
+        description="Amount of historical data to exclude from training due to incomplete features from lag-based "
+        "preprocessing. When using lag transforms (e.g., lag-14), the first N days contain NaN values. "
+        "Set this to match your maximum lag duration (e.g., timedelta(days=14)). "
+        "Default of 0 assumes no invalid rows are created by preprocessing.",
+    )
     # Evaluation
     evaluation_metrics: list[MetricProvider] = Field(
         default_factory=lambda: [R2Provider(), ObservedProbabilityProvider()],
@@ -128,6 +144,8 @@ class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset])
         default_factory=dict,
         description="Optional metadata tags for the model.",
     )
+
+    _logger: logging.Logger = PrivateAttr(default=logging.getLogger(__name__))
 
     @property
     def config(self) -> ForecasterConfig:
@@ -170,9 +188,9 @@ class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset])
         self.preprocessing.fit(data=data)
 
         # Transform and split input data
-        input_data_train = self._prepare_input(data=data)
-        input_data_val = self._prepare_input(data=data_val) if data_val else None
-        input_data_test = self._prepare_input(data=data_test) if data_test else None
+        input_data_train = self.prepare_input(data=data)
+        input_data_val = self.prepare_input(data=data_val) if data_val else None
+        input_data_test = self.prepare_input(data=data_test) if data_test else None
 
         # Drop target column nan's from training data. One can not train on missing targets.
         target_dropna = partial(pd.DataFrame.dropna, subset=[self.target_column])  # pyright: ignore[reportUnknownMemberType]
@@ -235,21 +253,47 @@ class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset])
             raise NotFittedError(type(self.forecaster).__name__)
 
         # Transform the input data to a valid forecast input
-        input_data = self._prepare_input(data=data, forecast_start=forecast_start)
+        input_data = self.prepare_input(data=data, forecast_start=forecast_start)
 
         # Generate predictions
         raw_predictions = self._predict(input_data=input_data)
 
         return self.postprocessing.transform(data=raw_predictions)
 
-    def _prepare_input(
+    def prepare_input(
         self,
         data: TimeSeriesDataset,
         forecast_start: datetime | None = None,
     ) -> ForecastInputDataset:
+        """Prepare input data for forecasting by applying preprocessing and filtering.
+
+        Transforms raw time series data through the preprocessing pipeline, restores
+        the target column, and filters out incomplete historical data to ensure
+        training quality.
+
+        Args:
+            data: Raw time series dataset to prepare for forecasting.
+            forecast_start: Optional start time for forecasts. If provided and earlier
+                than the cutoff time, overrides the cutoff for data filtering.
+
+        Returns:
+            Processed forecast input dataset ready for model prediction.
+        """
         # Transform and restore target column
         input_data = self.preprocessing.transform(data=data)
         input_data = restore_target(dataset=input_data, original_dataset=data, target_column=self.target_column)
+
+        # Cut away input history to avoid training on incomplete data
+        input_data_start = cast("pd.Series[pd.Timestamp]", input_data.index).min().to_pydatetime()
+        input_data_cutoff = input_data_start + self.cutoff_history
+        if forecast_start is not None and forecast_start < input_data_cutoff:
+            input_data_cutoff = forecast_start
+            self._logger.warning(
+                "Forecast start %s is after input data start + cutoff history %s. Using forecast start as cutoff.",
+                forecast_start,
+                input_data_cutoff,
+            )
+        input_data = input_data.filter_by_range(start=input_data_cutoff)
 
         return ForecastInputDataset.from_timeseries(
             dataset=input_data,

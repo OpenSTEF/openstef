@@ -289,7 +289,7 @@ def generate_autocorr_lags(
 
     # Remove NaN values as autocorrelation handles them poorly
     # Cast to float array explicitly to help type checker
-    clean_data = np.asarray(signal.dropna().values, dtype=np.float64)
+    clean_data = np.asarray(a=signal.dropna().values, dtype=np.float64)
 
     min_samples = 100
     if len(clean_data) < min_samples:

@@ -2,11 +2,11 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import override
-from unittest.mock import Mock, patch
 
+import pandas as pd
 import pytest
 from pydantic import ValidationError
 
@@ -72,43 +72,41 @@ def test_target() -> BenchmarkTarget:
     )
 
 
-@patch("openstef_beam.benchmarking.target_provider.VersionedTimeSeriesDataset.concat")
-def test_get_predictors_for_target(mock_concat: Mock, tmp_path: Path, test_target: BenchmarkTarget):
+def test_get_predictors_for_target(tmp_path: Path, test_target: BenchmarkTarget):
     """Test that predictors are correctly concatenated from multiple sources."""
     # Arrange
-    target = test_target
+    index = pd.date_range("2023-01-01", periods=3, freq="h")
+    interval = timedelta(hours=1)
 
-    # Create mocks for each data source
-    mock_weather = Mock()
-    mock_profiles = Mock()
-    mock_prices = Mock()
-    mock_result = Mock()
+    weather = VersionedTimeSeriesDataset.from_dataframe(
+        pd.DataFrame({"temp": range(3), "available_at": index}, index=index), interval
+    )
+    profiles = VersionedTimeSeriesDataset.from_dataframe(
+        pd.DataFrame({"prof": range(3), "available_at": index}, index=index), interval
+    )
+    prices = VersionedTimeSeriesDataset.from_dataframe(
+        pd.DataFrame({"price": range(3), "available_at": index}, index=index), interval
+    )
 
-    class MockSimpleTargetProvider(SimpleTargetProvider[BenchmarkTarget, None]):
+    class TestProvider(SimpleTargetProvider[BenchmarkTarget, None]):
         @override
         def get_weather_for_target(self, target: BenchmarkTarget) -> VersionedTimeSeriesDataset:
-            return mock_weather
+            return weather
 
         @override
         def get_profiles(self) -> VersionedTimeSeriesDataset:
-            return mock_profiles
+            return profiles
 
         @override
         def get_prices(self) -> VersionedTimeSeriesDataset:
-            return mock_prices
+            return prices
 
-    provider = MockSimpleTargetProvider(
-        data_dir=tmp_path,
-    )
-
-    mock_concat.return_value = mock_result
+    provider = TestProvider(data_dir=tmp_path, use_profiles=True, use_prices=True)
 
     # Act
-    result = provider.get_predictors_for_target(target)
+    result = provider.get_predictors_for_target(test_target)
 
     # Assert
-    mock_concat.assert_called_once_with(
-        [mock_weather, mock_profiles, mock_prices],
-        mode="inner",
-    )
-    assert result == mock_result
+    assert isinstance(result, VersionedTimeSeriesDataset)
+    assert {"temp", "prof", "price"} <= set(result.feature_names)
+    assert len(result.index) == 3

@@ -13,13 +13,15 @@ to predict values outside the range of the training data.
 
 import base64
 import json
+from functools import partial
 from typing import Any, Literal, Self, cast, override
 
+import numpy as np
 import pandas as pd
 import xgboost as xgb
 from pydantic import Field
+from sklearn.preprocessing import StandardScaler
 
-from openstef_core.base_model import BaseConfig
 from openstef_core.datasets.mixins import LeadTime
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import MissingExtraError, ModelLoadingError, NotFittedError
@@ -27,6 +29,7 @@ from openstef_core.mixins.predictor import HyperParams
 from openstef_core.mixins.stateful import State
 from openstef_models.explainability.mixins import ExplainableForecaster
 from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
+from openstef_models.utils.loss_functions import OBJECTIVE_MAP, ObjectiveFunctionType, xgb_prepare_target_for_objective
 
 try:
     import xgboost as xgb
@@ -38,10 +41,9 @@ class GBLinearHyperParams(HyperParams):
     """Hyperparameter configuration for GBLinear forecaster."""
 
     # Learning Parameters
-    n_estimators: int = Field(
-        default=100,
-        description="Number of boosting rounds/trees to fit. Higher values may improve performance but "
-        "increase training time and risk overfitting.",
+    n_steps: int = Field(
+        default=500,
+        description="Number for steps (boosting rounds) to train the GBLinear model.",
     )
     updater: str = Field(
         default="shotgun",
@@ -51,6 +53,10 @@ class GBLinearHyperParams(HyperParams):
         default=0.15,
         description="Step size shrinkage used to prevent overfitting. Range: [0,1]. Lower values require more boosting "
         "rounds.",
+    )
+    objective: ObjectiveFunctionType | Literal["reg:quantileerror"] = Field(
+        default="pinball_loss",
+        description="Objective function for training. 'pinball_loss' is recommended for probabilistic forecasting.",
     )
 
     # Regularization
@@ -76,7 +82,7 @@ class GBLinearHyperParams(HyperParams):
         default=None, description="Random seed for reproducibility. Controls tree structure randomness."
     )
     early_stopping_rounds: int | None = Field(
-        default=None,
+        default=10,
         description="Training will stop if performance doesn't improve for this many rounds. Requires validation data.",
     )
 
@@ -106,16 +112,6 @@ class GBLinearForecasterConfig(ForecasterConfig):
 
 
 MODEL_CODE_VERSION = 1
-
-
-class GBLinearState(BaseConfig):
-    """Serializable state for GBLinear forecaster."""
-
-    version: int = Field(default=MODEL_CODE_VERSION, description="State version for compatibility checks.")
-    config: GBLinearForecasterConfig = Field(default=...)
-    model: str = Field(
-        description="Base64-encoded serialized GBLinear model.",
-    )
 
 
 class GBLinearForecaster(Forecaster, ExplainableForecaster):
@@ -173,6 +169,7 @@ class GBLinearForecaster(Forecaster, ExplainableForecaster):
 
     _config: GBLinearForecasterConfig
     _gblinear_model: xgb.XGBRegressor
+    _target_scaler: StandardScaler
 
     def __init__(self, config: GBLinearForecasterConfig) -> None:
         """Initialize GBLinear forecaster with configuration.
@@ -182,11 +179,16 @@ class GBLinearForecaster(Forecaster, ExplainableForecaster):
         """
         self._config = config or GBLinearForecasterConfig()
 
+        if self.config.hyperparams.objective == "reg:quantileerror":
+            objective = "reg:quantileerror"
+        else:
+            objective = partial(OBJECTIVE_MAP[self._config.hyperparams.objective], quantiles=self._config.quantiles)
+
         self._gblinear_model = xgb.XGBRegressor(
             booster="gblinear",
             # Core parameters for forecasting
-            objective="reg:quantileerror",
-            n_estimators=self._config.hyperparams.n_estimators,
+            objective=objective,
+            n_estimators=self._config.hyperparams.n_steps,
             learning_rate=self._config.hyperparams.learning_rate,
             early_stopping_rounds=self._config.hyperparams.early_stopping_rounds,
             # Regularization parameters
@@ -198,6 +200,7 @@ class GBLinearForecaster(Forecaster, ExplainableForecaster):
             quantile_alpha=[float(q) for q in self._config.quantiles],
             top_k=self._config.hyperparams.top_k if self._config.hyperparams.feature_selector == "thrifty" else None,
         )
+        self._target_scaler = StandardScaler()
 
     @property
     @override
@@ -218,11 +221,12 @@ class GBLinearForecaster(Forecaster, ExplainableForecaster):
     def to_state(self) -> State:
         model_raw = self._gblinear_model.get_booster().save_raw()
 
-        return GBLinearState(
-            config=self._config,
-            version=MODEL_CODE_VERSION,
-            model=base64.b64encode(model_raw).decode("utf-8"),
-        ).model_dump(mode="json")
+        return {
+            "config": self._config,
+            "version": MODEL_CODE_VERSION,
+            "model": base64.b64encode(model_raw).decode("utf-8"),
+            "scaler": self._target_scaler,  # pyright: ignore[reportUnknownMemberType]
+        }
 
     @override
     def from_state(self, state: State) -> Self:
@@ -234,9 +238,8 @@ class GBLinearForecaster(Forecaster, ExplainableForecaster):
             msg = f"Unsupported model version: {state['version']}"
             raise ModelLoadingError(msg)
 
-        state_parsed: GBLinearState = GBLinearState.model_validate(state)
-        instance = self.__class__(config=state_parsed.config)
-        model_raw = bytearray(base64.b64decode(state_parsed.model))
+        instance = self.__class__(config=state["config"])
+        model_raw = bytearray(base64.b64decode(state["model"]))
         instance._gblinear_model.load_model(model_raw)  # pyright: ignore[reportUnknownMemberType]  # noqa: SLF001
 
         booster = instance._gblinear_model.get_booster()  # noqa: SLF001
@@ -246,21 +249,43 @@ class GBLinearForecaster(Forecaster, ExplainableForecaster):
             msg = f"Invalid booster type in state: expected 'gblinear', got '{loaded_booster_type}'"
             raise ModelLoadingError(msg)
 
+        instance._target_scaler = state["scaler"]  # noqa: SLF001
+
         return instance
+
+    def _prepare_fit_input(self, data: ForecastInputDataset) -> tuple[pd.DataFrame, np.ndarray, pd.Series]:
+        input_data: pd.DataFrame = data.input_data()
+
+        # Scale the target variable
+        target: np.ndarray = np.asarray(data.target_series.values)
+        target = self._target_scaler.transform(target.reshape(-1, 1)).flatten()
+        # Reshape target for multi-quantile objectives
+        target = xgb_prepare_target_for_objective(
+            target=target,
+            quantiles=self.config.quantiles,
+            objective=self._config.hyperparams.objective,
+        )
+
+        # Prepare sample weights
+        sample_weight: pd.Series = data.sample_weight_series
+
+        return input_data, target, sample_weight
 
     @override
     def fit(self, data: ForecastInputDataset, data_val: ForecastInputDataset | None = None) -> None:
-        input_data: pd.DataFrame = data.input_data()
-        target: pd.Series = data.target_series
-        sample_weight: pd.Series = data.sample_weight_series
+        # Fit the target scaler
+        target: np.ndarray = np.asarray(data.target_series.values)
+        self._target_scaler.fit(target.reshape(-1, 1))
 
+        # Prepare training data
+        input_data, target, sample_weight = self._prepare_fit_input(data)
+
+        # Evaluation sets
         eval_set = [(input_data, target)]
         sample_weight_eval_set = [sample_weight]
 
         if data_val is not None:
-            input_data_val: pd.DataFrame = data_val.input_data()
-            target_val: pd.Series = data_val.target_series
-            sample_weight_val: pd.Series = data_val.sample_weight_series
+            input_data_val, target_val, sample_weight_val = self._prepare_fit_input(data_val)
             eval_set.append((input_data_val, target_val))
             sample_weight_eval_set.append(sample_weight_val)
 
@@ -278,8 +303,16 @@ class GBLinearForecaster(Forecaster, ExplainableForecaster):
         if not self.is_fitted:
             raise NotFittedError(self.__class__.__name__)
 
+        # Get input features for prediction
         input_data: pd.DataFrame = data.input_data(start=data.forecast_start)
-        predictions_array = self._gblinear_model.predict(input_data)
+
+        # Generate predictions
+        predictions_array: np.ndarray = self._gblinear_model.predict(input_data)
+
+        # Inverse transform the scaled predictions
+        predictions_array = self._target_scaler.inverse_transform(predictions_array)
+
+        # Construct DataFrame with appropriate quantile columns
         predictions = pd.DataFrame(
             data=predictions_array,
             index=input_data.index,
