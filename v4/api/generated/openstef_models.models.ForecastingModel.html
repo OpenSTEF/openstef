@@ -591,6 +591,14 @@ ensuring data consistency and validation throughout the pipeline.</p>
 <li><p>fit() must be called before predict()</p></li>
 <li><p>Forecaster and preprocessing horizons must match during initialization</p></li>
 </ul>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>The <cite>cutoff_history</cite> parameter is crucial when using lag-based features in
+preprocessing. For example, a lag-14 transformation creates NaN values for
+the first 14 days of data. Set <cite>cutoff_history</cite> to exclude these incomplete
+rows from training. You must configure this manually based on your preprocessing
+pipeline since lags cannot be automatically inferred from the transforms.</p>
+</div>
 <p class="rubric">Example</p>
 <p>Basic forecasting workflow:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.models.forecasting.constant_median_forecaster</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
@@ -606,6 +614,7 @@ ensuring data consistency and validation throughout the pipeline.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Create and train model</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">ForecastingModel</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="n">forecaster</span><span class="o">=</span><span class="n">forecaster</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">cutoff_history</span><span class="o">=</span><span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">14</span><span class="p">),</span>  <span class="c1"># Match your maximum lag in preprocessing</span>
 <span class="gp">... </span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">training_data</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt;</span>
@@ -641,6 +650,11 @@ ensuring data consistency and validation throughout the pipeline.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_models.models.ForecastingModel.data_splitter">
 <span class="sig-name descname"><span class="pre">data_splitter</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">DataSplitter</span></code></em><a class="headerlink" href="#openstef_models.models.ForecastingModel.data_splitter" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="openstef_models.models.ForecastingModel.cutoff_history">
+<span class="sig-name descname"><span class="pre">cutoff_history</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">timedelta</span></code></em><a class="headerlink" href="#openstef_models.models.ForecastingModel.cutoff_history" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -723,6 +737,32 @@ using the underlying forecaster, and applies postprocessing transformations.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="openstef_models.models.ForecastingModel.prepare_input">
+<span class="sig-name descname"><span class="pre">prepare_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><span class="pre">TimeSeriesDataset</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast_start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">datetime</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="openstef_core.datasets.ForecastInputDataset.html#openstef_core.datasets.ForecastInputDataset" title="openstef_core.datasets.validated_datasets.ForecastInputDataset"><span class="pre">ForecastInputDataset</span></a></span></span><a class="reference internal" href="../../_modules/openstef_models/models/forecasting_model.html#ForecastingModel.prepare_input"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_models.models.ForecastingModel.prepare_input" title="Link to this definition">#</a></dt>
+<dd><p>Prepare input data for forecasting by applying preprocessing and filtering.</p>
+<p>Transforms raw time series data through the preprocessing pipeline, restores
+the target column, and filters out incomplete historical data to ensure
+training quality.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeSeriesDataset</span></code></a></span>) – Raw time series dataset to prepare for forecasting.</p></li>
+<li><p><strong>forecast_start</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Optional start time for forecasts. If provided and earlier
+than the cutoff time, overrides the cutoff for data filtering.</p></li>
+<li><p><strong>data</strong></p></li>
+<li><p><strong>forecast_start</strong></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Processed forecast input dataset ready for model prediction.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="openstef_core.datasets.ForecastInputDataset.html#openstef_core.datasets.ForecastInputDataset" title="openstef_core.datasets.validated_datasets.ForecastInputDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">ForecastInputDataset</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="openstef_models.models.ForecastingModel.score">
 <span class="sig-name descname"><span class="pre">score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><span class="pre">TimeSeriesDataset</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="openstef_beam.evaluation.SubsetMetric.html#openstef_beam.evaluation.SubsetMetric" title="openstef_beam.evaluation.models.subset.SubsetMetric"><span class="pre">SubsetMetric</span></a></span></span><a class="reference internal" href="../../_modules/openstef_models/models/forecasting_model.html#ForecastingModel.score"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_models.models.ForecastingModel.score" title="Link to this definition">#</a></dt>
 <dd><p>Evaluate model performance on the provided dataset.</p>
@@ -795,6 +835,26 @@ when possible.</p>
 <dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef_models.models.ForecastingModel.model_post_init">
+<span class="sig-name descname"><span class="pre">model_post_init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#openstef_models.models.ForecastingModel.model_post_init" title="Link to this definition">#</a></dt>
+<dd><p>This function is meant to behave like a BaseModel method to initialise private attributes.</p>
+<p>It takes context as an argument since that’s what pydantic-core passes when calling it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>self</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></span>) – The BaseModel instance.</p></li>
+<li><p><strong>context</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></span>) – The context.</p></li>
+<li><p><strong>self</strong></p></li>
+<li><p><strong>context</strong></p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -852,16 +912,19 @@ when possible.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.models.ForecastingModel.postprocessing"><code class="docutils literal notranslate"><span class="pre">ForecastingModel.postprocessing</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.models.ForecastingModel.target_column"><code class="docutils literal notranslate"><span class="pre">ForecastingModel.target_column</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.models.ForecastingModel.data_splitter"><code class="docutils literal notranslate"><span class="pre">ForecastingModel.data_splitter</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.models.ForecastingModel.cutoff_history"><code class="docutils literal notranslate"><span class="pre">ForecastingModel.cutoff_history</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.models.ForecastingModel.evaluation_metrics"><code class="docutils literal notranslate"><span class="pre">ForecastingModel.evaluation_metrics</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.models.ForecastingModel.tags"><code class="docutils literal notranslate"><span class="pre">ForecastingModel.tags</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.models.ForecastingModel.config"><code class="docutils literal notranslate"><span class="pre">ForecastingModel.config</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.models.ForecastingModel.is_fitted"><code class="docutils literal notranslate"><span class="pre">ForecastingModel.is_fitted</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.models.ForecastingModel.fit"><code class="docutils literal notranslate"><span class="pre">ForecastingModel.fit()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.models.ForecastingModel.predict"><code class="docutils literal notranslate"><span class="pre">ForecastingModel.predict()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.models.ForecastingModel.prepare_input"><code class="docutils literal notranslate"><span class="pre">ForecastingModel.prepare_input()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.models.ForecastingModel.score"><code class="docutils literal notranslate"><span class="pre">ForecastingModel.score()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.models.ForecastingModel.to_state"><code class="docutils literal notranslate"><span class="pre">ForecastingModel.to_state()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.models.ForecastingModel.from_state"><code class="docutils literal notranslate"><span class="pre">ForecastingModel.from_state()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.models.ForecastingModel.model_config"><code class="docutils literal notranslate"><span class="pre">ForecastingModel.model_config</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.models.ForecastingModel.model_post_init"><code class="docutils literal notranslate"><span class="pre">ForecastingModel.model_post_init()</span></code></a></li>
 </ul>
 </li>
 </ul>

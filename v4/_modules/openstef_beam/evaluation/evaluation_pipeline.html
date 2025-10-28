@@ -453,6 +453,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterator</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">timedelta</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">cast</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">Field</span>
@@ -665,6 +666,8 @@
             <span class="n">dataset</span><span class="o">=</span><span class="n">ground_truth</span><span class="o">.</span><span class="n">select_version</span><span class="p">(),</span>
             <span class="n">target_column</span><span class="o">=</span><span class="n">target_column</span><span class="p">,</span>
         <span class="p">)</span>
+        <span class="c1"># Drop nans from ground truth to ensure clean join with predictions</span>
+        <span class="n">ground_truth_data</span> <span class="o">=</span> <span class="n">ground_truth_data</span><span class="o">.</span><span class="n">pipe_pandas</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">dropna</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
 
         <span class="k">for</span> <span class="n">available_at</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">available_ats</span><span class="p">:</span>
             <span class="n">predictions_filtered</span> <span class="o">=</span> <span class="n">predictions</span><span class="o">.</span><span class="n">filter_by_available_at</span><span class="p">(</span><span class="n">available_at</span><span class="o">=</span><span class="n">available_at</span><span class="p">)</span><span class="o">.</span><span class="n">select_version</span><span class="p">()</span>
@@ -733,7 +736,7 @@
         <span class="n">windowed_metrics</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
             <span class="n">SubsetMetric</span><span class="p">(</span>
                 <span class="n">window</span><span class="o">=</span><span class="s2">&quot;global&quot;</span><span class="p">,</span>
-                <span class="n">timestamp</span><span class="o">=</span><span class="n">subset</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">to_pydatetime</span><span class="p">(),</span>  <span class="c1"># type: ignore[reportUnknownMemberType]</span>
+                <span class="n">timestamp</span><span class="o">=</span><span class="n">cast</span><span class="p">(</span><span class="s2">&quot;pd.Series[pd.Timestamp]&quot;</span><span class="p">,</span> <span class="n">subset</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">to_pydatetime</span><span class="p">(),</span>
                 <span class="n">metrics</span><span class="o">=</span><span class="n">merge_quantile_metrics</span><span class="p">([</span><span class="n">provider</span><span class="p">(</span><span class="n">subset</span><span class="p">)</span> <span class="k">for</span> <span class="n">provider</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_metric_providers</span><span class="p">]),</span>
             <span class="p">)</span>
         <span class="p">)</span>

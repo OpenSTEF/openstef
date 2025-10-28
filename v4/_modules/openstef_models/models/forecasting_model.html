@@ -450,12 +450,13 @@
 <span class="sd">data transformation and validation.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Self</span><span class="p">,</span> <span class="n">cast</span><span class="p">,</span> <span class="n">override</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">Field</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">Field</span><span class="p">,</span> <span class="n">PrivateAttr</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.evaluation</span><span class="w"> </span><span class="kn">import</span> <span class="n">EvaluationConfig</span><span class="p">,</span> <span class="n">EvaluationPipeline</span><span class="p">,</span> <span class="n">SubsetMetric</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.evaluation.metric_providers</span><span class="w"> </span><span class="kn">import</span> <span class="n">MetricProvider</span><span class="p">,</span> <span class="n">ObservedProbabilityProvider</span><span class="p">,</span> <span class="n">R2Provider</span>
@@ -514,6 +515,13 @@
 <span class="sd">        - fit() must be called before predict()</span>
 <span class="sd">        - Forecaster and preprocessing horizons must match during initialization</span>
 
+<span class="sd">    Important:</span>
+<span class="sd">        The `cutoff_history` parameter is crucial when using lag-based features in</span>
+<span class="sd">        preprocessing. For example, a lag-14 transformation creates NaN values for</span>
+<span class="sd">        the first 14 days of data. Set `cutoff_history` to exclude these incomplete</span>
+<span class="sd">        rows from training. You must configure this manually based on your preprocessing</span>
+<span class="sd">        pipeline since lags cannot be automatically inferred from the transforms.</span>
+
 <span class="sd">    Example:</span>
 <span class="sd">        Basic forecasting workflow:</span>
 
@@ -530,6 +538,7 @@
 <span class="sd">        &gt;&gt;&gt; # Create and train model</span>
 <span class="sd">        &gt;&gt;&gt; model = ForecastingModel(</span>
 <span class="sd">        ...     forecaster=forecaster,</span>
+<span class="sd">        ...     cutoff_history=timedelta(days=14),  # Match your maximum lag in preprocessing</span>
 <span class="sd">        ... )</span>
 <span class="sd">        &gt;&gt;&gt; model.fit(training_data)  # doctest: +SKIP</span>
 <span class="sd">        &gt;&gt;&gt;</span>
@@ -561,6 +570,13 @@
         <span class="n">default_factory</span><span class="o">=</span><span class="n">DataSplitter</span><span class="p">,</span>
         <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Data splitting strategy for train/validation/test sets.&quot;</span><span class="p">,</span>
     <span class="p">)</span>
+    <span class="n">cutoff_history</span><span class="p">:</span> <span class="n">timedelta</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Amount of historical data to exclude from training due to incomplete features from lag-based &quot;</span>
+        <span class="s2">&quot;preprocessing. When using lag transforms (e.g., lag-14), the first N days contain NaN values. &quot;</span>
+        <span class="s2">&quot;Set this to match your maximum lag duration (e.g., timedelta(days=14)). &quot;</span>
+        <span class="s2">&quot;Default of 0 assumes no invalid rows are created by preprocessing.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
     <span class="c1"># Evaluation</span>
     <span class="n">evaluation_metrics</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">MetricProvider</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
         <span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="p">[</span><span class="n">R2Provider</span><span class="p">(),</span> <span class="n">ObservedProbabilityProvider</span><span class="p">()],</span>
@@ -571,6 +587,8 @@
         <span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">,</span>
         <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Optional metadata tags for the model.&quot;</span><span class="p">,</span>
     <span class="p">)</span>
+
+    <span class="n">_logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">=</span> <span class="n">PrivateAttr</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">))</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">config</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ForecasterConfig</span><span class="p">:</span>
@@ -615,9 +633,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
 
         <span class="c1"># Transform and split input data</span>
-        <span class="n">input_data_train</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_input</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
-        <span class="n">input_data_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_input</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data_val</span><span class="p">)</span> <span class="k">if</span> <span class="n">data_val</span> <span class="k">else</span> <span class="kc">None</span>
-        <span class="n">input_data_test</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_input</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data_test</span><span class="p">)</span> <span class="k">if</span> <span class="n">data_test</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">input_data_train</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_input</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">input_data_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_input</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data_val</span><span class="p">)</span> <span class="k">if</span> <span class="n">data_val</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">input_data_test</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_input</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data_test</span><span class="p">)</span> <span class="k">if</span> <span class="n">data_test</span> <span class="k">else</span> <span class="kc">None</span>
 
         <span class="c1"># Drop target column nan&#39;s from training data. One can not train on missing targets.</span>
         <span class="n">target_dropna</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">dropna</span><span class="p">,</span> <span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">target_column</span><span class="p">])</span>  <span class="c1"># pyright: ignore[reportUnknownMemberType]</span>
@@ -683,7 +701,7 @@
             <span class="k">raise</span> <span class="n">NotFittedError</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">forecaster</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
 
         <span class="c1"># Transform the input data to a valid forecast input</span>
-        <span class="n">input_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_input</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">forecast_start</span><span class="o">=</span><span class="n">forecast_start</span><span class="p">)</span>
+        <span class="n">input_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_input</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">forecast_start</span><span class="o">=</span><span class="n">forecast_start</span><span class="p">)</span>
 
         <span class="c1"># Generate predictions</span>
         <span class="n">raw_predictions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_predict</span><span class="p">(</span><span class="n">input_data</span><span class="o">=</span><span class="n">input_data</span><span class="p">)</span>
@@ -691,20 +709,49 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">postprocessing</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">raw_predictions</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_prepare_input</span><span class="p">(</span>
+<div class="viewcode-block" id="ForecastingModel.prepare_input">
+<a class="viewcode-back" href="../../../api/generated/openstef_models.models.ForecastingModel.html#openstef_models.models.ForecastingModel.prepare_input">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">prepare_input</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">data</span><span class="p">:</span> <span class="n">TimeSeriesDataset</span><span class="p">,</span>
         <span class="n">forecast_start</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ForecastInputDataset</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Prepare input data for forecasting by applying preprocessing and filtering.</span>
+
+<span class="sd">        Transforms raw time series data through the preprocessing pipeline, restores</span>
+<span class="sd">        the target column, and filters out incomplete historical data to ensure</span>
+<span class="sd">        training quality.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data: Raw time series dataset to prepare for forecasting.</span>
+<span class="sd">            forecast_start: Optional start time for forecasts. If provided and earlier</span>
+<span class="sd">                than the cutoff time, overrides the cutoff for data filtering.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Processed forecast input dataset ready for model prediction.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Transform and restore target column</span>
         <span class="n">input_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
         <span class="n">input_data</span> <span class="o">=</span> <span class="n">restore_target</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">input_data</span><span class="p">,</span> <span class="n">original_dataset</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">target_column</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">target_column</span><span class="p">)</span>
+
+        <span class="c1"># Cut away input history to avoid training on incomplete data</span>
+        <span class="n">input_data_start</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;pd.Series[pd.Timestamp]&quot;</span><span class="p">,</span> <span class="n">input_data</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">to_pydatetime</span><span class="p">()</span>
+        <span class="n">input_data_cutoff</span> <span class="o">=</span> <span class="n">input_data_start</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">cutoff_history</span>
+        <span class="k">if</span> <span class="n">forecast_start</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">forecast_start</span> <span class="o">&lt;</span> <span class="n">input_data_cutoff</span><span class="p">:</span>
+            <span class="n">input_data_cutoff</span> <span class="o">=</span> <span class="n">forecast_start</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;Forecast start </span><span class="si">%s</span><span class="s2"> is after input data start + cutoff history </span><span class="si">%s</span><span class="s2">. Using forecast start as cutoff.&quot;</span><span class="p">,</span>
+                <span class="n">forecast_start</span><span class="p">,</span>
+                <span class="n">input_data_cutoff</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="n">input_data</span> <span class="o">=</span> <span class="n">input_data</span><span class="o">.</span><span class="n">filter_by_range</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">input_data_cutoff</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">ForecastInputDataset</span><span class="o">.</span><span class="n">from_timeseries</span><span class="p">(</span>
             <span class="n">dataset</span><span class="o">=</span><span class="n">input_data</span><span class="p">,</span>
             <span class="n">target_column</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">target_column</span><span class="p">,</span>
             <span class="n">forecast_start</span><span class="o">=</span><span class="n">forecast_start</span><span class="p">,</span>
-        <span class="p">)</span>
+        <span class="p">)</span></div>
+
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_data</span><span class="p">:</span> <span class="n">ForecastInputDataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ForecastDataset</span><span class="p">:</span>
         <span class="c1"># Predict and restore target column</span>

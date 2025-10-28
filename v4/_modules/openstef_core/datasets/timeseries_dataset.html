@@ -749,10 +749,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            New dataset containing only rows with timestamps in the mask.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_version_column</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">data_filtered</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">mask</span><span class="p">)]</span>  <span class="c1"># pyright: ignore[reportUnknownMemberType]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">data_filtered</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+        <span class="n">data_filtered</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">mask</span><span class="p">)]</span>  <span class="c1"># pyright: ignore[reportUnknownMemberType]</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_copy_with_data</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data_filtered</span><span class="p">)</span></div>
 
@@ -795,7 +792,14 @@
 <div class="viewcode-block" id="TimeSeriesDataset.from_pandas">
 <a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset.from_pandas">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_pandas</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_pandas</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">sample_interval</span><span class="p">:</span> <span class="n">timedelta</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">available_at_column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;available_at&quot;</span><span class="p">,</span>
+        <span class="n">horizon_column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;horizon&quot;</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a dataset instance from a pandas DataFrame with metadata in attrs.</span>
 
 <span class="sd">        Reads sample_interval, available_at_column, and horizon_column from the</span>
@@ -803,18 +807,24 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            df: DataFrame containing dataset data with metadata in attrs.</span>
+<span class="sd">            sample_interval: Fixed interval between consecutive data points. If None, reads from attrs.</span>
+<span class="sd">            available_at_column: Name of the column storing availability times.</span>
+<span class="sd">            horizon_column: Name of the column storing forecast horizons.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            New TimeSeriesDataset instance reconstructed from the DataFrame.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="s2">&quot;sample_interval&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">attrs</span><span class="p">:</span>
-            <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="s2">&quot;Parquet file does not contain &#39;sample_interval&#39; attribute. Using default value of 15 minutes.&quot;</span>
-            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">sample_interval</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;sample_interval&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">attrs</span><span class="p">:</span>
+                <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="s2">&quot;Parquet file does not contain &#39;sample_interval&#39; attribute. Using default value of 15 minutes.&quot;</span>
+                <span class="p">)</span>
+                <span class="n">sample_interval</span> <span class="o">=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">sample_interval</span> <span class="o">=</span> <span class="n">timedelta_from_isoformat</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sample_interval&quot;</span><span class="p">,</span> <span class="s2">&quot;PT15M&quot;</span><span class="p">))</span>
 
-        <span class="n">sample_interval</span> <span class="o">=</span> <span class="n">timedelta_from_isoformat</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sample_interval&quot;</span><span class="p">,</span> <span class="s2">&quot;PT15M&quot;</span><span class="p">))</span>
-        <span class="n">available_at_column</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;available_at_column&quot;</span><span class="p">,</span> <span class="s2">&quot;available_at&quot;</span><span class="p">)</span>
-        <span class="n">horizon_column</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;horizon_column&quot;</span><span class="p">,</span> <span class="s2">&quot;horizon&quot;</span><span class="p">)</span>
+        <span class="n">available_at_column</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;available_at_column&quot;</span><span class="p">,</span> <span class="n">available_at_column</span><span class="p">)</span>
+        <span class="n">horizon_column</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;horizon_column&quot;</span><span class="p">,</span> <span class="n">horizon_column</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
             <span class="n">data</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
@@ -835,9 +845,29 @@
 <a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset.read_parquet">[docs]</a>
     <span class="nd">@override</span>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">read_parquet</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">FilePath</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_pandas</span><span class="p">(</span><span class="n">df</span><span class="p">)</span></div>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read_parquet</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">path</span><span class="p">:</span> <span class="n">FilePath</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">sample_interval</span><span class="p">:</span> <span class="n">timedelta</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">timestamp_column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;timestamp&quot;</span><span class="p">,</span>
+        <span class="n">available_at_column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;available_at&quot;</span><span class="p">,</span>
+        <span class="n">horizon_column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;horizon&quot;</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">)</span>  <span class="c1"># pyright: ignore[reportUnknownMemberType]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">timestamp_column</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">TimeSeriesValidationError</span><span class="p">(</span>
+                    <span class="s2">&quot;Parquet file does not have a DatetimeIndex. Please provide &#39;timestamp_column&#39; to read the dataset.&quot;</span>
+                <span class="p">)</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">timestamp_column</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_pandas</span><span class="p">(</span>
+            <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
+            <span class="n">sample_interval</span><span class="o">=</span><span class="n">sample_interval</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">available_at_column</span><span class="o">=</span><span class="n">available_at_column</span><span class="p">,</span>
+            <span class="n">horizon_column</span><span class="o">=</span><span class="n">horizon_column</span><span class="p">,</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TimeSeriesDataset.pipe_pandas">

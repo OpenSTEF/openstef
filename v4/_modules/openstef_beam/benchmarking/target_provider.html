@@ -663,11 +663,11 @@
 <span class="sd">        &gt;&gt;&gt; from openstef_beam.evaluation.metric_providers import RMAEProvider, RCRPSProvider</span>
 <span class="sd">        &gt;&gt;&gt; provider = SimpleTargetProvider(</span>
 <span class="sd">        ...     data_dir=Path(&quot;./benchmark_data&quot;),</span>
-<span class="sd">        ...     measurements_path_for_target=lambda t: Path(t.group_name) / f&quot;load_{t.name}.parquet&quot;,</span>
-<span class="sd">        ...     weather_path_for_target=lambda t: Path(t.group_name) / f&quot;weather_{t.name}.parquet&quot;,</span>
-<span class="sd">        ...     profiles_path=lambda: Path(&quot;standard_profiles.parquet&quot;),</span>
-<span class="sd">        ...     prices_path=lambda: Path(&quot;energy_prices.parquet&quot;),</span>
-<span class="sd">        ...     targets_file_path=lambda: Path(&quot;energy_targets.yaml&quot;),</span>
+<span class="sd">        ...     measurements_path_template=&quot;load_{name}.parquet&quot;,</span>
+<span class="sd">        ...     weather_path_template=&quot;weather_{name}.parquet&quot;,</span>
+<span class="sd">        ...     profiles_path=&quot;standard_profiles.parquet&quot;,</span>
+<span class="sd">        ...     prices_path=&quot;energy_prices.parquet&quot;,</span>
+<span class="sd">        ...     targets_file_path=&quot;energy_targets.yaml&quot;,</span>
 <span class="sd">        ...     data_sample_interval=timedelta(minutes=15),</span>
 <span class="sd">        ...     metrics=[RMAEProvider(), RCRPSProvider()],</span>
 <span class="sd">        ...     use_profiles=True,</span>
@@ -677,21 +677,26 @@
 
     <span class="n">data_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Root directory containing all benchmark data files&quot;</span><span class="p">)</span>
 
-    <span class="n">profiles_path</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
-        <span class="n">default</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;profiles_data.parquet&quot;</span><span class="p">),</span>
-        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Function to build file path for shared profiles data&quot;</span><span class="p">,</span>
+    <span class="c1"># Data Paths</span>
+    <span class="n">measurements_path_template</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;load_data_</span><span class="si">{name}</span><span class="s2">.parquet&quot;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Template for target-specific measurement files with </span><span class="si">{name}</span><span class="s2"> placeholder&quot;</span><span class="p">,</span>
+        <span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">weather_path_template</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;weather_data_</span><span class="si">{name}</span><span class="s2">.parquet&quot;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Template for target-specific weather files with </span><span class="si">{name}</span><span class="s2"> placeholder&quot;</span><span class="p">,</span>
+        <span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">profiles_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;profiles_data.parquet&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Path to shared profiles data file.&quot;</span><span class="p">,</span> <span class="n">frozen</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="n">prices_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s2">&quot;prices_data.parquet&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Path to shared prices data file.&quot;</span><span class="p">,</span> <span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">targets_file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;targets.yaml&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Path to the target definitions file&quot;</span><span class="p">,</span> <span class="n">frozen</span><span class="o">=</span><span class="kc">True</span>
     <span class="p">)</span>
 
-    <span class="n">prices_path</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
-        <span class="n">default</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;prices_data.parquet&quot;</span><span class="p">),</span>
-        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Function to build file path for shared prices data&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-
-    <span class="n">targets_file_path</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
-        <span class="n">default</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;targets.yaml&quot;</span><span class="p">),</span>
-        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Function to build file path for target definitions&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-
+    <span class="c1"># Data Loading Options</span>
     <span class="n">use_profiles</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Whether to use shared profiles data for predictors&quot;</span><span class="p">,</span>
@@ -700,12 +705,12 @@
         <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Whether to use shared prices data for predictors&quot;</span><span class="p">,</span>
     <span class="p">)</span>
-
     <span class="n">data_sample_interval</span><span class="p">:</span> <span class="n">timedelta</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
         <span class="n">default</span><span class="o">=</span><span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="mi">15</span><span class="p">),</span>
         <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Temporal resolution for all datasets in this provider, used for alignment&quot;</span><span class="p">,</span>
     <span class="p">)</span>
 
+    <span class="c1"># Evaluation Metrics</span>
     <span class="n">metrics</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">MetricProvider</span><span class="p">]</span> <span class="o">|</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">T</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="n">MetricProvider</span><span class="p">]]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
         <span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">[</span><span class="n">MetricProvider</span><span class="p">],</span>
         <span class="n">description</span><span class="o">=</span><span class="s2">&quot;List of metric providers to evaluate target forecasts&quot;</span><span class="p">,</span>
@@ -720,9 +725,8 @@
 <a class="viewcode-back" href="../../../api/generated/openstef_beam.benchmarking.SimpleTargetProvider.html#openstef_beam.benchmarking.SimpleTargetProvider.get_targets">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_targets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filter_args</span><span class="p">:</span> <span class="n">F</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
-        <span class="n">targets_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">targets_file_path</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">read_yaml_config</span><span class="p">(</span>
-            <span class="n">path</span><span class="o">=</span><span class="n">targets_path</span><span class="p">,</span>
+            <span class="n">path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">targets_file_path</span><span class="p">,</span>
             <span class="n">class_type</span><span class="o">=</span><span class="n">TypeAdapter</span><span class="p">(</span><span class="nb">list</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">get_target_class</span><span class="p">]),</span>
         <span class="p">)</span></div>
 
@@ -744,6 +748,9 @@
         <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Function to build file path for target weather data using configured template&quot;</span><span class="p">,</span>
     <span class="p">)</span>
 
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_measurements_path_for_target</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">/</span> <span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">group_name</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">measurements_path_template</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">target</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
 <div class="viewcode-block" id="SimpleTargetProvider.get_measurements_for_target">
 <a class="viewcode-back" href="../../../api/generated/openstef_beam.benchmarking.SimpleTargetProvider.html#openstef_beam.benchmarking.SimpleTargetProvider.get_measurements_for_target">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_measurements_for_target</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VersionedTimeSeriesDataset</span><span class="p">:</span>
@@ -752,13 +759,10 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            VersionedTimeSeriesDataset: The loaded measurements data.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span>  <span class="c1"># type: ignore</span>
-            <span class="n">path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">measurements_path_for_target</span><span class="p">(</span><span class="n">target</span><span class="p">),</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="n">VersionedTimeSeriesDataset</span><span class="o">.</span><span class="n">from_dataframe</span><span class="p">(</span>
-            <span class="n">data</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
+        <span class="k">return</span> <span class="n">VersionedTimeSeriesDataset</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span>
+            <span class="n">path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_measurements_path_for_target</span><span class="p">(</span><span class="n">target</span><span class="p">),</span>
             <span class="n">sample_interval</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data_sample_interval</span><span class="p">,</span>
-        <span class="p">)</span></div>
+        <span class="p">)</span><span class="o">.</span><span class="n">filter_by_range</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">target</span><span class="o">.</span><span class="n">train_start</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">target</span><span class="o">.</span><span class="n">benchmark_end</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="SimpleTargetProvider.get_predictors_for_target">
@@ -782,8 +786,13 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_prices</span><span class="p">:</span>
             <span class="n">datasets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_prices</span><span class="p">())</span>
 
-        <span class="k">return</span> <span class="n">VersionedTimeSeriesDataset</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;inner&quot;</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">VersionedTimeSeriesDataset</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">datasets</span><span class="o">=</span><span class="n">datasets</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;inner&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">filter_by_range</span><span class="p">(</span>
+            <span class="n">start</span><span class="o">=</span><span class="n">target</span><span class="o">.</span><span class="n">train_start</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">target</span><span class="o">.</span><span class="n">benchmark_end</span>
+        <span class="p">)</span></div>
 
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_weather_path_for_target</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">/</span> <span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">group_name</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">weather_path_template</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">target</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 
 <div class="viewcode-block" id="SimpleTargetProvider.get_weather_for_target">
 <a class="viewcode-back" href="../../../api/generated/openstef_beam.benchmarking.SimpleTargetProvider.html#openstef_beam.benchmarking.SimpleTargetProvider.get_weather_for_target">[docs]</a>
@@ -793,11 +802,8 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            VersionedTimeSeriesDataset: The loaded weather data.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span>  <span class="c1"># type: ignore</span>
-            <span class="n">path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">weather_path_for_target</span><span class="p">(</span><span class="n">target</span><span class="p">),</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="n">VersionedTimeSeriesDataset</span><span class="o">.</span><span class="n">from_dataframe</span><span class="p">(</span>
-            <span class="n">data</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
+        <span class="k">return</span> <span class="n">VersionedTimeSeriesDataset</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span>
+            <span class="n">path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_weather_path_for_target</span><span class="p">(</span><span class="n">target</span><span class="p">),</span>
             <span class="n">sample_interval</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data_sample_interval</span><span class="p">,</span>
         <span class="p">)</span></div>
 
@@ -810,11 +816,8 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            VersionedTimeSeriesDataset: The loaded energy profiles data.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span>  <span class="c1"># type: ignore</span>
-            <span class="n">path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">profiles_path</span><span class="p">(),</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="n">VersionedTimeSeriesDataset</span><span class="o">.</span><span class="n">from_dataframe</span><span class="p">(</span>
-            <span class="n">data</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
+        <span class="k">return</span> <span class="n">VersionedTimeSeriesDataset</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span>
+            <span class="n">path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">profiles_path</span><span class="p">,</span>
             <span class="n">sample_interval</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data_sample_interval</span><span class="p">,</span>
         <span class="p">)</span></div>
 
@@ -827,11 +830,8 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            VersionedTimeSeriesDataset: The loaded energy pricing data.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span>  <span class="c1"># type: ignore</span>
-            <span class="n">path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">prices_path</span><span class="p">(),</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="n">VersionedTimeSeriesDataset</span><span class="o">.</span><span class="n">from_dataframe</span><span class="p">(</span>
-            <span class="n">data</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
+        <span class="k">return</span> <span class="n">VersionedTimeSeriesDataset</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span>
+            <span class="n">path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">prices_path</span><span class="p">,</span>
             <span class="n">sample_interval</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data_sample_interval</span><span class="p">,</span>
         <span class="p">)</span></div>
 
