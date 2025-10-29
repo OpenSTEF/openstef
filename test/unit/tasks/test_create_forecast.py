@@ -54,8 +54,8 @@ class TestCreateForecastTask(TestCase):
         create_forecast_task(self.pj, context)
 
         # Assert
-        self.assertEqual(context.mock_calls[3][0], "database.write_forecast")
-        self.assertEqual(context.mock_calls[3].args[0], FORECAST_MOCK)
+        self.assertEqual(context.mock_calls[1][0], "database.write_forecast")
+        self.assertEqual(context.mock_calls[1].args[0], FORECAST_MOCK)
 
     @patch(
         "openstef.tasks.create_forecast.create_forecast_pipeline",
@@ -74,8 +74,8 @@ class TestCreateForecastTask(TestCase):
         self.assertNotEqual(
             self.pj.id, context.config.externally_posted_forecasts_pids[0]
         )
-        self.assertEqual(context.mock_calls[3][0], "database.write_forecast")
-        self.assertEqual(context.mock_calls[3].args[0], FORECAST_MOCK)
+        self.assertEqual(context.mock_calls[1][0], "database.write_forecast")
+        self.assertEqual(context.mock_calls[1].args[0], FORECAST_MOCK)
 
     def test_create_forecast_task_skip_external(self):
         """Test that making a forecast is skipped for externally posted pids."""
@@ -110,7 +110,7 @@ class TestCreateForecastTask(TestCase):
         # Assert
         self.assertEqual(self.pj.id, context.config.known_zero_flatliners[0])
         self.assertEqual(
-            context.mock_calls[3].args[0],
+            context.mock_calls[1].args[0],
             "No forecasts were made for this known zero flatliner prediction job. No forecasts need to be made either, since the fallback forecasts are sufficient.",
         )
         assert (
@@ -134,7 +134,7 @@ class TestCreateForecastTask(TestCase):
         # Assert
         self.assertEqual(self.pj.id, context.config.known_zero_flatliners[0])
         self.assertEqual(
-            context.mock_calls[3].args[0],
+            context.mock_calls[1].args[0],
             "No forecasts were made for this known zero flatliner prediction job. No forecasts need to be made either, since the fallback forecasts are sufficient.",
         )
         assert (
@@ -229,7 +229,7 @@ class TestCreateForecastTask(TestCase):
 
         # Assert
         self.assertEqual(create_forecast_pipeline_mock.call_count, 1)
-        self.assertEqual(context.mock_calls[5].args[0], FORECAST_MOCK)
+        self.assertEqual(context.mock_calls[3].args[0], FORECAST_MOCK)
 
     @patch("mlflow.sklearn.load_model")
     @patch("openstef.model.serializer.MLflowSerializer")
