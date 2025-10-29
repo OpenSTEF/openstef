@@ -173,7 +173,6 @@ class MLflowSerializer:
             # return the latest finished run of the model
             if models_df.empty:
                 raise LookupError("Model not found. First train a model!")
-            
             latest_run = models_df.iloc[0]  # Use .iloc[0] to only get latest run
             model_uri = f"runs:/{latest_run.run_id}/model"
             loaded_model = mlflow.sklearn.load_model(model_uri)
