@@ -25,7 +25,13 @@ from openstef_beam.benchmarking.models.benchmark_target import BenchmarkTarget
 from openstef_beam.benchmarking.storage.base import BenchmarkStorage
 from openstef_beam.benchmarking.target_provider import SimpleTargetProvider
 from openstef_beam.evaluation import EvaluationConfig, Window
-from openstef_beam.evaluation.metric_providers import MetricProvider, PeakMetricProvider, RCRPSProvider, RMAEProvider
+from openstef_beam.evaluation.metric_providers import (
+    MetricProvider,
+    PeakMetricProvider,
+    RCRPSProvider,
+    RCRPSSampleWeightedProvider,
+    RMAEProvider,
+)
 from openstef_core.types import AvailableAt, Quantile
 
 type Liander2024Category = Literal["mv_feeder", "station_installation", "transformer", "solar_park", "wind_park"]
@@ -69,6 +75,7 @@ class Liander2024TargetProvider(SimpleTargetProvider[BenchmarkTarget, list[Liand
                 limit_neg=target.lower_limit if target.lower_limit is not None else 0.0,
                 beta=2,
             ),
+            RCRPSSampleWeightedProvider(lower_quantile=0.01, upper_quantile=0.99),
         ]
 
     @override
@@ -123,6 +130,21 @@ LIANDER2024_ANALYSIS_CONFIG = AnalysisConfig(
             metric="rCRPS",
             window=Window(lag=timedelta(hours=0), size=timedelta(days=30)),
         ),
+        WindowedMetricVisualization(
+            name="rCRPS_sample_weighted_windowed_7D",
+            metric="rCRPS_sample_weighted",
+            window=Window(lag=timedelta(hours=0), size=timedelta(days=7)),
+        ),
+        WindowedMetricVisualization(
+            name="rCRPS_sample_weighted_windowed_21D",
+            metric="rCRPS_sample_weighted",
+            window=Window(lag=timedelta(hours=0), size=timedelta(days=21)),
+        ),
+        WindowedMetricVisualization(
+            name="rCRPS_sample_weighted_windowed_30D",
+            metric="rCRPS_sample_weighted",
+            window=Window(lag=timedelta(hours=0), size=timedelta(days=30)),
+        ),
         GroupedTargetMetricVisualization(
             name="rMAE_grouped",
             metric="rMAE",
@@ -131,6 +153,10 @@ LIANDER2024_ANALYSIS_CONFIG = AnalysisConfig(
         GroupedTargetMetricVisualization(
             name="rCRPS_grouped",
             metric="rCRPS",
+        ),
+        GroupedTargetMetricVisualization(
+            name="rCRPS_sample_weighted_grouped",
+            metric="rCRPS_sample_weighted",
         ),
         GroupedTargetMetricVisualization(name="best_f2", metric="effective_F2.0", selector_metric="effective_F2.0"),
         GroupedTargetMetricVisualization(
