@@ -146,21 +146,21 @@ class MLflowSerializer:
         experiment_name: str,
         model_run_id: Optional[str] = None,
     ) -> tuple[OpenstfRegressor, ModelSpecificationDataClass]:
-        """ Load an sklearn-compatible model from MLflow.
+        """Load an sklearn-compatible model from MLflow.
 
-        This method retrieves a trained model and its specifications from MLflow 
-        based on the provided PredictionJobDataClass instance. It supports loading 
+        This method retrieves a trained model and its specifications from MLflow
+        based on the provided PredictionJobDataClass instance. It supports loading
         a specific model run if a run number is provided.
-            
+
         Args:
                 experiment_name (str): Name of the experiment, often the id of the predition job.
                 model_run_id (Optional[str]): The specific model run number that should be used for the forecast.
 
         Returns:
-            tuple[OpenstfRegressor, ModelSpecificationDataClass]: A tuple containing 
+            tuple[OpenstfRegressor, ModelSpecificationDataClass]: A tuple containing
                 the loaded model and its specifications.
 
-            LookupError: If the model is not found in MLflow or if an error occurs 
+            LookupError: If the model is not found in MLflow or if an error occurs
                 during the loading process.
 
         """
@@ -185,7 +185,7 @@ class MLflowSerializer:
             )  # Path without file:///
             self.logger.info("Model successfully loaded with MLflow")
             return loaded_model, model_specs
-        except (AttributeError, MlflowException, OSError) as exception:            
+        except (AttributeError, MlflowException, OSError) as exception:
             raise LookupError("Model not found. First train a model!") from exception
 
     def get_model_age(

@@ -28,10 +28,7 @@ class TestCreateForecastTask(TestCase):
 
     def test_mocked_model_path(self):
         """This test explicitely tests if the model path is mocked correctly"""
-        assert (
-            "2ca1d126e8724852b303b256e64a6c4f/model"
-            in self.model.path
-        )
+        assert "2ca1d126e8724852b303b256e64a6c4f/model" in self.model.path
 
     @patch(
         "openstef.tasks.create_forecast.create_forecast_pipeline",
