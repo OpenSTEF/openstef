@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+import pickle  # noqa: S403 - controlled test
 from datetime import datetime, timedelta
 
 import numpy as np
@@ -12,9 +13,16 @@ from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import NotFittedError
 from openstef_core.mixins import TransformPipeline
+from openstef_core.testing import assert_timeseries_equal, create_synthetic_forecasting_dataset
 from openstef_core.types import LeadTime, Quantile, override
+from openstef_models.models.forecasting.constant_median_forecaster import (
+    ConstantMedianForecaster,
+    ConstantMedianForecasterConfig,
+)
 from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
 from openstef_models.models.forecasting_model import ForecastingModel
+from openstef_models.transforms.postprocessing.quantile_sorter import QuantileSorter
+from openstef_models.transforms.time_domain.lags_adder import LagsAdder
 
 
 class SimpleForecaster(Forecaster):
@@ -171,3 +179,63 @@ def test_forecasting_model__score__returns_metrics(sample_timeseries_dataset: Ti
     assert Quantile(0.5) in metrics.metrics
     # R2 metric should be present (default evaluation metric)
     assert "R2" in metrics.metrics[Quantile(0.5)]
+
+
+def test_forecasting_model__pickle_roundtrip():
+    """Test that ForecastingModel with preprocessing and postprocessing can be pickled and unpickled.
+
+    This verifies that the entire forecasting pipeline, including transforms and forecaster,
+    can be serialized and deserialized while maintaining functionality.
+    """
+    # Arrange - create synthetic dataset
+    dataset = create_synthetic_forecasting_dataset(
+        length=timedelta(days=30),
+        sample_interval=timedelta(hours=1),
+        random_seed=42,
+    )
+
+    # Create forecasting model with preprocessing and postprocessing
+    horizons = [LeadTime(timedelta(hours=6))]
+
+    original_model = ForecastingModel(
+        forecaster=ConstantMedianForecaster(
+            config=ConstantMedianForecasterConfig(
+                quantiles=[Quantile(0.1), Quantile(0.5), Quantile(0.9)],
+                horizons=horizons,
+            )
+        ),
+        preprocessing=TransformPipeline(
+            transforms=[
+                LagsAdder(
+                    history_available=timedelta(days=14),
+                    horizons=horizons,
+                    max_day_lags=7,
+                    add_trivial_lags=True,
+                    add_autocorr_lags=False,
+                ),
+            ]
+        ),
+        postprocessing=TransformPipeline(transforms=[QuantileSorter()]),
+        cutoff_history=timedelta(days=7),
+        target_column="load",
+    )
+
+    # Fit the original model
+    original_model.fit(data=dataset)
+
+    # Get predictions from original model
+    expected_predictions = original_model.predict(data=dataset)
+
+    # Act - pickle and unpickle the model
+    pickled = pickle.dumps(original_model)
+    restored_model = pickle.loads(pickled)  # noqa: S301 - Controlled test
+
+    # Assert - verify the restored model is the correct type
+    assert isinstance(restored_model, ForecastingModel)
+    assert restored_model.is_fitted
+    assert restored_model.target_column == original_model.target_column
+    assert restored_model.cutoff_history == original_model.cutoff_history
+
+    # Verify predictions match using pandas testing utilities
+    actual_predictions = restored_model.predict(data=dataset)
+    assert_timeseries_equal(actual_predictions, expected_predictions)

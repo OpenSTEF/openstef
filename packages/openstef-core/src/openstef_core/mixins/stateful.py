@@ -48,9 +48,12 @@ class Stateful:
             Versioned state dictionary containing version number, class name,
             and the object's internal state.
         """
-        if hasattr(super(), "__getstate__"):  # noqa: SIM108 - keep if else for clarity
+        if hasattr(super(), "__getstate__"):
             # In case of pydantic or other base classes implementing __getstate__
             base_state = super().__getstate__()  # type: ignore[misc]
+            # Pydantic returns None for models with no fields
+            if base_state is None:
+                base_state = {}
         else:
             base_state = self.__dict__.copy()
 
@@ -106,7 +109,7 @@ class Stateful:
         # Check if any parent class has __setstate__
         if hasattr(super(), "__setstate__"):
             super().__setstate__(state)  # type: ignore[misc]
-        else:
+        elif state:  # Only update if state is not empty
             self.__dict__.update(state)
 
     @classmethod
