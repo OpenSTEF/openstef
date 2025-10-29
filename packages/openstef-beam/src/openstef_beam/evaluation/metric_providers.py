@@ -237,6 +237,70 @@ class RCRPSProvider(MetricProvider):
         }
 
 
+class RCRPSSampleWeightedProvider(MetricProvider):
+    """Provides the Relative Continuous Ranked Probability Score.
+
+    Computes rCRPS directly from the full probabilistic forecast without
+    processing individual quantiles.
+    """
+
+    lower_quantile: float = Field(
+        default=0.01,
+        description="Lower quantile bound for rCRPS normalization.",
+    )
+    upper_quantile: float = Field(
+        default=0.99,
+        description="Upper quantile bound for rCRPS normalization and sample weighting.",
+    )
+    a_min: float = Field(
+        default=0.1,
+        description="Minimum sample weight.",
+    )
+    a_max: float = Field(
+        default=1.0,
+        description="Maximum sample weight.",
+    )
+    exponent: float = Field(
+        default=1.0,
+        description="Exponent for sample weight calculation.",
+    )
+
+    def compute_probabilistic(
+        self,
+        y_true: npt.NDArray[np.floating],
+        y_pred: npt.NDArray[np.floating],
+        quantiles: npt.NDArray[np.floating],
+    ) -> QuantileMetricsDict:
+        """Compute sample weighted rCRPS metric for probabilistic forecasts.
+
+        Args:
+            y_true: True values, 1D array of shape (num_samples,).
+            y_pred: Predicted values, 2D array of shape (num_samples, num_quantiles).
+            quantiles: Quantiles used for prediction, 1D array of shape (num_quantiles,).
+
+        Returns:
+            QuantileMetricsDict containing global sample weighted rCRPS metric value.
+        """
+        sample_weights = np.clip(
+            np.abs(y_true / np.quantile(np.abs(y_true), q=self.upper_quantile)) ** self.exponent,
+            a_min=self.a_min,
+            a_max=self.a_max,
+        )
+
+        return {
+            "global": {
+                "rCRPS_sample_weighted": rcrps(
+                    y_true=y_true,
+                    y_pred=y_pred,
+                    quantiles=quantiles,
+                    lower_quantile=self.lower_quantile,
+                    upper_quantile=self.upper_quantile,
+                    sample_weights=sample_weights,
+                )
+            }
+        }
+
+
 class RMAEProvider(MetricProvider):
     """Provides Relative Mean Absolute Error metrics.
 
