@@ -85,7 +85,6 @@ def create_forecast_task(
         entsoe_bidding_zone=pj.electricity_bidding_zone.value,
     )
 
-
     try:
         # Make forecast with the forecast pipeline
         forecast = create_forecast_pipeline(
