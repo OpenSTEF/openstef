@@ -18,27 +18,17 @@ FORECAST_MOCK = "forecast_mock"
 
 
 class TestCreateForecastTask(TestCase):
-    @patch("openstef.model.serializer.MLflowSerializer._get_model_uri")
-    def setUp(self, _get_model_uri_mock) -> None:
+    def setUp(self) -> None:
         self.pj, self.modelspecs = TestData.get_prediction_job_and_modelspecs(pid=307)
         self.serializer = MLflowSerializer(
             mlflow_tracking_uri="./test/unit/trained_models/mlruns"
         )
-
-        # mock model location
-        # Determine absolute location where already stored model is, based on relative path.
-        # This is needed so the model stored in the repo can be found when running remote
-        rel_path = "test/unit/trained_models/mlruns/893156335105023143/2ca1d126e8724852b303b256e64a6c4f/artifacts/model"
-        _get_model_uri_mock.return_value = Path(rel_path).absolute().as_uri()
         # Use MLflowSerializer to load a model
         self.model, _ = self.serializer.load_model(str(self.pj["id"]))
 
     def test_mocked_model_path(self):
         """This test explicitely tests if the model path is mocked correctly"""
-        assert (
-            "test/unit/trained_models/mlruns/893156335105023143/2ca1d126e8724852b303b256e64a6c4f/artifacts/model"
-            in self.model.path
-        )
+        assert "2ca1d126e8724852b303b256e64a6c4f/model" in self.model.path
 
     @patch(
         "openstef.tasks.create_forecast.create_forecast_pipeline",

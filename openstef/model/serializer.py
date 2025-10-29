@@ -146,33 +146,35 @@ class MLflowSerializer:
         experiment_name: str,
         model_run_id: Optional[str] = None,
     ) -> tuple[OpenstfRegressor, ModelSpecificationDataClass]:
-        """ Load an sklearn-compatible model from MLflow.
+        """Load an sklearn-compatible model from MLflow.
 
-        This method retrieves a trained model and its specifications from MLflow 
-        based on the provided PredictionJobDataClass instance. It supports loading 
+        This method retrieves a trained model and its specifications from MLflow
+        based on the provided PredictionJobDataClass instance. It supports loading
         a specific model run if a run number is provided.
-            
+
         Args:
                 experiment_name (str): Name of the experiment, often the id of the predition job.
                 model_run_id (Optional[str]): The specific model run number that should be used for the forecast.
 
         Returns:
-            tuple[OpenstfRegressor, ModelSpecificationDataClass]: A tuple containing 
+            tuple[OpenstfRegressor, ModelSpecificationDataClass]: A tuple containing
                 the loaded model and its specifications.
 
-            LookupError: If the model is not found in MLflow or if an error occurs 
+            LookupError: If the model is not found in MLflow or if an error occurs
                 during the loading process.
 
         """
         try:
             models_df = self._find_models(
-                self.experiment_name_prefix + experiment_name, max_results=1, model_run_id=model_run_id)
-             # return the latest finished run of the model
-            if not models_df.empty:
-                latest_run = models_df.iloc[0]  # Use .iloc[0] to only get latest run
-            else:
+                self.experiment_name_prefix + experiment_name,
+                max_results=1,
+                model_run_id=model_run_id,
+            )
+            # return the latest finished run of the model
+            if models_df.empty:
                 raise LookupError("Model not found. First train a model!")
-            model_uri = self._get_model_uri(latest_run.artifact_uri)
+            latest_run = models_df.iloc[0]  # Use .iloc[0] to only get latest run
+            model_uri = f"runs:/{latest_run.run_id}/model"
             loaded_model = mlflow.sklearn.load_model(model_uri)
             loaded_model.age = self._determine_model_age_from_mlflow_run(latest_run)
             model_specs = self._get_model_specs(
@@ -183,7 +185,7 @@ class MLflowSerializer:
             )  # Path without file:///
             self.logger.info("Model successfully loaded with MLflow")
             return loaded_model, model_specs
-        except (AttributeError, MlflowException, OSError) as exception:            
+        except (AttributeError, MlflowException, OSError) as exception:
             raise LookupError("Model not found. First train a model!") from exception
 
     def get_model_age(
@@ -431,11 +433,3 @@ class MLflowSerializer:
                     experiment_name=experiment_name,
                 )
         return model_specs.feature_modules
-
-    def _get_model_uri(self, artifact_uri: str) -> str:
-        """Set model uri based on latest run.
-
-        Note: this function helps to mock during unit tests
-
-        """
-        return os.path.join(artifact_uri, "model/")
