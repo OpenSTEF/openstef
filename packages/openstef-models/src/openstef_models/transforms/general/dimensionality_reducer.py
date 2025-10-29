@@ -8,7 +8,7 @@ This module provides dimensionality reduction functionality. With a choice of va
 from scikit-learn to reduce the number of features in time series datasets.
 """
 
-from typing import TYPE_CHECKING, Any, Literal, Self, cast, override
+from typing import TYPE_CHECKING, Any, Literal, override
 
 import pandas as pd
 from pydantic import Field, PrivateAttr
@@ -17,7 +17,6 @@ from sklearn.decomposition import PCA, FactorAnalysis, FastICA, KernelPCA
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets.timeseries_dataset import TimeSeriesDataset
 from openstef_core.exceptions import NotFittedError
-from openstef_core.mixins import State
 from openstef_core.transforms import TimeSeriesTransform
 from openstef_models.utils.feature_selection import FeatureSelection
 
@@ -132,25 +131,6 @@ class DimensionalityReducer(BaseConfig, TimeSeriesTransform):
             self._dimensionality_reducer = KernelPCA(
                 n_components=self.n_components, kernel="rbf", random_state=self.random_state
             )  # rbf for non-linear
-
-    @override
-    def to_state(self) -> State:
-        return cast(
-            State,
-            {
-                "config": self.model_dump(mode="json"),
-                "dimensionality_reducer": self._dimensionality_reducer.__getstate__(),  # pyright: ignore[reportUnknownMemberType]
-                "is_fitted": self._is_fitted,
-            },
-        )
-
-    @override
-    def from_state(self, state: State) -> Self:
-        state = cast(dict[str, Any], state)
-        instance = self.model_validate(state["config"])
-        instance._dimensionality_reducer.__setstate__(state["dimensionality_reducer"])  # pyright: ignore[reportUnknownMemberType] # noqa: SLF001
-        instance._is_fitted = state["is_fitted"]  # noqa: SLF001
-        return instance
 
     @override
     def features_added(self) -> list[str]:

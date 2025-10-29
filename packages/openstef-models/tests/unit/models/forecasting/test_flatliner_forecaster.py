@@ -30,11 +30,3 @@ def test_predict_returns_zeros(config: FlatlinerForecasterConfig, sample_forecas
 def test_is_fitted_always_true(config: FlatlinerForecasterConfig):
     forecaster = FlatlinerForecaster(config)
     assert forecaster.is_fitted
-
-
-def test_to_state_and_from_state(config: FlatlinerForecasterConfig):
-    forecaster = FlatlinerForecaster(config)
-    state = forecaster.to_state()
-    new_forecaster = forecaster.from_state(state)
-    assert isinstance(new_forecaster, FlatlinerForecaster)
-    assert isinstance(new_forecaster.config, FlatlinerForecasterConfig)

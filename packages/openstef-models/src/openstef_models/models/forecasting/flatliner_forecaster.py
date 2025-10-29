@@ -8,12 +8,11 @@ Provides basic forecasting model that predict constant flatliner zero values. It
 when a flatline (non-)zero measurement is observed in the past and expected in the future.
 """
 
-from typing import Self, override
+from typing import override
 
 import pandas as pd
 
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
-from openstef_core.exceptions import ModelLoadingError
 from openstef_models.explainability.mixins import ExplainableForecaster
 from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
 
@@ -74,20 +73,6 @@ class FlatlinerForecaster(Forecaster, ExplainableForecaster):
     @override
     def is_fitted(self) -> bool:
         return True
-
-    @override
-    def to_state(self) -> object:
-        return {
-            "version": MODEL_CODE_VERSION,
-            "config": self.config.model_dump(mode="json"),
-        }
-
-    @override
-    def from_state(self, state: object) -> Self:
-        if not isinstance(state, dict) or "version" not in state or state["version"] > MODEL_CODE_VERSION:
-            raise ModelLoadingError("Invalid state for FlatlinerForecaster")
-
-        return self.__class__(config=FlatlinerForecasterConfig.model_validate(state["config"]))
 
     @override
     def fit(

@@ -13,7 +13,6 @@ from abc import ABC, abstractmethod
 from typing import BinaryIO, ClassVar
 
 from openstef_core.base_model import BaseConfig
-from openstef_core.mixins import Stateful
 
 type ModelIdentifier = str
 
@@ -40,7 +39,7 @@ class ModelSerializer(BaseConfig, ABC):
     extension: ClassVar[str]
 
     @abstractmethod
-    def serialize(self, model: Stateful, file: BinaryIO) -> None:
+    def serialize(self, model: object, file: BinaryIO) -> None:
         """Write a model's state to a binary file.
 
         Converts the model's internal state to a binary format and writes it to
@@ -53,7 +52,7 @@ class ModelSerializer(BaseConfig, ABC):
         """
 
     @abstractmethod
-    def deserialize[T: Stateful](self, model: T, file: BinaryIO) -> T:
+    def deserialize(self, file: BinaryIO) -> object:
         """Read a model's state from a binary file and restore it.
 
         Loads the model state from the binary file and applies it to the provided

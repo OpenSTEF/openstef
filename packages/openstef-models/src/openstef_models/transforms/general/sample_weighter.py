@@ -9,7 +9,7 @@ emphasizing high-value periods for improved model performance on peak loads.
 """
 
 import logging
-from typing import Any, Self, cast, override
+from typing import override
 
 import numpy as np
 from pydantic import Field, PrivateAttr
@@ -17,7 +17,6 @@ from pydantic import Field, PrivateAttr
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets.timeseries_dataset import TimeSeriesDataset
 from openstef_core.exceptions import NotFittedError
-from openstef_core.mixins import State
 from openstef_core.transforms.dataset_transforms import TimeSeriesTransform
 from openstef_models.transforms.general.scaler import StandardScaler
 
@@ -136,22 +135,6 @@ class SampleWeighter(BaseConfig, TimeSeriesTransform):
         )
 
         return data.copy_with(df)
-
-    @override
-    def to_state(self) -> State:
-        return {
-            "config": self.model_dump(mode="json"),
-            "is_fitted": self._is_fitted,
-            "scaler": self._scaler,
-        }
-
-    @override
-    def from_state(self, state: object) -> Self:
-        state = cast(dict[str, Any], state)
-        instance = self.model_validate(state["config"])
-        instance._is_fitted = state["is_fitted"]  # noqa: SLF001
-        instance._scaler = state["scaler"]  # noqa: SLF001
-        return self
 
     @override
     def features_added(self) -> list[str]:

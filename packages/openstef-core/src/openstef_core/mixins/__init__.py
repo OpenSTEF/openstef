@@ -10,7 +10,7 @@ and data transformation pipelines.
 """
 
 from .predictor import BatchPredictor, BatchResult, HyperParams, Predictor
-from .stateful import State, Stateful
+from .stateful import Stateful
 from .transform import Transform, TransformPipeline
 
 __all__ = [
@@ -18,7 +18,6 @@ __all__ = [
     "BatchResult",
     "HyperParams",
     "Predictor",
-    "State",
     "Stateful",
     "Transform",
     "TransformPipeline",

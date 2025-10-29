@@ -22,7 +22,7 @@ from mlflow.entities import Metric, Param, Run
 from pydantic import Field, PrivateAttr
 
 from openstef_core.base_model import BaseConfig
-from openstef_core.mixins import HyperParams, Stateful
+from openstef_core.mixins import HyperParams
 from openstef_models.integrations.joblib import JoblibModelSerializer
 from openstef_models.mixins import ModelIdentifier, ModelSerializer
 
@@ -173,7 +173,7 @@ class MLFlowStorage(BaseConfig):
             max_results=limit,
         )
 
-    def save_run_model(self, model_id: ModelIdentifier, run_id: str, model: Stateful) -> None:
+    def save_run_model(self, model_id: ModelIdentifier, run_id: str, model: object) -> None:
         """Save a trained model to local artifacts directory for the run.
 
         Serializes the model using the configured serializer and stores it in
@@ -193,7 +193,7 @@ class MLFlowStorage(BaseConfig):
         with Path(model_path / f"model.{self.model_serializer.extension}").open("wb") as f:
             self.model_serializer.serialize(model, file=f)
 
-    def load_run_model[T: Stateful](self, run_id: str, model: T) -> T:
+    def load_run_model(self, run_id: str) -> object:
         """Load a trained model from MLflow artifacts.
 
         Downloads model artifacts from MLflow and deserializes them into the
@@ -201,7 +201,6 @@ class MLFlowStorage(BaseConfig):
 
         Args:
             run_id: MLflow run ID containing the model artifacts.
-            model: Model instance to load state into (must match saved type).
 
         Returns:
             Model instance with restored state from the run.
@@ -210,7 +209,7 @@ class MLFlowStorage(BaseConfig):
         with TemporaryDirectory() as tmpdir:
             self._client.download_artifacts(run_id=run_id, path=self.model_path, dst_path=tmpdir)
             with (Path(tmpdir) / self.model_path / f"model.{self.model_serializer.extension}").open("rb") as f:
-                model = self.model_serializer.deserialize(model=model, file=f)
+                model = cast(Any, self.model_serializer.deserialize(file=f))
 
         return model
 

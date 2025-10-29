@@ -9,10 +9,9 @@ testing, and single-machine deployments where models need to be persisted
 to the local filesystem.
 """
 
-from typing import BinaryIO, ClassVar, cast, override
+from typing import BinaryIO, ClassVar, override
 
 from openstef_core.exceptions import MissingExtraError
-from openstef_core.mixins import State, Stateful
 from openstef_models.mixins.model_serializer import ModelSerializer
 
 try:
@@ -58,14 +57,12 @@ class JoblibModelSerializer(ModelSerializer):
     extension: ClassVar[str] = "joblib"
 
     @override
-    def serialize(self, model: Stateful, file: BinaryIO) -> None:
-        state = model.to_state()
-        joblib.dump(state, file)  # type: ignore[reportUnknownMemberType]
+    def serialize(self, model: object, file: BinaryIO) -> None:
+        joblib.dump(model, file)  # type: ignore[reportUnknownMemberType]
 
     @override
-    def deserialize[T: Stateful](self, model: T, file: BinaryIO) -> T:
-        state = cast(State, joblib.load(file))  # type: ignore[reportUnknownMemberType]
-        return model.from_state(state)
+    def deserialize(self, file: BinaryIO) -> object:
+        return joblib.load(file)  # type: ignore[reportUnknownMemberType]
 
 
 __all__ = ["JoblibModelSerializer"]
