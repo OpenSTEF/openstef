@@ -170,7 +170,7 @@ class MLflowSerializer:
                 max_results=1,
                 model_run_id=model_run_id,
             )
-             # return the latest finished run of the model
+            # return the latest finished run of the model
             if models_df.empty:
                 raise LookupError("Model not found. First train a model!")
             
