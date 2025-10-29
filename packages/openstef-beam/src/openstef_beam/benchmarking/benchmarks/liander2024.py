@@ -57,7 +57,7 @@ class Liander2024TargetProvider(SimpleTargetProvider[BenchmarkTarget, list[Liand
             target.train_start = max(target.train_start, self.data_start)
             target.benchmark_start = max(target.benchmark_start, self.data_start)
 
-        return targets[:1]
+        return targets
 
     @override
     def get_metrics_for_target(self, target: BenchmarkTarget) -> list[MetricProvider]:
