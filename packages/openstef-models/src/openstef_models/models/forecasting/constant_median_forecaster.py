@@ -9,16 +9,15 @@ medians. These models serve as educational examples and performance baselines fo
 more sophisticated forecasting approaches.
 """
 
-from typing import Self, override
+from typing import ClassVar, override
 
 import pandas as pd
 from pydantic import Field
 
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
-from openstef_core.exceptions import ModelLoadingError, NotFittedError
-from openstef_core.mixins import State
+from openstef_core.exceptions import NotFittedError
 from openstef_core.mixins.predictor import HyperParams
-from openstef_core.types import LeadTime, Quantile
+from openstef_core.types import Any, LeadTime, Quantile
 from openstef_models.explainability.mixins import ExplainableForecaster
 from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
 
@@ -50,9 +49,6 @@ class ConstantMedianForecasterConfig(ForecasterConfig):
     )
 
 
-MODEL_CODE_VERSION = 2
-
-
 class ConstantMedianForecaster(Forecaster, ExplainableForecaster):
     """Constant median-based forecaster for single horizon predictions.
 
@@ -75,6 +71,8 @@ class ConstantMedianForecaster(Forecaster, ExplainableForecaster):
         >>> # forecaster.fit_horizon(training_data)
         >>> # predictions = forecaster.predict_horizon(test_data)
     """
+
+    _VERSION: ClassVar[int] = 2
 
     _config: ConstantMedianForecasterConfig
     _quantile_values: dict[Quantile, float]
@@ -102,25 +100,12 @@ class ConstantMedianForecaster(Forecaster, ExplainableForecaster):
         return self._config.hyperparams
 
     @override
-    def to_state(self) -> State:
-        return {
-            "version": MODEL_CODE_VERSION,
-            "config": self.config.model_dump(mode="json"),
-            "quantile_values": self._quantile_values,
-        }
+    @classmethod
+    def _migrate_state(cls, state: dict[str, Any], from_version: int, to_version: int) -> dict[str, Any]:
+        if from_version <= 1:
+            state["quantile_values"] = state.pop("quantile_values_v1", {})
 
-    @override
-    def from_state(self, state: State) -> Self:
-        if not isinstance(state, dict) or "version" not in state or state["version"] > MODEL_CODE_VERSION:
-            raise ModelLoadingError("Invalid state for ConstantMedianForecaster")
-
-        # Gracefully migrate state from older model versions
-        if state["version"] == 1:
-            state["quantile_values"] = state["quantile_values_v1"]
-
-        instance = self.__class__(config=ConstantMedianForecasterConfig.model_validate(state["config"]))
-        instance._quantile_values = state["quantile_values"]  # noqa: SLF001
-        return instance
+        return state
 
     @property
     @override

@@ -206,28 +206,6 @@ def test_base_case_forecaster__fallback_lag_usage():
     assert all(median_predictions <= 223.0), "Should use Week 2 data (≤223)"
 
 
-def test_base_case_forecaster__state_serialization(base_case_forecaster: BaseCaseForecaster):
-    """Test state serialization and deserialization."""
-    # Arrange - Fixture provides forecaster
-
-    # Act
-    state = base_case_forecaster.to_state()
-    new_forecaster = BaseCaseForecaster(
-        config=BaseCaseForecasterConfig(
-            quantiles=[Quantile(0.5)],
-            horizons=[LeadTime(timedelta(hours=6))],
-            hyperparams=BaseCaseForecasterHyperParams(),
-        )
-    ).from_state(state)
-
-    # Assert
-    assert isinstance(state, dict)
-    assert "version" in state
-    assert "config" in state
-    assert new_forecaster.config.quantiles == base_case_forecaster.config.quantiles
-    assert new_forecaster.hyperparams.primary_lag == base_case_forecaster.hyperparams.primary_lag
-
-
 def test_base_case_forecaster__different_frequencies(base_case_forecaster: BaseCaseForecaster):
     """Test forecaster with different data frequencies."""
     # Arrange

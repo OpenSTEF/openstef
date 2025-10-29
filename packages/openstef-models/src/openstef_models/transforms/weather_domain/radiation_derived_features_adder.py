@@ -9,7 +9,7 @@ to enhance time series datasets with additional insights related to solar radiat
 """
 
 import logging
-from typing import Literal, Self, cast, override
+from typing import Literal, cast, override
 
 import pandas as pd
 from pydantic import Field, PrivateAttr
@@ -18,7 +18,6 @@ from pydantic_extra_types.coordinate import Coordinate
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.exceptions import MissingExtraError, TimeSeriesValidationError
-from openstef_core.mixins import State
 from openstef_core.transforms import TimeSeriesTransform
 
 logger = logging.getLogger(__name__)
@@ -159,14 +158,6 @@ class RadiationDerivedFeaturesAdder(BaseConfig, TimeSeriesTransform):
             )["poa_global"]
 
         return data.copy_with(result)
-
-    @override
-    def to_state(self) -> State:
-        return self.model_dump(mode="json")
-
-    @override
-    def from_state(self, state: State) -> Self:
-        return self.model_validate(state)
 
     @override
     def features_added(self) -> list[str]:

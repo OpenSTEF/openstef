@@ -8,7 +8,7 @@ This module provides functionality for handling missing values in time series da
 through various imputation strategies.
 """
 
-from typing import Any, Literal, Self, cast, override
+from typing import Any, Literal, cast, override
 
 import numpy as np
 import pandas as pd
@@ -18,7 +18,6 @@ from sklearn.impute import SimpleImputer
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.exceptions import NotFittedError
-from openstef_core.mixins import State
 from openstef_core.transforms import TimeSeriesTransform
 from openstef_models.utils.feature_selection import FeatureSelection
 
@@ -188,25 +187,6 @@ class Imputer(BaseConfig, TimeSeriesTransform):
         result_data[features] = data_transformed
 
         return TimeSeriesDataset(data=result_data, sample_interval=data.sample_interval)
-
-    @override
-    def to_state(self) -> State:
-        return cast(
-            State,
-            {
-                "config": self.model_dump(mode="json"),
-                "imputer": self._imputer.__getstate__(),  # pyright: ignore[reportUnknownMemberType]
-                "is_fitted": self._is_fitted,
-            },
-        )
-
-    @override
-    def from_state(self, state: State) -> Self:
-        state = cast(dict[str, Any], state)
-        instance = self.model_validate(state["config"])
-        instance._imputer.__setstate__(state["imputer"])  # pyright: ignore[reportUnknownMemberType]  # noqa: SLF001
-        instance._is_fitted = state["is_fitted"]  # noqa: SLF001
-        return instance
 
     @override
     def features_added(self) -> list[str]:

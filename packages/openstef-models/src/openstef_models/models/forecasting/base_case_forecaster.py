@@ -15,14 +15,12 @@ back to the fallback lag (default: 14-day) when primary lag data is not availabl
 """
 
 from datetime import timedelta
-from typing import Self, override
+from typing import override
 
 import pandas as pd
 from pydantic import Field
 
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
-from openstef_core.exceptions import ModelLoadingError
-from openstef_core.mixins import State
 from openstef_core.mixins.predictor import HyperParams
 from openstef_core.types import LeadTime, Quantile
 from openstef_models.explainability.mixins import ExplainableForecaster
@@ -144,20 +142,6 @@ class BaseCaseForecaster(Forecaster, ExplainableForecaster):
     @override
     def hyperparams(self) -> BaseCaseForecasterHyperParams:
         return self._config.hyperparams
-
-    @override
-    def to_state(self) -> State:
-        return {
-            "version": MODEL_CODE_VERSION,
-            "config": self.config.model_dump(mode="json"),
-        }
-
-    @override
-    def from_state(self, state: State) -> Self:
-        if not isinstance(state, dict) or "version" not in state or state["version"] > MODEL_CODE_VERSION:
-            raise ModelLoadingError("Invalid state for BaseCaseForecaster")
-
-        return self.__class__(config=BaseCaseForecasterConfig.model_validate(state["config"]))
 
     @property
     @override

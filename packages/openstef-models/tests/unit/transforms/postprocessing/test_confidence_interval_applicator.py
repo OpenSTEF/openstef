@@ -159,20 +159,3 @@ def test_transform__raises_error_when_not_fitted(
     # Act & Assert
     with pytest.raises(NotFittedError, match="ConfidenceIntervalApplicator"):
         applicator.transform(predictions)
-
-
-def test_state_roundtrip(
-    validation_predictions: ForecastDataset,
-):
-    """Test state serialization and restoration."""
-    # Arrange
-    original_transform = ConfidenceIntervalApplicator(quantiles=[Quantile(0.1), Quantile(0.9)])
-    original_transform.fit(validation_predictions)
-
-    # Act
-    state = original_transform.to_state()
-    restored_transform = ConfidenceIntervalApplicator(quantiles=[Quantile(0.1), Quantile(0.9)])
-    restored_transform = restored_transform.from_state(state)
-
-    # Assert
-    pd.testing.assert_frame_equal(original_transform.standard_deviation, restored_transform.standard_deviation)

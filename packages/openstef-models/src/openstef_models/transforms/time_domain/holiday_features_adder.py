@@ -14,7 +14,7 @@ import re
 import unicodedata
 from datetime import UTC, datetime
 from functools import lru_cache
-from typing import Self, override
+from typing import override
 
 import holidays
 import pandas as pd
@@ -23,7 +23,6 @@ from pydantic_extra_types.country import CountryAlpha2
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.mixins import State
 from openstef_core.transforms import TimeSeriesTransform
 
 
@@ -93,14 +92,6 @@ class HolidayFeatureAdder(BaseConfig, TimeSeriesTransform):
         # Combine with original data
         result_data = pd.concat([data.data, feature_general, features_individual], axis=1)
         return TimeSeriesDataset(data=result_data, sample_interval=data.sample_interval)
-
-    @override
-    def to_state(self) -> State:
-        return self.model_dump(mode="json")
-
-    @override
-    def from_state(self, state: State) -> Self:
-        return self.model_validate(state)
 
     @override
     def features_added(self) -> list[str]:

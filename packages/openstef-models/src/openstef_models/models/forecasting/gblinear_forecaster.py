@@ -11,10 +11,8 @@ and can be more suitable for certain types of time series data where it is impor
 to predict values outside the range of the training data.
 """
 
-import base64
-import json
 from functools import partial
-from typing import Any, Literal, Self, cast, override
+from typing import Literal, override
 
 import numpy as np
 import pandas as pd
@@ -24,9 +22,8 @@ from sklearn.preprocessing import StandardScaler
 
 from openstef_core.datasets.mixins import LeadTime
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
-from openstef_core.exceptions import MissingExtraError, ModelLoadingError, NotFittedError
+from openstef_core.exceptions import MissingExtraError, NotFittedError
 from openstef_core.mixins.predictor import HyperParams
-from openstef_core.mixins.stateful import State
 from openstef_models.explainability.mixins import ExplainableForecaster
 from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
 from openstef_models.utils.loss_functions import OBJECTIVE_MAP, ObjectiveFunctionType, xgb_prepare_target_for_objective
@@ -216,42 +213,6 @@ class GBLinearForecaster(Forecaster, ExplainableForecaster):
     @override
     def is_fitted(self) -> bool:
         return self._gblinear_model.__sklearn_is_fitted__()
-
-    @override
-    def to_state(self) -> State:
-        model_raw = self._gblinear_model.get_booster().save_raw()
-
-        return {
-            "config": self._config,
-            "version": MODEL_CODE_VERSION,
-            "model": base64.b64encode(model_raw).decode("utf-8"),
-            "scaler": self._target_scaler,  # pyright: ignore[reportUnknownMemberType]
-        }
-
-    @override
-    def from_state(self, state: State) -> Self:
-        if not isinstance(state, dict) or "version" not in state:
-            raise ModelLoadingError("Invalid state format")
-
-        state = cast(dict[str, Any], state)
-        if state["version"] > MODEL_CODE_VERSION:
-            msg = f"Unsupported model version: {state['version']}"
-            raise ModelLoadingError(msg)
-
-        instance = self.__class__(config=state["config"])
-        model_raw = bytearray(base64.b64decode(state["model"]))
-        instance._gblinear_model.load_model(model_raw)  # pyright: ignore[reportUnknownMemberType]  # noqa: SLF001
-
-        booster = instance._gblinear_model.get_booster()  # noqa: SLF001
-        booster_config = json.loads(booster.save_config())
-        loaded_booster_type = booster_config.get("learner", {}).get("gradient_booster", {}).get("name", "")
-        if loaded_booster_type != "gblinear":
-            msg = f"Invalid booster type in state: expected 'gblinear', got '{loaded_booster_type}'"
-            raise ModelLoadingError(msg)
-
-        instance._target_scaler = state["scaler"]  # noqa: SLF001
-
-        return instance
 
     def _prepare_fit_input(self, data: ForecastInputDataset) -> tuple[pd.DataFrame, np.ndarray, pd.Series]:
         input_data: pd.DataFrame = data.input_data()
