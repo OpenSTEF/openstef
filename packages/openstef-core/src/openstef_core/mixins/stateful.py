@@ -128,5 +128,5 @@ class Stateful:
         Returns:
             Migrated state dictionary compatible with current version.
         """
-        _ = from_version, to_version  # Improtant arguments, but unused in base implementation
+        _ = from_version, to_version  # Important arguments, but unused in base implementation
         return state
