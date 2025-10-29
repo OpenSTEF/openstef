@@ -166,9 +166,9 @@ class MLflowSerializer:
         """
         try:
             models_df = self._find_models(
-                self.experiment_name_prefix + experiment_name, 
-                max_results=1, 
-                model_run_id=model_run_id
+                self.experiment_name_prefix + experiment_name,
+                max_results=1,
+                model_run_id=model_run_id,
             )
              # return the latest finished run of the model
             if models_df.empty:
