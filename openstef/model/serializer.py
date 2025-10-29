@@ -166,13 +166,16 @@ class MLflowSerializer:
         """
         try:
             models_df = self._find_models(
-                self.experiment_name_prefix + experiment_name, max_results=1, model_run_id=model_run_id)
+                self.experiment_name_prefix + experiment_name, 
+                max_results=1, 
+                model_run_id=model_run_id
+            )
              # return the latest finished run of the model
-            if not models_df.empty:
-                latest_run = models_df.iloc[0]  # Use .iloc[0] to only get latest run
-            else:
+            if models_df.empty:
                 raise LookupError("Model not found. First train a model!")
-            model_uri = self._get_model_uri(latest_run.artifact_uri)
+            
+            latest_run = models_df.iloc[0]  # Use .iloc[0] to only get latest run
+            model_uri = f"runs:/{latest_run.run_id}/model"
             loaded_model = mlflow.sklearn.load_model(model_uri)
             loaded_model.age = self._determine_model_age_from_mlflow_run(latest_run)
             model_specs = self._get_model_specs(
@@ -431,11 +434,3 @@ class MLflowSerializer:
                     experiment_name=experiment_name,
                 )
         return model_specs.feature_modules
-
-    def _get_model_uri(self, artifact_uri: str) -> str:
-        """Set model uri based on latest run.
-
-        Note: this function helps to mock during unit tests
-
-        """
-        return os.path.join(artifact_uri, "model/")

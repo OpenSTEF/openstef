@@ -16,8 +16,7 @@ from openstef.pipeline import create_forecast, utils
 
 
 class TestCreateForecastPipeline(BaseTestCase):
-    @patch("openstef.model.serializer.MLflowSerializer._get_model_uri")
-    def setUp(self, _get_model_uri_mock) -> None:
+    def setUp(self) -> None:
         super().setUp()
         self.pj = TestData.get_prediction_job(pid=307)
         self.serializer = MLflowSerializer(
@@ -25,12 +24,6 @@ class TestCreateForecastPipeline(BaseTestCase):
         )
         self.data = TestData.load("reference_sets/307-test-data.csv")
         self.train_input = TestData.load("reference_sets/307-train-data.csv")
-
-        # mock model location
-        # Determine absolute location where already stored model is, based on relative path.
-        # This is needed so the model stored in the repo can be found when running remote
-        rel_path = "test/unit/trained_models/mlruns/893156335105023143/2ca1d126e8724852b303b256e64a6c4f/artifacts/model"
-        _get_model_uri_mock.return_value = Path(rel_path).absolute().as_uri()
 
         # Use MLflowSerializer to load a model
         # Note that this model was trained using xgboost v1.6.1
@@ -252,8 +245,7 @@ class TestCreateForecastPipeline(BaseTestCase):
 
 
 class TestCreateForecastPipelineQuantileModel(BaseTestCase):
-    @patch("openstef.model.serializer.MLflowSerializer._get_model_uri")
-    def setUp(self, _get_model_uri_mock) -> None:
+    def setUp(self) -> None:
         super().setUp()
         self.pj = TestData.get_prediction_job(pid=308)
         self.serializer = MLflowSerializer(
@@ -261,13 +253,6 @@ class TestCreateForecastPipelineQuantileModel(BaseTestCase):
         )
         self.data = TestData.load("reference_sets/307-test-data.csv")
         self.train_input = TestData.load("reference_sets/307-train-data.csv")
-
-        # mock model location
-        # Determine absolute location where already stored model is, based on relative path.
-        # This is needed so the model stored in the repo can be found when running remote
-        rel_path = "test/unit/trained_models/mlruns/245086199943716459/de3f1dae27204c4f94462a19f0ea0a99/artifacts/model"
-
-        _get_model_uri_mock.return_value = Path(rel_path).absolute().as_uri()
 
         # Use MLflowSerializer to load a model
         # Note that this model was trained using ...

@@ -3,9 +3,9 @@
 # SPDX-License-Identifier: MPL-2.0
 
 import glob
+import shutil
 import tempfile
 from datetime import UTC, datetime, timedelta
-from distutils.dir_util import copy_tree
 from pathlib import Path
 from test.unit.utils.base import BaseTestCase
 from test.unit.utils.data import TestData
@@ -57,7 +57,7 @@ class TestMLflowSerializer(BaseTestCase):
         # Check model path
         assert (
             loaded_model.path.replace("\\", "/")
-            == "./test/unit/trained_models/mlruns/893156335105023143/2ca1d126e8724852b303b256e64a6c4f/artifacts/model/"
+            == "/2ca1d126e8724852b303b256e64a6c4f/model"
         )
 
     @patch("openstef.data_classes.model_specifications.ModelSpecificationDataClass")
@@ -349,7 +349,7 @@ class TestMLflowSerializer(BaseTestCase):
         # We copy the stored models to a temp dir and test the functionality from there
         with tempfile.TemporaryDirectory() as temp_model_dir:
             # Copy already stored models to temp dir
-            copy_tree(local_model_dir, temp_model_dir)
+            shutil.copytree(src=local_model_dir, dst=temp_model_dir, dirs_exist_ok=True)
 
             # Fix absolute artifact path in all meta.yaml files
             for experiment_folder in (
