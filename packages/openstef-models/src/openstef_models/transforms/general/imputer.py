@@ -13,7 +13,12 @@ from typing import Any, Literal, cast, override
 import numpy as np
 import pandas as pd
 from pydantic import Field, PrivateAttr, model_validator
-from sklearn.impute import SimpleImputer
+from sklearn.ensemble import RandomForestRegressor
+
+# This imputer is still experimental for now:
+# default parameters or details of behaviour might change without any deprecation cycle.
+from sklearn.experimental import enable_iterative_imputer  # noqa: F401 # type: ignore
+from sklearn.impute import IterativeImputer, SimpleImputer
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
@@ -21,7 +26,7 @@ from openstef_core.exceptions import NotFittedError
 from openstef_core.transforms import TimeSeriesTransform
 from openstef_models.utils.feature_selection import FeatureSelection
 
-type ImputationStrategy = Literal["mean", "median", "most_frequent", "constant"]
+type ImputationStrategy = Literal["mean", "median", "most_frequent", "constant", "iterative"]
 
 
 def _check_for_empty_columns(data: pd.DataFrame, missing_value: float) -> set[str]:
@@ -62,6 +67,13 @@ class Imputer(BaseConfig, TimeSeriesTransform):
     2. Applying imputation to the specified columns
     3. Restoring trailing NaNs to preserve time series integrity
 
+    Imputation Strategies:
+        - Simple strategies (mean, median, most_frequent, constant): Use statistics
+          computed during fit()
+        - Iterative strategy: Trains a machine learning model (default: RandomForest)
+          during fit() to predict missing values based on feature relationships.
+          Slower and requires careful parameter tuning.
+
     Note: If you have completely empty columns, use EmptyFeatureRemover first
     to remove them before applying imputation.
 
@@ -98,6 +110,16 @@ class Imputer(BaseConfig, TimeSeriesTransform):
     np.True_
     >>> result_selective.data["radiation"].isna().sum() == 2  # Radiation NaNs preserved
     np.True_
+    >>> # Use iterative imputation with custom estimator
+    >>> from sklearn.linear_model import BayesianRidge
+    >>> transform_custom = Imputer(
+    ...     imputation_strategy="iterative",
+    ...     impute_estimator=BayesianRidge(),
+    ...     max_iterations=20,
+    ...     tolerance=1e-2
+    ... )
+    >>> transform_custom.fit(dataset)
+    >>> result_custom = transform_custom.transform(dataset)
     """
 
     imputation_strategy: ImputationStrategy = Field(
@@ -112,12 +134,31 @@ class Imputer(BaseConfig, TimeSeriesTransform):
         default=None,
         description="Value to use when imputation_strategy is CONSTANT",
     )
+    impute_estimator: Any = Field(
+        default_factory=lambda: RandomForestRegressor(
+            n_estimators=5,
+            max_depth=10,
+            bootstrap=True,
+            max_samples=0.5,
+            n_jobs=2,
+            random_state=0,
+        ),
+        description="Estimator to use for IterativeImputer. Defaults to RandomForestRegressor.",
+    )
+    tolerance: float = Field(
+        default=1e-3,
+        description="Tolerance for IterativeImputer convergence",
+    )
+    max_iterations: int = Field(
+        default=40,
+        description="Maximum iterations for IterativeImputer",
+    )
     selection: FeatureSelection = Field(
         default=FeatureSelection.ALL,
         description="Features to impute.",
     )
 
-    _imputer: SimpleImputer = PrivateAttr()
+    _imputer: SimpleImputer | IterativeImputer = PrivateAttr()
     _is_fitted: bool = PrivateAttr(default=False)
 
     @model_validator(mode="after")
@@ -136,12 +177,20 @@ class Imputer(BaseConfig, TimeSeriesTransform):
 
     @override
     def model_post_init(self, context: Any) -> None:
-        self._imputer = SimpleImputer(
-            strategy=self.imputation_strategy,
-            fill_value=self.fill_value,
-            missing_values=self.missing_value,
-            keep_empty_features=False,
-        )
+        if self.imputation_strategy == "iterative":
+            self._imputer = IterativeImputer(
+                random_state=0,
+                estimator=self.impute_estimator,
+                max_iter=self.max_iterations,
+                tol=self.tolerance,
+            )
+        else:
+            self._imputer = SimpleImputer(
+                strategy=self.imputation_strategy,
+                fill_value=self.fill_value,
+                missing_values=self.missing_value,
+                keep_empty_features=False,
+            )
         self._imputer.set_output(transform="pandas")
 
     @property
