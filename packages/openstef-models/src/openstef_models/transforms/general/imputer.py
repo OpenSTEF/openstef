@@ -114,15 +114,15 @@ class Imputer(BaseConfig, TimeSeriesTransform):
     >>> from sklearn.ensemble import RandomForestRegressor
     >>> transform_iterative = Imputer(
     ...     imputation_strategy="iterative",
-    ...     selection=FeatureSelection(include={"temperature", "wind_speed"}),
+    ...     selection=FeatureSelection(include={"temperature", "radiation"}),
     ...     impute_estimator=RandomForestRegressor(
-                n_estimators=2,  # not many trees for test speed
-                max_depth=3,  # shallow tree for test speed
-                bootstrap=True,
-                max_samples=0.5,
-                n_jobs=1,
-                random_state=0,
-            ),
+    ...         n_estimators=2,  # not many trees for test speed
+    ...         max_depth=3,  # shallow tree for test speed
+    ...         bootstrap=True,
+    ...         max_samples=0.5,
+    ...         n_jobs=1,
+    ...         random_state=0,
+    ...     ),
     ...     max_iterations=20,
     ...     tolerance=1e-2
     ... )
@@ -130,7 +130,11 @@ class Imputer(BaseConfig, TimeSeriesTransform):
     >>> result_iterative = transform_iterative.transform(dataset)
     >>> result_iterative.data["temperature"].isna().sum() == 0  # Temperature NaNs filled
     np.True_
-    >>> result_iterative.data["wind_speed"].isna().sum() == 0  # Wind Speed NaNs filled
+    >>> np.isnan(result_iterative.data["radiation"][1])  # Radiation first NaN replaced
+    np.False_
+    >>> np.isnan(result_iterative.data["radiation"][3]) # Check if trailing NaN is preserved
+    np.True_
+    >>> result_iterative.data["wind_speed"].isna().sum() == 2  # # Check if trailing NaNs are preserved
     np.True_
     """
 
