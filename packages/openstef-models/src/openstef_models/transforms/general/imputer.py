@@ -134,7 +134,7 @@ class Imputer(BaseConfig, TimeSeriesTransform):
     np.False_
     >>> np.isnan(result_iterative.data["radiation"][3]) # Check if trailing NaN is preserved
     np.True_
-    >>> result_iterative.data["wind_speed"].isna().sum() == 2  # # Check if trailing NaNs are preserved
+    >>> result_iterative.data["wind_speed"].isna().sum() == 2  # Check if trailing NaNs are preserved
     np.True_
     """
 
