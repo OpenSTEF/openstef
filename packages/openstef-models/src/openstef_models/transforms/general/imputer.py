@@ -169,8 +169,8 @@ class Imputer(BaseConfig, TimeSeriesTransform):
     selection: FeatureSelection = Field(
         default=FeatureSelection.ALL,
         description=(
-            "- SimpleImputer: Columns to impute. "
-            "- IterativeImputer: Both columns to use as predictors for imputation and columns to impute."
+            "If strategy is 'iterative' both columns to use as predictors for imputation and columns to impute. "
+            "Else only columns to impute."
         ),
     )
 
