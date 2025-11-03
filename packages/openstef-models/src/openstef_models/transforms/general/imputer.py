@@ -150,6 +150,10 @@ class Imputer(BaseConfig, TimeSeriesTransform):
         default_factory=BayesianRidge,
         description="Estimator to use for IterativeImputer. Defaults to BayesianRidge.",
     )
+    initial_strategy: Literal["mean", "median", "most_frequent", "constant"] = Field(
+        default="mean",
+        description="Initial imputation strategy for IterativeImputer",
+    )
     tolerance: float = Field(
         default=1e-3,
         description="Tolerance for IterativeImputer convergence",
@@ -180,33 +184,13 @@ class Imputer(BaseConfig, TimeSeriesTransform):
             raise ValueError("fill_value must be provided when imputation_strategy is CONSTANT")
         return self
 
-    @model_validator(mode="after")
-    def validate_multiple_features_for_iterative(self) -> "Imputer":
-        """Warn if only one feature is selected for multivariate iterative imputation.
-
-        Returns:
-            The validated model instance.
-        """
-        if self.imputation_strategy == "iterative":
-            selected_features = (
-                None
-                if self.selection == FeatureSelection.ALL
-                else (set(self.selection.include or set()) | set(self.selection.exclude or set()))
-            )
-            if selected_features is not None and len(selected_features) < 2:  # noqa: PLR2004
-                warnings.warn(
-                    "Only one feature selected for multivariate iterative imputation. "
-                    "The 'initial_strategy' will be used for imputation, default 'mean'.",
-                    stacklevel=2,
-                )
-        return self
-
     @override
     def model_post_init(self, context: Any) -> None:
         if self.imputation_strategy == "iterative":
             self._imputer = IterativeImputer(
                 random_state=0,
                 estimator=self.impute_estimator,
+                initial_strategy=self.initial_strategy,
                 max_iter=self.max_iterations,
                 tol=self.tolerance,
             )
@@ -248,6 +232,15 @@ class Imputer(BaseConfig, TimeSeriesTransform):
         features = self.selection.resolve(data.feature_names)
         if not features:
             return data
+
+        # Warn if using iterative imputation with only one feature
+        if self.imputation_strategy == "iterative" and len(features) < 2:  # noqa: PLR2004
+            warnings.warn(
+                "Iterative imputer with only one feature will fall back to initial_strategy. "
+                f"Using '{self.initial_strategy}' for imputation.",
+                UserWarning,
+                stacklevel=2,
+            )
 
         data_subset = data.data[features]
         data_transformed = cast(pd.DataFrame, self._imputer.transform(data_subset))

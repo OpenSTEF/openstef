@@ -10,7 +10,9 @@ import pandas as pd
 import pytest
 from pydantic import ValidationError
 from sklearn.ensemble import ExtraTreesRegressor, RandomForestRegressor
-from sklearn.impute import IterativeImputer
+
+# iterative imputer is experimental. Defaults do not follow deprecation cycle.
+from sklearn.experimental import enable_iterative_imputer  # noqa: F401 # type: ignore
 from sklearn.linear_model import BayesianRidge
 
 from openstef_core.datasets import TimeSeriesDataset
@@ -373,17 +375,21 @@ def test_iterative_imputer_only_one_feature():
 
     transform = Imputer(
         imputation_strategy="iterative",
-        impute_estimator=IterativeImputer(initial_strategy="median"),
+        impute_estimator=BayesianRidge(),
+        initial_strategy="median",
         max_iterations=5,
         tolerance=1e-3,
     )
 
-    # Act & Assert
+    # Act
+    transform.fit(dataset)
+
+    # Assert
     with pytest.warns(UserWarning, match="Iterative imputer with only one feature"):
-        transform.fit(dataset)
         result = transform.transform(dataset)
 
-    # The NaN values should be imputed using the median strategy
+    # The first NaN should be imputed using the median strategy
     expected_median = 110.0  # Median of [100.0, 120.0]
     assert result.data.loc[result.data.index[1], "radiation"] == expected_median
-    assert result.data.loc[result.data.index[3], "radiation"] == expected_median
+    # The last NaN is a trailing NaN and should be preserved
+    assert pd.isna(result.data.loc[result.data.index[3], "radiation"])
