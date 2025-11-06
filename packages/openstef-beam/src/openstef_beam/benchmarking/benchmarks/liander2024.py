@@ -211,6 +211,7 @@ def create_liander2024_benchmark_runner(
             snapshot_download(
                 repo_id="OpenSTEF/liander2024-stef-benchmark",
                 repo_type="dataset",
+                cache_dir=".openstef_datasets/liander2024",
             )
         )
 

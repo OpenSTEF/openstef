@@ -185,7 +185,10 @@ class BacktestPipeline:
 
     def _process_train_event(self, event: BacktestEvent, dataset: VersionedTimeSeriesDataset) -> None:
         """Process a single training event."""
-        horizon_dataset = RestrictedHorizonVersionedTimeSeries(dataset=dataset, horizon=event.timestamp)
+        horizon_dataset = RestrictedHorizonVersionedTimeSeries(
+            dataset=dataset,
+            horizon=event.timestamp
+        )
         self.forecaster.fit(horizon_dataset)
         _logger.debug("Processed train event", extra={"event": event})
 
