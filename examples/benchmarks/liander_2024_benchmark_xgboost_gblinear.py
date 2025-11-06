@@ -34,7 +34,7 @@ from openstef_models.workflows import CustomForecastingWorkflow
 
 logging.basicConfig(level=logging.INFO, format="[%(asctime)s][%(levelname)s] %(message)s")
 
-OUTPUT_PATH = Path("./benchmark_results_latest_debug_longer")
+OUTPUT_PATH = Path("./benchmark_results_latest_debug_longer2")
 
 BENCHMARK_RESULTS_PATH_XGBOOST = OUTPUT_PATH / "XGBoost"
 BENCHMARK_RESULTS_PATH_GBLINEAR = OUTPUT_PATH / "GBLinear"

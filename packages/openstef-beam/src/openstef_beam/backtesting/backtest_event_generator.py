@@ -130,7 +130,7 @@ class BacktestEventGenerator(BaseModel):
 
             training_start = max(
                 current_time - self.forecaster_config.training_context_length,
-                min(self.index).to_pydatetime()  # TODO: Should the index not include 1-1-2024?
+                min(self.index).to_pydatetime()
             )
             training_end = current_time
             training_coverage = self._calculate_coverage(training_start, training_end)
