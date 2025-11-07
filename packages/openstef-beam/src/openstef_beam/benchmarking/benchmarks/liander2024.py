@@ -47,7 +47,7 @@ class Liander2024TargetProvider(SimpleTargetProvider[BenchmarkTarget, list[Liand
     targets_file_path: str = Field(default="liander2024_targets.yaml", init=False)
 
     data_start: datetime = Field(
-        default=datetime.fromisoformat("2024-02-01T00:00:00Z"),
+        default=datetime.fromisoformat("2024-01-01T00:00:00Z"),
         init=False,
         frozen=True,
         description="Earliest timestamp to consider for training and benchmarking",
