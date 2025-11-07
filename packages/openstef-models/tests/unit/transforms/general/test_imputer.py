@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+import logging
+import logging.handlers
 from datetime import datetime, timedelta
 from typing import cast
 
@@ -52,7 +54,7 @@ def correlated_dataset() -> TimeSeriesDataset:
     data = pd.DataFrame(
         {
             "radiation": [10.0, np.nan, 30.0, 40.0, 50.0],
-            "temperature": [20.0, 40.0, 60.0, np.nan, 100.0],  # Missing: should be ~80
+            "temperature": [20.0, 40.0, 60.0, np.nan, 100.0],
         },
         index=pd.date_range(datetime.fromisoformat("2025-01-01T00:00:00"), periods=5, freq="1h"),
     )
@@ -67,62 +69,19 @@ def test_validation_constant_strategy_requires_fill_value():
 
 
 @pytest.mark.parametrize(
-    ("strategy", "impute_estimator"),
-    [
-        ("mean", None),
-        ("median", None),
-        ("most_frequent", None),
-        ("constant", None),
-        *[
-            ("iterative", estimator)
-            for estimator in [
-                None,
-                "randomforest",
-                "bayesianridge",
-                "extra_trees",
-            ]
-        ],
-    ],
+    "strategy",
+    ["mean", "median", "most_frequent"],
 )
-def test_basic_imputation_works_all_strategies(
-    sample_dataset: TimeSeriesDataset, strategy: ImputationStrategy, impute_estimator: str | None
-):
-    """Test that basic imputation removes NaN values for all strategies and estimators."""
-    if strategy == "constant":
-        transform = Imputer(imputation_strategy="constant", fill_value=999.0)
-    elif strategy == "iterative":
-        if impute_estimator == "randomforest":
-            estimator = RandomForestRegressor(
-                n_estimators=2,  # not many trees for test speed
-                max_depth=3,  # shallow tree for test speed
-                bootstrap=True,
-                max_samples=0.5,
-                n_jobs=1,
-                random_state=0,
-            )
-            transform = Imputer(
-                imputation_strategy="iterative", impute_estimator=estimator, tolerance=10
-            )  # high tolerance for test speed
-        elif impute_estimator == "bayesianridge":
-            transform = Imputer(imputation_strategy="iterative", impute_estimator=BayesianRidge(), tolerance=10)
-        elif impute_estimator == "extra_trees":
-            estimator = ExtraTreesRegressor(
-                n_estimators=2,
-                max_depth=3,
-                bootstrap=True,
-                max_samples=0.5,
-                n_jobs=1,
-                random_state=0,
-            )
-            transform = Imputer(imputation_strategy="iterative", impute_estimator=estimator, tolerance=10)
-        else:
-            transform = Imputer(imputation_strategy="iterative", max_iterations=2, tolerance=10)
-    else:
-        transform = Imputer(imputation_strategy=strategy)
+def test_basic_imputation_works_simple_strategies(sample_dataset: TimeSeriesDataset, strategy: ImputationStrategy):
+    """Test that basic imputation removes NaN values for simple strategies."""
+    # Arrange
+    transform = Imputer(imputation_strategy=strategy)
 
+    # Act
     transform.fit(sample_dataset)
     result = transform.transform(sample_dataset)
 
+    # Assert
     # Non-trailing NaN values should be imputed
     assert not result.data.isna().any().any()
 
@@ -299,6 +258,56 @@ def test_no_missing_values_data_preservation():
     assert result.sample_interval == dataset.sample_interval
 
 
+@pytest.mark.parametrize(
+    "impute_estimator",
+    [
+        pytest.param(None, id="default"),
+        pytest.param(
+            RandomForestRegressor(
+                n_estimators=2,  # not many trees for test speed
+                max_depth=3,  # shallow tree for test speed
+                bootstrap=True,
+                max_samples=0.5,
+                n_jobs=1,
+                random_state=0,
+            ),
+            id="randomforest",
+        ),
+        pytest.param(BayesianRidge(), id="bayesianridge"),
+        pytest.param(
+            ExtraTreesRegressor(
+                n_estimators=2,
+                max_depth=3,
+                bootstrap=True,
+                max_samples=0.5,
+                n_jobs=1,
+                random_state=0,
+            ),
+            id="extra_trees",
+        ),
+    ],
+)
+def test_iterative_imputation_works(
+    sample_dataset: TimeSeriesDataset, impute_estimator: RandomForestRegressor | BayesianRidge | ExtraTreesRegressor
+):
+    """Test that basic imputation removes NaN values for iterative strategy with different estimators."""
+    # Arrange
+    transform = Imputer(
+        imputation_strategy="iterative",
+        impute_estimator=impute_estimator,
+        max_iterations=2,
+        tolerance=10,  # high tolerance for test speed
+    )
+
+    # Act
+    transform.fit(sample_dataset)
+    result = transform.transform(sample_dataset)
+
+    # Assert
+    # Non-trailing NaN values should be imputed
+    assert not result.data.isna().any().any()
+
+
 def test_iterative_imputer_linear_relations(correlated_dataset: TimeSeriesDataset):
     """Test that iterative imputer learns linear relationship between features.
 
@@ -310,7 +319,7 @@ def test_iterative_imputer_linear_relations(correlated_dataset: TimeSeriesDatase
     transform = Imputer(
         imputation_strategy="iterative",
         impute_estimator=BayesianRidge(),
-        tolerance=10,  # higher tol for test speed
+        tolerance=0.1,
     )
 
     # Act
@@ -318,46 +327,23 @@ def test_iterative_imputer_linear_relations(correlated_dataset: TimeSeriesDatase
     result = transform.transform(correlated_dataset)
 
     # Assert
-    imputed_value = cast(float, result.data.loc[result.data.index[3], "temperature"])
-    expected_value = cast(float, correlated_dataset.data.loc[correlated_dataset.data.index[3], "radiation"]) * 2
-    # Allow some tolerance since it's ML-based
-    assert abs(imputed_value - expected_value) < 10.0, f"Expected ~{expected_value}, got {imputed_value}"
+    imputed_value_temperature = cast(float, result.data.loc[result.data.index[3], "temperature"])
+    expected_value_temperature = (
+        cast(float, correlated_dataset.data.loc[correlated_dataset.data.index[3], "radiation"]) * 2
+    )
 
+    imputed_value_radiation = cast(float, result.data.loc[result.data.index[1], "radiation"])
+    expected_value_radiation = (
+        cast(float, correlated_dataset.data.loc[correlated_dataset.data.index[1], "temperature"]) / 2
+    )
 
-def test_iterative_imputer_better_than_mean(correlated_dataset: TimeSeriesDataset):
-    """Test that iterative imputation outperforms mean imputation for linearly related features.
-
-    When there is a simple linear relationship, and the missing values are not coincidentally the mean, iterative
-    imputer should do better than mean imputer.
-    """
-    # True missing values
-    true_radiation = 20.0
-    true_temperature = cast(float, correlated_dataset.data.loc[correlated_dataset.data.index[3], "radiation"]) * 2
-
-    # Mean imputation
-    mean_transform = Imputer(imputation_strategy="mean")
-    mean_transform.fit(correlated_dataset)
-    mean_result = mean_transform.transform(correlated_dataset)
-    mean_radiation = cast(float, mean_result.data.loc[mean_result.data.index[1], "radiation"])
-    mean_temperature = cast(float, mean_result.data.loc[mean_result.data.index[3], "temperature"])
-
-    # Iterative imputation
-    iter_transform = Imputer(imputation_strategy="iterative")
-    iter_transform.fit(correlated_dataset)
-    iter_result = iter_transform.transform(correlated_dataset)
-    iter_radiation = cast(float, iter_result.data.loc[iter_result.data.index[1], "radiation"])
-    iter_temperature = cast(float, iter_result.data.loc[iter_result.data.index[3], "temperature"])
-
-    # Assert
-    mean_error_rad = abs(mean_radiation - true_radiation)
-    iter_error_rad = abs(iter_radiation - true_radiation)
-
-    mean_error_temp = abs(mean_temperature - true_temperature)
-    iter_error_temp = abs(iter_temperature - true_temperature)
-
-    # Iterative should be closer to true values
-    assert iter_error_rad < mean_error_rad
-    assert iter_error_temp < mean_error_temp
+    # Allow for tolerance
+    assert abs(imputed_value_temperature - expected_value_temperature) < 1, (
+        f"Expected ~{expected_value_temperature}, got {imputed_value_temperature}"
+    )
+    assert abs(imputed_value_radiation - expected_value_radiation) < 1, (
+        f"Expected ~{expected_value_radiation}, got {imputed_value_radiation}"
+    )
 
 
 def test_iterative_imputer_only_one_feature():
@@ -378,15 +364,30 @@ def test_iterative_imputer_only_one_feature():
         impute_estimator=BayesianRidge(),
         initial_strategy="median",
         max_iterations=5,
-        tolerance=1e-3,
+        tolerance=1,
     )
 
     # Act
     transform.fit(dataset)
 
     # Assert
-    with pytest.warns(UserWarning, match="Iterative imputer with only one feature"):
+    # Check if warning is thrown by logger.
+    logger = logging.getLogger("openstef_models.transforms.general.imputer")
+    log_handler = logging.handlers.MemoryHandler(capacity=10)
+    log_handler.setLevel(logging.WARNING)
+    logger.addHandler(log_handler)
+
+    try:
         result = transform.transform(dataset)
+        log_handler.flush()
+
+        log_messages = [record.getMessage() for record in log_handler.buffer]
+        assert any(
+            "Iterative imputer with only one feature will fall back to initial_strategy" in msg for msg in log_messages
+        )
+        assert any("Using 'median' for imputation" in msg for msg in log_messages)
+    finally:
+        logger.removeHandler(log_handler)
 
     # The first NaN should be imputed using the median strategy
     expected_median = 110.0  # Median of [100.0, 120.0]

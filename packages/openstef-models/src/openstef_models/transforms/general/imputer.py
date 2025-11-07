@@ -8,7 +8,7 @@ This module provides functionality for handling missing values in time series da
 through various imputation strategies.
 """
 
-import warnings
+import logging
 from typing import Any, Literal, cast, override
 
 import numpy as np
@@ -124,7 +124,7 @@ class Imputer(BaseConfig, TimeSeriesTransform):
     ...         random_state=0,
     ...     ),
     ...     max_iterations=20,
-    ...     tolerance=1e-2
+    ...     tolerance=0.1
     ... )
     >>> transform_iterative.fit(dataset)
     >>> result_iterative = transform_iterative.transform(dataset)
@@ -134,7 +134,7 @@ class Imputer(BaseConfig, TimeSeriesTransform):
     np.False_
     >>> np.isnan(result_iterative.data["radiation"][3]) # Check if trailing NaN is preserved
     np.True_
-    >>> result_iterative.data["wind_speed"].isna().sum() == 2  # Check if trailing NaNs are preserved
+    >>> result_iterative.data["wind_speed"].isna().sum() == 2  # Wind speed NaNs preserved
     np.True_
     """
 
@@ -160,7 +160,7 @@ class Imputer(BaseConfig, TimeSeriesTransform):
     )
     tolerance: float = Field(
         default=1e-3,
-        description="Tolerance for IterativeImputer convergence",
+        description="Threshold for differences between consecutive iterations for IterativeImputer convergence",
     )
     max_iterations: int = Field(
         default=40,
@@ -169,13 +169,13 @@ class Imputer(BaseConfig, TimeSeriesTransform):
     selection: FeatureSelection = Field(
         default=FeatureSelection.ALL,
         description=(
-            "If strategy is 'iterative' both columns to use as predictors for imputation and columns to impute. "
-            "Else only columns to impute."
+            "Features to impute. If strategy is 'iterative', these features are also used as predictors for imputation."
         ),
     )
 
     _imputer: SimpleImputer | IterativeImputer = PrivateAttr()
     _is_fitted: bool = PrivateAttr(default=False)
+    _logger: logging.Logger = PrivateAttr(default=logging.getLogger(__name__))
 
     @model_validator(mode="after")
     def validate_fill_value_with_strategy(self) -> "Imputer":
@@ -242,11 +242,10 @@ class Imputer(BaseConfig, TimeSeriesTransform):
 
         # Warn if using iterative imputation with only one feature
         if self.imputation_strategy == "iterative" and len(features) < 2:  # noqa: PLR2004
-            warnings.warn(
+            self._logger.warning(
                 "Iterative imputer with only one feature will fall back to initial_strategy. "
-                f"Using '{self.initial_strategy}' for imputation.",
-                UserWarning,
-                stacklevel=2,
+                "Using '%s' for imputation.",
+                self.initial_strategy,
             )
 
         data_subset = data.data[features]
