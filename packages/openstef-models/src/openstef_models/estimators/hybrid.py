@@ -21,7 +21,7 @@ from openstef_core.exceptions import ModelLoadingError
 class HybridQuantileRegressor:
     """Custom Hybrid regressor for multi-quantile estimation using sample weights."""
 
-    def __init__(
+    def __init__(  # noqa: D107, PLR0913, PLR0917
         self,
         quantiles: list[float],
         lightgbm_n_estimators: int = 100,
@@ -38,7 +38,7 @@ class HybridQuantileRegressor:
         lightgbm_subsample: float = 1.0,
         lightgbm_colsample_by_tree: float = 1.0,
         lightgbm_colsample_by_node: float = 1.0,
-        gblinear_n_estimators: int = 100,
+        gblinear_n_steps: int = 100,
         gblinear_learning_rate: float = 0.15,
         gblinear_reg_alpha: float = 0.0001,
         gblinear_reg_lambda: float = 0,
@@ -75,7 +75,7 @@ class HybridQuantileRegressor:
                 booster="gblinear",
                 # Core parameters for forecasting
                 objective="reg:quantileerror",
-                n_estimators=gblinear_n_estimators,
+                n_estimators=gblinear_n_steps,
                 learning_rate=gblinear_learning_rate,
                 # Regularization parameters
                 reg_alpha=gblinear_reg_alpha,
@@ -99,12 +99,13 @@ class HybridQuantileRegressor:
                 )
             )
         self.is_fitted: bool = False
+        self.feature_names: list[str] = []
 
     def fit(
         self,
         X: npt.NDArray[np.floating] | pd.DataFrame,  # noqa: N803
         y: npt.NDArray[np.floating] | pd.Series,
-        sample_weight: npt.NDArray[np.floating] | None = None,
+        sample_weight: npt.NDArray[np.floating] | pd.Series | None = None,
         feature_name: list[str] | None = None,
     ) -> None:
         """Fit the multi-quantile regressor.
@@ -115,6 +116,8 @@ class HybridQuantileRegressor:
             sample_weight: Sample weights for training data.
             feature_name: List of feature names.
         """
+        self.feature_names = feature_name if feature_name is not None else []
+
         X = X.ffill().fillna(0)  # type: ignore
         for model in self._models:
             model.fit(

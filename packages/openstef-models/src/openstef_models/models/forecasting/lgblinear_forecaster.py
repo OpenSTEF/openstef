@@ -9,8 +9,7 @@ forecasting. Optimized for time series data with specialized loss functions and
 comprehensive hyperparameter control for production forecasting workflows.
 """
 
-import base64
-from typing import TYPE_CHECKING, Any, Literal, Self, cast, override
+from typing import TYPE_CHECKING, Literal, override
 
 import numpy as np
 import pandas as pd
@@ -19,7 +18,6 @@ from pydantic import Field
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import (
-    ModelLoadingError,
     NotFittedError,
 )
 from openstef_core.mixins import HyperParams
@@ -145,8 +143,7 @@ class LgbLinearForecasterConfig(ForecasterConfig):
     >>> from openstef_core.types import LeadTime, Quantile
     >>> config = LgbLinearForecasterConfig(
     ...     quantiles=[Quantile(0.1), Quantile(0.5), Quantile(0.9)],
-    ...     horizons=[LeadTime(timedelta(hours=1
-    ))],
+    ...     horizons=[LeadTime(timedelta(hours=1))],
     ...     hyperparams=LgbLinearHyperParams(n_estimators=100, max_depth=6)
     ... ).
     """  # noqa: D205

@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+#
+# SPDX-License-Identifier: MPL-2.0
+
 """Custom LightGBM regressor for multi-quantile regression.
 
 This module provides the LGBMQuantileRegressor class, which extends LightGBM's LGBMRegressor
