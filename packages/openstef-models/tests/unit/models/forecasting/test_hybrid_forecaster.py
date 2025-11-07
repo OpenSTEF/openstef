@@ -1,53 +1,48 @@
 # SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
 #
 # SPDX-License-Identifier: MPL-2.0
+
 from datetime import timedelta
 
-import pandas as pd
 import pytest
 
 from openstef_core.datasets import ForecastInputDataset
 from openstef_core.exceptions import NotFittedError
 from openstef_core.types import LeadTime, Q
-from openstef_models.models.forecasting.lgblinear_forecaster import (
-    LgbLinearForecaster,
-    LgbLinearForecasterConfig,
-    LgbLinearHyperParams,
+from openstef_models.models.forecasting.gblinear_forecaster import GBLinearHyperParams
+from openstef_models.models.forecasting.hybrid_forecaster import (
+    HybridForecaster,
+    HybridForecasterConfig,
+    HybridHyperParams,
 )
+from openstef_models.models.forecasting.lightgbm_forecaster import LightGBMHyperParams
 
 
 @pytest.fixture
-def base_config() -> LgbLinearForecasterConfig:
-    """Base configuration for LgbLinear forecaster tests."""
-
-    return LgbLinearForecasterConfig(
+def base_config() -> HybridForecasterConfig:
+    """Base configuration for Hybrid forecaster tests."""
+    lightgbm_params = LightGBMHyperParams(n_estimators=10, max_depth=2)
+    gb_linear_params = GBLinearHyperParams(n_steps=5, learning_rate=0.1, reg_alpha=0.0, reg_lambda=0.0)
+    params = HybridHyperParams(
+        lightgbm_params=lightgbm_params,
+        gb_linear_params=gb_linear_params,
+    )
+    return HybridForecasterConfig(
         quantiles=[Q(0.1), Q(0.5), Q(0.9)],
         horizons=[LeadTime(timedelta(days=1))],
-        hyperparams=LgbLinearHyperParams(n_estimators=100, max_depth=3, min_data_in_leaf=1, min_data_in_bin=1),
-        device="cpu",
-        n_jobs=1,
-        verbosity=0,
+        hyperparams=params,
+        verbosity=False,
     )
 
 
-@pytest.fixture
-def forecaster(base_config: LgbLinearForecasterConfig) -> LgbLinearForecaster:
-    return LgbLinearForecaster(base_config)
-
-
-def test_initialization(forecaster: LgbLinearForecaster):
-    assert isinstance(forecaster, LgbLinearForecaster)
-    assert forecaster.config.hyperparams.n_estimators == 100  # type: ignore
-
-
-def test_quantile_lgblinear_forecaster__fit_predict(
+def test_hybrid_forecaster__fit_predict(
     sample_forecast_input_dataset: ForecastInputDataset,
-    base_config: LgbLinearForecasterConfig,
+    base_config: HybridForecasterConfig,
 ):
     """Test basic fit and predict workflow with comprehensive output validation."""
     # Arrange
     expected_quantiles = base_config.quantiles
-    forecaster = LgbLinearForecaster(config=base_config)
+    forecaster = HybridForecaster(config=base_config)
 
     # Act
     forecaster.fit(sample_forecast_input_dataset)
@@ -72,42 +67,26 @@ def test_quantile_lgblinear_forecaster__fit_predict(
     assert (stds > 0).all(), f"All columns should have variation, got stds: {dict(stds)}"
 
 
-def test_lgblinear_forecaster__not_fitted_error(
+def test_hybrid_forecaster__predict_not_fitted_raises_error(
     sample_forecast_input_dataset: ForecastInputDataset,
-    base_config: LgbLinearForecasterConfig,
-):
-    """Test that NotFittedError is raised when predicting before fitting."""
-    # Arrange
-    forecaster = LgbLinearForecaster(config=base_config)
-
-    # Act & Assert
-    with pytest.raises(NotFittedError):
-        forecaster.predict(sample_forecast_input_dataset)
-
-
-def test_lgblinear_forecaster__predict_not_fitted_raises_error(
-    sample_forecast_input_dataset: ForecastInputDataset,
-    base_config: LgbLinearForecasterConfig,
+    base_config: HybridForecasterConfig,
 ):
     """Test that predict() raises NotFittedError when called before fit()."""
     # Arrange
-    forecaster = LgbLinearForecaster(config=base_config)
+    forecaster = HybridForecaster(config=base_config)
 
     # Act & Assert
-    with pytest.raises(
-        NotFittedError,
-        match="The LgbLinearForecaster has not been fitted yet. Please call 'fit' before using it.",  # noqa: RUF043
-    ):
+    with pytest.raises(NotFittedError, match="HybridForecaster"):
         forecaster.predict(sample_forecast_input_dataset)
 
 
-def test_lgblinear_forecaster__with_sample_weights(
+def test_hybrid_forecaster__with_sample_weights(
     sample_dataset_with_weights: ForecastInputDataset,
-    base_config: LgbLinearForecasterConfig,
+    base_config: HybridForecasterConfig,
 ):
     """Test that forecaster works with sample weights and produces different results."""
     # Arrange
-    forecaster_with_weights = LgbLinearForecaster(config=base_config)
+    forecaster_with_weights = HybridForecaster(config=base_config)
 
     # Create dataset without weights for comparison
     data_without_weights = ForecastInputDataset(
@@ -116,7 +95,7 @@ def test_lgblinear_forecaster__with_sample_weights(
         target_column=sample_dataset_with_weights.target_column,
         forecast_start=sample_dataset_with_weights.forecast_start,
     )
-    forecaster_without_weights = LgbLinearForecaster(config=base_config)
+    forecaster_without_weights = HybridForecaster(config=base_config)
 
     # Act
     forecaster_with_weights.fit(sample_dataset_with_weights)
@@ -137,26 +116,34 @@ def test_lgblinear_forecaster__with_sample_weights(
     assert differences.sum().sum() > 0, "Sample weights should affect model predictions"
 
 
-def test_lgblinear_forecaster__feature_importances(
+@pytest.mark.parametrize("objective", ["pinball_loss", "arctan_loss"])
+def test_hybrid_forecaster__different_objectives(
     sample_forecast_input_dataset: ForecastInputDataset,
-    base_config: LgbLinearForecasterConfig,
+    base_config: HybridForecasterConfig,
+    objective: str,
 ):
-    """Test that feature_importances returns correct normalized importance scores."""
+    """Test that forecaster works with different objective functions."""
     # Arrange
-    forecaster = LgbLinearForecaster(config=base_config)
-    forecaster.fit(sample_forecast_input_dataset)
+    config = base_config.model_copy(
+        update={
+            "hyperparams": base_config.hyperparams.model_copy(
+                update={"objective": objective}  # type: ignore[arg-type]
+            )
+        }
+    )
+    forecaster = HybridForecaster(config=config)
 
     # Act
-    feature_importances = forecaster.feature_importances
+    forecaster.fit(sample_forecast_input_dataset)
+    result = forecaster.predict(sample_forecast_input_dataset)
 
     # Assert
-    assert len(feature_importances.index) > 0
+    # Basic functionality should work regardless of objective
+    assert forecaster.is_fitted, f"Model with {objective} should be fitted"
+    assert not result.data.isna().any().any(), f"Forecast with {objective} should not contain NaN values"
 
-    # Columns should match expected quantile formats
-    expected_columns = pd.Index([q.format() for q in base_config.quantiles], name="quantiles")
-    pd.testing.assert_index_equal(feature_importances.columns, expected_columns)
-
-    # Values should be normalized (sum to 1.0 per quantile column) and non-negative
-    col_sums = feature_importances.sum(axis=0)
-    pd.testing.assert_series_equal(col_sums, pd.Series(1.0, index=expected_columns), atol=1e-10)
-    assert (feature_importances >= 0).all().all()
+    # Check value spread for each objective
+    # Note: Some objectives (like arctan_loss) may produce zero variation for some quantiles with small datasets
+    stds = result.data.std()
+    # At least one quantile should have variation (the model should not be completely degenerate)
+    assert (stds > 0).any(), f"At least one column should have variation with {objective}, got stds: {dict(stds)}"

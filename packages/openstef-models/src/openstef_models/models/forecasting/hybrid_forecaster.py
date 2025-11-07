@@ -1,31 +1,34 @@
-from __future__ import annotations
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+#
+# SPDX-License-Identifier: MPL-2.0
 
-import base64
-import logging
-from typing import Any, Literal, Self, Union, cast, override
 
-import numpy as np
-import numpy.typing as npt
+from typing import TYPE_CHECKING, override
+
 import pandas as pd
 from pydantic import Field
-
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import (
-    ModelLoadingError,
     NotFittedError,
 )
 from openstef_core.mixins import HyperParams
 from openstef_models.estimators.hybrid import HybridQuantileRegressor
 from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
+from openstef_models.models.forecasting.gblinear_forecaster import GBLinearHyperParams
 from openstef_models.models.forecasting.lightgbm_forecaster import LightGBMHyperParams
+
+if TYPE_CHECKING:
+    import numpy as np
+    import numpy.typing as npt
 
 
 class HybridHyperParams(HyperParams):
-    """Hyperparameters for Support Vector Regression (Hybrid)."""
+    """Hyperparameters for Stacked LGBM GBLinear Regressor."""
 
     lightgbm_params: LightGBMHyperParams = LightGBMHyperParams()
+    gb_linear_params: GBLinearHyperParams = GBLinearHyperParams()
 
     l1_penalty: float = Field(
         default=0.0,
@@ -56,7 +59,7 @@ class HybridForecasterState(BaseConfig):
 
 
 class HybridForecaster(Forecaster):
-    """Wrapper for sklearn's Hybrid to make it compatible with HorizonForecaster."""
+    """Wrapper for sklearn's StackingRegressor to make it compatible with HorizonForecaster."""
 
     Config = HybridForecasterConfig
     HyperParams = HybridHyperParams
@@ -65,17 +68,11 @@ class HybridForecaster(Forecaster):
     model: HybridQuantileRegressor
 
     def __init__(self, config: HybridForecasterConfig) -> None:
-        """Initialize the Hybrid forecaster.
-
-        Args:
-            kernel: Kernel type for Hybrid. Must be one of "linear", "poly", "rbf", "sigmoid", or "precomputed".
-            C: Regularization parameter.
-            epsilon: Epsilon in the epsilon-Hybrid model.
-        """
+        """Initialize the Hybrid forecaster."""
         self._config = config
 
         self._model = HybridQuantileRegressor(
-            quantiles=config.quantiles,
+            quantiles=[float(q) for q in config.quantiles],
             lightgbm_n_estimators=config.hyperparams.lightgbm_params.n_estimators,
             lightgbm_learning_rate=config.hyperparams.lightgbm_params.learning_rate,
             lightgbm_max_depth=config.hyperparams.lightgbm_params.max_depth,
@@ -89,6 +86,10 @@ class HybridForecaster(Forecaster):
             lightgbm_subsample=config.hyperparams.lightgbm_params.subsample,
             lightgbm_colsample_by_tree=config.hyperparams.lightgbm_params.colsample_bytree,
             lightgbm_colsample_by_node=config.hyperparams.lightgbm_params.colsample_bynode,
+            gblinear_n_steps=config.hyperparams.gb_linear_params.n_steps,
+            gblinear_learning_rate=config.hyperparams.gb_linear_params.learning_rate,
+            gblinear_reg_alpha=config.hyperparams.gb_linear_params.reg_alpha,
+            gblinear_reg_lambda=config.hyperparams.gb_linear_params.reg_lambda,
         )
 
     @property
@@ -113,8 +114,9 @@ class HybridForecaster(Forecaster):
 
         input_data: pd.DataFrame = data.input_data()
         target: npt.NDArray[np.floating] = data.target_series.to_numpy()  # type: ignore
+        sample_weights: pd.Series = data.sample_weight_series
 
-        self._model.fit(X=input_data, y=target)
+        self._model.fit(X=input_data, y=target, sample_weight=sample_weights)
 
     @override
     def predict(self, data: ForecastInputDataset) -> ForecastDataset:

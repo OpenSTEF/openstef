@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+#
+# SPDX-License-Identifier: MPL-2.0
 import pandas as pd
 import pytest
 from numpy.random import default_rng
