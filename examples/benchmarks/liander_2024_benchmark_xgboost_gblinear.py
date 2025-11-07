@@ -34,7 +34,7 @@ from openstef_models.workflows import CustomForecastingWorkflow
 
 logging.basicConfig(level=logging.INFO, format="[%(asctime)s][%(levelname)s] %(message)s")
 
-OUTPUT_PATH = Path("./benchmark_results_latest_debug_longer2")
+OUTPUT_PATH = Path("./benchmark_results")
 
 BENCHMARK_RESULTS_PATH_XGBOOST = OUTPUT_PATH / "XGBoost"
 BENCHMARK_RESULTS_PATH_GBLINEAR = OUTPUT_PATH / "GBLinear"
@@ -44,7 +44,6 @@ N_PROCESSES = 1  # Amount of parallel processes to use for the benchmark
 # Model configuration
 FORECAST_HORIZONS = [LeadTime.from_string("P3D")]  # Forecast horizon(s)
 PREDICTION_QUANTILES = [Q(0.1), Q(0.3), Q(0.5), Q(0.7), Q(0.9)]  # Quantiles for probabilistic forecasts
-LAG_FEATURES = [timedelta(days=-7)]
 
 BENCHMARK_FILTER: list[Liander2024Category] | None = None
 
