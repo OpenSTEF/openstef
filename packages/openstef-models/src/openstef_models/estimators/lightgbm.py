@@ -43,9 +43,7 @@ class LGBMQuantileRegressor(BaseEstimator, RegressorMixin):
         reg_lambda: float = 0.0,
         num_leaves: int = 31,
         max_bin: int = 255,
-        subsample: float = 1.0,
         colsample_bytree: float = 1.0,
-        colsample_bynode: float = 1.0,
         random_state: int | None = None,
         early_stopping_rounds: int | None = None,
         verbosity: int = -1,
@@ -54,6 +52,7 @@ class LGBMQuantileRegressor(BaseEstimator, RegressorMixin):
 
         Args:
             quantiles: List of quantiles to predict (e.g., [0.1, 0.5, 0.9]).
+            linear_tree: Whether to use linear trees.
             n_estimators: Number of boosting rounds/trees to fit.
             learning_rate: Step size shrinkage used to prevent overfitting.
             max_depth: Maximum depth of trees.
@@ -64,9 +63,7 @@ class LGBMQuantileRegressor(BaseEstimator, RegressorMixin):
             reg_lambda: L2 regularization on leaf weights.
             num_leaves: Maximum number of leaves.
             max_bin: Maximum number of discrete bins for continuous features.
-            subsample: Fraction of training samples used for each tree.
             colsample_bytree: Fraction of features used when constructing each tree.
-            colsample_bynode: Fraction of features used for each split/node.
             random_state: Random seed for reproducibility.
             early_stopping_rounds: Training will stop if performance doesn't improve for this many rounds.
             verbosity: Verbosity level for LgbLinear training.
@@ -84,9 +81,7 @@ class LGBMQuantileRegressor(BaseEstimator, RegressorMixin):
         self.reg_lambda = reg_lambda
         self.num_leaves = num_leaves
         self.max_bin = max_bin
-        self.subsample = subsample
         self.colsample_bytree = colsample_bytree
-        self.colsample_bynode = colsample_bynode
         self.random_state = random_state
         self.early_stopping_rounds = early_stopping_rounds
         self.verbosity = verbosity
@@ -105,9 +100,7 @@ class LGBMQuantileRegressor(BaseEstimator, RegressorMixin):
                 reg_lambda=reg_lambda,
                 num_leaves=num_leaves,
                 max_bin=max_bin,
-                subsample=subsample,
                 colsample_bytree=colsample_bytree,
-                colsample_bynode=colsample_bynode,
                 random_state=random_state,
                 early_stopping_rounds=early_stopping_rounds,
                 verbosity=verbosity,
@@ -118,12 +111,12 @@ class LGBMQuantileRegressor(BaseEstimator, RegressorMixin):
 
     def fit(
         self,
-        X: npt.NDArray[np.floating] | pd.DataFrame,  # noqa: N803
+        X: npt.NDArray[np.floating] | pd.DataFrame,
         y: npt.NDArray[np.floating] | pd.Series,
-        sample_weight: npt.NDArray[np.floating] | None = None,
+        sample_weight: npt.NDArray[np.floating] | pd.Series | None = None,
         feature_name: list[str] | None = None,
         eval_set: npt.NDArray[np.floating] | None = None,
-        eval_sample_weight: npt.NDArray[np.floating] | None = None,
+        eval_sample_weight: npt.NDArray[np.floating] | pd.Series | list[float] | None = None,
     ) -> None:
         """Fit the multi-quantile regressor.
 
@@ -150,7 +143,7 @@ class LGBMQuantileRegressor(BaseEstimator, RegressorMixin):
                 feature_name=feature_name,  # type: ignore
             )
 
-    def predict(self, X: npt.NDArray[np.floating] | pd.DataFrame) -> npt.NDArray[np.floating]:  # noqa: N803
+    def predict(self, X: npt.NDArray[np.floating] | pd.DataFrame) -> npt.NDArray[np.floating]:
         """Predict quantiles for the input features.
 
         Args:
@@ -203,3 +196,12 @@ class LGBMQuantileRegressor(BaseEstimator, RegressorMixin):
             raise ModelLoadingError("Deserialized object is not a LgbLinearQuantileRegressor")
 
         return instance
+
+    @property
+    def models(self) -> list[LGBMRegressor]:
+        """Get the list of underlying quantile models.
+
+        Returns:
+            List of LGBMRegressor instances for each quantile.
+        """
+        return self._models
