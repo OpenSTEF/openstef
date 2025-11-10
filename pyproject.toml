@@ -151,6 +151,7 @@ lint.isort.known-first-party = [
   "tests",
   "examples",
 ] # Useful if ruff does not run from the actual root of the project and to import form tests
+lint.pep8-naming.ignore-names = [ "X" ] # Allow X for SKLearn-like feature matrices
 lint.pydocstyle.convention = "google"
 lint.pylint.allow-dunder-method-names = [
   "__get_pydantic_core_schema__",
@@ -158,7 +159,7 @@ lint.pylint.allow-dunder-method-names = [
 ] # valid pydantic name
 lint.pylint.max-args = 7 # the default of 5 is a bit limiting. 7 should be enough for nearly all cases
 lint.preview = true
-lint.pep8-naming.ignore-names = [ "X" ] # Allow X for SKLearn-like feature matrices
+
 [tool.pyproject-fmt]
 column_width = 120
 indent = 2

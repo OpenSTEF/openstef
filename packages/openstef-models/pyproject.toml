@@ -28,10 +28,10 @@ classifiers = [
 ]
 
 dependencies = [
-  "lightgbm>=4.6.0",
+  "lightgbm>=4.6",
   "openstef-core",
   "pycountry>=24.6.1",
-  "skops>=0.13.0",
+  "skops>=0.13",
 ]
 
 optional-dependencies.all = [
