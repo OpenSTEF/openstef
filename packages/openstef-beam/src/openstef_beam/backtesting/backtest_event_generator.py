@@ -142,7 +142,8 @@ class BacktestEventGenerator(BaseModel):
         """Calculates the data coverage ratio within a time window.
 
         Determines what fraction of expected data points are actually available
-        in the provided index within the specified time window.
+        in the provided index within the specified time window. If start >= end,
+        coverage is defined as 0.0.
 
         Args:
             start: The start of the time window.
@@ -151,6 +152,9 @@ class BacktestEventGenerator(BaseModel):
         Returns:
             The ratio of available data points to expected data points.
         """
+        if start >= end:
+            return 0.0
+
         num_window_samples = (end - start) / self.sample_interval
         coverage = self.index[(self.index >= pd.Timestamp(start)) & (self.index < pd.Timestamp(end))]
         return len(coverage) / num_window_samples
