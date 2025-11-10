@@ -23,7 +23,7 @@ from openstef_core.mixins import HyperParams
 from openstef_models.estimators.hybrid import HybridQuantileRegressor
 from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
 from openstef_models.models.forecasting.gblinear_forecaster import GBLinearHyperParams
-from openstef_models.models.forecasting.lightgbm_forecaster import LightGBMHyperParams
+from openstef_models.models.forecasting.lgbm_forecaster import LGBMHyperParams
 
 if TYPE_CHECKING:
     import numpy as np
@@ -33,7 +33,7 @@ if TYPE_CHECKING:
 class HybridHyperParams(HyperParams):
     """Hyperparameters for Stacked LGBM GBLinear Regressor."""
 
-    lightgbm_params: LightGBMHyperParams = LightGBMHyperParams()
+    lgbm_params: LGBMHyperParams = LGBMHyperParams()
     gb_linear_params: GBLinearHyperParams = GBLinearHyperParams()
 
     l1_penalty: float = Field(
@@ -79,17 +79,17 @@ class HybridForecaster(Forecaster):
 
         self._model = HybridQuantileRegressor(
             quantiles=[float(q) for q in config.quantiles],
-            lightgbm_n_estimators=config.hyperparams.lightgbm_params.n_estimators,
-            lightgbm_learning_rate=config.hyperparams.lightgbm_params.learning_rate,
-            lightgbm_max_depth=config.hyperparams.lightgbm_params.max_depth,
-            lightgbm_min_child_weight=config.hyperparams.lightgbm_params.min_child_weight,
-            lightgbm_min_data_in_leaf=config.hyperparams.lightgbm_params.min_data_in_leaf,
-            lightgbm_min_data_in_bin=config.hyperparams.lightgbm_params.min_data_in_bin,
-            lightgbm_reg_alpha=config.hyperparams.lightgbm_params.reg_alpha,
-            lightgbm_reg_lambda=config.hyperparams.lightgbm_params.reg_lambda,
-            lightgbm_num_leaves=config.hyperparams.lightgbm_params.num_leaves,
-            lightgbm_max_bin=config.hyperparams.lightgbm_params.max_bin,
-            lightgbm_colsample_by_tree=config.hyperparams.lightgbm_params.colsample_bytree,
+            lgbm_n_estimators=config.hyperparams.lgbm_params.n_estimators,
+            lgbm_learning_rate=config.hyperparams.lgbm_params.learning_rate,
+            lgbm_max_depth=config.hyperparams.lgbm_params.max_depth,
+            lgbm_min_child_weight=config.hyperparams.lgbm_params.min_child_weight,
+            lgbm_min_data_in_leaf=config.hyperparams.lgbm_params.min_data_in_leaf,
+            lgbm_min_data_in_bin=config.hyperparams.lgbm_params.min_data_in_bin,
+            lgbm_reg_alpha=config.hyperparams.lgbm_params.reg_alpha,
+            lgbm_reg_lambda=config.hyperparams.lgbm_params.reg_lambda,
+            lgbm_num_leaves=config.hyperparams.lgbm_params.num_leaves,
+            lgbm_max_bin=config.hyperparams.lgbm_params.max_bin,
+            lgbm_colsample_by_tree=config.hyperparams.lgbm_params.colsample_bytree,
             gblinear_n_steps=config.hyperparams.gb_linear_params.n_steps,
             gblinear_learning_rate=config.hyperparams.gb_linear_params.learning_rate,
             gblinear_reg_alpha=config.hyperparams.gb_linear_params.reg_alpha,

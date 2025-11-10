@@ -186,9 +186,9 @@ class LGBMQuantileRegressor(BaseEstimator, RegressorMixin):
         """
         trusted_types = [
             "collections.OrderedDict",
-            "lightgbm.basic.Booster",
-            "lightgbm.sklearn.LGBMRegressor",
-            "openstef_models.estimators.lightgbm.LGBMQuantileRegressor",
+            "lgbm.basic.Booster",
+            "lgbm.sklearn.LGBMRegressor",
+            "openstef_models.estimators.lgbm.LGBMQuantileRegressor",
         ]
         instance = loads(model_bytes, trusted=trusted_types)
 

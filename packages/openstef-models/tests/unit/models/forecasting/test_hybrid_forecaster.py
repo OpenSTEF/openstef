@@ -15,16 +15,16 @@ from openstef_models.models.forecasting.hybrid_forecaster import (
     HybridForecasterConfig,
     HybridHyperParams,
 )
-from openstef_models.models.forecasting.lightgbm_forecaster import LightGBMHyperParams
+from openstef_models.models.forecasting.lgbm_forecaster import LGBMHyperParams
 
 
 @pytest.fixture
 def base_config() -> HybridForecasterConfig:
     """Base configuration for Hybrid forecaster tests."""
-    lightgbm_params = LightGBMHyperParams(n_estimators=10, max_depth=2)
+    lgbm_params = LGBMHyperParams(n_estimators=10, max_depth=2)
     gb_linear_params = GBLinearHyperParams(n_steps=5, learning_rate=0.1, reg_alpha=0.0, reg_lambda=0.0)
     params = HybridHyperParams(
-        lightgbm_params=lightgbm_params,
+        lgbm_params=lgbm_params,
         gb_linear_params=gb_linear_params,
     )
     return HybridForecasterConfig(
