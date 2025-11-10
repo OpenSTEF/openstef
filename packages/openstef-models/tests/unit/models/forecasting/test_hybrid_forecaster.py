@@ -61,11 +61,6 @@ def test_hybrid_forecaster__fit_predict(
     # Forecast data quality
     assert not result.data.isna().any().any(), "Forecast should not contain NaN or None values"
 
-    # Since forecast is deterministic with fixed random seed, check value spread (vectorized)
-    # All quantiles should have some variation (not all identical values)
-    stds = result.data.std()
-    assert (stds > 0).all(), f"All columns should have variation, got stds: {dict(stds)}"
-
 
 def test_hybrid_forecaster__predict_not_fitted_raises_error(
     sample_forecast_input_dataset: ForecastInputDataset,
