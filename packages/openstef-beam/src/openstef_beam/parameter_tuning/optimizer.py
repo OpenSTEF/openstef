@@ -13,7 +13,7 @@ accurately reflect real-world model performance.
 import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Literal, overload
+from typing import Any
 
 import optuna
 import pandas as pd
@@ -41,9 +41,7 @@ from openstef_beam.parameter_tuning.models import (
 )
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import ForecastDataset, ForecastInputDataset
-from openstef_core.datasets.versioned_timeseries_dataset import (
-    VersionedTimeSeriesDataset,
-)
+from openstef_core.datasets.versioned_timeseries_dataset import TimeSeriesDataset, VersionedTimeSeriesDataset
 from openstef_core.types import AvailableAt, LeadTime, Quantile
 from openstef_models.models.forecasting.forecaster import HyperParams
 from openstef_models.models.forecasting_model import ForecastingModel
@@ -90,13 +88,20 @@ class BaseOptunaOptimizer(ABC):
     """Optimizer using Optuna for hyperparameter tuning."""
 
     def __init__(self, config: BaseOptimizerConfig):
-        """Initialize the Optuna optimizer."""
-        self._ForecasterClass = config.forecasting_model.forecaster.__class__
+        """Initialize the Optuna optimizer.
+
+        Args:
+            config: Configuration for the optimizer.
+        """
+        self._forecaster_class = config.forecasting_model.forecaster.__class__
+        self._forecaster_config = config.forecasting_model.forecaster.config
+        self._default_hyperparams = self._forecaster_config.hyperparams
+
         self.quantiles = config.quantiles
         self.horizon = config.horizon
 
         # Validate parameter space
-        self.parameter_space = config.parameter_space
+        self.parameter_space: ParameterSpace = config.parameter_space
 
         self.direction = "minimize" if config.optimization_metric.direction_minimize else "maximize"
         self.metric = config.optimization_metric.metric
@@ -118,16 +123,18 @@ class BaseOptunaOptimizer(ABC):
         )
 
     def _make_forecasting_model(self, hyperparams: HyperParams) -> ForecastingModel:
-        forecaster_config = self._ForecasterClass.Config(
-            quantiles=self.quantiles,
-            horizons=[self.horizon],
-            hyperparams=hyperparams,
+        forecaster_config = self._forecaster_config.__class__().model_copy(
+            update={
+                "quantiles": self.quantiles,
+                "horizons": [self.horizon],
+                "hyperparams": hyperparams,
+            }
         )
-        forecaster = self._ForecasterClass(config=forecaster_config)
+        forecaster = self._forecaster_class(config=forecaster_config)
         return self._base_model.model_copy(update={"forecaster": forecaster})
 
     def _make_optuna_space(self, trial: Trial) -> dict[str, Any]:
-        optuna_space = {}
+        optuna_space: dict[str, str | float | int | None] = {}
         for param_name, distribution in self.parameter_space.items():
             if isinstance(distribution, FloatDistribution):
                 optuna_space[param_name] = trial.suggest_float(
@@ -153,8 +160,15 @@ class BaseOptunaOptimizer(ABC):
         return optuna_space
 
     def _score_predictions(self, predictions: ForecastDataset, ground_truth: ForecastDataset) -> float:
-        """"""
+        """Score the predictions using the a pre-set optimization metric.
 
+        Args:
+        predictions: The predictions made by the forecasting model.
+        ground_truth: The ground truth dataset.
+
+        Returns:
+        The metric value as a float.
+        """
         target = ForecastInputDataset.from_timeseries(
             dataset=ground_truth.select_version(),
             target_column="load",
@@ -178,13 +192,12 @@ class BaseOptunaOptimizer(ABC):
         if "global" in metric_value:
             metric_value = metric_value["global"]
 
-        return metric_value[next(iter(metric_value.keys()))]
+        return 1
 
     @abstractmethod
-    def _make_backtest(self, hyperparams: HyperParams):
+    def _make_backtest(self, hyperparams: HyperParams) -> BacktestPipeline | GreedyBackTestPipeline:
         """Create a backtest pipeline for the given hyperparameters."""
-        pass
-        raise NotImplementedError
+        raise NotImplementedError("Subclasses must implement _make_backtest")
 
     def optimize(
         self,
@@ -205,11 +218,11 @@ class BaseOptunaOptimizer(ABC):
             # Convert to Optuna
             params = self._make_optuna_space(trial)
             # Generate HyperParams and Config
-            hyperparams = self._ForecasterClass.HyperParams(**params)
+            hyperparams = self._forecaster_config.hyperparams.model_copy(**params)
 
             backtest = self._make_backtest(hyperparams=hyperparams)
 
-            predictions = backtest.run(
+            predictions: ForecastDataset | TimeSeriesDataset = backtest.run(
                 predictors=predictors,
                 ground_truth=ground_truth,
                 start=ground_truth.index[0],
@@ -270,7 +283,7 @@ class GreedyOptunaOptimizer(BaseOptunaOptimizer):
         super().__init__(config=config)
         self.backtest_config = config.backtest_config
 
-    def _make_backtest(self, hyperparams: HyperParams) -> BacktestPipeline:
+    def _make_backtest(self, hyperparams: HyperParams) -> GreedyBackTestPipeline:
         backtest_config = self.backtest_config.model_copy(
             update={"forecasting_model": self._make_forecasting_model(hyperparams=hyperparams)}
         )

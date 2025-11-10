@@ -85,6 +85,14 @@ class ForecasterConfig(BaseConfig):
         ),
     )
 
+    hyperparams: HyperParams = Field(
+        default=HyperParams(),
+        description=(
+            "Optional hyperparameter configuration for the forecaster. "
+            "These parameters influence model training and prediction behavior."
+        ),
+    )
+
     @property
     def max_horizon(self) -> LeadTime:
         """Returns the maximum lead time (horizon) from the configured horizons.
@@ -196,6 +204,25 @@ class Forecaster(BatchPredictor[ForecastInputDataset, ForecastDataset], Configur
         ...             forecast_start=pd.Timestamp.now()
         ...         )
     """
+
+    @abstractmethod
+    def __init__(self, config: ForecasterConfig) -> None:
+        """Initialize the forecaster with the given configuration.
+
+        Args:
+            config: Configuration object specifying quantiles, horizons, and batching support.
+        """
+        raise NotImplementedError("Subclasses must implement __init__")
+
+    @property
+    @abstractmethod
+    def config(self) -> ForecasterConfig:
+        """Access the model's configuration parameters.
+
+        Returns:
+            Configuration object containing fundamental model parameters.
+        """
+        raise NotImplementedError("Subclasses must implement config")
 
 
 __all__ = [

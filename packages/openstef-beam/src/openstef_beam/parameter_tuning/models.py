@@ -76,6 +76,14 @@ class ParameterSpace(PydanticBaseModel):
 
     model_config = {"extra": "allow"}
 
+    def items(self) -> list[tuple[str, Distribution]]:
+        """Get an iterator over the parameter space items.
+
+        Returns:
+            An iterator over (parameter name, Distribution) tuples.
+        """
+        return list(self.__dict__.items())
+
     @model_validator(mode="before")
     @staticmethod
     def check_distribution(value: dict[str, Any]) -> dict[str, Distribution]:

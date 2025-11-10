@@ -1,27 +1,19 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 from functools import partial
-from pathlib import Path
-from typing import Tuple, List
+from typing import cast
 
-import numpy as np
 import pandas as pd
 from pydantic import Field
-from openstef_beam.benchmarking.benchmarks.liander2024 import Liander2024TargetProvider
+from tqdm import tqdm
+
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import ForecastDataset
 from openstef_core.datasets.versioned_timeseries_dataset import (
     VersionedTimeSeriesDataset,
+    TimeSeriesDataset,
 )
-from openstef_core.types import LeadTime, Quantile
+from openstef_core.types import LeadTime
 from openstef_models.models.forecasting_model import ForecastingModel
-from openstef_models.presets import (
-    ForecastingWorkflowConfig,
-    create_forecasting_workflow,
-)
-from openstef_models.workflows.custom_forecasting_workflow import (
-    CustomForecastingWorkflow,
-)
-from tqdm import tqdm
 
 
 class GreedyBacktestConfig(BaseConfig):
@@ -50,26 +42,24 @@ class GreedyBackTestPipeline:
         """Initialize the greedy backtest pipeline."""
         self.config = config
 
-    def _split_data(
-        self, dataset: VersionedTimeSeriesDataset
-    ) -> tuple[list[VersionedTimeSeriesDataset], list[VersionedTimeSeriesDataset]]:
+    def _split_data(self, dataset: TimeSeriesDataset) -> tuple[list[TimeSeriesDataset], list[TimeSeriesDataset]]:
         training_length = self.config.training_data_length
         model_train_interval = self.config.model_train_interval
         horizon = self.config.horizon.value
         max_lags = self.config.max_lagged_features
+        start = cast("pd.Series[pd.Timestamp]", dataset.index).min().to_pydatetime()
+        end = cast("pd.Series[pd.Timestamp]", dataset.index).max().to_pydatetime()
 
-        n_splits = (
-            int((dataset.index.max() - dataset.index.min() - training_length - horizon) / model_train_interval) + 1
-        )
-        training_stamps = [pd.Timestamp(dataset.index.min() + i * model_train_interval) for i in range(n_splits)]
+        n_splits = int((end - start - training_length - horizon) / model_train_interval) + 1
+        training_stamps = [pd.Timestamp(start + i * model_train_interval) for i in range(n_splits)]
 
-        training_sets: list[VersionedTimeSeriesDataset] = []
-        prediction_sets: list[VersionedTimeSeriesDataset] = []
+        training_sets: list[TimeSeriesDataset] = []
+        prediction_sets: list[TimeSeriesDataset] = []
 
         for train_start in training_stamps:
             train_end = train_start + training_length
             test_start = train_end - max_lags
-            test_end = min(train_end + model_train_interval, dataset.index.max())  # type : ignore
+            test_end = min(train_end + model_train_interval, end)  # type : ignore
 
             training_set = dataset.filter_by_range(train_start, train_end)
             testing_set = dataset.filter_by_range(test_start, test_end)
@@ -80,7 +70,11 @@ class GreedyBackTestPipeline:
         return training_sets, prediction_sets
 
     def run(
-        self, predictors: VersionedTimeSeriesDataset, ground_truth: VersionedTimeSeriesDataset, start=None, end=None
+        self,
+        predictors: VersionedTimeSeriesDataset,
+        ground_truth: VersionedTimeSeriesDataset,
+        start: datetime | None = None,
+        end: datetime | None = None,
     ) -> ForecastDataset:
         """Run the greedy backtest pipeline.
 
@@ -97,7 +91,7 @@ class GreedyBackTestPipeline:
 
         training_datasets, prediction_datasets = self._split_data(dataset)
         pbar = tqdm(total=sum(len(d.index) for d in prediction_datasets), smoothing=0.0)
-        predictions = []
+        predictions: list[ForecastDataset] = []
         for training_data, prediction_data in zip(training_datasets, prediction_datasets, strict=False):
             self.config.forecasting_model.preprocessing.fit(training_data)
             training_input = self.config.forecasting_model.prepare_input(
@@ -117,8 +111,11 @@ class GreedyBackTestPipeline:
 
         target = ground_truth.select_version()
 
+        pd.concat([pred.data for pred in predictions], axis=0).join(target.data, how="inner").dropna()
+
+
         return ForecastDataset(
-            data=pd.concat([pred.data for pred in predictions], axis=0).join(target.data, how="inner").dropna(),
+            data=,
             sample_interval=predictions[0].sample_interval,
             target_column=target.data.columns[0],
         )
