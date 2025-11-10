@@ -121,7 +121,7 @@ class BacktestEventGenerator(BaseModel):
            BacktestEvent: Training events with sufficient context coverage.
         """
         end_time = self.end
-        current_time: datetime = align_datetime_to_time(self.start, self.align_time, mode="ceil")
+        current_time = align_datetime_to_time(self.start, self.align_time, mode="ceil")
 
         while current_time <= end_time:
             horizon_end = current_time + self.forecaster_config.horizon_min_length
