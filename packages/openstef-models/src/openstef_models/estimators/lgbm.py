@@ -153,7 +153,7 @@ class LGBMQuantileRegressor(BaseEstimator, RegressorMixin):
 
             A 2D array where each column corresponds to predicted quantiles.
         """  # noqa: D412
-        return np.column_stack([model.predict(X=np.asarray(X)) for model in self._models])  # type: ignore
+        return np.column_stack([model.predict(X=X) for model in self._models])  # type: ignore
 
     def __sklearn_is_fitted__(self) -> bool:  # noqa: PLW3201
         """Check if all models are fitted.

@@ -50,7 +50,7 @@ class LGBMLinearHyperParams(HyperParams):
     # Core Tree Boosting Parameters
 
     n_estimators: int = Field(
-        default=150,
+        default=10,
         description="Number of boosting rounds/trees to fit. Higher values may improve performance but "
         "increase training time and risk overfitting.",
     )
@@ -148,8 +148,8 @@ class LGBMLinearForecasterConfig(ForecasterConfig):
         default=1,
         description="Number of parallel threads for tree construction. -1 uses all available cores.",
     )
-    verbosity: Literal[0, 1, 2, 3] = Field(
-        default=0, description="Verbosity level. 0=silent, 1=warning, 2=info, 3=debug"
+    verbosity: Literal[-1, 0, 1, 2, 3] = Field(
+        default=-1, description="Verbosity level. 0=silent, 1=warning, 2=info, 3=debug"
     )
 
 

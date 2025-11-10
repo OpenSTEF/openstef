@@ -192,9 +192,10 @@ class LGBMLinearParameterSpace(ParameterSpace):
     """Preset parameter space for LGBM Linear model."""
 
     learning_rate: FloatDistribution = Field(default=FloatDistribution(low=1e-3, high=0.3, log=True))
-    num_leaves: IntDistribution = Field(default=IntDistribution(low=20, high=150))
-    max_depth: IntDistribution = Field(default=IntDistribution(low=3, high=15))
+    num_leaves: IntDistribution = Field(default=IntDistribution(low=3, high=150))
+    max_depth: IntDistribution = Field(default=IntDistribution(low=1, high=5))
     reg_lambda: FloatDistribution = Field(default=FloatDistribution(low=1e-3, high=10.0, log=True))
+    colsample_bytree: FloatDistribution = Field(default=FloatDistribution(low=0.5, high=1.0))
 
     @classmethod
     def default_hyperparams(cls) -> type[HyperParams]:

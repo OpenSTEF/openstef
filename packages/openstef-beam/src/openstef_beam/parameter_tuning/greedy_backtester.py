@@ -1,3 +1,8 @@
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+#
+# SPDX-License-Identifier: MPL-2.0
+"""Simplified backtesting for efficient parameter optimization."""
+
 from datetime import datetime, timedelta
 from functools import partial
 from typing import cast
@@ -9,8 +14,8 @@ from tqdm import tqdm
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import ForecastDataset
 from openstef_core.datasets.versioned_timeseries_dataset import (
-    VersionedTimeSeriesDataset,
     TimeSeriesDataset,
+    VersionedTimeSeriesDataset,
 )
 from openstef_core.types import LeadTime
 from openstef_models.models.forecasting_model import ForecastingModel
@@ -43,6 +48,14 @@ class GreedyBackTestPipeline:
         self.config = config
 
     def _split_data(self, dataset: TimeSeriesDataset) -> tuple[list[TimeSeriesDataset], list[TimeSeriesDataset]]:
+        """Split the dataset into training and prediction sets for greedy backtesting.
+
+        Args:
+            dataset: The complete time series dataset.
+
+        Returns:
+            A tuple containing lists of training and prediction datasets.
+        """
         training_length = self.config.training_data_length
         model_train_interval = self.config.model_train_interval
         horizon = self.config.horizon.value
@@ -73,8 +86,8 @@ class GreedyBackTestPipeline:
         self,
         predictors: VersionedTimeSeriesDataset,
         ground_truth: VersionedTimeSeriesDataset,
-        start: datetime | None = None,
-        end: datetime | None = None,
+        start: datetime | None = None,  # Included for compatibility  # noqa: ARG002
+        end: datetime | None = None,  # Included for compatibility  # noqa: ARG002
     ) -> ForecastDataset:
         """Run the greedy backtest pipeline.
 
@@ -111,11 +124,11 @@ class GreedyBackTestPipeline:
 
         target = ground_truth.select_version()
 
-        pd.concat([pred.data for pred in predictions], axis=0).join(target.data, how="inner").dropna()
-
+        all_predictions = pd.concat([pred.data for pred in predictions], axis=0).join(target.data, how="inner")
+        all_predictions: pd.DataFrame = all_predictions.dropna()  # pyright: ignore[reportUnknownMemberType]
 
         return ForecastDataset(
-            data=,
+            data=all_predictions,
             sample_interval=predictions[0].sample_interval,
             target_column=target.data.columns[0],
         )

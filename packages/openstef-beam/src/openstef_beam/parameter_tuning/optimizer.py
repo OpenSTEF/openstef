@@ -18,7 +18,7 @@ from typing import Any
 import optuna
 import pandas as pd
 from optuna.study import Study
-from optuna.trial import Trial
+from optuna.trial import FrozenTrial, Trial
 from pydantic import Field
 
 from openstef_beam.backtesting.backtest_forecaster.mixins import (
@@ -95,7 +95,7 @@ class BaseOptunaOptimizer(ABC):
         """
         self._forecaster_class = config.forecasting_model.forecaster.__class__
         self._forecaster_config = config.forecasting_model.forecaster.config
-        self._default_hyperparams = self._forecaster_config.hyperparams
+        self._default_hyperparams = config.forecasting_model.forecaster.hyperparams
 
         self.quantiles = config.quantiles
         self.horizon = config.horizon
@@ -105,7 +105,7 @@ class BaseOptunaOptimizer(ABC):
 
         self.direction = "minimize" if config.optimization_metric.direction_minimize else "maximize"
         self.metric = config.optimization_metric.metric
-        self.metric_name = config.optimization_metric.name
+        self.metric_name: str = config.optimization_metric.name
 
         self._base_model = config.forecasting_model
 
@@ -123,7 +123,7 @@ class BaseOptunaOptimizer(ABC):
         )
 
     def _make_forecasting_model(self, hyperparams: HyperParams) -> ForecastingModel:
-        forecaster_config = self._forecaster_config.__class__().model_copy(
+        forecaster_config = self._forecaster_config.model_copy(
             update={
                 "quantiles": self.quantiles,
                 "horizons": [self.horizon],
@@ -159,7 +159,9 @@ class BaseOptunaOptimizer(ABC):
                 raise TypeError(message)
         return optuna_space
 
-    def _score_predictions(self, predictions: ForecastDataset, ground_truth: ForecastDataset) -> float:
+    def _score_predictions(
+        self, predictions: ForecastDataset | TimeSeriesDataset, ground_truth: TimeSeriesDataset
+    ) -> float:
         """Score the predictions using the a pre-set optimization metric.
 
         Args:
@@ -170,7 +172,7 @@ class BaseOptunaOptimizer(ABC):
         The metric value as a float.
         """
         target = ForecastInputDataset.from_timeseries(
-            dataset=ground_truth.select_version(),
+            dataset=ground_truth,
             target_column="load",
         )
         target = target.pipe_pandas(pd.DataFrame.dropna)  # type: ignore
@@ -192,7 +194,7 @@ class BaseOptunaOptimizer(ABC):
         if "global" in metric_value:
             metric_value = metric_value["global"]
 
-        return 1
+        return float(metric_value[self.metric_name])  # type: ignore
 
     @abstractmethod
     def _make_backtest(self, hyperparams: HyperParams) -> BacktestPipeline | GreedyBackTestPipeline:
@@ -213,12 +215,13 @@ class BaseOptunaOptimizer(ABC):
         Returns:
             The best hyperparameters found during optimization.
         """
+        ground_truth_selected = ground_truth.select_version()
 
         def objective(trial: Trial) -> float:
             # Convert to Optuna
             params = self._make_optuna_space(trial)
             # Generate HyperParams and Config
-            hyperparams = self._forecaster_config.hyperparams.model_copy(**params)
+            hyperparams = self._default_hyperparams.model_copy(update=params)
 
             backtest = self._make_backtest(hyperparams=hyperparams)
 
@@ -229,9 +232,9 @@ class BaseOptunaOptimizer(ABC):
                 end=ground_truth.index[-1],
             )
 
-            return self._score_predictions(predictions=predictions, ground_truth=ground_truth)
+            return self._score_predictions(predictions=predictions, ground_truth=ground_truth_selected)
 
-        def print_callback(study: Study, trial: Trial):
+        def logger_callback(study: Study, trial: FrozenTrial) -> None:
             logger.info("Current value: %s, Current params: %s", trial.value, trial.params)
             logger.info(
                 "Best value: %s, Best params: %s",
@@ -241,9 +244,9 @@ class BaseOptunaOptimizer(ABC):
 
         study = optuna.create_study(direction=self.direction)
 
-        study.optimize(objective, timeout=3600, n_jobs=1, n_trials=100, callbacks=[print_callback])
+        study.optimize(objective, timeout=3600, n_jobs=1, n_trials=100, callbacks=[logger_callback])
 
-        return study.best_trial.params
+        return self._default_hyperparams.model_copy(update=study.best_trial.params)
 
 
 class RigorousOptunaOptimizer(BaseOptunaOptimizer):

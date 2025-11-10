@@ -85,14 +85,6 @@ class ForecasterConfig(BaseConfig):
         ),
     )
 
-    hyperparams: HyperParams = Field(
-        default=HyperParams(),
-        description=(
-            "Optional hyperparameter configuration for the forecaster. "
-            "These parameters influence model training and prediction behavior."
-        ),
-    )
-
     @property
     def max_horizon(self) -> LeadTime:
         """Returns the maximum lead time (horizon) from the configured horizons.
