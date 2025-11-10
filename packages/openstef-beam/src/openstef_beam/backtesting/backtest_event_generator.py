@@ -121,7 +121,7 @@ class BacktestEventGenerator(BaseModel):
            BacktestEvent: Training events with sufficient context coverage.
         """
         end_time = self.end
-        current_time = align_datetime_to_time(self.start, self.align_time, mode="ceil")
+        current_time: datetime = align_datetime_to_time(self.start, self.align_time, mode="ceil")
 
         while current_time <= end_time:
             horizon_end = current_time + self.forecaster_config.horizon_min_length
@@ -133,6 +133,10 @@ class BacktestEventGenerator(BaseModel):
                 self.index.min().to_pydatetime(),  # type: ignore[reportUnknownMemberType]
             )
             training_end = current_time
+            if training_start == training_end:
+                current_time += self.train_interval
+                continue
+
             training_coverage = self._calculate_coverage(training_start, training_end)
             if training_coverage >= self.forecaster_config.training_context_min_coverage:
                 yield BacktestEvent(type="train", timestamp=current_time)
@@ -143,8 +147,7 @@ class BacktestEventGenerator(BaseModel):
         """Calculates the data coverage ratio within a time window.
 
         Determines what fraction of expected data points are actually available
-        in the provided index within the specified time window. If start >= end,
-        coverage is defined as 0.0.
+        in the provided index within the specified time window.
 
         Args:
             start: The start of the time window.
@@ -153,9 +156,6 @@ class BacktestEventGenerator(BaseModel):
         Returns:
             The ratio of available data points to expected data points.
         """
-        if start >= end:
-            return 0.0
-
         num_window_samples = (end - start) / self.sample_interval
         coverage = self.index[(self.index >= pd.Timestamp(start)) & (self.index < pd.Timestamp(end))]
         return len(coverage) / num_window_samples
