@@ -114,7 +114,7 @@ def _target_forecaster_factory(
     return OpenSTEF4BacktestForecaster(
         config=backtest_config,
         workflow_factory=_create_workflow,
-        debug=True,
+        debug=False,
         cache_dir=OUTPUT_PATH / "cache" / f"{context.run_name}_{target.name}",
     )
 
