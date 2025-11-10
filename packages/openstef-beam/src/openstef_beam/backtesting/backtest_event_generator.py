@@ -128,8 +128,15 @@ class BacktestEventGenerator(BaseModel):
             if horizon_end > end_time:
                 break
 
-            training_start = current_time - self.forecaster_config.training_context_length
+            training_start = max(
+                current_time - self.forecaster_config.training_context_length,
+                self.index.min().to_pydatetime(),  # type: ignore[reportUnknownMemberType]
+            )
             training_end = current_time
+            if training_start == training_end:
+                current_time += self.train_interval
+                continue
+
             training_coverage = self._calculate_coverage(training_start, training_end)
             if training_coverage >= self.forecaster_config.training_context_min_coverage:
                 yield BacktestEvent(type="train", timestamp=current_time)
