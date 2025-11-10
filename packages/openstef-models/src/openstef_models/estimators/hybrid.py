@@ -110,8 +110,7 @@ class HybridQuantileRegressor:
         Returns:
             A DataFrame with missing values handled.
         """
-        filled_forward = pd.DataFrame(X).ffill()
-        return pd.DataFrame(filled_forward).fillna(0)
+        return pd.DataFrame(X).ffill().fillna(0)  # type: ignore[reportUnknownMemberType]
 
     def fit(
         self,

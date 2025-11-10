@@ -35,7 +35,7 @@ class LightGBMHyperParams(HyperParams):
     Example:
         Creating custom hyperparameters for deep trees with regularization:
 
-        >>> hyperparams = LGBMHyperParams(
+        >>> hyperparams = LightGBMHyperParams(
         ...     n_estimators=200,
         ...     max_depth=8,
         ...     learning_rate=0.1,
@@ -133,10 +133,8 @@ class LightGBMForecasterConfig(ForecasterConfig):
     >>> from openstef_core.types import LeadTime, Quantile
     >>> config = LightGBMForecasterConfig(
     ...     quantiles=[Quantile(0.1), Quantile(0.5), Quantile(0.9)],
-    ...     horizons=[LeadTime(timedelta(hours=1
-    ))],
-    ...     hyperparams=LightGBMHyperParams(n_estimators=100, max_depth=6)
-    ... ).
+    ...     horizons=[LeadTime(timedelta(hours=1))],
+    ...     hyperparams=LightGBMHyperParams(n_estimators=100, max_depth=6))
     """  # noqa: D205
 
     hyperparams: LightGBMHyperParams = LightGBMHyperParams()

@@ -9,8 +9,10 @@ forecasting. Optimized for time series data with specialized loss functions and
 comprehensive hyperparameter control for production forecasting workflows.
 """
 
-from typing import TYPE_CHECKING, Literal, override
+from typing import Literal, cast, override
 
+import numpy as np
+import numpy.typing as npt
 import pandas as pd
 from pydantic import Field
 
@@ -24,10 +26,6 @@ from openstef_models.estimators.lightgbm import LGBMQuantileRegressor
 from openstef_models.explainability.mixins import ExplainableForecaster
 from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
 
-if TYPE_CHECKING:
-    import numpy as np
-    import numpy.typing as npt
-
 
 class LgbLinearHyperParams(HyperParams):
     """LgbLinear hyperparameters for gradient boosting tree models.
@@ -35,7 +33,7 @@ class LgbLinearHyperParams(HyperParams):
     Example:
         Creating custom hyperparameters for deep trees with regularization:
 
-        >>> hyperparams = LGBMHyperParams(
+        >>> hyperparams = LgbLinearHyperParams(
         ...     n_estimators=200,
         ...     max_depth=8,
         ...     learning_rate=0.1,
@@ -136,7 +134,7 @@ class LgbLinearForecasterConfig(ForecasterConfig):
     ...     quantiles=[Quantile(0.1), Quantile(0.5), Quantile(0.9)],
     ...     horizons=[LeadTime(timedelta(hours=1))],
     ...     hyperparams=LgbLinearHyperParams(n_estimators=100, max_depth=6)
-    ... ).
+    ... )
     """  # noqa: D205
 
     hyperparams: LgbLinearHyperParams = LgbLinearHyperParams()
@@ -270,7 +268,6 @@ class LgbLinearForecaster(Forecaster, ExplainableForecaster):
     def fit(self, data: ForecastInputDataset, data_val: ForecastInputDataset | None = None) -> None:
         input_data: pd.DataFrame = data.input_data()
         target: npt.NDArray[np.floating] = data.target_series.to_numpy()  # type: ignore
-
         sample_weight = data.sample_weight_series
 
         # Prepare validation data if provided
@@ -279,7 +276,7 @@ class LgbLinearForecaster(Forecaster, ExplainableForecaster):
         if data_val is not None:
             val_input_data: pd.DataFrame = data_val.input_data()
             val_target: npt.NDArray[np.floating] = data_val.target_series.to_numpy()  # type: ignore
-            val_sample_weight = data_val.sample_weight_series.to_numpy()  # type: ignore
+            val_sample_weight = cast(npt.NDArray[np.floating], data_val.sample_weight_series.to_numpy())  # type: ignore
             eval_set = [(val_input_data, val_target)]
 
             eval_sample_weight = [val_sample_weight]

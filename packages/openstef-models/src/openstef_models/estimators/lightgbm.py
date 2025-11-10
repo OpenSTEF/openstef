@@ -29,7 +29,7 @@ class LGBMQuantileRegressor(BaseEstimator, RegressorMixin):
     separate tree within the same boosting ensemble.
     """
 
-    def __init__(
+    def __init__(  # noqa: PLR0913, PLR0917
         self,
         quantiles: list[float],
         linear_tree: bool,  # noqa: FBT001
@@ -47,7 +47,7 @@ class LGBMQuantileRegressor(BaseEstimator, RegressorMixin):
         random_state: int | None = None,
         early_stopping_rounds: int | None = None,
         verbosity: int = -1,
-    ) -> None:  # type: ignore
+    ) -> None:
         """Initialize LgbLinearQuantileRegressor with quantiles.
 
         Args:
@@ -115,8 +115,8 @@ class LGBMQuantileRegressor(BaseEstimator, RegressorMixin):
         y: npt.NDArray[np.floating] | pd.Series,
         sample_weight: npt.NDArray[np.floating] | pd.Series | None = None,
         feature_name: list[str] | None = None,
-        eval_set: npt.NDArray[np.floating] | None = None,
-        eval_sample_weight: npt.NDArray[np.floating] | pd.Series | list[float] | None = None,
+        eval_set: list[tuple[pd.DataFrame, npt.NDArray[np.floating]]] | None = None,
+        eval_sample_weight: list[npt.NDArray[np.floating]] | None = None,
     ) -> None:
         """Fit the multi-quantile regressor.
 
