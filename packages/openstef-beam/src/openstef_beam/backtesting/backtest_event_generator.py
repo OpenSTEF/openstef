@@ -129,8 +129,7 @@ class BacktestEventGenerator(BaseModel):
                 break
 
             training_start = max(
-                current_time - self.forecaster_config.training_context_length,
-                min(self.index).to_pydatetime()
+                current_time - self.forecaster_config.training_context_length, min(self.index).to_pydatetime()
             )
             training_end = current_time
             training_coverage = self._calculate_coverage(training_start, training_end)
