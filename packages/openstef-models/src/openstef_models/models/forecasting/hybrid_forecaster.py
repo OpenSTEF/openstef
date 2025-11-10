@@ -1,7 +1,13 @@
 # SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
 #
 # SPDX-License-Identifier: MPL-2.0
+"""Hybrid Forecaster (Stacked LightGBM + Linear Model Gradient Boosting).
 
+Provides method that attempts to combine the advantages of a linear model (Extraplolation)
+and tree-based model (Non-linear patterns). This is acieved by training two base learners,
+followed by a small linear model that regresses on the baselearners' predictions.
+The implementation is based on sklearn's StackingRegressor.
+"""
 
 from typing import TYPE_CHECKING, override
 
@@ -83,9 +89,7 @@ class HybridForecaster(Forecaster):
             lightgbm_reg_lambda=config.hyperparams.lightgbm_params.reg_lambda,
             lightgbm_num_leaves=config.hyperparams.lightgbm_params.num_leaves,
             lightgbm_max_bin=config.hyperparams.lightgbm_params.max_bin,
-            lightgbm_subsample=config.hyperparams.lightgbm_params.subsample,
             lightgbm_colsample_by_tree=config.hyperparams.lightgbm_params.colsample_bytree,
-            lightgbm_colsample_by_node=config.hyperparams.lightgbm_params.colsample_bynode,
             gblinear_n_steps=config.hyperparams.gb_linear_params.n_steps,
             gblinear_learning_rate=config.hyperparams.gb_linear_params.learning_rate,
             gblinear_reg_alpha=config.hyperparams.gb_linear_params.reg_alpha,
@@ -111,7 +115,6 @@ class HybridForecaster(Forecaster):
             data_val: Validation data for tuning the model (optional, not used in this implementation).
 
         """
-
         input_data: pd.DataFrame = data.input_data()
         target: npt.NDArray[np.floating] = data.target_series.to_numpy()  # type: ignore
         sample_weights: pd.Series = data.sample_weight_series

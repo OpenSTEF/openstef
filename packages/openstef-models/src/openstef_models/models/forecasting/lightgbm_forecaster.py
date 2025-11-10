@@ -9,10 +9,8 @@ forecasting. Optimized for time series data with specialized loss functions and
 comprehensive hyperparameter control for production forecasting workflows.
 """
 
-from typing import Literal, override
+from typing import TYPE_CHECKING, Literal, override
 
-import numpy as np
-import numpy.typing as npt
 import pandas as pd
 from pydantic import Field
 
@@ -25,6 +23,10 @@ from openstef_core.mixins import HyperParams
 from openstef_models.estimators.lightgbm import LGBMQuantileRegressor
 from openstef_models.explainability.mixins import ExplainableForecaster
 from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
+
+if TYPE_CHECKING:
+    import numpy as np
+    import numpy.typing as npt
 
 
 class LightGBMHyperParams(HyperParams):
@@ -39,7 +41,6 @@ class LightGBMHyperParams(HyperParams):
         ...     learning_rate=0.1,
         ...     reg_alpha=0.1,
         ...     reg_lambda=1.0,
-        ...     subsample=0.8
         ... )
 
     Note:
@@ -103,17 +104,9 @@ class LightGBMHyperParams(HyperParams):
     )
 
     # Subsampling Parameters
-    subsample: float = Field(
-        default=1.0,
-        description="Fraction of training samples used for each tree. Lower values prevent overfitting. Range: (0,1]",
-    )
     colsample_bytree: float = Field(
         default=1.0,
         description="Fraction of features used when constructing each tree. Range: (0,1]",
-    )
-    colsample_bynode: float = Field(
-        default=1.0,
-        description="Fraction of features used for each split/node. Range: (0,1]",
     )
 
     # General Parameters
@@ -252,9 +245,7 @@ class LightGBMForecaster(Forecaster, ExplainableForecaster):
             reg_lambda=config.hyperparams.reg_lambda,
             num_leaves=config.hyperparams.num_leaves,
             max_bin=config.hyperparams.max_bin,
-            subsample=config.hyperparams.subsample,
             colsample_bytree=config.hyperparams.colsample_bytree,
-            colsample_bynode=config.hyperparams.colsample_bynode,
             random_state=config.hyperparams.random_state,
             early_stopping_rounds=config.hyperparams.early_stopping_rounds,
             verbosity=config.verbosity,
@@ -321,7 +312,7 @@ class LightGBMForecaster(Forecaster, ExplainableForecaster):
     @property
     @override
     def feature_importances(self) -> pd.DataFrame:
-        models = self._lightgbm_model._models
+        models = self._lightgbm_model.models
         weights_df = pd.DataFrame(
             [models[i].feature_importances_ for i in range(len(models))],
             index=[quantile.format() for quantile in self.config.quantiles],

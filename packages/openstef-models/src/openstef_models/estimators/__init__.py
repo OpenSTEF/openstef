@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-"""Custom estimators for multi quantiles"""
+"""Custom estimators for multi quantiles."""
 
 from .lightgbm import LGBMQuantileRegressor
 

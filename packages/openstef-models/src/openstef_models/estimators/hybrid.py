@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+#
+# SPDX-License-Identifier: MPL-2.0
 """Hybrid quantile regression estimators for multi-quantile forecasting.
 
 This module provides the HybridQuantileRegressor class, which combines LightGBM and linear models
@@ -35,9 +38,7 @@ class HybridQuantileRegressor:
         lightgbm_reg_lambda: float = 0.0,
         lightgbm_num_leaves: int = 31,
         lightgbm_max_bin: int = 255,
-        lightgbm_subsample: float = 1.0,
         lightgbm_colsample_by_tree: float = 1.0,
-        lightgbm_colsample_by_node: float = 1.0,
         gblinear_n_steps: int = 100,
         gblinear_learning_rate: float = 0.15,
         gblinear_reg_alpha: float = 0.0001,
@@ -64,9 +65,7 @@ class HybridQuantileRegressor:
                 reg_lambda=lightgbm_reg_lambda,
                 num_leaves=lightgbm_num_leaves,
                 max_bin=lightgbm_max_bin,
-                subsample=lightgbm_subsample,
                 colsample_bytree=lightgbm_colsample_by_tree,
-                colsample_bynode=lightgbm_colsample_by_node,
                 verbosity=-1,
                 linear_tree=False,
             )
@@ -101,9 +100,22 @@ class HybridQuantileRegressor:
         self.is_fitted: bool = False
         self.feature_names: list[str] = []
 
+    @staticmethod
+    def _prepare_input(X: npt.NDArray[np.floating] | pd.DataFrame) -> pd.DataFrame:
+        """Prepare input data by handling missing values.
+
+        Args:
+            X: Input features as a DataFrame or ndarray.
+
+        Returns:
+            A DataFrame with missing values handled.
+        """
+        filled_forward = pd.DataFrame(X).ffill()
+        return pd.DataFrame(filled_forward).fillna(0)
+
     def fit(
         self,
-        X: npt.NDArray[np.floating] | pd.DataFrame,  # noqa: N803
+        X: npt.NDArray[np.floating] | pd.DataFrame,
         y: npt.NDArray[np.floating] | pd.Series,
         sample_weight: npt.NDArray[np.floating] | pd.Series | None = None,
         feature_name: list[str] | None = None,
@@ -118,16 +130,15 @@ class HybridQuantileRegressor:
         """
         self.feature_names = feature_name if feature_name is not None else []
 
-        X = X.ffill().fillna(0)  # type: ignore
         for model in self._models:
             model.fit(
-                X=X,  # type: ignore
+                X=self._prepare_input(X),  # type: ignore
                 y=y,
                 sample_weight=sample_weight,
             )
         self.is_fitted = True
 
-    def predict(self, X: npt.NDArray[np.floating] | pd.DataFrame) -> npt.NDArray[np.floating]:  # noqa: N803
+    def predict(self, X: npt.NDArray[np.floating] | pd.DataFrame) -> npt.NDArray[np.floating]:
         """Predict quantiles for the input features.
 
         Args:
