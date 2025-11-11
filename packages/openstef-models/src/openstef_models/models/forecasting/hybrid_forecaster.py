@@ -14,7 +14,6 @@ from typing import TYPE_CHECKING, override
 import pandas as pd
 from pydantic import Field
 
-from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import (
     NotFittedError,
@@ -54,14 +53,6 @@ class HybridForecasterConfig(ForecasterConfig):
 
 
 MODEL_CODE_VERSION = 2
-
-
-class HybridForecasterState(BaseConfig):
-    """Serializable state for Hybrid forecaster persistence."""
-
-    version: int = Field(default=MODEL_CODE_VERSION, description="Version of the model code.")
-    config: HybridForecasterConfig = Field(..., description="Forecaster configuration.")
-    model: str = Field(..., description="Base64-encoded serialized Hybrid model.")
 
 
 class HybridForecaster(Forecaster):
