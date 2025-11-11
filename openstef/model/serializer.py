@@ -104,7 +104,7 @@ class MLflowSerializer:
         )  # feature names are 1+ columns
         mlflow.set_tag("target", model_specs.feature_names[0])  # target is first column
         mlflow.set_tag("feature_modules", model_specs.feature_modules)
-        mlflow.log_metrics(report.metrics)
+        mlflow.log_metrics(report.metrics, step=0)
         model_specs.hyper_params.update(model.get_params())
         # TODO: Remove this hardcoded hyper params fix with loop after fix by mlflow
         # https://github.com/mlflow/mlflow/issues/6384
@@ -127,7 +127,10 @@ class MLflowSerializer:
 
         # Log the model to the run. Signature describes model input and output scheme
         mlflow.sklearn.log_model(
-            sk_model=model, artifact_path="model", signature=report.signature
+            sk_model=model,
+            artifact_path="model",
+            signature=report.signature,
+            step=1,  # Since mlflow v3, log model also logs metrics. Step is changed for a unique value to avoid collision.
         )
         self.logger.info("Model saved with MLflow", experiment_name=experiment_name)
 
