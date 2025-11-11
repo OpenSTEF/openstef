@@ -14,7 +14,6 @@ from typing import TYPE_CHECKING, Literal, override
 import pandas as pd
 from pydantic import Field
 
-from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import (
     NotFittedError,
@@ -154,19 +153,6 @@ class LightGBMForecasterConfig(ForecasterConfig):
 
 
 MODEL_CODE_VERSION = 1
-
-
-class LightGBMForecasterState(BaseConfig):
-    """Serializable state for LightGBM forecaster persistence.
-
-    Contains all information needed to restore a trained LightGBM model,
-    including configuration and the serialized model weights. Used for
-    model saving, loading, and version management in production systems.
-    """
-
-    version: int = Field(default=MODEL_CODE_VERSION, description="Version of the model code.")
-    config: LightGBMForecasterConfig = Field(..., description="Forecaster configuration.")
-    model: str = Field(..., description="Base64-encoded serialized LightGBM model.")
 
 
 class LightGBMForecaster(Forecaster, ExplainableForecaster):

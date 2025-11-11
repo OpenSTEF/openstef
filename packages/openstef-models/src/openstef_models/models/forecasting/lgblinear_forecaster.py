@@ -16,7 +16,6 @@ import numpy.typing as npt
 import pandas as pd
 from pydantic import Field
 
-from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import (
     NotFittedError,
@@ -154,19 +153,6 @@ class LgbLinearForecasterConfig(ForecasterConfig):
 
 
 MODEL_CODE_VERSION = 1
-
-
-class LgbLinearForecasterState(BaseConfig):
-    """Serializable state for LgbLinear forecaster persistence.
-
-    Contains all information needed to restore a trained LgbLinear model,
-    including configuration and the serialized model weights. Used for
-    model saving, loading, and version management in production systems.
-    """
-
-    version: int = Field(default=MODEL_CODE_VERSION, description="Version of the model code.")
-    config: LgbLinearForecasterConfig = Field(..., description="Forecaster configuration.")
-    model: str = Field(..., description="Base64-encoded serialized LgbLinear model.")
 
 
 class LgbLinearForecaster(Forecaster, ExplainableForecaster):
