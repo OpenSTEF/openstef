@@ -5,7 +5,7 @@ import pandas as pd
 import pytest
 from numpy.random import default_rng
 
-from openstef_models.estimators.lightgbm import LGBMQuantileRegressor
+from openstef_models.estimators.lgbm import LGBMQuantileRegressor
 
 
 @pytest.fixture

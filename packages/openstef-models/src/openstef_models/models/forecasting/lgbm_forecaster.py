@@ -19,7 +19,7 @@ from openstef_core.exceptions import (
     NotFittedError,
 )
 from openstef_core.mixins import HyperParams
-from openstef_models.estimators.lightgbm import LGBMQuantileRegressor
+from openstef_models.estimators.lgbm import LGBMQuantileRegressor
 from openstef_models.explainability.mixins import ExplainableForecaster
 from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
 
@@ -28,13 +28,13 @@ if TYPE_CHECKING:
     import numpy.typing as npt
 
 
-class LightGBMHyperParams(HyperParams):
+class LGBMHyperParams(HyperParams):
     """LightGBM hyperparameters for gradient boosting tree models.
 
     Example:
         Creating custom hyperparameters for deep trees with regularization:
 
-        >>> hyperparams = LightGBMHyperParams(
+        >>> hyperparams = LGBMHyperParams(
         ...     n_estimators=200,
         ...     max_depth=8,
         ...     learning_rate=0.1,
@@ -121,7 +121,7 @@ class LightGBMHyperParams(HyperParams):
     )
 
 
-class LightGBMForecasterConfig(ForecasterConfig):
+class LGBMForecasterConfig(ForecasterConfig):
     """Configuration for LightGBM-based forecaster.
     Extends HorizonForecasterConfig with LightGBM-specific hyperparameters
     and execution settings.
@@ -130,13 +130,13 @@ class LightGBMForecasterConfig(ForecasterConfig):
     Creating a LightGBM forecaster configuration with custom hyperparameters:
     >>> from datetime import timedelta
     >>> from openstef_core.types import LeadTime, Quantile
-    >>> config = LightGBMForecasterConfig(
+    >>> config = LGBMForecasterConfig(
     ...     quantiles=[Quantile(0.1), Quantile(0.5), Quantile(0.9)],
     ...     horizons=[LeadTime(timedelta(hours=1))],
-    ...     hyperparams=LightGBMHyperParams(n_estimators=100, max_depth=6))
+    ...     hyperparams=LGBMHyperParams(n_estimators=100, max_depth=6))
     """  # noqa: D205
 
-    hyperparams: LightGBMHyperParams = LightGBMHyperParams()
+    hyperparams: LGBMHyperParams = LGBMHyperParams()
 
     # General Parameters
     device: str = Field(
@@ -155,7 +155,7 @@ class LightGBMForecasterConfig(ForecasterConfig):
 MODEL_CODE_VERSION = 1
 
 
-class LightGBMForecaster(Forecaster, ExplainableForecaster):
+class LGBMForecaster(Forecaster, ExplainableForecaster):
     """LightGBM-based forecaster for probabilistic energy forecasting.
 
     Implements gradient boosting trees using LightGBM for multi-quantile forecasting.
@@ -177,12 +177,12 @@ class LightGBMForecaster(Forecaster, ExplainableForecaster):
 
         >>> from datetime import timedelta
         >>> from openstef_core.types import LeadTime, Quantile
-        >>> config = LightGBMForecasterConfig(
+        >>> config = LGBMForecasterConfig(
         ...     quantiles=[Quantile(0.1), Quantile(0.5), Quantile(0.9)],
         ...     horizons=[LeadTime(timedelta(hours=1))],
-        ...     hyperparams=LightGBMHyperParams(n_estimators=100, max_depth=6)
+        ...     hyperparams=LGBMHyperParams(n_estimators=100, max_depth=6)
         ... )
-        >>> forecaster = LightGBMForecaster(config)
+        >>> forecaster = LGBMForecaster(config)
         >>> # forecaster.fit(training_data)
         >>> # predictions = forecaster.predict(test_data)
 
@@ -192,18 +192,18 @@ class LightGBMForecaster(Forecaster, ExplainableForecaster):
         magnitude-weighted pinball loss by default for better forecasting performance.
 
     See Also:
-        LightGBMHyperParams: Detailed hyperparameter configuration options.
+        LGBMHyperParams: Detailed hyperparameter configuration options.
         HorizonForecaster: Base interface for all forecasting models.
         GBLinearForecaster: Alternative linear model using LightGBM.
     """
 
-    Config = LightGBMForecasterConfig
-    HyperParams = LightGBMHyperParams
+    Config = LGBMForecasterConfig
+    HyperParams = LGBMHyperParams
 
-    _config: LightGBMForecasterConfig
-    _lightgbm_model: LGBMQuantileRegressor
+    _config: LGBMForecasterConfig
+    _lgbm_model: LGBMQuantileRegressor
 
-    def __init__(self, config: LightGBMForecasterConfig) -> None:
+    def __init__(self, config: LGBMForecasterConfig) -> None:
         """Initialize LightGBM forecaster with configuration.
 
         Creates an untrained LightGBM regressor with the specified configuration.
@@ -216,7 +216,7 @@ class LightGBMForecaster(Forecaster, ExplainableForecaster):
         """
         self._config = config
 
-        self._lightgbm_model = LGBMQuantileRegressor(
+        self._lgbm_model = LGBMQuantileRegressor(
             quantiles=[float(q) for q in config.quantiles],
             linear_tree=False,
             n_estimators=config.hyperparams.n_estimators,
@@ -242,13 +242,13 @@ class LightGBMForecaster(Forecaster, ExplainableForecaster):
 
     @property
     @override
-    def hyperparams(self) -> LightGBMHyperParams:
+    def hyperparams(self) -> LGBMHyperParams:
         return self._config.hyperparams
 
     @property
     @override
     def is_fitted(self) -> bool:
-        return self._lightgbm_model.__sklearn_is_fitted__()
+        return self._lgbm_model.__sklearn_is_fitted__()
 
     @override
     def fit(self, data: ForecastInputDataset, data_val: ForecastInputDataset | None = None) -> None:
@@ -267,7 +267,7 @@ class LightGBMForecaster(Forecaster, ExplainableForecaster):
             eval_set = (val_input_data, val_target)
             eval_sample_weight = [val_sample_weight]
 
-        self._lightgbm_model.fit(
+        self._lgbm_model.fit(
             X=input_data,
             y=target,
             feature_name=input_data.columns.tolist(),
@@ -282,7 +282,7 @@ class LightGBMForecaster(Forecaster, ExplainableForecaster):
             raise NotFittedError(self.__class__.__name__)
 
         input_data: pd.DataFrame = data.input_data(start=data.forecast_start)
-        prediction: npt.NDArray[np.floating] = self._lightgbm_model.predict(X=input_data)
+        prediction: npt.NDArray[np.floating] = self._lgbm_model.predict(X=input_data)
 
         return ForecastDataset(
             data=pd.DataFrame(
@@ -296,7 +296,7 @@ class LightGBMForecaster(Forecaster, ExplainableForecaster):
     @property
     @override
     def feature_importances(self) -> pd.DataFrame:
-        models = self._lightgbm_model.models
+        models = self._lgbm_model.models
         weights_df = pd.DataFrame(
             [models[i].feature_importances_ for i in range(len(models))],
             index=[quantile.format() for quantile in self.config.quantiles],
@@ -312,4 +312,4 @@ class LightGBMForecaster(Forecaster, ExplainableForecaster):
         return weights_abs / total
 
 
-__all__ = ["LightGBMForecaster", "LightGBMForecasterConfig", "LightGBMHyperParams"]
+__all__ = ["LGBMForecaster", "LGBMForecasterConfig", "LGBMHyperParams"]

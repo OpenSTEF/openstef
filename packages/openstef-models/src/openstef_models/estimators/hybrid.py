@@ -27,18 +27,18 @@ class HybridQuantileRegressor:
     def __init__(  # noqa: D107, PLR0913, PLR0917
         self,
         quantiles: list[float],
-        lightgbm_n_estimators: int = 100,
-        lightgbm_learning_rate: float = 0.1,
-        lightgbm_max_depth: int = -1,
-        lightgbm_min_child_weight: float = 1.0,
+        lgbm_n_estimators: int = 100,
+        lgbm_learning_rate: float = 0.1,
+        lgbm_max_depth: int = -1,
+        lgbm_min_child_weight: float = 1.0,
         ligntgbm_min_child_samples: int = 1,
-        lightgbm_min_data_in_leaf: int = 20,
-        lightgbm_min_data_in_bin: int = 10,
-        lightgbm_reg_alpha: float = 0.0,
-        lightgbm_reg_lambda: float = 0.0,
-        lightgbm_num_leaves: int = 31,
-        lightgbm_max_bin: int = 255,
-        lightgbm_colsample_by_tree: float = 1.0,
+        lgbm_min_data_in_leaf: int = 20,
+        lgbm_min_data_in_bin: int = 10,
+        lgbm_reg_alpha: float = 0.0,
+        lgbm_reg_lambda: float = 0.0,
+        lgbm_num_leaves: int = 31,
+        lgbm_max_bin: int = 255,
+        lgbm_colsample_by_tree: float = 1.0,
         gblinear_n_steps: int = 100,
         gblinear_learning_rate: float = 0.15,
         gblinear_reg_alpha: float = 0.0001,
@@ -51,21 +51,21 @@ class HybridQuantileRegressor:
         self._models: list[StackingRegressor] = []
 
         for q in quantiles:
-            lightgbm_model = LGBMRegressor(
+            lgbm_model = LGBMRegressor(
                 objective="quantile",
                 alpha=q,
                 min_child_samples=ligntgbm_min_child_samples,
-                n_estimators=lightgbm_n_estimators,
-                learning_rate=lightgbm_learning_rate,
-                max_depth=lightgbm_max_depth,
-                min_child_weight=lightgbm_min_child_weight,
-                min_data_in_leaf=lightgbm_min_data_in_leaf,
-                min_data_in_bin=lightgbm_min_data_in_bin,
-                reg_alpha=lightgbm_reg_alpha,
-                reg_lambda=lightgbm_reg_lambda,
-                num_leaves=lightgbm_num_leaves,
-                max_bin=lightgbm_max_bin,
-                colsample_bytree=lightgbm_colsample_by_tree,
+                n_estimators=lgbm_n_estimators,
+                learning_rate=lgbm_learning_rate,
+                max_depth=lgbm_max_depth,
+                min_child_weight=lgbm_min_child_weight,
+                min_data_in_leaf=lgbm_min_data_in_leaf,
+                min_data_in_bin=lgbm_min_data_in_bin,
+                reg_alpha=lgbm_reg_alpha,
+                reg_lambda=lgbm_reg_lambda,
+                num_leaves=lgbm_num_leaves,
+                max_bin=lgbm_max_bin,
+                colsample_bytree=lgbm_colsample_by_tree,
                 verbosity=-1,
                 linear_tree=False,
             )
@@ -89,7 +89,7 @@ class HybridQuantileRegressor:
 
             self._models.append(
                 StackingRegressor(
-                    estimators=[("lightgbm", lightgbm_model), ("gblinear", linear)],  # type: ignore
+                    estimators=[("lgbm", lgbm_model), ("gblinear", linear)],  # type: ignore
                     final_estimator=final_estimator,
                     verbose=3,
                     passthrough=False,
@@ -173,8 +173,8 @@ class HybridQuantileRegressor:
         """
         trusted_types = [
             "collections.OrderedDict",
-            "lightgbm.basic.Booster",
-            "lightgbm.sklearn.LGBMRegressor",
+            "lgbm.basic.Booster",
+            "lgbm.sklearn.LGBMRegressor",
             "sklearn.utils._bunch.Bunch",
             "xgboost.core.Booster",
             "xgboost.sklearn.XGBRegressor",
