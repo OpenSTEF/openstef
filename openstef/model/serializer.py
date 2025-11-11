@@ -127,7 +127,9 @@ class MLflowSerializer:
 
         # Log the model to the run. Signature describes model input and output scheme
         mlflow.sklearn.log_model(
-            sk_model=model, artifact_path="model", signature=report.signature,
+            sk_model=model,
+            artifact_path="model",
+            signature=report.signature,
             step=1,  # Since mlflow v3, log model also logs metrics. Step is changed for a unique value to avoid collision.
         )
         self.logger.info("Model saved with MLflow", experiment_name=experiment_name)
