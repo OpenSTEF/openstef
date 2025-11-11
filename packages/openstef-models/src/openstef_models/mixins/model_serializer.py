@@ -69,4 +69,6 @@ class ModelSerializer(BaseConfig, ABC):
         """
 
 
+# TODO @egordm, @MvLieshout : Add SkopsModelSerializer implementation
+
 __all__ = ["ModelIdentifier", "ModelSerializer"]
