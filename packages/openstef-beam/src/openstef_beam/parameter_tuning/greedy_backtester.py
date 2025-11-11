@@ -120,7 +120,9 @@ class GreedyBackTestPipeline:
             )
             forecaster = self.config.forecasting_model.forecaster
             forecaster.fit(training_input)
-            predictions.append(forecaster.predict(prediction_input))
+            predictions_raw = forecaster.predict(prediction_input)
+            predictions_processed = self.config.forecasting_model.postprocessing.fit_transform(predictions_raw)
+            predictions.append(predictions_processed)
 
             pbar.update(len(prediction_data.index))
 

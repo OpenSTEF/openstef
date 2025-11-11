@@ -46,7 +46,7 @@ from openstef_beam.parameter_tuning.models import (
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.datasets.versioned_timeseries_dataset import TimeSeriesDataset, VersionedTimeSeriesDataset
-from openstef_core.types import AvailableAt, LeadTime, Quantile
+from openstef_core.types import LeadTime, Quantile
 from openstef_core.utils.multiprocessing import run_parallel
 from openstef_models.models.forecasting.forecaster import HyperParams
 from openstef_models.models.forecasting_model import ForecastingModel
@@ -126,8 +126,6 @@ class BaseOptunaOptimizer(ABC):
 
         self._base_model = config.forecasting_model
 
-        self.available_at = AvailableAt.from_string("D-1T06:00")
-
     def _make_forecasting_workflow(
         self, hyperparams: HyperParams, model_id: int | None = None
     ) -> CustomForecastingWorkflow:
@@ -152,27 +150,29 @@ class BaseOptunaOptimizer(ABC):
 
     def _make_optuna_space(self, trial: Trial) -> dict[str, Any]:
         optuna_space: dict[str, str | float | int | None] = {}
-        for param_name, distribution in self.parameter_space.items():
-            if isinstance(distribution, FloatDistribution):
+        for param_name, distribution_or_value in self.parameter_space.items():
+            if isinstance(distribution_or_value, FloatDistribution):
                 optuna_space[param_name] = trial.suggest_float(
                     param_name,
-                    distribution.low,
-                    distribution.high,
-                    log=distribution.log,
-                    step=distribution.step,
+                    distribution_or_value.low,
+                    distribution_or_value.high,
+                    log=distribution_or_value.log,
+                    step=distribution_or_value.step,
                 )
-            elif isinstance(distribution, IntDistribution):
+            elif isinstance(distribution_or_value, IntDistribution):
                 optuna_space[param_name] = trial.suggest_int(
                     param_name,
-                    distribution.low,
-                    distribution.high,
-                    log=distribution.log,
-                    step=distribution.step,
+                    distribution_or_value.low,
+                    distribution_or_value.high,
+                    log=distribution_or_value.log,
+                    step=distribution_or_value.step,
                 )
-            elif isinstance(distribution, CategoricalDistribution):
-                optuna_space[param_name] = trial.suggest_categorical(param_name, distribution.choices)
+            elif isinstance(distribution_or_value, CategoricalDistribution):
+                optuna_space[param_name] = trial.suggest_categorical(param_name, distribution_or_value.choices)
+            elif isinstance(distribution_or_value, (float, int, str)):
+                optuna_space[param_name] = distribution_or_value
             else:
-                message = f"Unsupported distribution type: {type(distribution)}"
+                message = f"Unsupported type: {type(distribution_or_value)}"
                 raise TypeError(message)
         return optuna_space
 
