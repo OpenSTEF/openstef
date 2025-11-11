@@ -4,6 +4,6 @@
 
 """Custom estimators for multi quantiles."""
 
-from .lightgbm import LGBMQuantileRegressor
+from .lgbm import LGBMQuantileRegressor
 
 __all__ = ["LGBMQuantileRegressor"]

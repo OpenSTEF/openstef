@@ -21,18 +21,18 @@ from openstef_core.exceptions import (
     NotFittedError,
 )
 from openstef_core.mixins import HyperParams
-from openstef_models.estimators.lightgbm import LGBMQuantileRegressor
+from openstef_models.estimators.lgbm import LGBMQuantileRegressor
 from openstef_models.explainability.mixins import ExplainableForecaster
 from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
 
 
-class LgbLinearHyperParams(HyperParams):
+class LGBMLinearHyperParams(HyperParams):
     """LgbLinear hyperparameters for gradient boosting tree models.
 
     Example:
         Creating custom hyperparameters for deep trees with regularization:
 
-        >>> hyperparams = LgbLinearHyperParams(
+        >>> hyperparams = LGBMLinearHyperParams(
         ...     n_estimators=200,
         ...     max_depth=8,
         ...     learning_rate=0.1,
@@ -49,23 +49,23 @@ class LgbLinearHyperParams(HyperParams):
     # Core Tree Boosting Parameters
 
     n_estimators: int = Field(
-        default=150,
+        default=77,
         description="Number of boosting rounds/trees to fit. Higher values may improve performance but "
         "increase training time and risk overfitting.",
     )
     learning_rate: float = Field(
-        default=0.3,
+        default=0.07,
         alias="eta",
         description="Step size shrinkage used to prevent overfitting. Range: [0,1]. Lower values require "
         "more boosting rounds.",
     )
     max_depth: int = Field(
-        default=4,
+        default=1,
         description="Maximum depth of trees. Higher values capture more complex patterns but risk "
         "overfitting. Range: [1,∞]",
     )
     min_child_weight: float = Field(
-        default=1,
+        default=0.06,
         description="Minimum sum of instance weight (hessian) needed in a child. Higher values prevent "
         "overfitting. Range: [0,∞]",
     )
@@ -75,7 +75,7 @@ class LgbLinearHyperParams(HyperParams):
         description="Minimum number of data points in a leaf. Higher values prevent overfitting. Range: [1,∞]",
     )
     min_data_in_bin: int = Field(
-        default=5,
+        default=13,
         description="Minimum number of data points in a bin. Higher values prevent overfitting. Range: [1,∞]",
     )
 
@@ -91,14 +91,14 @@ class LgbLinearHyperParams(HyperParams):
 
     # Tree Structure Control
     num_leaves: int = Field(
-        default=31,
+        default=78,
         description="Maximum number of leaves. 0 means no limit. Only relevant when grow_policy='lossguide'.",
     )
 
     max_bin: int = Field(
-        default=256,
+        default=12,
         description="Maximum number of discrete bins for continuous features. Higher values may improve accuracy but "
-        "increase memory. Only for hist tree_method.",
+        "increase memory.",
     )
 
     # Subsampling Parameters
@@ -107,7 +107,38 @@ class LgbLinearHyperParams(HyperParams):
         description="Fraction of features used when constructing each tree. Range: (0,1]",
     )
 
+
+class LGBMLinearForecasterConfig(ForecasterConfig):
+    """Configuration for LgbLinear-based forecaster.
+    Extends HorizonForecasterConfig with LgbLinear-specific hyperparameters
+    and execution settings.
+
+    Example:
+    Creating a LgbLinear forecaster configuration with custom hyperparameters:
+    >>> from datetime import timedelta
+    >>> from openstef_core.types import LeadTime, Quantile
+    >>> config = LGBMLinearForecasterConfig(
+    ...     quantiles=[Quantile(0.1), Quantile(0.5), Quantile(0.9)],
+    ...     horizons=[LeadTime(timedelta(hours=1))],
+    ...     hyperparams=LGBMLinearHyperParams(n_estimators=100, max_depth=6)
+    ... )
+    """  # noqa: D205
+
+    hyperparams: LGBMLinearHyperParams = LGBMLinearHyperParams()
+
     # General Parameters
+    device: str = Field(
+        default="cpu",
+        description="Device for LgbLinear computation. Options: 'cpu', 'cuda', 'cuda:<ordinal>', 'gpu'",
+    )
+    n_jobs: int = Field(
+        default=1,
+        description="Number of parallel threads for tree construction. -1 uses all available cores.",
+    )
+    verbosity: Literal[-1, 0, 1, 2, 3] = Field(
+        default=-1, description="Verbosity level. 0=silent, 1=warning, 2=info, 3=debug"
+    )
+
     random_state: int | None = Field(
         default=None,
         alias="seed",
@@ -120,42 +151,10 @@ class LgbLinearHyperParams(HyperParams):
     )
 
 
-class LgbLinearForecasterConfig(ForecasterConfig):
-    """Configuration for LgbLinear-based forecaster.
-    Extends HorizonForecasterConfig with LgbLinear-specific hyperparameters
-    and execution settings.
-
-    Example:
-    Creating a LgbLinear forecaster configuration with custom hyperparameters:
-    >>> from datetime import timedelta
-    >>> from openstef_core.types import LeadTime, Quantile
-    >>> config = LgbLinearForecasterConfig(
-    ...     quantiles=[Quantile(0.1), Quantile(0.5), Quantile(0.9)],
-    ...     horizons=[LeadTime(timedelta(hours=1))],
-    ...     hyperparams=LgbLinearHyperParams(n_estimators=100, max_depth=6)
-    ... )
-    """  # noqa: D205
-
-    hyperparams: LgbLinearHyperParams = LgbLinearHyperParams()
-
-    # General Parameters
-    device: str = Field(
-        default="cpu",
-        description="Device for LgbLinear computation. Options: 'cpu', 'cuda', 'cuda:<ordinal>', 'gpu'",
-    )
-    n_jobs: int = Field(
-        default=1,
-        description="Number of parallel threads for tree construction. -1 uses all available cores.",
-    )
-    verbosity: Literal[0, 1, 2, 3] = Field(
-        default=0, description="Verbosity level. 0=silent, 1=warning, 2=info, 3=debug"
-    )
-
-
 MODEL_CODE_VERSION = 1
 
 
-class LgbLinearForecaster(Forecaster, ExplainableForecaster):
+class LGBMLinearForecaster(Forecaster, ExplainableForecaster):
     """LgbLinear-based forecaster for probabilistic energy forecasting.
 
     Implements gradient boosting trees using LgbLinear for multi-quantile forecasting.
@@ -177,12 +176,12 @@ class LgbLinearForecaster(Forecaster, ExplainableForecaster):
 
         >>> from datetime import timedelta
         >>> from openstef_core.types import LeadTime, Quantile
-        >>> config = LgbLinearForecasterConfig(
+        >>> config = LGBMLinearForecasterConfig(
         ...     quantiles=[Quantile(0.1), Quantile(0.5), Quantile(0.9)],
         ...     horizons=[LeadTime(timedelta(hours=1))],
-        ...     hyperparams=LgbLinearHyperParams(n_estimators=100, max_depth=6)
+        ...     hyperparams=LGBMLinearHyperParams(n_estimators=100, max_depth=6)
         ... )
-        >>> forecaster = LgbLinearForecaster(config)
+        >>> forecaster = LGBMLinearForecaster(config)
         >>> # forecaster.fit(training_data)
         >>> # predictions = forecaster.predict(test_data)
 
@@ -192,18 +191,18 @@ class LgbLinearForecaster(Forecaster, ExplainableForecaster):
         magnitude-weighted pinball loss by default for better forecasting performance.
 
     See Also:
-        LgbLinearHyperParams: Detailed hyperparameter configuration options.
+        LGBMLinearHyperParams: Detailed hyperparameter configuration options.
         HorizonForecaster: Base interface for all forecasting models.
         GBLinearForecaster: Alternative linear model using LgbLinear.
     """
 
-    Config = LgbLinearForecasterConfig
-    HyperParams = LgbLinearHyperParams
+    Config = LGBMLinearForecasterConfig
+    HyperParams = LGBMLinearHyperParams
 
-    _config: LgbLinearForecasterConfig
-    _lgblinear_model: LGBMQuantileRegressor
+    _config: LGBMLinearForecasterConfig
+    _lgbmlinear_model: LGBMQuantileRegressor
 
-    def __init__(self, config: LgbLinearForecasterConfig) -> None:
+    def __init__(self, config: LGBMLinearForecasterConfig) -> None:
         """Initialize LgbLinear forecaster with configuration.
 
         Creates an untrained LgbLinear regressor with the specified configuration.
@@ -216,7 +215,7 @@ class LgbLinearForecaster(Forecaster, ExplainableForecaster):
         """
         self._config = config
 
-        self._lgblinear_model = LGBMQuantileRegressor(
+        self._lgbmlinear_model = LGBMQuantileRegressor(
             quantiles=[float(q) for q in config.quantiles],
             linear_tree=True,
             n_estimators=config.hyperparams.n_estimators,
@@ -230,8 +229,8 @@ class LgbLinearForecaster(Forecaster, ExplainableForecaster):
             num_leaves=config.hyperparams.num_leaves,
             max_bin=config.hyperparams.max_bin,
             colsample_bytree=config.hyperparams.colsample_bytree,
-            random_state=config.hyperparams.random_state,
-            early_stopping_rounds=config.hyperparams.early_stopping_rounds,
+            random_state=config.random_state,
+            early_stopping_rounds=config.early_stopping_rounds,
             verbosity=config.verbosity,
         )
 
@@ -242,13 +241,13 @@ class LgbLinearForecaster(Forecaster, ExplainableForecaster):
 
     @property
     @override
-    def hyperparams(self) -> LgbLinearHyperParams:
+    def hyperparams(self) -> LGBMLinearHyperParams:
         return self._config.hyperparams
 
     @property
     @override
     def is_fitted(self) -> bool:
-        return self._lgblinear_model.__sklearn_is_fitted__()
+        return self._lgbmlinear_model.__sklearn_is_fitted__()
 
     @override
     def fit(self, data: ForecastInputDataset, data_val: ForecastInputDataset | None = None) -> None:
@@ -267,7 +266,7 @@ class LgbLinearForecaster(Forecaster, ExplainableForecaster):
 
             eval_sample_weight = [val_sample_weight]
 
-        self._lgblinear_model.fit(  # type: ignore
+        self._lgbmlinear_model.fit(  # type: ignore
             X=input_data,
             y=target,
             feature_name=input_data.columns.tolist(),
@@ -282,7 +281,7 @@ class LgbLinearForecaster(Forecaster, ExplainableForecaster):
             raise NotFittedError(self.__class__.__name__)
 
         input_data: pd.DataFrame = data.input_data(start=data.forecast_start)
-        prediction: npt.NDArray[np.floating] = self._lgblinear_model.predict(X=input_data)
+        prediction: npt.NDArray[np.floating] = self._lgbmlinear_model.predict(X=input_data)
 
         return ForecastDataset(
             data=pd.DataFrame(
@@ -296,7 +295,7 @@ class LgbLinearForecaster(Forecaster, ExplainableForecaster):
     @property
     @override
     def feature_importances(self) -> pd.DataFrame:
-        models = self._lgblinear_model._models  # noqa: SLF001
+        models = self._lgbmlinear_model._models  # noqa: SLF001
         weights_df = pd.DataFrame(
             [models[i].feature_importances_ for i in range(len(models))],
             index=[quantile.format() for quantile in self.config.quantiles],
@@ -312,4 +311,4 @@ class LgbLinearForecaster(Forecaster, ExplainableForecaster):
         return weights_abs / total
 
 
-__all__ = ["LgbLinearForecaster", "LgbLinearForecasterConfig", "LgbLinearHyperParams"]
+__all__ = ["LGBMLinearForecaster", "LGBMLinearForecasterConfig", "LGBMLinearHyperParams"]

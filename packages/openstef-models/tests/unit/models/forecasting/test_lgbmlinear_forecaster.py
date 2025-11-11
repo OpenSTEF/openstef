@@ -9,21 +9,21 @@ import pytest
 from openstef_core.datasets import ForecastInputDataset
 from openstef_core.exceptions import NotFittedError
 from openstef_core.types import LeadTime, Q
-from openstef_models.models.forecasting.lightgbm_forecaster import (
-    LightGBMForecaster,
-    LightGBMForecasterConfig,
-    LightGBMHyperParams,
+from openstef_models.models.forecasting.lgbmlinear_forecaster import (
+    LGBMLinearForecaster,
+    LGBMLinearForecasterConfig,
+    LGBMLinearHyperParams,
 )
 
 
 @pytest.fixture
-def base_config() -> LightGBMForecasterConfig:
-    """Base configuration for LightGBM forecaster tests."""
+def base_config() -> LGBMLinearForecasterConfig:
+    """Base configuration for LgbLinear forecaster tests."""
 
-    return LightGBMForecasterConfig(
+    return LGBMLinearForecasterConfig(
         quantiles=[Q(0.1), Q(0.5), Q(0.9)],
         horizons=[LeadTime(timedelta(days=1))],
-        hyperparams=LightGBMHyperParams(n_estimators=100, max_depth=3, min_data_in_leaf=1, min_data_in_bin=1),
+        hyperparams=LGBMLinearHyperParams(n_estimators=100, max_depth=3, min_data_in_leaf=1, min_data_in_bin=1),
         device="cpu",
         n_jobs=1,
         verbosity=0,
@@ -31,23 +31,23 @@ def base_config() -> LightGBMForecasterConfig:
 
 
 @pytest.fixture
-def forecaster(base_config: LightGBMForecasterConfig) -> LightGBMForecaster:
-    return LightGBMForecaster(base_config)
+def forecaster(base_config: LGBMLinearForecasterConfig) -> LGBMLinearForecaster:
+    return LGBMLinearForecaster(base_config)
 
 
-def test_initialization(forecaster: LightGBMForecaster):
-    assert isinstance(forecaster, LightGBMForecaster)
+def test_initialization(forecaster: LGBMLinearForecaster):
+    assert isinstance(forecaster, LGBMLinearForecaster)
     assert forecaster.config.hyperparams.n_estimators == 100  # type: ignore
 
 
-def test_quantile_lightgbm_forecaster__fit_predict(
+def test_quantile_lgbmlinear_forecaster__fit_predict(
     sample_forecast_input_dataset: ForecastInputDataset,
-    base_config: LightGBMForecasterConfig,
+    base_config: LGBMLinearForecasterConfig,
 ):
     """Test basic fit and predict workflow with comprehensive output validation."""
     # Arrange
     expected_quantiles = base_config.quantiles
-    forecaster = LightGBMForecaster(config=base_config)
+    forecaster = LGBMLinearForecaster(config=base_config)
 
     # Act
     forecaster.fit(sample_forecast_input_dataset)
@@ -72,42 +72,42 @@ def test_quantile_lightgbm_forecaster__fit_predict(
     assert (stds > 0).all(), f"All columns should have variation, got stds: {dict(stds)}"
 
 
-def test_lightgbm_forecaster__not_fitted_error(
+def test_lgbmlinear_forecaster__not_fitted_error(
     sample_forecast_input_dataset: ForecastInputDataset,
-    base_config: LightGBMForecasterConfig,
+    base_config: LGBMLinearForecasterConfig,
 ):
     """Test that NotFittedError is raised when predicting before fitting."""
     # Arrange
-    forecaster = LightGBMForecaster(config=base_config)
+    forecaster = LGBMLinearForecaster(config=base_config)
 
     # Act & Assert
     with pytest.raises(NotFittedError):
         forecaster.predict(sample_forecast_input_dataset)
 
 
-def test_lightgbm_forecaster__predict_not_fitted_raises_error(
+def test_lgbmlinear_forecaster__predict_not_fitted_raises_error(
     sample_forecast_input_dataset: ForecastInputDataset,
-    base_config: LightGBMForecasterConfig,
+    base_config: LGBMLinearForecasterConfig,
 ):
     """Test that predict() raises NotFittedError when called before fit()."""
     # Arrange
-    forecaster = LightGBMForecaster(config=base_config)
+    forecaster = LGBMLinearForecaster(config=base_config)
 
     # Act & Assert
     with pytest.raises(
         NotFittedError,
-        match="The LightGBMForecaster has not been fitted yet. Please call 'fit' before using it.",  # noqa: RUF043
+        match="The LGBMLinearForecaster has not been fitted yet. Please call 'fit' before using it.",  # noqa: RUF043
     ):
         forecaster.predict(sample_forecast_input_dataset)
 
 
-def test_lightgbm_forecaster__with_sample_weights(
+def test_lgbmlinear_forecaster__with_sample_weights(
     sample_dataset_with_weights: ForecastInputDataset,
-    base_config: LightGBMForecasterConfig,
+    base_config: LGBMLinearForecasterConfig,
 ):
     """Test that forecaster works with sample weights and produces different results."""
     # Arrange
-    forecaster_with_weights = LightGBMForecaster(config=base_config)
+    forecaster_with_weights = LGBMLinearForecaster(config=base_config)
 
     # Create dataset without weights for comparison
     data_without_weights = ForecastInputDataset(
@@ -116,7 +116,7 @@ def test_lightgbm_forecaster__with_sample_weights(
         target_column=sample_dataset_with_weights.target_column,
         forecast_start=sample_dataset_with_weights.forecast_start,
     )
-    forecaster_without_weights = LightGBMForecaster(config=base_config)
+    forecaster_without_weights = LGBMLinearForecaster(config=base_config)
 
     # Act
     forecaster_with_weights.fit(sample_dataset_with_weights)
@@ -137,13 +137,13 @@ def test_lightgbm_forecaster__with_sample_weights(
     assert differences.sum().sum() > 0, "Sample weights should affect model predictions"
 
 
-def test_lightgbm_forecaster__feature_importances(
+def test_lgbmlinear_forecaster__feature_importances(
     sample_forecast_input_dataset: ForecastInputDataset,
-    base_config: LightGBMForecasterConfig,
+    base_config: LGBMLinearForecasterConfig,
 ):
     """Test that feature_importances returns correct normalized importance scores."""
     # Arrange
-    forecaster = LightGBMForecaster(config=base_config)
+    forecaster = LGBMLinearForecaster(config=base_config)
     forecaster.fit(sample_forecast_input_dataset)
 
     # Act
