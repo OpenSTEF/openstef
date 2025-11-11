@@ -218,20 +218,10 @@ class LGBMLinearForecaster(Forecaster, ExplainableForecaster):
         self._lgbmlinear_model = LGBMQuantileRegressor(
             quantiles=[float(q) for q in config.quantiles],
             linear_tree=True,
-            n_estimators=config.hyperparams.n_estimators,
-            learning_rate=config.hyperparams.learning_rate,
-            max_depth=config.hyperparams.max_depth,
-            min_child_weight=config.hyperparams.min_child_weight,
-            min_data_in_leaf=config.hyperparams.min_data_in_leaf,
-            min_data_in_bin=config.hyperparams.min_data_in_bin,
-            reg_alpha=config.hyperparams.reg_alpha,
-            reg_lambda=config.hyperparams.reg_lambda,
-            num_leaves=config.hyperparams.num_leaves,
-            max_bin=config.hyperparams.max_bin,
-            colsample_bytree=config.hyperparams.colsample_bytree,
             random_state=config.random_state,
             early_stopping_rounds=config.early_stopping_rounds,
             verbosity=config.verbosity,
+            **config.hyperparams.model_dump(),
         )
 
     @property

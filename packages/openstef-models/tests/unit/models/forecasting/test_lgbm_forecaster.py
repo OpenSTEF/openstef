@@ -85,22 +85,6 @@ def test_lgbm_forecaster__not_fitted_error(
         forecaster.predict(sample_forecast_input_dataset)
 
 
-def test_lgbm_forecaster__predict_not_fitted_raises_error(
-    sample_forecast_input_dataset: ForecastInputDataset,
-    base_config: LGBMForecasterConfig,
-):
-    """Test that predict() raises NotFittedError when called before fit()."""
-    # Arrange
-    forecaster = LGBMForecaster(config=base_config)
-
-    # Act & Assert
-    with pytest.raises(
-        NotFittedError,
-        match="The LGBMForecaster has not been fitted yet. Please call 'fit' before using it.",  # noqa: RUF043
-    ):
-        forecaster.predict(sample_forecast_input_dataset)
-
-
 def test_lgbm_forecaster__with_sample_weights(
     sample_dataset_with_weights: ForecastInputDataset,
     base_config: LGBMForecasterConfig,
@@ -160,3 +144,6 @@ def test_lgbm_forecaster__feature_importances(
     col_sums = feature_importances.sum(axis=0)
     pd.testing.assert_series_equal(col_sums, pd.Series(1.0, index=expected_columns), atol=1e-10)
     assert (feature_importances >= 0).all().all()
+
+
+# TODO : Add tests on different loss functions @MvLieshout
