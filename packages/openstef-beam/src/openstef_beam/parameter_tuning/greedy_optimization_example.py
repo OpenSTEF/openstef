@@ -10,6 +10,8 @@ that mirror operational deployment conditions, ensuring evaluation results
 accurately reflect real-world model performance.
 """
 
+import logging
+import sys
 from datetime import timedelta
 from pathlib import Path
 
@@ -32,10 +34,16 @@ from openstef_models.workflows.custom_forecasting_workflow import (
     CustomForecastingWorkflow,
 )
 
+logger = logging.getLogger(__name__)
+handler = logging.StreamHandler(sys.stdout)
+
+logger.addHandler(handler)
+
 horizon = LeadTime.from_string("PT12H")
 quantiles = [Quantile(0.1), Quantile(0.3), Quantile(0.5), Quantile(0.7), Quantile(0.9)]
 forecaster_name = "lgbmlinear"  # Choose model type: "lgbm", "xgboost", "gblinear", "lgbmlinear", "hybrid", "flatliner"
 
+# Extract pre-defined forecasting model from preset (pre-processing, forecasting, post-processing)
 workflow: CustomForecastingWorkflow = create_forecasting_workflow(
     config=ForecastingWorkflowConfig(
         model_id=f"{forecaster_name}_forecaster_",
@@ -44,13 +52,10 @@ workflow: CustomForecastingWorkflow = create_forecasting_workflow(
         quantiles=quantiles,
     )
 )
-
-
 model = workflow.model
 
-
+# Define hyperparameter search space
 params = ParameterSpace.get_preset(forecaster_name)
-
 
 # Set optimization goal
 optimization_metric = OptimizationMetric(
@@ -58,12 +63,8 @@ optimization_metric = OptimizationMetric(
     direction_minimize=True,
 )
 
+# Load target provider with historical data
 target_provider = Liander2024TargetProvider(data_dir=Path("../data/liander2024-energy-forecasting-benchmark"))
-
-target = target_provider.get_targets()
-
-predictors = target_provider.get_predictors_for_target(target[0])
-ground_truth = target_provider.get_measurements_for_target(target[0])
 
 
 greedy_backtest_config = GreedyBacktestConfig(
@@ -72,6 +73,7 @@ greedy_backtest_config = GreedyBacktestConfig(
     training_data_length=timedelta(days=90),
     model_train_interval=timedelta(days=31),
     max_lagged_features=timedelta(days=14),
+    verbosity="DEBUG",
 )
 optimizer_config = GreedyOptimizerConfig(
     parameter_space=params,
@@ -80,11 +82,14 @@ optimizer_config = GreedyOptimizerConfig(
     forecasting_model=model,
     backtest_config=greedy_backtest_config,
     optimization_metric=optimization_metric,
+    n_trials=100,
+    n_jobs=1,
+    verbosity="DEBUG",
 )
 optimizer = GreedyOptunaOptimizer(config=optimizer_config)
 
 
-best_hyperparams = optimizer.optimize(predictors=predictors, ground_truth=ground_truth)
+best_hyperparams = optimizer.optimize_target_provider(target_provider=target_provider)
 
-
-print("Best hyperparameters found:", best_hyperparams)
+msg = f"{forecaster_name} - Best hyperparameters found: {best_hyperparams}"
+logger.info(msg)

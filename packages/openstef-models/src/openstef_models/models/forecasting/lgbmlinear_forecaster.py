@@ -99,25 +99,13 @@ class LGBMLinearHyperParams(HyperParams):
     max_bin: int = Field(
         default=256,
         description="Maximum number of discrete bins for continuous features. Higher values may improve accuracy but "
-        "increase memory. Only for hist tree_method.",
+        "increase memory.",
     )
 
     # Subsampling Parameters
     colsample_bytree: float = Field(
         default=0.5,
         description="Fraction of features used when constructing each tree. Range: (0,1]",
-    )
-
-    # General Parameters
-    random_state: int | None = Field(
-        default=None,
-        alias="seed",
-        description="Random seed for reproducibility. Controls tree structure randomness.",
-    )
-
-    early_stopping_rounds: int | None = Field(
-        default=10,
-        description="Training will stop if performance doesn't improve for this many rounds. Requires validation data.",
     )
 
 
@@ -150,6 +138,17 @@ class LGBMLinearForecasterConfig(ForecasterConfig):
     )
     verbosity: Literal[-1, 0, 1, 2, 3] = Field(
         default=-1, description="Verbosity level. 0=silent, 1=warning, 2=info, 3=debug"
+    )
+
+    random_state: int | None = Field(
+        default=None,
+        alias="seed",
+        description="Random seed for reproducibility. Controls tree structure randomness.",
+    )
+
+    early_stopping_rounds: int | None = Field(
+        default=10,
+        description="Training will stop if performance doesn't improve for this many rounds. Requires validation data.",
     )
 
 
@@ -244,8 +243,8 @@ class LGBMLinearForecaster(Forecaster, ExplainableForecaster):
             num_leaves=config.hyperparams.num_leaves,
             max_bin=config.hyperparams.max_bin,
             colsample_bytree=config.hyperparams.colsample_bytree,
-            random_state=config.hyperparams.random_state,
-            early_stopping_rounds=config.hyperparams.early_stopping_rounds,
+            random_state=config.random_state,
+            early_stopping_rounds=config.early_stopping_rounds,
             verbosity=config.verbosity,
         )
 

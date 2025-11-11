@@ -71,12 +71,19 @@ class IntDistribution(Distribution):
     step: int = Field(default=1, description="Step size for the distribution.")
 
 
+DistributionOrParameter = Distribution | int | float | str | bool
+FloatOrFloatDistribution = FloatDistribution | float
+IntOrIntDistribution = IntDistribution | int
+BoolOrCategoricalDistribution = CategoricalDistribution | bool
+StrOrCategoricalDistribution = CategoricalDistribution | str
+
+
 class ParameterSpace(PydanticBaseModel):
     """Defines a hyperparameter search space for tuning forecasting models."""
 
     model_config = {"extra": "allow"}
 
-    def items(self) -> list[tuple[str, Distribution]]:
+    def items(self) -> list[tuple[str, DistributionOrParameter]]:
         """Get an iterator over the parameter space items.
 
         Returns:
@@ -86,7 +93,7 @@ class ParameterSpace(PydanticBaseModel):
 
     @model_validator(mode="before")
     @staticmethod
-    def check_distribution(value: dict[str, Any]) -> dict[str, Distribution]:
+    def check_distribution(value: dict[str, Any]) -> dict[str, DistributionOrParameter]:
         """Validate that the value is an instance of Distribution.
 
         Args:
@@ -98,7 +105,7 @@ class ParameterSpace(PydanticBaseModel):
         Raises:
             TypeError: If the value is not an instance of Distribution.
         """
-        if not all(isinstance(v, Distribution) for v in value.values()):
+        if not all(isinstance(v, DistributionOrParameter) for v in value.values()):
             raise TypeError("All values in ParameterSpace must be instances of Distribution.")
 
         return value
@@ -173,10 +180,10 @@ class ParameterSpace(PydanticBaseModel):
 class LGBMParameterSpace(ParameterSpace):
     """Preset parameter space for LGBM model."""
 
-    learning_rate: FloatDistribution = Field(default=FloatDistribution(low=1e-3, high=0.3, log=True))
-    num_leaves: IntDistribution = Field(default=IntDistribution(low=20, high=150))
-    max_depth: IntDistribution = Field(default=IntDistribution(low=3, high=15))
-    reg_lambda: FloatDistribution = Field(default=FloatDistribution(low=1e-3, high=10.0, log=True))
+    learning_rate: FloatOrFloatDistribution = Field(default=FloatDistribution(low=1e-3, high=0.3, log=True))
+    num_leaves: IntOrIntDistribution = Field(default=IntDistribution(low=20, high=150))
+    max_depth: IntOrIntDistribution = Field(default=IntDistribution(low=3, high=15))
+    reg_lambda: FloatOrFloatDistribution = Field(default=FloatDistribution(low=1e-3, high=10.0, log=True))
 
     @classmethod
     def default_hyperparams(cls) -> type[HyperParams]:
@@ -191,11 +198,16 @@ class LGBMParameterSpace(ParameterSpace):
 class LGBMLinearParameterSpace(ParameterSpace):
     """Preset parameter space for LGBM Linear model."""
 
-    learning_rate: FloatDistribution = Field(default=FloatDistribution(low=1e-3, high=0.3, log=True))
-    num_leaves: IntDistribution = Field(default=IntDistribution(low=3, high=150))
-    max_depth: IntDistribution = Field(default=IntDistribution(low=1, high=5))
-    reg_lambda: FloatDistribution = Field(default=FloatDistribution(low=1e-3, high=10.0, log=True))
-    colsample_bytree: FloatDistribution = Field(default=FloatDistribution(low=0.5, high=1.0))
+    n_estimators: IntOrIntDistribution = Field(default=IntDistribution(low=3, high=500))
+    learning_rate: FloatOrFloatDistribution = Field(default=FloatDistribution(low=1e-3, high=0.3, log=True))
+    num_leaves: IntOrIntDistribution = Field(default=IntDistribution(low=3, high=150))
+    max_depth: IntOrIntDistribution = Field(default=IntDistribution(low=1, high=5))
+    reg_lambda: FloatOrFloatDistribution = Field(default=FloatDistribution(low=1e-3, high=10.0, log=True))
+    colsample_bytree: FloatOrFloatDistribution = Field(default=FloatDistribution(low=0.5, high=1.0))
+    max_bin: IntOrIntDistribution = Field(default=IntDistribution(low=10, high=256))
+    min_data_in_leaf: IntOrIntDistribution = Field(default=IntDistribution(low=1, high=50))
+    min_data_in_bin: IntOrIntDistribution = Field(default=IntDistribution(low=1, high=50))
+    min_child_weight: FloatOrFloatDistribution = Field(default=FloatDistribution(low=1e-3, high=100.0, log=True))
 
     @classmethod
     def default_hyperparams(cls) -> type[HyperParams]:
@@ -210,11 +222,11 @@ class LGBMLinearParameterSpace(ParameterSpace):
 class XGBoostParameterSpace(ParameterSpace):
     """Preset parameter space for XGBoost model."""
 
-    learning_rate: FloatDistribution = Field(default=FloatDistribution(low=1e-3, high=0.3, log=True))
-    max_depth: IntDistribution = Field(default=IntDistribution(low=2, high=15))
-    n_estimators: IntDistribution = Field(default=IntDistribution(low=50, high=500))
-    subsample: FloatDistribution = Field(default=FloatDistribution(low=0.5, high=1.0))
-    reg_lambda: FloatDistribution = Field(default=FloatDistribution(low=1e-3, high=10.0, log=True))
+    learning_rate: FloatOrFloatDistribution = Field(default=FloatDistribution(low=1e-3, high=0.3, log=True))
+    max_depth: IntOrIntDistribution = Field(default=IntDistribution(low=2, high=15))
+    n_estimators: IntOrIntDistribution = Field(default=IntDistribution(low=50, high=500))
+    subsample: FloatOrFloatDistribution = Field(default=FloatDistribution(low=0.5, high=1.0))
+    reg_lambda: FloatOrFloatDistribution = Field(default=FloatDistribution(low=1e-3, high=10.0, log=True))
 
     @classmethod
     def default_hyperparams(cls) -> type[HyperParams]:
@@ -229,10 +241,12 @@ class XGBoostParameterSpace(ParameterSpace):
 class GBLinearParameterSpace(ParameterSpace):
     """Preset parameter space for GBLinear model."""
 
-    learning_rate: FloatDistribution = Field(default=FloatDistribution(low=1e-3, high=0.3, log=True))
-    n_steps: IntDistribution = Field(default=IntDistribution(low=50, high=500))
-    reg_alpha: FloatDistribution = Field(default=FloatDistribution(low=1e-5, high=10.0, log=True))
-    feature_selctor: CategoricalDistribution = Field(default=CategoricalDistribution(choices=["shuffle", "greedy"]))
+    learning_rate: FloatOrFloatDistribution = Field(default=FloatDistribution(low=1e-3, high=0.3, log=True))
+    n_steps: IntOrIntDistribution = Field(default=IntDistribution(low=50, high=500))
+    reg_alpha: FloatOrFloatDistribution = Field(default=FloatDistribution(low=1e-5, high=10.0, log=True))
+    feature_selctor: StrOrCategoricalDistribution = Field(
+        default=CategoricalDistribution(choices=["shuffle", "greedy"])
+    )
 
     @classmethod
     def default_hyperparams(cls) -> type[HyperParams]:

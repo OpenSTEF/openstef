@@ -5,7 +5,7 @@
 
 from datetime import datetime, timedelta
 from functools import partial
-from typing import cast
+from typing import Literal, cast
 
 import pandas as pd
 from pydantic import Field
@@ -37,6 +37,9 @@ class GreedyBacktestConfig(BaseConfig):
     max_lagged_features: timedelta = Field(
         default=timedelta(days=14),
         description="Maximum lagged features to consider from historical data.",
+    )
+    verbosity: Literal["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", "NOTSET"] = Field(
+        default="INFO", description="Verbosity level for the optimizer."
     )
 
 
@@ -101,7 +104,6 @@ class GreedyBackTestPipeline:
             ForecastDataset: The forecast dataset containing predictions and ground truth.
         """
         dataset = VersionedTimeSeriesDataset.concat([ground_truth, predictors], mode="outer").select_version()
-
         training_datasets, prediction_datasets = self._split_data(dataset)
         pbar = tqdm(total=sum(len(d.index) for d in prediction_datasets), smoothing=0.0)
         predictions: list[ForecastDataset] = []
@@ -116,10 +118,10 @@ class GreedyBackTestPipeline:
             prediction_input = self.config.forecasting_model.prepare_input(
                 data=prediction_data,
             )
-
             forecaster = self.config.forecasting_model.forecaster
             forecaster.fit(training_input)
             predictions.append(forecaster.predict(prediction_input))
+
             pbar.update(len(prediction_data.index))
 
         target = ground_truth.select_version()

@@ -12,11 +12,14 @@ accurately reflect real-world model performance.
 
 import logging
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 import optuna
 import pandas as pd
+from optuna.storages import JournalStorage
+from optuna.storages.journal import JournalFileBackend
 from optuna.study import Study
 from optuna.trial import FrozenTrial, Trial
 from pydantic import Field
@@ -28,6 +31,7 @@ from openstef_beam.backtesting.backtest_forecaster.openstef4_backtest_forecaster
     OpenSTEF4BacktestForecaster,
 )
 from openstef_beam.backtesting.backtest_pipeline import BacktestConfig, BacktestPipeline
+from openstef_beam.benchmarking.benchmarks.liander2024 import Liander2024TargetProvider
 from openstef_beam.parameter_tuning.greedy_backtester import (
     GreedyBacktestConfig,
     GreedyBackTestPipeline,
@@ -43,6 +47,7 @@ from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.datasets.versioned_timeseries_dataset import TimeSeriesDataset, VersionedTimeSeriesDataset
 from openstef_core.types import AvailableAt, LeadTime, Quantile
+from openstef_core.utils.multiprocessing import run_parallel
 from openstef_models.models.forecasting.forecaster import HyperParams
 from openstef_models.models.forecasting_model import ForecastingModel
 from openstef_models.workflows.custom_forecasting_workflow import (
@@ -66,6 +71,13 @@ class BaseOptimizerConfig(BaseConfig):
     )
 
     optimization_metric: OptimizationMetric = Field(description="Metric used for optimization during parameter tuning.")
+
+    n_jobs: int = Field(default=1, description="Number of parallel jobs to run during optimization.")
+    n_trials: int = Field(default=100, description="Number of trials to run during optimization.")
+    timeout: int = Field(default=3600, description="Timeout in seconds for the optimization process.")
+    verbosity: Literal["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", "NOTSET"] = Field(
+        default="INFO", description="Verbosity level for the optimizer."
+    )
 
 
 class RigorousOptimizerConfig(BaseOptimizerConfig):
@@ -100,7 +112,12 @@ class BaseOptunaOptimizer(ABC):
         self.quantiles = config.quantiles
         self.horizon = config.horizon
 
-        # Validate parameter space
+        self.n_trials = config.n_trials
+        self.n_jobs = config.n_jobs
+
+        logger.setLevel(config.verbosity)
+
+        # Parameter space
         self.parameter_space: ParameterSpace = config.parameter_space
 
         self.direction = "minimize" if config.optimization_metric.direction_minimize else "maximize"
@@ -177,14 +194,14 @@ class BaseOptunaOptimizer(ABC):
         )
         target = target.pipe_pandas(pd.DataFrame.dropna)  # type: ignore
 
-        predictions_filtered = predictions.filter_by_available_at(available_at=self.available_at).select_version()
+        predictions_selected = predictions.select_version()
 
         # Remove target column from predictions to avoid duplication
-        if "load" in predictions_filtered.data.columns:
-            predictions_filtered = predictions_filtered.pipe_pandas(lambda df: df.drop(columns=["load"]))
+        if "load" in predictions_selected.data.columns:
+            predictions_selected = predictions_selected.pipe_pandas(lambda df: df.drop(columns=["load"]))
 
         final_set = ForecastDataset(
-            data=target.data.join(predictions_filtered.data, how="inner"),
+            data=target.data.join(predictions_selected.data, how="inner"),
             sample_interval=predictions.sample_interval,
             target_column="load",
         ).filter_quantiles(quantiles=self.quantiles)
@@ -201,7 +218,52 @@ class BaseOptunaOptimizer(ABC):
         """Create a backtest pipeline for the given hyperparameters."""
         raise NotImplementedError("Subclasses must implement _make_backtest")
 
-    def optimize(
+    @staticmethod
+    def logger_callback(study: Study, trial: FrozenTrial) -> None:
+        """Log the progress of the optimization study. To be used as an Optuna callback."""
+        logger.info("Current value: %s, Current params: %s", trial.value, trial.params)
+        logger.info(
+            "Best value: %s, Best params: %s",
+            study.best_value,
+            study.best_trial.params,
+        )
+
+    def optimize_target_provider(self, target_provider: Liander2024TargetProvider) -> HyperParams:
+        """Optimize hyperparameters using Optuna over multiple targets.
+
+        Args:
+            target_provider: The target provider to get targets, predictors and ground truth from.
+
+        Returns:
+            The best hyperparameters found during optimization.
+        """
+
+        def objective(trial: Trial) -> float:
+            # Convert to Optuna
+            params = self._make_optuna_space(trial)
+            hyperparams = self._default_hyperparams.model_copy(update=params)
+
+            metrics: list[float] = []
+            for target in target_provider.get_targets():
+                predictors = target_provider.get_predictors_for_target(target)
+                ground_truth = target_provider.get_measurements_for_target(target)
+
+                backtest = self._make_backtest(hyperparams=hyperparams)
+
+                predictions: ForecastDataset | TimeSeriesDataset = backtest.run(
+                    predictors=predictors,
+                    ground_truth=ground_truth,
+                    start=ground_truth.index[0],
+                    end=ground_truth.index[-1],
+                )
+                score = self._score_predictions(predictions=predictions, ground_truth=ground_truth.select_version())
+                metrics.append(score)
+
+            return sum(metrics) / len(metrics)  # Average score over all targets
+
+        return self._run_optimization(objective=objective, n_trials=self.n_trials, n_jobs=self.n_jobs)
+
+    def optimize_dataset(
         self,
         predictors: VersionedTimeSeriesDataset,
         ground_truth: VersionedTimeSeriesDataset,
@@ -234,17 +296,35 @@ class BaseOptunaOptimizer(ABC):
 
             return self._score_predictions(predictions=predictions, ground_truth=ground_truth_selected)
 
-        def logger_callback(study: Study, trial: FrozenTrial) -> None:
-            logger.info("Current value: %s, Current params: %s", trial.value, trial.params)
-            logger.info(
-                "Best value: %s, Best params: %s",
-                study.best_value,
-                study.best_trial.params,
+        return self._run_optimization(objective=objective, n_trials=self.n_trials, n_jobs=self.n_jobs)
+
+    def _run_optimization(self, objective: Callable[..., float], n_trials: int, n_jobs: int) -> HyperParams:
+        if n_jobs > 1:
+            trials_per_job = int(n_trials / n_jobs) + 1
+            journal_path = Path("./journal.log")
+            if journal_path.exists():
+                journal_path.unlink()
+
+            def run_optimization(_: int) -> None:
+                study = optuna.create_study(
+                    study_name="journal_storage_multiprocess",
+                    storage=JournalStorage(JournalFileBackend(file_path="./journal.log")),
+                    load_if_exists=True,
+                    direction=self.direction,
+                )
+                study.optimize(
+                    objective, timeout=3600, n_jobs=n_jobs, n_trials=trials_per_job, callbacks=[self.logger_callback]
+                )
+
+            run_parallel(run_optimization, range(n_jobs))
+            study = optuna.load_study(
+                study_name="journal_storage_multiprocess",
+                storage=JournalStorage(JournalFileBackend(file_path="./journal.log")),
             )
 
-        study = optuna.create_study(direction=self.direction)
-
-        study.optimize(objective, timeout=3600, n_jobs=1, n_trials=100, callbacks=[logger_callback])
+        else:
+            study = optuna.create_study(direction=self.direction)
+            study.optimize(objective, timeout=3600, n_jobs=1, n_trials=n_trials, callbacks=[self.logger_callback])
 
         return self._default_hyperparams.model_copy(update=study.best_trial.params)
 
