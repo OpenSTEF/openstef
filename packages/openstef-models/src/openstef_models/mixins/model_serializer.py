@@ -34,6 +34,7 @@ class ModelSerializer(BaseConfig, ABC):
 
     See Also:
         JoblibModelSerializer: Concrete implementation using joblib.
+        SkopsModelSerializer: Concrete implementation using skops.
     """
 
     extension: ClassVar[str]
