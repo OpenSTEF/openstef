@@ -34,6 +34,7 @@ class ModelSerializer(BaseConfig, ABC):
 
     See Also:
         JoblibModelSerializer: Concrete implementation using joblib.
+        SkopsModelSerializer: Concrete implementation using skops.
     """
 
     extension: ClassVar[str]
@@ -68,7 +69,5 @@ class ModelSerializer(BaseConfig, ABC):
             The same model instance with its state restored from the file.
         """
 
-
-# TODO @egordm, @MvLieshout : Add SkopsModelSerializer implementation
 
 __all__ = ["ModelIdentifier", "ModelSerializer"]
