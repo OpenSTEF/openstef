@@ -2,16 +2,25 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+import logging
+import logging.handlers
 from datetime import datetime, timedelta
+from typing import cast
 
 import numpy as np
 import pandas as pd
 import pytest
 from pydantic import ValidationError
+from sklearn.ensemble import ExtraTreesRegressor, RandomForestRegressor
+
+# iterative imputer is experimental. Defaults do not follow deprecation cycle.
+from sklearn.experimental import enable_iterative_imputer  # noqa: F401 # type: ignore
+from sklearn.linear_model import BayesianRidge
 
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.exceptions import NotFittedError
 from openstef_models.transforms.general import EmptyFeatureRemover, Imputer
+from openstef_models.transforms.general.imputer import ImputationStrategy
 from openstef_models.utils.feature_selection import FeatureSelection
 
 
@@ -34,6 +43,24 @@ def sample_dataset() -> TimeSeriesDataset:
     return TimeSeriesDataset(data, timedelta(hours=1))
 
 
+@pytest.fixture
+def correlated_dataset() -> TimeSeriesDataset:
+    """Create sample dataset with simple linear relation between features where temperature = 2 * radiation.
+
+    Returns:
+        A TimeSeriesDataset with 2 features: radiation and temperature (with some NaN),
+        spanning 5 hours.
+    """
+    data = pd.DataFrame(
+        {
+            "radiation": [10.0, np.nan, 30.0, 40.0, 50.0],
+            "temperature": [20.0, 40.0, 60.0, np.nan, 100.0],
+        },
+        index=pd.date_range(datetime.fromisoformat("2025-01-01T00:00:00"), periods=5, freq="1h"),
+    )
+    return TimeSeriesDataset(data, timedelta(hours=1))
+
+
 def test_validation_constant_strategy_requires_fill_value():
     """Test that CONSTANT strategy raises ValidationError when fill_value is missing."""
     # Arrange & Act & Assert
@@ -41,10 +68,14 @@ def test_validation_constant_strategy_requires_fill_value():
         Imputer(imputation_strategy="constant")
 
 
-def test_basic_imputation_works(sample_dataset: TimeSeriesDataset):
-    """Test that basic imputation removes NaN values."""
+@pytest.mark.parametrize(
+    "strategy",
+    ["mean", "median", "most_frequent"],
+)
+def test_basic_imputation_works_simple_strategies(sample_dataset: TimeSeriesDataset, strategy: ImputationStrategy):
+    """Test that basic imputation removes NaN values for simple strategies."""
     # Arrange
-    transform = Imputer(imputation_strategy="mean")
+    transform = Imputer(imputation_strategy=strategy)
 
     # Act
     transform.fit(sample_dataset)
@@ -225,3 +256,141 @@ def test_no_missing_values_data_preservation():
     pd.testing.assert_frame_equal(result.data, original_data)
     # Sample interval should be preserved
     assert result.sample_interval == dataset.sample_interval
+
+
+@pytest.mark.parametrize(
+    "impute_estimator",
+    [
+        pytest.param(None, id="default"),
+        pytest.param(
+            RandomForestRegressor(
+                n_estimators=2,  # not many trees for test speed
+                max_depth=3,  # shallow tree for test speed
+                bootstrap=True,
+                max_samples=0.5,
+                n_jobs=1,
+                random_state=0,
+            ),
+            id="randomforest",
+        ),
+        pytest.param(BayesianRidge(), id="bayesianridge"),
+        pytest.param(
+            ExtraTreesRegressor(
+                n_estimators=2,
+                max_depth=3,
+                bootstrap=True,
+                max_samples=0.5,
+                n_jobs=1,
+                random_state=0,
+            ),
+            id="extra_trees",
+        ),
+    ],
+)
+def test_iterative_imputation_works(
+    sample_dataset: TimeSeriesDataset, impute_estimator: RandomForestRegressor | BayesianRidge | ExtraTreesRegressor
+):
+    """Test that basic imputation removes NaN values for iterative strategy with different estimators."""
+    # Arrange
+    transform = Imputer(
+        imputation_strategy="iterative",
+        impute_estimator=impute_estimator,
+        max_iterations=2,
+        tolerance=10,  # high tolerance for test speed
+    )
+
+    # Act
+    transform.fit(sample_dataset)
+    result = transform.transform(sample_dataset)
+
+    # Assert
+    # Non-trailing NaN values should be imputed
+    assert not result.data.isna().any().any()
+
+
+def test_iterative_imputer_linear_relations(correlated_dataset: TimeSeriesDataset):
+    """Test that iterative imputer learns linear relationship between features.
+
+    Test with simple linear relation where temperature = 2 * radiation.
+    The imputed value should be close to this relationship.
+    """
+    # Arrange
+
+    transform = Imputer(
+        imputation_strategy="iterative",
+        impute_estimator=BayesianRidge(),
+        tolerance=0.1,
+    )
+
+    # Act
+    transform.fit(correlated_dataset)
+    result = transform.transform(correlated_dataset)
+
+    # Assert
+    imputed_value_temperature = cast(float, result.data.loc[result.data.index[3], "temperature"])
+    expected_value_temperature = (
+        cast(float, correlated_dataset.data.loc[correlated_dataset.data.index[3], "radiation"]) * 2
+    )
+
+    imputed_value_radiation = cast(float, result.data.loc[result.data.index[1], "radiation"])
+    expected_value_radiation = (
+        cast(float, correlated_dataset.data.loc[correlated_dataset.data.index[1], "temperature"]) / 2
+    )
+
+    # Allow for tolerance
+    assert abs(imputed_value_temperature - expected_value_temperature) < 1, (
+        f"Expected ~{expected_value_temperature}, got {imputed_value_temperature}"
+    )
+    assert abs(imputed_value_radiation - expected_value_radiation) < 1, (
+        f"Expected ~{expected_value_radiation}, got {imputed_value_radiation}"
+    )
+
+
+def test_iterative_imputer_only_one_feature():
+    """Tests that warning is raised when using iterative imputer with only one feature.
+
+    Initial_strategy is used for imputation."""
+    # Arrange
+    data = pd.DataFrame(
+        {
+            "radiation": [100.0, np.nan, 120.0, np.nan],
+        },
+        index=pd.date_range(datetime.fromisoformat("2025-01-01T00:00:00"), periods=4, freq="1h"),
+    )
+    dataset = TimeSeriesDataset(data, timedelta(hours=1))
+
+    transform = Imputer(
+        imputation_strategy="iterative",
+        impute_estimator=BayesianRidge(),
+        initial_strategy="median",
+        max_iterations=5,
+        tolerance=1,
+    )
+
+    # Act
+    transform.fit(dataset)
+
+    # Assert
+    # Check if warning is thrown by logger.
+    logger = logging.getLogger("openstef_models.transforms.general.imputer")
+    log_handler = logging.handlers.MemoryHandler(capacity=10)
+    log_handler.setLevel(logging.WARNING)
+    logger.addHandler(log_handler)
+
+    try:
+        result = transform.transform(dataset)
+        log_handler.flush()
+
+        log_messages = [record.getMessage() for record in log_handler.buffer]
+        assert any(
+            "Iterative imputer with only one feature will fall back to initial_strategy" in msg for msg in log_messages
+        )
+        assert any("Using 'median' for imputation" in msg for msg in log_messages)
+    finally:
+        logger.removeHandler(log_handler)
+
+    # The first NaN should be imputed using the median strategy
+    expected_median = 110.0  # Median of [100.0, 120.0]
+    assert result.data.loc[result.data.index[1], "radiation"] == expected_median
+    # The last NaN is a trailing NaN and should be preserved
+    assert pd.isna(result.data.loc[result.data.index[3], "radiation"])
