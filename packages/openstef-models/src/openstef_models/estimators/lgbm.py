@@ -9,16 +9,11 @@ to support multi-quantile output by configuring the objective function according
 by a separate tree within the same boosting ensemble. The module also includes serialization utilities.
 """
 
-from typing import Self
-
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
 from lightgbm import LGBMRegressor
 from sklearn.base import BaseEstimator, RegressorMixin
-from skops.io import dumps, loads
-
-from openstef_core.exceptions import ModelLoadingError
 
 
 class LGBMQuantileRegressor(BaseEstimator, RegressorMixin):
@@ -116,7 +111,7 @@ class LGBMQuantileRegressor(BaseEstimator, RegressorMixin):
         sample_weight: npt.NDArray[np.floating] | pd.Series | None = None,
         feature_name: list[str] | None = None,
         eval_set: list[tuple[pd.DataFrame, npt.NDArray[np.floating]]] | None = None,
-        eval_sample_weight: list[npt.NDArray[np.floating]] | None = None,
+        eval_sample_weight: list[npt.NDArray[np.floating]] | list[pd.Series] | None = None,
     ) -> None:
         """Fit the multi-quantile regressor.
 
@@ -138,9 +133,9 @@ class LGBMQuantileRegressor(BaseEstimator, RegressorMixin):
                 y=y,
                 eval_metric="quantile",
                 sample_weight=sample_weight,
-                eval_set=eval_set,  # type: ignore
-                eval_sample_weight=eval_sample_weight,  # type: ignore
-                feature_name=feature_name,  # type: ignore
+                eval_set=eval_set,
+                eval_sample_weight=eval_sample_weight,
+                feature_name=feature_name if feature_name is not None else "auto",
             )
 
     def predict(self, X: npt.NDArray[np.floating] | pd.DataFrame) -> npt.NDArray[np.floating]:
@@ -162,40 +157,6 @@ class LGBMQuantileRegressor(BaseEstimator, RegressorMixin):
             True if all quantile models are fitted, False otherwise.
         """
         return all(model.__sklearn_is_fitted__() for model in self._models)
-
-    def save_bytes(self) -> bytes:
-        """Serialize the model.
-
-        Returns:
-            A string representation of the model.
-        """
-        return dumps(self)
-
-    @classmethod
-    def load_bytes(cls, model_bytes: bytes) -> Self:
-        """Deserialize the model from bytes using joblib.
-
-        Args:
-            model_bytes : Bytes representing the serialized model.
-
-        Returns:
-            An instance of LgbLinearQuantileRegressor.
-
-        Raises:
-            ModelLoadingError: If the deserialized object is not a LgbLinearQuantileRegressor.
-        """
-        trusted_types = [
-            "collections.OrderedDict",
-            "lgbm.basic.Booster",
-            "lgbm.sklearn.LGBMRegressor",
-            "openstef_models.estimators.lgbm.LGBMQuantileRegressor",
-        ]
-        instance = loads(model_bytes, trusted=trusted_types)
-
-        if not isinstance(instance, cls):
-            raise ModelLoadingError("Deserialized object is not a LgbLinearQuantileRegressor")
-
-        return instance
 
     @property
     def models(self) -> list[LGBMRegressor]:

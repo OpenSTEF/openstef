@@ -9,12 +9,13 @@ followed by a small linear model that regresses on the baselearners' predictions
 The implementation is based on sklearn's StackingRegressor.
 """
 
+import logging
 from typing import TYPE_CHECKING, override
 
+import numpy as np
 import pandas as pd
 from pydantic import Field
 
-from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import (
     NotFittedError,
@@ -25,8 +26,9 @@ from openstef_models.models.forecasting.forecaster import Forecaster, Forecaster
 from openstef_models.models.forecasting.gblinear_forecaster import GBLinearHyperParams
 from openstef_models.models.forecasting.lgbm_forecaster import LGBMHyperParams
 
+logger = logging.getLogger(__name__)
+
 if TYPE_CHECKING:
-    import numpy as np
     import numpy.typing as npt
 
 
@@ -54,14 +56,6 @@ class HybridForecasterConfig(ForecasterConfig):
 
 
 MODEL_CODE_VERSION = 2
-
-
-class HybridForecasterState(BaseConfig):
-    """Serializable state for Hybrid forecaster persistence."""
-
-    version: int = Field(default=MODEL_CODE_VERSION, description="Version of the model code.")
-    config: HybridForecasterConfig = Field(..., description="Forecaster configuration.")
-    model: str = Field(..., description="Base64-encoded serialized Hybrid model.")
 
 
 class HybridForecaster(Forecaster):
@@ -106,6 +100,18 @@ class HybridForecaster(Forecaster):
         """Check if the model is fitted."""
         return self._model.is_fitted
 
+    @staticmethod
+    def _prepare_fit_input(data: ForecastInputDataset) -> tuple[pd.DataFrame, np.ndarray, pd.Series]:
+        input_data: pd.DataFrame = data.input_data()
+
+        # Scale the target variable
+        target: np.ndarray = np.asarray(data.target_series.values)
+
+        # Prepare sample weights
+        sample_weight: pd.Series = data.sample_weight_series
+
+        return input_data, target, sample_weight
+
     @override
     def fit(self, data: ForecastInputDataset, data_val: ForecastInputDataset | None = None) -> None:
         """Fit the Hybrid model to the training data.
@@ -115,11 +121,19 @@ class HybridForecaster(Forecaster):
             data_val: Validation data for tuning the model (optional, not used in this implementation).
 
         """
-        input_data: pd.DataFrame = data.input_data()
-        target: npt.NDArray[np.floating] = data.target_series.to_numpy()  # type: ignore
-        sample_weights: pd.Series = data.sample_weight_series
+        # Prepare training data
+        input_data, target, sample_weight = self._prepare_fit_input(data)
 
-        self._model.fit(X=input_data, y=target, sample_weight=sample_weights)
+        if data_val is not None:
+            logger.warning(
+                "Validation data provided, but HybridForecaster does not currently support validation during fitting."
+            )
+
+        self._model.fit(
+            X=input_data,
+            y=target,
+            sample_weight=sample_weight,
+        )
 
     @override
     def predict(self, data: ForecastInputDataset) -> ForecastDataset:
@@ -137,6 +151,8 @@ class HybridForecaster(Forecaster):
             ),
             sample_interval=data.sample_interval,
         )
+
+    # TODO(@Lars800): #745: Make forecaster Explainable
 
 
 __all__ = ["HybridForecaster", "HybridForecasterConfig", "HybridHyperParams"]

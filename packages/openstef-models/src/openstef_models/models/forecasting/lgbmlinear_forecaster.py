@@ -16,7 +16,6 @@ import numpy.typing as npt
 import pandas as pd
 from pydantic import Field
 
-from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import (
     NotFittedError,
@@ -155,19 +154,6 @@ class LGBMLinearForecasterConfig(ForecasterConfig):
 MODEL_CODE_VERSION = 1
 
 
-class LGBMLinearForecasterState(BaseConfig):
-    """Serializable state for LgbLinear forecaster persistence.
-
-    Contains all information needed to restore a trained LgbLinear model,
-    including configuration and the serialized model weights. Used for
-    model saving, loading, and version management in production systems.
-    """
-
-    version: int = Field(default=MODEL_CODE_VERSION, description="Version of the model code.")
-    config: LGBMLinearForecasterConfig = Field(..., description="Forecaster configuration.")
-    model: str = Field(..., description="Base64-encoded serialized LgbLinear model.")
-
-
 class LGBMLinearForecaster(Forecaster, ExplainableForecaster):
     """LgbLinear-based forecaster for probabilistic energy forecasting.
 
@@ -232,20 +218,10 @@ class LGBMLinearForecaster(Forecaster, ExplainableForecaster):
         self._lgbmlinear_model = LGBMQuantileRegressor(
             quantiles=[float(q) for q in config.quantiles],
             linear_tree=True,
-            n_estimators=config.hyperparams.n_estimators,
-            learning_rate=config.hyperparams.learning_rate,
-            max_depth=config.hyperparams.max_depth,
-            min_child_weight=config.hyperparams.min_child_weight,
-            min_data_in_leaf=config.hyperparams.min_data_in_leaf,
-            min_data_in_bin=config.hyperparams.min_data_in_bin,
-            reg_alpha=config.hyperparams.reg_alpha,
-            reg_lambda=config.hyperparams.reg_lambda,
-            num_leaves=config.hyperparams.num_leaves,
-            max_bin=config.hyperparams.max_bin,
-            colsample_bytree=config.hyperparams.colsample_bytree,
             random_state=config.random_state,
             early_stopping_rounds=config.early_stopping_rounds,
             verbosity=config.verbosity,
+            **config.hyperparams.model_dump(),
         )
 
     @property

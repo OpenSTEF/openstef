@@ -11,10 +11,10 @@ comprehensive hyperparameter control for production forecasting workflows.
 
 from typing import TYPE_CHECKING, Literal, override
 
+import numpy as np
 import pandas as pd
 from pydantic import Field
 
-from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import (
     NotFittedError,
@@ -25,7 +25,6 @@ from openstef_models.explainability.mixins import ExplainableForecaster
 from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
 
 if TYPE_CHECKING:
-    import numpy as np
     import numpy.typing as npt
 
 
@@ -109,18 +108,6 @@ class LGBMHyperParams(HyperParams):
         description="Fraction of features used when constructing each tree. Range: (0,1]",
     )
 
-    # General Parameters
-    random_state: int | None = Field(
-        default=None,
-        alias="seed",
-        description="Random seed for reproducibility. Controls tree structure randomness.",
-    )
-
-    early_stopping_rounds: int | None = Field(
-        default=None,
-        description="Training will stop if performance doesn't improve for this many rounds. Requires validation data.",
-    )
-
 
 class LGBMForecasterConfig(ForecasterConfig):
     """Configuration for LightGBM-based forecaster.
@@ -152,21 +139,19 @@ class LGBMForecasterConfig(ForecasterConfig):
         default=-1, description="Verbosity level. 0=silent, 1=warning, 2=info, 3=debug"
     )
 
+    random_state: int | None = Field(
+        default=None,
+        alias="seed",
+        description="Random seed for reproducibility. Controls tree structure randomness.",
+    )
+
+    early_stopping_rounds: int | None = Field(
+        default=None,
+        description="Training will stop if performance doesn't improve for this many rounds. Requires validation data.",
+    )
+
 
 MODEL_CODE_VERSION = 1
-
-
-class LGBMForecasterState(BaseConfig):
-    """Serializable state for LightGBM forecaster persistence.
-
-    Contains all information needed to restore a trained LightGBM model,
-    including configuration and the serialized model weights. Used for
-    model saving, loading, and version management in production systems.
-    """
-
-    version: int = Field(default=MODEL_CODE_VERSION, description="Version of the model code.")
-    config: LGBMForecasterConfig = Field(..., description="Forecaster configuration.")
-    model: str = Field(..., description="Base64-encoded serialized LightGBM model.")
 
 
 class LGBMForecaster(Forecaster, ExplainableForecaster):
@@ -233,20 +218,10 @@ class LGBMForecaster(Forecaster, ExplainableForecaster):
         self._lgbm_model = LGBMQuantileRegressor(
             quantiles=[float(q) for q in config.quantiles],
             linear_tree=False,
-            n_estimators=config.hyperparams.n_estimators,
-            learning_rate=config.hyperparams.learning_rate,
-            max_depth=config.hyperparams.max_depth,
-            min_child_weight=config.hyperparams.min_child_weight,
-            min_data_in_leaf=config.hyperparams.min_data_in_leaf,
-            min_data_in_bin=config.hyperparams.min_data_in_bin,
-            reg_alpha=config.hyperparams.reg_alpha,
-            reg_lambda=config.hyperparams.reg_lambda,
-            num_leaves=config.hyperparams.num_leaves,
-            max_bin=config.hyperparams.max_bin,
-            colsample_bytree=config.hyperparams.colsample_bytree,
-            random_state=config.hyperparams.random_state,
-            early_stopping_rounds=config.hyperparams.early_stopping_rounds,
+            random_state=config.random_state,
+            early_stopping_rounds=config.early_stopping_rounds,
             verbosity=config.verbosity,
+            **config.hyperparams.model_dump(),
         )
 
     @property
@@ -264,30 +239,35 @@ class LGBMForecaster(Forecaster, ExplainableForecaster):
     def is_fitted(self) -> bool:
         return self._lgbm_model.__sklearn_is_fitted__()
 
+    @staticmethod
+    def _prepare_fit_input(data: ForecastInputDataset) -> tuple[pd.DataFrame, np.ndarray, pd.Series]:
+        input_data: pd.DataFrame = data.input_data()
+        target: np.ndarray = np.asarray(data.target_series.values)
+        sample_weight: pd.Series = data.sample_weight_series
+
+        return input_data, target, sample_weight
+
     @override
     def fit(self, data: ForecastInputDataset, data_val: ForecastInputDataset | None = None) -> None:
-        input_data: pd.DataFrame = data.input_data()
-        target: npt.NDArray[np.floating] = data.target_series.to_numpy()  # type: ignore
+        # Prepare training data
+        input_data, target, sample_weight = self._prepare_fit_input(data)
 
-        sample_weight = data.sample_weight_series
+        # Evaluation sets
+        eval_set = [(input_data, target)]
+        sample_weight_eval_set = [sample_weight]
 
-        # Prepare validation data if provided
-        eval_set = None
-        eval_sample_weight = None
         if data_val is not None:
-            val_input_data: pd.DataFrame = data_val.input_data()
-            val_target: npt.NDArray[np.floating] = data_val.target_series.to_numpy()  # type: ignore
-            val_sample_weight = data_val.sample_weight_series.to_numpy()  # type: ignore
-            eval_set = (val_input_data, val_target)
-            eval_sample_weight = [val_sample_weight]
+            input_data_val, target_val, sample_weight_val = self._prepare_fit_input(data_val)
+            eval_set.append((input_data_val, target_val))
+            sample_weight_eval_set.append(sample_weight_val)
 
         self._lgbm_model.fit(
             X=input_data,
             y=target,
             feature_name=input_data.columns.tolist(),
-            sample_weight=sample_weight,  # type: ignore
-            eval_set=eval_set,  # type: ignore
-            eval_sample_weight=eval_sample_weight,  # type: ignore
+            sample_weight=sample_weight,
+            eval_set=eval_set,
+            eval_sample_weight=sample_weight_eval_set,
         )
 
     @override
