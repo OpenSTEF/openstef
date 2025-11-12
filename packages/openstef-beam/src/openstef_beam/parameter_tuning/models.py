@@ -9,6 +9,7 @@ SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project
 
 from typing import Any, Literal, Self
 
+from optuna.trial import Trial
 from pydantic import BaseModel as PydanticBaseModel
 from pydantic import Field, model_validator
 
@@ -179,6 +180,45 @@ class ParameterSpace(PydanticBaseModel):
         if model == "lgbmlinear":
             return LGBMLinearParameterSpace()
         raise ValueError("Unreachable code reached.")
+
+    def make_optuna(self, trial: Trial) -> dict[str, Any]:
+        """Convert the parameter space to an Optuna-compatible search space.
+
+        Args:
+            trial: An Optuna trial object.
+
+        Returns:
+            A dictionary representing the Optuna search space.
+
+        Raises:
+            TypeError: If an unsupported distribution type is encountered.
+        """
+        optuna_space: dict[str, str | float | int | None] = {}
+        for param_name, distribution_or_value in self.items():
+            if isinstance(distribution_or_value, FloatDistribution):
+                optuna_space[param_name] = trial.suggest_float(
+                    param_name,
+                    distribution_or_value.low,
+                    distribution_or_value.high,
+                    log=distribution_or_value.log,
+                    step=distribution_or_value.step,
+                )
+            elif isinstance(distribution_or_value, IntDistribution):
+                optuna_space[param_name] = trial.suggest_int(
+                    param_name,
+                    distribution_or_value.low,
+                    distribution_or_value.high,
+                    log=distribution_or_value.log,
+                    step=distribution_or_value.step,
+                )
+            elif isinstance(distribution_or_value, CategoricalDistribution):
+                optuna_space[param_name] = trial.suggest_categorical(param_name, distribution_or_value.choices)
+            elif isinstance(distribution_or_value, (float, int, str)):
+                optuna_space[param_name] = distribution_or_value
+            else:
+                message = f"Unsupported type: {type(distribution_or_value)}"
+                raise TypeError(message)
+        return optuna_space
 
 
 class LGBMParameterSpace(ParameterSpace):

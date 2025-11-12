@@ -119,7 +119,7 @@ if single_target:
     best_hyperparams = optimizer.optimize_dataset(predictors=predictors, ground_truth=ground_truth)
 
 else:
-    best_hyperparams = optimizer.optimize_target_provider(target_provider=target_provider)
+    best_hyperparams = optimizer.optimize_target_provider()
 
 msg = f"{forecaster_name} - Best hyperparameters found: {best_hyperparams}"
 logger.info(msg)
