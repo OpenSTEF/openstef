@@ -152,7 +152,7 @@ class HybridForecaster(Forecaster):
             sample_interval=data.sample_interval,
         )
 
-    # TODO(@MvLieshout, @Lars800): Make forecaster Explainable
+    # TODO(@Lars800): #745: Make forecaster Explainable
 
 
 __all__ = ["HybridForecaster", "HybridForecasterConfig", "HybridHyperParams"]

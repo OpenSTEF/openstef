@@ -146,4 +146,4 @@ def test_lgbmlinear_forecaster__feature_importances(
     assert (feature_importances >= 0).all().all()
 
 
-# TODO : Add tests on different loss functions @MvLieshout
+# TODO(@MvLieshout): Add tests on different loss functions # noqa: TD003
