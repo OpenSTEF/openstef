@@ -7,18 +7,13 @@ This module provides the HybridQuantileRegressor class, which combines LightGBM 
 using stacking for robust multi-quantile regression, including serialization utilities.
 """
 
-from typing import Self
-
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
 from lightgbm import LGBMRegressor
 from sklearn.ensemble import StackingRegressor
 from sklearn.linear_model import QuantileRegressor
-from skops.io import dumps, loads
 from xgboost import XGBRegressor
-
-from openstef_core.exceptions import ModelLoadingError
 
 
 class HybridQuantileRegressor:
@@ -94,7 +89,7 @@ class HybridQuantileRegressor:
                     verbose=3,
                     passthrough=False,
                     n_jobs=None,
-                    cv=2,
+                    cv=1,
                 )
             )
         self.is_fitted: bool = False
@@ -149,40 +144,3 @@ class HybridQuantileRegressor:
         """  # noqa: D412
         X = X.ffill().fillna(0)  # type: ignore
         return np.column_stack([model.predict(X=X) for model in self._models])  # type: ignore
-
-    def save_bytes(self) -> bytes:
-        """Serialize the model.
-
-        Returns:
-            A string representation of the model.
-        """
-        return dumps(self)
-
-    @classmethod
-    def load_bytes(cls, model_bytes: bytes) -> Self:
-        """Deserialize the model from bytes using joblib.
-
-        Args:
-            model_bytes : Bytes representing the serialized model.
-
-        Returns:
-            An instance of LightGBMQuantileRegressor.
-
-        Raises:
-            ModelLoadingError: If the deserialized object is not a HybridQuantileRegressor.
-        """
-        trusted_types = [
-            "collections.OrderedDict",
-            "lgbm.basic.Booster",
-            "lgbm.sklearn.LGBMRegressor",
-            "sklearn.utils._bunch.Bunch",
-            "xgboost.core.Booster",
-            "xgboost.sklearn.XGBRegressor",
-            "openstef_models.estimators.hybrid.HybridQuantileRegressor",
-        ]
-        instance = loads(model_bytes, trusted=trusted_types)
-
-        if not isinstance(instance, cls):
-            raise ModelLoadingError("Deserialized object is not a HybridQuantileRegressor")
-
-        return instance

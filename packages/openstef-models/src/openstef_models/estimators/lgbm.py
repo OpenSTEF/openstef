@@ -9,8 +9,6 @@ to support multi-quantile output by configuring the objective function according
 by a separate tree within the same boosting ensemble. The module also includes serialization utilities.
 """
 
-from typing import Any
-
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
@@ -113,7 +111,7 @@ class LGBMQuantileRegressor(BaseEstimator, RegressorMixin):
         sample_weight: npt.NDArray[np.floating] | pd.Series | None = None,
         feature_name: list[str] | None = None,
         eval_set: list[tuple[pd.DataFrame, npt.NDArray[np.floating]]] | None = None,
-        eval_sample_weight: list[npt.NDArray[np.floating]] | list[pd.Series[Any]] | None = None,
+        eval_sample_weight: list[npt.NDArray[np.floating]] | list[pd.Series] | None = None,
     ) -> None:
         """Fit the multi-quantile regressor.
 

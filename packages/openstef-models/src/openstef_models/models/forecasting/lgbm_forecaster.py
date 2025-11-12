@@ -11,6 +11,7 @@ comprehensive hyperparameter control for production forecasting workflows.
 
 from typing import TYPE_CHECKING, Literal, override
 
+import numpy as np
 import pandas as pd
 from pydantic import Field
 
@@ -24,7 +25,6 @@ from openstef_models.explainability.mixins import ExplainableForecaster
 from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
 
 if TYPE_CHECKING:
-    import numpy as np
     import numpy.typing as npt
 
 
