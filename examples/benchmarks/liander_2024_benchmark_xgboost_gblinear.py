@@ -44,7 +44,6 @@ N_PROCESSES = 1  # Amount of parallel processes to use for the benchmark
 # Model configuration
 FORECAST_HORIZONS = [LeadTime.from_string("P3D")]  # Forecast horizon(s)
 PREDICTION_QUANTILES = [Q(0.1), Q(0.3), Q(0.5), Q(0.7), Q(0.9)]  # Quantiles for probabilistic forecasts
-LAG_FEATURES = [timedelta(days=-7)]  # Lag features to include
 
 BENCHMARK_FILTER: list[Liander2024Category] | None = None
 

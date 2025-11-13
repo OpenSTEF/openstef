@@ -237,7 +237,8 @@ def mean_pinball_loss(
         sample_weight: Optional weights for each sample with shape (num_samples,).
 
     Returns:
-        The weighted average Pinball Loss across all samples and quantiles. Lower values indicate better forecast quality.
+        The weighted average Pinball Loss across all samples and quantiles. Lower values indicate better
+        forecast quality.
     """
     # Resize the predictions and targets.
     y_pred = np.reshape(y_pred, [-1, len(quantiles)])
