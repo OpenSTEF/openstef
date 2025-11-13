@@ -47,11 +47,9 @@ class MultiQuantileRegressor(BaseEstimator, RegressorMixin):
         params[self.quantile_param] = q
         base_learner = self.base_learner(**params)
 
-        try:
-            q == base_learner.get_params()[self.quantile_param]  # type: ignore
-        except AttributeError as e:
+        if self.quantile_param not in base_learner.get_params():  # type: ignore
             msg = f"The base learner does not support the quantile parameter '{self.quantile_param}'."
-            raise ValueError(msg) from e
+            raise ValueError(msg)
 
         return base_learner
 
