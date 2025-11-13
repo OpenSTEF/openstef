@@ -129,6 +129,7 @@ class CustomForecastingWorkflow(BaseModel):
         self,
         data: TimeSeriesDataset,
         data_val: TimeSeriesDataset | None = None,
+        data_test: TimeSeriesDataset | None = None,
     ) -> ModelFitResult | None:
         """Train the forecasting model with callback execution.
 
@@ -138,6 +139,7 @@ class CustomForecastingWorkflow(BaseModel):
         Args:
             data: Training dataset for the forecasting model.
             data_val: Optional validation dataset for model tuning.
+            data_test: Optional test dataset for final evaluation.
 
         Returns:
             ModelFitResult containing training metrics and information,
@@ -149,7 +151,7 @@ class CustomForecastingWorkflow(BaseModel):
             for callback in self.callbacks:
                 callback.on_fit_start(context=context, data=data)
 
-            result = self.model.fit(data=data, data_val=data_val)
+            result = self.model.fit(data=data, data_val=data_val, data_test=data_test)
 
             for callback in self.callbacks:
                 callback.on_fit_end(context=context, result=result)

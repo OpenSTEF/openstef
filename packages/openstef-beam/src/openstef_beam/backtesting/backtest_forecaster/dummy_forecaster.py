@@ -43,8 +43,8 @@ class DummyForecaster(BacktestForecasterMixin):
         super().__init__()
         self.config = config or BacktestForecasterConfig(
             requires_training=False,
-            horizon_length=timedelta(days=7),
-            horizon_min_length=timedelta(days=0),
+            predict_length=timedelta(days=7),
+            predict_min_length=timedelta(days=0),
             predict_context_length=timedelta(days=0),
             predict_context_min_coverage=0.0,
             training_context_length=timedelta(days=0),

@@ -268,16 +268,6 @@ class SimpleTargetProvider[T: BenchmarkTarget, F](TargetProvider[T, F]):
     def get_metrics_for_target(self, target: T) -> list[MetricProvider]:
         return self.metrics if isinstance(self.metrics, list) else self.metrics(target)  # type: ignore[return-value]
 
-    measurements_path_for_target: Callable[[T], Path] = Field(
-        default=lambda target: Path(target.group_name) / f"load_data_{target.name}.parquet",
-        description="Function to build file path for target measurements using configured template",
-    )
-
-    weather_path_for_target: Callable[[T], Path] = Field(
-        default=lambda target: Path(target.group_name) / f"weather_data_{target.name}.parquet",
-        description="Function to build file path for target weather data using configured template",
-    )
-
     def _get_measurements_path_for_target(self, target: T) -> Path:
         return self.data_dir / str(target.group_name) / self.measurements_path_template.format(name=target.name)
 
