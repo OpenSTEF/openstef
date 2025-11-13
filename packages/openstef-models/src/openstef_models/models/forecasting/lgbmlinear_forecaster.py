@@ -49,33 +49,33 @@ class LGBMLinearHyperParams(HyperParams):
     # Core Tree Boosting Parameters
 
     n_estimators: int = Field(
-        default=77,
+        default=100,
         description="Number of boosting rounds/trees to fit. Higher values may improve performance but "
         "increase training time and risk overfitting.",
     )
     learning_rate: float = Field(
-        default=0.07,
+        default=0.3,
         alias="eta",
         description="Step size shrinkage used to prevent overfitting. Range: [0,1]. Lower values require "
         "more boosting rounds.",
     )
     max_depth: int = Field(
-        default=1,
+        default=3,
         description="Maximum depth of trees. Higher values capture more complex patterns but risk "
         "overfitting. Range: [1,∞]",
     )
     min_child_weight: float = Field(
-        default=0.06,
+        default=1,
         description="Minimum sum of instance weight (hessian) needed in a child. Higher values prevent "
         "overfitting. Range: [0,∞]",
     )
 
     min_data_in_leaf: int = Field(
-        default=5,
+        default=10,
         description="Minimum number of data points in a leaf. Higher values prevent overfitting. Range: [1,∞]",
     )
     min_data_in_bin: int = Field(
-        default=13,
+        default=10,
         description="Minimum number of data points in a bin. Higher values prevent overfitting. Range: [1,∞]",
     )
 
@@ -91,12 +91,12 @@ class LGBMLinearHyperParams(HyperParams):
 
     # Tree Structure Control
     num_leaves: int = Field(
-        default=78,
+        default=31,
         description="Maximum number of leaves. 0 means no limit. Only relevant when grow_policy='lossguide'.",
     )
 
     max_bin: int = Field(
-        default=12,
+        default=256,
         description="Maximum number of discrete bins for continuous features. Higher values may improve accuracy but "
         "increase memory.",
     )

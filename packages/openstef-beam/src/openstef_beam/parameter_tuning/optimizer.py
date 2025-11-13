@@ -232,15 +232,15 @@ class BaseOptunaOptimizer(ABC):
             predictions: ForecastDataset | TimeSeriesDataset = backtest.run(
                 predictors=predictors,
                 ground_truth=ground_truth,
-                start=ground_truth.index[0],
-                end=ground_truth.index[-1],
+                start=target.benchmark_start,
+                end=target.benchmark_end,
             )
             score = scoring_function(predictions, ground_truth.select_version())
             metrics.append(score)
 
         return sum(metrics) / len(metrics)
 
-    def optimize_target_provider(self) -> HyperParams:
+    def optimize_target_provider(self, experiment_name: str) -> HyperParams:
         """Optimize hyperparameters using Optuna over multiple targets.
 
         Args:
@@ -257,7 +257,9 @@ class BaseOptunaOptimizer(ABC):
             scoring_function=self._score_predictions,
         )
 
-        return self._run_optimization(objective=objective, n_trials=self.n_trials, n_jobs=self.n_jobs)
+        return self._run_optimization(
+            objective=objective, experiment_name=experiment_name, n_trials=self.n_trials, n_jobs=self.n_jobs
+        )
 
     @staticmethod
     def objective_dataset(
@@ -290,6 +292,7 @@ class BaseOptunaOptimizer(ABC):
         self,
         predictors: VersionedTimeSeriesDataset,
         ground_truth: VersionedTimeSeriesDataset,
+        experiment_name: str,
     ) -> HyperParams:
         """Optimize hyperparameters using Optuna.
 
@@ -310,15 +313,17 @@ class BaseOptunaOptimizer(ABC):
             ground_truth=ground_truth,
         )
 
-        return self._run_optimization(objective=objective, n_trials=self.n_trials, n_jobs=self.n_jobs)
+        return self._run_optimization(
+            objective=objective, experiment_name=experiment_name, n_trials=self.n_trials, n_jobs=self.n_jobs
+        )
 
     @staticmethod
     def _run_optimization_job(
         _: int, config: dict[str, Any], objective: Callable[..., float], logger_callback: Callable[..., None]
     ) -> None:
         study = optuna.create_study(
-            study_name="journal_storage_multiprocess",
-            storage=JournalStorage(JournalFileBackend(file_path="./journal.log")),
+            study_name=config["experiment_name"],
+            storage=JournalStorage(JournalFileBackend(file_path=config["log_path"])),
             load_if_exists=True,
             direction=config["direction"],
         )
@@ -330,20 +335,26 @@ class BaseOptunaOptimizer(ABC):
             callbacks=[logger_callback],
         )
 
-    def _run_optimization(self, objective: Callable[..., float], n_trials: int, n_jobs: int) -> HyperParams:
+    def _run_optimization(
+        self, experiment_name: str, objective: Callable[..., float], n_trials: int, n_jobs: int
+    ) -> HyperParams:
+        path = f"./optimization_results/{experiment_name}_journal.log"
+
         if n_jobs > 1:
             trials_per_job = int(n_trials / n_jobs) + 1
-            journal_path = Path("./journal.log")
-            if journal_path.exists():
-                journal_path.unlink()
+            # journal_path = Path(".benchmark_output/journal.log")
+            # if journal_path.exists():
+            #     journal_path.unlink()
 
             run_parallel(
                 partial(
                     self._run_optimization_job,
                     config={
+                        "experiment_name": experiment_name,
                         "direction": self.direction,
                         "n_jobs": 1,
                         "trials_per_job": trials_per_job,
+                        "log_path": path,
                     },
                     objective=objective,
                     logger_callback=self.logger_callback,
@@ -352,12 +363,16 @@ class BaseOptunaOptimizer(ABC):
                 n_processes=n_jobs,
             )
             study = optuna.load_study(
-                study_name="journal_storage_multiprocess",
-                storage=JournalStorage(JournalFileBackend(file_path="./journal.log")),
+                study_name=experiment_name,
+                storage=JournalStorage(JournalFileBackend(file_path=path)),
             )
 
         else:
-            study = optuna.create_study(direction=self.direction)
+            study = optuna.create_study(
+                study_name=experiment_name,
+                direction=self.direction,
+                storage=JournalStorage(JournalFileBackend(file_path=path)),
+            )
             study.optimize(objective, timeout=3600, n_jobs=1, n_trials=n_trials, callbacks=[self.logger_callback])
 
         return self._default_hyperparams.model_copy(update=study.best_trial.params)

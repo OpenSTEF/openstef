@@ -123,5 +123,7 @@ certificates/
 *.html
 *.pkl
 
-# Benchmark outputs
+# Experiment outputs
 benchmark_results/
+optimization_results/
+dev_sandbox/

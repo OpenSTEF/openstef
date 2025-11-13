@@ -288,9 +288,6 @@ class GBLinearParameterSpace(ParameterSpace):
     learning_rate: FloatOrFloatDistribution = Field(default=FloatDistribution(low=1e-3, high=0.3, log=True))
     n_steps: IntOrIntDistribution = Field(default=IntDistribution(low=50, high=500))
     reg_alpha: FloatOrFloatDistribution = Field(default=FloatDistribution(low=1e-5, high=10.0, log=True))
-    feature_selctor: StrOrCategoricalDistribution = Field(
-        default=CategoricalDistribution(choices=["shuffle", "greedy"])
-    )
 
     @classmethod
     def default_hyperparams(cls) -> type[HyperParams]:

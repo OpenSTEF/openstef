@@ -55,13 +55,13 @@ class LGBMHyperParams(HyperParams):
         "increase training time and risk overfitting.",
     )
     learning_rate: float = Field(
-        default=0.49,  # 0.3
+        default=0.3,
         alias="eta",
         description="Step size shrinkage used to prevent overfitting. Range: [0,1]. Lower values require "
         "more boosting rounds.",
     )
     max_depth: int = Field(
-        default=2,  # 8,
+        default=5,
         description="Maximum depth of trees. Higher values capture more complex patterns but risk "
         "overfitting. Range: [1,∞]",
     )
@@ -92,7 +92,7 @@ class LGBMHyperParams(HyperParams):
 
     # Tree Structure Control
     num_leaves: int = Field(
-        default=100,  # 31
+        default=31,
         description="Maximum number of leaves. 0 means no limit. Only relevant when grow_policy='lossguide'.",
     )
 

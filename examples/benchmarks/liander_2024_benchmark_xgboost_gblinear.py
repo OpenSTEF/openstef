@@ -104,7 +104,7 @@ def _target_forecaster_factory(
         requires_training=True,
         horizon_length=timedelta(days=7),
         horizon_min_length=timedelta(minutes=15),
-        predict_context_length=timedelta(days=14),  # Context needed for lag features
+        predict_context_length=timedelta(days=15),  # Context needed for lag features
         predict_context_min_coverage=0.5,
         training_context_length=timedelta(days=90),  # Three months of training data
         training_context_min_coverage=0.5,

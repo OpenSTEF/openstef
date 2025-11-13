@@ -22,7 +22,7 @@ from openstef_beam.evaluation.metric_providers import RCRPSSampleWeightedProvide
 from openstef_beam.parameter_tuning.models import (
     FloatDistribution,
     IntDistribution,
-    LGBMLinearParameterSpace,
+    GBLinearParameterSpace,
     OptimizationMetric,
 )
 from openstef_beam.parameter_tuning.optimizer import (
@@ -42,7 +42,7 @@ single_target = False
 
 horizon = LeadTime.from_string("PT36H")
 quantiles = [Quantile(0.1), Quantile(0.5), Quantile(0.9)]
-forecaster_name = "lgbmlinear"  # Choose model type: "lgbm", "xgboost", "gblinear", "lgbmlinear", "hybrid", "flatliner"
+forecaster_name = "gblinear"  # Choose model type: "lgbm", "xgboost", "gblinear", "lgbmlinear", "hybrid", "flatliner"
 
 # Extract pre-defined forecasting model from preset (pre-processing, forecasting, post-processing)
 workflow: CustomForecastingWorkflow = create_forecasting_workflow(
@@ -56,13 +56,10 @@ workflow: CustomForecastingWorkflow = create_forecasting_workflow(
 model = workflow.model
 
 # Define hyperparameter search space
-params = LGBMLinearParameterSpace(
-    n_estimators=IntDistribution(low=10, high=100),
+params = GBLinearParameterSpace(
+    n_steps=IntDistribution(low=10, high=500),
     learning_rate=FloatDistribution(low=0.01, high=0.5, log=True),
-    num_leaves=IntDistribution(low=5, high=120),
-    max_depth=IntDistribution(low=1, high=2),
-    max_bin=IntDistribution(low=10, high=70),
-    reg_lambda=FloatDistribution(low=1e-4, high=10, log=True),
+    reg_alpha=FloatDistribution(low=1e-5, high=10.0, log=True),
 )
 
 # Set optimization goal
@@ -86,7 +83,7 @@ backtest_forecaster_config = BacktestForecasterConfig(
     requires_training=True,
     horizon_length=timedelta(hours=13),
     horizon_min_length=timedelta(hours=11),
-    predict_context_length=timedelta(days=15),  # Context needed for lag features
+    predict_context_length=timedelta(days=14),  # Context needed for lag features
     predict_context_min_coverage=0.5,
     training_context_length=timedelta(days=90),  # Three months of training data
     training_context_min_coverage=0.5,
@@ -102,9 +99,9 @@ optimizer_config = RigorousOptimizerConfig(
     backtest_config=backtest_config,
     backtest_forecaster_config=backtest_forecaster_config,
     optimization_metric=optimization_metric,
-    n_trials=40,
+    n_trials=30,
     n_jobs=4,
-    timeout=7200,  # 2 hours
+    timeout=3600,  # 2 hours
 )
 
 optimizer = RigorousOptunaOptimizer(config=optimizer_config)
