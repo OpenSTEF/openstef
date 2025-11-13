@@ -9,7 +9,6 @@ forecasting. Optimized for time series data with specialized loss functions and
 comprehensive hyperparameter control for production forecasting workflows.
 """
 
-from functools import partial
 from typing import Literal, override
 
 import numpy as np
@@ -22,7 +21,12 @@ from openstef_core.exceptions import MissingExtraError, NotFittedError
 from openstef_core.mixins import HyperParams
 from openstef_models.explainability.mixins import ExplainableForecaster
 from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
-from openstef_models.utils.loss_functions import OBJECTIVE_MAP, ObjectiveFunctionType, xgb_prepare_target_for_objective
+from openstef_models.utils.evaluation_functions import EvaluationFunctionType, get_evaluation_function
+from openstef_models.utils.loss_functions import (
+    ObjectiveFunctionType,
+    get_objective_function,
+    xgb_prepare_target_for_objective,
+)
 
 try:
     import xgboost as xgb
@@ -61,7 +65,7 @@ class XGBoostHyperParams(HyperParams):
 
     # Core Tree Boosting Parameters
     n_estimators: int = Field(
-        default=500,
+        default=100,
         description="Number of boosting rounds/trees to fit. Higher values may improve performance but "
         "increase training time and risk overfitting.",
     )
@@ -90,6 +94,11 @@ class XGBoostHyperParams(HyperParams):
     objective: ObjectiveFunctionType = Field(
         default="pinball_loss",
         description="Objective function for training. 'pinball_loss' is recommended for probabilistic forecasting.",
+    )
+    evaluation_metric: EvaluationFunctionType = Field(
+        default="mean_pinball_loss",
+        description="Metric used for evaluation during training. Defaults to 'mean_pinball_loss' "
+        "for quantile regression.",
     )
 
     # Regularization
@@ -149,10 +158,10 @@ class XGBoostHyperParams(HyperParams):
 
     # General Parameters
     random_state: int | None = Field(
-        default=None, alias="seed", description="Random seed for reproducibility. Controls tree structure randomness."
+        default=42, description="Random seed for reproducibility. Controls tree structure randomness."
     )
     early_stopping_rounds: int | None = Field(
-        default=10,
+        default=None,
         description="Training will stop if performance doesn't improve for this many rounds. Requires validation data.",
     )
     use_target_scaling: bool = Field(
@@ -192,7 +201,7 @@ class XGBoostForecasterConfig(ForecasterConfig):
     n_jobs: int = Field(
         default=1, description="Number of parallel threads for tree construction. -1 uses all available cores."
     )
-    verbosity: Literal[0, 1, 2, 3] = Field(
+    verbosity: Literal[0, 1, 2, 3, True] = Field(
         default=1, description="Verbosity level. 0=silent, 1=warning, 2=info, 3=debug"
     )
 
@@ -262,8 +271,6 @@ class XGBoostForecaster(Forecaster, ExplainableForecaster):
         """
         self._config = config
 
-        objective = partial(OBJECTIVE_MAP[self._config.hyperparams.objective], quantiles=self._config.quantiles)
-
         self._xgboost_model = xgb.XGBRegressor(
             # Multi-output configuration
             multi_strategy="one_output_per_tree",
@@ -297,7 +304,13 @@ class XGBoostForecaster(Forecaster, ExplainableForecaster):
             # Early stopping handled in fit method
             early_stopping_rounds=self._config.hyperparams.early_stopping_rounds,
             # Objective
-            objective=objective,
+            objective=get_objective_function(
+                function_type=self._config.hyperparams.objective, quantiles=self._config.quantiles
+            ),
+            eval_metric=get_evaluation_function(
+                function_type=self._config.hyperparams.evaluation_metric, quantiles=self._config.quantiles
+            ),
+            disable_default_eval_metric=True,
         )
         self._target_scaler = StandardScaler() if self._config.hyperparams.use_target_scaling else None
 
@@ -372,7 +385,7 @@ class XGBoostForecaster(Forecaster, ExplainableForecaster):
         input_data: pd.DataFrame = data.input_data(start=data.forecast_start)
 
         # Generate predictions
-        predictions_array: np.ndarray = self._xgboost_model.predict(input_data)
+        predictions_array: np.ndarray = self._xgboost_model.predict(input_data).reshape(-1, len(self.config.quantiles))
 
         # Inverse transform the scaled predictions
         if self._target_scaler is not None:

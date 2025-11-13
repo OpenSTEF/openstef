@@ -9,7 +9,9 @@ including magnitude-weighted pinball loss, arctan-smoothed pinball loss, and sta
 pinball loss. All functions support sample weighting for flexible training.
 """
 
-from typing import Literal
+from collections.abc import Callable
+from functools import partial
+from typing import Any, Literal
 
 import numpy as np
 import numpy.typing as npt
@@ -230,6 +232,18 @@ def xgb_prepare_target_for_objective(
         return target
 
     return np.repeat(target[:, np.newaxis], repeats=len(quantiles), axis=1)
+
+
+def get_objective_function(
+    function_type: ObjectiveFunctionType,
+    quantiles: list[Quantile],
+    **kwargs: Any,
+) -> Callable[
+    [npt.NDArray[np.floating], npt.NDArray[np.floating]], tuple[npt.NDArray[np.floating], npt.NDArray[np.floating]]
+]:
+    fn = partial(OBJECTIVE_MAP[function_type], quantiles=quantiles, **kwargs)
+    fn.__name__ = function_type  # pyright: ignore[reportAttributeAccessIssue]
+    return fn
 
 
 __all__ = [
