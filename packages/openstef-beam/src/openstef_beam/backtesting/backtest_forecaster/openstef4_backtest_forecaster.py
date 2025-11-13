@@ -60,7 +60,7 @@ class OpenSTEF4BacktestForecaster(BaseModel, BacktestForecasterMixin):
         # Create a new workflow for this training cycle
         self._workflow = self.workflow_factory()
 
-        # Extract the versioned dataset for training
+        # Extract the dataset for training
         training_data = data.get_window(
             start=data.horizon - self.config.training_context_length, end=data.horizon, available_before=data.horizon
         )
@@ -89,7 +89,7 @@ class OpenSTEF4BacktestForecaster(BaseModel, BacktestForecasterMixin):
             end=data.horizon + self.config.predict_length,  # Include the forecast period
             available_before=data.horizon,  # Only use data available at prediction time (prevents lookahead bias)
         )
-        # Convert to horizons
+
         forecast = self._workflow.predict(
             data=predict_data,
             forecast_start=data.horizon,  # Where historical data ends and forecasting begins
