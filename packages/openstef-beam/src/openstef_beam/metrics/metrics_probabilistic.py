@@ -19,6 +19,7 @@ import numpy as np
 import numpy.typing as npt
 
 from openstef_core.exceptions import MissingExtraError
+from openstef_core.types import Quantile
 
 
 def crps(
@@ -214,3 +215,57 @@ def mean_absolute_calibration_error(
     """
     observed_probs = np.array([observed_probability(y_true, y_pred[:, i]) for i in range(len(quantiles))])
     return float(np.mean(np.abs(observed_probs - quantiles)))
+
+
+def mean_pinball_loss(
+    y_true: npt.NDArray[np.floating],
+    y_pred: npt.NDArray[np.floating],
+    quantiles: list[Quantile],
+    sample_weight: npt.NDArray[np.floating] | None = None,
+) -> float:
+    """Calculate the Mean Pinball Loss for quantile forecasts.
+
+    The Pinball Loss is a proper scoring rule for evaluating quantile forecasts.
+    It penalizes under- and over-predictions differently based on the quantile level.
+
+    Args:
+        y_true: Observed values with shape (num_samples,) or (num_samples, num_quantiles).
+        y_pred: Predicted quantiles with shape (num_samples, num_quantiles).
+            Each column corresponds to predictions for a specific quantile level.
+        quantiles: Quantile levels with shape (num_quantiles,).
+            Must be sorted in ascending order and contain values in [0, 1].
+        sample_weight: Optional weights for each sample with shape (num_samples,).
+
+    Returns:
+        The weighted average Pinball Loss across all samples and quantiles. Lower values indicate better forecast quality.
+    """
+    # Resize the predictions and targets.
+    y_pred = np.reshape(y_pred, [-1, len(quantiles)])
+    n_rows = y_pred.shape[0]
+    y_true = np.reshape(y_true, [n_rows, -1])
+    sample_weight = np.reshape(sample_weight, [n_rows, 1]) if sample_weight is not None else None
+
+    # Extract quantile values into array for vectorized operations
+    quantile_values = np.array(quantiles)  # shape: (n_quantiles,)
+
+    # Compute errors for all quantiles at once
+    errors = y_true - y_pred  # shape: (num_samples, num_quantiles)
+
+    # Compute masks for all quantiles simultaneously
+    underpredict_mask = errors >= 0  # y_true >= y_pred, shape: (num_samples, num_quantiles)
+    overpredict_mask = errors < 0  # y_true < y_pred, shape: (num_samples, num_quantiles)
+
+    # Vectorized pinball loss computation using broadcasting
+    # quantiles broadcasts from (num_quantiles,) to (num_samples, num_quantiles)
+    loss = quantiles * underpredict_mask * errors - (1 - quantile_values) * overpredict_mask * errors
+
+    # Apply sample weights if provided
+    if sample_weight is not None:
+        sample_weight = np.asarray(sample_weight).reshape(-1, 1)  # shape: (num_samples, 1)
+        loss *= sample_weight
+        total_weight = sample_weight.sum() * len(quantiles)
+    else:
+        total_weight = loss.size
+
+    # Return mean loss across all samples and quantiles
+    return float(loss.sum() / total_weight)

@@ -11,7 +11,6 @@ and can be more suitable for certain types of time series data where it is impor
 to predict values outside the range of the training data.
 """
 
-from functools import partial
 from typing import Literal, override
 
 import numpy as np
@@ -22,11 +21,16 @@ from sklearn.preprocessing import StandardScaler
 
 from openstef_core.datasets.mixins import LeadTime
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
-from openstef_core.exceptions import MissingExtraError, NotFittedError
+from openstef_core.exceptions import InputValidationError, MissingExtraError, NotFittedError
 from openstef_core.mixins.predictor import HyperParams
 from openstef_models.explainability.mixins import ExplainableForecaster
 from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
-from openstef_models.utils.loss_functions import OBJECTIVE_MAP, ObjectiveFunctionType, xgb_prepare_target_for_objective
+from openstef_models.utils.evaluation_functions import EvaluationFunctionType, get_evaluation_function
+from openstef_models.utils.loss_functions import (
+    ObjectiveFunctionType,
+    get_objective_function,
+    xgb_prepare_target_for_objective,
+)
 
 try:
     import xgboost as xgb
@@ -52,8 +56,14 @@ class GBLinearHyperParams(HyperParams):
         "rounds.",
     )
     objective: ObjectiveFunctionType | Literal["reg:quantileerror"] = Field(
-        default="pinball_loss",
-        description="Objective function for training. 'pinball_loss' is recommended for probabilistic forecasting.",
+        default="reg:quantileerror",
+        description="Objective function for training. 'reg:quantileerror' is recommended "
+        "for probabilistic forecasting.",
+    )
+    evaluation_metric: EvaluationFunctionType = Field(
+        default="mean_pinball_loss",
+        description="Metric used for evaluation during training. Defaults to 'mean_pinball_loss' "
+        "for quantile regression.",
     )
 
     # Regularization
@@ -61,7 +71,7 @@ class GBLinearHyperParams(HyperParams):
         default=0.0001, description="L1 regularization on weights. Higher values increase regularization. Range: [0,∞]"
     )
     reg_lambda: float = Field(
-        default=0.0, description="L2 regularization on weights. Higher values increase regularization. Range: [0,∞]"
+        default=0.1, description="L2 regularization on weights. Higher values increase regularization. Range: [0,∞]"
     )
 
     # Feature selection
@@ -176,15 +186,9 @@ class GBLinearForecaster(Forecaster, ExplainableForecaster):
         """
         self._config = config or GBLinearForecasterConfig()
 
-        if self.config.hyperparams.objective == "reg:quantileerror":
-            objective = "reg:quantileerror"
-        else:
-            objective = partial(OBJECTIVE_MAP[self._config.hyperparams.objective], quantiles=self._config.quantiles)
-
         self._gblinear_model = xgb.XGBRegressor(
             booster="gblinear",
             # Core parameters for forecasting
-            objective=objective,
             n_estimators=self._config.hyperparams.n_steps,
             learning_rate=self._config.hyperparams.learning_rate,
             early_stopping_rounds=self._config.hyperparams.early_stopping_rounds,
@@ -196,6 +200,16 @@ class GBLinearForecaster(Forecaster, ExplainableForecaster):
             updater=self._config.hyperparams.updater,
             quantile_alpha=[float(q) for q in self._config.quantiles],
             top_k=self._config.hyperparams.top_k if self._config.hyperparams.feature_selector == "thrifty" else None,
+            # Objective
+            objective=get_objective_function(
+                function_type=self._config.hyperparams.objective, quantiles=self._config.quantiles
+            )
+            if self._config.hyperparams.objective != "reg:quantileerror"
+            else "reg:quantileerror",
+            eval_metric=get_evaluation_function(
+                function_type=self._config.hyperparams.evaluation_metric, quantiles=self._config.quantiles
+            ),
+            disable_default_eval_metric=True,
         )
         self._target_scaler = StandardScaler()
 
@@ -216,7 +230,6 @@ class GBLinearForecaster(Forecaster, ExplainableForecaster):
 
     def _prepare_fit_input(self, data: ForecastInputDataset) -> tuple[pd.DataFrame, np.ndarray, pd.Series]:
         input_data: pd.DataFrame = data.input_data()
-
         # Scale the target variable
         target: np.ndarray = np.asarray(data.target_series.values)
         target = self._target_scaler.transform(target.reshape(-1, 1)).flatten()
@@ -234,9 +247,12 @@ class GBLinearForecaster(Forecaster, ExplainableForecaster):
 
     @override
     def fit(self, data: ForecastInputDataset, data_val: ForecastInputDataset | None = None) -> None:
-        # Fit the target scaler
-        target: np.ndarray = np.asarray(data.target_series.values)
-        self._target_scaler.fit(target.reshape(-1, 1))
+        # Data checks
+        if data.data.isna().any().any():
+            raise InputValidationError("There are nan values in the input data. Use imputation transform to fix them.")
+
+        # Fit the scalers
+        self._target_scaler.fit(data.target_series.to_frame())
 
         # Prepare training data
         input_data, target, sample_weight = self._prepare_fit_input(data)
@@ -264,11 +280,15 @@ class GBLinearForecaster(Forecaster, ExplainableForecaster):
         if not self.is_fitted:
             raise NotFittedError(self.__class__.__name__)
 
+        # Data checks
+        if data.input_data().isna().any().any():
+            raise InputValidationError("There are nan values in the input data. Use imputation transform to fix them.")
+
         # Get input features for prediction
         input_data: pd.DataFrame = data.input_data(start=data.forecast_start)
 
         # Generate predictions
-        predictions_array: np.ndarray = self._gblinear_model.predict(input_data)
+        predictions_array: np.ndarray = self._gblinear_model.predict(input_data).reshape(-1, len(self.config.quantiles))
 
         # Inverse transform the scaled predictions
         predictions_array = self._target_scaler.inverse_transform(predictions_array)
