@@ -47,10 +47,15 @@ PREDICTION_QUANTILES = [Q(0.1), Q(0.3), Q(0.5), Q(0.7), Q(0.9)]  # Quantiles for
 
 BENCHMARK_FILTER: list[Liander2024Category] | None = None
 
-storage = MLFlowStorage(
-    tracking_uri=str(OUTPUT_PATH / "mlflow_artifacts"),
-    local_artifacts_path=OUTPUT_PATH / "mlflow_tracking_artifacts",
-)
+USE_MLFLOW_STORAGE = False
+
+if USE_MLFLOW_STORAGE:
+    storage = MLFlowStorage(
+        tracking_uri=str(OUTPUT_PATH / "mlflow_artifacts"),
+        local_artifacts_path=OUTPUT_PATH / "mlflow_tracking_artifacts",
+    )
+else:
+    storage = None
 
 common_config = ForecastingWorkflowConfig(
     model_id="common_model_",
@@ -70,6 +75,18 @@ common_config = ForecastingWorkflowConfig(
 xgboost_config = common_config.model_copy(update={"model": "xgboost"})
 
 gblinear_config = common_config.model_copy(update={"model": "gblinear"})
+
+# Create the backtest configuration
+backtest_config = BacktestForecasterConfig(
+    requires_training=True,
+    predict_length=timedelta(days=7),
+    predict_min_length=timedelta(minutes=15),
+    predict_context_length=timedelta(days=14),  # Context needed for lag features
+    predict_context_min_coverage=0.5,
+    training_context_length=timedelta(days=90),  # Three months of training data
+    training_context_min_coverage=0.5,
+    predict_sample_interval=timedelta(minutes=15),
+)
 
 
 def _target_forecaster_factory(
@@ -98,18 +115,6 @@ def _target_forecaster_factory(
                 }
             )
         )
-
-    # Create the backtest configuration
-    backtest_config = BacktestForecasterConfig(
-        requires_training=True,
-        predict_length=timedelta(days=7),
-        predict_min_length=timedelta(minutes=15),
-        predict_context_length=timedelta(days=14),  # Context needed for lag features
-        predict_context_min_coverage=0.5,
-        training_context_length=timedelta(days=90),  # Three months of training data
-        training_context_min_coverage=0.5,
-        predict_sample_interval=timedelta(minutes=15),
-    )
 
     return OpenSTEF4BacktestForecaster(
         config=backtest_config,

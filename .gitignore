@@ -124,4 +124,4 @@ certificates/
 *.pkl
 
 # Benchmark outputs
-benchmark_results/
+benchmark_results*/
