@@ -35,8 +35,8 @@ class BacktestForecasterConfig(BaseConfig):
         default=timedelta(minutes=15), description="Time interval between prediction samples."
     )
 
-    horizon_length: timedelta = Field(description="Length of the prediction horizon.")
-    horizon_min_length: timedelta = Field(description="Minimum horizon length that can be predicted.")
+    predict_length: timedelta = Field(description="Length of the prediction.")
+    predict_min_length: timedelta = Field(description="Minimum length that can be predicted.")
 
     predict_context_length: timedelta = Field(description="Length of the prediction context.")
     predict_context_min_coverage: float = Field(

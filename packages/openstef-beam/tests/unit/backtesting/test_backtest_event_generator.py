@@ -17,8 +17,8 @@ from openstef_beam.backtesting.backtest_forecaster.mixins import BacktestForecas
 def config() -> BacktestForecasterConfig:
     return BacktestForecasterConfig(
         requires_training=True,
-        horizon_length=timedelta(hours=24),
-        horizon_min_length=timedelta(hours=6),
+        predict_length=timedelta(hours=24),
+        predict_min_length=timedelta(hours=6),
         predict_context_length=timedelta(hours=12),
         predict_context_min_coverage=0.5,
         training_context_length=timedelta(hours=24),
@@ -122,8 +122,8 @@ def test_iterate_without_training_only_predicts(hourly_index: pd.DatetimeIndex):
     # Arrange
     config = BacktestForecasterConfig(
         requires_training=False,
-        horizon_length=timedelta(hours=24),
-        horizon_min_length=timedelta(hours=6),
+        predict_length=timedelta(hours=24),
+        predict_min_length=timedelta(hours=6),
         predict_context_length=timedelta(hours=12),
         predict_context_min_coverage=0.8,
         training_context_length=timedelta(hours=24),
@@ -165,8 +165,8 @@ def test_iterate_returns_empty_when_insufficient_time():
     # Arrange
     config = BacktestForecasterConfig(
         requires_training=True,
-        horizon_length=timedelta(hours=24),
-        horizon_min_length=timedelta(hours=6),
+        predict_length=timedelta(hours=24),
+        predict_min_length=timedelta(hours=6),
         predict_context_length=timedelta(hours=1),
         predict_context_min_coverage=0.8,
         training_context_length=timedelta(days=10),  # Impossibly long
@@ -195,8 +195,8 @@ def test_insufficient_coverage_filters_out_events():
     sparse_index = pd.DatetimeIndex(["2025-01-01T12:00:00", "2025-01-01T18:00:00"])
     config = BacktestForecasterConfig(
         requires_training=False,
-        horizon_length=timedelta(hours=24),
-        horizon_min_length=timedelta(hours=1),
+        predict_length=timedelta(hours=24),
+        predict_min_length=timedelta(hours=1),
         predict_context_length=timedelta(hours=6),
         predict_context_min_coverage=0.9,  # High requirement
         training_context_length=timedelta(hours=24),
