@@ -139,6 +139,7 @@ class CustomForecastingWorkflow(BaseModel):
         Args:
             data: Training dataset for the forecasting model.
             data_val: Optional validation dataset for model tuning.
+            data_test: Optional test dataset for final evaluation.
 
         Returns:
             ModelFitResult containing training metrics and information,
