@@ -173,7 +173,7 @@ def test_mean_pinball_loss_matches_sklearn_average_when_multi_quantile():
     )
 
     # Act
-    ours = mean_pinball_loss(y_true=y_true, y_pred=y_pred, quantiles=quantiles)
+    actual = mean_pinball_loss(y_true=y_true, y_pred=y_pred, quantiles=quantiles)
     expected = np.mean(
         np.array(
             [sk_mean_pinball_loss(y_true, y_pred[:, i], alpha=float(quantile)) for i, quantile in enumerate(quantiles)],
@@ -183,4 +183,4 @@ def test_mean_pinball_loss_matches_sklearn_average_when_multi_quantile():
 
     # Assert
     # Multi-quantile mean should equal average of sklearn per-quantile losses
-    assert np.allclose(ours, expected, rtol=1e-12, atol=1e-12)
+    assert np.allclose(actual, expected, rtol=1e-12, atol=1e-12)
