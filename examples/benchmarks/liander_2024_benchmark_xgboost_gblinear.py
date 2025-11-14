@@ -43,7 +43,15 @@ N_PROCESSES = 1  # Amount of parallel processes to use for the benchmark
 
 # Model configuration
 FORECAST_HORIZONS = [LeadTime.from_string("P3D")]  # Forecast horizon(s)
-PREDICTION_QUANTILES = [Q(0.1), Q(0.3), Q(0.5), Q(0.7), Q(0.9)]  # Quantiles for probabilistic forecasts
+PREDICTION_QUANTILES = [
+    Q(0.05),
+    Q(0.1),
+    Q(0.3),
+    Q(0.5),
+    Q(0.7),
+    Q(0.9),
+    Q(0.95),
+]  # Quantiles for probabilistic forecasts
 
 BENCHMARK_FILTER: list[Liander2024Category] | None = None
 
@@ -63,7 +71,7 @@ common_config = ForecastingWorkflowConfig(
     horizons=FORECAST_HORIZONS,
     quantiles=PREDICTION_QUANTILES,
     model_reuse_enable=False,
-    mlflow_storage=storage,
+    mlflow_storage=None,
     radiation_column="shortwave_radiation",
     rolling_aggregate_features=["mean", "median", "max", "min"],
     wind_speed_column="wind_speed_80m",
@@ -125,17 +133,6 @@ def _target_forecaster_factory(
 
 
 if __name__ == "__main__":
-    # Run for GBLinear model
-    create_liander2024_benchmark_runner(
-        storage=LocalBenchmarkStorage(base_path=BENCHMARK_RESULTS_PATH_GBLINEAR),
-        callbacks=[StrictExecutionCallback()],
-    ).run(
-        forecaster_factory=_target_forecaster_factory,
-        run_name="gblinear",
-        n_processes=N_PROCESSES,
-        filter_args=BENCHMARK_FILTER,
-    )
-
     # Run for XGBoost model
     create_liander2024_benchmark_runner(
         storage=LocalBenchmarkStorage(base_path=BENCHMARK_RESULTS_PATH_XGBOOST),
@@ -143,6 +140,17 @@ if __name__ == "__main__":
     ).run(
         forecaster_factory=_target_forecaster_factory,
         run_name="xgboost",
+        n_processes=N_PROCESSES,
+        filter_args=BENCHMARK_FILTER,
+    )
+
+    # Run for GBLinear model
+    create_liander2024_benchmark_runner(
+        storage=LocalBenchmarkStorage(base_path=BENCHMARK_RESULTS_PATH_GBLINEAR),
+        callbacks=[StrictExecutionCallback()],
+    ).run(
+        forecaster_factory=_target_forecaster_factory,
+        run_name="gblinear",
         n_processes=N_PROCESSES,
         filter_args=BENCHMARK_FILTER,
     )
