@@ -35,6 +35,13 @@ class MLflowSerializer:
             if "DATABRICKS_WORKSPACE_PATH" in os.environ
             else ""
         )
+        self._is_mlflow_v3 = self._check_mlflow_version()
+
+    def _check_mlflow_version(self) -> bool:
+        """Check if MLflow version is 3.0 or higher."""
+        mlflow_version = mlflow.__version__
+        major_version = int(mlflow_version.split(".")[0])
+        return major_version >= 3
 
     def save_model(
         self,
@@ -104,7 +111,11 @@ class MLflowSerializer:
         )  # feature names are 1+ columns
         mlflow.set_tag("target", model_specs.feature_names[0])  # target is first column
         mlflow.set_tag("feature_modules", model_specs.feature_modules)
-        mlflow.log_metrics(report.metrics, step=0)
+        # Log metrics with step parameter only for MLflow v3+
+        if self._is_mlflow_v3:
+            mlflow.log_metrics(report.metrics, step=0)
+        else:
+            mlflow.log_metrics(report.metrics)
         model_specs.hyper_params.update(model.get_params())
         # TODO: Remove this hardcoded hyper params fix with loop after fix by mlflow
         # https://github.com/mlflow/mlflow/issues/6384
@@ -126,12 +137,20 @@ class MLflowSerializer:
                 )
 
         # Log the model to the run. Signature describes model input and output scheme
-        mlflow.sklearn.log_model(
-            sk_model=model,
-            artifact_path="model",
-            signature=report.signature,
-            step=1,  # Since mlflow v3, log model also logs metrics. Step is changed for a unique value to avoid collision.
-        )
+        # Since mlflow v3, log model also logs metrics. Step is used for a unique value to avoid collision.
+        if self._is_mlflow_v3:
+            mlflow.sklearn.log_model(
+                sk_model=model,
+                artifact_path="model",
+                signature=report.signature,
+                step=1,
+            )
+        else:
+            mlflow.sklearn.log_model(
+                sk_model=model,
+                artifact_path="model",
+                signature=report.signature,
+            )
         self.logger.info("Model saved with MLflow", experiment_name=experiment_name)
 
     def _log_figures_with_mlflow(self, report) -> None:
