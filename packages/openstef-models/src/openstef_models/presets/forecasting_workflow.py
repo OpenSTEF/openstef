@@ -33,6 +33,7 @@ from openstef_models.models.forecasting.gblinear_forecaster import GBLinearForec
 from openstef_models.models.forecasting.hybrid_forecaster import HybridForecaster
 from openstef_models.models.forecasting.lgbm_forecaster import LGBMForecaster
 from openstef_models.models.forecasting.lgbmlinear_forecaster import LGBMLinearForecaster
+from openstef_models.models.forecasting.rf_lightgbm_forecaster import RFLForecaster
 from openstef_models.models.forecasting.xgboost_forecaster import XGBoostForecaster
 from openstef_models.transforms.energy_domain import WindPowerFeatureAdder
 from openstef_models.transforms.general import (
@@ -117,7 +118,7 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
     model_id: ModelIdentifier = Field(description="Unique identifier for the forecasting model.")
 
     # Model configuration
-    model: Literal["xgboost", "gblinear", "flatliner", "hybrid", "lgbm", "lgbmlinear"] = Field(
+    model: Literal["xgboost", "gblinear", "flatliner", "hybrid", "lgbm",'rf_lightgbm', "lgbmlinear"] = Field(
         description="Type of forecasting model to use."
     )  # TODO(#652): Implement median forecaster
     quantiles: list[Quantile] = Field(
@@ -151,6 +152,10 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
     lgbmlinear_hyperparams: LGBMLinearForecaster.HyperParams = Field(
         default=LGBMLinearForecaster.HyperParams(),
         description="Hyperparameters for LightGBM forecaster.",
+    )
+    rflightgbm_hyperparams: RFLForecaster.HyperParams = Field(
+        default=RFLForecaster.HyperParams(),
+        description="Hyperparameters for rf_lightGBM forecaster.",
     )
 
     hybrid_hyperparams: HybridForecaster.HyperParams = Field(
@@ -205,7 +210,7 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
     )
     sample_weight_exponent: float = Field(
         default_factory=lambda data: 1.0
-        if data.get("model") in {"gblinear", "lgbmlinear", "lgbm", "hybrid", "xgboost"}
+        if data.get("model") in {"gblinear", "lgbmlinear", "lgbm", "hybrid", "xgboost", "rf_lightgbm"}
         else 0.0,
         description="Exponent applied to scale the sample weights. "
         "0=uniform weights, 1=linear scaling, >1=stronger emphasis on high values. "
@@ -377,6 +382,24 @@ def create_forecasting_workflow(
                 quantiles=config.quantiles,
                 horizons=config.horizons,
                 hyperparams=config.lgbm_hyperparams,
+            )
+        )
+        postprocessing = [QuantileSorter()]
+
+    elif config.model == "rf_lightgbm":
+        preprocessing = [
+            *checks,
+            *feature_adders,
+            HolidayFeatureAdder(country_code=config.location.country_code),
+            DatetimeFeaturesAdder(onehot_encode=False),
+            *feature_standardizers,
+        ]
+        forecaster = RFLForecaster(
+            config=RFLForecaster.Config(
+                quantiles=config.quantiles,
+                
+                horizons=config.horizons,
+                hyperparams=config.rflightgbm_hyperparams,
             )
         )
         postprocessing = [QuantileSorter()]
