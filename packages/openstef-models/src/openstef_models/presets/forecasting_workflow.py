@@ -275,6 +275,7 @@ def create_forecasting_workflow(config: ForecastingWorkflowConfig) -> CustomFore
         RollingAggregatesAdder(
             feature=config.target_column,
             aggregation_functions=config.rolling_aggregate_features,
+            horizons=config.horizons,
         ),
     ]
     feature_standardizers = [
