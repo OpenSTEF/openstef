@@ -14,14 +14,22 @@ from openstef_models.transforms.general.empty_feature_remover import (
     EmptyFeatureRemover,
 )
 from openstef_models.transforms.general.imputer import Imputer
+from openstef_models.transforms.general.kalman_filter import (
+    BaseKalman,
+    KalmanPostprocessor,
+    KalmanPreprocessor,
+)
 from openstef_models.transforms.general.sample_weighter import SampleWeighter
 from openstef_models.transforms.general.scaler import Scaler
 
 __all__ = [
+    "BaseKalman",
     "Clipper",
     "DimensionalityReducer",
     "EmptyFeatureRemover",
     "Imputer",
+    "KalmanPostprocessor",
+    "KalmanPreprocessor",
     "SampleWeighter",
     "Scaler",
 ]
