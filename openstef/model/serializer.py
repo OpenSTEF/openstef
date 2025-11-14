@@ -40,7 +40,7 @@ class MLflowSerializer:
     def _check_mlflow_version(self) -> bool:
         """Check if MLflow version is 3.0 or higher."""
         mlflow_version = mlflow.__version__
-        major_version = int(mlflow_version.split('.')[0])
+        major_version = int(mlflow_version.split(".")[0])
         return major_version >= 3
 
     def save_model(
