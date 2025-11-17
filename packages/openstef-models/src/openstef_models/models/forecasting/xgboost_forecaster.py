@@ -388,7 +388,7 @@ class XGBoostForecaster(Forecaster, ExplainableForecaster):
         predictions_array: np.ndarray = self._xgboost_model.predict(input_data).reshape(-1, len(self.config.quantiles))
 
         # Inverse transform the scaled predictions
-        if self._target_scaler is not None:
+        if self._target_scaler is not None and len(predictions_array) > 0:
             predictions_array = self._target_scaler.inverse_transform(predictions_array)
 
         # Construct DataFrame with appropriate quantile columns
