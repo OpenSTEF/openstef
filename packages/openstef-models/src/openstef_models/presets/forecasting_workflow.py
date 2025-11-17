@@ -44,12 +44,20 @@ from openstef_models.transforms.time_domain import (
     RollingAggregatesAdder,
 )
 from openstef_models.transforms.time_domain.lags_adder import LagsAdder
-from openstef_models.transforms.time_domain.rolling_aggregates_adder import AggregationFunction
-from openstef_models.transforms.validation import CompletenessChecker, FlatlineChecker, InputConsistencyChecker
+from openstef_models.transforms.time_domain.rolling_aggregates_adder import (
+    AggregationFunction,
+)
+from openstef_models.transforms.validation import (
+    CompletenessChecker,
+    FlatlineChecker,
+    InputConsistencyChecker,
+)
 from openstef_models.transforms.weather_domain import (
-    AtmosphereDerivedFeaturesAdder,
     DaylightFeatureAdder,
     RadiationDerivedFeaturesAdder,
+)
+from openstef_models.transforms.weather_domain.atmosphere_derived_features_adder import (
+    AtmosphereDerivedFeaturesAdder,
 )
 from openstef_models.utils.data_split import DataSplitter
 from openstef_models.utils.feature_selection import Exclude, FeatureSelection, Include
@@ -440,7 +448,6 @@ def create_forecasting_workflow(
             )
         )
         postprocessing = [QuantileSorter()]
-
     else:
         msg = f"Unsupported model type: {config.model}"
         raise ValueError(msg)
