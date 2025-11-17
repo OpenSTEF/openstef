@@ -187,7 +187,7 @@ class BenchmarkPipeline[T: BenchmarkTarget, F]:
             process_fn=partial(self._run_for_target, context, forecaster_factory),
             items=targets,
             n_processes=n_processes,
-            mode="loky",
+            mode="fork",  # TODO: Change back to 'loky' after before commit
         )
 
         if not self.storage.has_analysis_output(

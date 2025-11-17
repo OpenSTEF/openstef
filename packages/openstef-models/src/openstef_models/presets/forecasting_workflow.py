@@ -260,7 +260,7 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
     )
 
     verbosity: Literal[0, 1, 2, 3, True] = Field(
-        default=1, description="Verbosity level. 0=silent, 1=warning, 2=info, 3=debug"
+        default=0, description="Verbosity level. 0=silent, 1=warning, 2=info, 3=debug"
     )
 
     # Metadata
