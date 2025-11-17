@@ -451,13 +451,18 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">multiprocessing</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
 
 
 <div class="viewcode-block" id="run_parallel">
 <a class="viewcode-back" href="../../../api/generated/openstef_core.utils.run_parallel.html#openstef_core.utils.run_parallel">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">run_parallel</span><span class="p">[</span><span class="n">T</span><span class="p">,</span> <span class="n">R</span><span class="p">](</span><span class="n">process_fn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">T</span><span class="p">],</span> <span class="n">R</span><span class="p">],</span> <span class="n">items</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">T</span><span class="p">],</span> <span class="n">n_processes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">R</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">run_parallel</span><span class="p">[</span><span class="n">T</span><span class="p">,</span> <span class="n">R</span><span class="p">](</span>
+    <span class="n">process_fn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">T</span><span class="p">],</span> <span class="n">R</span><span class="p">],</span>
+    <span class="n">items</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">T</span><span class="p">],</span>
+    <span class="n">n_processes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">mode</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;loky&quot;</span><span class="p">,</span> <span class="s2">&quot;spawn&quot;</span><span class="p">,</span> <span class="s2">&quot;fork&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;loky&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">R</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Execute a function in parallel across multiple processes.</span>
 
 <span class="sd">    On macOS, explicitly uses fork context to avoid issues with the default</span>
@@ -471,6 +476,10 @@
 <span class="sd">        items: Iterable of items to process.</span>
 <span class="sd">        n_processes: Number of processes to use. If None or &lt;= 1, runs sequentially.</span>
 <span class="sd">                    Typically set to number of CPU cores or logical cores.</span>
+<span class="sd">        mode: Multiprocessing start method. &#39;loky&#39; is recommeneded for robust</span>
+<span class="sd">                ml use-cases. &#39;fork&#39; is more efficient on macOS, while &#39;spawn&#39; is</span>
+<span class="sd">                default on Windows/Linux. Xgboost seems to have bugs</span>
+<span class="sd">                when used with &#39;fork&#39;.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        List of results from applying process_fn to each item, in the same order</span>
@@ -491,23 +500,21 @@
 <span class="sd">        &gt;&gt;&gt; # Empty input handling</span>
 <span class="sd">        &gt;&gt;&gt; run_parallel(square, [], n_processes=1)</span>
 <span class="sd">        []</span>
-
-<span class="sd">    Note:</span>
-<span class="sd">        macOS Implementation Details:</span>
-<span class="sd">        - Uses fork context instead of spawn to avoid serialization overhead</span>
-<span class="sd">        - Fork preserves parent memory space, including imported modules and variables</span>
-<span class="sd">        - More efficient for ML models and large data structures</span>
-<span class="sd">        - On other platforms, uses the default context (usually spawn on Windows/Linux)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">n_processes</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">n_processes</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
         <span class="c1"># If only one process is requested, run the function sequentially</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">process_fn</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">]</span>
 
+    <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;loky&quot;</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">joblib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Parallel</span><span class="p">,</span> <span class="n">delayed</span>  <span class="c1"># pyright: ignore[reportUnknownVariableType] # noqa: PLC0415</span>
+
+        <span class="c1"># Use joblib with loky backend for robust process management</span>
+        <span class="k">return</span> <span class="n">Parallel</span><span class="p">(</span><span class="n">n_jobs</span><span class="o">=</span><span class="n">n_processes</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="s2">&quot;loky&quot;</span><span class="p">)(</span>  <span class="c1"># pyright: ignore[reportUnknownVariableType]</span>
+            <span class="n">delayed</span><span class="p">(</span><span class="n">process_fn</span><span class="p">)(</span><span class="n">item</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span>
+        <span class="p">)</span>  <span class="c1"># type: ignore</span>
+
     <span class="c1"># Auto-configure for macOS</span>
-    <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span> <span class="o">==</span> <span class="s2">&quot;darwin&quot;</span><span class="p">:</span>
-        <span class="n">context</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">get_context</span><span class="p">(</span><span class="s2">&quot;fork&quot;</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">context</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">get_context</span><span class="p">()</span>
+    <span class="n">context</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">get_context</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="n">mode</span><span class="p">)</span>
 
     <span class="k">with</span> <span class="n">context</span><span class="o">.</span><span class="n">Pool</span><span class="p">(</span><span class="n">processes</span><span class="o">=</span><span class="n">n_processes</span><span class="p">)</span> <span class="k">as</span> <span class="n">pool</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">pool</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">process_fn</span><span class="p">,</span> <span class="n">items</span><span class="p">)</span></div>

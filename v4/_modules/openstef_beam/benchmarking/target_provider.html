@@ -460,6 +460,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">cast</span><span class="p">,</span> <span class="n">override</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">Field</span><span class="p">,</span> <span class="n">TypeAdapter</span>
 
@@ -830,9 +831,65 @@
 <a class="viewcode-back" href="../../../api/generated/openstef_beam.benchmarking.SimpleTargetProvider.html#openstef_beam.benchmarking.SimpleTargetProvider.get_evaluation_mask_for_target">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_evaluation_mask_for_target</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">None</span></div>
+        <span class="n">measurement_series</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_measurements_for_target</span><span class="p">(</span><span class="n">target</span><span class="p">)</span><span class="o">.</span><span class="n">select_version</span><span class="p">()</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">target_column</span><span class="p">]</span>
+
+        <span class="n">filtered_series</span> <span class="o">=</span> <span class="n">filter_away_flatline_chunks</span><span class="p">(</span>
+            <span class="n">measurement_series</span><span class="o">=</span><span class="n">measurement_series</span><span class="p">,</span>
+            <span class="n">min_length</span><span class="o">=</span><span class="mi">24</span> <span class="o">*</span> <span class="mi">4</span><span class="p">,</span>
+            <span class="n">threshold</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">cast</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">,</span> <span class="n">filtered_series</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span><span class="o">.</span><span class="n">index</span><span class="p">))</span>  <span class="c1"># type: ignore[reportUnknownMemberType]</span></div>
 </div>
 
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">filter_away_flatline_chunks</span><span class="p">(</span>
+    <span class="n">measurement_series</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
+    <span class="n">min_length</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">96</span><span class="p">,</span>
+    <span class="n">threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Mask long flatline segments in a target series.</span>
+
+<span class="sd">    Detects contiguous segments where the standard deviation inside both centered and</span>
+<span class="sd">    right-aligned windows falls below `threshold` times the global standard deviation</span>
+<span class="sd">    for at least `min_length` samples. Values inside those segments are replaced with</span>
+<span class="sd">    `NaN` so downstream logic can drop them and derive a clean evaluation mask.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        measurement_series: Time-indexed series containing the target observations.</span>
+<span class="sd">        min_length: Minimum length (in samples) for a chunk to be treated as a flatline.</span>
+<span class="sd">        threshold: Multiplier on the global standard deviation to define the flatline cutoff.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A copy of *measurement_series* with flatline chunks set to `NaN`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">series_std</span> <span class="o">=</span> <span class="n">measurement_series</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
+    <span class="n">actual_threshold</span> <span class="o">=</span> <span class="n">threshold</span> <span class="o">*</span> <span class="n">series_std</span>
+
+    <span class="n">rolling_std_center</span> <span class="o">=</span> <span class="n">measurement_series</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="n">min_length</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
+    <span class="n">rolling_std_right</span> <span class="o">=</span> <span class="n">measurement_series</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="n">min_length</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
+
+    <span class="n">flatline_mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">rolling_std_center</span> <span class="o">&lt;</span> <span class="n">actual_threshold</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">rolling_std_right</span> <span class="o">&lt;</span> <span class="n">actual_threshold</span><span class="p">)</span>
+    <span class="n">flatline_mask</span> <span class="o">=</span> <span class="n">flatline_mask</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># pyright: ignore[reportUnknownMemberType]</span>
+
+    <span class="n">flatline_chunks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">start_idx</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">is_flat</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">flatline_mask</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">is_flat</span> <span class="ow">and</span> <span class="n">start_idx</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">start_idx</span> <span class="o">=</span> <span class="n">idx</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">is_flat</span> <span class="ow">and</span> <span class="n">start_idx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">idx</span> <span class="o">-</span> <span class="n">start_idx</span> <span class="o">&gt;=</span> <span class="n">min_length</span><span class="p">:</span>
+                <span class="n">flatline_chunks</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">start_idx</span><span class="p">,</span> <span class="n">idx</span><span class="p">))</span>
+            <span class="n">start_idx</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">start_idx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">flatline_mask</span><span class="p">)</span> <span class="o">-</span> <span class="n">start_idx</span> <span class="o">&gt;=</span> <span class="n">min_length</span><span class="p">:</span>
+        <span class="n">flatline_chunks</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">start_idx</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">flatline_mask</span><span class="p">)))</span>
+
+    <span class="n">filtered_series</span> <span class="o">=</span> <span class="n">measurement_series</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="ow">in</span> <span class="n">flatline_chunks</span><span class="p">:</span>
+        <span class="n">filtered_series</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+    <span class="k">return</span> <span class="n">filtered_series</span>
 </pre></div>
 
                 </article>
