@@ -145,16 +145,16 @@ def test_kalman_postprocessor_feature_selection_applies_only_selected_features(
     """KalmanPostprocessor should only transform the selected feature(s)."""
     dataset = sample_forecast_dataset
     # add an additional feature that has varying values
-    dataset.data["other"] = pd.Series([1.0, 2.0], index=dataset.data.index)
+    dataset.data["quantile_P60"] = pd.Series([1.0, 2.0], index=dataset.data.index)
 
-    original_other = dataset.data["other"].copy()
+    original_other = dataset.data["quantile_P60"].copy()
     original_q50 = dataset.data["quantile_P50"].copy()
     # apply postprocessor only to "quantile_P50"
     transform = KalmanPostprocessor(selection=FeatureSelection(include={"quantile_P50"}, exclude=None))
     result = transform.fit_transform(dataset)
 
     # "other" must remain unchanged
-    pd.testing.assert_series_equal(result.data["other"], original_other)
+    pd.testing.assert_series_equal(result.data["quantile_P60"], original_other)
 
     # "quantile_P50" should be changed by the transform
     assert not result.data["quantile_P50"].equals(original_q50)
