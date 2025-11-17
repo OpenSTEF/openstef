@@ -82,6 +82,10 @@ class SampleWeighter(BaseConfig, TimeSeriesTransform):
         default="sample_weight",
         description="Name of the column where computed weights will be stored.",
     )
+    normalize_target: bool = Field(
+        default=False,
+        description="Whether to normalize target values using StandardScaler before weighting.",
+    )
 
     _scaler: StandardScaler = PrivateAttr(default_factory=StandardScaler)
     _is_fitted: bool = PrivateAttr(default=False)
@@ -125,10 +129,11 @@ class SampleWeighter(BaseConfig, TimeSeriesTransform):
 
         # Normalize target values using the fitted scaler
         target = np.asarray(target_series.values, dtype=np.float64)
-        target_scaled = self._scaler.transform(target.reshape(-1, 1)).flatten()
+        if self.normalize_target:
+            target = self._scaler.transform(target.reshape(-1, 1)).flatten()
 
         df.loc[mask, self.sample_weight_column] = exponential_sample_weight(
-            x=target_scaled,
+            x=target,
             scale_percentile=self.weight_scale_percentile,
             exponent=self.weight_exponent,
             floor=self.weight_floor,
