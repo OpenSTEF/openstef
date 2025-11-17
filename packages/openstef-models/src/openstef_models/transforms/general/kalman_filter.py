@@ -9,7 +9,7 @@ and postprocessor for time series datasets. The Kalman Smoother helps reduce noi
 """
 
 from collections.abc import Iterable
-from typing import cast, override
+from typing import override
 
 import pandas as pd
 from pydantic import Field
@@ -146,7 +146,7 @@ class KalmanPostprocessor(BaseKalman, Transform[ForecastDataset, ForecastDataset
         quantile_columns = [q.format() for q in sorted(data.quantiles)]
         df = data.data.copy(deep=True)
         df_sm = self._run_kalman_smoother(df, quantile_columns)
-        return cast(ForecastDataset, data.copy_with(data=df_sm, is_sorted=True))
+        return ForecastDataset.from_timeseries(data.copy_with(data=df_sm, is_sorted=True))
 
 
 __all__ = ["BaseKalman", "KalmanPostprocessor", "KalmanPreprocessor"]
