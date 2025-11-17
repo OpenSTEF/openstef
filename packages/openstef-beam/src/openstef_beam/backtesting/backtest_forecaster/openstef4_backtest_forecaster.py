@@ -4,7 +4,6 @@
 
 """OpenSTEF 4.0 forecaster for backtesting pipelines."""
 
-import logging
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any, override
@@ -15,8 +14,9 @@ from openstef_beam.backtesting.backtest_forecaster.mixins import BacktestForecas
 from openstef_beam.backtesting.restricted_horizon_timeseries import RestrictedHorizonVersionedTimeSeries
 from openstef_core.base_model import BaseModel
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.exceptions import FlatlinerDetectedError, NotFittedError
+from openstef_core.exceptions import NotFittedError
 from openstef_core.types import Q
+from openstef_models.models.forecasting_model import restore_target
 from openstef_models.workflows.custom_forecasting_workflow import CustomForecastingWorkflow
 
 
@@ -42,9 +42,6 @@ class OpenSTEF4BacktestForecaster(BaseModel, BacktestForecasterMixin):
     )
 
     _workflow: CustomForecastingWorkflow | None = PrivateAttr(default=None)
-    _is_flatliner_detected: bool = PrivateAttr(default=False)
-
-    _logger: logging.Logger = PrivateAttr(default=logging.getLogger(__name__))
 
     @override
     def model_post_init(self, context: Any) -> None:
@@ -62,27 +59,30 @@ class OpenSTEF4BacktestForecaster(BaseModel, BacktestForecasterMixin):
     @override
     def fit(self, data: RestrictedHorizonVersionedTimeSeries) -> None:
         # Create a new workflow for this training cycle
-        workflow = self.workflow_factory()
+        self._workflow = self.workflow_factory()
 
-        # Extract the dataset for training
-        training_data = data.get_window(
-            start=data.horizon - self.config.training_context_length, end=data.horizon, available_before=data.horizon
+        # Get training data window based on config
+        training_end = data.horizon
+        training_start = training_end - self.config.training_context_length
+
+        # Extract the versioned dataset for training
+        training_data_versioned = data.get_window_versioned(
+            start=training_start, end=training_end, available_before=data.horizon
+        )
+        # Convert to horizons
+        training_data = training_data_versioned.to_horizons(horizons=self._workflow.model.config.horizons)
+        training_data = restore_target(
+            dataset=training_data,
+            original_dataset=training_data_versioned.select_version(),
+            target_column=self._workflow.model.target_column,
         )
 
         if self.debug:
             id_str = data.horizon.strftime("%Y%m%d%H%M%S")
             training_data.to_parquet(path=self.cache_dir / f"debug_{id_str}_training.parquet")
 
-        try:
-            # Use the workflow's fit method
-            workflow.fit(data=training_data)
-            self._is_flatliner_detected = False
-        except FlatlinerDetectedError:
-            self._logger.warning("Flatliner detected during training")
-            self._is_flatliner_detected = True
-            return  # Skip setting the workflow on flatliner detection
-
-        self._workflow = workflow
+        # Use the workflow's fit method
+        self._workflow.fit(data=training_data)
 
         if self.debug:
             id_str = data.horizon.strftime("%Y%m%d%H%M%S")
@@ -92,28 +92,33 @@ class OpenSTEF4BacktestForecaster(BaseModel, BacktestForecasterMixin):
 
     @override
     def predict(self, data: RestrictedHorizonVersionedTimeSeries) -> TimeSeriesDataset | None:
-        if self._is_flatliner_detected:
-            self._logger.info("Skipping prediction due to prior flatliner detection")
-            return None
-
         if self._workflow is None:
             raise NotFittedError("Must call fit() before predict()")
 
+        # Define the time windows:
+        # - Historical context: used for features (lags, etc.)
+        # - Forecast period: the period we want to predict
+        predict_context_start = data.horizon - self.config.predict_context_length
+        forecast_end = data.horizon + self.config.horizon_length
+
         # Extract the dataset including both historical context and forecast period
-        predict_data = data.get_window(
-            start=data.horizon - self.config.predict_context_length,
-            end=data.horizon + self.config.predict_length,  # Include the forecast period
+        predict_data_versioned = data.get_window_versioned(
+            start=predict_context_start,
+            end=forecast_end,  # Include the forecast period
             available_before=data.horizon,  # Only use data available at prediction time (prevents lookahead bias)
         )
+        # Convert to horizons
+        predict_data = predict_data_versioned.to_horizons(horizons=self._workflow.model.config.horizons)
+        predict_data = restore_target(
+            dataset=predict_data,
+            original_dataset=predict_data_versioned.select_version(),
+            target_column=self._workflow.model.target_column,
+        )
 
-        try:
-            forecast = self._workflow.predict(
-                data=predict_data,
-                forecast_start=data.horizon,  # Where historical data ends and forecasting begins
-            )
-        except FlatlinerDetectedError:
-            self._logger.info("Flatliner detected during prediction")
-            return None
+        forecast = self._workflow.predict(
+            data=predict_data,
+            forecast_start=data.horizon,  # Where historical data ends and forecasting begins
+        )
 
         if self.debug:
             id_str = data.horizon.strftime("%Y%m%d%H%M%S")

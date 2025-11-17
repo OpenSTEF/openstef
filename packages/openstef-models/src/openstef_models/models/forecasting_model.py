@@ -129,8 +129,8 @@ class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset])
     )
     cutoff_history: timedelta = Field(
         default=timedelta(days=0),
-        description="Amount of historical data to exclude from training and prediction due to incomplete features "
-        "from lag-based preprocessing. When using lag transforms (e.g., lag-14), the first N days contain NaN values. "
+        description="Amount of historical data to exclude from training due to incomplete features from lag-based "
+        "preprocessing. When using lag transforms (e.g., lag-14), the first N days contain NaN values. "
         "Set this to match your maximum lag duration (e.g., timedelta(days=14)). "
         "Default of 0 assumes no invalid rows are created by preprocessing.",
     )

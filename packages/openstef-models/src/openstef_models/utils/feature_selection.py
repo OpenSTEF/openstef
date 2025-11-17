@@ -36,7 +36,6 @@ class FeatureSelection(BaseConfig):
     )
 
     ALL: ClassVar[Self]
-    NONE: ClassVar[Self]
 
     def resolve(self, features: list[str]) -> list[str]:
         """Resolve the final list of features based on include and exclude lists.
@@ -73,7 +72,6 @@ class FeatureSelection(BaseConfig):
 
 
 FeatureSelection.ALL = FeatureSelection(include=None, exclude=None)
-FeatureSelection.NONE = FeatureSelection(include=set(), exclude=None)
 
 
 def Include(*features: str) -> FeatureSelection:  # noqa: N802

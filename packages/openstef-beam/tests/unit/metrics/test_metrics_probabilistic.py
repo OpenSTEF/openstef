@@ -6,11 +6,8 @@ from collections.abc import Sequence
 
 import numpy as np
 import pytest
-from sklearn.metrics import mean_pinball_loss as sk_mean_pinball_loss
 
 from openstef_beam.metrics import crps, mean_absolute_calibration_error, rcrps
-from openstef_beam.metrics.metrics_probabilistic import mean_pinball_loss
-from openstef_core.types import Q
 
 
 # CRPS Test Cases
@@ -154,33 +151,3 @@ def test_mean_absolute_calibration_error() -> None:
 
     assert isinstance(result, float)
     assert result == (0.4 + 0.4) / 3  # observed probabilities are 0.5, 0.5, 0.5 vs 0.1, 0.5, 0.9 quantiles
-
-
-def test_mean_pinball_loss_matches_sklearn_average_when_multi_quantile():
-    # Arrange
-    rng = np.random.default_rng(seed=42)
-    n = 40
-    y_true = rng.normal(loc=1.0, scale=2.0, size=n)
-    quantiles = [Q(0.1), Q(0.5), Q(0.9)]
-    # Simulate predictions with different biases per quantile; shape (n, q)
-    y_pred = np.stack(
-        [
-            y_true + rng.normal(0, 0.7, size=n) - 0.4,  # q=0.1
-            y_true + rng.normal(0, 0.5, size=n) + 0.0,  # q=0.5
-            y_true + rng.normal(0, 0.7, size=n) + 0.4,  # q=0.9
-        ],
-        axis=1,
-    )
-
-    # Act
-    actual = mean_pinball_loss(y_true=y_true, y_pred=y_pred, quantiles=quantiles)
-    expected = np.mean(
-        np.array(
-            [sk_mean_pinball_loss(y_true, y_pred[:, i], alpha=float(quantile)) for i, quantile in enumerate(quantiles)],
-            dtype=float,
-        )
-    )
-
-    # Assert
-    # Multi-quantile mean should equal average of sklearn per-quantile losses
-    assert np.allclose(actual, expected, rtol=1e-12, atol=1e-12)

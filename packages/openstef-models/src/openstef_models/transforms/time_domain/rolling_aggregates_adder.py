@@ -20,7 +20,6 @@ from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.datasets.validation import validate_required_columns
 from openstef_core.transforms import TimeSeriesTransform
-from openstef_core.types import LeadTime
 from openstef_core.utils import timedelta_to_isoformat
 
 type AggregationFunction = Literal["mean", "median", "max", "min"]
@@ -52,8 +51,7 @@ class RollingAggregatesAdder(BaseConfig, TimeSeriesTransform):
         >>> transform = RollingAggregatesAdder(
         ...     feature='load',
         ...     rolling_window_size=timedelta(hours=2),
-        ...     aggregation_functions=["mean", "max"],
-        ...     horizons=[LeadTime.from_string("PT36H")],
+        ...     aggregation_functions=["mean", "max"]
         ... )
         >>> transformed_dataset = transform.transform(dataset)
         >>> result = transformed_dataset.data[['rolling_mean_load_PT2H', 'rolling_max_load_PT2H']]
@@ -67,10 +65,6 @@ class RollingAggregatesAdder(BaseConfig, TimeSeriesTransform):
 
     feature: str = Field(
         description="Feature to compute rolling aggregates for.",
-    )
-    horizons: list[LeadTime] = Field(
-        description="List of forecast horizons.",
-        min_length=1,
     )
     rolling_window_size: timedelta = Field(
         default=timedelta(hours=24),
@@ -86,11 +80,8 @@ class RollingAggregatesAdder(BaseConfig, TimeSeriesTransform):
     def _transform_pandas(self, df: pd.DataFrame) -> pd.DataFrame:
         rolling_df = cast(
             pd.DataFrame,
-            df[self.feature].dropna().rolling(window=self.rolling_window_size).agg(self.aggregation_functions),  # pyright: ignore[reportUnknownMemberType, reportCallIssue, reportArgumentType]
+            df[self.feature].rolling(window=self.rolling_window_size).agg(self.aggregation_functions),  # type: ignore
         )
-        # Fill missing values with the last known value
-        rolling_df = rolling_df.reindex(df.index).ffill()
-
         suffix = timedelta_to_isoformat(td=self.rolling_window_size)
         rolling_df = rolling_df.rename(
             columns={func: f"rolling_{func}_{self.feature}_{suffix}" for func in self.aggregation_functions}
@@ -103,12 +94,6 @@ class RollingAggregatesAdder(BaseConfig, TimeSeriesTransform):
         if len(self.aggregation_functions) == 0:
             self._logger.warning(
                 "No aggregation functions specified for RollingAggregatesAdder. Returning original data."
-            )
-            return data
-
-        if len(self.horizons) > 1:
-            self._logger.warning(
-                "Multiple horizons for RollingAggregatesAdder is not yet supported. Returning original data."
             )
             return data
 

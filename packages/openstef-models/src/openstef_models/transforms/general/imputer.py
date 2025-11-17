@@ -130,9 +130,9 @@ class Imputer(BaseConfig, TimeSeriesTransform):
     >>> result_iterative = transform_iterative.transform(dataset)
     >>> result_iterative.data["temperature"].isna().sum() == 0  # Temperature NaNs filled
     np.True_
-    >>> np.isnan(result_iterative.data["radiation"].iloc[1])  # Radiation first NaN replaced
+    >>> np.isnan(result_iterative.data["radiation"][1])  # Radiation first NaN replaced
     np.False_
-    >>> np.isnan(result_iterative.data["radiation"].iloc[3]) # Check if trailing NaN is preserved
+    >>> np.isnan(result_iterative.data["radiation"][3]) # Check if trailing NaN is preserved
     np.True_
     >>> result_iterative.data["wind_speed"].isna().sum() == 2  # Wind speed NaNs preserved
     np.True_
@@ -170,13 +170,6 @@ class Imputer(BaseConfig, TimeSeriesTransform):
         default=FeatureSelection.ALL,
         description=(
             "Features to impute. If strategy is 'iterative', these features are also used as predictors for imputation."
-        ),
-    )
-    fill_future_values: FeatureSelection = Field(
-        default=FeatureSelection.NONE,
-        description=(
-            "Features for which to fill future missing values. "
-            "This transform does not fill future missing values by default to preserve time series integrity."
         ),
     )
 
@@ -259,9 +252,7 @@ class Imputer(BaseConfig, TimeSeriesTransform):
         data_transformed = cast(pd.DataFrame, self._imputer.transform(data_subset))
 
         # Set imputed trailing NaNs back to NaN since they cannot be reasonably imputed
-        fill_future_features = self.fill_future_values.resolve(features)
-        no_fill_future_features = set(features) - set(fill_future_features)
-        for col in no_fill_future_features:
+        for col in data_transformed.columns:
             last_valid = data_subset[col].last_valid_index()
             data_transformed.loc[data_transformed.index > (last_valid or data_transformed.index[0]), col] = np.nan
 

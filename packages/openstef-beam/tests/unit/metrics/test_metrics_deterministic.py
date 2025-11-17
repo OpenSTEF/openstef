@@ -129,18 +129,6 @@ def test_rmae_sample_weights_behavior(
     assert abs(result - expected) < tol, f"Expected {expected} but got {result} for weights={sample_weights}"
 
 
-def test_rmae_returns_nan_when_inputs_empty() -> None:
-    # Arrange
-    y_true_arr = np.array([])
-    y_pred_arr = np.array([])
-
-    # Act
-    result = rmae(y_true_arr, y_pred_arr)
-
-    # Assert
-    assert np.isnan(result)
-
-
 @pytest.mark.parametrize(
     ("y_true", "y_pred", "expected", "tol"),
     [
@@ -159,18 +147,6 @@ def test_mape_various(y_true: Sequence[float], y_pred: Sequence[float], expected
 
     # Assert
     assert abs(result - expected) < tol, f"Expected {expected} but got {result}"
-
-
-def test_mape_returns_nan_when_inputs_empty() -> None:
-    # Arrange
-    y_true_arr = np.array([])
-    y_pred_arr = np.array([])
-
-    # Act
-    result = mape(y_true_arr, y_pred_arr)
-
-    # Assert
-    assert np.isnan(result)
 
 
 @pytest.mark.parametrize(
@@ -402,17 +378,6 @@ def test_riqd_various(
         assert abs(result - expected) < tol, f"Expected {expected} but got {result}"
 
 
-def test_riqd_returns_nan_when_inputs_empty() -> None:
-    # Arrange
-    empty_arr = np.array([])
-
-    # Act
-    result = riqd(empty_arr, empty_arr, empty_arr)
-
-    # Assert
-    assert np.isnan(result)
-
-
 @pytest.mark.parametrize(
     (
         "y_true",
@@ -534,15 +499,3 @@ def test_relative_pinball_loss_various(
         assert np.isnan(result), f"Expected NaN but got {result}"
     else:
         assert abs(result - expected) < tol, f"Expected {expected} but got {result}"
-
-
-def test_relative_pinball_loss_returns_nan_when_inputs_empty() -> None:
-    # Arrange
-    y_true_arr = np.array([])
-    y_pred_arr = np.array([])
-
-    # Act
-    result = relative_pinball_loss(y_true_arr, y_pred_arr, quantile=0.5)
-
-    # Assert
-    assert np.isnan(result)

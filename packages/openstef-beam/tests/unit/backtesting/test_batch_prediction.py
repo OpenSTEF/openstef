@@ -25,8 +25,8 @@ class MockModelConfig(BacktestForecasterConfig):
     requires_training: bool = True
     batch_size: int | None = 4
 
-    predict_length: timedelta = timedelta(hours=6)
-    predict_min_length: timedelta = timedelta(hours=1)
+    horizon_length: timedelta = timedelta(hours=6)
+    horizon_min_length: timedelta = timedelta(hours=1)
 
     predict_context_length: timedelta = timedelta(hours=1)
     predict_context_min_coverage: float = 0.8

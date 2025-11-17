@@ -10,12 +10,6 @@ The benchmark will evaluate XGBoost and GBLinear models on the dataset from Hugg
 #
 # SPDX-License-Identifier: MPL-2.0
 
-import os
-
-os.environ["OMP_NUM_THREADS"] = "1"  # Set OMP_NUM_THREADS to 1 to avoid issues with parallel execution and xgboost
-os.environ["OPENBLAS_NUM_THREADS"] = "1"
-os.environ["MKL_NUM_THREADS"] = "1"
-
 import logging
 from datetime import timedelta
 from pathlib import Path
@@ -44,32 +38,19 @@ OUTPUT_PATH = Path("./benchmark_results")
 
 BENCHMARK_RESULTS_PATH_XGBOOST = OUTPUT_PATH / "XGBoost"
 BENCHMARK_RESULTS_PATH_GBLINEAR = OUTPUT_PATH / "GBLinear"
-N_PROCESSES = 12  # Amount of parallel processes to use for the benchmark
+N_PROCESSES = 1  # Amount of parallel processes to use for the benchmark
 
 
 # Model configuration
 FORECAST_HORIZONS = [LeadTime.from_string("P3D")]  # Forecast horizon(s)
-PREDICTION_QUANTILES = [
-    Q(0.05),
-    Q(0.1),
-    Q(0.3),
-    Q(0.5),
-    Q(0.7),
-    Q(0.9),
-    Q(0.95),
-]  # Quantiles for probabilistic forecasts
+PREDICTION_QUANTILES = [Q(0.1), Q(0.3), Q(0.5), Q(0.7), Q(0.9)]  # Quantiles for probabilistic forecasts
 
 BENCHMARK_FILTER: list[Liander2024Category] | None = None
 
-USE_MLFLOW_STORAGE = False
-
-if USE_MLFLOW_STORAGE:
-    storage = MLFlowStorage(
-        tracking_uri=str(OUTPUT_PATH / "mlflow_artifacts"),
-        local_artifacts_path=OUTPUT_PATH / "mlflow_tracking_artifacts",
-    )
-else:
-    storage = None
+storage = MLFlowStorage(
+    tracking_uri=str(OUTPUT_PATH / "mlflow_artifacts"),
+    local_artifacts_path=OUTPUT_PATH / "mlflow_tracking_artifacts",
+)
 
 common_config = ForecastingWorkflowConfig(
     model_id="common_model_",
@@ -77,31 +58,18 @@ common_config = ForecastingWorkflowConfig(
     horizons=FORECAST_HORIZONS,
     quantiles=PREDICTION_QUANTILES,
     model_reuse_enable=False,
-    mlflow_storage=None,
+    mlflow_storage=storage,
     radiation_column="shortwave_radiation",
     rolling_aggregate_features=["mean", "median", "max", "min"],
     wind_speed_column="wind_speed_80m",
     pressure_column="surface_pressure",
     temperature_column="temperature_2m",
     relative_humidity_column="relative_humidity_2m",
-    energy_price_column="EPEX_NL",
 )
 
 xgboost_config = common_config.model_copy(update={"model": "xgboost"})
 
 gblinear_config = common_config.model_copy(update={"model": "gblinear"})
-
-# Create the backtest configuration
-backtest_config = BacktestForecasterConfig(
-    requires_training=True,
-    predict_length=timedelta(days=7),
-    predict_min_length=timedelta(minutes=15),
-    predict_context_length=timedelta(days=14),  # Context needed for lag features
-    predict_context_min_coverage=0.5,
-    training_context_length=timedelta(days=90),  # Three months of training data
-    training_context_min_coverage=0.5,
-    predict_sample_interval=timedelta(minutes=15),
-)
 
 
 def _target_forecaster_factory(
@@ -131,6 +99,18 @@ def _target_forecaster_factory(
             )
         )
 
+    # Create the backtest configuration
+    backtest_config = BacktestForecasterConfig(
+        requires_training=True,
+        horizon_length=timedelta(days=7),
+        horizon_min_length=timedelta(minutes=15),
+        predict_context_length=timedelta(days=14),  # Context needed for lag features
+        predict_context_min_coverage=0.5,
+        training_context_length=timedelta(days=90),  # Three months of training data
+        training_context_min_coverage=0.5,
+        predict_sample_interval=timedelta(minutes=15),
+    )
+
     return OpenSTEF4BacktestForecaster(
         config=backtest_config,
         workflow_factory=_create_workflow,
@@ -140,17 +120,6 @@ def _target_forecaster_factory(
 
 
 if __name__ == "__main__":
-    # Run for XGBoost model
-    create_liander2024_benchmark_runner(
-        storage=LocalBenchmarkStorage(base_path=BENCHMARK_RESULTS_PATH_XGBOOST),
-        callbacks=[StrictExecutionCallback()],
-    ).run(
-        forecaster_factory=_target_forecaster_factory,
-        run_name="xgboost",
-        n_processes=N_PROCESSES,
-        filter_args=BENCHMARK_FILTER,
-    )
-
     # Run for GBLinear model
     create_liander2024_benchmark_runner(
         storage=LocalBenchmarkStorage(base_path=BENCHMARK_RESULTS_PATH_GBLINEAR),
@@ -158,6 +127,17 @@ if __name__ == "__main__":
     ).run(
         forecaster_factory=_target_forecaster_factory,
         run_name="gblinear",
+        n_processes=N_PROCESSES,
+        filter_args=BENCHMARK_FILTER,
+    )
+
+    # Run for XGBoost model
+    create_liander2024_benchmark_runner(
+        storage=LocalBenchmarkStorage(base_path=BENCHMARK_RESULTS_PATH_XGBOOST),
+        callbacks=[StrictExecutionCallback()],
+    ).run(
+        forecaster_factory=_target_forecaster_factory,
+        run_name="xgboost",
         n_processes=N_PROCESSES,
         filter_args=BENCHMARK_FILTER,
     )

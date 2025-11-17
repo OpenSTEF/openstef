@@ -104,10 +104,6 @@ class PredictError(Exception):
     """Exception raised for errors during forecasting operations."""
 
 
-class InputValidationError(ValueError):
-    """Exception raised for input validation errors."""
-
-
 class ModelLoadingError(Exception):
     """Exception raised when a model fails to load properly."""
 
