@@ -35,11 +35,11 @@ from openstef_models.models.forecasting.lgbm_forecaster import LGBMForecaster
 from openstef_models.models.forecasting.lgbmlinear_forecaster import LGBMLinearForecaster
 from openstef_models.models.forecasting.xgboost_forecaster import XGBoostForecaster
 from openstef_models.transforms.energy_domain import WindPowerFeatureAdder
-<<<<<<< HEAD
 from openstef_models.transforms.general import (
     Clipper,
     EmptyFeatureRemover,
     Imputer,
+    NaNDropper,
     SampleWeighter,
     Scaler,
 )
@@ -47,10 +47,6 @@ from openstef_models.transforms.postprocessing import (
     ConfidenceIntervalApplicator,
     QuantileSorter,
 )
-=======
-from openstef_models.transforms.general import Clipper, EmptyFeatureRemover, Imputer, NaNDropper, SampleWeighter, Scaler
-from openstef_models.transforms.postprocessing import QuantileSorter
->>>>>>> release/v4.0.0
 from openstef_models.transforms.time_domain import (
     CyclicFeaturesAdder,
     DatetimeFeaturesAdder,
@@ -58,7 +54,6 @@ from openstef_models.transforms.time_domain import (
     RollingAggregatesAdder,
 )
 from openstef_models.transforms.time_domain.lags_adder import LagsAdder
-<<<<<<< HEAD
 from openstef_models.transforms.time_domain.rolling_aggregates_adder import (
     AggregationFunction,
 )
@@ -74,15 +69,6 @@ from openstef_models.transforms.weather_domain import (
 from openstef_models.transforms.weather_domain.atmosphere_derived_features_adder import (
     AtmosphereDerivedFeaturesAdder,
 )
-=======
-from openstef_models.transforms.time_domain.rolling_aggregates_adder import AggregationFunction
-from openstef_models.transforms.validation import CompletenessChecker, FlatlineChecker, InputConsistencyChecker
-from openstef_models.transforms.weather_domain import (
-    AtmosphereDerivedFeaturesAdder,
-    DaylightFeatureAdder,
-    RadiationDerivedFeaturesAdder,
-)
->>>>>>> release/v4.0.0
 from openstef_models.utils.data_split import DataSplitter
 from openstef_models.utils.feature_selection import Exclude, FeatureSelection, Include
 from openstef_models.workflows.custom_forecasting_workflow import (
@@ -454,7 +440,6 @@ def create_forecasting_workflow(
                 horizons=config.horizons,
             )
         )
-<<<<<<< HEAD
         postprocessing = [
             ConfidenceIntervalApplicator(quantiles=config.quantiles),
         ]
@@ -473,9 +458,6 @@ def create_forecasting_workflow(
             )
         )
         postprocessing = [QuantileSorter()]
-=======
-        postprocessing = []
->>>>>>> release/v4.0.0
     else:
         msg = f"Unsupported model type: {config.model}"
         raise ValueError(msg)
