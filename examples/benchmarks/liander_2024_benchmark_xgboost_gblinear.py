@@ -38,7 +38,7 @@ OUTPUT_PATH = Path("./benchmark_results")
 
 BENCHMARK_RESULTS_PATH_XGBOOST = OUTPUT_PATH / "XGBoost"
 BENCHMARK_RESULTS_PATH_GBLINEAR = OUTPUT_PATH / "GBLinear"
-N_PROCESSES = 1  # Amount of parallel processes to use for the benchmark
+N_PROCESSES = 12  # Amount of parallel processes to use for the benchmark
 
 
 # Model configuration
@@ -78,6 +78,7 @@ common_config = ForecastingWorkflowConfig(
     pressure_column="surface_pressure",
     temperature_column="temperature_2m",
     relative_humidity_column="relative_humidity_2m",
+    energy_price_column="EPEX_NL",
 )
 
 xgboost_config = common_config.model_copy(update={"model": "xgboost"})
