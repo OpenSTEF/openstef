@@ -251,6 +251,9 @@ class GBLinearForecaster(Forecaster, ExplainableForecaster):
         if data.data.isna().any().any():
             raise InputValidationError("There are nan values in the input data. Use imputation transform to fix them.")
 
+        if len(data.data) == 0:
+            raise InputValidationError("The input data is empty after dropping NaN values.")
+
         # Fit the scalers
         self._target_scaler.fit(data.target_series.to_frame())
 
@@ -291,7 +294,8 @@ class GBLinearForecaster(Forecaster, ExplainableForecaster):
         predictions_array: np.ndarray = self._gblinear_model.predict(input_data).reshape(-1, len(self.config.quantiles))
 
         # Inverse transform the scaled predictions
-        predictions_array = self._target_scaler.inverse_transform(predictions_array)
+        if len(predictions_array) > 0:
+            predictions_array = self._target_scaler.inverse_transform(predictions_array)
 
         # Construct DataFrame with appropriate quantile columns
         predictions = pd.DataFrame(

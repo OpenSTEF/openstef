@@ -451,6 +451,9 @@ def r2(
         >>> isinstance(score, float)
         True
     """
+    if len(y_true) == 0 or len(y_pred) == 0:
+        return float("NaN")
+
     return float(r2_score(y_true, y_pred, sample_weight=sample_weights))
 
 
