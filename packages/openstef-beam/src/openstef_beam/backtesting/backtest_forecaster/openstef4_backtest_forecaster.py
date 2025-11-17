@@ -4,6 +4,7 @@
 
 """OpenSTEF 4.0 forecaster for backtesting pipelines."""
 
+import logging
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any, override
@@ -14,7 +15,7 @@ from openstef_beam.backtesting.backtest_forecaster.mixins import BacktestForecas
 from openstef_beam.backtesting.restricted_horizon_timeseries import RestrictedHorizonVersionedTimeSeries
 from openstef_core.base_model import BaseModel
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.exceptions import NotFittedError
+from openstef_core.exceptions import FlatlinerDetectedError, NotFittedError
 from openstef_core.types import Q
 from openstef_models.workflows.custom_forecasting_workflow import CustomForecastingWorkflow
 
@@ -41,6 +42,9 @@ class OpenSTEF4BacktestForecaster(BaseModel, BacktestForecasterMixin):
     )
 
     _workflow: CustomForecastingWorkflow | None = PrivateAttr(default=None)
+    _is_flatliner_detected: bool = PrivateAttr(default=False)
+
+    _logger: logging.Logger = PrivateAttr(default=logging.getLogger(__name__))
 
     @override
     def model_post_init(self, context: Any) -> None:
@@ -58,7 +62,7 @@ class OpenSTEF4BacktestForecaster(BaseModel, BacktestForecasterMixin):
     @override
     def fit(self, data: RestrictedHorizonVersionedTimeSeries) -> None:
         # Create a new workflow for this training cycle
-        self._workflow = self.workflow_factory()
+        workflow = self.workflow_factory()
 
         # Extract the dataset for training
         training_data = data.get_window(
@@ -69,8 +73,16 @@ class OpenSTEF4BacktestForecaster(BaseModel, BacktestForecasterMixin):
             id_str = data.horizon.strftime("%Y%m%d%H%M%S")
             training_data.to_parquet(path=self.cache_dir / f"debug_{id_str}_training.parquet")
 
-        # Use the workflow's fit method
-        self._workflow.fit(data=training_data)
+        try:
+            # Use the workflow's fit method
+            workflow.fit(data=training_data)
+            self._is_flatliner_detected = False
+        except FlatlinerDetectedError:
+            self._logger.warning("Flatliner detected during training")
+            self._is_flatliner_detected = True
+            return  # Skip setting the workflow on flatliner detection
+
+        self._workflow = workflow
 
         if self.debug:
             id_str = data.horizon.strftime("%Y%m%d%H%M%S")
@@ -80,6 +92,10 @@ class OpenSTEF4BacktestForecaster(BaseModel, BacktestForecasterMixin):
 
     @override
     def predict(self, data: RestrictedHorizonVersionedTimeSeries) -> TimeSeriesDataset | None:
+        if self._is_flatliner_detected:
+            self._logger.info("Skipping prediction due to prior flatliner detection")
+            return None
+
         if self._workflow is None:
             raise NotFittedError("Must call fit() before predict()")
 
@@ -90,10 +106,14 @@ class OpenSTEF4BacktestForecaster(BaseModel, BacktestForecasterMixin):
             available_before=data.horizon,  # Only use data available at prediction time (prevents lookahead bias)
         )
 
-        forecast = self._workflow.predict(
-            data=predict_data,
-            forecast_start=data.horizon,  # Where historical data ends and forecasting begins
-        )
+        try:
+            forecast = self._workflow.predict(
+                data=predict_data,
+                forecast_start=data.horizon,  # Where historical data ends and forecasting begins
+            )
+        except FlatlinerDetectedError:
+            self._logger.info("Flatliner detected during prediction")
+            return None
 
         if self.debug:
             id_str = data.horizon.strftime("%Y%m%d%H%M%S")

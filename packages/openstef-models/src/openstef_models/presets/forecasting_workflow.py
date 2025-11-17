@@ -35,17 +35,8 @@ from openstef_models.models.forecasting.lgbm_forecaster import LGBMForecaster
 from openstef_models.models.forecasting.lgbmlinear_forecaster import LGBMLinearForecaster
 from openstef_models.models.forecasting.xgboost_forecaster import XGBoostForecaster
 from openstef_models.transforms.energy_domain import WindPowerFeatureAdder
-from openstef_models.transforms.general import (
-    Clipper,
-    EmptyFeatureRemover,
-    Imputer,
-    SampleWeighter,
-    Scaler,
-)
-from openstef_models.transforms.postprocessing import (
-    ConfidenceIntervalApplicator,
-    QuantileSorter,
-)
+from openstef_models.transforms.general import Clipper, EmptyFeatureRemover, Imputer, NaNDropper, SampleWeighter, Scaler
+from openstef_models.transforms.postprocessing import ConfidenceIntervalApplicator, QuantileSorter
 from openstef_models.transforms.time_domain import (
     CyclicFeaturesAdder,
     DatetimeFeaturesAdder,
@@ -204,6 +195,11 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
         default=FeatureSelection(include=None, exclude=None),
         description="Feature selection for which features to clip.",
     )
+    sample_weight_scale_percentile: int = Field(
+        default=95,
+        description="Percentile of target values used as scaling reference. "
+        "Values are normalized relative to this percentile before weighting.",
+    )
     sample_weight_exponent: float = Field(
         default_factory=lambda data: 1.0
         if data.get("model") in {"gblinear", "lgbmlinear", "lgbm", "hybrid", "xgboost"}
@@ -300,14 +296,14 @@ def create_forecasting_workflow(
             error_on_flatliner=False,
         ),
         CompletenessChecker(completeness_threshold=config.completeness_threshold),
-        EmptyFeatureRemover(),
     ]
     feature_adders = [
         LagsAdder(
             history_available=config.predict_history,
             horizons=config.horizons,
-            add_trivial_lags=True,
+            add_trivial_lags=config.model != "gblinear",  # GBLinear uses only 7day lag.
             target_column=config.target_column,
+            custom_lags=[timedelta(days=7)] if config.model == "gblinear" else [],
         ),
         WindPowerFeatureAdder(
             windspeed_reference_column=config.wind_speed_column,
@@ -341,7 +337,9 @@ def create_forecasting_workflow(
             target_column=config.target_column,
             weight_exponent=config.sample_weight_exponent,
             weight_floor=config.sample_weight_floor,
+            weight_scale_percentile=config.sample_weight_scale_percentile,
         ),
+        EmptyFeatureRemover(),
     ]
 
     if config.model == "xgboost":
@@ -396,9 +394,16 @@ def create_forecasting_workflow(
     elif config.model == "gblinear":
         preprocessing = [
             *checks,
-            Imputer(selection=Exclude(config.target_column), imputation_strategy="mean"),
             *feature_adders,
             *feature_standardizers,
+            Imputer(
+                selection=Exclude(config.target_column),
+                imputation_strategy="mean",
+                fill_future_values=Include(config.energy_price_column),
+            ),
+            NaNDropper(
+                selection=Exclude(config.target_column),
+            ),
         ]
         forecaster = GBLinearForecaster(
             config=GBLinearForecaster.Config(
