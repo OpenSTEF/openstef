@@ -330,9 +330,7 @@ def create_forecasting_workflow(config: ForecastingWorkflowConfig) -> CustomFore
                 horizons=config.horizons,
             )
         )
-        postprocessing = [
-            ConfidenceIntervalApplicator(quantiles=config.quantiles),
-        ]
+        postprocessing = []
     else:
         msg = f"Unsupported model type: {config.model}"
         raise ValueError(msg)
