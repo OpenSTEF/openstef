@@ -72,28 +72,51 @@ class MultiQuantileRegressor(BaseEstimator, RegressorMixin):
             eval_set: Evaluation set for early stopping.
             eval_sample_weight: Sample weights for evaluation data.
         """
+        # Pass model-specific eval arguments
+        kwargs = {}
         for model in self._models:
+            # Check if early stopping is supported
+            # Check that eval_set is supported
             if eval_set is None and "early_stopping_rounds" in self.hyperparams:
                 model.set_params(early_stopping_rounds=None)  # type: ignore
-            elif "early_stopping_rounds" in self.hyperparams:
-                model.set_params(early_stopping_rounds=self.hyperparams.early_stopping_rounds)  # type: ignore
 
-            if eval_set or eval_sample_weight:
-                logger.warning(
-                    "Evaluation sets or sample weights provided, but MultiQuantileRegressor does not currently support "
-                    "these during fitting."
-                )
+            if eval_set is not None and self.learner_eval_sample_weight_param is not None:  # type: ignore
+                kwargs[self.learner_eval_sample_weight_param] = eval_sample_weight
+
+            if "early_stopping_rounds" in self.hyperparams and self.learner_eval_sample_weight_param is not None:
+                model.set_params(early_stopping_rounds=self.hyperparams["early_stopping_rounds"])  # type: ignore
 
             if feature_name:
-                logger.warning(
-                    "Feature names provided, but MultiQuantileRegressor does not currently support feature names during fitting."
-                )
+                self.model_feature_names = feature_name
+            else:
+                self.model_feature_names = []
+
+            if eval_sample_weight is not None and self.learner_eval_sample_weight_param:
+                kwargs[self.learner_eval_sample_weight_param] = eval_sample_weight
+
             model.fit(  # type: ignore
                 X=np.asarray(X),
                 y=y,
                 sample_weight=sample_weight,
+                **kwargs,
             )
+
         self.is_fitted = True
+
+    @property
+    def learner_eval_sample_weight_param(self) -> str | None:
+        """Get the name of the sample weight parameter for evaluation sets.
+
+        Returns:
+            The name of the sample weight parameter if supported, else None.
+        """
+        learner_name: str = self.base_learner.__name__
+        params: dict[str, str | None] = {
+            "QuantileRegressor": None,
+            "LGBMRegressor": "eval_sample_weight",
+            "XGBRegressor": "sample_weight_eval_set",
+        }
+        return params.get(learner_name)
 
     def predict(self, X: npt.NDArray[np.floating] | pd.DataFrame) -> npt.NDArray[np.floating]:
         """Predict quantiles for the input features.
@@ -115,3 +138,12 @@ class MultiQuantileRegressor(BaseEstimator, RegressorMixin):
             List of BaseEstimator instances for each quantile.
         """
         return self._models
+
+    @property
+    def has_feature_names(self) -> bool:
+        """Check if the base learners have feature names.
+
+        Returns:
+            True if the base learners have feature names, False otherwise.
+        """
+        return len(self.model_feature_names) > 0

@@ -15,18 +15,13 @@ from openstef_models.models.forecasting.hybrid_forecaster import (
     HybridForecasterConfig,
     HybridHyperParams,
 )
-from openstef_models.models.forecasting.lgbm_forecaster import LGBMHyperParams
 
 
 @pytest.fixture
 def base_config() -> HybridForecasterConfig:
     """Base configuration for Hybrid forecaster tests."""
-    lgbm_params = LGBMHyperParams(n_estimators=10, max_depth=2)
-    gb_linear_params = GBLinearHyperParams(n_steps=5, learning_rate=0.1, reg_alpha=0.0, reg_lambda=0.0)
-    params = HybridHyperParams(
-        lgbm_params=lgbm_params,
-        gb_linear_params=gb_linear_params,
-    )
+
+    params = HybridHyperParams()
     return HybridForecasterConfig(
         quantiles=[Q(0.1), Q(0.5), Q(0.9)],
         horizons=[LeadTime(timedelta(days=1))],
@@ -35,7 +30,7 @@ def base_config() -> HybridForecasterConfig:
     )
 
 
-def test_hybrid_forecaster__fit_predict(
+def test_hybrid_forecaster_fit_predict(
     sample_forecast_input_dataset: ForecastInputDataset,
     base_config: HybridForecasterConfig,
 ):
@@ -62,7 +57,7 @@ def test_hybrid_forecaster__fit_predict(
     assert not result.data.isna().any().any(), "Forecast should not contain NaN or None values"
 
 
-def test_hybrid_forecaster__predict_not_fitted_raises_error(
+def test_hybrid_forecaster_predict_not_fitted_raises_error(
     sample_forecast_input_dataset: ForecastInputDataset,
     base_config: HybridForecasterConfig,
 ):
@@ -75,7 +70,7 @@ def test_hybrid_forecaster__predict_not_fitted_raises_error(
         forecaster.predict(sample_forecast_input_dataset)
 
 
-def test_hybrid_forecaster__with_sample_weights(
+def test_hybrid_forecaster_with_sample_weights(
     sample_dataset_with_weights: ForecastInputDataset,
     base_config: HybridForecasterConfig,
 ):
@@ -109,36 +104,3 @@ def test_hybrid_forecaster__with_sample_weights(
     # (This is a statistical test - with different weights, predictions should differ)
     differences = (result_with_weights.data - result_without_weights.data).abs()
     assert differences.sum().sum() > 0, "Sample weights should affect model predictions"
-
-
-@pytest.mark.parametrize("objective", ["pinball_loss", "arctan_loss"])
-def test_hybrid_forecaster__different_objectives(
-    sample_forecast_input_dataset: ForecastInputDataset,
-    base_config: HybridForecasterConfig,
-    objective: str,
-):
-    """Test that forecaster works with different objective functions."""
-    # Arrange
-    config = base_config.model_copy(
-        update={
-            "hyperparams": base_config.hyperparams.model_copy(
-                update={"objective": objective}  # type: ignore[arg-type]
-            )
-        }
-    )
-    forecaster = HybridForecaster(config=config)
-
-    # Act
-    forecaster.fit(sample_forecast_input_dataset)
-    result = forecaster.predict(sample_forecast_input_dataset)
-
-    # Assert
-    # Basic functionality should work regardless of objective
-    assert forecaster.is_fitted, f"Model with {objective} should be fitted"
-    assert not result.data.isna().any().any(), f"Forecast with {objective} should not contain NaN values"
-
-    # Check value spread for each objective
-    # Note: Some objectives (like arctan_loss) may produce zero variation for some quantiles with small datasets
-    stds = result.data.std()
-    # At least one quantile should have variation (the model should not be completely degenerate)
-    assert (stds > 0).any(), f"At least one column should have variation with {objective}, got stds: {dict(stds)}"

@@ -10,11 +10,11 @@ The implementation is based on sklearn's StackingRegressor.
 """
 
 import logging
-from typing import TYPE_CHECKING, override
+from typing import override
 
-import numpy as np
 import pandas as pd
-from pydantic import Field
+from pydantic import Field, field_validator
+from sklearn.linear_model import QuantileRegressor
 
 from openstef_core.datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import (
@@ -22,26 +22,58 @@ from openstef_core.exceptions import (
 )
 from openstef_core.mixins import HyperParams
 from openstef_models.estimators.hybrid import HybridQuantileRegressor
-from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
-from openstef_models.models.forecasting.gblinear_forecaster import GBLinearHyperParams
-from openstef_models.models.forecasting.lgbm_forecaster import LGBMHyperParams
+from openstef_models.models.forecasting.forecaster import (
+    Forecaster,
+    ForecasterConfig,
+)
+from openstef_models.models.forecasting.gblinear_forecaster import (
+    GBLinearForecaster,
+    GBLinearForecasterConfig,
+    GBLinearHyperParams,
+)
+from openstef_models.models.forecasting.lgbm_forecaster import LGBMForecaster, LGBMForecasterConfig, LGBMHyperParams
+from openstef_models.models.forecasting.lgbmlinear_forecaster import (
+    LGBMLinearForecaster,
+    LGBMLinearForecasterConfig,
+    LGBMLinearHyperParams,
+)
+from openstef_models.models.forecasting.xgboost_forecaster import (
+    XGBoostForecaster,
+    XGBoostForecasterConfig,
+    XGBoostHyperParams,
+)
 
 logger = logging.getLogger(__name__)
 
-if TYPE_CHECKING:
-    import numpy.typing as npt
+
+BaseLearner = LGBMForecaster | LGBMLinearForecaster | XGBoostForecaster | GBLinearForecaster
+BaseLearnerHyperParams = LGBMHyperParams | LGBMLinearHyperParams | XGBoostHyperParams | GBLinearHyperParams
+BaseLearnerConfig = (
+    LGBMForecasterConfig | LGBMLinearForecasterConfig | XGBoostForecasterConfig | GBLinearForecasterConfig
+)
 
 
 class HybridHyperParams(HyperParams):
     """Hyperparameters for Stacked LGBM GBLinear Regressor."""
 
-    lgbm_params: LGBMHyperParams = LGBMHyperParams()
-    gb_linear_params: GBLinearHyperParams = GBLinearHyperParams()
+    base_hyperparams: list[BaseLearnerHyperParams] = Field(
+        default=[LGBMHyperParams(), GBLinearHyperParams()],
+        description="List of hyperparameter configurations for base learners. "
+        "Defaults to [LGBMHyperParams, GBLinearHyperParams].",
+    )
 
     l1_penalty: float = Field(
         default=0.0,
         description="L1 regularization term for the quantile regression.",
     )
+
+    @field_validator("base_hyperparams", mode="after")
+    @classmethod
+    def _check_classes(cls, v: list[BaseLearnerHyperParams]) -> list[BaseLearnerHyperParams]:
+        hp_classes = [type(hp) for hp in v]
+        if not len(hp_classes) == len(set(hp_classes)):
+            raise ValueError("Duplicate base learner hyperparameter classes are not allowed.")
+        return v
 
 
 class HybridForecasterConfig(ForecasterConfig):
@@ -53,9 +85,6 @@ class HybridForecasterConfig(ForecasterConfig):
         default=True,
         description="Enable verbose output from the Hybrid model (True/False).",
     )
-
-
-MODEL_CODE_VERSION = 2
 
 
 class HybridForecaster(Forecaster):
@@ -71,46 +100,86 @@ class HybridForecaster(Forecaster):
         """Initialize the Hybrid forecaster."""
         self._config = config
 
-        self._model = HybridQuantileRegressor(
-            quantiles=[float(q) for q in config.quantiles],
-            lgbm_n_estimators=config.hyperparams.lgbm_params.n_estimators,
-            lgbm_learning_rate=config.hyperparams.lgbm_params.learning_rate,
-            lgbm_max_depth=config.hyperparams.lgbm_params.max_depth,
-            lgbm_min_child_weight=config.hyperparams.lgbm_params.min_child_weight,
-            lgbm_min_data_in_leaf=config.hyperparams.lgbm_params.min_data_in_leaf,
-            lgbm_min_data_in_bin=config.hyperparams.lgbm_params.min_data_in_bin,
-            lgbm_reg_alpha=config.hyperparams.lgbm_params.reg_alpha,
-            lgbm_reg_lambda=config.hyperparams.lgbm_params.reg_lambda,
-            lgbm_num_leaves=config.hyperparams.lgbm_params.num_leaves,
-            lgbm_max_bin=config.hyperparams.lgbm_params.max_bin,
-            lgbm_colsample_by_tree=config.hyperparams.lgbm_params.colsample_bytree,
-            gblinear_n_steps=config.hyperparams.gb_linear_params.n_steps,
-            gblinear_learning_rate=config.hyperparams.gb_linear_params.learning_rate,
-            gblinear_reg_alpha=config.hyperparams.gb_linear_params.reg_alpha,
-            gblinear_reg_lambda=config.hyperparams.gb_linear_params.reg_lambda,
+        self._base_learners: list[BaseLearner] = self._init_base_learners(
+            base_hyperparams=config.hyperparams.base_hyperparams
         )
+        self._final_learner = [
+            QuantileRegressor(quantile=float(q), alpha=config.hyperparams.l1_penalty) for q in config.quantiles
+        ]
+
+        self._is_fitted: bool = False
+
+    @property
+    @override
+    def is_fitted(self) -> bool:
+        return self._is_fitted
+
+    @staticmethod
+    def _hyperparams_forecast_map(hyperparams: type[BaseLearnerHyperParams]) -> type[BaseLearner]:
+        """Map hyperparameters to forecast types.
+
+        Args:
+            hyperparams: Hyperparameters of the base learner.
+
+        Returns:
+            Corresponding Forecaster class.
+
+        Raises:
+            TypeError: If a nested HybridForecaster is attempted.
+        """
+        if isinstance(hyperparams, HybridHyperParams):
+            raise TypeError("Nested HybridForecaster is not supported.")
+
+        mapping: dict[type[BaseLearnerHyperParams], type[BaseLearner]] = {
+            LGBMHyperParams: LGBMForecaster,
+            LGBMLinearHyperParams: LGBMLinearForecaster,
+            XGBoostHyperParams: XGBoostForecaster,
+            GBLinearHyperParams: GBLinearForecaster,
+        }
+        return mapping[hyperparams]
+
+    @staticmethod
+    def _base_learner_config(base_learner_class: type[BaseLearner]) -> type[BaseLearnerConfig]:
+        """Extract the configuration from a base learner.
+
+        Args:
+            base_learner_class: The base learner forecaster.
+
+        Returns:
+            The configuration of the base learner.
+        """
+        mapping: dict[type[BaseLearner], type[BaseLearnerConfig]] = {
+            LGBMForecaster: LGBMForecasterConfig,
+            LGBMLinearForecaster: LGBMLinearForecasterConfig,
+            XGBoostForecaster: XGBoostForecasterConfig,
+            GBLinearForecaster: GBLinearForecasterConfig,
+        }
+        return mapping[base_learner_class]
+
+    def _init_base_learners(self, base_hyperparams: list[BaseLearnerHyperParams]) -> list[BaseLearner]:
+        """Initialize base learners based on provided hyperparameters.
+
+        Returns:
+            list[Forecaster]: List of initialized base learner forecasters.
+        """
+        base_learners: list[BaseLearner] = []
+        horizons = self.config.horizons
+        quantiles = self.config.quantiles
+
+        for hyperparams in base_hyperparams:
+            forecaster_cls = hyperparams.forecaster_class()
+            config = forecaster_cls.Config(horizons=horizons, quantiles=quantiles)
+            if "hyperparams" in forecaster_cls.Config.model_fields:
+                config = config.model_copy(update={"hyperparams": hyperparams})
+
+            base_learners.append(config.forecaster_from_config())
+
+        return base_learners
 
     @property
     @override
     def config(self) -> ForecasterConfig:
         return self._config
-
-    @property
-    def is_fitted(self) -> bool:
-        """Check if the model is fitted."""
-        return self._model.is_fitted
-
-    @staticmethod
-    def _prepare_fit_input(data: ForecastInputDataset) -> tuple[pd.DataFrame, np.ndarray, pd.Series]:
-        input_data: pd.DataFrame = data.input_data()
-
-        # Scale the target variable
-        target: np.ndarray = np.asarray(data.target_series.values)
-
-        # Prepare sample weights
-        sample_weight: pd.Series = data.sample_weight_series
-
-        return input_data, target, sample_weight
 
     @override
     def fit(self, data: ForecastInputDataset, data_val: ForecastInputDataset | None = None) -> None:
@@ -121,35 +190,109 @@ class HybridForecaster(Forecaster):
             data_val: Validation data for tuning the model (optional, not used in this implementation).
 
         """
-        # Prepare training data
-        input_data, target, sample_weight = self._prepare_fit_input(data)
+        # Fit base learners
+        [x.fit(data=data, data_val=data_val) for x in self._base_learners]
 
-        if data_val is not None:
-            logger.warning(
-                "Validation data provided, but HybridForecaster does not currently support validation during fitting."
-            )
-
-        self._model.fit(
-            X=input_data,
-            y=target,
-            sample_weight=sample_weight,
+        full_dataset = ForecastInputDataset(
+            data=data.data,
+            sample_interval=data.sample_interval,
+            target_column=data.target_column,
+            forecast_start=data.index[0],
         )
+
+        base_predictions = self._predict_base_learners(data=full_dataset)
+
+        quantile_dataframes = self._prepare_input_final_learner(base_predictions=base_predictions)
+
+        self._fit_final_learner(target=data.target_series, quantile_df=quantile_dataframes)
+
+        self._is_fitted = True
+
+    def _fit_final_learner(
+        self,
+        target: pd.Series,
+        quantile_df: dict[str, pd.DataFrame],
+    ) -> None:
+        """Fit the final learner using base learner predictions.
+
+        Args:
+            target: Target values for training.
+            quantile_df: Dictionary mapping quantile strings to DataFrames of base learner predictions.
+        """
+        for i, df in enumerate(quantile_df.values()):
+            self._final_learner[i].fit(X=df, y=target)
+
+    def _predict_base_learners(self, data: ForecastInputDataset) -> dict[str, ForecastDataset]:
+        """Generate predictions from base learners.
+
+        Args:
+            data: Input data for prediction.
+
+        Returns:
+            DataFrame containing base learner predictions.
+        """
+        base_predictions: dict[str, ForecastDataset] = {}
+        for learner in self._base_learners:
+            preds = learner.predict(data=data)
+            base_predictions[learner.__class__.__name__] = preds
+
+        return base_predictions
+
+    def _predict_final_learner(
+        self, quantile_df: dict[str, pd.DataFrame], data: ForecastInputDataset
+    ) -> ForecastDataset:
+        if not self.is_fitted:
+            raise NotFittedError(self.__class__.__name__)
+
+        # Generate predictions
+        predictions_dict = [
+            pd.Series(self._final_learner[i].predict(X=quantile_df[q_str]), index=quantile_df[q_str].index, name=q_str)
+            for i, q_str in enumerate(quantile_df.keys())
+        ]
+
+        # Construct DataFrame with appropriate quantile columns
+        predictions = pd.DataFrame(
+            data=predictions_dict,
+        ).T
+
+        return ForecastDataset(
+            data=predictions,
+            sample_interval=data.sample_interval,
+        )
+
+    @staticmethod
+    def _prepare_input_final_learner(base_predictions: dict[str, ForecastDataset]) -> dict[str, pd.DataFrame]:
+        """Prepare input data for the final learner based on base learner predictions.
+
+        Args:
+            base_predictions: Dictionary of base learner predictions.
+
+        Returns:
+            dictionary mapping quantile strings to DataFrames of base learner predictions.
+        """
+        predictions_quantiles: dict[str, pd.DataFrame] = {}
+        first_key = next(iter(base_predictions))
+        for quantile in base_predictions[first_key].quantiles:
+            quantile_str = quantile.format()
+            quantile_preds = pd.DataFrame({
+                learner_name: preds.data[quantile_str] for learner_name, preds in base_predictions.items()
+            })
+            predictions_quantiles[quantile_str] = quantile_preds
+
+        return predictions_quantiles
 
     @override
     def predict(self, data: ForecastInputDataset) -> ForecastDataset:
-        if not self._model.is_fitted:
+        if not self.is_fitted:
             raise NotFittedError(self.__class__.__name__)
 
-        input_data: pd.DataFrame = data.input_data(start=data.forecast_start)
-        prediction: npt.NDArray[np.floating] = self._model.predict(X=input_data)
+        base_predictions = self._predict_base_learners(data=data)
 
-        return ForecastDataset(
-            data=pd.DataFrame(
-                data=prediction,
-                index=input_data.index,
-                columns=[quantile.format() for quantile in self.config.quantiles],
-            ),
-            sample_interval=data.sample_interval,
+        final_learner_input = self._prepare_input_final_learner(base_predictions=base_predictions)
+
+        return self._predict_final_learner(
+            quantile_df=final_learner_input,
+            data=data,
         )
 
     # TODO(@Lars800): #745: Make forecaster Explainable
