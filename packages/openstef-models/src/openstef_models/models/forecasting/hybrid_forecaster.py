@@ -43,6 +43,9 @@ from openstef_models.models.forecasting.xgboost_forecaster import (
     XGBoostHyperParams,
 )
 
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import Pipeline
+
 logger = logging.getLogger(__name__)
 
 
@@ -105,7 +108,8 @@ class HybridForecaster(Forecaster):
             base_hyperparams=config.hyperparams.base_hyperparams
         )
         self._final_learner = [
-            QuantileRegressor(quantile=float(q), alpha=config.hyperparams.l1_penalty) for q in config.quantiles
+            self._init_final_learner_quantile(quantile=float(q), alpha=config.hyperparams.l1_penalty)
+            for q in config.quantiles
         ]
 
     @staticmethod
@@ -207,6 +211,18 @@ class HybridForecaster(Forecaster):
 
         self._is_fitted = True
 
+    @staticmethod
+    def _init_final_learner_quantile(quantile: float, alpha: float) -> Pipeline:
+        """Initialize the final learner pipeline with scaling.
+
+        Returns:
+            A sklearn Pipeline with StandardScaler and QuantileRegressor.
+        """
+        scaler = StandardScaler()
+        quantile_regressor = QuantileRegressor(alpha=alpha, quantile=quantile)
+
+        return Pipeline(steps=[("scaler", scaler), ("quantile_regressor", quantile_regressor)])
+
     def _fit_final_learner(
         self,
         target: pd.Series,
@@ -218,8 +234,10 @@ class HybridForecaster(Forecaster):
             target: Target values for training.
             quantile_df: Dictionary mapping quantile strings to DataFrames of base learner predictions.
         """
+        self.scalers = []
+
         for i, df in enumerate(quantile_df.values()):
-            self._final_learner[i].fit(X=df, y=target)
+            self._final_learner[i].fit(X=df, y=target)  # type: ignore
 
     def _predict_base_learners(self, data: ForecastInputDataset) -> dict[str, ForecastDataset]:
         """Generate predictions from base learners.

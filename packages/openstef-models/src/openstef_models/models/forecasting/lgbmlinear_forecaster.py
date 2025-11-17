@@ -243,7 +243,7 @@ class LGBMLinearForecaster(Forecaster, ExplainableForecaster):
             **config.hyperparams.model_dump(),
         }
 
-        self._lgbmlinear_model: MultiQuantileRegressor = MultiQuantileRegressor(
+        self._model: MultiQuantileRegressor = MultiQuantileRegressor(
             base_learner=LGBMRegressor,  # type: ignore
             quantile_param="alpha",
             hyperparams=lgbmlinear_params,
@@ -263,7 +263,7 @@ class LGBMLinearForecaster(Forecaster, ExplainableForecaster):
     @property
     @override
     def is_fitted(self) -> bool:
-        return self._lgbmlinear_model.is_fitted
+        return self._model.is_fitted
 
     @staticmethod
     def _prepare_fit_input(data: ForecastInputDataset) -> tuple[pd.DataFrame, np.ndarray, pd.Series]:
@@ -287,7 +287,7 @@ class LGBMLinearForecaster(Forecaster, ExplainableForecaster):
             eval_set.append((input_data_val, target_val))
             sample_weight_eval_set.append(sample_weight_val)
 
-        self._lgbmlinear_model.fit(
+        self._model.fit(
             X=input_data,
             y=target,
             feature_name=input_data.columns.tolist(),
@@ -302,7 +302,7 @@ class LGBMLinearForecaster(Forecaster, ExplainableForecaster):
             raise NotFittedError(self.__class__.__name__)
 
         input_data: pd.DataFrame = data.input_data(start=data.forecast_start)
-        prediction: npt.NDArray[np.floating] = self._lgbmlinear_model.predict(X=input_data)
+        prediction: npt.NDArray[np.floating] = self._model.predict(X=input_data)
 
         return ForecastDataset(
             data=pd.DataFrame(
@@ -316,11 +316,11 @@ class LGBMLinearForecaster(Forecaster, ExplainableForecaster):
     @property
     @override
     def feature_importances(self) -> pd.DataFrame:
-        models = self._lgbmlinear_model._models  # noqa: SLF001
+        models = self._model._models  # noqa: SLF001
         weights_df = pd.DataFrame(
             [models[i].feature_importances_ for i in range(len(models))],  # type: ignore
             index=[quantile.format() for quantile in self.config.quantiles],
-            columns=self._lgbmlinear_model.model_feature_names if self._lgbmlinear_model.has_feature_names else None,
+            columns=self._model.model_feature_names if self._model.has_feature_names else None,
         ).transpose()
 
         weights_df.index.name = "feature_name"
