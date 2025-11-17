@@ -33,17 +33,15 @@ class BaseKalman(BaseConfig):
         description="Kalman filter state dimension (1 = per-column independent)",
     )
 
-    def _run_kalman_smoother(self, df: pd.DataFrame, features: Iterable[str]) -> pd.DataFrame:
-        if not features:
+    @staticmethod
+    def _run_kalman_smoother(df: pd.DataFrame, features: Iterable[str]) -> pd.DataFrame:
+        features_list = list(features)
+        if not features_list:
             return df
 
-        kf = KalmanFilterTransformerFP(state_dim=self.state_dim)
+        kf = KalmanFilterTransformerFP(state_dim=len(features_list))
         out = df.copy(deep=True)
-        for col in features:
-            series_df = df[[col]]
-
-            smoothed: pd.DataFrame = kf.fit_transform(X=series_df)  # type: ignore[assignment]
-            out[col] = smoothed.iloc[:, 0]
+        out[features_list] = kf.fit_transform(X=df[features_list])  # type: ignore[assignment]
         return out
 
 
