@@ -10,6 +10,12 @@ The benchmark will evaluate XGBoost and GBLinear models on the dataset from Hugg
 #
 # SPDX-License-Identifier: MPL-2.0
 
+import os
+
+os.environ["OMP_NUM_THREADS"] = "1"  # Set OMP_NUM_THREADS to 1 to avoid issues with parallel execution and xgboost
+os.environ["OPENBLAS_NUM_THREADS"] = "1"
+os.environ["MKL_NUM_THREADS"] = "1"
+
 import logging
 from datetime import timedelta
 from pathlib import Path
