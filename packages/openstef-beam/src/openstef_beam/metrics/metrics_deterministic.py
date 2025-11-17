@@ -69,6 +69,8 @@ def rmae(
     # Ensure inputs are numpy arrays
     y_true = np.array(y_true)
     y_pred = np.array(y_pred)
+    if y_true.size == 0 or y_pred.size == 0:
+        return float("NaN")
 
     # Calculate MAE
     mae = np.average(np.abs(y_true - y_pred), weights=sample_weights)
@@ -124,6 +126,8 @@ def mape(
     # Ensure inputs are numpy arrays
     y_true = np.array(y_true)
     y_pred = np.array(y_pred)
+    if y_true.size == 0 or y_pred.size == 0:
+        return float("NaN")
 
     # Calculate MAPE
     mape_value = np.mean(np.abs((y_true - y_pred) / y_true))
@@ -388,6 +392,8 @@ def riqd(
     y_true = np.array(y_true)
     y_pred_lower_q = np.array(y_pred_lower_q)
     y_pred_upper_q = np.array(y_pred_upper_q)
+    if y_true.size == 0 or y_pred_lower_q.size == 0 or y_pred_upper_q.size == 0:
+        return float("NaN")
 
     y_range = np.quantile(y_true, q=measurement_range_upper_q) - np.quantile(y_true, q=measurement_range_lower_q)
 
@@ -502,6 +508,8 @@ def relative_pinball_loss(
     # Ensure inputs are numpy arrays
     y_true = np.array(y_true)
     y_pred = np.array(y_pred)
+    if y_true.size == 0 or y_pred.size == 0:
+        return float("NaN")
 
     # Calculate pinball loss for each sample
     errors = y_true - y_pred
