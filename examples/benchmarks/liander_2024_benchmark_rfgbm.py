@@ -31,7 +31,7 @@ from openstef_models.presets import (
 )
 from openstef_models.presets.forecasting_workflow import LocationConfig
 from openstef_models.workflows import CustomForecastingWorkflow
-
+import time
 logging.basicConfig(level=logging.INFO, format="[%(asctime)s][%(levelname)s] %(message)s")
 
 _proj_root = Path(__file__).resolve().parents[2]
@@ -131,6 +131,10 @@ if __name__ == "__main__":
 
     # Run for RFlightGBM model. If `DATA_PATH` is None the runner will download
     # the dataset from Hugging Face (snapshot_download).
+    times = {}
+    model = "rf_lightgbm"
+    print(f"Running benchmark for model: {model}")
+    start_time = time.time()
     runner = create_liander2024_benchmark_runner(
         data_dir=DATA_PATH,
         storage=LocalBenchmarkStorage(base_path=BENCHMARK_RESULTS_PATH_RF_LightGBM),
@@ -139,7 +143,15 @@ if __name__ == "__main__":
 
     runner.run(
         forecaster_factory=_target_forecaster_factory,
-        run_name="rf_lightgbm",
+        run_name=model,
         n_processes=N_PROCESSES,
         filter_args=BENCHMARK_FILTER,
     )
+    end_time = time.time()
+    elapsed_time = end_time - start_time
+    times[model] = elapsed_time
+    print("Benchmark times (in seconds):")
+    for model, elapsed in times.items():  # type: ignore
+        minutes = int(elapsed//60) # type: ignore
+        seconds = elapsed % 60 # type: ignore
+        print(f"{model}: {minutes}m {seconds:.2f}s")

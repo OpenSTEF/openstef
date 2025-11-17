@@ -125,3 +125,6 @@ certificates/
 
 # Benchmark outputs
 benchmark_results/
+
+local_data/
+mlflow/0/meta.yaml

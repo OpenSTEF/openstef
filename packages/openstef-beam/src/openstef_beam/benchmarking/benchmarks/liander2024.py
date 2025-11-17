@@ -221,7 +221,7 @@ def create_liander2024_benchmark_runner(
         backtest_config=BacktestConfig(
             prediction_sample_interval=timedelta(minutes=15),
             predict_interval=timedelta(hours=6),
-            train_interval=timedelta(days=7),
+            train_interval=timedelta(hours=6),
         ),
         evaluation_config=EvaluationConfig(
             available_ats=[AvailableAt.from_string("D-1T06:00")],
