@@ -9,7 +9,6 @@ import pytest
 from openstef_core.datasets import ForecastInputDataset
 from openstef_core.exceptions import NotFittedError
 from openstef_core.types import LeadTime, Q
-from openstef_models.models.forecasting.gblinear_forecaster import GBLinearHyperParams
 from openstef_models.models.forecasting.hybrid_forecaster import (
     HybridForecaster,
     HybridForecasterConfig,

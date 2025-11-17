@@ -98,6 +98,7 @@ class HybridForecaster(Forecaster):
 
     def __init__(self, config: HybridForecasterConfig) -> None:
         """Initialize the Hybrid forecaster."""
+
         self._config = config
 
         self._base_learners: list[BaseLearner] = self._init_base_learners(
@@ -106,13 +107,6 @@ class HybridForecaster(Forecaster):
         self._final_learner = [
             QuantileRegressor(quantile=float(q), alpha=config.hyperparams.l1_penalty) for q in config.quantiles
         ]
-
-        self._is_fitted: bool = False
-
-    @property
-    @override
-    def is_fitted(self) -> bool:
-        return self._is_fitted
 
     @staticmethod
     def _hyperparams_forecast_map(hyperparams: type[BaseLearnerHyperParams]) -> type[BaseLearner]:
@@ -175,6 +169,11 @@ class HybridForecaster(Forecaster):
             base_learners.append(config.forecaster_from_config())
 
         return base_learners
+
+    @property
+    @override
+    def is_fitted(self) -> bool:
+        return all(x.is_fitted for x in self._base_learners)
 
     @property
     @override
