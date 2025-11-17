@@ -10,11 +10,16 @@ across multiple forecasting scenarios.
 """
 
 import multiprocessing
-import sys
 from collections.abc import Callable, Iterable
+from typing import Literal
 
 
-def run_parallel[T, R](process_fn: Callable[[T], R], items: Iterable[T], n_processes: int | None = None) -> list[R]:
+def run_parallel[T, R](
+    process_fn: Callable[[T], R],
+    items: Iterable[T],
+    n_processes: int | None = None,
+    mode: Literal["loky", "spawn", "fork"] = "loky",
+) -> list[R]:
     """Execute a function in parallel across multiple processes.
 
     On macOS, explicitly uses fork context to avoid issues with the default
@@ -28,6 +33,10 @@ def run_parallel[T, R](process_fn: Callable[[T], R], items: Iterable[T], n_proce
         items: Iterable of items to process.
         n_processes: Number of processes to use. If None or <= 1, runs sequentially.
                     Typically set to number of CPU cores or logical cores.
+        mode: Multiprocessing start method. 'loky' is recommeneded for robust
+                ml use-cases. 'fork' is more efficient on macOS, while 'spawn' is
+                default on Windows/Linux. Xgboost seems to have bugs
+                when used with 'fork'.
 
     Returns:
         List of results from applying process_fn to each item, in the same order
@@ -48,23 +57,21 @@ def run_parallel[T, R](process_fn: Callable[[T], R], items: Iterable[T], n_proce
         >>> # Empty input handling
         >>> run_parallel(square, [], n_processes=1)
         []
-
-    Note:
-        macOS Implementation Details:
-        - Uses fork context instead of spawn to avoid serialization overhead
-        - Fork preserves parent memory space, including imported modules and variables
-        - More efficient for ML models and large data structures
-        - On other platforms, uses the default context (usually spawn on Windows/Linux)
     """
     if n_processes is None or n_processes <= 1:
         # If only one process is requested, run the function sequentially
         return [process_fn(item) for item in items]
 
+    if mode == "loky":
+        from joblib import Parallel, delayed  # pyright: ignore[reportUnknownVariableType] # noqa: PLC0415
+
+        # Use joblib with loky backend for robust process management
+        return Parallel(n_jobs=n_processes, backend="loky")(  # pyright: ignore[reportUnknownVariableType]
+            delayed(process_fn)(item) for item in items
+        )  # type: ignore
+
     # Auto-configure for macOS
-    if sys.platform == "darwin":
-        context = multiprocessing.get_context("fork")
-    else:
-        context = multiprocessing.get_context()
+    context = multiprocessing.get_context(method=mode)
 
     with context.Pool(processes=n_processes) as pool:
         return pool.map(process_fn, items)
