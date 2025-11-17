@@ -35,6 +35,7 @@ from openstef_models.models.forecasting.lgbm_forecaster import LGBMForecaster
 from openstef_models.models.forecasting.lgbmlinear_forecaster import LGBMLinearForecaster
 from openstef_models.models.forecasting.xgboost_forecaster import XGBoostForecaster
 from openstef_models.transforms.energy_domain import WindPowerFeatureAdder
+<<<<<<< HEAD
 from openstef_models.transforms.general import (
     Clipper,
     EmptyFeatureRemover,
@@ -46,6 +47,10 @@ from openstef_models.transforms.postprocessing import (
     ConfidenceIntervalApplicator,
     QuantileSorter,
 )
+=======
+from openstef_models.transforms.general import Clipper, EmptyFeatureRemover, Imputer, NaNDropper, SampleWeighter, Scaler
+from openstef_models.transforms.postprocessing import QuantileSorter
+>>>>>>> release/v4.0.0
 from openstef_models.transforms.time_domain import (
     CyclicFeaturesAdder,
     DatetimeFeaturesAdder,
@@ -53,6 +58,7 @@ from openstef_models.transforms.time_domain import (
     RollingAggregatesAdder,
 )
 from openstef_models.transforms.time_domain.lags_adder import LagsAdder
+<<<<<<< HEAD
 from openstef_models.transforms.time_domain.rolling_aggregates_adder import (
     AggregationFunction,
 )
@@ -68,6 +74,15 @@ from openstef_models.transforms.weather_domain import (
 from openstef_models.transforms.weather_domain.atmosphere_derived_features_adder import (
     AtmosphereDerivedFeaturesAdder,
 )
+=======
+from openstef_models.transforms.time_domain.rolling_aggregates_adder import AggregationFunction
+from openstef_models.transforms.validation import CompletenessChecker, FlatlineChecker, InputConsistencyChecker
+from openstef_models.transforms.weather_domain import (
+    AtmosphereDerivedFeaturesAdder,
+    DaylightFeatureAdder,
+    RadiationDerivedFeaturesAdder,
+)
+>>>>>>> release/v4.0.0
 from openstef_models.utils.data_split import DataSplitter
 from openstef_models.utils.feature_selection import Exclude, FeatureSelection, Include
 from openstef_models.workflows.custom_forecasting_workflow import (
@@ -181,6 +196,15 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
         default=timedelta(days=14),
         description="Amount of historical data available at prediction time.",
     )
+    cutoff_history: timedelta = Field(
+        default=timedelta(days=0),
+        description="Amount of historical data to exclude from training and prediction due to incomplete features "
+        "from lag-based preprocessing. When using lag transforms (e.g., lag-14), the first N days contain NaN values. "
+        "Set this to match your maximum lag duration (e.g., timedelta(days=14)). "
+        "Default of 0 assumes no invalid rows are created by preprocessing. "
+        "Note: should be same as predict_history if you are using lags. We default to disabled to keep the same "
+        "behaviour as openstef 3.0.",
+    )
 
     # Feature engineering and validation
     completeness_threshold: float = Field(
@@ -203,6 +227,11 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
         default=FeatureSelection(include=None, exclude=None),
         description="Feature selection for which features to clip.",
     )
+    sample_weight_scale_percentile: int = Field(
+        default=95,
+        description="Percentile of target values used as scaling reference. "
+        "Values are normalized relative to this percentile before weighting.",
+    )
     sample_weight_exponent: float = Field(
         default_factory=lambda data: 1.0
         if data.get("model") in {"gblinear", "lgbmlinear", "lgbm", "hybrid", "xgboost"}
@@ -218,7 +247,13 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
 
     # Data splitting strategy
     data_splitter: DataSplitter = Field(
-        default_factory=DataSplitter,
+        default=DataSplitter(
+            # Copied from OpenSTEF3 pipeline defaults
+            val_fraction=0.15,
+            test_fraction=0.0,
+            stratification_fraction=0.15,
+            min_days_for_stratification=4,
+        ),
         description="Configuration for splitting data into training, validation, and test sets.",
     )
 
@@ -256,6 +291,10 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
         description="Penalty to apply to the old model's metric to bias selection towards newer models.",
     )
 
+    verbosity: Literal[0, 1, 2, 3, True] = Field(
+        default=1, description="Verbosity level. 0=silent, 1=warning, 2=info, 3=debug"
+    )
+
     # Metadata
     tags: dict[str, str] = Field(
         default_factory=dict,
@@ -289,14 +328,14 @@ def create_forecasting_workflow(
             error_on_flatliner=False,
         ),
         CompletenessChecker(completeness_threshold=config.completeness_threshold),
-        EmptyFeatureRemover(),
     ]
     feature_adders = [
         LagsAdder(
             history_available=config.predict_history,
             horizons=config.horizons,
-            add_trivial_lags=True,
+            add_trivial_lags=config.model != "gblinear",  # GBLinear uses only 7day lag.
             target_column=config.target_column,
+            custom_lags=[timedelta(days=7)] if config.model == "gblinear" else [],
         ),
         WindPowerFeatureAdder(
             windspeed_reference_column=config.wind_speed_column,
@@ -317,6 +356,7 @@ def create_forecasting_workflow(
         RollingAggregatesAdder(
             feature=config.target_column,
             aggregation_functions=config.rolling_aggregate_features,
+            horizons=config.horizons,
         ),
     ]
     feature_standardizers = [
@@ -329,7 +369,9 @@ def create_forecasting_workflow(
             target_column=config.target_column,
             weight_exponent=config.sample_weight_exponent,
             weight_floor=config.sample_weight_floor,
+            weight_scale_percentile=config.sample_weight_scale_percentile,
         ),
+        EmptyFeatureRemover(),
     ]
 
     if config.model == "xgboost":
@@ -345,6 +387,7 @@ def create_forecasting_workflow(
                 quantiles=config.quantiles,
                 horizons=config.horizons,
                 hyperparams=config.xgboost_hyperparams,
+                verbosity=config.verbosity,
             )
         )
         postprocessing = [QuantileSorter()]
@@ -383,16 +426,24 @@ def create_forecasting_workflow(
     elif config.model == "gblinear":
         preprocessing = [
             *checks,
-            Imputer(selection=Exclude(config.target_column), imputation_strategy="mean"),
             *feature_adders,
             *feature_standardizers,
+            Imputer(
+                selection=Exclude(config.target_column),
+                imputation_strategy="mean",
+                fill_future_values=Include(config.energy_price_column),
+            ),
+            NaNDropper(
+                selection=Exclude(config.target_column),
+            ),
         ]
         forecaster = GBLinearForecaster(
             config=GBLinearForecaster.Config(
                 quantiles=config.quantiles,
                 horizons=config.horizons,
                 hyperparams=config.gblinear_hyperparams,
-            )
+                verbosity=config.verbosity,
+            ),
         )
         postprocessing = [QuantileSorter()]
     elif config.model == "flatliner":
@@ -403,6 +454,7 @@ def create_forecasting_workflow(
                 horizons=config.horizons,
             )
         )
+<<<<<<< HEAD
         postprocessing = [
             ConfidenceIntervalApplicator(quantiles=config.quantiles),
         ]
@@ -421,6 +473,9 @@ def create_forecasting_workflow(
             )
         )
         postprocessing = [QuantileSorter()]
+=======
+        postprocessing = []
+>>>>>>> release/v4.0.0
     else:
         msg = f"Unsupported model type: {config.model}"
         raise ValueError(msg)
@@ -451,7 +506,7 @@ def create_forecasting_workflow(
             postprocessing=TransformPipeline(transforms=postprocessing),
             target_column=config.target_column,
             data_splitter=config.data_splitter,
-            cutoff_history=config.predict_history,
+            cutoff_history=config.cutoff_history,
             # Evaluation
             evaluation_metrics=config.evaluation_metrics,
             # Other
