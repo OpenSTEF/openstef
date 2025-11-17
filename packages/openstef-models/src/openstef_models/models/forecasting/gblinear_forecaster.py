@@ -83,6 +83,15 @@ class GBLinearHyperParams(HyperParams):
         description="Training will stop if performance doesn't improve for this many rounds. Requires validation data.",
     )
 
+    @classmethod
+    def forecaster_class(cls) -> "type[GBLinearForecaster]":
+        """Forecaster class for these hyperparams.
+
+        Returns:
+            Forecaster class associated with this configuration.
+        """
+        return GBLinearForecaster
+
 
 class GBLinearForecasterConfig(ForecasterConfig):
     """Configuration for GBLinear forecaster."""
@@ -106,6 +115,14 @@ class GBLinearForecasterConfig(ForecasterConfig):
     verbosity: Literal[0, 1, 2, 3, True] = Field(
         default=1, description="Verbosity level. 0=silent, 1=warning, 2=info, 3=debug"
     )
+
+    def forecaster_from_config(self) -> "GBLinearForecaster":
+        """Create a GBLinearForecaster instance from this configuration.
+
+        Returns:
+            Forecaster instance associated with this configuration.
+        """
+        return GBLinearForecaster(config=self)
 
 
 MODEL_CODE_VERSION = 1

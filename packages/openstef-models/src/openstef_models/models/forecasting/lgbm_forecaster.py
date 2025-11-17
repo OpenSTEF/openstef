@@ -13,6 +13,7 @@ from typing import TYPE_CHECKING, Literal, override
 
 import numpy as np
 import pandas as pd
+from lightgbm import LGBMRegressor
 from pydantic import Field
 
 from openstef_core.datasets import ForecastDataset, ForecastInputDataset
@@ -20,9 +21,9 @@ from openstef_core.exceptions import (
     NotFittedError,
 )
 from openstef_core.mixins import HyperParams
-from openstef_models.estimators.lgbm import LGBMQuantileRegressor
 from openstef_models.explainability.mixins import ExplainableForecaster
-from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
+from openstef_models.models.forecasting.forecaster import ForecasterConfig, Forecaster
+from openstef_models.utils.multi_quantile_regressor import MultiQuantileRegressor
 
 if TYPE_CHECKING:
     import numpy.typing as npt
@@ -108,6 +109,15 @@ class LGBMHyperParams(HyperParams):
         description="Fraction of features used when constructing each tree. Range: (0,1]",
     )
 
+    @classmethod
+    def forecaster_class(cls) -> "type[LGBMForecaster]":
+        """Create a LightGBM forecaster instance from this configuration.
+
+        Returns:
+            Forecaster class associated with this configuration.
+        """
+        return LGBMForecaster
+
 
 class LGBMForecasterConfig(ForecasterConfig):
     """Configuration for LightGBM-based forecaster.
@@ -149,6 +159,14 @@ class LGBMForecasterConfig(ForecasterConfig):
         default=None,
         description="Training will stop if performance doesn't improve for this many rounds. Requires validation data.",
     )
+
+    def forecaster_from_config(self) -> "LGBMForecaster":
+        """Create a LGBMForecaster instance from this configuration.
+
+        Returns:
+            Forecaster instance associated with this configuration.
+        """
+        return LGBMForecaster(config=self)
 
 
 MODEL_CODE_VERSION = 1
@@ -200,7 +218,6 @@ class LGBMForecaster(Forecaster, ExplainableForecaster):
     HyperParams = LGBMHyperParams
 
     _config: LGBMForecasterConfig
-    _lgbm_model: LGBMQuantileRegressor
 
     def __init__(self, config: LGBMForecasterConfig) -> None:
         """Initialize LightGBM forecaster with configuration.
@@ -215,13 +232,20 @@ class LGBMForecaster(Forecaster, ExplainableForecaster):
         """
         self._config = config
 
-        self._lgbm_model = LGBMQuantileRegressor(
-            quantiles=[float(q) for q in config.quantiles],
-            linear_tree=False,
-            random_state=config.random_state,
-            early_stopping_rounds=config.early_stopping_rounds,
-            verbosity=config.verbosity,
+        lgbm_params = {
+            "linear_tree": False,
+            "objective": "quantile",
+            "random_state": config.random_state,
+            "early_stopping_rounds": config.early_stopping_rounds,
+            "verbosity": config.verbosity,
             **config.hyperparams.model_dump(),
+        }
+
+        self._lgbm_model: MultiQuantileRegressor = MultiQuantileRegressor(
+            base_learner=LGBMRegressor,  # type: ignore
+            quantile_param="alpha",
+            hyperparams=lgbm_params,
+            quantiles=[float(q) for q in config.quantiles],
         )
 
     @property
@@ -237,7 +261,7 @@ class LGBMForecaster(Forecaster, ExplainableForecaster):
     @property
     @override
     def is_fitted(self) -> bool:
-        return self._lgbm_model.__sklearn_is_fitted__()
+        return self._lgbm_model.is_fitted
 
     @staticmethod
     def _prepare_fit_input(data: ForecastInputDataset) -> tuple[pd.DataFrame, np.ndarray, pd.Series]:
@@ -290,11 +314,11 @@ class LGBMForecaster(Forecaster, ExplainableForecaster):
     @property
     @override
     def feature_importances(self) -> pd.DataFrame:
-        models = self._lgbm_model.models
+        models: list[LGBMRegressor] = self._lgbm_model.models  # type: ignore
         weights_df = pd.DataFrame(
             [models[i].feature_importances_ for i in range(len(models))],
             index=[quantile.format() for quantile in self.config.quantiles],
-            columns=models[0].feature_name_,
+            columns=self._lgbm_model.model_feature_names if self._lgbm_model.has_feature_names else None,
         ).transpose()
 
         weights_df.index.name = "feature_name"
