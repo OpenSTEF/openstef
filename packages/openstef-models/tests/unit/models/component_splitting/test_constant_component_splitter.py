@@ -46,7 +46,7 @@ def sample_splitter_config() -> ConstantComponentSplitterConfig:
 def test_constant_component_splitter__config_validation_ratios_must_sum_to_one():
     """Test that configuration validation requires component ratios to sum to 1.0."""
     # Act & Assert - Ratios summing to less than 1.0 should raise ValueError
-    with pytest.raises(ValueError, match="Component ratios must sum to 1.0"):
+    with pytest.raises(ValueError, match=r"Component ratios must sum to 1\.0"):
         ConstantComponentSplitterConfig(
             source_column="load",
             component_ratios={
@@ -56,7 +56,7 @@ def test_constant_component_splitter__config_validation_ratios_must_sum_to_one()
         )
 
     # Ratios summing to more than 1.0 should also raise ValueError
-    with pytest.raises(ValueError, match="Component ratios must sum to 1.0"):
+    with pytest.raises(ValueError, match=r"Component ratios must sum to 1\.0"):
         ConstantComponentSplitterConfig(
             source_column="load",
             component_ratios={

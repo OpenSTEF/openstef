@@ -39,11 +39,11 @@ class DazlsModel(Protocol):
     that can predict energy components.
     """
 
-    def predict(self, X: pd.DataFrame) -> "npt.NDArray[np.float64]":
+    def predict(self, x: pd.DataFrame) -> "npt.NDArray[np.float64]":
         """Predict energy components from input features.
 
         Args:
-            X: Input features dataframe.
+            x: Input features dataframe.
 
         Returns:
             Predicted components as numpy array.
@@ -150,7 +150,8 @@ class DazlsComponentSplitter(ComponentSplitter):
         required_cols = [source_col, radiation_col, wind_col]
         missing_cols = [col for col in required_cols if col not in df.columns]
         if missing_cols:
-            raise ValueError(f"Missing required columns for DAZLs prediction: {missing_cols}")
+            error_msg = f"Missing required columns for DAZLs prediction: {missing_cols}"
+            raise ValueError(error_msg)
 
         # Create feature dataframe
         input_df = pd.DataFrame(index=df.index)
@@ -187,9 +188,7 @@ class DazlsComponentSplitter(ComponentSplitter):
         input_df["month_ff"] = np.sin(c * (n - 1))
 
         # Drop any rows with NaN values
-        input_df = input_df.dropna()  # pyright: ignore[reportUnknownMemberType]
-
-        return input_df
+        return input_df.dropna()  # pyright: ignore[reportUnknownMemberType]
 
     @override
     def fit(self, data: TimeSeriesDataset, data_val: TimeSeriesDataset | None = None) -> None:
@@ -240,7 +239,7 @@ class DazlsComponentSplitter(ComponentSplitter):
             # Reindex to match original input (fill missing with 0)
             components_df = forecasts.reindex(index=data.data.index, fill_value=0.0)
 
-        except Exception as e:
+        except (ValueError, KeyError, AttributeError) as e:
             _logger.warning("Could not make component forecasts: %s, falling back on series of zeros", e, exc_info=True)
             components_df = pd.DataFrame(
                 {
