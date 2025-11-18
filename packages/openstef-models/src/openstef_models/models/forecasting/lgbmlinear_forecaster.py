@@ -240,6 +240,7 @@ class LGBMLinearForecaster(Forecaster, ExplainableForecaster):
             "random_state": config.random_state,
             "early_stopping_rounds": config.early_stopping_rounds,
             "verbosity": config.verbosity,
+            "n_jobs": config.n_jobs,
             **config.hyperparams.model_dump(),
         }
 
