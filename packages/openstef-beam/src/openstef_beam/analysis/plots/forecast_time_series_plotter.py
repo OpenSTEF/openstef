@@ -98,6 +98,8 @@ class ForecastTimeSeriesPlotter:
         "green": "Greens",
         "purple": "Purples",
         "orange": "Oranges",
+        "magenta": "Magenta",
+        "grey": "Greys",
     }
     colors: ClassVar[list[str]] = list(COLOR_SCHEME.keys())
     colormaps: ClassVar[list[str]] = list(COLOR_SCHEME.values())
