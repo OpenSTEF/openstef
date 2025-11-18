@@ -3,11 +3,9 @@
 # SPDX-License-Identifier: MPL-2.0
 
 from datetime import datetime, timedelta
-from decimal import Decimal
 
 import pandas as pd
 import pytest
-from pydantic_extra_types.coordinate import Coordinate, Latitude, Longitude
 
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.types import EnergyComponentType
@@ -43,10 +41,6 @@ def sample_splitter_config() -> DazlsComponentSplitterConfig:
         source_column="load",
         radiation_column="radiation",
         windspeed_100m_column="windspeed_100m",
-        coordinate=Coordinate(
-            latitude=Latitude(Decimal("52.132633")),
-            longitude=Longitude(Decimal("5.291266")),
-        ),
     )
 
 
@@ -73,6 +67,9 @@ def test_dazls_component_splitter__predict_returns_correct_components(
     assert (result.data[EnergyComponentType.SOLAR] >= 0).all()
     assert (result.data[EnergyComponentType.WIND] >= 0).all()
 
+    # Check that not all components are zero
+    assert (result.data[EnergyComponentType.SOLAR] > 0).any() or (result.data[EnergyComponentType.WIND] > 0).any()
+
 
 def test_dazls_component_splitter__create_input_features(
     sample_splitter_config: DazlsComponentSplitterConfig,
@@ -86,35 +83,10 @@ def test_dazls_component_splitter__create_input_features(
     input_features = splitter._create_input_features(sample_timeseries_dataset)
 
     # Assert - Check expected columns exist
-    expected_columns = [
-        "total_load",
-        "radiation",
-        "windspeed_100m",
-        "lat",
-        "lon",
-        "solar_on",
-        "wind_on",
-        "hour",
-        "minute",
-        "var0",
-        "var1",
-        "var2",
-        "sem0",
-        "sem1",
-        "sem2",
-        "month_ff",
-    ]
-    for col in expected_columns:
-        assert col in input_features.columns
+    expected_columns = ["radiation", "windspeed_100m", "total_load"]
+    assert list(input_features.columns) == expected_columns
 
-    # Check location features
-    assert (input_features["lat"] == float(sample_splitter_config.coordinate.latitude)).all()
-    assert (input_features["lon"] == float(sample_splitter_config.coordinate.longitude)).all()
-
-    # Check flags
-    assert (input_features["solar_on"] == 1).all()
-    assert (input_features["wind_on"] == 1).all()
-
-    # Check time features
-    assert input_features["hour"].min() >= 0
-    assert input_features["hour"].max() <= 23
+    # Check that values match input data
+    assert (input_features["radiation"] == sample_timeseries_dataset.data["radiation"]).all()
+    assert (input_features["windspeed_100m"] == sample_timeseries_dataset.data["windspeed_100m"]).all()
+    assert (input_features["total_load"] == sample_timeseries_dataset.data["load"]).all()

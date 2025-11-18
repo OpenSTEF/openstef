@@ -12,21 +12,19 @@ into three predefined components. Training is currently not supported.
 """
 
 import logging
-from decimal import Decimal
 from pathlib import Path
 from typing import TYPE_CHECKING, Protocol, override
 
 import joblib
-import numpy as np
 import pandas as pd
 from pydantic import Field
-from pydantic_extra_types.coordinate import Coordinate, Latitude, Longitude
 
 from openstef_core.datasets import EnergyComponentDataset, TimeSeriesDataset
 from openstef_core.types import EnergyComponentType
 from openstef_models.models.component_splitting.component_splitter import ComponentSplitter, ComponentSplitterConfig
 
 if TYPE_CHECKING:
+    import numpy as np
     import numpy.typing as npt
 
 _logger = logging.getLogger(__name__)
@@ -35,15 +33,14 @@ _logger = logging.getLogger(__name__)
 class DazlsModel(Protocol):
     """Protocol for DAZLs model interface.
 
-    Defines the expected interface for models loaded from joblib
-    that can predict energy components.
+    Defines the expected interface for the DAZLs model loaded from joblib.
     """
 
-    def predict(self, x: pd.DataFrame) -> "npt.NDArray[np.float64]":
+    def predict(self, x: "pd.DataFrame | npt.NDArray[np.float64]") -> "npt.NDArray[np.float64]":
         """Predict energy components from input features.
 
         Args:
-            x: Input features dataframe.
+            x: Input features as dataframe or numpy array.
 
         Returns:
             Predicted components as numpy array.
@@ -57,13 +54,6 @@ class DazlsComponentSplitterConfig(ComponentSplitterConfig):
     dazls_model_path: Path = Field(
         default=Path(__file__).parent / "dazls_model_3.4.24" / "dazls_stored_3.4.24_baseline_model.z",
         description="Path to the pre-trained DAZLs model file.",
-    )
-    coordinate: Coordinate = Field(
-        default=Coordinate(
-            latitude=Latitude(Decimal("52.132633")),
-            longitude=Longitude(Decimal("5.291266")),
-        ),
-        description="Geographic coordinate of the location to split components for.",
     )
     radiation_column: str = Field(
         default="radiation",
@@ -106,7 +96,7 @@ class DazlsComponentSplitter(ComponentSplitter):
         """Initialize the DAZLs component splitter.
 
         Args:
-            config: Configuration with model path, location info, and source column.
+            config: Configuration with model path and column names.
         """
         super().__init__()
         self._config = config
@@ -134,14 +124,14 @@ class DazlsComponentSplitter(ComponentSplitter):
             data: Input time series dataset with required columns.
 
         Returns:
-            DataFrame with features prepared for DAZLs model prediction.
+            DataFrame with the 3 features needed for DAZLs model prediction:
+            radiation, windspeed_100m, and total_load.
 
         Raises:
             ValueError: If required columns are missing.
         """
-        df = data.data.copy()
+        df = data.data
 
-        # Use configurable column names
         source_col = self.config.source_column
         radiation_col = self.config.radiation_column
         wind_col = self.config.windspeed_100m_column
@@ -153,48 +143,24 @@ class DazlsComponentSplitter(ComponentSplitter):
             error_msg = f"Missing required columns for DAZLs prediction: {missing_cols}"
             raise ValueError(error_msg)
 
-        # Create feature dataframe
-        input_df = pd.DataFrame(index=df.index)
-        input_df["total_load"] = df[source_col]
-        input_df["radiation"] = df[radiation_col]
-        input_df["windspeed_100m"] = df[wind_col]
+        # Create feature dataframe with the expected column names
+        input_df = pd.DataFrame(
+            {
+                "radiation": df[radiation_col],
+                "windspeed_100m": df[wind_col],
+                "total_load": df[source_col],
+            },
+            index=df.index,
+        )
 
-        # Add location features
-        input_df["lat"] = self.config.coordinate.latitude
-        input_df["lon"] = self.config.coordinate.longitude
-
-        # Add flags
-        input_df["solar_on"] = 1
-        input_df["wind_on"] = 1
-
-        # Add time features
-        datetime_index = pd.DatetimeIndex(input_df.index)
-        input_df["hour"] = datetime_index.hour
-        input_df["minute"] = datetime_index.minute
-
-        # Add variance features
-        input_df["var0"] = df[source_col].var()
-        input_df["var1"] = df[radiation_col].var()
-        input_df["var2"] = df[wind_col].var()
-
-        # Add standard error of mean features
-        input_df["sem0"] = df[source_col].sem()
-        input_df["sem1"] = df[radiation_col].sem()
-        input_df["sem2"] = df[wind_col].sem()
-
-        # Periodic month feature
-        c = (1 / 11) * np.pi - (1 / 365)
-        n = np.array(datetime_index.month, dtype=float)
-        input_df["month_ff"] = np.sin(c * (n - 1))
-
-        # Drop any rows with NaN values
+        # Drop rows with NaN values
         return input_df.dropna()  # pyright: ignore[reportUnknownMemberType]
 
     @override
     def fit(self, data: TimeSeriesDataset, data_val: TimeSeriesDataset | None = None) -> None:
         """No training supported currently for DAZLs component splitter.
 
-        The DAZLs model is pre-trained and loaded from disk.
+        The DAZLs model is pre-trained and loaded from a file.
         """
 
     @override
@@ -214,10 +180,8 @@ class DazlsComponentSplitter(ComponentSplitter):
             raise ValueError("DAZLs model not loaded")
 
         try:
-            # Create input features
             input_df = self._create_input_features(data)
 
-            # Predict with DAZLs model
             predictions = self._model.predict(input_df)
 
             # Create component dataframe
@@ -227,7 +191,7 @@ class DazlsComponentSplitter(ComponentSplitter):
                 index=input_df.index,
             )
 
-            # Post-process wind and solar components (clip to non-negative)
+            # Clip wind and solar components to be non-negative
             forecasts[EnergyComponentType.SOLAR] = forecasts[EnergyComponentType.SOLAR].clip(lower=0.0)
             forecasts[EnergyComponentType.WIND] = forecasts[EnergyComponentType.WIND].clip(lower=0.0)
 
@@ -236,7 +200,7 @@ class DazlsComponentSplitter(ComponentSplitter):
                 input_df["total_load"] - forecasts[EnergyComponentType.SOLAR] - forecasts[EnergyComponentType.WIND]
             )
 
-            # Reindex to match original input (fill missing with 0)
+            # Reindex to match original input, fill missing with 0
             components_df = forecasts.reindex(index=data.data.index, fill_value=0.0)
 
         except (ValueError, KeyError, AttributeError) as e:
