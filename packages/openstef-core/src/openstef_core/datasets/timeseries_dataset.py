@@ -103,6 +103,7 @@ class TimeSeriesDataset(TimeSeriesMixin, DatasetMixin):  # noqa: PLR0904 - impor
         *,
         horizon_column: str = "horizon",
         available_at_column: str = "available_at",
+        is_sorted: bool = False,
     ) -> None:
         """Initialize a time series dataset.
 
@@ -116,6 +117,7 @@ class TimeSeriesDataset(TimeSeriesMixin, DatasetMixin):  # noqa: PLR0904 - impor
             sample_interval: Fixed interval between consecutive data points.
             horizon_column: Name of the column storing forecast horizons.
             available_at_column: Name of the column storing availability times.
+            is_sorted: Whether the data is sorted by timestamp.
 
         Raises:
             TypeError: If data index is not a pandas DatetimeIndex or if versioning
@@ -149,7 +151,7 @@ class TimeSeriesDataset(TimeSeriesMixin, DatasetMixin):  # noqa: PLR0904 - impor
             self._horizons = None
 
         # Ensure invariants: data is sorted by timestamp
-        if self.data.attrs.get("is_sorted", False) is False:
+        if not is_sorted:
             if self._version_column == self.available_at_column:
                 self.data = self.data.sort_values(
                     by=[self.index_name, self.available_at_column],
@@ -162,7 +164,6 @@ class TimeSeriesDataset(TimeSeriesMixin, DatasetMixin):  # noqa: PLR0904 - impor
                 )
             else:
                 self.data = self.data.sort_index(ascending=True)
-            self.data.attrs["is_sorted"] = True
 
     @property
     @override
@@ -314,10 +315,11 @@ class TimeSeriesDataset(TimeSeriesMixin, DatasetMixin):  # noqa: PLR0904 - impor
         Returns:
             DataFrame with dataset data and metadata in attrs.
         """
-        self.data.attrs["sample_interval"] = timedelta_to_isoformat(self.sample_interval)
-        self.data.attrs["available_at_column"] = self.available_at_column
-        self.data.attrs["horizon_column"] = self.horizon_column
-        return self.data
+        df = self.data.copy()
+        df.attrs["sample_interval"] = timedelta_to_isoformat(self.sample_interval)
+        df.attrs["available_at_column"] = self.available_at_column
+        df.attrs["horizon_column"] = self.horizon_column
+        return df
 
     @classmethod
     def from_pandas(
@@ -418,8 +420,10 @@ class TimeSeriesDataset(TimeSeriesMixin, DatasetMixin):  # noqa: PLR0904 - impor
         if self._version_column is not None:
             columns_to_select.append(self._version_column)
         data_selected = self.data[columns_to_select]
-        data_selected.attrs["is_sorted"] = True
-        return TimeSeriesDataset(data=data_selected)
+        return TimeSeriesDataset(
+            data=data_selected,
+            is_sorted=True,
+        )
 
     def copy_with(self, data: pd.DataFrame, *, is_sorted: bool = False) -> "TimeSeriesDataset":
         """Create a copy of the dataset with new data.
@@ -431,14 +435,12 @@ class TimeSeriesDataset(TimeSeriesMixin, DatasetMixin):  # noqa: PLR0904 - impor
         Returns:
             New TimeSeriesDataset instance with the provided data and same metadata.
         """
-        if is_sorted:
-            data.attrs["is_sorted"] = True
-
         return TimeSeriesDataset(
             data=data,
             sample_interval=self.sample_interval,
             horizon_column=self.horizon_column,
             available_at_column=self.available_at_column,
+            is_sorted=is_sorted,
         )
 
 

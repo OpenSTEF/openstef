@@ -48,7 +48,8 @@ class OpenSTEF4BacktestForecaster(BaseModel, BacktestForecasterMixin):
 
     @override
     def model_post_init(self, context: Any) -> None:
-        self.cache_dir.mkdir(parents=True, exist_ok=True)
+        if self.debug:
+            self.cache_dir.mkdir(parents=True, exist_ok=True)
 
     @property
     @override
