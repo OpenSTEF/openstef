@@ -62,7 +62,7 @@ class LGBMHyperParams(HyperParams):
         "more boosting rounds.",
     )
     max_depth: int = Field(
-        default=2,  # 8,
+        default=5,
         description="Maximum depth of trees. Higher values capture more complex patterns but risk "
         "overfitting. Range: [1,∞]",
     )

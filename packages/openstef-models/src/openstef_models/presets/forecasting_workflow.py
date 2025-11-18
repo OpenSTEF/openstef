@@ -36,7 +36,7 @@ from openstef_models.models.forecasting.lgbmlinear_forecaster import LGBMLinearF
 from openstef_models.models.forecasting.xgboost_forecaster import XGBoostForecaster
 from openstef_models.transforms.energy_domain import WindPowerFeatureAdder
 from openstef_models.transforms.general import Clipper, EmptyFeatureRemover, Imputer, NaNDropper, SampleWeighter, Scaler
-from openstef_models.transforms.postprocessing import ConfidenceIntervalApplicator, QuantileSorter
+from openstef_models.transforms.postprocessing import ConfidenceIntervalApplicator, MinMaxClipper, QuantileSorter
 from openstef_models.transforms.time_domain import (
     CyclicFeaturesAdder,
     DatetimeFeaturesAdder,
@@ -374,7 +374,7 @@ def create_forecasting_workflow(
                 hyperparams=config.lgbmlinear_hyperparams,
             )
         )
-        postprocessing = [QuantileSorter()]
+        postprocessing = [QuantileSorter(), MinMaxClipper(threshold=0.20)]
     elif config.model == "lgbm":
         preprocessing = [
             *checks,

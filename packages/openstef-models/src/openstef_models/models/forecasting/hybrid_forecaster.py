@@ -10,8 +10,8 @@ The implementation is based on sklearn's StackingRegressor.
 """
 
 import logging
-from typing import override
 from abc import abstractmethod
+from typing import override
 
 import pandas as pd
 from pydantic import Field, field_validator
@@ -21,7 +21,7 @@ from openstef_core.exceptions import (
     NotFittedError,
 )
 from openstef_core.mixins import HyperParams
-from openstef_core.types import LeadTime, Quantile
+from openstef_core.types import Quantile
 from openstef_models.estimators.hybrid import HybridQuantileRegressor
 from openstef_models.models.forecasting.forecaster import (
     Forecaster,
@@ -75,6 +75,8 @@ class FinalForecaster(FinalLearner):
 
     def __init__(self, forecaster: Forecaster, feature_adders: None = None) -> None:
         # Feature adders placeholder for future use
+        msg = "Feature adders are not yet implemented in FinalForecaster." + str(feature_adders)
+        logger.warning(msg)
 
         # Split forecaster per quantile
         self.quantiles = forecaster.config.quantiles
@@ -168,34 +170,32 @@ class HybridForecaster(Forecaster):
 
     def __init__(self, config: HybridForecasterConfig) -> None:
         """Initialize the Hybrid forecaster."""
-
         self._config = config
 
-        self._base_learners: list[BaseLearner] = self._init_base_learners(
-            base_hyperparams=config.hyperparams.base_hyperparams
-        )
-        final_forecaster = self._init_base_learners(base_hyperparams=[config.hyperparams.final_hyperparams])[0]
+        # Initialize base learners
+        self._base_learners: list[BaseLearner] = [
+            self._init_forecaster(hyperparams=hp) for hp in config.hyperparams.base_hyperparams
+        ]
+
+        # Initialize final learner
+        final_forecaster = self._init_forecaster(hyperparams=config.hyperparams.final_hyperparams)
         self._final_learner = FinalForecaster(forecaster=final_forecaster)
 
-    def _init_base_learners(self, base_hyperparams: list[BaseLearnerHyperParams]) -> list[BaseLearner]:
+    def _init_forecaster(self, hyperparams: BaseLearnerHyperParams) -> BaseLearner:
         """Initialize base learners based on provided hyperparameters.
 
         Returns:
             list[Forecaster]: List of initialized base learner forecasters.
         """
-        base_learners: list[BaseLearner] = []
         horizons = self.config.horizons
         quantiles = self.config.quantiles
 
-        for hyperparams in base_hyperparams:
-            forecaster_cls = hyperparams.forecaster_class()
-            config = forecaster_cls.Config(horizons=horizons, quantiles=quantiles)
-            if "hyperparams" in forecaster_cls.Config.model_fields:
-                config = config.model_copy(update={"hyperparams": hyperparams})
+        forecaster_cls = hyperparams.forecaster_class()
+        config = forecaster_cls.Config(horizons=horizons, quantiles=quantiles)
+        if "hyperparams" in forecaster_cls.Config.model_fields:
+            config = config.model_copy(update={"hyperparams": hyperparams})
 
-            base_learners.append(config.forecaster_from_config())
-
-        return base_learners
+        return config.forecaster_from_config()
 
     @property
     @override
@@ -261,13 +261,15 @@ class HybridForecaster(Forecaster):
         base_predictions: dict[type[BaseLearner], ForecastDataset],
         target_series: pd.Series,
     ) -> dict[Quantile, ForecastInputDataset]:
-        """Prepare input data for the final learner based on base learner predictions.
+        """Prepare input datasets for the final learner based on base learner predictions.
 
         Args:
-            base_predictions: Dictionary of base learner predictions.
+            quantiles: List of quantiles to prepare datasets for.
+            base_predictions: Predictions from base learners.
+            target_series: True target series for the forecast.
 
         Returns:
-            dictionary mapping quantile strings to DataFrames of base learner predictions.
+            dict[Quantile, ForecastInputDataset]: Prepared datasets for each quantile.
         """
         predictions_quantiles: dict[Quantile, ForecastInputDataset] = {}
         sample_interval = base_predictions[next(iter(base_predictions))].sample_interval

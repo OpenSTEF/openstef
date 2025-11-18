@@ -10,6 +10,7 @@ operate on ForecastDataset objects after the core prediction step.
 """
 
 from openstef_models.transforms.postprocessing.confidence_interval_applicator import ConfidenceIntervalApplicator
+from openstef_models.transforms.postprocessing.minmax_clipper import MinMaxClipper
 from openstef_models.transforms.postprocessing.quantile_sorter import QuantileSorter
 
-__all__ = ["ConfidenceIntervalApplicator", "QuantileSorter"]
+__all__ = ["ConfidenceIntervalApplicator", "MinMaxClipper", "QuantileSorter"]
