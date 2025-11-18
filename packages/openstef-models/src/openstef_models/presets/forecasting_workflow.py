@@ -10,7 +10,7 @@ including XGBoost, GBLinear, and Flatliner models with appropriate preprocessing
 
 from datetime import timedelta
 from decimal import Decimal
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
 from pydantic import Field
 from pydantic_extra_types.coordinate import Coordinate, Latitude, Longitude
@@ -23,7 +23,7 @@ from openstef_beam.evaluation.metric_providers import (
     R2Provider,
 )
 from openstef_core.base_model import BaseConfig
-from openstef_core.mixins import TransformPipeline
+from openstef_core.mixins import Transform, TransformPipeline
 from openstef_core.types import LeadTime, Q, Quantile, QuantileOrGlobal
 from openstef_models.integrations.mlflow import MLFlowStorage, MLFlowStorageCallback
 from openstef_models.mixins import ModelIdentifier
@@ -32,7 +32,13 @@ from openstef_models.models.forecasting.flatliner_forecaster import FlatlinerFor
 from openstef_models.models.forecasting.gblinear_forecaster import GBLinearForecaster
 from openstef_models.models.forecasting.xgboost_forecaster import XGBoostForecaster
 from openstef_models.transforms.energy_domain import WindPowerFeatureAdder
-from openstef_models.transforms.general import Clipper, EmptyFeatureRemover, Imputer, SampleWeighter, Scaler
+from openstef_models.transforms.general import (
+    Clipper,
+    EmptyFeatureRemover,
+    Imputer,
+    SampleWeighter,
+    Scaler,
+)
 from openstef_models.transforms.postprocessing import ConfidenceIntervalApplicator, QuantileSorter
 from openstef_models.transforms.time_domain import (
     CyclicFeaturesAdder,
@@ -48,6 +54,9 @@ from openstef_models.transforms.weather_domain.atmosphere_derived_features_adder
 from openstef_models.utils.data_split import DataSplitter
 from openstef_models.utils.feature_selection import Exclude, FeatureSelection, Include
 from openstef_models.workflows.custom_forecasting_workflow import CustomForecastingWorkflow, ForecastingCallback
+
+if TYPE_CHECKING:
+    from openstef_core.datasets import ForecastDataset
 
 
 class LocationConfig(BaseConfig):
@@ -145,6 +154,31 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
         default=[],
         description="If not None, rolling aggregate(s) of load will be used as features in the model.",
     )
+    kalman_features: FeatureSelection = Field(
+        default=FeatureSelection(
+            include={
+                "temperature_2m",
+                "relative_humidity_2m",
+                "surface_pressure",
+                "cloud_cover",
+                "wind_speed_10m",
+                "wind_speed_80m",
+                "shortwave_radiation",
+                "direct_radiation",
+                "diffuse_radiation",
+                "direct_normal_irradiance",
+                "dni",
+                "gti",
+                "saturation_vapour_pressure",
+                "vapour_pressure",
+                "dewpoint",
+                "air_density",
+                "windspeed_hub_height",
+            },
+            exclude=None,
+        ),
+        description="Feature selection for which features to apply Kalman smoothing.",
+    )
     clip_features: FeatureSelection = Field(
         default=FeatureSelection(include=None, exclude=None),
         description="Feature selection for which features to clip.",
@@ -159,7 +193,6 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
         default=0.1,
         description="Minimum weight value to ensure all samples contribute to training.",
     )
-
     # Data splitting strategy
     data_splitter: DataSplitter = Field(
         default_factory=DataSplitter,
