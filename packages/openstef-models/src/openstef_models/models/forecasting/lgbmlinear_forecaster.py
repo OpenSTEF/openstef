@@ -52,16 +52,11 @@ class LGBMLinearHyperParams(HyperParams):
     # Core Tree Boosting Parameters
 
     n_estimators: int = Field(
-        default=100,
+        default=200,
         description="Number of boosting rounds/trees to fit. Higher values may improve performance but "
         "increase training time and risk overfitting.",
     )
-    learning_rate: float = Field(
-        default=0.3,
-        alias="eta",
-        description="Step size shrinkage used to prevent overfitting. Range: [0,1]. Lower values require "
-        "more boosting rounds.",
-    )
+    learning_rate: float = Field(default=0.1, description="Learning rate")
     max_depth: int = Field(
         default=5,
         description="Maximum depth of trees. Higher values capture more complex patterns but risk "
@@ -74,7 +69,7 @@ class LGBMLinearHyperParams(HyperParams):
     )
 
     min_data_in_leaf: int = Field(
-        default=300,
+        default=50,
         description="""IMPORTANT!
                     Minimum number of data points in a leaf.
                     Higher values ensure linear extrapolation is based on sufficient data.
@@ -82,7 +77,7 @@ class LGBMLinearHyperParams(HyperParams):
                     """,
     )
     min_data_in_bin: int = Field(
-        default=300,
+        default=50,
         description="""IMPORTANT!
                     Minimum number of data points in a bin.
                     Higher values ensure linear extrapolation is based on sufficient data.
@@ -96,7 +91,7 @@ class LGBMLinearHyperParams(HyperParams):
         description="L1 regularization on leaf weights. Higher values increase regularization. Range: [0,∞]",
     )
     reg_lambda: float = Field(
-        default=0,
+        default=1,
         description="L2 regularization on leaf weights. Higher values increase regularization. Range: [0,∞]",
     )
 
@@ -248,6 +243,7 @@ class LGBMLinearForecaster(Forecaster, ExplainableForecaster):
             "random_state": config.random_state,
             "early_stopping_rounds": config.early_stopping_rounds,
             "verbosity": config.verbosity,
+            "n_jobs": config.n_jobs,
             **config.hyperparams.model_dump(),
         }
 

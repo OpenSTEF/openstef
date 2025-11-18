@@ -374,7 +374,7 @@ def create_forecasting_workflow(
                 hyperparams=config.lgbmlinear_hyperparams,
             )
         )
-        postprocessing = [QuantileSorter(), MinMaxClipper(threshold=0.20)]
+        postprocessing = [QuantileSorter(), MinMaxClipper(threshold=0.10)]
     elif config.model == "lgbm":
         preprocessing = [
             *checks,

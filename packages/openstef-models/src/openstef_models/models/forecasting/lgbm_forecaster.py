@@ -22,7 +22,7 @@ from openstef_core.exceptions import (
 )
 from openstef_core.mixins import HyperParams
 from openstef_models.explainability.mixins import ExplainableForecaster
-from openstef_models.models.forecasting.forecaster import ForecasterConfig, Forecaster
+from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
 from openstef_models.utils.multi_quantile_regressor import MultiQuantileRegressor
 
 if TYPE_CHECKING:
@@ -143,7 +143,9 @@ class LGBMForecasterConfig(ForecasterConfig):
     )
     n_jobs: int = Field(
         default=1,
-        description="Number of parallel threads for tree construction. -1 uses all available cores.",
+        description="""Number of parallel threads for tree construction. 
+                -1 uses all available cores.
+                Should be set to 1 when using parallelization at a higher level.""",
     )
     verbosity: Literal[-1, 0, 1, 2, 3] = Field(
         default=-1, description="Verbosity level. 0=silent, 1=warning, 2=info, 3=debug"
@@ -238,6 +240,7 @@ class LGBMForecaster(Forecaster, ExplainableForecaster):
             "random_state": config.random_state,
             "early_stopping_rounds": config.early_stopping_rounds,
             "verbosity": config.verbosity,
+            "n_jobs": config.n_jobs,
             **config.hyperparams.model_dump(),
         }
 
