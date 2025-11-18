@@ -301,9 +301,9 @@ def create_forecasting_workflow(
         LagsAdder(
             history_available=config.predict_history,
             horizons=config.horizons,
-            add_trivial_lags=config.model != "gblinear",  # GBLinear uses only 7day lag.
+            add_trivial_lags=config.model not in {"gblinear", "hybrid"},  # GBLinear uses only 7day lag.
             target_column=config.target_column,
-            custom_lags=[timedelta(days=7)] if config.model == "gblinear" else [],
+            custom_lags=[timedelta(days=7)] if config.model in {"gblinear", "hybrid"} else [],
         ),
         WindPowerFeatureAdder(
             windspeed_reference_column=config.wind_speed_column,
@@ -428,9 +428,16 @@ def create_forecasting_workflow(
     elif config.model == "hybrid":
         preprocessing = [
             *checks,
-            Imputer(selection=Exclude(config.target_column), imputation_strategy="mean"),
             *feature_adders,
             *feature_standardizers,
+            Imputer(
+                selection=Exclude(config.target_column),
+                imputation_strategy="mean",
+                fill_future_values=Include(config.energy_price_column),
+            ),
+            NaNDropper(
+                selection=Exclude(config.target_column),
+            ),
         ]
         forecaster = HybridForecaster(
             config=HybridForecaster.Config(
