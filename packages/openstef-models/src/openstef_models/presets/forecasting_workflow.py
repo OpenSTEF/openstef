@@ -36,8 +36,6 @@ from openstef_models.transforms.general import (
     Clipper,
     EmptyFeatureRemover,
     Imputer,
-    KalmanPostprocessor,
-    KalmanPreprocessor,
     SampleWeighter,
     Scaler,
 )
@@ -195,10 +193,6 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
         default=0.1,
         description="Minimum weight value to ensure all samples contribute to training.",
     )
-    kalman_post_processing_enable: bool = Field(
-        default=True,
-        description="Whether to apply Kalman smoothing as a post-processing step to the forecasts.",
-    )
     # Data splitting strategy
     data_splitter: DataSplitter = Field(
         default_factory=DataSplitter,
@@ -310,9 +304,6 @@ def create_forecasting_workflow(config: ForecastingWorkflowConfig) -> CustomFore
             *feature_adders,
             HolidayFeatureAdder(country_code=config.location.country_code),
             DatetimeFeaturesAdder(onehot_encode=False),
-            KalmanPreprocessor(
-                selection=config.kalman_features,
-            ),
             *feature_standardizers,
         ]
         forecaster = XGBoostForecaster(
@@ -322,7 +313,7 @@ def create_forecasting_workflow(config: ForecastingWorkflowConfig) -> CustomFore
                 hyperparams=config.xgboost_hyperparams,
             )
         )
-        postprocessing: list[Transform[ForecastDataset, ForecastDataset]] = [QuantileSorter()]
+        postprocessing = [QuantileSorter()]
 
     elif config.model == "gblinear":
         preprocessing = [
@@ -372,8 +363,6 @@ def create_forecasting_workflow(config: ForecastingWorkflowConfig) -> CustomFore
                 model_selection_old_model_penalty=config.model_selection_old_model_penalty,
             )
         )
-    if config.kalman_post_processing_enable:
-        postprocessing.append(KalmanPostprocessor())
 
     return CustomForecastingWorkflow(
         model=ForecastingModel(

@@ -34,7 +34,7 @@ class BaseKalman(BaseConfig):
     )
 
     @staticmethod
-    def _run_kalman_smoother(df: pd.DataFrame, features: Iterable[str]) -> pd.DataFrame:
+    def _run_kalman_filter(df: pd.DataFrame, features: Iterable[str]) -> pd.DataFrame:
         features_list = list(features)
         if not features_list:
             return df
@@ -45,7 +45,6 @@ class BaseKalman(BaseConfig):
         return out
 
 
-# Preprocessor: operates on TimeSeriesDataset
 class KalmanPreprocessor(BaseKalman, TimeSeriesTransform):
     """Apply Kalman Smoothing to time series data to reduce noise and improve temporal consistency.
 
@@ -90,16 +89,14 @@ class KalmanPreprocessor(BaseKalman, TimeSeriesTransform):
         if not features:
             return data
         df = data.data.copy(deep=True)
-        df_sm = self._run_kalman_smoother(df, features)
-        return data.copy_with(data=df_sm, is_sorted=True)
+        df_filtered = self._run_kalman_filter(df, features)
+        return data.copy_with(data=df_filtered, is_sorted=True)
 
     @override
     def features_added(self) -> list[str]:
         # Preprocessor doesn't add columns
         return []
 
-
-# Postprocessor: operates on ForecastDataset quantiles
 class KalmanPostprocessor(BaseKalman, Transform[ForecastDataset, ForecastDataset]):
     """Apply Kalman Smoothing to quantile forecasts to reduce noise and improve temporal consistency.
 
@@ -143,8 +140,8 @@ class KalmanPostprocessor(BaseKalman, Transform[ForecastDataset, ForecastDataset
     def transform(self, data: ForecastDataset) -> ForecastDataset:
         quantile_columns = [q.format() for q in sorted(data.quantiles)]
         df = data.data.copy(deep=True)
-        df_sm = self._run_kalman_smoother(df, quantile_columns)
-        return ForecastDataset.from_timeseries(data.copy_with(data=df_sm, is_sorted=True))
+        df_filtered = self._run_kalman_filter(df, quantile_columns)
+        return ForecastDataset.from_timeseries(data.copy_with(data=df_filtered, is_sorted=True))
 
 
 __all__ = ["BaseKalman", "KalmanPostprocessor", "KalmanPreprocessor"]

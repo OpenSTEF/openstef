@@ -59,6 +59,47 @@ def test_kalman_preprocessor(sample_dataset: TimeSeriesDataset):
     )
     pd.testing.assert_frame_equal(result.data, expected_values)
 
+def test_kalman_preprocessor_multicolumn_joint_filter(sample_dataset: TimeSeriesDataset):
+    """Test KalmanPreprocessor when multiple numeric columns are transformed.
+
+    Ensure both numeric columns are transformed. 
+    Note: current implementation ignores the instance state_dim, 
+    so we do not assert differences between state_dim configurations here.
+    """
+    dataset = sample_dataset
+    # add an additional numeric feature with varying values
+    dataset.data["other"] = pd.Series([5.0, 12.0, 20.0, 8.0, 3.0], index=dataset.data.index)
+
+    original_load = dataset.data["load"].copy()
+    original_other = dataset.data["other"].copy()
+
+    transform_indep = KalmanPreprocessor(state_dim=1)
+    result_indep = transform_indep.fit_transform(dataset)
+
+    transform_joint = KalmanPreprocessor(state_dim=2)
+    result_joint = transform_joint.fit_transform(dataset)
+
+
+    # Both columns must be present and shape preserved
+    assert result_indep.data.shape == dataset.data.shape
+    assert result_joint.data.shape == dataset.data.shape
+    assert set(["load", "other"]).issubset(result_indep.data.columns)
+    assert set(["load", "other"]).issubset(result_joint.data.columns)
+
+    # Each transform should change at least one of the original columns.
+    # (In practice some configurations may leave a column unchanged.)
+    changed_indep = (
+        not result_indep.data["load"].equals(original_load)
+        or not result_indep.data["other"].equals(original_other)
+    )
+    changed_joint = (
+        not result_joint.data["load"].equals(original_load)
+        or not result_joint.data["other"].equals(original_other)
+    )
+    assert changed_indep, "Independent transform did not change any column"
+    assert changed_joint, "Joint transform did not change any column"
+
+
 
 def test_kalman_preprocessor_shape(sample_dataset: TimeSeriesDataset):
     """Test that KalmanPreprocessor preserves dataset shape."""

@@ -28,8 +28,11 @@ classifiers = [
 ]
 
 dependencies = [
+  "filterpy>=1.4.5",
   "openstef-core",
   "pycountry>=24.6.1",
+  "pytest>=8.4.2",
+  "sktime>=0.39.0",
 ]
 
 optional-dependencies.all = [
