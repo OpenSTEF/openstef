@@ -28,7 +28,7 @@ Contributing
 ------------
 OpenSTEF welcomes contributions in all forms!
 
-For contributing guidelines, see our comprehensive :ref:`contributing` guide.
+For contributing guidelines, see our :ref:`contributing` guide.
 
 If you found a bug or would like to request a feature, please `open an issue <https://github.com/OpenSTEF/openstef/issues>`_.
 
