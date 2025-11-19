@@ -30,8 +30,8 @@ jobs:
     name: Quality Checks
     uses: ./.github/workflows/_job_quality_check.yaml
 
-  deploy-dev:
-    name: Release Dev Version
+  release-pypi-package:
+    name: Release PyPI Package
     needs: quality
     runs-on: ubuntu-latest
     if: ${{ (startsWith(github.ref, 'refs/tags/v4.') || (github.event_name == 'workflow_dispatch' && startsWith(github.event.inputs.version, 'v4'))) && needs.quality.result == 'success' }}
