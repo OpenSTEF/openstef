@@ -14,12 +14,7 @@ on:
       version:
         description: 'Version tag to release (e.g., v4.1.0 or 4.1.0). Prefixing with v is optional.'
         required: true
-        default: ''
-      publish:
-        description: 'Whether to publish packages after the build (true/false).'
-        required: false
-        default: false
-        type: boolean
+        default: ""
 
 permissions:
   contents: read
@@ -30,10 +25,11 @@ jobs:
     name: Quality Checks
     uses: ./.github/workflows/_job_quality_check.yaml
 
-  release-pypi-package:
+  release-pypi:
     name: Release PyPI Package
     needs: quality
     runs-on: ubuntu-latest
+    environment: release
     if: ${{ (startsWith(github.ref, 'refs/tags/v4.') || (github.event_name == 'workflow_dispatch' && startsWith(github.event.inputs.version, 'v4'))) && needs.quality.result == 'success' }}
     permissions:
       # IMPORTANT: this permission is mandatory for trusted publishing
@@ -82,10 +78,6 @@ jobs:
       - name: Build all packages
         run: poe build
       - name: Publish packages
-        if: ${{ github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && github.event.inputs.publish == 'true') }}
-        env:
-          UV_PUBLISH_USERNAME: ${{ secrets.PYPI_USERNAME }}
-          UV_PUBLISH_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
-        run: uv publish
+        run: uv publish --trusted-publishing always
       - name: Summary
         run: echo "Published version ${{ steps.ver.outputs.version }}"
