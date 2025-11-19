@@ -185,40 +185,28 @@ class DazlsComponentSplitter(ComponentSplitter):
         if self._model is None:
             raise ValueError("DAZLs model not loaded")
 
-        try:
-            input_df = self._create_input_features(data)
+        input_df = self._create_input_features(data)
 
-            predictions = self._model.predict(input_df)
+        predictions = self._model.predict(input_df)
 
-            # Create component dataframe
-            forecasts = pd.DataFrame(
-                predictions,
-                columns=[EnergyComponentType.WIND, EnergyComponentType.SOLAR],
-                index=input_df.index,
-            )
+        # Create component dataframe
+        forecasts = pd.DataFrame(
+            predictions,
+            columns=[EnergyComponentType.WIND, EnergyComponentType.SOLAR],
+            index=input_df.index,
+        )
 
-            # Clip wind and solar components to be non-negative
-            forecasts[EnergyComponentType.SOLAR] = forecasts[EnergyComponentType.SOLAR].clip(lower=0.0)
-            forecasts[EnergyComponentType.WIND] = forecasts[EnergyComponentType.WIND].clip(lower=0.0)
+        # Clip wind and solar components to be non-negative
+        forecasts[EnergyComponentType.SOLAR] = forecasts[EnergyComponentType.SOLAR].clip(lower=0.0)
+        forecasts[EnergyComponentType.WIND] = forecasts[EnergyComponentType.WIND].clip(lower=0.0)
 
-            # Calculate "other" component as residual
-            forecasts[EnergyComponentType.OTHER] = (
-                input_df["total_load"] - forecasts[EnergyComponentType.SOLAR] - forecasts[EnergyComponentType.WIND]
-            )
+        # Calculate "other" component as residual
+        forecasts[EnergyComponentType.OTHER] = (
+            input_df["total_load"] - forecasts[EnergyComponentType.SOLAR] - forecasts[EnergyComponentType.WIND]
+        )
 
-            # Reindex to match original input, fill missing with 0
-            components_df = forecasts.reindex(index=data.data.index, fill_value=0.0)
-
-        except (ValueError, KeyError, AttributeError) as e:
-            _logger.warning("Could not make component forecasts: %s, falling back on series of zeros", e, exc_info=True)
-            components_df = pd.DataFrame(
-                {
-                    EnergyComponentType.WIND: 0.0,
-                    EnergyComponentType.SOLAR: 0.0,
-                    EnergyComponentType.OTHER: 0.0,
-                },
-                index=data.data.index,
-            )
+        # Reindex to match original input, fill missing with 0
+        components_df = forecasts.reindex(index=data.data.index, fill_value=0.0)
 
         # Only return requested components
         requested_components = self.config.components
