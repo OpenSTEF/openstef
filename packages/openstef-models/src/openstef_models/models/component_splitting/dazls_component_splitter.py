@@ -154,7 +154,13 @@ class DazlsComponentSplitter(ComponentSplitter):
         )
 
         # Drop rows with NaN values
-        return input_df.dropna()  # pyright: ignore[reportUnknownMemberType]
+        input_df = input_df.dropna()  # pyright: ignore[reportUnknownMemberType]
+
+        if input_df.empty:
+            error_msg = "No valid data available for component splitting after dropping NaNs"
+            raise ValueError(error_msg)
+
+        return input_df
 
     @override
     def fit(self, data: TimeSeriesDataset, data_val: TimeSeriesDataset | None = None) -> None:
