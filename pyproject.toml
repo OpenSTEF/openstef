@@ -34,14 +34,14 @@ dependencies = [
 optional-dependencies.all = [
   "openstef-beam[all]",
   "openstef-core",
-  "openstef-models",
+  "openstef-models[xgb-cpu]",
 ]
 optional-dependencies.beam = [
   "huggingface-hub>=0.35.3",
   "openstef-beam",
 ]
 optional-dependencies.models = [
-  "openstef-models",
+  "openstef-models[xgb-cpu]",
 ]
 urls.Documentation = "https://openstef.github.io/openstef/index.html"
 urls.Homepage = "https://lfenergy.org/projects/openstef/"

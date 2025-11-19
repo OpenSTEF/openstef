@@ -30,8 +30,8 @@ classifiers = [
 dependencies = [
   "holidays>=0.79",
   "mlflow-skinny>=3,<4",
-  "openstef-beam",
-  "openstef-core",
+  "openstef-beam>=4,<5",
+  "openstef-core>=4,<5",
   "pvlib>=0.13",
   "pycountry>=24.6.1",
   "scikit-learn>=1.7.1,<2",
