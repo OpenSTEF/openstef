@@ -86,7 +86,7 @@ class DazlsComponentSplitter(ComponentSplitter):
         ...     components=[EnergyComponentType.SOLAR, EnergyComponentType.WIND, EnergyComponentType.OTHER],
         ... )
         >>> splitter = DazlsComponentSplitter(config)
-        >>> # components = splitter.predict(time_series_data)
+        >>> components = splitter.predict(time_series_data) # doctest: +SKIP
     """
 
     _config: DazlsComponentSplitterConfig
