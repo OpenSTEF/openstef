@@ -1,0 +1,919 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>openstef_models.models.forecasting_model &#8212; OpenSTEF 0.0.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=76f329c7" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=7026087e"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=97f0b27d"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/openstef_models/models/forecasting_model';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = '_static/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="icon" href="../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.0.0" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/openstef-horizontal-color.svg" class="logo__image only-light" alt="OpenSTEF homepage"/>
+    <img src="../../../_static/openstef-horizontal-white.svg" class="logo__image only-dark pst-js-only" alt="OpenSTEF homepage"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../project/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../contribute/index.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../examples.html">
+    Examples
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/OpenSTEF/openstef" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.lfenergy.org/projects/openstef/" title="LFE Homepage" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-bolt fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">LFE Homepage</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api/index.html">
+    API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../project/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../contribute/index.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples.html">
+    Examples
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/OpenSTEF/openstef" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.lfenergy.org/projects/openstef/" title="LFE Homepage" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-bolt fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">LFE Homepage</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">openstef_models.models.forecasting_model</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for openstef_models.models.forecasting_model</h1><div class="highlight"><pre>
+<span></span><span class="c1"># SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project &lt;short.term.energy.forecasts@alliander.com&gt;</span>
+<span class="c1">#</span>
+<span class="c1"># SPDX-License-Identifier: MPL-2.0</span>
+
+<span class="sd">&quot;&quot;&quot;High-level forecasting model that orchestrates the complete prediction pipeline.</span>
+
+<span class="sd">Combines feature engineering, forecasting, and postprocessing into a unified interface.</span>
+<span class="sd">Handles both single-horizon and multi-horizon forecasters while providing consistent</span>
+<span class="sd">data transformation and validation.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">cast</span><span class="p">,</span> <span class="n">override</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">Field</span><span class="p">,</span> <span class="n">PrivateAttr</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.evaluation</span><span class="w"> </span><span class="kn">import</span> <span class="n">EvaluationConfig</span><span class="p">,</span> <span class="n">EvaluationPipeline</span><span class="p">,</span> <span class="n">SubsetMetric</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.evaluation.metric_providers</span><span class="w"> </span><span class="kn">import</span> <span class="n">MetricProvider</span><span class="p">,</span> <span class="n">ObservedProbabilityProvider</span><span class="p">,</span> <span class="n">R2Provider</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.base_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ForecastDataset</span><span class="p">,</span>
+    <span class="n">ForecastInputDataset</span><span class="p">,</span>
+    <span class="n">TimeSeriesDataset</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets.timeseries_dataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_horizons_present</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">NotFittedError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.mixins</span><span class="w"> </span><span class="kn">import</span> <span class="n">Predictor</span><span class="p">,</span> <span class="n">TransformPipeline</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.models.forecasting</span><span class="w"> </span><span class="kn">import</span> <span class="n">Forecaster</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.models.forecasting.forecaster</span><span class="w"> </span><span class="kn">import</span> <span class="n">ForecasterConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.utils.data_split</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataSplitter</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ModelFitResult</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Result of fitting a forecasting model.</span>
+
+<span class="sd">    Contains the original input dataset, split datasets used for training/validation/testing,</span>
+<span class="sd">    and evaluation metrics computed on each subset.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">input_dataset</span><span class="p">:</span> <span class="n">TimeSeriesDataset</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Original time series dataset used for model fitting.&quot;</span><span class="p">)</span>
+
+    <span class="n">input_data_train</span><span class="p">:</span> <span class="n">ForecastInputDataset</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Training dataset after preprocessing and splitting.&quot;</span><span class="p">)</span>
+    <span class="n">input_data_val</span><span class="p">:</span> <span class="n">ForecastInputDataset</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Validation dataset after preprocessing and splitting, or None if not used.&quot;</span>
+    <span class="p">)</span>
+    <span class="n">input_data_test</span><span class="p">:</span> <span class="n">ForecastInputDataset</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Test dataset after preprocessing and splitting, or None if not used.&quot;</span>
+    <span class="p">)</span>
+
+    <span class="n">metrics_train</span><span class="p">:</span> <span class="n">SubsetMetric</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Evaluation metrics computed on the training dataset.&quot;</span><span class="p">)</span>
+    <span class="n">metrics_val</span><span class="p">:</span> <span class="n">SubsetMetric</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Evaluation metrics computed on the validation dataset, or None if not used.&quot;</span>
+    <span class="p">)</span>
+    <span class="n">metrics_test</span><span class="p">:</span> <span class="n">SubsetMetric</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Evaluation metrics computed on the test dataset, or None if not used.&quot;</span>
+    <span class="p">)</span>
+    <span class="n">metrics_full</span><span class="p">:</span> <span class="n">SubsetMetric</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Evaluation metrics computed on the full original dataset.&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="ForecastingModel">
+<a class="viewcode-back" href="../../../api/generated/openstef_models.models.ForecastingModel.html#openstef_models.models.ForecastingModel">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ForecastingModel</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">,</span> <span class="n">Predictor</span><span class="p">[</span><span class="n">TimeSeriesDataset</span><span class="p">,</span> <span class="n">ForecastDataset</span><span class="p">]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Complete forecasting pipeline combining preprocessing, prediction, and postprocessing.</span>
+
+<span class="sd">    Orchestrates the full forecasting workflow by managing feature engineering,</span>
+<span class="sd">    model training/prediction, and result postprocessing. Automatically handles</span>
+<span class="sd">    the differences between single-horizon and multi-horizon forecasters while</span>
+<span class="sd">    ensuring data consistency and validation throughout the pipeline.</span>
+
+<span class="sd">    Invariants:</span>
+<span class="sd">        - fit() must be called before predict()</span>
+<span class="sd">        - Forecaster and preprocessing horizons must match during initialization</span>
+
+<span class="sd">    Important:</span>
+<span class="sd">        The `cutoff_history` parameter is crucial when using lag-based features in</span>
+<span class="sd">        preprocessing. For example, a lag-14 transformation creates NaN values for</span>
+<span class="sd">        the first 14 days of data. Set `cutoff_history` to exclude these incomplete</span>
+<span class="sd">        rows from training. You must configure this manually based on your preprocessing</span>
+<span class="sd">        pipeline since lags cannot be automatically inferred from the transforms.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        Basic forecasting workflow:</span>
+
+<span class="sd">        &gt;&gt;&gt; from openstef_models.models.forecasting.constant_median_forecaster import (</span>
+<span class="sd">        ...     ConstantMedianForecaster, ConstantMedianForecasterConfig</span>
+<span class="sd">        ... )</span>
+<span class="sd">        &gt;&gt;&gt; from openstef_core.types import LeadTime</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; # Note: This is a conceptual example showing the API structure</span>
+<span class="sd">        &gt;&gt;&gt; # Real usage requires implemented forecaster classes</span>
+<span class="sd">        &gt;&gt;&gt; forecaster = ConstantMedianForecaster(</span>
+<span class="sd">        ...     config=ConstantMedianForecasterConfig(horizons=[LeadTime.from_string(&quot;PT36H&quot;)])</span>
+<span class="sd">        ... )</span>
+<span class="sd">        &gt;&gt;&gt; # Create and train model</span>
+<span class="sd">        &gt;&gt;&gt; model = ForecastingModel(</span>
+<span class="sd">        ...     forecaster=forecaster,</span>
+<span class="sd">        ...     cutoff_history=timedelta(days=14),  # Match your maximum lag in preprocessing</span>
+<span class="sd">        ... )</span>
+<span class="sd">        &gt;&gt;&gt; model.fit(training_data)  # doctest: +SKIP</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; # Generate forecasts</span>
+<span class="sd">        &gt;&gt;&gt; forecasts = model.predict(new_data)  # doctest: +SKIP</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Forecasting components</span>
+    <span class="n">preprocessing</span><span class="p">:</span> <span class="n">TransformPipeline</span><span class="p">[</span><span class="n">TimeSeriesDataset</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default_factory</span><span class="o">=</span><span class="n">TransformPipeline</span><span class="p">[</span><span class="n">TimeSeriesDataset</span><span class="p">],</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Feature engineering pipeline for transforming raw input data into model-ready features.&quot;</span><span class="p">,</span>
+        <span class="n">exclude</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">forecaster</span><span class="p">:</span> <span class="n">Forecaster</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=...</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Underlying forecasting algorithm, either single-horizon or multi-horizon.&quot;</span><span class="p">,</span>
+        <span class="n">exclude</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">postprocessing</span><span class="p">:</span> <span class="n">TransformPipeline</span><span class="p">[</span><span class="n">ForecastDataset</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default_factory</span><span class="o">=</span><span class="n">TransformPipeline</span><span class="p">[</span><span class="n">ForecastDataset</span><span class="p">],</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Postprocessing pipeline for transforming model outputs into final forecasts.&quot;</span><span class="p">,</span>
+        <span class="n">exclude</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">target_column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;load&quot;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Name of the target variable column in datasets.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">data_splitter</span><span class="p">:</span> <span class="n">DataSplitter</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default_factory</span><span class="o">=</span><span class="n">DataSplitter</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Data splitting strategy for train/validation/test sets.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">cutoff_history</span><span class="p">:</span> <span class="n">timedelta</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Amount of historical data to exclude from training and prediction due to incomplete features &quot;</span>
+        <span class="s2">&quot;from lag-based preprocessing. When using lag transforms (e.g., lag-14), the first N days contain NaN values. &quot;</span>
+        <span class="s2">&quot;Set this to match your maximum lag duration (e.g., timedelta(days=14)). &quot;</span>
+        <span class="s2">&quot;Default of 0 assumes no invalid rows are created by preprocessing.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># Evaluation</span>
+    <span class="n">evaluation_metrics</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">MetricProvider</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="p">[</span><span class="n">R2Provider</span><span class="p">(),</span> <span class="n">ObservedProbabilityProvider</span><span class="p">()],</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;List of metric providers for evaluating model score.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># Metadata</span>
+    <span class="n">tags</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Optional metadata tags for the model.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">_logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">=</span> <span class="n">PrivateAttr</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">config</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ForecasterConfig</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the configuration of the underlying forecaster.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">forecaster</span><span class="o">.</span><span class="n">config</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@override</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_fitted</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">forecaster</span><span class="o">.</span><span class="n">is_fitted</span>
+
+<div class="viewcode-block" id="ForecastingModel.fit">
+<a class="viewcode-back" href="../../../api/generated/openstef_models.models.ForecastingModel.html#openstef_models.models.ForecastingModel.fit">[docs]</a>
+    <span class="nd">@override</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">data</span><span class="p">:</span> <span class="n">TimeSeriesDataset</span><span class="p">,</span>
+        <span class="n">data_val</span><span class="p">:</span> <span class="n">TimeSeriesDataset</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">data_test</span><span class="p">:</span> <span class="n">TimeSeriesDataset</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ModelFitResult</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Train the forecasting model on the provided dataset.</span>
+
+<span class="sd">        Fits the preprocessing pipeline and underlying forecaster. Handles both</span>
+<span class="sd">        single-horizon and multi-horizon forecasters appropriately.</span>
+
+<span class="sd">        The data splitting follows this sequence:</span>
+<span class="sd">        1. Split test set from full data (using test_splitter)</span>
+<span class="sd">        2. Split validation from remaining train+val data (using val_splitter)</span>
+<span class="sd">        3. Train on the final training set</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data: Historical time series data with features and target values.</span>
+<span class="sd">            data_val: Optional validation data. If provided, splitters are ignored for validation.</span>
+<span class="sd">            data_test: Optional test data. If provided, splitters are ignored for test.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            FitResult containing training details and metrics.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">validate_horizons_present</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">forecaster</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">horizons</span><span class="p">)</span>
+
+        <span class="c1"># Fit the feature engineering transforms</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="c1"># Transform and split input data</span>
+        <span class="n">input_data_train</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_input</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">input_data_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_input</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data_val</span><span class="p">)</span> <span class="k">if</span> <span class="n">data_val</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">input_data_test</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_input</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data_test</span><span class="p">)</span> <span class="k">if</span> <span class="n">data_test</span> <span class="k">else</span> <span class="kc">None</span>
+
+        <span class="c1"># Drop target column nan&#39;s from training data. One can not train on missing targets.</span>
+        <span class="n">target_dropna</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">dropna</span><span class="p">,</span> <span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">target_column</span><span class="p">])</span>  <span class="c1"># pyright: ignore[reportUnknownMemberType]</span>
+        <span class="n">input_data_train</span> <span class="o">=</span> <span class="n">input_data_train</span><span class="o">.</span><span class="n">pipe_pandas</span><span class="p">(</span><span class="n">target_dropna</span><span class="p">)</span>
+        <span class="n">input_data_val</span> <span class="o">=</span> <span class="n">input_data_val</span><span class="o">.</span><span class="n">pipe_pandas</span><span class="p">(</span><span class="n">target_dropna</span><span class="p">)</span> <span class="k">if</span> <span class="n">input_data_val</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">input_data_test</span> <span class="o">=</span> <span class="n">input_data_test</span><span class="o">.</span><span class="n">pipe_pandas</span><span class="p">(</span><span class="n">target_dropna</span><span class="p">)</span> <span class="k">if</span> <span class="n">input_data_test</span> <span class="k">else</span> <span class="kc">None</span>
+
+        <span class="c1"># Transform the input data to a valid forecast input and split into train/val/test</span>
+        <span class="n">input_data_train</span><span class="p">,</span> <span class="n">input_data_val</span><span class="p">,</span> <span class="n">input_data_test</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_splitter</span><span class="o">.</span><span class="n">split_dataset</span><span class="p">(</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">input_data_train</span><span class="p">,</span> <span class="n">data_val</span><span class="o">=</span><span class="n">input_data_val</span><span class="p">,</span> <span class="n">data_test</span><span class="o">=</span><span class="n">input_data_test</span><span class="p">,</span> <span class="n">target_column</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">target_column</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Fit the model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">forecaster</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">input_data_train</span><span class="p">,</span> <span class="n">data_val</span><span class="o">=</span><span class="n">input_data_val</span><span class="p">)</span>
+        <span class="n">prediction_raw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_predict</span><span class="p">(</span><span class="n">input_data</span><span class="o">=</span><span class="n">input_data_train</span><span class="p">)</span>
+
+        <span class="c1"># Fit the postprocessing transforms</span>
+        <span class="n">prediction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">postprocessing</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">prediction_raw</span><span class="p">)</span>
+
+        <span class="c1"># Calculate training, validation, test, and full metrics</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">_predict_and_score</span><span class="p">(</span><span class="n">input_data</span><span class="p">:</span> <span class="n">ForecastInputDataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SubsetMetric</span><span class="p">:</span>
+            <span class="n">prediction_raw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_predict</span><span class="p">(</span><span class="n">input_data</span><span class="o">=</span><span class="n">input_data</span><span class="p">)</span>
+            <span class="n">prediction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">postprocessing</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">prediction_raw</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calculate_score</span><span class="p">(</span><span class="n">prediction</span><span class="o">=</span><span class="n">prediction</span><span class="p">)</span>
+
+        <span class="n">metrics_train</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calculate_score</span><span class="p">(</span><span class="n">prediction</span><span class="o">=</span><span class="n">prediction</span><span class="p">)</span>
+        <span class="n">metrics_val</span> <span class="o">=</span> <span class="n">_predict_and_score</span><span class="p">(</span><span class="n">input_data</span><span class="o">=</span><span class="n">input_data_val</span><span class="p">)</span> <span class="k">if</span> <span class="n">input_data_val</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">metrics_test</span> <span class="o">=</span> <span class="n">_predict_and_score</span><span class="p">(</span><span class="n">input_data</span><span class="o">=</span><span class="n">input_data_test</span><span class="p">)</span> <span class="k">if</span> <span class="n">input_data_test</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">metrics_full</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">ModelFitResult</span><span class="p">(</span>
+            <span class="n">input_dataset</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
+            <span class="n">input_data_train</span><span class="o">=</span><span class="n">input_data_train</span><span class="p">,</span>
+            <span class="n">input_data_val</span><span class="o">=</span><span class="n">input_data_val</span><span class="p">,</span>
+            <span class="n">input_data_test</span><span class="o">=</span><span class="n">input_data_test</span><span class="p">,</span>
+            <span class="n">metrics_train</span><span class="o">=</span><span class="n">metrics_train</span><span class="p">,</span>
+            <span class="n">metrics_val</span><span class="o">=</span><span class="n">metrics_val</span><span class="p">,</span>
+            <span class="n">metrics_test</span><span class="o">=</span><span class="n">metrics_test</span><span class="p">,</span>
+            <span class="n">metrics_full</span><span class="o">=</span><span class="n">metrics_full</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ForecastingModel.predict">
+<a class="viewcode-back" href="../../../api/generated/openstef_models.models.ForecastingModel.html#openstef_models.models.ForecastingModel.predict">[docs]</a>
+    <span class="nd">@override</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">TimeSeriesDataset</span><span class="p">,</span> <span class="n">forecast_start</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ForecastDataset</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate forecasts using the trained model.</span>
+
+<span class="sd">        Transforms input data through the preprocessing pipeline, generates predictions</span>
+<span class="sd">        using the underlying forecaster, and applies postprocessing transformations.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data: Input time series data for generating forecasts.</span>
+<span class="sd">            forecast_start: Starting time for forecasts. If None, uses data end time.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Processed forecast dataset with predictions and uncertainty estimates.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            NotFittedError: If the model hasn&#39;t been trained yet.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_fitted</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">NotFittedError</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">forecaster</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+
+        <span class="c1"># Transform the input data to a valid forecast input</span>
+        <span class="n">input_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_input</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">forecast_start</span><span class="o">=</span><span class="n">forecast_start</span><span class="p">)</span>
+
+        <span class="c1"># Generate predictions</span>
+        <span class="n">raw_predictions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_predict</span><span class="p">(</span><span class="n">input_data</span><span class="o">=</span><span class="n">input_data</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">postprocessing</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">raw_predictions</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ForecastingModel.prepare_input">
+<a class="viewcode-back" href="../../../api/generated/openstef_models.models.ForecastingModel.html#openstef_models.models.ForecastingModel.prepare_input">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">prepare_input</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">data</span><span class="p">:</span> <span class="n">TimeSeriesDataset</span><span class="p">,</span>
+        <span class="n">forecast_start</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ForecastInputDataset</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Prepare input data for forecasting by applying preprocessing and filtering.</span>
+
+<span class="sd">        Transforms raw time series data through the preprocessing pipeline, restores</span>
+<span class="sd">        the target column, and filters out incomplete historical data to ensure</span>
+<span class="sd">        training quality.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data: Raw time series dataset to prepare for forecasting.</span>
+<span class="sd">            forecast_start: Optional start time for forecasts. If provided and earlier</span>
+<span class="sd">                than the cutoff time, overrides the cutoff for data filtering.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Processed forecast input dataset ready for model prediction.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Transform and restore target column</span>
+        <span class="n">input_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">input_data</span> <span class="o">=</span> <span class="n">restore_target</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">input_data</span><span class="p">,</span> <span class="n">original_dataset</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">target_column</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">target_column</span><span class="p">)</span>
+
+        <span class="c1"># Cut away input history to avoid training on incomplete data</span>
+        <span class="n">input_data_start</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;pd.Series[pd.Timestamp]&quot;</span><span class="p">,</span> <span class="n">input_data</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">to_pydatetime</span><span class="p">()</span>
+        <span class="n">input_data_cutoff</span> <span class="o">=</span> <span class="n">input_data_start</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">cutoff_history</span>
+        <span class="k">if</span> <span class="n">forecast_start</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">forecast_start</span> <span class="o">&lt;</span> <span class="n">input_data_cutoff</span><span class="p">:</span>
+            <span class="n">input_data_cutoff</span> <span class="o">=</span> <span class="n">forecast_start</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;Forecast start </span><span class="si">%s</span><span class="s2"> is after input data start + cutoff history </span><span class="si">%s</span><span class="s2">. Using forecast start as cutoff.&quot;</span><span class="p">,</span>
+                <span class="n">forecast_start</span><span class="p">,</span>
+                <span class="n">input_data_cutoff</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="n">input_data</span> <span class="o">=</span> <span class="n">input_data</span><span class="o">.</span><span class="n">filter_by_range</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">input_data_cutoff</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">ForecastInputDataset</span><span class="o">.</span><span class="n">from_timeseries</span><span class="p">(</span>
+            <span class="n">dataset</span><span class="o">=</span><span class="n">input_data</span><span class="p">,</span>
+            <span class="n">target_column</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">target_column</span><span class="p">,</span>
+            <span class="n">forecast_start</span><span class="o">=</span><span class="n">forecast_start</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_data</span><span class="p">:</span> <span class="n">ForecastInputDataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ForecastDataset</span><span class="p">:</span>
+        <span class="c1"># Predict and restore target column</span>
+        <span class="n">prediction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">forecaster</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">input_data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">restore_target</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">prediction</span><span class="p">,</span> <span class="n">original_dataset</span><span class="o">=</span><span class="n">input_data</span><span class="p">,</span> <span class="n">target_column</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">target_column</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ForecastingModel.score">
+<a class="viewcode-back" href="../../../api/generated/openstef_models.models.ForecastingModel.html#openstef_models.models.ForecastingModel.score">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">score</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">data</span><span class="p">:</span> <span class="n">TimeSeriesDataset</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SubsetMetric</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Evaluate model performance on the provided dataset.</span>
+
+<span class="sd">        Generates predictions for the dataset and calculates evaluation metrics</span>
+<span class="sd">        by comparing against ground truth values. Uses the configured evaluation</span>
+<span class="sd">        metrics to assess forecast quality at the maximum forecast horizon.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data: Time series dataset containing both features and target values</span>
+<span class="sd">                for evaluation.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Evaluation metrics including configured providers (e.g., R2, observed</span>
+<span class="sd">            probability) computed at the maximum forecast horizon.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">prediction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calculate_score</span><span class="p">(</span><span class="n">prediction</span><span class="o">=</span><span class="n">prediction</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_calculate_score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prediction</span><span class="p">:</span> <span class="n">ForecastDataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SubsetMetric</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">prediction</span><span class="o">.</span><span class="n">target_series</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Prediction dataset must contain target series for scoring.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># We need to make sure there are no NaNs in the target label for metric calculation</span>
+        <span class="n">prediction</span> <span class="o">=</span> <span class="n">prediction</span><span class="o">.</span><span class="n">pipe_pandas</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">dropna</span><span class="p">,</span> <span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">target_column</span><span class="p">])</span>  <span class="c1"># pyright: ignore[reportUnknownArgumentType, reportUnknownMemberType]</span>
+
+        <span class="n">pipeline</span> <span class="o">=</span> <span class="n">EvaluationPipeline</span><span class="p">(</span>
+            <span class="c1"># Needs only one horizon since we are using only a single prediction step</span>
+            <span class="c1"># If a more comprehensive test is needed, a backtest should be run.</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">EvaluationConfig</span><span class="p">(</span><span class="n">available_ats</span><span class="o">=</span><span class="p">[],</span> <span class="n">lead_times</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">forecaster</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">max_horizon</span><span class="p">]),</span>
+            <span class="n">quantiles</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">forecaster</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">quantiles</span><span class="p">,</span>
+            <span class="c1"># Similarly windowed metrics are not relevant for single predictions.</span>
+            <span class="n">window_metric_providers</span><span class="o">=</span><span class="p">[],</span>
+            <span class="n">global_metric_providers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">evaluation_metrics</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">evaluation_result</span> <span class="o">=</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">run_for_subset</span><span class="p">(</span>
+            <span class="n">filtering</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">forecaster</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">max_horizon</span><span class="p">,</span>
+            <span class="n">predictions</span><span class="o">=</span><span class="n">prediction</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">global_metric</span> <span class="o">=</span> <span class="n">evaluation_result</span><span class="o">.</span><span class="n">get_global_metric</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">global_metric</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">SubsetMetric</span><span class="p">(</span>
+                <span class="n">window</span><span class="o">=</span><span class="s2">&quot;global&quot;</span><span class="p">,</span>
+                <span class="n">timestamp</span><span class="o">=</span><span class="n">prediction</span><span class="o">.</span><span class="n">forecast_start</span><span class="p">,</span>
+                <span class="n">metrics</span><span class="o">=</span><span class="p">{},</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">global_metric</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">restore_target</span><span class="p">[</span><span class="n">T</span><span class="p">:</span> <span class="n">TimeSeriesDataset</span><span class="p">](</span>
+    <span class="n">dataset</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span>
+    <span class="n">original_dataset</span><span class="p">:</span> <span class="n">TimeSeriesDataset</span><span class="p">,</span>
+    <span class="n">target_column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Restore the target column from the original dataset to the given dataset.</span>
+
+<span class="sd">    Maps target values from the original dataset to the dataset using index alignment.</span>
+<span class="sd">    Ensures the target column is present in the dataset for downstream processing.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        dataset: Dataset to modify by adding the target column.</span>
+<span class="sd">        original_dataset: Source dataset containing the target values.</span>
+<span class="sd">        target_column: Name of the target column to restore.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Dataset with the target column restored from the original dataset.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">target_series</span> <span class="o">=</span> <span class="n">original_dataset</span><span class="o">.</span><span class="n">select_features</span><span class="p">([</span><span class="n">target_column</span><span class="p">])</span><span class="o">.</span><span class="n">select_version</span><span class="p">()</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">target_column</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_transform_restore_target</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="o">**</span><span class="p">{</span><span class="nb">str</span><span class="p">(</span><span class="n">target_series</span><span class="o">.</span><span class="n">name</span><span class="p">):</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">target_series</span><span class="p">)})</span>  <span class="c1"># pyright: ignore[reportUnknownMemberType]</span>
+
+    <span class="k">return</span> <span class="n">dataset</span><span class="o">.</span><span class="n">pipe_pandas</span><span class="p">(</span><span class="n">_transform_restore_target</span><span class="p">)</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ForecastingModel&quot;</span><span class="p">,</span> <span class="s2">&quot;ModelFitResult&quot;</span><span class="p">,</span> <span class="s2">&quot;restore_target&quot;</span><span class="p">]</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2017-2025 Contributors to the OpenSTEF project.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

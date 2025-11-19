@@ -1,0 +1,61 @@
+﻿.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+openstef_beam.metrics
+=====================
+
+.. currentmodule:: openstef_beam.metrics
+
+.. automodule:: openstef_beam.metrics
+   :no-members:
+   :no-inherited-members:
+
+
+
+
+
+
+
+
+
+
+Functions
+---------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_function.rst
+
+   confusion_matrix
+   crps
+   fbeta
+   mape
+   mean_absolute_calibration_error
+   observed_probability
+   precision_recall
+   r2
+   rcrps
+   relative_pinball_loss
+   riqd
+   rmae
+
+
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_class.rst
+
+   ConfusionMatrix
+   PrecisionRecall
+
+
+
+
+
+
+
+
