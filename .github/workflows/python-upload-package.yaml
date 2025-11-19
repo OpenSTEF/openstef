@@ -10,6 +10,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     environment: release
+    if: startsWith(github.event.release.tag_name, 'v3.')
     permissions:
       # IMPORTANT: this permission is mandatory for trusted publishing
       id-token: write
