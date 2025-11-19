@@ -9,9 +9,9 @@ import pytest
 
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.types import EnergyComponentType
-from openstef_models.models.component_splitting.dazls_component_splitter import (
-    DazlsComponentSplitter,
-    DazlsComponentSplitterConfig,
+from openstef_models.models.component_splitting.linear_component_splitter import (
+    LinearComponentSplitter,
+    LinearComponentSplitterConfig,
 )
 
 
@@ -35,22 +35,22 @@ def sample_timeseries_dataset() -> TimeSeriesDataset:
 
 
 @pytest.fixture
-def sample_splitter_config() -> DazlsComponentSplitterConfig:
-    """Create sample DAZLs component splitter configuration."""
-    return DazlsComponentSplitterConfig(
+def sample_splitter_config() -> LinearComponentSplitterConfig:
+    """Create sample linear component splitter configuration."""
+    return LinearComponentSplitterConfig(
         source_column="load",
         radiation_column="radiation",
         windspeed_100m_column="windspeed_100m",
     )
 
 
-def test_dazls_component_splitter__predict_returns_correct_components(
-    sample_splitter_config: DazlsComponentSplitterConfig,
+def test_linear_component_splitter__predict_returns_correct_components(
+    sample_splitter_config: LinearComponentSplitterConfig,
     sample_timeseries_dataset: TimeSeriesDataset,
 ):
     """Test that predict returns wind, solar, and other components."""
     # Arrange
-    splitter = DazlsComponentSplitter(config=sample_splitter_config)
+    splitter = LinearComponentSplitter(config=sample_splitter_config)
 
     # Act
     result = splitter.predict(sample_timeseries_dataset)
@@ -71,13 +71,13 @@ def test_dazls_component_splitter__predict_returns_correct_components(
     assert (result.data[EnergyComponentType.SOLAR] > 0).any() or (result.data[EnergyComponentType.WIND] > 0).any()
 
 
-def test_dazls_component_splitter__create_input_features(
-    sample_splitter_config: DazlsComponentSplitterConfig,
+def test_linear_component_splitter__create_input_features(
+    sample_splitter_config: LinearComponentSplitterConfig,
     sample_timeseries_dataset: TimeSeriesDataset,
 ):
     """Test that input features are created correctly."""
     # Arrange
-    splitter = DazlsComponentSplitter(config=sample_splitter_config)
+    splitter = LinearComponentSplitter(config=sample_splitter_config)
 
     # Act
     input_features = splitter._create_input_features(sample_timeseries_dataset)

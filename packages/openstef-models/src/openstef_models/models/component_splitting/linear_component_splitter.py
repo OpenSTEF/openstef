@@ -2,9 +2,9 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-"""DAZLs component splitter for energy component analysis.
+"""Linear component splitter for energy component analysis.
 
-Provides a DAZLs based component splitter that uses a simple linear model to split
+Provides a linear model based component splitter that splits
 energy data into predefined components.
 
 The splitter applies a pre-trained model from OpenSTEF V3.4.24 to divide total energy consumption
@@ -30,10 +30,10 @@ if TYPE_CHECKING:
 _logger = logging.getLogger(__name__)
 
 
-class DazlsModel(Protocol):
-    """Protocol for DAZLs model interface.
+class LinearComponentSplitterModel(Protocol):
+    """Protocol for linear component splitter model interface.
 
-    Defines the expected interface for the DAZLs model loaded from joblib.
+    Defines the expected interface for the linear component splitter model loaded from joblib.
     """
 
     def predict(self, x: "pd.DataFrame | npt.NDArray[np.float64]") -> "npt.NDArray[np.float64]":
@@ -48,12 +48,12 @@ class DazlsModel(Protocol):
         ...
 
 
-class DazlsComponentSplitterConfig(ComponentSplitterConfig):
-    """Configuration for DAZLs component splitter."""
+class LinearComponentSplitterConfig(ComponentSplitterConfig):
+    """Configuration for linear component splitter."""
 
-    dazls_model_path: Path = Field(
-        default=Path(__file__).parent / "dazls_model_3.4.24" / "dazls_stored_3.4.24_baseline_model.z",
-        description="Path to the pre-trained DAZLs model file.",
+    linear_model_path: Path = Field(
+        default=Path(__file__).parent / "linear_component_splitter_model" / "linear_component_splitter_model.z",
+        description="Path to the pre-trained linear model file.",
     )
     radiation_column: str = Field(
         default="radiation",
@@ -65,10 +65,10 @@ class DazlsComponentSplitterConfig(ComponentSplitterConfig):
     )
 
 
-class DazlsComponentSplitter(ComponentSplitter):
-    """DAZLs component splitter for energy data.
+class LinearComponentSplitter(ComponentSplitter):
+    """Linear component splitter for energy data.
 
-    Provides a DAZLs based component splitter that uses a simple linear model to split
+    Provides a linear component splitter that uses a simple linear model to split
     energy data into predefined components. The predefined components are:
     - Wind on shore
     - Solar
@@ -81,30 +81,30 @@ class DazlsComponentSplitter(ComponentSplitter):
         Basic usage:
 
         >>> from openstef_core.types import EnergyComponentType
-        >>> config = DazlsComponentSplitterConfig(
+        >>> config = LinearComponentSplitterConfig(
         ...     source_column="total_load",
         ...     components=[EnergyComponentType.SOLAR, EnergyComponentType.WIND, EnergyComponentType.OTHER],
         ... )
-        >>> splitter = DazlsComponentSplitter(config)
+        >>> splitter = LinearComponentSplitter(config)
         >>> components = splitter.predict(time_series_data) # doctest: +SKIP
     """
 
-    _config: DazlsComponentSplitterConfig
-    _model: DazlsModel | None
+    _config: LinearComponentSplitterConfig
+    _model: LinearComponentSplitterModel | None
 
-    def __init__(self, config: DazlsComponentSplitterConfig) -> None:
-        """Initialize the DAZLs component splitter.
+    def __init__(self, config: LinearComponentSplitterConfig) -> None:
+        """Initialize the linear component splitter.
 
         Args:
             config: Configuration with model path and column names.
         """
         super().__init__()
         self._config = config
-        self._model = joblib.load(self.config.dazls_model_path)  # type: ignore[reportUnknownMemberType]
+        self._model = joblib.load(self.config.linear_model_path)  # type: ignore[reportUnknownMemberType]
 
     @property
     @override
-    def config(self) -> DazlsComponentSplitterConfig:
+    def config(self) -> LinearComponentSplitterConfig:
         """Get the splitter configuration.
 
         Returns:
@@ -118,13 +118,13 @@ class DazlsComponentSplitter(ComponentSplitter):
         return True
 
     def _create_input_features(self, data: TimeSeriesDataset) -> pd.DataFrame:
-        """Create input features required by the DAZLs model.
+        """Create input features required by the linear model.
 
         Args:
             data: Input time series dataset with required columns.
 
         Returns:
-            DataFrame with the 3 features needed for DAZLs model prediction:
+            DataFrame with the 3 features needed for linear model prediction:
             radiation, windspeed_100m, and total_load.
 
         Raises:
@@ -140,7 +140,7 @@ class DazlsComponentSplitter(ComponentSplitter):
         required_cols = [source_col, radiation_col, wind_col]
         missing_cols = [col for col in required_cols if col not in df.columns]
         if missing_cols:
-            error_msg = f"Missing required columns for DAZLs prediction: {missing_cols}"
+            error_msg = f"Missing required columns for linear model prediction: {missing_cols}"
             raise ValueError(error_msg)
 
         # Create feature dataframe with the expected column names
@@ -164,14 +164,14 @@ class DazlsComponentSplitter(ComponentSplitter):
 
     @override
     def fit(self, data: TimeSeriesDataset, data_val: TimeSeriesDataset | None = None) -> None:
-        """No training supported currently for DAZLs component splitter.
+        """No training supported currently for linear component splitter.
 
-        The DAZLs model is pre-trained and loaded from a file.
+        The linear model is pre-trained and loaded from a file.
         """
 
     @override
     def predict(self, data: TimeSeriesDataset) -> EnergyComponentDataset:
-        """Predict energy components using the DAZLs model.
+        """Predict energy components using the linear model.
 
         Args:
             data: Input time series dataset containing total load, radiation, and windspeed_100m.
@@ -183,7 +183,7 @@ class DazlsComponentSplitter(ComponentSplitter):
             ValueError: If required columns are missing or model not loaded.
         """
         if self._model is None:
-            raise ValueError("DAZLs model not loaded")
+            raise ValueError("Linear model not loaded")
 
         input_df = self._create_input_features(data)
 
