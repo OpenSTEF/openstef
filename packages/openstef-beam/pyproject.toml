@@ -28,7 +28,7 @@ classifiers = [
 ]
 
 dependencies = [
-  "openstef-core>=4,<5",
+  "openstef-core>=4.0.0.dev0,<5",
   "plotly>=6.3",
   "pyyaml>=6.0.2",
   "scoringrules>=0.8",
