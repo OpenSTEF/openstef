@@ -25,7 +25,7 @@ class AnalysisAggregation(StrEnum):
     - TARGET ("target"): Single run, per target - cross-target comparison (e.g., RMAE per target)
     - GROUP ("group"): Single run, multiple targets - cross-group comparison (e.g., RMAE per group)
     - RUN ("run"): Multiple runs, per target - model comparison on same target for all targets
-    - RUN_AND_GROUP ("run_and_group"): Multiple runs, multiple targets - comprehensive comparison matrix
+    - RUN_AND_GROUP ("run_and_group"): Multiple runs, multiple targets - comparison matrix
     """
 
     NONE = "none"

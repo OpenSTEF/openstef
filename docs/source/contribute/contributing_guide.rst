@@ -78,6 +78,7 @@ appreciated! Our library source code is found in:
 
 * Core forecasting models: :file:`packages/openstef-models/`
 * Evaluation and analysis: :file:`packages/openstef-beam/`
+* Core utilities, dataset types, and shared functionality: :file:`packages/openstef-core/`
 * Examples and tutorials: :file:`examples/`
 * Tests: :file:`packages/*/tests/`
 
@@ -104,7 +105,7 @@ you can:
 - Fix a typo
 - Clarify a docstring
 - Write or update an :ref:`example <examples>`
-- Write or update a comprehensive :ref:`tutorial <tutorials>`
+- Write or update a :ref:`tutorial <tutorials>`
 - Improve the getting started guide
 - Add forecasting domain expertise to documentation
 

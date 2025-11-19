@@ -23,7 +23,7 @@ OpenSTEF 4.0.0 documentation
 ##################################
 
 
-OpenSTEF is a comprehensive library for creating short term forecasts for the energy sector. 
+OpenSTEF is a library for creating short term forecasts for the energy sector. 
 It contains all components for the machine learning pipeline required to make a forecast.
 
 Install
@@ -113,6 +113,7 @@ Learn
 
                 - openstef-models: Core forecasting models and feature engineering
                 - openstef-beam: Backtesting, evaluation, analysis and metrics
+                - openstef-core: Core utilities, dataset types, shared types and base models
 
 
 What's new

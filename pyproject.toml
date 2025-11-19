@@ -28,21 +28,17 @@ classifiers = [
 
 dependencies = [
   "openstef-core",
-  "openstef-models",
+  "openstef-models[xgb-cpu]",
 ]
 
 optional-dependencies.all = [
   "openstef-beam[all]",
-  "openstef-compatibility",
   "openstef-core",
-  "openstef-models[all]",
+  "openstef-models",
 ]
 optional-dependencies.beam = [
   "huggingface-hub>=0.35.3",
   "openstef-beam",
-]
-optional-dependencies.compatibility = [
-  "openstef-compatibility",
 ]
 optional-dependencies.models = [
   "openstef-models",
@@ -79,7 +75,6 @@ bypass-selection = true
 [tool.uv.sources]
 openstef-beam = { workspace = true }
 openstef-models = { workspace = true }
-openstef-compatibility = { workspace = true }
 openstef-docs = { workspace = true }
 openstef-core = { workspace = true }
 microsoft-python-type-stubs = { git = "git+https://github.com/microsoft/python-type-stubs.git" }
@@ -88,7 +83,6 @@ microsoft-python-type-stubs = { git = "git+https://github.com/microsoft/python-t
 members = [
   "packages/openstef-models",
   "packages/openstef-beam",
-  "packages/openstef-compatibility",
   "docs",
   "packages/openstef-core",
 ]
@@ -195,7 +189,6 @@ source = [
   "packages/openstef-beam/src",
   "packages/openstef-models/src",
   "packages/openstef-core/src",
-  "packages/openstef-compatibility/src",
 ]
 omit = [
   "tests/*",
@@ -358,7 +351,7 @@ cmd = "rm -rf docs/build/html/* docs/source/api/generated"
 [tool.licensecheck]
 # Pycountry is LGPL-2.1 according to pypi.
 # MPL 2.0 lists explicitly that it is compatible with LGPL-2.1 and later, so we ignore it here (due to false positive).
-ignore_packages = [ "openstef-beam", "openstef-models", "openstef-compatibility", "openstef-core", "pycountry" ]
+ignore_packages = [ "openstef-beam", "openstef-models", "openstef-core", "pycountry" ]
 # Note: MPL 2.0 lists explicitly Apache License 2.0 as compatible, so we ignore it here (due to false positive).
 ignore_licenses = [ "apache software license", "apache license 2.0" ]
 extras = [ "all" ]

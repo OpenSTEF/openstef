@@ -4,7 +4,7 @@
 
 """Benchmark pipeline for systematic forecasting model evaluation.
 
-Provides a standardized framework for running comprehensive forecasting benchmarks
+Provides a standardized framework for running forecasting benchmarks
 across multiple targets, models, and evaluation metrics. Coordinates backtesting,
 evaluation, and analysis phases while managing parallel execution and result storage.
 
@@ -59,7 +59,7 @@ type ForecasterFactory[T] = Callable[[BenchmarkContext, T], BacktestForecasterMi
 
 
 class BenchmarkPipeline[T: BenchmarkTarget, F]:
-    """Orchestrates comprehensive forecasting model benchmarks across multiple targets.
+    """Orchestrates forecasting model benchmarks across multiple targets.
 
     Provides a standardized framework for systematic evaluation of forecasting models.
     Coordinates the entire benchmark workflow from data preparation through analysis,
