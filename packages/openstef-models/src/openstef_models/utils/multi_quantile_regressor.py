@@ -1,3 +1,11 @@
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+#
+# SPDX-License-Identifier: MPL-2.0
+"""Adaptor for multi-quantile regression using a base quantile regressor.
+
+Designed to work with scikit-learn compatible regressors that support quantile regression.
+"""
+
 import logging
 
 import numpy as np

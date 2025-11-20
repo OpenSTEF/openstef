@@ -44,20 +44,12 @@ from openstef_models.transforms.time_domain import (
     RollingAggregatesAdder,
 )
 from openstef_models.transforms.time_domain.lags_adder import LagsAdder
-from openstef_models.transforms.time_domain.rolling_aggregates_adder import (
-    AggregationFunction,
-)
-from openstef_models.transforms.validation import (
-    CompletenessChecker,
-    FlatlineChecker,
-    InputConsistencyChecker,
-)
+from openstef_models.transforms.time_domain.rolling_aggregates_adder import AggregationFunction
+from openstef_models.transforms.validation import CompletenessChecker, FlatlineChecker, InputConsistencyChecker
 from openstef_models.transforms.weather_domain import (
+    AtmosphereDerivedFeaturesAdder,
     DaylightFeatureAdder,
     RadiationDerivedFeaturesAdder,
-)
-from openstef_models.transforms.weather_domain.atmosphere_derived_features_adder import (
-    AtmosphereDerivedFeaturesAdder,
 )
 from openstef_models.utils.data_split import DataSplitter
 from openstef_models.utils.feature_selection import Exclude, FeatureSelection, Include
@@ -309,9 +301,9 @@ def create_forecasting_workflow(
         LagsAdder(
             history_available=config.predict_history,
             horizons=config.horizons,
-            add_trivial_lags=config.model != "gblinear",  # GBLinear uses only 7day lag.
+            add_trivial_lags=config.model not in {"gblinear", "hybrid"},  # GBLinear uses only 7day lag.
             target_column=config.target_column,
-            custom_lags=[timedelta(days=7)] if config.model == "gblinear" else [],
+            custom_lags=[timedelta(days=7)] if config.model in {"gblinear", "hybrid"} else [],
         ),
         WindPowerFeatureAdder(
             windspeed_reference_column=config.wind_speed_column,
@@ -436,9 +428,16 @@ def create_forecasting_workflow(
     elif config.model == "hybrid":
         preprocessing = [
             *checks,
-            Imputer(selection=Exclude(config.target_column), imputation_strategy="mean"),
             *feature_adders,
             *feature_standardizers,
+            Imputer(
+                selection=Exclude(config.target_column),
+                imputation_strategy="mean",
+                fill_future_values=Include(config.energy_price_column),
+            ),
+            NaNDropper(
+                selection=Exclude(config.target_column),
+            ),
         ]
         forecaster = HybridForecaster(
             config=HybridForecaster.Config(

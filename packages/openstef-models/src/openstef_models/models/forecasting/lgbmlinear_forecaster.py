@@ -52,7 +52,7 @@ class LGBMLinearHyperParams(HyperParams):
     # Core Tree Boosting Parameters
 
     n_estimators: int = Field(
-        default=77,
+        default=100,
         description="Number of boosting rounds/trees to fit. Higher values may improve performance but "
         "increase training time and risk overfitting.",
     )
@@ -63,7 +63,7 @@ class LGBMLinearHyperParams(HyperParams):
         "more boosting rounds.",
     )
     max_depth: int = Field(
-        default=1,
+        default=6,
         description="Maximum depth of trees. Higher values capture more complex patterns but risk "
         "overfitting. Range: [1,∞]",
     )
@@ -74,11 +74,11 @@ class LGBMLinearHyperParams(HyperParams):
     )
 
     min_data_in_leaf: int = Field(
-        default=5,
+        default=500,
         description="Minimum number of data points in a leaf. Higher values prevent overfitting. Range: [1,∞]",
     )
     min_data_in_bin: int = Field(
-        default=13,
+        default=500,
         description="Minimum number of data points in a bin. Higher values prevent overfitting. Range: [1,∞]",
     )
 
@@ -94,19 +94,19 @@ class LGBMLinearHyperParams(HyperParams):
 
     # Tree Structure Control
     num_leaves: int = Field(
-        default=78,
+        default=30,
         description="Maximum number of leaves. 0 means no limit. Only relevant when grow_policy='lossguide'.",
     )
 
     max_bin: int = Field(
-        default=12,
+        default=256,
         description="Maximum number of discrete bins for continuous features. Higher values may improve accuracy but "
         "increase memory.",
     )
 
     # Subsampling Parameters
     colsample_bytree: float = Field(
-        default=0.5,
+        default=1,
         description="Fraction of features used when constructing each tree. Range: (0,1]",
     )
 
@@ -158,7 +158,7 @@ class LGBMLinearForecasterConfig(ForecasterConfig):
     )
 
     early_stopping_rounds: int | None = Field(
-        default=10,
+        default=None,
         description="Training will stop if performance doesn't improve for this many rounds. Requires validation data.",
     )
 
@@ -240,10 +240,11 @@ class LGBMLinearForecaster(Forecaster, ExplainableForecaster):
             "random_state": config.random_state,
             "early_stopping_rounds": config.early_stopping_rounds,
             "verbosity": config.verbosity,
+            "n_jobs": config.n_jobs,
             **config.hyperparams.model_dump(),
         }
 
-        self._model: MultiQuantileRegressor = MultiQuantileRegressor(
+        self._lgbmlinear_model: MultiQuantileRegressor = MultiQuantileRegressor(
             base_learner=LGBMRegressor,  # type: ignore
             quantile_param="alpha",
             hyperparams=lgbmlinear_params,
@@ -263,7 +264,7 @@ class LGBMLinearForecaster(Forecaster, ExplainableForecaster):
     @property
     @override
     def is_fitted(self) -> bool:
-        return self._model.is_fitted
+        return self._lgbmlinear_model.is_fitted
 
     @staticmethod
     def _prepare_fit_input(data: ForecastInputDataset) -> tuple[pd.DataFrame, np.ndarray, pd.Series]:
@@ -287,7 +288,7 @@ class LGBMLinearForecaster(Forecaster, ExplainableForecaster):
             eval_set.append((input_data_val, target_val))
             sample_weight_eval_set.append(sample_weight_val)
 
-        self._model.fit(
+        self._lgbmlinear_model.fit(
             X=input_data,
             y=target,
             feature_name=input_data.columns.tolist(),
@@ -302,7 +303,7 @@ class LGBMLinearForecaster(Forecaster, ExplainableForecaster):
             raise NotFittedError(self.__class__.__name__)
 
         input_data: pd.DataFrame = data.input_data(start=data.forecast_start)
-        prediction: npt.NDArray[np.floating] = self._model.predict(X=input_data)
+        prediction: npt.NDArray[np.floating] = self._lgbmlinear_model.predict(X=input_data)
 
         return ForecastDataset(
             data=pd.DataFrame(
@@ -316,11 +317,11 @@ class LGBMLinearForecaster(Forecaster, ExplainableForecaster):
     @property
     @override
     def feature_importances(self) -> pd.DataFrame:
-        models = self._model._models  # noqa: SLF001
+        models = self._lgbmlinear_model._models  # noqa: SLF001
         weights_df = pd.DataFrame(
             [models[i].feature_importances_ for i in range(len(models))],  # type: ignore
             index=[quantile.format() for quantile in self.config.quantiles],
-            columns=self._model.model_feature_names if self._model.has_feature_names else None,
+            columns=self._lgbmlinear_model.model_feature_names if self._lgbmlinear_model.has_feature_names else None,
         ).transpose()
 
         weights_df.index.name = "feature_name"
