@@ -238,10 +238,11 @@ class LGBMForecaster(Forecaster, ExplainableForecaster):
             "random_state": config.random_state,
             "early_stopping_rounds": config.early_stopping_rounds,
             "verbosity": config.verbosity,
+            "n_jobs": config.n_jobs,
             **config.hyperparams.model_dump(),
         }
 
-        self._model: MultiQuantileRegressor = MultiQuantileRegressor(
+        self._lgbm_model: MultiQuantileRegressor = MultiQuantileRegressor(
             base_learner=LGBMRegressor,  # type: ignore
             quantile_param="alpha",
             hyperparams=lgbm_params,
@@ -261,7 +262,7 @@ class LGBMForecaster(Forecaster, ExplainableForecaster):
     @property
     @override
     def is_fitted(self) -> bool:
-        return self._model.is_fitted
+        return self._lgbm_model.is_fitted
 
     @staticmethod
     def _prepare_fit_input(data: ForecastInputDataset) -> tuple[pd.DataFrame, np.ndarray, pd.Series]:
@@ -285,7 +286,7 @@ class LGBMForecaster(Forecaster, ExplainableForecaster):
             eval_set.append((input_data_val, target_val))
             sample_weight_eval_set.append(sample_weight_val)
 
-        self._model.fit(
+        self._lgbm_model.fit(
             X=input_data,
             y=target,
             feature_name=input_data.columns.tolist(),
@@ -300,7 +301,7 @@ class LGBMForecaster(Forecaster, ExplainableForecaster):
             raise NotFittedError(self.__class__.__name__)
 
         input_data: pd.DataFrame = data.input_data(start=data.forecast_start)
-        prediction: npt.NDArray[np.floating] = self._model.predict(X=input_data)
+        prediction: npt.NDArray[np.floating] = self._lgbm_model.predict(X=input_data)
 
         return ForecastDataset(
             data=pd.DataFrame(
@@ -314,11 +315,11 @@ class LGBMForecaster(Forecaster, ExplainableForecaster):
     @property
     @override
     def feature_importances(self) -> pd.DataFrame:
-        models: list[LGBMRegressor] = self._model.models  # type: ignore
+        models: list[LGBMRegressor] = self._lgbm_model.models  # type: ignore
         weights_df = pd.DataFrame(
             [models[i].feature_importances_ for i in range(len(models))],
             index=[quantile.format() for quantile in self.config.quantiles],
-            columns=self._model.model_feature_names if self._model.has_feature_names else None,
+            columns=self._lgbm_model.model_feature_names if self._lgbm_model.has_feature_names else None,
         ).transpose()
 
         weights_df.index.name = "feature_name"

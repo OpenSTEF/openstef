@@ -10,6 +10,7 @@ import pytest
 
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.exceptions import MissingColumnsError
+from openstef_core.types import LeadTime
 from openstef_models.transforms.time_domain import RollingAggregatesAdder
 
 
@@ -26,6 +27,7 @@ def test_rolling_aggregate_features_basic():
         feature="load",
         rolling_window_size=timedelta(hours=2),  # 2-hour window
         aggregation_functions=["mean", "max", "min"],
+        horizons=[LeadTime.from_string("PT36H")],
     )
 
     # Act
@@ -67,6 +69,7 @@ def test_rolling_aggregate_features_with_nan():
         feature="load",
         rolling_window_size=timedelta(hours=2),
         aggregation_functions=["mean"],
+        horizons=[LeadTime.from_string("PT36H")],
     )
 
     # Act
@@ -90,7 +93,10 @@ def test_rolling_aggregate_features_missing_column_raises_error():
         index=pd.date_range("2023-01-01 00:00:00", periods=3, freq="1h"),
     )
     dataset = TimeSeriesDataset(data, sample_interval=timedelta(minutes=15))
-    transform = RollingAggregatesAdder(feature="load")
+    transform = RollingAggregatesAdder(
+        feature="load",
+        horizons=[LeadTime.from_string("PT36H")],
+    )
 
     # Act & Assert
     with pytest.raises(MissingColumnsError, match="Missing required columns"):
@@ -106,7 +112,10 @@ def test_rolling_aggregate_features_default_parameters():
     )
     dataset = TimeSeriesDataset(data, sample_interval=timedelta(hours=1))
 
-    transform = RollingAggregatesAdder(feature="load")
+    transform = RollingAggregatesAdder(
+        feature="load",
+        horizons=[LeadTime.from_string("PT36H")],
+    )
 
     # Act
     result = transform.transform(dataset)
