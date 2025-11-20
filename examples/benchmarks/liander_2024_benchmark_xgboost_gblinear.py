@@ -18,6 +18,7 @@ os.environ["MKL_NUM_THREADS"] = "1"
 
 import logging
 import multiprocessing
+import time
 from datetime import timedelta
 from pathlib import Path
 
@@ -45,6 +46,8 @@ OUTPUT_PATH = Path("./benchmark_results")
 
 BENCHMARK_RESULTS_PATH_XGBOOST = OUTPUT_PATH / "XGBoost"
 BENCHMARK_RESULTS_PATH_GBLINEAR = OUTPUT_PATH / "GBLinear"
+BENCHMARK_RESULTS_PATH_HYBRID_BUSINESS = OUTPUT_PATH / "Hybdrid_business"
+model = "hybrid"
 N_PROCESSES = multiprocessing.cpu_count()  # Amount of parallel processes to use for the benchmark
 
 # Model configuration
@@ -73,7 +76,7 @@ else:
 
 common_config = ForecastingWorkflowConfig(
     model_id="common_model_",
-    model="flatliner",
+    model=model,
     horizons=FORECAST_HORIZONS,
     quantiles=PREDICTION_QUANTILES,
     model_reuse_enable=False,
@@ -110,7 +113,7 @@ def _target_forecaster_factory(
 ) -> OpenSTEF4BacktestForecaster:
     # Factory function that creates a forecaster for a given target.
     prefix = context.run_name
-    base_config = xgboost_config if context.run_name == "xgboost" else gblinear_config
+    base_config = common_config
 
     def _create_workflow() -> CustomForecastingWorkflow:
         # Create a new workflow instance with fresh model.
@@ -140,24 +143,16 @@ def _target_forecaster_factory(
 
 
 if __name__ == "__main__":
-    # Run for XGBoost model
+    # Run for Hybrid model
+    start_time = time.time()
     create_liander2024_benchmark_runner(
-        storage=LocalBenchmarkStorage(base_path=BENCHMARK_RESULTS_PATH_XGBOOST),
+        storage=LocalBenchmarkStorage(base_path=BENCHMARK_RESULTS_PATH_HYBRID_BUSINESS),
         callbacks=[StrictExecutionCallback()],
     ).run(
         forecaster_factory=_target_forecaster_factory,
-        run_name="xgboost",
+        run_name="hybrid_business",
         n_processes=N_PROCESSES,
         filter_args=BENCHMARK_FILTER,
     )
-
-    # Run for GBLinear model
-    create_liander2024_benchmark_runner(
-        storage=LocalBenchmarkStorage(base_path=BENCHMARK_RESULTS_PATH_GBLINEAR),
-        callbacks=[StrictExecutionCallback()],
-    ).run(
-        forecaster_factory=_target_forecaster_factory,
-        run_name="gblinear",
-        n_processes=N_PROCESSES,
-        filter_args=BENCHMARK_FILTER,
-    )
+    end_time = time.time()
+    print(f"Benchmark completed in {end_time - start_time:.2f} seconds.")

@@ -21,7 +21,7 @@ from openstef_core.exceptions import (
     NotFittedError,
 )
 from openstef_core.mixins import HyperParams
-from openstef_core.types import LeadTime, Quantile
+from openstef_core.types import Quantile
 from openstef_models.estimators.hybrid import HybridQuantileRegressor
 from openstef_models.models.forecasting.forecaster import (
     Forecaster,
@@ -227,10 +227,25 @@ class HybridForecaster(Forecaster):
             forecast_start=data.index[0],
         )
 
+        # Compute and store numeric feature min/max ranges from training data (exclude target column)
+        features_df = full_dataset.data.drop(columns=[full_dataset.target_column], errors="ignore")
+        numeric_features = features_df.select_dtypes(include="number")
+        if not numeric_features.empty:
+            mins = numeric_features.min()
+            maxs = numeric_features.max()
+            self._feature_ranges = {col: (float(mins[col]), float(maxs[col])) for col in numeric_features.columns}
+        else:
+            self._feature_ranges = {}
+
         base_predictions = self._predict_base_learners(data=full_dataset)
 
+        # pass training features + stored ranges so the final input gains the inside_train_range flag
         quantile_datasets = self._prepare_input_final_learner(
-            base_predictions=base_predictions, quantiles=self._config.quantiles, target_series=data.target_series
+            base_predictions=base_predictions,
+            quantiles=self._config.quantiles,
+            target_series=data.target_series,
+            input_features=full_dataset.data,
+            feature_ranges=self._feature_ranges,
         )
 
         self._final_learner.fit(
@@ -260,6 +275,8 @@ class HybridForecaster(Forecaster):
         quantiles: list[Quantile],
         base_predictions: dict[type[BaseLearner], ForecastDataset],
         target_series: pd.Series,
+        input_features: pd.DataFrame | None = None,
+        feature_ranges: dict[str, tuple[float, float]] | None = None,
     ) -> dict[Quantile, ForecastInputDataset]:
         """Prepare input data for the final learner based on base learner predictions.
 
@@ -279,6 +296,23 @@ class HybridForecaster(Forecaster):
             })
             df[target_name] = target_series
 
+            # Add inside_train_range flag (1 if all numeric input features are within training min/max)
+            inside_flag = pd.Series(False, index=df.index)
+            if input_features is not None and feature_ranges:
+                # align input_features to prediction index where possible
+                features_aligned = input_features.reindex(df.index)
+                numeric = features_aligned.select_dtypes(include="number")
+                if not numeric.empty:
+                    inside = pd.Series(True, index=numeric.index)
+                    for col, (mn, mx) in feature_ranges.items():
+                        if col in numeric.columns:
+                            inside &= numeric[col].ge(mn) & numeric[col].le(mx)
+                        else:
+                            # missing feature in current input -> treat as inside range
+                            inside &= True
+                    inside_flag = inside.fillna(False) # type: ignore
+            df["inside_train_range"] = inside_flag.astype(int)
+
             predictions_quantiles[q] = ForecastInputDataset(
                 data=df,
                 sample_interval=sample_interval,
@@ -296,7 +330,11 @@ class HybridForecaster(Forecaster):
         base_predictions = self._predict_base_learners(data=data)
 
         final_learner_input = self._prepare_input_final_learner(
-            quantiles=self._config.quantiles, base_predictions=base_predictions, target_series=data.target_series
+            quantiles=self._config.quantiles,
+            base_predictions=base_predictions,
+            target_series=data.target_series,
+            input_features=data.data,
+            feature_ranges=getattr(self, "_feature_ranges", None),
         )
 
         return self._final_learner.predict(base_learner_predictions=final_learner_input)
