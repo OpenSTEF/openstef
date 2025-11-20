@@ -10,8 +10,8 @@ The implementation is based on sklearn's StackingRegressor.
 """
 
 import logging
-from typing import override
 from abc import abstractmethod
+from typing import override
 
 import pandas as pd
 from pydantic import Field, field_validator
@@ -21,7 +21,7 @@ from openstef_core.exceptions import (
     NotFittedError,
 )
 from openstef_core.mixins import HyperParams
-from openstef_core.types import LeadTime, Quantile
+from openstef_core.types import Quantile
 from openstef_models.estimators.hybrid import HybridQuantileRegressor
 from openstef_models.models.forecasting.forecaster import (
     Forecaster,
@@ -75,6 +75,8 @@ class FinalForecaster(FinalLearner):
 
     def __init__(self, forecaster: Forecaster, feature_adders: None = None) -> None:
         # Feature adders placeholder for future use
+        if feature_adders is not None:
+            raise NotImplementedError("Feature adders are not yet implemented.")
 
         # Split forecaster per quantile
         self.quantiles = forecaster.config.quantiles
@@ -168,7 +170,6 @@ class HybridForecaster(Forecaster):
 
     def __init__(self, config: HybridForecasterConfig) -> None:
         """Initialize the Hybrid forecaster."""
-
         self._config = config
 
         self._base_learners: list[BaseLearner] = self._init_base_learners(
@@ -264,7 +265,9 @@ class HybridForecaster(Forecaster):
         """Prepare input data for the final learner based on base learner predictions.
 
         Args:
-            base_predictions: Dictionary of base learner predictions.
+            quantiles: List of quantiles to prepare data for.
+            base_predictions: Predictions from base learners.
+            target_series: Actual target series for reference.
 
         Returns:
             dictionary mapping quantile strings to DataFrames of base learner predictions.
