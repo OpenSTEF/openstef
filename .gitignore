@@ -129,4 +129,10 @@ optimization_results/
 dev_sandbox/
 
 # Benchmark outputs
-benchmark_results*/
+benchmark_results/
+optimization_results/
+dev_sandbox/
+
+# Benchmark outputs
+benchmark_results*/optimization_results/
+dev_sandbox/
