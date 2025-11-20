@@ -10,11 +10,13 @@ The implementation is based on sklearn's StackingRegressor.
 """
 
 import logging
+import time
 from abc import abstractmethod
 from typing import override
 
 import pandas as pd
 from pydantic import Field, field_validator
+from sklearn.ensemble import RandomForestClassifier
 
 from openstef_core.datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import (
@@ -44,6 +46,8 @@ from openstef_models.models.forecasting.xgboost_forecaster import (
     XGBoostHyperParams,
 )
 
+from lightgbm import LGBMClassifier
+
 logger = logging.getLogger(__name__)
 
 
@@ -52,6 +56,14 @@ BaseLearnerHyperParams = LGBMHyperParams | LGBMLinearHyperParams | XGBoostHyperP
 BaseLearnerConfig = (
     LGBMForecasterConfig | LGBMLinearForecasterConfig | XGBoostForecasterConfig | GBLinearForecasterConfig
 )
+
+
+def calculate_pinball_errors(y_true: pd.Series, y_pred: pd.Series, alpha: float) -> pd.Series:
+    """Calculate pinball loss for given true and predicted values."""
+
+    diff = y_true - y_pred
+    sign = (diff >= 0).astype(float)
+    return alpha * sign * diff - (1 - alpha) * (1 - sign) * diff
 
 
 class FinalLearner:
@@ -119,6 +131,68 @@ class FinalForecaster(FinalLearner):
         return all(x.is_fitted for x in self.models)
 
 
+class FinalWeighter(FinalLearner):
+    """Combines base learner predictions with a classification approach to determine which base learner to use."""
+
+    def __init__(self, quantiles: list[Quantile]) -> None:
+        self.quantiles = quantiles
+        self.models = [LGBMClassifier(class_weight="balanced", n_estimators=20) for _ in quantiles]
+        self._is_fitted = False
+
+    @override
+    def fit(self, base_learner_predictions: dict[Quantile, ForecastInputDataset]) -> None:
+        for i, q in enumerate(self.quantiles):
+            pred = base_learner_predictions[q].data.drop(columns=[base_learner_predictions[q].target_column])
+            labels = self._prepare_classification_data(
+                quantile=q,
+                target=base_learner_predictions[q].target_series,
+                predictions=pred,
+            )
+
+            self.models[i].fit(X=pred, y=labels)
+        self._is_fitted = True
+
+    @staticmethod
+    def _prepare_classification_data(quantile: Quantile, target: pd.Series, predictions: pd.DataFrame) -> pd.Series:
+        """Selects base learner with lowest error for each sample as target for classification."""
+        # Calculate pinball loss for each base learner
+        pinball_losses = predictions.apply(lambda x: calculate_pinball_errors(y_true=target, y_pred=x, alpha=quantile))
+
+        # For each sample, select the base learner with the lowest pinball loss
+        return pinball_losses.idxmin(axis=1)
+
+    def _calculate_sample_weights_quantile(self, base_predictions: pd.DataFrame, quantile: Quantile) -> pd.DataFrame:
+        model = self.models[self.quantiles.index(quantile)]
+
+        return model.predict_proba(X=base_predictions)
+
+    def _generate_predictions_quantile(self, base_predictions: ForecastInputDataset, quantile: Quantile) -> pd.Series:
+        df = base_predictions.data.drop(columns=[base_predictions.target_column])
+        weights = self._calculate_sample_weights_quantile(base_predictions=df, quantile=quantile)
+
+        return df.mul(weights).sum(axis=1)
+
+    @override
+    def predict(self, base_learner_predictions: dict[Quantile, ForecastInputDataset]) -> ForecastDataset:
+        if not self.is_fitted:
+            raise NotFittedError(self.__class__.__name__)
+
+        # Generate predictions
+        predictions = pd.DataFrame({
+            Quantile(q).format(): self._generate_predictions_quantile(base_predictions=data, quantile=q)
+            for q, data in base_learner_predictions.items()
+        })
+
+        return ForecastDataset(
+            data=predictions,
+            sample_interval=base_learner_predictions[self.quantiles[0]].sample_interval,
+        )
+
+    @property
+    def is_fitted(self) -> bool:
+        return self._is_fitted
+
+
 class HybridHyperParams(HyperParams):
     """Hyperparameters for Stacked LGBM GBLinear Regressor."""
 
@@ -131,6 +205,11 @@ class HybridHyperParams(HyperParams):
     final_hyperparams: BaseLearnerHyperParams = Field(
         default=GBLinearHyperParams(),
         description="Hyperparameters for the final learner. Defaults to GBLinearHyperParams.",
+    )
+
+    use_classifier: bool = Field(
+        default=True,
+        description="Whether to use sample weights when fitting base and final learners. Defaults to False.",
     )
 
     add_rolling_accuracy_features: bool = Field(
@@ -175,8 +254,12 @@ class HybridForecaster(Forecaster):
         self._base_learners: list[BaseLearner] = self._init_base_learners(
             base_hyperparams=config.hyperparams.base_hyperparams
         )
-        final_forecaster = self._init_base_learners(base_hyperparams=[config.hyperparams.final_hyperparams])[0]
-        self._final_learner = FinalForecaster(forecaster=final_forecaster)
+        if config.hyperparams.use_classifier:
+            self._final_learner = FinalWeighter(quantiles=config.quantiles)
+
+        else:
+            final_forecaster = self._init_base_learners(base_hyperparams=[config.hyperparams.final_hyperparams])[0]
+            self._final_learner = FinalForecaster(forecaster=final_forecaster)
 
     def _init_base_learners(self, base_hyperparams: list[BaseLearnerHyperParams]) -> list[BaseLearner]:
         """Initialize base learners based on provided hyperparameters.
