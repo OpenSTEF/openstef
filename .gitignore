@@ -125,3 +125,6 @@ certificates/
 
 # Benchmark outputs
 benchmark_results*/
+# Experiment outputs
+optimization_results/
+dev_sandbox/

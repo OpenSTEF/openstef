@@ -111,6 +111,15 @@ class ForecasterConfig(BaseConfig):
         """
         return self.model_copy(update={"horizons": [horizon]})
 
+    @classmethod
+    def forecaster_class(cls) -> type["Forecaster"]:
+        """Get the associated Forecaster class for this configuration.
+
+        Returns:
+            The Forecaster class that uses this configuration.
+        """
+        raise NotImplementedError("Subclasses must implement forecaster_class")
+
 
 class ConfigurableForecaster:
     @property
@@ -196,6 +205,25 @@ class Forecaster(BatchPredictor[ForecastInputDataset, ForecastDataset], Configur
         ...             forecast_start=pd.Timestamp.now()
         ...         )
     """
+
+    @abstractmethod
+    def __init__(self, config: ForecasterConfig) -> None:
+        """Initialize the forecaster with the given configuration.
+
+        Args:
+            config: Configuration object specifying quantiles, horizons, and batching support.
+        """
+        raise NotImplementedError("Subclasses must implement __init__")
+
+    @property
+    @abstractmethod
+    def config(self) -> ForecasterConfig:
+        """Access the model's configuration parameters.
+
+        Returns:
+            Configuration object containing fundamental model parameters.
+        """
+        raise NotImplementedError("Subclasses must implement config")
 
 
 __all__ = [

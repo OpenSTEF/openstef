@@ -145,6 +145,7 @@ lint.isort.known-first-party = [
   "tests",
   "examples",
 ] # Useful if ruff does not run from the actual root of the project and to import form tests
+lint.pep8-naming.ignore-names = [ "X" ] # Allow X for SKLearn-like feature matrices
 lint.pydocstyle.convention = "google"
 lint.pylint.allow-dunder-method-names = [
   "__get_pydantic_core_schema__",

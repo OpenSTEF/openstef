@@ -169,6 +169,15 @@ class XGBoostHyperParams(HyperParams):
         description="Whether to apply standard scaling to the target variable before training. Improves convergence.",
     )
 
+    @classmethod
+    def forecaster_class(cls) -> "type[XGBoostForecaster]":
+        """Get the forecaster class for these hyperparams.
+
+        Returns:
+            Forecaster class associated with this configuration.
+        """
+        return XGBoostForecaster
+
 
 class XGBoostForecasterConfig(ForecasterConfig):
     """Configuration for XGBoost-based forecasting models.
@@ -204,6 +213,14 @@ class XGBoostForecasterConfig(ForecasterConfig):
     verbosity: Literal[0, 1, 2, 3, True] = Field(
         default=1, description="Verbosity level. 0=silent, 1=warning, 2=info, 3=debug"
     )
+
+    def forecaster_from_config(self) -> "XGBoostForecaster":
+        """Create a XGBoost forecaster instance from this configuration.
+
+        Returns:
+            Forecaster instance associated with this configuration.
+        """
+        return XGBoostForecaster(config=self)
 
 
 MODEL_CODE_VERSION = 1
