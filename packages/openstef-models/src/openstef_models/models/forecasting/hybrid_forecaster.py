@@ -22,7 +22,6 @@ from openstef_core.exceptions import (
 )
 from openstef_core.mixins import HyperParams
 from openstef_core.types import Quantile
-from openstef_models.estimators.hybrid import HybridQuantileRegressor
 from openstef_models.models.forecasting.forecaster import (
     Forecaster,
     ForecasterConfig,
@@ -166,7 +165,6 @@ class HybridForecaster(Forecaster):
     HyperParams = HybridHyperParams
 
     _config: HybridForecasterConfig
-    model: HybridQuantileRegressor
 
     def __init__(self, config: HybridForecasterConfig) -> None:
         """Initialize the Hybrid forecaster."""
