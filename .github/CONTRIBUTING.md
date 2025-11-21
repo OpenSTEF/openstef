@@ -17,7 +17,7 @@ Thank you for your interest in contributing to OpenSTEF! 🚀
 
 ## Documentation
 
-For comprehensive information about:
+For information about:
 
 - 🛠️ **Development setup** - Environment setup with uv and modern Python tools
 - 🔄 **Development workflow** - Branch naming, commit messages, and PR process  

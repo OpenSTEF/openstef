@@ -4,7 +4,7 @@
 
 """Time series plotting for forecast data visualization.
 
-This module provides comprehensive time series plotting capabilities for comparing
+This module provides time series plotting capabilities for comparing
 forecasts, measurements, and uncertainty quantiles across multiple models.
 """
 

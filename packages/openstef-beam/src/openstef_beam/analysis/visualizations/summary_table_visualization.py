@@ -27,7 +27,7 @@ class MetricAggregation(NamedTuple):
 
 
 class SummaryTableVisualization(VisualizationProvider):
-    """Creates comprehensive HTML tables summarizing evaluation metrics.
+    """Creates HTML tables summarizing evaluation metrics.
 
     Generates sortable HTML tables presenting evaluation metrics organized by quantiles,
     targets, and model runs. Tables automatically aggregate statistics and provide
