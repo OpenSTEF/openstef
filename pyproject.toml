@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -15,7 +15,7 @@ readme = "README.md"
 keywords = [ "energy", "forecasting", "machinelearning" ]
 license = "MPL-2.0"
 authors = [
-  { name = "Alliander N.V", email = "short.term.energy.forecasts@alliander.com" },
+  { name = "Alliander N.V", email = "openstef@lfenergy.org" },
 ]
 requires-python = ">=3.12,<4.0"
 classifiers = [
@@ -264,7 +264,7 @@ help = "Check REUSE compliance (with optional fix)"
 args = [ { name = "fix", type = "boolean", help = "Automatically fix REUSE compliance issues before lint check" } ]
 control.expr = "fix"
 switch = [
-  { case = "True", cmd = "uv run tools/reuse-fix.py --license \"MPL-2.0\" --copyright \"Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>\"" },
+  { case = "True", cmd = "uv run tools/reuse-fix.py --license \"MPL-2.0\" --copyright \"Contributors to the OpenSTEF project <openstef@lfenergy.org>\"" },
   { cmd = "reuse lint" },
 ]
 

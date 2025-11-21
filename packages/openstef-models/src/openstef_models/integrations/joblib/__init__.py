@@ -6,7 +6,7 @@ the local filesystem, making it suitable for development, testing, and
 single-machine deployments.
 """
 
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
