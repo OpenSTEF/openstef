@@ -241,8 +241,6 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
     mlflow_storage: MLFlowStorage | None = Field(
         default_factory=MLFlowStorage,
         description="Configuration for MLflow experiment tracking and model storage.",
-        default_factory=MLFlowStorage,
-        description="Configuration for MLflow experiment tracking and model storage.",
     )
 
     model_reuse_enable: bool = Field(
@@ -252,13 +250,9 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
     model_reuse_max_age: timedelta = Field(
         default=timedelta(days=7),
         description="Maximum age of a model to be considered for reuse.",
-        default=timedelta(days=7),
-        description="Maximum age of a model to be considered for reuse.",
     )
 
     model_selection_enable: bool = Field(
-        default=True,
-        description="Whether to enable automatic model selection based on performance.",
         default=True,
         description="Whether to enable automatic model selection based on performance.",
     )
@@ -316,7 +310,7 @@ def create_forecasting_workflow(
             add_trivial_lags=config.model
             not in {"gblinear", "stacking", "learned_weights"},  # GBLinear uses only 7day lag.
             target_column=config.target_column,
-            custom_lags=[timedelta(days=7)] if config.model in {"gblinear","stacking" "learned_weights"} else [],
+            custom_lags=[timedelta(days=7)] if config.model in {"gblinear", "stackinglearned_weights"} else [],
         ),
         WindPowerFeatureAdder(
             windspeed_reference_column=config.wind_speed_column,
