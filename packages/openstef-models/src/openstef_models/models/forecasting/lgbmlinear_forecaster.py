@@ -15,6 +15,7 @@ import numpy as np
 import pandas as pd
 from lightgbm import LGBMRegressor
 from pydantic import Field
+from sklearn.preprocessing import StandardScaler
 
 from openstef_core.datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import (
@@ -74,11 +75,11 @@ class LGBMLinearHyperParams(HyperParams):
     )
 
     min_data_in_leaf: int = Field(
-        default=500,
+        default=300,
         description="Minimum number of data points in a leaf. Higher values prevent overfitting. Range: [1,∞]",
     )
     min_data_in_bin: int = Field(
-        default=500,
+        default=300,
         description="Minimum number of data points in a bin. Higher values prevent overfitting. Range: [1,∞]",
     )
 
@@ -220,6 +221,7 @@ class LGBMLinearForecaster(Forecaster, ExplainableForecaster):
     HyperParams = LGBMLinearHyperParams
 
     _config: LGBMLinearForecasterConfig
+    _target_scaler: StandardScaler
 
     def __init__(self, config: LGBMLinearForecasterConfig) -> None:
         """Initialize LgbLinear forecaster with configuration.
@@ -251,6 +253,8 @@ class LGBMLinearForecaster(Forecaster, ExplainableForecaster):
             quantiles=[float(q) for q in config.quantiles],
         )
 
+        self._target_scaler = StandardScaler()
+
     @property
     @override
     def config(self) -> ForecasterConfig:
@@ -266,16 +270,21 @@ class LGBMLinearForecaster(Forecaster, ExplainableForecaster):
     def is_fitted(self) -> bool:
         return self._lgbmlinear_model.is_fitted
 
-    @staticmethod
-    def _prepare_fit_input(data: ForecastInputDataset) -> tuple[pd.DataFrame, np.ndarray, pd.Series]:
+    def _prepare_fit_input(self, data: ForecastInputDataset) -> tuple[pd.DataFrame, np.ndarray, pd.Series]:
         input_data: pd.DataFrame = data.input_data()
         target: np.ndarray = np.asarray(data.target_series.values)
         sample_weight: pd.Series = data.sample_weight_series
 
+        # Scale the target variable
+        target: np.ndarray = np.asarray(data.target_series.values)
+        target = self._target_scaler.transform(target.reshape(-1, 1)).flatten()
         return input_data, target, sample_weight
 
     @override
     def fit(self, data: ForecastInputDataset, data_val: ForecastInputDataset | None = None) -> None:
+        # Fit the scalers
+        self._target_scaler.fit(data.target_series.to_frame().values)
+
         # Prepare training data
         input_data, target, sample_weight = self._prepare_fit_input(data)
 
@@ -303,11 +312,15 @@ class LGBMLinearForecaster(Forecaster, ExplainableForecaster):
             raise NotFittedError(self.__class__.__name__)
 
         input_data: pd.DataFrame = data.input_data(start=data.forecast_start)
-        prediction: npt.NDArray[np.floating] = self._lgbmlinear_model.predict(X=input_data)
+        predictions_array: npt.NDArray[np.floating] = self._lgbmlinear_model.predict(X=input_data)
+
+        # Inverse transform the scaled predictions
+        if len(predictions_array) > 0:
+            predictions_array = self._target_scaler.inverse_transform(predictions_array)
 
         return ForecastDataset(
             data=pd.DataFrame(
-                data=prediction,
+                data=predictions_array,
                 index=input_data.index,
                 columns=[quantile.format() for quantile in self.config.quantiles],
             ),
