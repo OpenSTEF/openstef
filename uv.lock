@@ -2281,15 +2281,8 @@ name = "openstef-models"
 version = "0.0.0"
 source = { editable = "packages/openstef-models" }
 dependencies = [
-    { name = "lightgbm" },
-    { name = "openstef-core" },
-    { name = "pycountry" },
-    { name = "skops" },
-]
-
-[package.optional-dependencies]
-all = [
     { name = "holidays" },
+    { name = "lightgbm" },
     { name = "mlflow-skinny" },
     { name = "openstef-beam" },
     { name = "openstef-core" },
@@ -2297,7 +2290,10 @@ all = [
     { name = "pycountry" },
     { name = "scikit-learn" },
     { name = "scipy" },
+    { name = "skops" },
 ]
+
+[package.optional-dependencies]
 xgb-cpu = [
     { name = "xgboost", marker = "sys_platform == 'darwin'" },
     { name = "xgboost-cpu", marker = "sys_platform == 'linux' or sys_platform == 'win32'" },
@@ -2308,23 +2304,21 @@ xgb-gpu = [
 
 [package.metadata]
 requires-dist = [
-    { name = "holidays", marker = "extra == 'all'", specifier = ">=0.79" },
+    { name = "holidays", specifier = ">=0.79" },
     { name = "lightgbm", specifier = ">=4.6" },
-    { name = "mlflow-skinny", marker = "extra == 'all'", specifier = ">=3,<4" },
-    { name = "openstef-beam", marker = "extra == 'all'", editable = "packages/openstef-beam" },
+    { name = "mlflow-skinny", specifier = ">=3,<4" },
+    { name = "openstef-beam", editable = "packages/openstef-beam" },
     { name = "openstef-core", editable = "packages/openstef-core" },
-    { name = "openstef-core", marker = "extra == 'all'", editable = "packages/openstef-core" },
-    { name = "pvlib", marker = "extra == 'all'", specifier = ">=0.13" },
+    { name = "pvlib", specifier = ">=0.13" },
     { name = "pycountry", specifier = ">=24.6.1" },
-    { name = "pycountry", marker = "extra == 'all'", specifier = ">=24.6.1" },
-    { name = "scikit-learn", marker = "extra == 'all'", specifier = ">=1.7.1,<2" },
-    { name = "scipy", marker = "extra == 'all'", specifier = ">=1.16.3,<2" },
+    { name = "scikit-learn", specifier = ">=1.7.1,<2" },
+    { name = "scipy", specifier = ">=1.16.3,<2" },
     { name = "skops", specifier = ">=0.13" },
     { name = "xgboost", marker = "sys_platform == 'darwin' and extra == 'xgb-cpu'", specifier = ">=3,<4" },
     { name = "xgboost", marker = "extra == 'xgb-gpu'", specifier = ">=3,<4" },
     { name = "xgboost-cpu", marker = "(sys_platform == 'linux' and extra == 'xgb-cpu') or (sys_platform == 'win32' and extra == 'xgb-cpu')", specifier = ">=3,<4" },
 ]
-provides-extras = ["all", "xgb-cpu", "xgb-gpu"]
+provides-extras = ["xgb-cpu", "xgb-gpu"]
 
 [[package]]
 name = "opentelemetry-api"

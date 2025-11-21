@@ -28,13 +28,8 @@ classifiers = [
 ]
 
 dependencies = [
-  "openstef-core",
-  "pycountry>=24.6.1",
   "lightgbm>=4.6",
   "skops>=0.13",
-]
-
-optional-dependencies.all = [
   "holidays>=0.79",
   "mlflow-skinny>=3,<4",
   "openstef-beam>=4.0.0.dev0,<5",
