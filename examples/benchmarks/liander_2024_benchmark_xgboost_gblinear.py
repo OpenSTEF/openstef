@@ -45,7 +45,7 @@ OUTPUT_PATH = Path("./benchmark_results")
 
 BENCHMARK_RESULTS_PATH_XGBOOST = OUTPUT_PATH / "XGBoost"
 BENCHMARK_RESULTS_PATH_GBLINEAR = OUTPUT_PATH / "GBLinear"
-N_PROCESSES = 1  # Amount of parallel processes to use for the benchmark
+N_PROCESSES = multiprocessing.cpu_count()  # Amount of parallel processes to use for the benchmark
 
 
 # Model configuration
