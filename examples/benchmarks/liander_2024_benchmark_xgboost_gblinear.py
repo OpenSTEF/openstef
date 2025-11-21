@@ -6,7 +6,7 @@ This example demonstrates how to set up and run the Liander 2024 STEF benchmark 
 The benchmark will evaluate XGBoost and GBLinear models on the dataset from HuggingFace.
 """
 
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
