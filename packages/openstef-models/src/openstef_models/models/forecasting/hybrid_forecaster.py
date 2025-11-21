@@ -127,7 +127,7 @@ class HybridHyperParams(HyperParams):
     )
 
     final_hyperparams: BaseLearnerHyperParams = Field(
-        default=GBLinearHyperParams(),
+        default=LGBMHyperParams(),
         description="Hyperparameters for the final learner. Defaults to GBLinearHyperParams.",
     )
 
