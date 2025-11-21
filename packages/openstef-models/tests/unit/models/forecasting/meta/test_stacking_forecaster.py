@@ -9,19 +9,19 @@ import pytest
 from openstef_core.datasets import ForecastInputDataset
 from openstef_core.exceptions import NotFittedError
 from openstef_core.types import LeadTime, Q
-from openstef_models.models.forecasting.hybrid_forecaster import (
-    HybridForecaster,
-    HybridForecasterConfig,
-    HybridHyperParams,
+from openstef_models.models.forecasting.meta.stacking_forecaster import (
+    StackingForecaster,
+    StackingForecasterConfig,
+    StackingHyperParams,
 )
 
 
 @pytest.fixture
-def base_config() -> HybridForecasterConfig:
-    """Base configuration for Hybrid forecaster tests."""
+def base_config() -> StackingForecasterConfig:
+    """Base configuration for Stacking forecaster tests."""
 
-    params = HybridHyperParams()
-    return HybridForecasterConfig(
+    params = StackingHyperParams()
+    return StackingForecasterConfig(
         quantiles=[Q(0.1), Q(0.5), Q(0.9)],
         horizons=[LeadTime(timedelta(days=1))],
         hyperparams=params,
@@ -29,14 +29,14 @@ def base_config() -> HybridForecasterConfig:
     )
 
 
-def test_hybrid_forecaster_fit_predict(
+def test_stacking_forecaster_fit_predict(
     sample_forecast_input_dataset: ForecastInputDataset,
-    base_config: HybridForecasterConfig,
+    base_config: StackingForecasterConfig,
 ):
     """Test basic fit and predict workflow with comprehensive output validation."""
     # Arrange
     expected_quantiles = base_config.quantiles
-    forecaster = HybridForecaster(config=base_config)
+    forecaster = StackingForecaster(config=base_config)
 
     # Act
     forecaster.fit(sample_forecast_input_dataset)
@@ -56,26 +56,26 @@ def test_hybrid_forecaster_fit_predict(
     assert not result.data.isna().any().any(), "Forecast should not contain NaN or None values"
 
 
-def test_hybrid_forecaster_predict_not_fitted_raises_error(
+def test_stacking_forecaster_predict_not_fitted_raises_error(
     sample_forecast_input_dataset: ForecastInputDataset,
-    base_config: HybridForecasterConfig,
+    base_config: StackingForecasterConfig,
 ):
     """Test that predict() raises NotFittedError when called before fit()."""
     # Arrange
-    forecaster = HybridForecaster(config=base_config)
+    forecaster = StackingForecaster(config=base_config)
 
     # Act & Assert
-    with pytest.raises(NotFittedError, match="HybridForecaster"):
+    with pytest.raises(NotFittedError, match="StackingForecaster"):
         forecaster.predict(sample_forecast_input_dataset)
 
 
-def test_hybrid_forecaster_with_sample_weights(
+def test_stacking_forecaster_with_sample_weights(
     sample_dataset_with_weights: ForecastInputDataset,
-    base_config: HybridForecasterConfig,
+    base_config: StackingForecasterConfig,
 ):
     """Test that forecaster works with sample weights and produces different results."""
     # Arrange
-    forecaster_with_weights = HybridForecaster(config=base_config)
+    forecaster_with_weights = StackingForecaster(config=base_config)
 
     # Create dataset without weights for comparison
     data_without_weights = ForecastInputDataset(
@@ -84,7 +84,7 @@ def test_hybrid_forecaster_with_sample_weights(
         target_column=sample_dataset_with_weights.target_column,
         forecast_start=sample_dataset_with_weights.forecast_start,
     )
-    forecaster_without_weights = HybridForecaster(config=base_config)
+    forecaster_without_weights = StackingForecaster(config=base_config)
 
     # Act
     forecaster_with_weights.fit(sample_dataset_with_weights)
