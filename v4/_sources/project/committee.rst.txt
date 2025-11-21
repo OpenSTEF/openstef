@@ -1,4 +1,4 @@
-.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 ..
 .. SPDX-License-Identifier: MPL-2.0
 
@@ -22,7 +22,7 @@ The TSC consists of the following members:
 6. Maxime Fortin
 7. Bart Pleiter
 
-Any community member or Contributor can ask that something be reviewed by the TSC by contacting the TSC at ``short.term.energy.forecasts@alliander.com``.
+Any community member or Contributor can ask that something be reviewed by the TSC by contacting the TSC at ``openstef@lfenergy.org``.
 
 More information, meeting notes and meeting links can be found in the `TSC documentation <https://wiki.lfenergy.org/display/OS/OpenSTEF+Technical+Steering+Committee>`_.
 

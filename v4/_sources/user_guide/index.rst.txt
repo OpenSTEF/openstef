@@ -1,4 +1,4 @@
-.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 ..
 .. SPDX-License-Identifier: MPL-2.0
 
@@ -17,4 +17,3 @@
 ==========
 User Guide
 ==========
-
