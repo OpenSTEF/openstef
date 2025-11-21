@@ -2,11 +2,9 @@ Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: openstef
 
 Files: test/unit/trained_models/*
-Copyright: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com>
+Copyright: 2017-2023 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 License: MPL-2.0
 
 Files: .github/**/*
-Copyright: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com>
+Copyright: 2017-2023 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 License: MPL-2.0
-
-
