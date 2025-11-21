@@ -28,9 +28,8 @@ classifiers = [
 ]
 
 dependencies = [
-  "lightgbm>=4.6",
-  "skops>=0.13",
   "holidays>=0.79",
+  "lightgbm>=4.6",
   "mlflow-skinny>=3,<4",
   "openstef-beam>=4.0.0.dev0,<5",
   "openstef-core>=4.0.0.dev0,<5",
@@ -38,6 +37,7 @@ dependencies = [
   "pycountry>=24.6.1",
   "scikit-learn>=1.7.1,<2",
   "scipy>=1.16.3,<2",
+  "skops>=0.13",
 ]
 
 optional-dependencies.xgb-cpu = [
