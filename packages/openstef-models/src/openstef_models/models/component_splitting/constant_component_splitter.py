@@ -70,7 +70,7 @@ class ConstantComponentSplitter(ComponentSplitter):
         ...     }
         ... )
         >>> splitter = ConstantComponentSplitter(config)
-        >>> # components = splitter.predict(time_series_data)
+        >>> components = splitter.predict(time_series_data) # doctest: +SKIP
 
         Using predefined configurations:
 

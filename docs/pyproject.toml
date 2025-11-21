@@ -18,6 +18,7 @@ dependencies = [
   "ipython>=9.4.0",
   "matplotlib>=3.10.5",
   "openstef-models",
+  "openstef-core",
   "pydata-sphinx-theme>=0.16.1",
   "sphinx>=8.2.3",
   "sphinx-copybutton>=0.5.2",
@@ -35,3 +36,4 @@ dependencies = [
 openstef-beam = { workspace = true }
 openstef-models = { workspace = true }
 openstef = { workspace = true }
+openstef-core = { workspace = true }

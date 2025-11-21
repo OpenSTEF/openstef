@@ -34,7 +34,7 @@ def test_xgboost_forecaster__fit_predict(
     sample_forecast_input_dataset: ForecastInputDataset,
     base_config: XGBoostForecasterConfig,
 ):
-    """Test basic fit and predict workflow with comprehensive output validation."""
+    """Test basic fit and predict workflow with output validation."""
     # Arrange
     expected_quantiles = base_config.quantiles
     forecaster = XGBoostForecaster(config=base_config)

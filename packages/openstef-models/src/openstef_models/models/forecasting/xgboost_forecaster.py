@@ -38,7 +38,7 @@ class XGBoostHyperParams(HyperParams):
     """XGBoost hyperparameters for gradient boosting tree models.
 
     Configures tree-specific parameters for XGBoost gbtree booster. Provides
-    comprehensive control over model complexity, regularization, and training
+    control over model complexity, regularization, and training
     behavior for energy forecasting tasks.
 
     These parameters control tree structure, learning rates, regularization,
@@ -231,7 +231,7 @@ class XGBoostForecaster(Forecaster, ExplainableForecaster):
 
     Implements gradient boosting trees using XGBoost for multi-quantile forecasting.
     Optimized for time series prediction with specialized loss functions and
-    comprehensive hyperparameter control suitable for production energy forecasting.
+    hyperparameter control suitable for production energy forecasting.
 
     The forecaster uses a multi-output strategy where each quantile is predicted
     by separate trees within the same boosting ensemble. This approach provides

@@ -23,7 +23,7 @@ class GroupedTargetMetricVisualization(VisualizationProvider):
 
     Generates interactive charts comparing performance metrics across different targets,
     model runs, or target groups. Supports deterministic metrics (MAE, RMSE) and
-    quantile-based metrics (quantile losses) for comprehensive performance comparisons.
+    quantile-based metrics (quantile losses) for performance comparisons.
 
     Key features:
     - Bar charts for individual target comparisons

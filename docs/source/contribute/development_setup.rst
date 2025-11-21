@@ -77,6 +77,7 @@ OpenSTEF 4.0 uses a workspace structure with multiple packages:
 
 * ``openstef-models``: Core forecasting models, feature engineering, and data processing
 * ``openstef-beam``: Backtesting, evaluation, analysis and metrics  
+* ``openstef-core``: Core utilities, dataset types, shared types and base models used by other packages
 * ``docs``: Documentation source
 * ``openstef-compatibility``: Compatibility layer for OpenSTEF 3.x (coming soon)
 * ``openstef-foundational-models``: Deep learning and foundational models (coming soon)
@@ -92,7 +93,7 @@ This will:
 1. Create a virtual environment (if one doesn't exist)
 2. Install all workspace packages in development mode
 3. Install all development dependencies including testing, linting, and documentation tools
-4. Install all optional extras for comprehensive development
+4. Install all optional extras for development
 
 Understanding the workspace structure
 =====================================
@@ -103,8 +104,9 @@ OpenSTEF 4.0 uses a monorepo workspace structure defined in ``pyproject.toml``:
 
     [tool.uv.workspace]
     members = [
-      "packages/openstef-models",
-      "packages/openstef-beam", 
+            "packages/openstef-models",
+            "packages/openstef-beam", 
+            "packages/openstef-core",
       "docs",
     ]
 

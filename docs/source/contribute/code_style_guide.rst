@@ -178,7 +178,7 @@ Avoid generic names
 Type Hints
 ==========
 
-OpenSTEF 4.0 uses comprehensive type hints for better code clarity and IDE support.
+OpenSTEF 4.0 uses type hints for better code clarity and IDE support.
 
 Required type hints
 -------------------
@@ -188,7 +188,7 @@ All **public functions** and **class methods** must have type hints:
 .. code-block:: python
 
     def train_forecaster(
-        data: TimeseriesDataset, 
+        data: TimeSeriesDataset, 
         config: ModelConfig,
         validation_split: float = 0.2
     ) -> TrainingResult:
@@ -226,7 +226,7 @@ Use these standard patterns for common OpenSTEF types:
         pass
 
     # Union types for flexible inputs
-    def load_data(source: str | Path | pd.DataFrame) -> TimeseriesDataset:
+    def load_data(source: str | Path | pd.DataFrame) -> TimeSeriesDataset:
         pass
 
     # Generic containers
@@ -292,7 +292,7 @@ Use keyword-only arguments for configuration parameters:
 .. code-block:: python
 
     def train_model(
-        data: TimeseriesDataset,
+        data: TimeSeriesDataset,
         *,  # Force keyword-only arguments after this
         validation_split: float = 0.2,
         random_state: Optional[int] = None,
@@ -316,11 +316,11 @@ Follow OpenSTEF's **four-level hierarchy** (see the `design decisions document <
     class LagTransform(BaseTransform):
         """Configurable component with fit/transform API."""
         
-        def fit(self, data: TimeseriesDataset) -> "LagTransform":
+        def fit(self, data: TimeSeriesDataset) -> "LagTransform":
             # Learn parameters if needed
             return self
             
-        def transform(self, data: TimeseriesDataset) -> TimeseriesDataset:
+        def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
             # Apply transformation
             pass
 
@@ -351,7 +351,7 @@ Documentation Standards
 =======================
 
 All public functions and classes must have Google-style docstrings. See 
-:doc:`document` for comprehensive documentation guidelines.
+:doc:`document` for documentation guidelines.
 
 Minimal docstring requirements
 ------------------------------
@@ -466,7 +466,7 @@ Always use ``logging.getLogger(__name__)`` to get a logger instance:
 
     logger = logging.getLogger(__name__)
 
-    def train_forecaster(data: TimeseriesDataset) -> ForecastModel:
+    def train_forecaster(data: TimeSeriesDataset) -> ForecastModel:
         """Train a forecasting model."""
         
         logger.info(f"Training model with {len(data)} samples")
@@ -494,7 +494,7 @@ which provides several benefits:
    
    OpenSTEF also provides a more advanced logging system through the main ``openstef`` package 
    with support for structured logging. However, individual packages (``openstef-models``, 
-   ``openstef-beam``, etc.) use standard Python logging with ``NullHandler`` by default to 
+    ``openstef-beam``, ``openstef-core``, etc.) use standard Python logging with ``NullHandler`` by default to 
    give users complete control over logging configuration. See the :doc:`../user_guide/logging` 
    guide for details on both approaches.
 
@@ -555,7 +555,7 @@ Enhance log messages with structured context using the ``extra`` parameter:
 
     logger = logging.getLogger(__name__)
 
-    def train_model(data: TimeseriesDataset, config: ModelConfig) -> TrainedModel:
+    def train_model(data: TimeSeriesDataset, config: ModelConfig) -> TrainedModel:
         """Train a forecasting model with detailed logging context."""
         
         # Add extra context to log messages
@@ -625,7 +625,7 @@ a function/class, use ``logging.LoggerAdapter``:
                 }
             )
         
-        def fit_transform(self, data: TimeseriesDataset) -> TimeseriesDataset:
+        def fit_transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
             """Apply feature engineering transformations."""
             
             # All log messages will include the adapter's extra context
@@ -646,7 +646,7 @@ a function/class, use ``logging.LoggerAdapter``:
             self.logger.info(f"Feature engineering completed, output shape: {result.shape}")
             return result
 
-    def process_multiple_datasets(datasets: list[TimeseriesDataset]) -> list[TimeseriesDataset]:
+    def process_multiple_datasets(datasets: list[TimeSeriesDataset]) -> list[TimeSeriesDataset]:
         """Process multiple datasets with batch context."""
         
         # Create adapter for batch processing context
@@ -742,8 +742,8 @@ Combine proper exception handling with informative logging:
 
     logger = logging.getLogger(__name__)
 
-    def robust_data_loading(file_path: Path) -> TimeseriesDataset:
-        """Load data with comprehensive error handling and logging."""
+    def robust_data_loading(file_path: Path) -> TimeSeriesDataset:
+        """Load data with error handling and logging."""
         
         logger.info(f"Loading data from {file_path}")
         
@@ -761,7 +761,7 @@ Combine proper exception handling with informative logging:
             # Validate data structure
             _validate_data_structure(data)
             
-            return TimeseriesDataset(data)
+            return TimeSeriesDataset(data)
             
         except FileNotFoundError as e:
             logger.error(f"File not found: {e}")
@@ -1031,8 +1031,8 @@ Implement data validation using clear, testable functions:
 
 .. code-block:: python
 
-    def validate_timeseries_data(data: pd.DataFrame) -> TimeseriesDataset:
-        """Validate and convert DataFrame to TimeseriesDataset.
+    def validate_timeseries_data(data: pd.DataFrame) -> TimeSeriesDataset:
+        """Validate and convert DataFrame to TimeSeriesDataset.
         
         Raises:
             DataValidationError: If data fails validation checks.
@@ -1047,7 +1047,7 @@ Implement data validation using clear, testable functions:
         # Check data quality
         _validate_data_quality(data)
         
-        return TimeseriesDataset(data)
+        return TimeSeriesDataset(data)
 
 .. _performance-guidelines:
 
