@@ -21,6 +21,12 @@ from openstef_core.exceptions import (
 )
 from openstef_core.mixins import HyperParams
 from openstef_core.types import Quantile
+from openstef_metalearning.models.meta_forecaster import (
+    BaseLearner,
+    BaseLearnerHyperParams,
+    FinalLearner,
+    MetaForecaster,
+)
 from openstef_models.models.forecasting.forecaster import (
     Forecaster,
     ForecasterConfig,
@@ -29,12 +35,6 @@ from openstef_models.models.forecasting.gblinear_forecaster import (
     GBLinearHyperParams,
 )
 from openstef_models.models.forecasting.lgbm_forecaster import LGBMHyperParams
-from openstef_models.models.forecasting.meta.meta_forecaster import (
-    BaseLearner,
-    BaseLearnerHyperParams,
-    FinalLearner,
-    MetaForecaster,
-)
 
 logger = logging.getLogger(__name__)
 

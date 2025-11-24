@@ -21,6 +21,13 @@ from openstef_core.exceptions import (
     NotFittedError,
 )
 from openstef_core.types import Quantile
+from openstef_metalearning.models.meta_forecaster import (
+    BaseLearner,
+    BaseLearnerHyperParams,
+    FinalLearner,
+    MetaForecaster,
+    MetaHyperParams,
+)
 from openstef_models.models.forecasting.forecaster import (
     ForecasterConfig,
 )
@@ -28,13 +35,6 @@ from openstef_models.models.forecasting.gblinear_forecaster import (
     GBLinearHyperParams,
 )
 from openstef_models.models.forecasting.lgbm_forecaster import LGBMHyperParams
-from openstef_models.models.forecasting.meta.meta_forecaster import (
-    BaseLearner,
-    BaseLearnerHyperParams,
-    FinalLearner,
-    MetaForecaster,
-    MetaHyperParams,
-)
 
 logger = logging.getLogger(__name__)
 

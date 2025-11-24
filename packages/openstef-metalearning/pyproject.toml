@@ -1,0 +1,15 @@
+[project]
+name = "openstef-metalearning"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = ["openstef-core", "openstef-models"]
+
+[tool.uv.sources]
+openstef-models = { workspace = true }
+openstef-core = { workspace = true }
+
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/openstef_metalearning"]

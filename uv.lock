@@ -8,6 +8,7 @@ members = [
     "openstef-beam",
     "openstef-core",
     "openstef-docs",
+    "openstef-metalearning",
     "openstef-models",
 ]
 
@@ -2124,6 +2125,7 @@ beam = [
     { name = "openstef-beam" },
 ]
 models = [
+    { name = "openstef-metalearning" },
     { name = "openstef-models", extra = ["xgb-cpu"] },
 ]
 
@@ -2155,6 +2157,7 @@ requires-dist = [
     { name = "openstef-beam", extras = ["all"], marker = "extra == 'all'", editable = "packages/openstef-beam" },
     { name = "openstef-core", editable = "packages/openstef-core" },
     { name = "openstef-core", marker = "extra == 'all'", editable = "packages/openstef-core" },
+    { name = "openstef-metalearning", marker = "extra == 'models'", editable = "packages/openstef-metalearning" },
     { name = "openstef-models", extras = ["xgb-cpu"], editable = "packages/openstef-models" },
     { name = "openstef-models", extras = ["xgb-cpu"], marker = "extra == 'all'", editable = "packages/openstef-models" },
     { name = "openstef-models", extras = ["xgb-cpu"], marker = "extra == 'models'", editable = "packages/openstef-models" },
@@ -2274,6 +2277,21 @@ requires-dist = [
     { name = "sphinx-gallery", specifier = ">=0.19.0" },
     { name = "sphinx-prompt", specifier = ">=1.10.0" },
     { name = "sphinx-pyproject", specifier = ">=0.3.0" },
+]
+
+[[package]]
+name = "openstef-metalearning"
+version = "0.1.0"
+source = { editable = "packages/openstef-metalearning" }
+dependencies = [
+    { name = "openstef-core" },
+    { name = "openstef-models" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "openstef-core", editable = "packages/openstef-core" },
+    { name = "openstef-models", editable = "packages/openstef-models" },
 ]
 
 [[package]]
