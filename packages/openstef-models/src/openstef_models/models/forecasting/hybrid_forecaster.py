@@ -10,13 +10,11 @@ The implementation is based on sklearn's StackingRegressor.
 """
 
 import logging
-import time
 from abc import abstractmethod
 from typing import override
 
 import pandas as pd
 from pydantic import Field, field_validator
-from sklearn.ensemble import RandomForestClassifier
 
 from openstef_core.datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import (
@@ -45,9 +43,8 @@ from openstef_models.models.forecasting.xgboost_forecaster import (
     XGBoostForecasterConfig,
     XGBoostHyperParams,
 )
-
+import numpy as np
 from lightgbm import LGBMClassifier
-
 logger = logging.getLogger(__name__)
 
 
@@ -130,7 +127,6 @@ class FinalForecaster(FinalLearner):
     def is_fitted(self) -> bool:
         return all(x.is_fitted for x in self.models)
 
-
 class FinalWeighter(FinalLearner):
     """Combines base learner predictions with a classification approach to determine which base learner to use."""
 
@@ -149,14 +145,14 @@ class FinalWeighter(FinalLearner):
                 predictions=pred,
             )
 
-            self.models[i].fit(X=pred, y=labels)
+            self.models[i].fit(X=pred, y=labels) # type: ignore
         self._is_fitted = True
 
     @staticmethod
     def _prepare_classification_data(quantile: Quantile, target: pd.Series, predictions: pd.DataFrame) -> pd.Series:
         """Selects base learner with lowest error for each sample as target for classification."""
         # Calculate pinball loss for each base learner
-        pinball_losses = predictions.apply(lambda x: calculate_pinball_errors(y_true=target, y_pred=x, alpha=quantile))
+        pinball_losses = predictions.apply(lambda x: calculate_pinball_errors(y_true=target, y_pred=x, alpha=quantile))  # type: ignore
 
         # For each sample, select the base learner with the lowest pinball loss
         return pinball_losses.idxmin(axis=1)
@@ -164,13 +160,16 @@ class FinalWeighter(FinalLearner):
     def _calculate_sample_weights_quantile(self, base_predictions: pd.DataFrame, quantile: Quantile) -> pd.DataFrame:
         model = self.models[self.quantiles.index(quantile)]
 
-        return model.predict_proba(X=base_predictions)
+        return model.predict_proba(X=base_predictions) # type: ignore
 
     def _generate_predictions_quantile(self, base_predictions: ForecastInputDataset, quantile: Quantile) -> pd.Series:
+        """ changed this to a winner-takes-all approach"""
         df = base_predictions.data.drop(columns=[base_predictions.target_column])
         weights = self._calculate_sample_weights_quantile(base_predictions=df, quantile=quantile)
-
-        return df.mul(weights).sum(axis=1)
+        winners = weights.argmax(axis=1) # type: ignore
+        df_np = df.to_numpy()
+        preds = df_np[np.arange(len(df_np)), winners] 
+        return pd.Series(preds, index=df.index) # type: ignore
 
     @override
     def predict(self, base_learner_predictions: dict[Quantile, ForecastInputDataset]) -> ForecastDataset:

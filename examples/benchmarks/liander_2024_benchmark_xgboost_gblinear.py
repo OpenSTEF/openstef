@@ -17,16 +17,16 @@ os.environ["OPENBLAS_NUM_THREADS"] = "1"
 os.environ["MKL_NUM_THREADS"] = "1"
 
 import logging
-import multiprocessing
 from datetime import timedelta
 from pathlib import Path
+import time
 
 from pydantic_extra_types.coordinate import Coordinate
 from pydantic_extra_types.country import CountryAlpha2
 
 from openstef_beam.backtesting.backtest_forecaster import BacktestForecasterConfig, OpenSTEF4BacktestForecaster
 from openstef_beam.benchmarking.benchmark_pipeline import BenchmarkContext
-from openstef_beam.benchmarking.benchmarks.liander2024 import Liander2024Category, create_liander2024_benchmark_runner
+from openstef_beam.benchmarking.benchmarks.liander2024 import Liander2024Category, create_liander2024_benchmark_runner, Liander2024TargetProvider
 from openstef_beam.benchmarking.callbacks.strict_execution_callback import StrictExecutionCallback
 from openstef_beam.benchmarking.models.benchmark_target import BenchmarkTarget
 from openstef_beam.benchmarking.storage.local_storage import LocalBenchmarkStorage
@@ -45,6 +45,10 @@ OUTPUT_PATH = Path("./benchmark_results")
 
 BENCHMARK_RESULTS_PATH_XGBOOST = OUTPUT_PATH / "XGBoost"
 BENCHMARK_RESULTS_PATH_GBLINEAR = OUTPUT_PATH / "GBLinear"
+BENCHMARK_RESULTS_PATH_HYBRID_BUSINESS = OUTPUT_PATH / "Hybrid_Business"
+
+
+model = "hybrid"
 N_PROCESSES = 1  # Amount of parallel processes to use for the benchmark
 
 
@@ -74,7 +78,7 @@ else:
 
 common_config = ForecastingWorkflowConfig(
     model_id="common_model_",
-    model="flatliner",
+    model=model,
     horizons=FORECAST_HORIZONS,
     quantiles=PREDICTION_QUANTILES,
     model_reuse_enable=False,
@@ -111,7 +115,7 @@ def _target_forecaster_factory(
 ) -> OpenSTEF4BacktestForecaster:
     # Factory function that creates a forecaster for a given target.
     prefix = context.run_name
-    base_config = xgboost_config if context.run_name == "xgboost" else gblinear_config
+    base_config = common_config
 
     def _create_workflow() -> CustomForecastingWorkflow:
         # Create a new workflow instance with fresh model.
@@ -139,26 +143,17 @@ def _target_forecaster_factory(
         cache_dir=OUTPUT_PATH / "cache" / f"{context.run_name}_{target.name}",
     )
 
-
 if __name__ == "__main__":
-    # Run for XGBoost model
+    # Run for Hybrid model
+    start_time = time.time()
     create_liander2024_benchmark_runner(
-        storage=LocalBenchmarkStorage(base_path=BENCHMARK_RESULTS_PATH_XGBOOST),
+        storage=LocalBenchmarkStorage(base_path=BENCHMARK_RESULTS_PATH_HYBRID_BUSINESS),
         callbacks=[StrictExecutionCallback()],
     ).run(
         forecaster_factory=_target_forecaster_factory,
-        run_name="xgboost",
+        run_name="hybrid_business",
         n_processes=N_PROCESSES,
         filter_args=BENCHMARK_FILTER,
     )
-
-    # Run for GBLinear model
-    create_liander2024_benchmark_runner(
-        storage=LocalBenchmarkStorage(base_path=BENCHMARK_RESULTS_PATH_GBLINEAR),
-        callbacks=[StrictExecutionCallback()],
-    ).run(
-        forecaster_factory=_target_forecaster_factory,
-        run_name="gblinear",
-        n_processes=N_PROCESSES,
-        filter_args=BENCHMARK_FILTER,
-    )
+    end_time = time.time()
+    print(f"Benchmark completed in {end_time - start_time:.2f} seconds.")
