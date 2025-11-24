@@ -10,24 +10,30 @@ The implementation is based on sklearn's StackingRegressor.
 """
 
 import logging
+from abc import abstractmethod
 from typing import override
 
 import pandas as pd
 from lightgbm import LGBMClassifier
 from pydantic import Field
+from sklearn.linear_model import LinearRegression
+from xgboost import XGBClassifier
 
 from openstef_core.datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import (
     NotFittedError,
 )
+from openstef_core.mixins import HyperParams
 from openstef_core.types import Quantile
-from openstef_metalearning.models.meta_forecaster import (
+from openstef_meta.framework.base_learner import (
     BaseLearner,
     BaseLearnerHyperParams,
-    FinalLearner,
-    MetaForecaster,
-    MetaHyperParams,
 )
+from openstef_meta.framework.final_learner import FinalLearner
+from openstef_meta.framework.meta_forecaster import (
+    EnsembleForecaster,
+)
+from openstef_meta.utils.pinball_errors import calculate_pinball_errors
 from openstef_models.models.forecasting.forecaster import (
     ForecasterConfig,
 )
@@ -39,28 +45,16 @@ from openstef_models.models.forecasting.lgbm_forecaster import LGBMHyperParams
 logger = logging.getLogger(__name__)
 
 
-def calculate_pinball_errors(y_true: pd.Series, y_pred: pd.Series, alpha: float) -> pd.Series:
-    """Calculate pinball loss for given true and predicted values.
-
-    Args:
-        y_true: True values as a pandas Series.
-        y_pred: Predicted values as a pandas Series.
-        alpha: Quantile value.
-
-    Returns:
-        A pandas Series containing the pinball loss for each sample.
-    """
-    diff = y_true - y_pred
-    sign = (diff >= 0).astype(float)
-    return alpha * sign * diff - (1 - alpha) * (1 - sign) * diff
+Classifier = LGBMClassifier | XGBClassifier | LinearRegression
 
 
 class LearnedWeightsFinalLearner(FinalLearner):
     """Combines base learner predictions with a classification approach to determine which base learner to use."""
 
+    @abstractmethod
     def __init__(self, quantiles: list[Quantile]) -> None:
         self.quantiles = quantiles
-        self.models = [LGBMClassifier(class_weight="balanced", n_estimators=20) for _ in quantiles]
+        self.models: list[Classifier] = []
         self._is_fitted = False
 
     @override
@@ -125,7 +119,43 @@ class LearnedWeightsFinalLearner(FinalLearner):
         return self._is_fitted
 
 
-class LearnedWeightsHyperParams(MetaHyperParams):
+class LGBMFinalLearner(LearnedWeightsFinalLearner):
+    """Final learner using only LGBM as base learners."""
+
+    def __init__(self, quantiles: list[Quantile], n_estimators: int = 20) -> None:
+        self.quantiles = quantiles
+        self.models = [LGBMClassifier(class_weight="balanced", n_estimators=n_estimators) for _ in quantiles]
+        self._is_fitted = False
+
+
+class RandomForestFinalLearner(LearnedWeightsFinalLearner):
+    def __init__(self, quantiles: list[Quantile], n_estimators: int = 20) -> None:
+        self.quantiles = quantiles
+        self.models = [
+            LGBMClassifier(boosting_type="rf", class_weight="balanced", n_estimators=n_estimators) for _ in quantiles
+        ]
+        self._is_fitted = False
+
+
+class XGBFinalLearner(LearnedWeightsFinalLearner):
+    """Final learner using only XGBoost as base learners."""
+
+    def __init__(self, quantiles: list[Quantile], n_estimators: int = 20) -> None:
+        self.quantiles = quantiles
+        self.models = [XGBClassifier(class_weight="balanced", n_estimators=n_estimators) for _ in quantiles]
+        self._is_fitted = False
+
+
+class LogisticRegressionFinalLearner(LearnedWeightsFinalLearner):
+    """Final learner using only Logistic Regression as base learners."""
+
+    def __init__(self, quantiles: list[Quantile]) -> None:
+        self.quantiles = quantiles
+        self.models = [LinearRegression() for _ in quantiles]
+        self._is_fitted = False
+
+
+class LearnedWeightsHyperParams(HyperParams):
     """Hyperparameters for Stacked LGBM GBLinear Regressor."""
 
     base_hyperparams: list[BaseLearnerHyperParams] = Field(
@@ -134,20 +164,9 @@ class LearnedWeightsHyperParams(MetaHyperParams):
         "Defaults to [LGBMHyperParams, GBLinearHyperParams].",
     )
 
-    final_hyperparams: BaseLearnerHyperParams = Field(
-        default=GBLinearHyperParams(),
-        description="Hyperparameters for the final learner. Defaults to GBLinearHyperParams.",
-    )
-
-    use_classifier: bool = Field(
-        default=True,
-        description="Whether to use sample weights when fitting base and final learners. Defaults to False.",
-    )
-
-    add_rolling_accuracy_features: bool = Field(
-        default=False,
-        description="Whether to add rolling accuracy features from base learners as additional features "
-        "to the final learner. Defaults to False.",
+    final_learner: type[LearnedWeightsFinalLearner] = Field(
+        default=LGBMFinalLearner,
+        description="Type of final learner to use. Defaults to LearnedWeightsFinalLearner.",
     )
 
 
@@ -162,7 +181,7 @@ class LearnedWeightsForecasterConfig(ForecasterConfig):
     )
 
 
-class LearnedWeightsForecaster(MetaForecaster):
+class LearnedWeightsForecaster(EnsembleForecaster):
     """Wrapper for sklearn's StackingRegressor to make it compatible with HorizonForecaster."""
 
     Config = LearnedWeightsForecasterConfig
@@ -173,11 +192,17 @@ class LearnedWeightsForecaster(MetaForecaster):
         self._config = config
 
         self._base_learners: list[BaseLearner] = self._init_base_learners(
-            base_hyperparams=config.hyperparams.base_hyperparams
+            config=config, base_hyperparams=config.hyperparams.base_hyperparams
         )
-        self._final_learner = LearnedWeightsFinalLearner(quantiles=config.quantiles)
-
-    # TODO(@Lars800): #745: Make forecaster Explainable
+        self._final_learner = config.hyperparams.final_learner(quantiles=config.quantiles)
 
 
-__all__ = ["LearnedWeightsForecaster", "LearnedWeightsForecasterConfig", "LearnedWeightsHyperParams"]
+__all__ = [
+    "LGBMFinalLearner",
+    "LearnedWeightsForecaster",
+    "LearnedWeightsForecasterConfig",
+    "LearnedWeightsHyperParams",
+    "LogisticRegressionFinalLearner",
+    "RandomForestFinalLearner",
+    "XGBFinalLearner",
+]

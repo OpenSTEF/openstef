@@ -9,110 +9,45 @@ while ensuring full compatability with regular Forecasters.
 """
 
 import logging
-from abc import abstractmethod
 from typing import override
 
 import pandas as pd
-from pydantic import field_validator
 
 from openstef_core.datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import (
     NotFittedError,
 )
-from openstef_core.mixins import HyperParams
 from openstef_core.types import Quantile
+from openstef_meta.framework.base_learner import (
+    BaseLearner,
+    BaseLearnerHyperParams,
+)
+from openstef_meta.framework.final_learner import FinalLearner
 from openstef_models.models.forecasting.forecaster import (
     Forecaster,
     ForecasterConfig,
-)
-from openstef_models.models.forecasting.gblinear_forecaster import (
-    GBLinearForecaster,
-    GBLinearForecasterConfig,
-    GBLinearHyperParams,
-)
-from openstef_models.models.forecasting.lgbm_forecaster import LGBMForecaster, LGBMForecasterConfig, LGBMHyperParams
-from openstef_models.models.forecasting.lgbmlinear_forecaster import (
-    LGBMLinearForecaster,
-    LGBMLinearForecasterConfig,
-    LGBMLinearHyperParams,
-)
-from openstef_models.models.forecasting.xgboost_forecaster import (
-    XGBoostForecaster,
-    XGBoostForecasterConfig,
-    XGBoostHyperParams,
 )
 
 logger = logging.getLogger(__name__)
 
 
-BaseLearner = LGBMForecaster | LGBMLinearForecaster | XGBoostForecaster | GBLinearForecaster
-BaseLearnerHyperParams = LGBMHyperParams | LGBMLinearHyperParams | XGBoostHyperParams | GBLinearHyperParams
-BaseLearnerConfig = (
-    LGBMForecasterConfig | LGBMLinearForecasterConfig | XGBoostForecasterConfig | GBLinearForecasterConfig
-)
-
-
-class FinalLearner:
-    """Combines base learner predictions for each quantile into final predictions."""
-
-    @abstractmethod
-    def fit(self, base_learner_predictions: dict[Quantile, ForecastInputDataset]) -> None:
-        """Fit the final learner using base learner predictions.
-
-        Args:
-            base_learner_predictions: Dictionary mapping Quantiles to ForecastInputDatasets containing base learner
-        """
-        raise NotImplementedError("Subclasses must implement the fit method.")
-
-    def predict(self, base_learner_predictions: dict[Quantile, ForecastInputDataset]) -> ForecastDataset:
-        """Generate final predictions based on base learner predictions.
-
-        Args:
-            base_learner_predictions: Dictionary mapping Quantiles to ForecastInputDatasets containing base learner
-                predictions.
-
-        Returns:
-            ForecastDataset containing the final predictions.
-        """
-        raise NotImplementedError("Subclasses must implement the predict method.")
-
-    @property
-    @abstractmethod
-    def is_fitted(self) -> bool:
-        """Indicates whether the final learner has been fitted."""
-        raise NotImplementedError("Subclasses must implement the is_fitted property.")
-
-
-class MetaHyperParams(HyperParams):
-    """Hyperparameters for Stacked LGBM GBLinear Regressor."""
-
-    base_hyperparams: list[BaseLearnerHyperParams]
-
-    @field_validator("base_hyperparams", mode="after")
-    @classmethod
-    def _check_classes(cls, v: list[BaseLearnerHyperParams]) -> list[BaseLearnerHyperParams]:
-        hp_classes = [type(hp) for hp in v]
-        if not len(hp_classes) == len(set(hp_classes)):
-            raise ValueError("Duplicate base learner hyperparameter classes are not allowed.")
-        return v
-
-
 class MetaForecaster(Forecaster):
-    """Wrapper for sklearn's StackingRegressor to make it compatible with HorizonForecaster."""
+    """Abstract class for Meta forecasters combining multiple models."""
 
     _config: ForecasterConfig
-    _base_learners: list[BaseLearner]
-    _final_learner: FinalLearner
 
-    def _init_base_learners(self, base_hyperparams: list[BaseLearnerHyperParams]) -> list[BaseLearner]:
+    @staticmethod
+    def _init_base_learners(
+        config: ForecasterConfig, base_hyperparams: list[BaseLearnerHyperParams]
+    ) -> list[BaseLearner]:
         """Initialize base learners based on provided hyperparameters.
 
         Returns:
             list[Forecaster]: List of initialized base learner forecasters.
         """
         base_learners: list[BaseLearner] = []
-        horizons = self.config.horizons
-        quantiles = self.config.quantiles
+        horizons = config.horizons
+        quantiles = config.quantiles
 
         for hyperparams in base_hyperparams:
             forecaster_cls = hyperparams.forecaster_class()
@@ -123,6 +58,19 @@ class MetaForecaster(Forecaster):
             base_learners.append(config.forecaster_from_config())
 
         return base_learners
+
+    @property
+    @override
+    def config(self) -> ForecasterConfig:
+        return self._config
+
+
+class EnsembleForecaster(MetaForecaster):
+    """Abstract class for Meta forecasters combining multiple base learners and a final learner."""
+
+    _config: ForecasterConfig
+    _base_learners: list[BaseLearner]
+    _final_learner: FinalLearner
 
     @property
     @override
@@ -233,7 +181,6 @@ class MetaForecaster(Forecaster):
 
 __all__ = [
     "BaseLearner",
-    "BaseLearnerConfig",
     "BaseLearnerHyperParams",
     "FinalLearner",
     "MetaForecaster",

@@ -1,5 +1,5 @@
 [project]
-name = "openstef-metalearning"
+name = "openstef-meta"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
@@ -12,4 +12,4 @@ openstef-core = { workspace = true }
 
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/openstef_metalearning"]
+packages = ["src/openstef_meta"]

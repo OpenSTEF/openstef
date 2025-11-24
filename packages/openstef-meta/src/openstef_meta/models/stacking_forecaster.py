@@ -21,11 +21,13 @@ from openstef_core.exceptions import (
 )
 from openstef_core.mixins import HyperParams
 from openstef_core.types import Quantile
-from openstef_metalearning.models.meta_forecaster import (
+from openstef_meta.framework.base_learner import (
     BaseLearner,
     BaseLearnerHyperParams,
-    FinalLearner,
-    MetaForecaster,
+)
+from openstef_meta.framework.final_learner import FinalLearner
+from openstef_meta.framework.meta_forecaster import (
+    EnsembleForecaster,
 )
 from openstef_models.models.forecasting.forecaster import (
     Forecaster,
@@ -140,7 +142,7 @@ class StackingForecasterConfig(ForecasterConfig):
     )
 
 
-class StackingForecaster(MetaForecaster):
+class StackingForecaster(EnsembleForecaster):
     """Wrapper for sklearn's StackingRegressor to make it compatible with HorizonForecaster."""
 
     Config = StackingForecasterConfig
@@ -151,10 +153,12 @@ class StackingForecaster(MetaForecaster):
         self._config = config
 
         self._base_learners: list[BaseLearner] = self._init_base_learners(
-            base_hyperparams=config.hyperparams.base_hyperparams
+            config=config, base_hyperparams=config.hyperparams.base_hyperparams
         )
 
-        final_forecaster = self._init_base_learners(base_hyperparams=[config.hyperparams.final_hyperparams])[0]
+        final_forecaster = self._init_base_learners(
+            config=config, base_hyperparams=[config.hyperparams.final_hyperparams]
+        )[0]
         self._final_learner = StackingFinalLearner(forecaster=final_forecaster)
 
 

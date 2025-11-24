@@ -9,19 +9,56 @@ import pytest
 from openstef_core.datasets import ForecastInputDataset
 from openstef_core.exceptions import NotFittedError
 from openstef_core.types import LeadTime, Q
-from openstef_models.models.forecasting.meta.learned_weights_forecaster import (
-    LearnedWeightsForecaster,
-    LearnedWeightsForecasterConfig,
-    LearnedWeightsHyperParams,
+from openstef_meta.framework.base_learner import BaseLearnerHyperParams
+from openstef_meta.models.residual_forecaster import (
+    ResidualForecaster,
+    ResidualForecasterConfig,
+    ResidualHyperParams,
 )
+from openstef_models.models.forecasting.gblinear_forecaster import GBLinearHyperParams
+from openstef_models.models.forecasting.lgbm_forecaster import LGBMHyperParams
+from openstef_models.models.forecasting.lgbmlinear_forecaster import LGBMLinearHyperParams
+from openstef_models.models.forecasting.xgboost_forecaster import XGBoostHyperParams
+
+
+@pytest.fixture(params=["gblinear", "lgbmlinear"])
+def primary_model(request: pytest.FixtureRequest) -> BaseLearnerHyperParams:
+    """Fixture to provide different primary models types."""
+    learner_type = request.param
+    if learner_type == "gblinear":
+        return GBLinearHyperParams()
+    if learner_type == "lgbm":
+        return LGBMHyperParams()
+    if learner_type == "lgbmlinear":
+        return LGBMLinearHyperParams()
+    return XGBoostHyperParams()
+
+
+@pytest.fixture(params=["gblinear", "lgbm", "lgbmlinear", "xgboost"])
+def secondary_model(request: pytest.FixtureRequest) -> BaseLearnerHyperParams:
+    """Fixture to provide different secondary models types."""
+    learner_type = request.param
+    if learner_type == "gblinear":
+        return GBLinearHyperParams()
+    if learner_type == "lgbm":
+        return LGBMHyperParams()
+    if learner_type == "lgbmlinear":
+        return LGBMLinearHyperParams()
+    return XGBoostHyperParams()
 
 
 @pytest.fixture
-def base_config() -> LearnedWeightsForecasterConfig:
-    """Base configuration for LearnedWeights forecaster tests."""
+def base_config(
+    primary_model: BaseLearnerHyperParams,
+    secondary_model: BaseLearnerHyperParams,
+) -> ResidualForecasterConfig:
+    """Base configuration for Residual forecaster tests."""
 
-    params = LearnedWeightsHyperParams()
-    return LearnedWeightsForecasterConfig(
+    params = ResidualHyperParams(
+        primary_hyperparams=primary_model,
+        secondary_hyperparams=secondary_model,
+    )
+    return ResidualForecasterConfig(
         quantiles=[Q(0.1), Q(0.5), Q(0.9)],
         horizons=[LeadTime(timedelta(days=1))],
         hyperparams=params,
@@ -29,14 +66,14 @@ def base_config() -> LearnedWeightsForecasterConfig:
     )
 
 
-def test_learned_weights_forecaster_fit_predict(
+def test_residual_forecaster_fit_predict(
     sample_forecast_input_dataset: ForecastInputDataset,
-    base_config: LearnedWeightsForecasterConfig,
+    base_config: ResidualForecasterConfig,
 ):
     """Test basic fit and predict workflow with comprehensive output validation."""
     # Arrange
     expected_quantiles = base_config.quantiles
-    forecaster = LearnedWeightsForecaster(config=base_config)
+    forecaster = ResidualForecaster(config=base_config)
 
     # Act
     forecaster.fit(sample_forecast_input_dataset)
@@ -56,26 +93,26 @@ def test_learned_weights_forecaster_fit_predict(
     assert not result.data.isna().any().any(), "Forecast should not contain NaN or None values"
 
 
-def test_learned_weights_forecaster_predict_not_fitted_raises_error(
+def test_residual_forecaster_predict_not_fitted_raises_error(
     sample_forecast_input_dataset: ForecastInputDataset,
-    base_config: LearnedWeightsForecasterConfig,
+    base_config: ResidualForecasterConfig,
 ):
     """Test that predict() raises NotFittedError when called before fit()."""
     # Arrange
-    forecaster = LearnedWeightsForecaster(config=base_config)
+    forecaster = ResidualForecaster(config=base_config)
 
     # Act & Assert
-    with pytest.raises(NotFittedError, match="LearnedWeightsForecaster"):
+    with pytest.raises(NotFittedError, match="ResidualForecaster"):
         forecaster.predict(sample_forecast_input_dataset)
 
 
-def test_learned_weights_forecaster_with_sample_weights(
+def test_residual_forecaster_with_sample_weights(
     sample_dataset_with_weights: ForecastInputDataset,
-    base_config: LearnedWeightsForecasterConfig,
+    base_config: ResidualForecasterConfig,
 ):
     """Test that forecaster works with sample weights and produces different results."""
     # Arrange
-    forecaster_with_weights = LearnedWeightsForecaster(config=base_config)
+    forecaster_with_weights = ResidualForecaster(config=base_config)
 
     # Create dataset without weights for comparison
     data_without_weights = ForecastInputDataset(
@@ -84,7 +121,7 @@ def test_learned_weights_forecaster_with_sample_weights(
         target_column=sample_dataset_with_weights.target_column,
         forecast_start=sample_dataset_with_weights.forecast_start,
     )
-    forecaster_without_weights = LearnedWeightsForecaster(config=base_config)
+    forecaster_without_weights = ResidualForecaster(config=base_config)
 
     # Act
     forecaster_with_weights.fit(sample_dataset_with_weights)
