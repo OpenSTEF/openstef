@@ -13,19 +13,62 @@ from openstef_meta.models.learned_weights_forecaster import (
     LearnedWeightsForecaster,
     LearnedWeightsForecasterConfig,
     LearnedWeightsHyperParams,
+    LGBMLearner,
+    LGBMLearnerHyperParams,
+    LogisticLearner,
+    LogisticLearnerHyperParams,
+    LWFLHyperParams,
+    RandomForestLearner,
+    RFLearnerHyperParams,
+    WeightsLearner,
+    XGBLearner,
+    XGBLearnerHyperParams,
 )
 
 
+@pytest.fixture(params=["rf", "lgbm", "xgboost", "logistic"])
+def final_hyperparams(request: pytest.FixtureRequest) -> LWFLHyperParams:
+    """Fixture to provide different primary models types."""
+    learner_type = request.param
+    if learner_type == "rf":
+        return RFLearnerHyperParams()
+    if learner_type == "lgbm":
+        return LGBMLearnerHyperParams()
+    if learner_type == "xgboost":
+        return XGBLearnerHyperParams()
+    return LogisticLearnerHyperParams()
+
+
 @pytest.fixture
-def base_config() -> LearnedWeightsForecasterConfig:
+def base_config(final_hyperparams: LWFLHyperParams) -> LearnedWeightsForecasterConfig:
     """Base configuration for LearnedWeights forecaster tests."""
 
-    params = LearnedWeightsHyperParams()
+    params = LearnedWeightsHyperParams(
+        final_hyperparams=final_hyperparams,
+    )
     return LearnedWeightsForecasterConfig(
         quantiles=[Q(0.1), Q(0.5), Q(0.9)],
         horizons=[LeadTime(timedelta(days=1))],
         hyperparams=params,
         verbosity=False,
+    )
+
+
+def test_final_learner_corresponds_to_hyperparams(base_config: LearnedWeightsForecasterConfig):
+    """Test that the final learner corresponds to the specified hyperparameters."""
+    forecaster = LearnedWeightsForecaster(config=base_config)
+    final_learner = forecaster._final_learner
+
+    mapping: dict[type[LWFLHyperParams], type[WeightsLearner]] = {
+        RFLearnerHyperParams: RandomForestLearner,
+        LGBMLearnerHyperParams: LGBMLearner,
+        XGBLearnerHyperParams: XGBLearner,
+        LogisticLearnerHyperParams: LogisticLearner,
+    }
+    expected_learner_type = mapping[type(base_config.hyperparams.final_hyperparams)]
+
+    assert isinstance(final_learner, expected_learner_type), (
+        f"Final learner type {type(final_learner)} does not match expected type {expected_learner_type}"
     )
 
 
