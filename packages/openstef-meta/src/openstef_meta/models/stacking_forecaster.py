@@ -20,12 +20,13 @@ from openstef_core.exceptions import (
     NotFittedError,
 )
 from openstef_core.mixins import HyperParams
-from openstef_core.types import Quantile
+from openstef_core.transforms import TimeSeriesTransform
+from openstef_core.types import LeadTime, Quantile
 from openstef_meta.framework.base_learner import (
     BaseLearner,
     BaseLearnerHyperParams,
 )
-from openstef_meta.framework.final_learner import FinalLearner
+from openstef_meta.framework.final_learner import FinalLearner, FinalLearnerHyperParams
 from openstef_meta.framework.meta_forecaster import (
     EnsembleForecaster,
 )
@@ -41,47 +42,114 @@ from openstef_models.models.forecasting.lgbm_forecaster import LGBMHyperParams
 logger = logging.getLogger(__name__)
 
 
+class StackingFinalLearnerHyperParams(FinalLearnerHyperParams):
+    """HyperParams for Stacking Final Learner."""
+
+    feature_adders: list[TimeSeriesTransform] = Field(
+        default=[],
+        description="Additional features to add to the base learner predictions before fitting the final learner.",
+    )
+
+    forecaster_hyperparams: BaseLearnerHyperParams = Field(
+        default=GBLinearHyperParams(),
+        description="",
+    )
+
+
 class StackingFinalLearner(FinalLearner):
     """Combines base learner predictions per quantile into final predictions using a regression approach."""
 
-    def __init__(self, forecaster: Forecaster, feature_adders: None = None) -> None:
+    def __init__(
+        self, quantiles: list[Quantile], hyperparams: StackingFinalLearnerHyperParams, horizon: LeadTime
+    ) -> None:
         """Initialize the Stacking final learner.
 
         Args:
-            forecaster: The forecaster model to be used as the final learner.
-            feature_adders: Placeholder for future feature adders (not yet implemented).
+            quantiles: List of quantiles to predict.
+            hyperparams: Hyperparameters for the final learner.
+            horizon: Forecast horizon for which to create the final learner.
         """
-        # Feature adders placeholder for future use
-        if feature_adders is not None:
-            raise NotImplementedError("Feature adders are not yet implemented.")
+        super().__init__(quantiles=quantiles, hyperparams=hyperparams)
+
+        forecaster_hyperparams: BaseLearnerHyperParams = hyperparams.forecaster_hyperparams
 
         # Split forecaster per quantile
-        self.quantiles = forecaster.config.quantiles
         models: list[Forecaster] = []
         for q in self.quantiles:
-            config = forecaster.config.model_copy(
-                update={
-                    "quantiles": [q],
-                }
-            )
-            model = forecaster.__class__(config=config)
+            forecaster_cls = forecaster_hyperparams.forecaster_class()
+            config = forecaster_cls.Config(horizons=[horizon], quantiles=[q])
+            if "hyperparams" in forecaster_cls.Config.model_fields:
+                config = config.model_copy(update={"hyperparams": forecaster_hyperparams})
+
+            model = config.forecaster_from_config()
             models.append(model)
         self.models = models
 
-    @override
-    def fit(self, base_learner_predictions: dict[Quantile, ForecastInputDataset]) -> None:
-        for i, q in enumerate(self.quantiles):
-            self.models[i].fit(data=base_learner_predictions[q], data_val=None)
+    @staticmethod
+    def _combine_datasets(
+        data: ForecastInputDataset, additional_features: ForecastInputDataset
+    ) -> ForecastInputDataset:
+        """Combine base learner predictions with additional features for final learner input.
+
+        Args:
+            data: ForecastInputDataset containing base learner predictions.
+            additional_features: ForecastInputDataset containing additional features.
+
+        Returns:
+            ForecastInputDataset with combined features.
+        """
+        additional_df = additional_features.data.loc[
+            :, [col for col in additional_features.data.columns if col not in data.data.columns]
+        ]
+        # Merge on index to combine datasets
+        combined_df = data.data.join(additional_df)
+
+        return ForecastInputDataset(
+            data=combined_df,
+            sample_interval=data.sample_interval,
+            forecast_start=data.forecast_start,
+        )
 
     @override
-    def predict(self, base_learner_predictions: dict[Quantile, ForecastInputDataset]) -> ForecastDataset:
+    def fit(
+        self,
+        base_learner_predictions: dict[Quantile, ForecastInputDataset],
+        additional_features: ForecastInputDataset | None,
+    ) -> None:
+
+        for i, q in enumerate(self.quantiles):
+            if additional_features is not None:
+                data = self._combine_datasets(
+                    data=base_learner_predictions[q],
+                    additional_features=additional_features,
+                )
+            else:
+                data = base_learner_predictions[q]
+
+            self.models[i].fit(data=data, data_val=None)
+
+    @override
+    def predict(
+        self,
+        base_learner_predictions: dict[Quantile, ForecastInputDataset],
+        additional_features: ForecastInputDataset | None,
+    ) -> ForecastDataset:
         if not self.is_fitted:
             raise NotFittedError(self.__class__.__name__)
 
         # Generate predictions
-        predictions = [
-            self.models[i].predict(data=base_learner_predictions[q]).data for i, q in enumerate(self.quantiles)
-        ]
+        predictions: list[pd.DataFrame] = []
+        for i, q in enumerate(self.quantiles):
+            if additional_features is not None:
+                data = self._combine_datasets(
+                    data=base_learner_predictions[q],
+                    additional_features=additional_features,
+                )
+            else:
+                data = base_learner_predictions[q]
+
+            p = self.models[i].predict(data=data).data
+            predictions.append(p)
 
         # Concatenate predictions along columns to form a DataFrame with quantile columns
         df = pd.concat(predictions, axis=1)
@@ -106,9 +174,9 @@ class StackingHyperParams(HyperParams):
         "Defaults to [LGBMHyperParams, GBLinearHyperParams].",
     )
 
-    final_hyperparams: BaseLearnerHyperParams = Field(
-        default=GBLinearHyperParams(),
-        description="Hyperparameters for the final learner. Defaults to GBLinearHyperParams.",
+    final_hyperparams: StackingFinalLearnerHyperParams = Field(
+        default=StackingFinalLearnerHyperParams(),
+        description="Hyperparameters for the final learner.",
     )
 
     use_classifier: bool = Field(
@@ -156,10 +224,9 @@ class StackingForecaster(EnsembleForecaster):
             config=config, base_hyperparams=config.hyperparams.base_hyperparams
         )
 
-        final_forecaster = self._init_base_learners(
-            config=config, base_hyperparams=[config.hyperparams.final_hyperparams]
-        )[0]
-        self._final_learner = StackingFinalLearner(forecaster=final_forecaster)
+        self._final_learner = StackingFinalLearner(
+            quantiles=config.quantiles, hyperparams=config.hyperparams.final_hyperparams, horizon=config.max_horizon
+        )
 
 
 __all__ = ["StackingFinalLearner", "StackingForecaster", "StackingForecasterConfig", "StackingHyperParams"]

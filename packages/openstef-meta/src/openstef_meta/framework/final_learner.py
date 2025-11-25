@@ -29,10 +29,6 @@ class FinalLearnerHyperParams(HyperParams):
     )
 
 
-class FinalLearnerConfig:
-    """Configuration for the Final Learner."""
-
-
 class FinalLearner(ABC):
     """Combines base learner predictions for each quantile into final predictions."""
 
