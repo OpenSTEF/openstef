@@ -26,8 +26,8 @@ from openstef_core.base_model import BaseConfig
 from openstef_core.mixins import TransformPipeline
 from openstef_core.types import LeadTime, Q, Quantile, QuantileOrGlobal
 from openstef_meta.models.learned_weights_forecaster import LearnedWeightsForecaster
-from openstef_meta.models.stacking_forecaster import StackingForecaster
 from openstef_meta.models.residual_forecaster import ResidualForecaster
+from openstef_meta.models.stacking_forecaster import StackingForecaster
 from openstef_models.integrations.mlflow import MLFlowStorage, MLFlowStorageCallback
 from openstef_models.mixins import ModelIdentifier
 from openstef_models.models import ForecastingModel
