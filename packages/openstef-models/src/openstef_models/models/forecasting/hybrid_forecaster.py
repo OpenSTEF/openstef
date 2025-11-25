@@ -43,6 +43,8 @@ from openstef_models.models.forecasting.xgboost_forecaster import (
     XGBoostForecasterConfig,
     XGBoostHyperParams,
 )
+from openstef_models.transforms.general.flag import compute_range_flag
+
 
 logger = logging.getLogger(__name__)
 
@@ -289,29 +291,14 @@ class HybridForecaster(Forecaster):
         predictions_quantiles: dict[Quantile, ForecastInputDataset] = {}
         sample_interval = base_predictions[next(iter(base_predictions))].sample_interval
         target_name = str(target_series.name)
+        allowed_features = ["temperature_2m", "surface_pressure", "cloud_cover", "shortwave_radiation", "direct_radiation","diffuse_radiation","direct_normal_irradiance"]
 
         for q in quantiles:
             df = pd.DataFrame({
                 learner.__name__: preds.data[Quantile(q).format()] for learner, preds in base_predictions.items()
             })
             df[target_name] = target_series
-
-            # Add inside_train_range flag (1 if all numeric input features are within training min/max)
-            inside_flag = pd.Series(False, index=df.index)
-            if input_features is not None and feature_ranges:
-                # align input_features to prediction index where possible
-                features_aligned = input_features.reindex(df.index)
-                numeric = features_aligned.select_dtypes(include="number")
-                if not numeric.empty:
-                    inside = pd.Series(True, index=numeric.index)
-                    for col, (mn, mx) in feature_ranges.items():
-                        if col in numeric.columns:
-                            inside &= numeric[col].ge(mn) & numeric[col].le(mx)
-                        else:
-                            # missing feature in current input -> treat as inside range
-                            inside &= True
-                    inside_flag = inside.fillna(False) # type: ignore
-            df["inside_train_range"] = inside_flag.astype(int)
+            df["inside_train_range"] = compute_range_flag(df, input_features, allowed_features, feature_ranges)
 
             predictions_quantiles[q] = ForecastInputDataset(
                 data=df,

@@ -17,10 +17,9 @@ os.environ["OPENBLAS_NUM_THREADS"] = "1"
 os.environ["MKL_NUM_THREADS"] = "1"
 
 import logging
-import multiprocessing
-import time
 from datetime import timedelta
 from pathlib import Path
+import time
 
 from pydantic_extra_types.coordinate import Coordinate
 from pydantic_extra_types.country import CountryAlpha2
@@ -46,9 +45,10 @@ OUTPUT_PATH = Path("./benchmark_results")
 
 BENCHMARK_RESULTS_PATH_XGBOOST = OUTPUT_PATH / "XGBoost"
 BENCHMARK_RESULTS_PATH_GBLINEAR = OUTPUT_PATH / "GBLinear"
-BENCHMARK_RESULTS_PATH_HYBRID_BUSINESS = OUTPUT_PATH / "Hybdrid_business"
+BENCHMARK_RESULTS_PATH_HYBRID_BUSINESS = OUTPUT_PATH / "Hybrid_Business"
 model = "hybrid"
-N_PROCESSES = multiprocessing.cpu_count()  # Amount of parallel processes to use for the benchmark
+N_PROCESSES = 1  # Amount of parallel processes to use for the benchmark
+
 
 # Model configuration
 FORECAST_HORIZONS = [LeadTime.from_string("P3D")]  # Forecast horizon(s)
