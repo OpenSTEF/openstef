@@ -24,6 +24,7 @@ from openstef_meta.models.learned_weights_forecaster import (
     XGBLearner,
     XGBLearnerHyperParams,
 )
+from openstef_models.transforms.time_domain.cyclic_features_adder import CyclicFeaturesAdder
 
 
 @pytest.fixture(params=["rf", "lgbm", "xgboost", "logistic"])
@@ -146,3 +147,23 @@ def test_learned_weights_forecaster_with_sample_weights(
     # (This is a statistical test - with different weights, predictions should differ)
     differences = (result_with_weights.data - result_without_weights.data).abs()
     assert differences.sum().sum() > 0, "Sample weights should affect model predictions"
+
+
+def test_learned_weights_forecaster_with_additional_features(
+    sample_forecast_input_dataset: ForecastInputDataset,
+    base_config: LearnedWeightsForecasterConfig,
+):
+    """Test that forecaster works with additional features for the final learner."""
+    # Arrange
+    # Add a simple feature adder that adds a constant feature
+
+    base_config.hyperparams.final_hyperparams.feature_adders.append(CyclicFeaturesAdder())
+    forecaster = LearnedWeightsForecaster(config=base_config)
+
+    # Act
+    forecaster.fit(sample_forecast_input_dataset)
+    result = forecaster.predict(sample_forecast_input_dataset)
+
+    # Assert
+    assert forecaster.is_fitted, "Model should be fitted after calling fit()"
+    assert not result.data.isna().any().any(), "Forecast should not contain NaN or None values"

@@ -104,12 +104,20 @@ class EnsembleForecaster(MetaForecaster):
 
         base_predictions = self._predict_base_learners(data=full_dataset)
 
+        if self._final_learner.has_features:
+            features = self._final_learner.calculate_features(data=full_dataset)
+        else:
+            features = None
+
         quantile_datasets = self._prepare_input_final_learner(
-            base_predictions=base_predictions, quantiles=self._config.quantiles, target_series=data.target_series
+            base_predictions=base_predictions,
+            quantiles=self._config.quantiles,
+            target_series=data.target_series,
         )
 
         self._final_learner.fit(
             base_learner_predictions=quantile_datasets,
+            additional_features=features,
         )
 
         self._is_fitted = True
@@ -170,18 +178,31 @@ class EnsembleForecaster(MetaForecaster):
         if not self.is_fitted:
             raise NotFittedError(self.__class__.__name__)
 
-        base_predictions = self._predict_base_learners(data=data)
+        full_dataset = ForecastInputDataset(
+            data=data.data,
+            sample_interval=data.sample_interval,
+            target_column=data.target_column,
+            forecast_start=data.index[0],
+        )
+
+        base_predictions = self._predict_base_learners(data=full_dataset)
 
         final_learner_input = self._prepare_input_final_learner(
             quantiles=self._config.quantiles, base_predictions=base_predictions, target_series=data.target_series
         )
 
-        return self._final_learner.predict(base_learner_predictions=final_learner_input)
+        if self._final_learner.has_features:
+            additional_features = self._final_learner.calculate_features(data=data)
+        else:
+            additional_features = None
+
+        return self._final_learner.predict(
+            base_learner_predictions=final_learner_input, additional_features=additional_features
+        )
 
 
 __all__ = [
     "BaseLearner",
     "BaseLearnerHyperParams",
-    "FinalLearner",
     "MetaForecaster",
 ]

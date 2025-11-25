@@ -10,13 +10,23 @@ while ensuring full compatability with regular Forecasters.
 
 from abc import ABC, abstractmethod
 
-from openstef_core.datasets import ForecastDataset, ForecastInputDataset
-from openstef_core.mixins import HyperParams
+from pydantic import ConfigDict, Field
+
+from openstef_core.datasets import ForecastDataset, ForecastInputDataset, TimeSeriesDataset
+from openstef_core.mixins import HyperParams, TransformPipeline
+from openstef_core.transforms import TimeSeriesTransform
 from openstef_core.types import Quantile
 
 
 class FinalLearnerHyperParams(HyperParams):
     """Hyperparameters for the Final Learner."""
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    feature_adders: list[TimeSeriesTransform] = Field(
+        default=[],
+        description="Additional features to add to the base learner predictions before fitting the final learner.",
+    )
 
 
 class FinalLearnerConfig:
@@ -26,29 +36,76 @@ class FinalLearnerConfig:
 class FinalLearner(ABC):
     """Combines base learner predictions for each quantile into final predictions."""
 
+    def __init__(self, quantiles: list[Quantile], hyperparams: FinalLearnerHyperParams) -> None:
+        """Initialize the Final Learner."""
+        self.quantiles = quantiles
+        self.hyperparams = hyperparams
+        self.final_learner_processing: TransformPipeline[TimeSeriesDataset] = TransformPipeline(
+            transforms=hyperparams.feature_adders
+        )
+        self._is_fitted: bool = False
+
     @abstractmethod
-    def fit(self, base_learner_predictions: dict[Quantile, ForecastInputDataset]) -> None:
+    def fit(
+        self,
+        base_learner_predictions: dict[Quantile, ForecastInputDataset],
+        additional_features: ForecastInputDataset | None,
+    ) -> None:
         """Fit the final learner using base learner predictions.
 
         Args:
             base_learner_predictions: Dictionary mapping Quantiles to ForecastInputDatasets containing base learner
+            predictions.
+            additional_features: Optional ForecastInputDataset containing additional features for the final learner.
         """
         raise NotImplementedError("Subclasses must implement the fit method.")
 
-    def predict(self, base_learner_predictions: dict[Quantile, ForecastInputDataset]) -> ForecastDataset:
+    def predict(
+        self,
+        base_learner_predictions: dict[Quantile, ForecastInputDataset],
+        additional_features: ForecastInputDataset | None,
+    ) -> ForecastDataset:
         """Generate final predictions based on base learner predictions.
 
         Args:
             base_learner_predictions: Dictionary mapping Quantiles to ForecastInputDatasets containing base learner
                 predictions.
+            additional_features: Optional ForecastInputDataset containing additional features for the final learner.
 
         Returns:
             ForecastDataset containing the final predictions.
         """
         raise NotImplementedError("Subclasses must implement the predict method.")
 
+    def calculate_features(self, data: ForecastInputDataset) -> ForecastInputDataset:
+        """Calculate additional features for the final learner.
+
+        Args:
+            data: Input TimeSeriesDataset to calculate features on.
+
+        Returns:
+            TimeSeriesDataset with additional features.
+        """
+        data_ts = TimeSeriesDataset(
+            data=data.data,
+            sample_interval=data.sample_interval,
+        )
+        data_transformed = self.final_learner_processing.transform(data_ts)
+
+        return ForecastInputDataset(
+            data=data_transformed.data,
+            sample_interval=data.sample_interval,
+            target_column=data.target_column,
+            forecast_start=data.forecast_start,
+        )
+
     @property
     @abstractmethod
     def is_fitted(self) -> bool:
         """Indicates whether the final learner has been fitted."""
         raise NotImplementedError("Subclasses must implement the is_fitted property.")
+
+    @property
+    def has_features(self) -> bool:
+        """Indicates whether the final learner uses additional features."""
+        return len(self.final_learner_processing.transforms) > 0
