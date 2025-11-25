@@ -25,6 +25,9 @@ from openstef_beam.evaluation.metric_providers import (
 from openstef_core.base_model import BaseConfig
 from openstef_core.mixins import TransformPipeline
 from openstef_core.types import LeadTime, Q, Quantile, QuantileOrGlobal
+from openstef_meta.models.learned_weights_forecaster import LearnedWeightsForecaster
+from openstef_meta.models.stacking_forecaster import StackingForecaster
+from openstef_meta.models.residual_forecaster import ResidualForecaster
 from openstef_models.integrations.mlflow import MLFlowStorage, MLFlowStorageCallback
 from openstef_models.mixins import ModelIdentifier
 from openstef_models.models import ForecastingModel
@@ -32,8 +35,6 @@ from openstef_models.models.forecasting.flatliner_forecaster import FlatlinerFor
 from openstef_models.models.forecasting.gblinear_forecaster import GBLinearForecaster
 from openstef_models.models.forecasting.lgbm_forecaster import LGBMForecaster
 from openstef_models.models.forecasting.lgbmlinear_forecaster import LGBMLinearForecaster
-from openstef_models.models.forecasting.meta.learned_weights_forecaster import LearnedWeightsForecaster
-from openstef_models.models.forecasting.meta.stacking_forecaster import StackingForecaster
 from openstef_models.models.forecasting.xgboost_forecaster import XGBoostForecaster
 from openstef_models.transforms.energy_domain import WindPowerFeatureAdder
 from openstef_models.transforms.general import Clipper, EmptyFeatureRemover, Imputer, NaNDropper, SampleWeighter, Scaler
@@ -101,9 +102,9 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
     model_id: ModelIdentifier = Field(description="Unique identifier for the forecasting model.")
 
     # Model configuration
-    model: Literal["xgboost", "gblinear", "flatliner", "stacking", "learned_weights", "lgbm", "lgbmlinear"] = Field(
-        description="Type of forecasting model to use."
-    )  # TODO(#652): Implement median forecaster
+    model: Literal[
+        "xgboost", "gblinear", "flatliner", "stacking", "residual", "learned_weights", "lgbm", "lgbmlinear"
+    ] = Field(description="Type of forecasting model to use.")  # TODO(#652): Implement median forecaster
     quantiles: list[Quantile] = Field(
         default=[Q(0.5)],
         description="List of quantiles to predict for probabilistic forecasting.",
@@ -135,6 +136,11 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
     lgbmlinear_hyperparams: LGBMLinearForecaster.HyperParams = Field(
         default=LGBMLinearForecaster.HyperParams(),
         description="Hyperparameters for LightGBM forecaster.",
+    )
+
+    residual_hyperparams: ResidualForecaster.HyperParams = Field(
+        default=ResidualForecaster.HyperParams(),
+        description="Hyperparameters for Residual forecaster.",
     )
 
     stacking_hyperparams: StackingForecaster.HyperParams = Field(
@@ -208,7 +214,7 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
     )
     sample_weight_exponent: float = Field(
         default_factory=lambda data: 1.0
-        if data.get("model") in {"gblinear", "lgbmlinear", "lgbm", "learned_weights", "stacking", "xgboost"}
+        if data.get("model") in {"gblinear", "lgbmlinear", "lgbm", "learned_weights", "stacking", "residual", "xgboost"}
         else 0.0,
         description="Exponent applied to scale the sample weights. "
         "0=uniform weights, 1=linear scaling, >1=stronger emphasis on high values. "
@@ -308,9 +314,11 @@ def create_forecasting_workflow(
             history_available=config.predict_history,
             horizons=config.horizons,
             add_trivial_lags=config.model
-            not in {"gblinear", "stacking", "learned_weights"},  # GBLinear uses only 7day lag.
+            not in {"gblinear", "residual", "stacking", "learned_weights"},  # GBLinear uses only 7day lag.
             target_column=config.target_column,
-            custom_lags=[timedelta(days=7)] if config.model in {"gblinear", "stackinglearned_weights"} else [],
+            custom_lags=[timedelta(days=7)]
+            if config.model in {"gblinear", "residual", "stacking", "learned_weights"}
+            else [],
         ),
         WindPowerFeatureAdder(
             windspeed_reference_column=config.wind_speed_column,
@@ -430,6 +438,28 @@ def create_forecasting_workflow(
             ConfidenceIntervalApplicator(quantiles=config.quantiles),
         ]
     elif config.model == "learned_weights":
+        preprocessing = [
+            *checks,
+            *feature_adders,
+            *feature_standardizers,
+            Imputer(
+                selection=Exclude(config.target_column),
+                imputation_strategy="mean",
+                fill_future_values=Include(config.energy_price_column),
+            ),
+            NaNDropper(
+                selection=Exclude(config.target_column),
+            ),
+        ]
+        forecaster = ResidualForecaster(
+            config=ResidualForecaster.Config(
+                quantiles=config.quantiles,
+                horizons=config.horizons,
+                hyperparams=config.residual_hyperparams,
+            )
+        )
+        postprocessing = [QuantileSorter()]
+    elif config.model == "residual":
         preprocessing = [
             *checks,
             *feature_adders,
