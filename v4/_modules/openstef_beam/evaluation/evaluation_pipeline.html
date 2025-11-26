@@ -692,6 +692,10 @@
             <span class="k">if</span> <span class="n">evaluation_mask</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">predictions_filtered</span> <span class="o">=</span> <span class="n">predictions_filtered</span><span class="o">.</span><span class="n">filter_index</span><span class="p">(</span><span class="n">evaluation_mask</span><span class="p">)</span>
 
+            <span class="c1"># Remove target column from predictions to avoid duplication</span>
+            <span class="k">if</span> <span class="n">target_column</span> <span class="ow">in</span> <span class="n">predictions_filtered</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                <span class="n">predictions_filtered</span> <span class="o">=</span> <span class="n">predictions_filtered</span><span class="o">.</span><span class="n">pipe_pandas</span><span class="p">(</span><span class="k">lambda</span> <span class="n">df</span><span class="p">:</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">target_column</span><span class="p">]))</span>
+
             <span class="k">yield</span> <span class="p">(</span>
                 <span class="n">lead_time</span><span class="p">,</span>
                 <span class="n">ForecastDataset</span><span class="p">(</span>
