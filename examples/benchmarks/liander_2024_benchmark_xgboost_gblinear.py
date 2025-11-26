@@ -45,7 +45,7 @@ from openstef_models.workflows import CustomForecastingWorkflow
 
 logging.basicConfig(level=logging.INFO, format="[%(asctime)s][%(levelname)s] %(message)s")
 
-OUTPUT_PATH = Path("./benchmark_results_z")
+OUTPUT_PATH = Path("./benchmark_results")
 
 BENCHMARK_RESULTS_PATH_XGBOOST = OUTPUT_PATH / "XGBoost"
 BENCHMARK_RESULTS_PATH_GBLINEAR = OUTPUT_PATH / "GBLinear"
@@ -123,7 +123,7 @@ def _target_forecaster_factory(
             config=base_config.model_copy(
                 update={
                     "model_id": f"{prefix}_{target.name}",
-                    "run_name": context.run_name,
+                    "run_name": context.step_name,
                     "location": LocationConfig(
                         name=target.name,
                         description=target.description,

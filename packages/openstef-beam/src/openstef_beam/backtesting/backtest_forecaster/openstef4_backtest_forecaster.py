@@ -23,9 +23,9 @@ from openstef_models.workflows.custom_forecasting_workflow import CustomForecast
 class WorkflowCreationContext(BaseConfig):
     """Context information for workflow execution within backtesting."""
 
-    run_name: str | None = Field(
+    step_name: str | None = Field(
         default=None,
-        description="Optional name for this workflow run.",
+        description="Name of the current backtesting step.",
     )
 
 
@@ -72,7 +72,7 @@ class OpenSTEF4BacktestForecaster(BaseModel, BacktestForecasterMixin):
     @override
     def fit(self, data: RestrictedHorizonVersionedTimeSeries) -> None:
         # Create a new workflow for this training cycle
-        context = WorkflowCreationContext(run_name=data.horizon.isoformat())
+        context = WorkflowCreationContext(step_name=data.horizon.isoformat())
         workflow = self.workflow_factory(context)
 
         # Extract the dataset for training
