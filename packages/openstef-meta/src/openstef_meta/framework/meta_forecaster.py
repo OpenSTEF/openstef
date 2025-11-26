@@ -105,6 +105,7 @@ class EnsembleForecaster(MetaForecaster):
         base_predictions = self._predict_base_learners(data=full_dataset)
 
         if self._final_learner.has_features:
+            self._final_learner.final_learner_processing.fit(full_dataset)
             features = self._final_learner.calculate_features(data=full_dataset)
         else:
             features = None

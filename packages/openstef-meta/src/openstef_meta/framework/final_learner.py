@@ -16,6 +16,7 @@ from openstef_core.datasets import ForecastDataset, ForecastInputDataset, TimeSe
 from openstef_core.mixins import HyperParams, TransformPipeline
 from openstef_core.transforms import TimeSeriesTransform
 from openstef_core.types import Quantile
+from openstef_models.transforms.general import Flagger
 
 
 class FinalLearnerHyperParams(HyperParams):
@@ -24,7 +25,7 @@ class FinalLearnerHyperParams(HyperParams):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     feature_adders: list[TimeSeriesTransform] = Field(
-        default=[],
+        default=[Flagger()],
         description="Additional features to add to the base learner predictions before fitting the final learner.",
     )
 
