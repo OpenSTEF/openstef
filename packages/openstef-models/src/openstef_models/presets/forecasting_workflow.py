@@ -451,11 +451,11 @@ def create_forecasting_workflow(
                 selection=Exclude(config.target_column),
             ),
         ]
-        forecaster = ResidualForecaster(
-            config=ResidualForecaster.Config(
+        forecaster = LearnedWeightsForecaster(
+            config=LearnedWeightsForecaster.Config(
                 quantiles=config.quantiles,
                 horizons=config.horizons,
-                hyperparams=config.residual_hyperparams,
+                hyperparams=config.learned_weights_hyperparams,
             )
         )
         postprocessing = [QuantileSorter()]
@@ -473,11 +473,11 @@ def create_forecasting_workflow(
                 selection=Exclude(config.target_column),
             ),
         ]
-        forecaster = LearnedWeightsForecaster(
-            config=LearnedWeightsForecaster.Config(
+        forecaster = ResidualForecaster(
+            config=ResidualForecaster.Config(
                 quantiles=config.quantiles,
                 horizons=config.horizons,
-                hyperparams=config.learned_weights_hyperparams,
+                hyperparams=config.residual_hyperparams,
             )
         )
         postprocessing = [QuantileSorter()]

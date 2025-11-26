@@ -9,13 +9,17 @@ while ensuring full compatability with regular Forecasters.
 """
 
 from abc import ABC, abstractmethod
+from collections.abc import Sequence
 
 from pydantic import ConfigDict, Field
 
 from openstef_core.datasets import ForecastDataset, ForecastInputDataset, TimeSeriesDataset
 from openstef_core.mixins import HyperParams, TransformPipeline
 from openstef_core.transforms import TimeSeriesTransform
+from openstef_models.transforms.general.scaler import Scaler
 from openstef_core.types import Quantile
+from openstef_models.utils.feature_selection import FeatureSelection
+from openstef_meta.transforms.selector import Selector
 
 
 class FinalLearnerHyperParams(HyperParams):
@@ -23,8 +27,28 @@ class FinalLearnerHyperParams(HyperParams):
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    feature_adders: list[TimeSeriesTransform] = Field(
-        default=[],
+    feature_adders: Sequence[TimeSeriesTransform] = Field(
+        default=[
+            Selector(
+                selection=FeatureSelection(
+                    include={
+                        "temperature_2m",
+                        "relative_humidity_2m",
+                        "surface_pressure",
+                        "cloud_cover",
+                        "wind_speed_10m",
+                        "wind_speed_80m",
+                        "wind_direction_10m",
+                        "shortwave_radiation",
+                        "direct_radiation",
+                        "diffuse_radiation",
+                        "direct_normal_irradiance",
+                        "load",
+                    }
+                ),
+            ),
+            Scaler(method="standard"),
+        ],
         description="Additional features to add to the base learner predictions before fitting the final learner.",
     )
 
@@ -82,11 +106,7 @@ class FinalLearner(ABC):
         Returns:
             TimeSeriesDataset with additional features.
         """
-        data_ts = TimeSeriesDataset(
-            data=data.data,
-            sample_interval=data.sample_interval,
-        )
-        data_transformed = self.final_learner_processing.transform(data_ts)
+        data_transformed = self.final_learner_processing.transform(data)
 
         return ForecastInputDataset(
             data=data_transformed.data,
