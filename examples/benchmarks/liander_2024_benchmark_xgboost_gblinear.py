@@ -24,7 +24,11 @@ from pathlib import Path
 from pydantic_extra_types.coordinate import Coordinate
 from pydantic_extra_types.country import CountryAlpha2
 
-from openstef_beam.backtesting.backtest_forecaster import BacktestForecasterConfig, OpenSTEF4BacktestForecaster
+from openstef_beam.backtesting.backtest_forecaster import (
+    BacktestForecasterConfig,
+    OpenSTEF4BacktestForecaster,
+    WorkflowCreationContext,
+)
 from openstef_beam.benchmarking.benchmark_pipeline import BenchmarkContext
 from openstef_beam.benchmarking.benchmarks.liander2024 import Liander2024Category, create_liander2024_benchmark_runner
 from openstef_beam.benchmarking.callbacks.strict_execution_callback import StrictExecutionCallback
@@ -73,11 +77,12 @@ else:
 
 common_config = ForecastingWorkflowConfig(
     model_id="common_model_",
+    run_name=None,
     model="flatliner",
     horizons=FORECAST_HORIZONS,
     quantiles=PREDICTION_QUANTILES,
-    model_reuse_enable=False,
-    mlflow_storage=None,
+    model_reuse_enable=True,
+    mlflow_storage=storage,
     radiation_column="shortwave_radiation",
     rolling_aggregate_features=["mean", "median", "max", "min"],
     wind_speed_column="wind_speed_80m",
@@ -112,12 +117,13 @@ def _target_forecaster_factory(
     prefix = context.run_name
     base_config = xgboost_config if context.run_name == "xgboost" else gblinear_config
 
-    def _create_workflow() -> CustomForecastingWorkflow:
+    def _create_workflow(context: WorkflowCreationContext) -> CustomForecastingWorkflow:
         # Create a new workflow instance with fresh model.
         return create_forecasting_workflow(
             config=base_config.model_copy(
                 update={
                     "model_id": f"{prefix}_{target.name}",
+                    "run_name": context.step_name,
                     "location": LocationConfig(
                         name=target.name,
                         description=target.description,

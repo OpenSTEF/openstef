@@ -173,6 +173,40 @@ class MLFlowStorage(BaseConfig):
             max_results=limit,
         )
 
+    def search_run(
+        self,
+        model_id: ModelIdentifier,
+        run_name: str,
+    ) -> Run | None:
+        """Search for a specific run of a model by its name in MLflow.
+
+        Queries MLflow for a run matching the provided run name.
+        Returns None if no experiment or run exists for the model.
+
+        Args:
+            model_id: Model identifier to search runs for.
+            run_name: Name of the run to search for.
+
+        Returns:
+            The matching Run object if found, otherwise None.
+        """
+        # Get related experiment
+        experiment = self._client.get_experiment_by_name(name=f"{self.experiment_name_prefix}{model_id}")
+        if experiment is None:
+            return None
+
+        # Search for the run by name
+        runs = self._client.search_runs(
+            experiment_ids=[experiment.experiment_id],
+            filter_string=f"attribute.run_name = '{run_name}'",
+            order_by=["start_time DESC"],
+            max_results=1,
+        )
+
+        if runs:
+            return runs[0]
+        return None
+
     def save_run_model(self, model_id: ModelIdentifier, run_id: str, model: object) -> None:
         """Save a trained model to local artifacts directory for the run.
 

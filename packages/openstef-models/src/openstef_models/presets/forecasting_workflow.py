@@ -88,6 +88,7 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
     """
 
     model_id: ModelIdentifier = Field(description="Unique identifier for the forecasting model.")
+    run_name: str | None = Field(default=None, description="Optional name for this workflow run.")
 
     # Model configuration
     model: Literal["xgboost", "gblinear", "flatliner"] = Field(
@@ -382,5 +383,6 @@ def create_forecasting_workflow(config: ForecastingWorkflowConfig) -> CustomFore
             tags=tags,
         ),
         model_id=config.model_id,
+        run_name=config.run_name,
         callbacks=callbacks,
     )

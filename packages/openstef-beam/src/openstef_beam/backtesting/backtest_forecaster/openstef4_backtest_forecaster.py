@@ -13,11 +13,20 @@ from pydantic import Field, PrivateAttr
 
 from openstef_beam.backtesting.backtest_forecaster.mixins import BacktestForecasterConfig, BacktestForecasterMixin
 from openstef_beam.backtesting.restricted_horizon_timeseries import RestrictedHorizonVersionedTimeSeries
-from openstef_core.base_model import BaseModel
+from openstef_core.base_model import BaseConfig, BaseModel
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.exceptions import FlatlinerDetectedError, NotFittedError
 from openstef_core.types import Q
 from openstef_models.workflows.custom_forecasting_workflow import CustomForecastingWorkflow
+
+
+class WorkflowCreationContext(BaseConfig):
+    """Context information for workflow execution within backtesting."""
+
+    step_name: str | None = Field(
+        default=None,
+        description="Name of the current backtesting step.",
+    )
 
 
 class OpenSTEF4BacktestForecaster(BaseModel, BacktestForecasterMixin):
@@ -30,7 +39,7 @@ class OpenSTEF4BacktestForecaster(BaseModel, BacktestForecasterMixin):
     config: BacktestForecasterConfig = Field(
         description="Configuration for the backtest forecaster interface",
     )
-    workflow_factory: Callable[[], CustomForecastingWorkflow] = Field(
+    workflow_factory: Callable[[WorkflowCreationContext], CustomForecastingWorkflow] = Field(
         description="Factory function that creates a new CustomForecastingWorkflow instance",
     )
     cache_dir: Path = Field(
@@ -56,14 +65,15 @@ class OpenSTEF4BacktestForecaster(BaseModel, BacktestForecasterMixin):
     def quantiles(self) -> list[Q]:
         # Create a workflow instance if needed to get quantiles
         if self._workflow is None:
-            self._workflow = self.workflow_factory()
+            self._workflow = self.workflow_factory(WorkflowCreationContext())
         # Extract quantiles from the workflow's model
         return self._workflow.model.forecaster.config.quantiles
 
     @override
     def fit(self, data: RestrictedHorizonVersionedTimeSeries) -> None:
         # Create a new workflow for this training cycle
-        workflow = self.workflow_factory()
+        context = WorkflowCreationContext(step_name=data.horizon.isoformat())
+        workflow = self.workflow_factory(context)
 
         # Extract the dataset for training
         training_data = data.get_window(
@@ -124,4 +134,4 @@ class OpenSTEF4BacktestForecaster(BaseModel, BacktestForecasterMixin):
         return forecast
 
 
-__all__ = ["OpenSTEF4BacktestForecaster"]
+__all__ = ["OpenSTEF4BacktestForecaster", "WorkflowCreationContext"]
