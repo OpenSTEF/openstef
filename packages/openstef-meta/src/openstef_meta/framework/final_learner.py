@@ -11,15 +11,36 @@ while ensuring full compatability with regular Forecasters.
 from abc import ABC, abstractmethod
 from collections.abc import Sequence
 
+import pandas as pd
 from pydantic import ConfigDict, Field
 
 from openstef_core.datasets import ForecastDataset, ForecastInputDataset, TimeSeriesDataset
 from openstef_core.mixins import HyperParams, TransformPipeline
 from openstef_core.transforms import TimeSeriesTransform
-from openstef_models.transforms.general.scaler import Scaler
 from openstef_core.types import Quantile
-from openstef_models.utils.feature_selection import FeatureSelection
 from openstef_meta.transforms.selector import Selector
+from openstef_models.utils.feature_selection import FeatureSelection
+
+WEATHER_FEATURES = {
+    "temperature_2m",
+    "relative_humidity_2m",
+    "surface_pressure",
+    "cloud_cover",
+    "wind_speed_10m",
+    "wind_speed_80m",
+    "wind_direction_10m",
+    "shortwave_radiation",
+    "direct_radiation",
+    "diffuse_radiation",
+    "direct_normal_irradiance",
+    "load",
+}
+
+SELECTOR = (
+    Selector(
+        selection=FeatureSelection.NONE,
+    ),
+)
 
 
 class FinalLearnerHyperParams(HyperParams):
@@ -28,27 +49,7 @@ class FinalLearnerHyperParams(HyperParams):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     feature_adders: Sequence[TimeSeriesTransform] = Field(
-        default=[
-            Selector(
-                selection=FeatureSelection(
-                    include={
-                        "temperature_2m",
-                        "relative_humidity_2m",
-                        "surface_pressure",
-                        "cloud_cover",
-                        "wind_speed_10m",
-                        "wind_speed_80m",
-                        "wind_direction_10m",
-                        "shortwave_radiation",
-                        "direct_radiation",
-                        "diffuse_radiation",
-                        "direct_normal_irradiance",
-                        "load",
-                    }
-                ),
-            ),
-            Scaler(method="standard"),
-        ],
+        default=[],
         description="Additional features to add to the base learner predictions before fitting the final learner.",
     )
 
@@ -70,6 +71,7 @@ class FinalLearner(ABC):
         self,
         base_learner_predictions: dict[Quantile, ForecastInputDataset],
         additional_features: ForecastInputDataset | None,
+        sample_weights: pd.Series | None = None,
     ) -> None:
         """Fit the final learner using base learner predictions.
 
@@ -77,6 +79,7 @@ class FinalLearner(ABC):
             base_learner_predictions: Dictionary mapping Quantiles to ForecastInputDatasets containing base learner
             predictions.
             additional_features: Optional ForecastInputDataset containing additional features for the final learner.
+            sample_weights: Optional series of sample weights for fitting.
         """
         raise NotImplementedError("Subclasses must implement the fit method.")
 

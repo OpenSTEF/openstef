@@ -89,6 +89,7 @@ class WeightsLearner(FinalLearner):
         self,
         base_learner_predictions: dict[Quantile, ForecastInputDataset],
         additional_features: ForecastInputDataset | None,
+        sample_weights: pd.Series | None = None,
     ) -> None:
 
         for i, q in enumerate(self.quantiles):
@@ -121,8 +122,10 @@ class WeightsLearner(FinalLearner):
                 self._label_encoder.fit(labels)
             labels = self._label_encoder.transform(labels)
 
-            # Balance classes
+            # Balance classes, adjust with sample weights
             weights = compute_sample_weight("balanced", labels)
+            if sample_weights is not None:
+                weights *= sample_weights
 
             self.models[i].fit(X=df, y=labels, sample_weight=weights)  # type: ignore
         self._is_fitted = True

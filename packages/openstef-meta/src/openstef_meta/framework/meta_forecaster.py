@@ -119,6 +119,7 @@ class EnsembleForecaster(MetaForecaster):
         self._final_learner.fit(
             base_learner_predictions=quantile_datasets,
             additional_features=features,
+            sample_weights=data.data.loc[:, data.sample_weight_column],
         )
 
         self._is_fitted = True
