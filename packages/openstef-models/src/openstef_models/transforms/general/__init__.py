@@ -17,6 +17,7 @@ from openstef_models.transforms.general.imputer import Imputer
 from openstef_models.transforms.general.nan_dropper import NaNDropper
 from openstef_models.transforms.general.sample_weighter import SampleWeighter
 from openstef_models.transforms.general.scaler import Scaler
+from openstef_models.transforms.general.flag_features_bound import Flagger
 
 __all__ = [
     "Clipper",
@@ -26,4 +27,5 @@ __all__ = [
     "NaNDropper",
     "SampleWeighter",
     "Scaler",
+    "Flagger"
 ]

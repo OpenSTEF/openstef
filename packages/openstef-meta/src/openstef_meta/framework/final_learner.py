@@ -41,6 +41,7 @@ SELECTOR = (
         selection=FeatureSelection.NONE,
     ),
 )
+from openstef_models.transforms.general import Flagger
 
 
 class FinalLearnerHyperParams(HyperParams):
@@ -48,8 +49,8 @@ class FinalLearnerHyperParams(HyperParams):
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    feature_adders: Sequence[TimeSeriesTransform] = Field(
-        default=[],
+    feature_adders: list[TimeSeriesTransform] = Field(
+        default=[Flagger()],
         description="Additional features to add to the base learner predictions before fitting the final learner.",
     )
 
