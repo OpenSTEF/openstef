@@ -122,6 +122,7 @@ class CustomForecastingWorkflow(BaseModel):
         default_factory=list[ForecastingCallback], description="List of callbacks to execute during workflow events."
     )
     model_id: ModelIdentifier = Field(...)
+    run_name: str | None = Field(default=None, description="Optional name for this workflow run.")
 
     _logger: logging.Logger = PrivateAttr(default_factory=lambda: logging.getLogger(__name__))
 

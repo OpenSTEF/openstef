@@ -72,8 +72,14 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
             return
 
         # Find the latest successful run for this model
-        runs = self.storage.search_latest_runs(model_id=context.workflow.model_id)
-        run = next(iter(runs), None)
+        if context.workflow.run_name is not None:
+            run = self.storage.search_run(
+                model_id=context.workflow.model_id,
+                run_name=context.workflow.run_name,
+            )
+        else:
+            runs = self.storage.search_latest_runs(model_id=context.workflow.model_id)
+            run = next(iter(runs), None)
 
         if run is not None:
             # Check if the run is recent enough to skip re-fitting
@@ -102,6 +108,7 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
             model_id=context.workflow.model_id,
             tags=context.workflow.model.tags,
             hyperparams=context.workflow.model.forecaster.hyperparams,
+            run_name=context.workflow.run_name,
         )
         run_id: str = run.info.run_id
         self._logger.info("Created MLflow run %s for model %s", run_id, context.workflow.model_id)

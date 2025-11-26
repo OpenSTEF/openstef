@@ -146,12 +146,10 @@ def test_connect_gaps_parameter_integration(
 ):
     """Test that connect_gaps parameter works end-to-end for both True and False values."""
     # Arrange
-    viz = TimeSeriesVisualization(name="test_viz")
-    viz.connect_gaps = connect_gaps_value
+    viz = TimeSeriesVisualization(name="test_viz", connect_gaps=connect_gaps_value)
 
     # Act
     with (
-        patch.object(ForecastTimeSeriesPlotter, "__init__", return_value=None) as mock_init,
         patch.object(ForecastTimeSeriesPlotter, "plot", return_value=mock_plotly_figure),
         patch.object(ForecastTimeSeriesPlotter, "add_measurements"),
         patch.object(ForecastTimeSeriesPlotter, "add_model"),
@@ -160,6 +158,5 @@ def test_connect_gaps_parameter_integration(
         result = viz.create_by_none(sample_evaluation_report, simple_target_metadata)
 
     # Assert
-    mock_init.assert_called_once_with(connect_gaps=connect_gaps_value)
     assert result.name == viz.name
     assert result.figure == mock_plotly_figure

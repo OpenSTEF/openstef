@@ -18,6 +18,7 @@ from openstef_beam.backtesting.backtest_forecaster.mixins import (
 )
 from openstef_beam.backtesting.backtest_forecaster.openstef4_backtest_forecaster import (
     OpenSTEF4BacktestForecaster,
+    WorkflowCreationContext,
 )
 
 __all__ = [
@@ -26,4 +27,5 @@ __all__ = [
     "BacktestForecasterMixin",
     "DummyForecaster",
     "OpenSTEF4BacktestForecaster",
+    "WorkflowCreationContext",
 ]

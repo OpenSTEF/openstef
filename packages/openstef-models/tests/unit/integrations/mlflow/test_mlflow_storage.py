@@ -145,3 +145,18 @@ def test_search_latest_runs__no_experiment(storage: MLFlowStorage):
 
     # Assert
     assert latest_runs == []
+
+
+def test_search_run__returns_matching_run(storage: MLFlowStorage, model_id: str):
+    """Test that search_run finds a run by its name."""
+    # Arrange
+    run_name = "my_training_run"
+    created_run = storage.create_run(model_id=model_id, run_name=run_name)
+    created_run_id = cast(str, created_run.info.run_id)
+
+    # Act
+    found_run = storage.search_run(model_id=model_id, run_name=run_name)
+
+    # Assert
+    assert found_run is not None
+    assert cast(str, found_run.info.run_id) == created_run_id
