@@ -517,7 +517,7 @@ class ForecastTimeSeriesPlotter(BaseConfig):
                 # Process data to insert gaps for missing timestamps
                 measurements_data = self._measurements
                 processed_data = self._insert_gaps_for_missing_timestamps(
-                    measurements_data, pd.Timedelta(self._measurements.sample_interval)
+                    measurements_data, pd.Timedelta(self.sample_interval)
                 )
                 x_data = processed_data.index
                 y_data = processed_data
