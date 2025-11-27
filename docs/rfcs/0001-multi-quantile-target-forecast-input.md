@@ -88,6 +88,9 @@ Single-target datasets aren't necessarily medians (could be mean). `primary_targ
 ### D5: Target quantiles must match forecaster quantiles
 If forecaster supports multi-quantile targets, `data.target_quantiles` must exactly match `forecaster.config.quantiles`. Prevents undefined training behavior.
 
+### D6: No target quantiles in ForecastDataset
+`ForecastDataset` (output) does not gain target quantile support. No current use case for quantile targets in evaluation or post-prediction workflows. Can be added later if needed.
+
 ## Drawbacks
 
 - Adds conditional logic to dataset class
