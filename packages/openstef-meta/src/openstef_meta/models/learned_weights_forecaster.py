@@ -44,6 +44,8 @@ from openstef_models.models.forecasting.gblinear_forecaster import (
     GBLinearHyperParams,
 )
 from openstef_models.models.forecasting.lgbm_forecaster import LGBMHyperParams
+from openstef_models.models.forecasting.xgboost_forecaster import XGBoostHyperParams
+from openstef_models.models.forecasting.lgbmlinear_forecaster import LGBMLinearHyperParams
 
 logger = logging.getLogger(__name__)
 
@@ -199,7 +201,7 @@ class LGBMLearnerHyperParams(LWFLHyperParams):
     """Hyperparameters for Learned Weights Final Learner with LGBM Classifier."""
 
     n_estimators: int = Field(
-        default=20,
+        default=200,
         description="Number of estimators for the LGBM Classifier. Defaults to 20.",
     )
 
@@ -232,6 +234,7 @@ class LGBMLearner(WeightsLearner):
                 class_weight="balanced",
                 n_estimators=hyperparams.n_estimators,
                 num_leaves=hyperparams.n_leaves,
+                n_jobs=1,
             )
             for _ in quantiles
         ]
@@ -242,7 +245,7 @@ class RFLearnerHyperParams(LWFLHyperParams):
     """Hyperparameters for Learned Weights Final Learner with LGBM Random Forest Classifier."""
 
     n_estimators: int = Field(
-        default=20,
+        default=200,
         description="Number of estimators for the LGBM Classifier. Defaults to 20.",
     )
 

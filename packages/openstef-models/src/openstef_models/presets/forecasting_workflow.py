@@ -437,7 +437,7 @@ def create_forecasting_workflow(
         postprocessing = [
             ConfidenceIntervalApplicator(quantiles=config.quantiles),
         ]
-    elif config.model == "residual":
+    elif config.model == "learned_weights":
         preprocessing = [
             *checks,
             *feature_adders,
@@ -459,7 +459,7 @@ def create_forecasting_workflow(
             )
         )
         postprocessing = [QuantileSorter()]
-    elif config.model == "learned_weights":
+    elif config.model == "residual":
         preprocessing = [
             *checks,
             *feature_adders,

@@ -19,6 +19,7 @@ from openstef_core.mixins import HyperParams, TransformPipeline
 from openstef_core.transforms import TimeSeriesTransform
 from openstef_core.types import Quantile
 from openstef_meta.transforms.selector import Selector
+from openstef_models.transforms.general import Flagger
 from openstef_models.utils.feature_selection import FeatureSelection
 
 WEATHER_FEATURES = {
@@ -36,12 +37,9 @@ WEATHER_FEATURES = {
     "load",
 }
 
-SELECTOR = (
-    Selector(
-        selection=FeatureSelection.NONE,
-    ),
+SELECTOR = Selector(
+    selection=FeatureSelection(include=WEATHER_FEATURES),
 )
-from openstef_models.transforms.general import Flagger
 
 
 class FinalLearnerHyperParams(HyperParams):
@@ -49,8 +47,8 @@ class FinalLearnerHyperParams(HyperParams):
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    feature_adders: list[TimeSeriesTransform] = Field(
-        default=[Flagger()],
+    feature_adders: Sequence[TimeSeriesTransform] = Field(
+        default=[SELECTOR],
         description="Additional features to add to the base learner predictions before fitting the final learner.",
     )
 
