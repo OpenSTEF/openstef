@@ -4,6 +4,7 @@
 """Rules-based Meta Forecaster Module."""
 
 import logging
+from collections.abc import Sequence
 from typing import override
 
 import pandas as pd
@@ -22,7 +23,7 @@ from openstef_meta.framework.final_learner import FinalLearner, FinalLearnerHype
 from openstef_meta.framework.meta_forecaster import (
     EnsembleForecaster,
 )
-from openstef_meta.utils.decision_tree import Decision, DecisionTree, Rule
+from openstef_meta.utils.decision_tree import Decision, DecisionTree
 from openstef_models.models.forecasting.forecaster import (
     ForecasterConfig,
 )
@@ -38,7 +39,7 @@ logger = logging.getLogger(__name__)
 class RulesLearnerHyperParams(FinalLearnerHyperParams):
     """HyperParams for Stacking Final Learner."""
 
-    feature_adders: list[TimeSeriesTransform] = Field(
+    feature_adders: Sequence[TimeSeriesTransform] = Field(
         default=[],
         description="Additional features to add to the final learner.",
     )
@@ -64,7 +65,6 @@ class RulesLearner(FinalLearner):
         Args:
             quantiles: List of quantiles to predict.
             hyperparams: Hyperparameters for the final learner.
-            horizon: Forecast horizon for which to create the final learner.
         """
         super().__init__(quantiles=quantiles, hyperparams=hyperparams)
 

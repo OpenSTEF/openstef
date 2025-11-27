@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+#
+# SPDX-License-Identifier: MPL-2.0
+
 """Utility functions for calculating pinball loss errors.
 
 This module provides a function to compute the pinball loss for quantile regression.

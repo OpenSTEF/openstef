@@ -10,6 +10,7 @@ The implementation is based on sklearn's StackingRegressor.
 """
 
 import logging
+from collections.abc import Sequence
 from typing import override
 
 import pandas as pd
@@ -45,14 +46,14 @@ logger = logging.getLogger(__name__)
 class StackingFinalLearnerHyperParams(FinalLearnerHyperParams):
     """HyperParams for Stacking Final Learner."""
 
-    feature_adders: list[TimeSeriesTransform] = Field(
+    feature_adders: Sequence[TimeSeriesTransform] = Field(
         default=[],
         description="Additional features to add to the base learner predictions before fitting the final learner.",
     )
 
     forecaster_hyperparams: BaseLearnerHyperParams = Field(
         default=GBLinearHyperParams(),
-        description="",
+        description="Forecaster hyperparameters for the final learner. Defaults to GBLinearHyperParams.",
     )
 
 
@@ -115,6 +116,7 @@ class StackingFinalLearner(FinalLearner):
         self,
         base_learner_predictions: dict[Quantile, ForecastInputDataset],
         additional_features: ForecastInputDataset | None,
+        sample_weights: pd.Series | None = None,
     ) -> None:
 
         for i, q in enumerate(self.quantiles):
@@ -177,17 +179,6 @@ class StackingHyperParams(HyperParams):
     final_hyperparams: StackingFinalLearnerHyperParams = Field(
         default=StackingFinalLearnerHyperParams(),
         description="Hyperparameters for the final learner.",
-    )
-
-    use_classifier: bool = Field(
-        default=True,
-        description="Whether to use sample weights when fitting base and final learners. Defaults to False.",
-    )
-
-    add_rolling_accuracy_features: bool = Field(
-        default=False,
-        description="Whether to add rolling accuracy features from base learners as additional features "
-        "to the final learner. Defaults to False.",
     )
 
     @field_validator("base_hyperparams", mode="after")

@@ -8,8 +8,7 @@ import pandas as pd
 import pytest
 
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.exceptions import NotFittedError
-from openstef_models.transforms.general import Flagger
+from openstef_meta.transforms import Flagger
 from openstef_models.utils.feature_selection import FeatureSelection
 
 
@@ -37,11 +36,10 @@ def test_dataset() -> TimeSeriesDataset:
     )
 
 
-
 def test_flagger__fit_transform(
     train_dataset: TimeSeriesDataset,
     test_dataset: TimeSeriesDataset,
-   ):
+):
     """Test fit and transform flags correctly leaves other columns unchanged."""
     # Arrange
     flagger = Flagger(selection=FeatureSelection(include={"A", "B", "C"}))
@@ -54,9 +52,9 @@ def test_flagger__fit_transform(
     # Column C should remain unchanged
     expected_df = pd.DataFrame(
         {
-            "A": [1,1],
-            "B": [0,1],
-            "C": [0,0],  # Unchanged
+            "A": [1, 1],
+            "B": [0, 1],
+            "C": [0, 0],  # Unchanged
         },
         index=test_dataset.index,
     )

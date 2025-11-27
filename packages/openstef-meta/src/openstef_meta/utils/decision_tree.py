@@ -1,3 +1,8 @@
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+#
+# SPDX-License-Identifier: MPL-2.0
+"""A simple decision tree implementation for making decisions based on feature rules."""
+
 from typing import Literal
 
 import pandas as pd

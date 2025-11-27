@@ -135,7 +135,7 @@ def test_learned_weights_forecaster_with_sample_weights(
     forecaster_without_weights.fit(data_without_weights)
 
     # Predict using data without sample_weight column (since that's used for training, not prediction)
-    result_with_weights = forecaster_with_weights.predict(data_without_weights)
+    result_with_weights = forecaster_with_weights.predict(sample_dataset_with_weights)
     result_without_weights = forecaster_without_weights.predict(data_without_weights)
 
     # Assert
@@ -157,7 +157,7 @@ def test_learned_weights_forecaster_with_additional_features(
     # Arrange
     # Add a simple feature adder that adds a constant feature
 
-    base_config.hyperparams.final_hyperparams.feature_adders.append(CyclicFeaturesAdder())
+    base_config.hyperparams.final_hyperparams.feature_adders.append(CyclicFeaturesAdder())  # type: ignore
     forecaster = LearnedWeightsForecaster(config=base_config)
 
     # Act

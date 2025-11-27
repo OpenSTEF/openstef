@@ -42,6 +42,8 @@ from openstef_models.workflows import CustomForecastingWorkflow
 
 logging.basicConfig(level=logging.INFO, format="[%(asctime)s][%(levelname)s] %(message)s")
 
+logger = logging.getLogger(__name__)
+
 OUTPUT_PATH = Path("./benchmark_results")
 
 N_PROCESSES = multiprocessing.cpu_count()  # Amount of parallel processes to use for the benchmark
@@ -139,6 +141,7 @@ def _target_forecaster_factory(
 
 if __name__ == "__main__":
     start_time = time.time()
+
     create_liander2024_benchmark_runner(
         storage=LocalBenchmarkStorage(base_path=OUTPUT_PATH / model),
         data_dir=Path("../data/liander2024-energy-forecasting-benchmark"),  # adjust path as needed
@@ -151,4 +154,5 @@ if __name__ == "__main__":
     )
 
     end_time = time.time()
-    print(f"Benchmark completed in {end_time - start_time:.2f} seconds.")
+    msg = f"Benchmark completed in {end_time - start_time:.2f} seconds."
+    logger.info(msg)

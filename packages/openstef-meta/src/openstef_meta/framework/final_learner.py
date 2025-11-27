@@ -19,7 +19,6 @@ from openstef_core.mixins import HyperParams, TransformPipeline
 from openstef_core.transforms import TimeSeriesTransform
 from openstef_core.types import Quantile
 from openstef_meta.transforms.selector import Selector
-from openstef_models.transforms.general import Flagger
 from openstef_models.utils.feature_selection import FeatureSelection
 
 WEATHER_FEATURES = {

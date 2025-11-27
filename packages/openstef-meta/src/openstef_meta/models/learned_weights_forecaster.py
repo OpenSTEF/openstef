@@ -44,8 +44,6 @@ from openstef_models.models.forecasting.gblinear_forecaster import (
     GBLinearHyperParams,
 )
 from openstef_models.models.forecasting.lgbm_forecaster import LGBMHyperParams
-from openstef_models.models.forecasting.xgboost_forecaster import XGBoostHyperParams
-from openstef_models.models.forecasting.lgbmlinear_forecaster import LGBMLinearHyperParams
 
 logger = logging.getLogger(__name__)
 
@@ -93,6 +91,12 @@ class WeightsLearner(FinalLearner):
         additional_features: ForecastInputDataset | None,
         sample_weights: pd.Series | None = None,
     ) -> None:
+        q0 = self.quantiles[0]
+        base_learners_map = set(base_learner_predictions[q0].data.columns).difference({
+            base_learner_predictions[q0].target_column,
+            base_learner_predictions[q0].sample_weight_column,
+        })
+        self._label_encoder.fit(list(base_learners_map))
 
         for i, q in enumerate(self.quantiles):
             base_predictions = base_learner_predictions[q].data.drop(
@@ -119,9 +123,6 @@ class WeightsLearner(FinalLearner):
                 logger.warning(msg=msg)
                 self.models[i] = DummyClassifier(strategy="most_frequent")
 
-            if i == 0:
-                # Fit label encoder only once
-                self._label_encoder.fit(labels)
             labels = self._label_encoder.transform(labels)
 
             # Balance classes, adjust with sample weights

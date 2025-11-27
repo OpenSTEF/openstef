@@ -64,6 +64,18 @@ class MetaForecaster(Forecaster):
     def config(self) -> ForecasterConfig:
         return self._config
 
+    @property
+    def feature_importances(self) -> pd.DataFrame:
+        """Placeholder for feature importances across base learners and final learner."""
+        raise NotImplementedError("Feature importances are not implemented for EnsembleForecaster.")
+        # TODO(#745): Make MetaForecaster explainable
+
+    @property
+    def model_contributions(self) -> pd.DataFrame:
+        """Placeholder for model contributions across base learners and final learner."""
+        raise NotImplementedError("Model contributions are not implemented for EnsembleForecaster.")
+        # TODO(#745): Make MetaForecaster explainable
+
 
 class EnsembleForecaster(MetaForecaster):
     """Abstract class for Meta forecasters combining multiple base learners and a final learner."""
@@ -116,10 +128,14 @@ class EnsembleForecaster(MetaForecaster):
             target_series=data.target_series,
         )
 
+        sample_weights = None
+        if data.sample_weight_column in data.data.columns:
+            sample_weights = data.data.loc[:, data.sample_weight_column]
+
         self._final_learner.fit(
             base_learner_predictions=quantile_datasets,
             additional_features=features,
-            sample_weights=data.data.loc[:, data.sample_weight_column],
+            sample_weights=sample_weights,
         )
 
         self._is_fitted = True

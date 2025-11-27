@@ -94,7 +94,7 @@ class ResidualForecaster(MetaForecaster):
             list[Forecaster]: List containing the initialized secondary model forecaster.
         """
         models: list[BaseLearner] = []
-
+        # Different datasets per quantile, so we need a model per quantile
         for q in self.config.quantiles:
             config = self._config.model_copy(update={"quantiles": [q]})
             secondary_model = self._init_base_learners(config=config, base_hyperparams=[hyperparams])[0]
@@ -114,7 +114,7 @@ class ResidualForecaster(MetaForecaster):
         # Fit primary model
         self._primary_model.fit(data=data, data_val=data_val)
 
-        # Reset forecast start date to ensure we predict on the full dataset
+        # Reset forecast start date to ensure we fit on the full training set
         full_dataset = ForecastInputDataset(
             data=data.data,
             sample_interval=data.sample_interval,
