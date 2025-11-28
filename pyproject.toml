@@ -41,8 +41,8 @@ optional-dependencies.beam = [
   "openstef-beam",
 ]
 optional-dependencies.models = [
-  "openstef-models[xgb-cpu]",
   "openstef-meta",
+  "openstef-models[xgb-cpu]",
 ]
 urls.Documentation = "https://openstef.github.io/openstef/index.html"
 urls.Homepage = "https://lfenergy.org/projects/openstef/"

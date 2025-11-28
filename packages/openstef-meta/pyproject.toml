@@ -7,25 +7,25 @@ name = "openstef-meta"
 version = "0.0.0"
 description = "Meta models for OpenSTEF"
 readme = "README.md"
-keywords = ["energy", "forecasting", "machinelearning"]
+keywords = [ "energy", "forecasting", "machinelearning" ]
 license = "MPL-2.0"
 authors = [
-    { name = "Alliander N.V", email = "short.term.energy.forecasts@alliander.com" },
+  { name = "Alliander N.V", email = "short.term.energy.forecasts@alliander.com" },
 ]
 requires-python = ">=3.12,<4.0"
 classifiers = [
-    "Development Status :: 5 - Production/Stable",
-    "Intended Audience :: Developers",
-    "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.12",
-    "Programming Language :: Python :: 3.13",
-    "Programming Language :: Python :: 3.14",
+  "Development Status :: 5 - Production/Stable",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
 ]
 
 dependencies = [
-    "openstef-beam>=4.0.0.dev0,<5",
-    "openstef-core>=4.0.0.dev0,<5",
-    "openstef-models>=4.0.0.dev0,<5",
+  "openstef-beam>=4.0.0.dev0,<5",
+  "openstef-core>=4.0.0.dev0,<5",
+  "openstef-models>=4.0.0.dev0,<5",
 ]
 
 urls.Documentation = "https://openstef.github.io/openstef/index.html"
@@ -34,4 +34,4 @@ urls.Issues = "https://github.com/OpenSTEF/openstef/issues"
 urls.Repository = "https://github.com/OpenSTEF/openstef"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/openstef_meta"]
+packages = [ "src/openstef_meta" ]
