@@ -112,7 +112,7 @@ def test_rules_forecaster_with_additional_features(
 ):
     """Test that forecaster works with additional features for the final learner."""
 
-    base_config.hyperparams.final_hyperparams.feature_adders.append(CyclicFeaturesAdder())
+    base_config.hyperparams.final_hyperparams.feature_adders.append(CyclicFeaturesAdder())  # type: ignore
 
     # Arrange
     expected_quantiles = base_config.quantiles

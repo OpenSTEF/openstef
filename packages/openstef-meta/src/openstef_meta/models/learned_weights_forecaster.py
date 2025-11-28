@@ -32,11 +32,10 @@ from openstef_meta.framework.base_learner import (
     BaseLearner,
     BaseLearnerHyperParams,
 )
-from openstef_meta.framework.final_learner import FinalLearner, FinalLearnerHyperParams
+from openstef_meta.framework.final_learner import EnsembleForecastDataset, FinalLearner, FinalLearnerHyperParams
 from openstef_meta.framework.meta_forecaster import (
     EnsembleForecaster,
 )
-from openstef_meta.utils.pinball_errors import calculate_pinball_errors
 from openstef_models.models.forecasting.forecaster import (
     ForecasterConfig,
 )
@@ -87,42 +86,22 @@ class WeightsLearner(FinalLearner):
     @override
     def fit(
         self,
-        base_learner_predictions: dict[Quantile, ForecastInputDataset],
+        base_predictions: EnsembleForecastDataset,
         additional_features: ForecastInputDataset | None,
         sample_weights: pd.Series | None = None,
     ) -> None:
-        q0 = self.quantiles[0]
-        base_learners_map = set(base_learner_predictions[q0].data.columns).difference({
-            base_learner_predictions[q0].target_column,
-            base_learner_predictions[q0].sample_weight_column,
-        })
-        self._label_encoder.fit(list(base_learners_map))
+
+        self._label_encoder.fit(base_predictions.model_names)
 
         for i, q in enumerate(self.quantiles):
-            base_predictions = base_learner_predictions[q].data.drop(
-                columns=[base_learner_predictions[q].target_column]
+            # Data preparation
+            dataset = base_predictions.select_quantile_classification(quantile=q)
+            input_data = self._prepare_input_data(
+                dataset=dataset,
+                additional_features=additional_features,
             )
-
-            labels = self._prepare_classification_data(
-                quantile=q,
-                target=base_learner_predictions[q].target_series,
-                predictions=base_predictions,
-            )
-
-            if additional_features is not None:
-                df = pd.concat(
-                    [base_predictions, additional_features.data],
-                    axis=1,
-                )
-            else:
-                df = base_predictions
-
-            if len(labels.unique()) == 1:
-                msg = f"""Final learner for quantile {q.format()} has less than 2 classes in the target.
-                        Switching to dummy classifier """
-                logger.warning(msg=msg)
-                self.models[i] = DummyClassifier(strategy="most_frequent")
-
+            labels = dataset.target_series
+            self._validate_labels(labels=labels, model_index=i)
             labels = self._label_encoder.transform(labels)
 
             # Balance classes, adjust with sample weights
@@ -130,48 +109,62 @@ class WeightsLearner(FinalLearner):
             if sample_weights is not None:
                 weights *= sample_weights
 
-            self.models[i].fit(X=df, y=labels, sample_weight=weights)  # type: ignore
+            self.models[i].fit(X=input_data, y=labels, sample_weight=weights)  # type: ignore
         self._is_fitted = True
 
     @staticmethod
-    def _prepare_classification_data(quantile: Quantile, target: pd.Series, predictions: pd.DataFrame) -> pd.Series:
-        """Selects base learner with lowest error for each sample as target for classification.
+    def _prepare_input_data(
+        dataset: ForecastInputDataset, additional_features: ForecastInputDataset | None
+    ) -> pd.DataFrame:
+        """Prepare input data by combining base predictions with additional features if provided.
+
+        Args:
+            dataset: ForecastInputDataset containing base predictions.
+            additional_features: Optional ForecastInputDataset containing additional features.
 
         Returns:
-            pd.Series: Series indicating the base learner with the lowest pinball loss for each sample.
+            pd.DataFrame: Combined DataFrame of base predictions and additional features if provided.
         """
+        df = dataset.input_data(start=dataset.index[0])
+        if additional_features is not None:
+            df_a = additional_features.input_data(start=dataset.index[0])
+            df = pd.concat(
+                [df, df_a],
+                axis=1,
+            )
+        return df
 
-        # Calculate pinball loss for each base learner
-        def column_pinball_losses(preds: pd.Series) -> pd.Series:
-            return calculate_pinball_errors(y_true=target, y_pred=preds, alpha=quantile)
+    def _validate_labels(self, labels: pd.Series, model_index: int) -> None:
+        if len(labels.unique()) == 1:
+            msg = f"""Final learner for quantile {self.quantiles[model_index].format()} has less than 2 classes in the target.
+                    Switching to dummy classifier """
+            logger.warning(msg=msg)
+            self.models[model_index] = DummyClassifier(strategy="most_frequent")
 
-        pinball_losses = predictions.apply(column_pinball_losses)
-
-        # For each sample, select the base learner with the lowest pinball loss
-        return pinball_losses.idxmin(axis=1)
-
-    def _calculate_model_weights_quantile(self, base_predictions: pd.DataFrame, quantile: Quantile) -> pd.DataFrame:
-        model = self.models[self.quantiles.index(quantile)]
-
+    def _predict_model_weights_quantile(self, base_predictions: pd.DataFrame, model_index: int) -> pd.DataFrame:
+        model = self.models[model_index]
         return model.predict_proba(X=base_predictions)  # type: ignore
 
     def _generate_predictions_quantile(
         self,
-        base_predictions: ForecastInputDataset,
+        dataset: ForecastInputDataset,
         additional_features: ForecastInputDataset | None,
-        quantile: Quantile,
+        model_index: int,
     ) -> pd.Series:
-        base_df = base_predictions.data.drop(columns=[base_predictions.target_column])
-        df = pd.concat([base_df, additional_features.data], axis=1) if additional_features is not None else base_df
 
-        weights = self._calculate_model_weights_quantile(base_predictions=df, quantile=quantile)
+        input_data = self._prepare_input_data(
+            dataset=dataset,
+            additional_features=additional_features,
+        )
 
-        return base_df.mul(weights).sum(axis=1)
+        weights = self._predict_model_weights_quantile(base_predictions=input_data, model_index=model_index)
+
+        return dataset.input_data().mul(weights).sum(axis=1)
 
     @override
     def predict(
         self,
-        base_learner_predictions: dict[Quantile, ForecastInputDataset],
+        base_predictions: EnsembleForecastDataset,
         additional_features: ForecastInputDataset | None,
     ) -> ForecastDataset:
         if not self.is_fitted:
@@ -180,14 +173,21 @@ class WeightsLearner(FinalLearner):
         # Generate predictions
         predictions = pd.DataFrame({
             Quantile(q).format(): self._generate_predictions_quantile(
-                base_predictions=data, quantile=q, additional_features=additional_features
+                dataset=base_predictions.select_quantile(quantile=Quantile(q)),
+                additional_features=additional_features,
+                model_index=i,
             )
-            for q, data in base_learner_predictions.items()
+            for i, q in enumerate(self.quantiles)
         })
+        target_series = base_predictions.target_series
+        if target_series is not None:
+            predictions[base_predictions.target_column] = target_series
 
         return ForecastDataset(
             data=predictions,
-            sample_interval=base_learner_predictions[self.quantiles[0]].sample_interval,
+            sample_interval=base_predictions.sample_interval,
+            target_column=base_predictions.target_column,
+            forecast_start=base_predictions.forecast_start,
         )
 
     @property
@@ -202,7 +202,7 @@ class LGBMLearnerHyperParams(LWFLHyperParams):
     """Hyperparameters for Learned Weights Final Learner with LGBM Classifier."""
 
     n_estimators: int = Field(
-        default=200,
+        default=20,
         description="Number of estimators for the LGBM Classifier. Defaults to 20.",
     )
 
@@ -246,7 +246,7 @@ class RFLearnerHyperParams(LWFLHyperParams):
     """Hyperparameters for Learned Weights Final Learner with LGBM Random Forest Classifier."""
 
     n_estimators: int = Field(
-        default=200,
+        default=20,
         description="Number of estimators for the LGBM Classifier. Defaults to 20.",
     )
 

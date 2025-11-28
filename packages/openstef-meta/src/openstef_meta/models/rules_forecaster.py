@@ -7,6 +7,7 @@ import logging
 from collections.abc import Sequence
 from typing import override
 
+from openstef_meta.utils.datasets import EnsembleForecastDataset
 import pandas as pd
 from pydantic import Field, field_validator
 from pydantic_extra_types.country import CountryAlpha2
@@ -74,7 +75,7 @@ class RulesLearner(FinalLearner):
     @override
     def fit(
         self,
-        base_learner_predictions: dict[Quantile, ForecastInputDataset],
+        base_predictions: EnsembleForecastDataset,
         additional_features: ForecastInputDataset | None,
         sample_weights: pd.Series | None = None,
     ) -> None:
@@ -103,28 +104,30 @@ class RulesLearner(FinalLearner):
     @override
     def predict(
         self,
-        base_learner_predictions: dict[Quantile, ForecastInputDataset],
+        base_predictions: EnsembleForecastDataset,
         additional_features: ForecastInputDataset | None,
     ) -> ForecastDataset:
         if additional_features is None:
             raise ValueError("Additional features must be provided for RulesFinalLearner prediction.")
 
         decisions = self._predict_tree(
-            additional_features.data, columns=base_learner_predictions[self.quantiles[0]].data.columns
+            additional_features.data, columns=base_predictions.select_quantile(quantile=self.quantiles[0]).data.columns
         )
 
         # Generate predictions
         predictions: list[pd.DataFrame] = []
-        for q, data in base_learner_predictions.items():
-            preds = data.data * decisions
-            predictions.append(preds.sum(axis=1).to_frame(name=Quantile(q).format()))
+        for q in self.quantiles:
+            dataset = base_predictions.select_quantile(quantile=q)
+            preds = dataset.input_data().multiply(decisions).sum(axis=1)
+
+            predictions.append(preds.to_frame(name=Quantile(q).format()))
 
         # Concatenate predictions along columns to form a DataFrame with quantile columns
         df = pd.concat(predictions, axis=1)
 
         return ForecastDataset(
             data=df,
-            sample_interval=base_learner_predictions[self.quantiles[0]].sample_interval,
+            sample_interval=base_predictions.sample_interval,
         )
 
     @property

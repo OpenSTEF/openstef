@@ -19,6 +19,7 @@ from openstef_core.mixins import HyperParams, TransformPipeline
 from openstef_core.transforms import TimeSeriesTransform
 from openstef_core.types import Quantile
 from openstef_meta.transforms.selector import Selector
+from openstef_meta.utils.datasets import EnsembleForecastDataset
 from openstef_models.utils.feature_selection import FeatureSelection
 
 WEATHER_FEATURES = {
@@ -47,7 +48,7 @@ class FinalLearnerHyperParams(HyperParams):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     feature_adders: Sequence[TimeSeriesTransform] = Field(
-        default=[SELECTOR],
+        default=[],
         description="Additional features to add to the base learner predictions before fitting the final learner.",
     )
 
@@ -67,15 +68,14 @@ class FinalLearner(ABC):
     @abstractmethod
     def fit(
         self,
-        base_learner_predictions: dict[Quantile, ForecastInputDataset],
+        base_predictions: EnsembleForecastDataset,
         additional_features: ForecastInputDataset | None,
         sample_weights: pd.Series | None = None,
     ) -> None:
         """Fit the final learner using base learner predictions.
 
         Args:
-            base_learner_predictions: Dictionary mapping Quantiles to ForecastInputDatasets containing base learner
-            predictions.
+            base_predictions: EnsembleForecastDataset
             additional_features: Optional ForecastInputDataset containing additional features for the final learner.
             sample_weights: Optional series of sample weights for fitting.
         """
@@ -83,14 +83,13 @@ class FinalLearner(ABC):
 
     def predict(
         self,
-        base_learner_predictions: dict[Quantile, ForecastInputDataset],
+        base_predictions: EnsembleForecastDataset,
         additional_features: ForecastInputDataset | None,
     ) -> ForecastDataset:
         """Generate final predictions based on base learner predictions.
 
         Args:
-            base_learner_predictions: Dictionary mapping Quantiles to ForecastInputDatasets containing base learner
-                predictions.
+            base_predictions: EnsembleForecastDataset containing base learner predictions.
             additional_features: Optional ForecastInputDataset containing additional features for the final learner.
 
         Returns:
@@ -115,6 +114,28 @@ class FinalLearner(ABC):
             target_column=data.target_column,
             forecast_start=data.forecast_start,
         )
+
+    @staticmethod
+    def _prepare_input_data(
+        dataset: ForecastInputDataset, additional_features: ForecastInputDataset | None
+    ) -> pd.DataFrame:
+        """Prepare input data by combining base predictions with additional features if provided.
+
+        Args:
+            dataset: ForecastInputDataset containing base predictions.
+            additional_features: Optional ForecastInputDataset containing additional features.
+
+        Returns:
+            pd.DataFrame: Combined DataFrame of base predictions and additional features if provided.
+        """
+        df = dataset.input_data(start=dataset.index[0])
+        if additional_features is not None:
+            df_a = additional_features.input_data(start=dataset.index[0])
+            df = pd.concat(
+                [df, df_a],
+                axis=1,
+            )
+        return df
 
     @property
     @abstractmethod

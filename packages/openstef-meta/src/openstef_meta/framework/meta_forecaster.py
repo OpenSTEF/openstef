@@ -9,7 +9,7 @@ while ensuring full compatability with regular Forecasters.
 """
 
 import logging
-from typing import override
+from typing import cast, override
 
 import pandas as pd
 
@@ -17,12 +17,13 @@ from openstef_core.datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import (
     NotFittedError,
 )
-from openstef_core.types import Quantile
 from openstef_meta.framework.base_learner import (
     BaseLearner,
     BaseLearnerHyperParams,
+    BaseLearnerNames,
 )
 from openstef_meta.framework.final_learner import FinalLearner
+from openstef_meta.utils.datasets import EnsembleForecastDataset
 from openstef_models.models.forecasting.forecaster import (
     Forecaster,
     ForecasterConfig,
@@ -122,25 +123,19 @@ class EnsembleForecaster(MetaForecaster):
         else:
             features = None
 
-        quantile_datasets = self._prepare_input_final_learner(
-            base_predictions=base_predictions,
-            quantiles=self._config.quantiles,
-            target_series=data.target_series,
-        )
-
         sample_weights = None
         if data.sample_weight_column in data.data.columns:
             sample_weights = data.data.loc[:, data.sample_weight_column]
 
         self._final_learner.fit(
-            base_learner_predictions=quantile_datasets,
+            base_predictions=base_predictions,
             additional_features=features,
             sample_weights=sample_weights,
         )
 
         self._is_fitted = True
 
-    def _predict_base_learners(self, data: ForecastInputDataset) -> dict[type[BaseLearner], ForecastDataset]:
+    def _predict_base_learners(self, data: ForecastInputDataset) -> EnsembleForecastDataset:
         """Generate predictions from base learners.
 
         Args:
@@ -149,47 +144,13 @@ class EnsembleForecaster(MetaForecaster):
         Returns:
             DataFrame containing base learner predictions.
         """
-        base_predictions: dict[type[BaseLearner], ForecastDataset] = {}
+        base_predictions: dict[BaseLearnerNames, ForecastDataset] = {}
         for learner in self._base_learners:
             preds = learner.predict(data=data)
-            base_predictions[learner.__class__] = preds
+            name = cast(BaseLearnerNames, learner.__class__.__name__)
+            base_predictions[name] = preds
 
-        return base_predictions
-
-    @staticmethod
-    def _prepare_input_final_learner(
-        quantiles: list[Quantile],
-        base_predictions: dict[type[BaseLearner], ForecastDataset],
-        target_series: pd.Series,
-    ) -> dict[Quantile, ForecastInputDataset]:
-        """Prepare input data for the final learner based on base learner predictions.
-
-        Args:
-            quantiles: List of quantiles to prepare data for.
-            base_predictions: Predictions from base learners.
-            target_series: Actual target series for reference.
-
-        Returns:
-            dictionary mapping Quantiles to ForecastInputDatasets.
-        """
-        predictions_quantiles: dict[Quantile, ForecastInputDataset] = {}
-        sample_interval = base_predictions[next(iter(base_predictions))].sample_interval
-        target_name = str(target_series.name)
-
-        for q in quantiles:
-            df = pd.DataFrame({
-                learner.__name__: preds.data[Quantile(q).format()] for learner, preds in base_predictions.items()
-            })
-            df[target_name] = target_series
-
-            predictions_quantiles[q] = ForecastInputDataset(
-                data=df,
-                sample_interval=sample_interval,
-                target_column=target_name,
-                forecast_start=df.index[0],
-            )
-
-        return predictions_quantiles
+        return EnsembleForecastDataset.from_forecast_datasets(base_predictions, target_series=data.target_series)
 
     @override
     def predict(self, data: ForecastInputDataset) -> ForecastDataset:
@@ -205,18 +166,12 @@ class EnsembleForecaster(MetaForecaster):
 
         base_predictions = self._predict_base_learners(data=full_dataset)
 
-        final_learner_input = self._prepare_input_final_learner(
-            quantiles=self._config.quantiles, base_predictions=base_predictions, target_series=data.target_series
-        )
-
         if self._final_learner.has_features:
             additional_features = self._final_learner.calculate_features(data=data)
         else:
             additional_features = None
 
-        return self._final_learner.predict(
-            base_learner_predictions=final_learner_input, additional_features=additional_features
-        )
+        return self._final_learner.predict(base_predictions=base_predictions, additional_features=additional_features)
 
 
 __all__ = [

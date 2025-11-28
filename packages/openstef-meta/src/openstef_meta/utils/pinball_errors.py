@@ -7,10 +7,11 @@
 This module provides a function to compute the pinball loss for quantile regression.
 """
 
+import numpy as np
 import pandas as pd
 
 
-def calculate_pinball_errors(y_true: pd.Series, y_pred: pd.Series, alpha: float) -> pd.Series:
+def calculate_pinball_errors(y_true: pd.Series, y_pred: pd.Series, quantile: float) -> pd.Series:
     """Calculate pinball loss for given true and predicted values.
 
     Args:
@@ -21,6 +22,11 @@ def calculate_pinball_errors(y_true: pd.Series, y_pred: pd.Series, alpha: float)
     Returns:
         A pandas Series containing the pinball loss for each sample.
     """
-    diff = y_true - y_pred
-    sign = (diff >= 0).astype(float)
-    return alpha * sign * diff - (1 - alpha) * (1 - sign) * diff
+    errors = y_true - y_pred
+    pinball_loss = np.where(
+        errors >= 0,
+        quantile * errors,  # Under-prediction
+        (quantile - 1) * errors,  # Over-prediction
+    )
+
+    return pd.Series(pinball_loss, index=y_true.index)

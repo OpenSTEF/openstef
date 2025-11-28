@@ -17,6 +17,7 @@ import pandas as pd
 from pydantic import Field, field_validator
 
 from openstef_core.datasets import ForecastDataset, ForecastInputDataset
+from openstef_meta.utils.datasets import EnsembleForecastDataset
 from openstef_core.exceptions import (
     NotFittedError,
 )
@@ -114,26 +115,27 @@ class StackingFinalLearner(FinalLearner):
     @override
     def fit(
         self,
-        base_learner_predictions: dict[Quantile, ForecastInputDataset],
+        base_predictions: EnsembleForecastDataset,
         additional_features: ForecastInputDataset | None,
         sample_weights: pd.Series | None = None,
     ) -> None:
 
         for i, q in enumerate(self.quantiles):
             if additional_features is not None:
+                dataset = base_predictions.select_quantile(quantile=q)
                 data = self._combine_datasets(
-                    data=base_learner_predictions[q],
+                    data=dataset,
                     additional_features=additional_features,
                 )
             else:
-                data = base_learner_predictions[q]
+                data = base_predictions.select_quantile(quantile=q)
 
             self.models[i].fit(data=data, data_val=None)
 
     @override
     def predict(
         self,
-        base_learner_predictions: dict[Quantile, ForecastInputDataset],
+        base_predictions: EnsembleForecastDataset,
         additional_features: ForecastInputDataset | None,
     ) -> ForecastDataset:
         if not self.is_fitted:
@@ -144,12 +146,11 @@ class StackingFinalLearner(FinalLearner):
         for i, q in enumerate(self.quantiles):
             if additional_features is not None:
                 data = self._combine_datasets(
-                    data=base_learner_predictions[q],
+                    data=base_predictions.select_quantile(quantile=q),
                     additional_features=additional_features,
                 )
             else:
-                data = base_learner_predictions[q]
-
+                data = base_predictions.select_quantile(quantile=q)
             p = self.models[i].predict(data=data).data
             predictions.append(p)
 
@@ -158,7 +159,7 @@ class StackingFinalLearner(FinalLearner):
 
         return ForecastDataset(
             data=df,
-            sample_interval=base_learner_predictions[self.quantiles[0]].sample_interval,
+            sample_interval=base_predictions.sample_interval,
         )
 
     @property

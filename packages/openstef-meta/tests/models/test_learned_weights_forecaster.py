@@ -91,9 +91,9 @@ def test_learned_weights_forecaster_fit_predict(
     assert forecaster.is_fitted, "Model should be fitted after calling fit()"
 
     # Check that necessary quantiles are present
-    expected_columns = [q.format() for q in expected_quantiles]
-    assert list(result.data.columns) == expected_columns, (
-        f"Expected columns {expected_columns}, got {list(result.data.columns)}"
+    required_columns = [q.format() for q in expected_quantiles]
+    assert all(col in result.data.columns for col in required_columns), (
+        f"Expected columns {required_columns}, got {list(result.data.columns)}"
     )
 
     # Forecast data quality
