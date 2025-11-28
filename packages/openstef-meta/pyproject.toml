@@ -4,16 +4,34 @@
 
 [project]
 name = "openstef-meta"
-version = "0.1.0"
-description = "Add your description here"
+version = "0.0.0"
+description = "Meta models for OpenSTEF"
 readme = "README.md"
-requires-python = ">=3.12"
-dependencies = ["openstef-core", "openstef-models"]
+keywords = ["energy", "forecasting", "machinelearning"]
+license = "MPL-2.0"
+authors = [
+    { name = "Alliander N.V", email = "short.term.energy.forecasts@alliander.com" },
+]
+requires-python = ">=3.12,<4.0"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
 
-[tool.uv.sources]
-openstef-models = { workspace = true }
-openstef-core = { workspace = true }
+dependencies = [
+    "openstef-beam>=4.0.0.dev0,<5",
+    "openstef-core>=4.0.0.dev0,<5",
+    "openstef-models>=4.0.0.dev0,<5",
+]
 
+urls.Documentation = "https://openstef.github.io/openstef/index.html"
+urls.Homepage = "https://lfenergy.org/projects/openstef/"
+urls.Issues = "https://github.com/OpenSTEF/openstef/issues"
+urls.Repository = "https://github.com/OpenSTEF/openstef"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/openstef_meta"]

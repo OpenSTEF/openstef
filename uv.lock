@@ -2119,8 +2119,6 @@ all = [
     { name = "openstef-beam", extra = ["all"] },
     { name = "openstef-core" },
     { name = "openstef-models", extra = ["xgb-cpu"] },
-    { name = "openstef-meta" },
-
 ]
 beam = [
     { name = "huggingface-hub" },
@@ -2283,15 +2281,17 @@ requires-dist = [
 
 [[package]]
 name = "openstef-meta"
-version = "0.1.0"
+version = "0.0.0"
 source = { editable = "packages/openstef-meta" }
 dependencies = [
+    { name = "openstef-beam" },
     { name = "openstef-core" },
     { name = "openstef-models" },
 ]
 
 [package.metadata]
 requires-dist = [
+    { name = "openstef-beam", editable = "packages/openstef-beam" },
     { name = "openstef-core", editable = "packages/openstef-core" },
     { name = "openstef-models", editable = "packages/openstef-models" },
 ]
