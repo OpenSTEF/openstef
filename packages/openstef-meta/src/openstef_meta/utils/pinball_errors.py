@@ -17,7 +17,7 @@ def calculate_pinball_errors(y_true: pd.Series, y_pred: pd.Series, quantile: flo
     Args:
         y_true: True values as a pandas Series.
         y_pred: Predicted values as a pandas Series.
-        alpha: Quantile value.
+        quantile: Quantile value.
 
     Returns:
         A pandas Series containing the pinball loss for each sample.

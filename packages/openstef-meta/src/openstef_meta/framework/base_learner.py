@@ -8,9 +8,8 @@ These mixins establish contracts that ensure consistent behavior across differen
 while ensuring full compatability with regular Forecasters.
 """
 
-from typing import Any, Literal, Self, override
+from typing import Literal
 
-from openstef_core.base_model import PydanticStringPrimitive
 from openstef_models.models.forecasting.gblinear_forecaster import (
     GBLinearForecaster,
     GBLinearHyperParams,

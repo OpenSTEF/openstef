@@ -7,7 +7,6 @@ import logging
 from collections.abc import Sequence
 from typing import override
 
-from openstef_meta.utils.datasets import EnsembleForecastDataset
 import pandas as pd
 from pydantic import Field, field_validator
 from pydantic_extra_types.country import CountryAlpha2
@@ -24,6 +23,7 @@ from openstef_meta.framework.final_learner import FinalLearner, FinalLearnerHype
 from openstef_meta.framework.meta_forecaster import (
     EnsembleForecaster,
 )
+from openstef_meta.utils.datasets import EnsembleForecastDataset
 from openstef_meta.utils.decision_tree import Decision, DecisionTree
 from openstef_models.models.forecasting.forecaster import (
     ForecasterConfig,

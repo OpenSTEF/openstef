@@ -17,7 +17,6 @@ import pandas as pd
 from pydantic import Field, field_validator
 
 from openstef_core.datasets import ForecastDataset, ForecastInputDataset
-from openstef_meta.utils.datasets import EnsembleForecastDataset
 from openstef_core.exceptions import (
     NotFittedError,
 )
@@ -32,6 +31,7 @@ from openstef_meta.framework.final_learner import FinalLearner, FinalLearnerHype
 from openstef_meta.framework.meta_forecaster import (
     EnsembleForecaster,
 )
+from openstef_meta.utils.datasets import EnsembleForecastDataset
 from openstef_models.models.forecasting.forecaster import (
     Forecaster,
     ForecasterConfig,

@@ -1,3 +1,13 @@
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+#
+# SPDX-License-Identifier: MPL-2.0
+"""Ensemble Forecast Dataset.
+
+Validated dataset for ensemble forecasters first stage output.
+Implements methods to select quantile-specific ForecastInputDatasets for final learners.
+Also supports constructing classifation targets based on pinball loss.
+"""
+
 from datetime import datetime, timedelta
 from typing import Self, cast, override
 

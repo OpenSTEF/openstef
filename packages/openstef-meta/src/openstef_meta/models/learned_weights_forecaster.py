@@ -136,7 +136,8 @@ class WeightsLearner(FinalLearner):
 
     def _validate_labels(self, labels: pd.Series, model_index: int) -> None:
         if len(labels.unique()) == 1:
-            msg = f"""Final learner for quantile {self.quantiles[model_index].format()} has less than 2 classes in the target.
+            msg = f"""Final learner for quantile {self.quantiles[model_index].format()} has
+                     less than 2 classes in the target.
                     Switching to dummy classifier """
             logger.warning(msg=msg)
             self.models[model_index] = DummyClassifier(strategy="most_frequent")
