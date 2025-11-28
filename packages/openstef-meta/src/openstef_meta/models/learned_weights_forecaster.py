@@ -229,6 +229,7 @@ class LGBMLearner(WeightsLearner):
                 class_weight="balanced",
                 n_estimators=hyperparams.n_estimators,
                 num_leaves=hyperparams.n_leaves,
+                n_jobs=1
             )
             for _ in quantiles
         ]
