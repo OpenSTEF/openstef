@@ -11,7 +11,7 @@ The implementation is based on sklearn's StackingRegressor.
 
 import logging
 from abc import abstractmethod
-from typing import Literal, Self, override
+from typing import Literal, override
 
 import pandas as pd
 from lightgbm import LGBMClassifier
@@ -32,7 +32,7 @@ from openstef_meta.framework.base_learner import (
     BaseLearner,
     BaseLearnerHyperParams,
 )
-from openstef_meta.framework.final_learner import EnsembleForecastDataset, FinalLearner, FinalLearnerHyperParams
+from openstef_meta.framework.final_learner import EnsembleForecastDataset, ForecastCombiner, ForecastCombinerHyperParams
 from openstef_meta.framework.meta_forecaster import (
     EnsembleForecaster,
 )
@@ -50,52 +50,51 @@ logger = logging.getLogger(__name__)
 # Base classes for Learned Weights Final Learner
 
 Classifier = LGBMClassifier | XGBClassifier | LogisticRegression | DummyClassifier
+ClassifierNames = Literal["lgbm", "xgb", "logistic_regression", "dummy"]
 
 
-class LWFLHyperParams(FinalLearnerHyperParams):
+class WeightsCombinerHyperParams(ForecastCombinerHyperParams):
     """Hyperparameters for Learned Weights Final Learner."""
 
-    @property
     @abstractmethod
-    def learner(self) -> type["WeightsLearner"]:
-        """Returns the classifier to be used as final learner."""
-        raise NotImplementedError("Subclasses must implement the 'estimator' property.")
-
-    @classmethod
-    def learner_from_params(cls, quantiles: list[Quantile], hyperparams: Self) -> "WeightsLearner":
-        """Initialize the final learner from hyperparameters.
+    def get_classifier(self) -> Classifier:
+        """Initialize the classifier from hyperparameters.
 
         Returns:
-            WeightsLearner: An instance of the WeightsLearner initialized with the provided hyperparameters.
+            Classifier: An instance of the classifier initialized with the provided hyperparameters.
         """
-        instance = cls()
-        return instance.learner(quantiles=quantiles, hyperparams=hyperparams)
+        raise NotImplementedError("Subclasses must implement the 'get_classifier' method.")
 
 
-class WeightsLearner(FinalLearner):
+class WeightsCombiner(ForecastCombiner):
     """Combines base learner predictions with a classification approach to determine which base learner to use."""
 
-    def __init__(self, quantiles: list[Quantile], hyperparams: LWFLHyperParams) -> None:
-        """Initialize WeightsLearner."""
-        super().__init__(quantiles=quantiles, hyperparams=hyperparams)
-        self.models: list[Classifier] = []
-        self._label_encoder = LabelEncoder()
+    model_type: ClassifierNames = Field(
+        default="lgbm", description="Type of classifier to use for combining base learner predictions."
+    )
 
+    def __init__(self, quantiles: list[Quantile], hyperparams: WeightsCombinerHyperParams) -> None:
+        """Initialize WeightsCombiner."""
+        super().__init__(quantiles=quantiles, hyperparams=hyperparams)
+        self.models: list[Classifier] = [hyperparams.get_classifier() for _ in self.quantiles]
+
+        self._label_encoder = LabelEncoder()
         self._is_fitted = False
 
     @override
     def fit(
         self,
-        base_predictions: EnsembleForecastDataset,
-        additional_features: ForecastInputDataset | None,
+        data: EnsembleForecastDataset,
+        data_val: EnsembleForecastDataset | None = None,
+        additional_features: ForecastInputDataset | None = None,
         sample_weights: pd.Series | None = None,
     ) -> None:
 
-        self._label_encoder.fit(base_predictions.model_names)
+        self._label_encoder.fit(data.model_names)
 
         for i, q in enumerate(self.quantiles):
             # Data preparation
-            dataset = base_predictions.select_quantile_classification(quantile=q)
+            dataset = data.select_quantile_classification(quantile=q)
             input_data = self._prepare_input_data(
                 dataset=dataset,
                 additional_features=additional_features,
@@ -165,8 +164,8 @@ class WeightsLearner(FinalLearner):
     @override
     def predict(
         self,
-        base_predictions: EnsembleForecastDataset,
-        additional_features: ForecastInputDataset | None,
+        data: EnsembleForecastDataset,
+        additional_features: ForecastInputDataset | None = None,
     ) -> ForecastDataset:
         if not self.is_fitted:
             raise NotFittedError(self.__class__.__name__)
@@ -174,21 +173,21 @@ class WeightsLearner(FinalLearner):
         # Generate predictions
         predictions = pd.DataFrame({
             Quantile(q).format(): self._generate_predictions_quantile(
-                dataset=base_predictions.select_quantile(quantile=Quantile(q)),
+                dataset=data.select_quantile(quantile=Quantile(q)),
                 additional_features=additional_features,
                 model_index=i,
             )
             for i, q in enumerate(self.quantiles)
         })
-        target_series = base_predictions.target_series
+        target_series = data.target_series
         if target_series is not None:
-            predictions[base_predictions.target_column] = target_series
+            predictions[data.target_column] = target_series
 
         return ForecastDataset(
             data=predictions,
-            sample_interval=base_predictions.sample_interval,
-            target_column=base_predictions.target_column,
-            forecast_start=base_predictions.forecast_start,
+            sample_interval=data.sample_interval,
+            target_column=data.target_column,
+            forecast_start=data.forecast_start,
         )
 
     @property
@@ -199,7 +198,7 @@ class WeightsLearner(FinalLearner):
 
 # Final learner implementations using different classifiers
 # 1 LGBM Classifier
-class LGBMLearnerHyperParams(LWFLHyperParams):
+class LGBMCombinerHyperParams(WeightsCombinerHyperParams):
     """Hyperparameters for Learned Weights Final Learner with LGBM Classifier."""
 
     n_estimators: int = Field(
@@ -212,38 +211,18 @@ class LGBMLearnerHyperParams(LWFLHyperParams):
         description="Number of leaves for the LGBM Classifier. Defaults to 31.",
     )
 
-    @property
     @override
-    def learner(self) -> type["LGBMLearner"]:
-        """Returns the LGBMLearner."""
-        return LGBMLearner
+    def get_classifier(self) -> LGBMClassifier:
+        """Returns the LGBM Classifier."""
+        return LGBMClassifier(
+            class_weight="balanced",
+            n_estimators=self.n_estimators,
+            num_leaves=self.n_leaves,
+            n_jobs=1,
+        )
 
 
-class LGBMLearner(WeightsLearner):
-    """Final learner with LGBM Classifier."""
-
-    HyperParams = LGBMLearnerHyperParams
-
-    def __init__(
-        self,
-        quantiles: list[Quantile],
-        hyperparams: LGBMLearnerHyperParams,
-    ) -> None:
-        """Initialize LGBMLearner."""
-        super().__init__(quantiles=quantiles, hyperparams=hyperparams)
-        self.models = [
-            LGBMClassifier(
-                class_weight="balanced",
-                n_estimators=hyperparams.n_estimators,
-                num_leaves=hyperparams.n_leaves,
-                n_jobs=1,
-            )
-            for _ in quantiles
-        ]
-
-
-# 1 RandomForest Classifier
-class RFLearnerHyperParams(LWFLHyperParams):
+class RFCombinerHyperParams(WeightsCombinerHyperParams):
     """Hyperparameters for Learned Weights Final Learner with LGBM Random Forest Classifier."""
 
     n_estimators: int = Field(
@@ -271,35 +250,22 @@ class RFLearnerHyperParams(LWFLHyperParams):
         description="Fraction of features to be used for each iteration of the Random Forest. Defaults to 1.",
     )
 
-    @property
-    def learner(self) -> type["RandomForestLearner"]:
-        """Returns the LGBMClassifier to be used as final learner."""
-        return RandomForestLearner
-
-
-class RandomForestLearner(WeightsLearner):
-    """Final learner using only Random Forest as base learners."""
-
-    def __init__(self, quantiles: list[Quantile], hyperparams: RFLearnerHyperParams) -> None:
-        """Initialize RandomForestLearner."""
-        super().__init__(quantiles=quantiles, hyperparams=hyperparams)
-
-        self.models = [
-            LGBMClassifier(
-                boosting_type="rf",
-                class_weight="balanced",
-                n_estimators=hyperparams.n_estimators,
-                bagging_freq=hyperparams.bagging_freq,
-                bagging_fraction=hyperparams.bagging_fraction,
-                feature_fraction=hyperparams.feature_fraction,
-                num_leaves=hyperparams.n_leaves,
-            )
-            for _ in quantiles
-        ]
+    @override
+    def get_classifier(self) -> LGBMClassifier:
+        """Returns the Random Forest LGBMClassifier."""
+        return LGBMClassifier(
+            boosting_type="rf",
+            class_weight="balanced",
+            n_estimators=self.n_estimators,
+            bagging_freq=self.bagging_freq,
+            bagging_fraction=self.bagging_fraction,
+            feature_fraction=self.feature_fraction,
+            num_leaves=self.n_leaves,
+        )
 
 
 # 3 XGB Classifier
-class XGBLearnerHyperParams(LWFLHyperParams):
+class XGBCombinerHyperParams(WeightsCombinerHyperParams):
     """Hyperparameters for Learned Weights Final Learner with LGBM Random Forest Classifier."""
 
     n_estimators: int = Field(
@@ -307,23 +273,13 @@ class XGBLearnerHyperParams(LWFLHyperParams):
         description="Number of estimators for the LGBM Classifier. Defaults to 20.",
     )
 
-    @property
-    def learner(self) -> type["XGBLearner"]:
-        """Returns the LGBMClassifier to be used as final learner."""
-        return XGBLearner
+    @override
+    def get_classifier(self) -> XGBClassifier:
+        """Returns the XGBClassifier."""
+        return XGBClassifier(n_estimators=self.n_estimators)
 
 
-class XGBLearner(WeightsLearner):
-    """Final learner using only XGBoost as base learners."""
-
-    def __init__(self, quantiles: list[Quantile], hyperparams: XGBLearnerHyperParams) -> None:
-        """Initialize XGBLearner."""
-        super().__init__(quantiles=quantiles, hyperparams=hyperparams)
-        self.models = [XGBClassifier(n_estimators=hyperparams.n_estimators) for _ in quantiles]
-
-
-# 4 Logistic Regression Classifier
-class LogisticLearnerHyperParams(LWFLHyperParams):
+class LogisticCombinerHyperParams(WeightsCombinerHyperParams):
     """Hyperparameters for Learned Weights Final Learner with LGBM Random Forest Classifier."""
 
     fit_intercept: bool = Field(
@@ -341,30 +297,17 @@ class LogisticLearnerHyperParams(LWFLHyperParams):
         description="Inverse of regularization strength; must be a positive float. Defaults to 1.0.",
     )
 
-    @property
-    def learner(self) -> type["LogisticLearner"]:
-        """Returns the LGBMClassifier to be used as final learner."""
-        return LogisticLearner
+    @override
+    def get_classifier(self) -> LogisticRegression:
+        """Returns the LogisticRegression."""
+        return LogisticRegression(
+            class_weight="balanced",
+            fit_intercept=self.fit_intercept,
+            penalty=self.penalty,
+            C=self.c,
+        )
 
 
-class LogisticLearner(WeightsLearner):
-    """Final learner using only Logistic Regression as base learners."""
-
-    def __init__(self, quantiles: list[Quantile], hyperparams: LogisticLearnerHyperParams) -> None:
-        """Initialize LogisticLearner."""
-        super().__init__(quantiles=quantiles, hyperparams=hyperparams)
-        self.models = [
-            LogisticRegression(
-                class_weight="balanced",
-                fit_intercept=hyperparams.fit_intercept,
-                penalty=hyperparams.penalty,
-                C=hyperparams.c,
-            )
-            for _ in quantiles
-        ]
-
-
-# Assembly classes
 class LearnedWeightsHyperParams(HyperParams):
     """Hyperparameters for Stacked LGBM GBLinear Regressor."""
 
@@ -374,8 +317,8 @@ class LearnedWeightsHyperParams(HyperParams):
         "Defaults to [LGBMHyperParams, GBLinearHyperParams].",
     )
 
-    final_hyperparams: LWFLHyperParams = Field(
-        default=LGBMLearnerHyperParams(),
+    combiner_hyperparams: WeightsCombinerHyperParams = Field(
+        default=LGBMCombinerHyperParams(),
         description="Hyperparameters for the final learner. Defaults to LGBMLearnerHyperParams.",
     )
 
@@ -404,23 +347,19 @@ class LearnedWeightsForecaster(EnsembleForecaster):
         self._base_learners: list[BaseLearner] = self._init_base_learners(
             config=config, base_hyperparams=config.hyperparams.base_hyperparams
         )
-        self._final_learner = config.hyperparams.final_hyperparams.learner_from_params(
-            quantiles=config.quantiles,
-            hyperparams=config.hyperparams.final_hyperparams,
+        self._forecast_combiner = WeightsCombiner(
+            quantiles=config.quantiles, hyperparams=config.hyperparams.combiner_hyperparams
         )
 
 
 __all__ = [
-    "LGBMLearner",
-    "LGBMLearnerHyperParams",
+    "LGBMCombinerHyperParams",
     "LearnedWeightsForecaster",
     "LearnedWeightsForecasterConfig",
     "LearnedWeightsHyperParams",
-    "LogisticLearner",
-    "LogisticLearnerHyperParams",
-    "RFLearnerHyperParams",
-    "RandomForestLearner",
-    "WeightsLearner",
-    "XGBLearner",
-    "XGBLearnerHyperParams",
+    "LogisticCombinerHyperParams",
+    "RFCombinerHyperParams",
+    "WeightsCombiner",
+    "WeightsCombinerHyperParams",
+    "XGBCombinerHyperParams",
 ]

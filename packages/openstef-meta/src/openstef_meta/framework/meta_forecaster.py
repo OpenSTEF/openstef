@@ -22,7 +22,7 @@ from openstef_meta.framework.base_learner import (
     BaseLearnerHyperParams,
     BaseLearnerNames,
 )
-from openstef_meta.framework.final_learner import FinalLearner
+from openstef_meta.framework.final_learner import ForecastCombiner
 from openstef_meta.utils.datasets import EnsembleForecastDataset
 from openstef_models.models.forecasting.forecaster import (
     Forecaster,
@@ -83,12 +83,12 @@ class EnsembleForecaster(MetaForecaster):
 
     _config: ForecasterConfig
     _base_learners: list[BaseLearner]
-    _final_learner: FinalLearner
+    _forecast_combiner: ForecastCombiner
 
     @property
     @override
     def is_fitted(self) -> bool:
-        return all(x.is_fitted for x in self._base_learners) and self._final_learner.is_fitted
+        return all(x.is_fitted for x in self._base_learners) and self._forecast_combiner.is_fitted
 
     @property
     @override
@@ -117,9 +117,9 @@ class EnsembleForecaster(MetaForecaster):
 
         base_predictions = self._predict_base_learners(data=full_dataset)
 
-        if self._final_learner.has_features:
-            self._final_learner.final_learner_processing.fit(full_dataset)
-            features = self._final_learner.calculate_features(data=full_dataset)
+        if self._forecast_combiner.has_features:
+            self._forecast_combiner.final_learner_processing.fit(full_dataset)
+            features = self._forecast_combiner.calculate_features(data=full_dataset)
         else:
             features = None
 
@@ -127,8 +127,9 @@ class EnsembleForecaster(MetaForecaster):
         if data.sample_weight_column in data.data.columns:
             sample_weights = data.data.loc[:, data.sample_weight_column]
 
-        self._final_learner.fit(
-            base_predictions=base_predictions,
+        self._forecast_combiner.fit(
+            data=base_predictions,
+            data_val=None,  # TODO ADD validation dataset support
             additional_features=features,
             sample_weights=sample_weights,
         )
@@ -166,12 +167,15 @@ class EnsembleForecaster(MetaForecaster):
 
         base_predictions = self._predict_base_learners(data=full_dataset)
 
-        if self._final_learner.has_features:
-            additional_features = self._final_learner.calculate_features(data=data)
+        if self._forecast_combiner.has_features:
+            additional_features = self._forecast_combiner.calculate_features(data=data)
         else:
             additional_features = None
 
-        return self._final_learner.predict(base_predictions=base_predictions, additional_features=additional_features)
+        return self._forecast_combiner.predict(
+            data=base_predictions,
+            additional_features=additional_features,
+        )
 
 
 __all__ = [

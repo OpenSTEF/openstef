@@ -8,41 +8,26 @@ These mixins establish contracts that ensure consistent behavior across differen
 while ensuring full compatability with regular Forecasters.
 """
 
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from collections.abc import Sequence
 
 import pandas as pd
 from pydantic import ConfigDict, Field
 
 from openstef_core.datasets import ForecastDataset, ForecastInputDataset, TimeSeriesDataset
-from openstef_core.mixins import HyperParams, TransformPipeline
+from openstef_core.mixins import HyperParams, Predictor, TransformPipeline
 from openstef_core.transforms import TimeSeriesTransform
 from openstef_core.types import Quantile
 from openstef_meta.transforms.selector import Selector
 from openstef_meta.utils.datasets import EnsembleForecastDataset
 from openstef_models.utils.feature_selection import FeatureSelection
 
-WEATHER_FEATURES = {
-    "temperature_2m",
-    "relative_humidity_2m",
-    "surface_pressure",
-    "cloud_cover",
-    "wind_speed_10m",
-    "wind_speed_80m",
-    "wind_direction_10m",
-    "shortwave_radiation",
-    "direct_radiation",
-    "diffuse_radiation",
-    "direct_normal_irradiance",
-    "load",
-}
-
 SELECTOR = Selector(
-    selection=FeatureSelection(include=WEATHER_FEATURES),
+    selection=FeatureSelection(include=None),
 )
 
 
-class FinalLearnerHyperParams(HyperParams):
+class ForecastCombinerHyperParams(HyperParams):
     """Hyperparameters for the Final Learner."""
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
@@ -53,10 +38,10 @@ class FinalLearnerHyperParams(HyperParams):
     )
 
 
-class FinalLearner(ABC):
+class ForecastCombiner(Predictor[EnsembleForecastDataset, ForecastDataset]):
     """Combines base learner predictions for each quantile into final predictions."""
 
-    def __init__(self, quantiles: list[Quantile], hyperparams: FinalLearnerHyperParams) -> None:
+    def __init__(self, quantiles: list[Quantile], hyperparams: ForecastCombinerHyperParams) -> None:
         """Initialize the Final Learner."""
         self.quantiles = quantiles
         self.hyperparams = hyperparams
@@ -68,14 +53,16 @@ class FinalLearner(ABC):
     @abstractmethod
     def fit(
         self,
-        base_predictions: EnsembleForecastDataset,
-        additional_features: ForecastInputDataset | None,
+        data: EnsembleForecastDataset,
+        data_val: EnsembleForecastDataset | None = None,
+        additional_features: ForecastInputDataset | None = None,
         sample_weights: pd.Series | None = None,
     ) -> None:
         """Fit the final learner using base learner predictions.
 
         Args:
-            base_predictions: EnsembleForecastDataset
+            data: EnsembleForecastDataset
+            data_val: Optional EnsembleForecastDataset for validation during fitting. Will be ignored
             additional_features: Optional ForecastInputDataset containing additional features for the final learner.
             sample_weights: Optional series of sample weights for fitting.
         """
@@ -83,13 +70,14 @@ class FinalLearner(ABC):
 
     def predict(
         self,
-        base_predictions: EnsembleForecastDataset,
-        additional_features: ForecastInputDataset | None,
+        data: EnsembleForecastDataset,
+        additional_features: ForecastInputDataset | None = None,
     ) -> ForecastDataset:
         """Generate final predictions based on base learner predictions.
 
         Args:
-            base_predictions: EnsembleForecastDataset containing base learner predictions.
+            data: EnsembleForecastDataset containing base learner predictions.
+            data_val: Optional EnsembleForecastDataset for validation during prediction. Will be ignored
             additional_features: Optional ForecastInputDataset containing additional features for the final learner.
 
         Returns:
@@ -101,10 +89,10 @@ class FinalLearner(ABC):
         """Calculate additional features for the final learner.
 
         Args:
-            data: Input TimeSeriesDataset to calculate features on.
+            data: Input ForecastInputDataset to calculate features on.
 
         Returns:
-            TimeSeriesDataset with additional features.
+            ForecastInputDataset with additional features.
         """
         data_transformed = self.final_learner_processing.transform(data)
 

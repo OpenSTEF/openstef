@@ -27,7 +27,7 @@ from openstef_meta.framework.base_learner import (
     BaseLearner,
     BaseLearnerHyperParams,
 )
-from openstef_meta.framework.final_learner import FinalLearner, FinalLearnerHyperParams
+from openstef_meta.framework.final_learner import ForecastCombiner, ForecastCombinerHyperParams
 from openstef_meta.framework.meta_forecaster import (
     EnsembleForecaster,
 )
@@ -44,7 +44,7 @@ from openstef_models.models.forecasting.lgbm_forecaster import LGBMHyperParams
 logger = logging.getLogger(__name__)
 
 
-class StackingFinalLearnerHyperParams(FinalLearnerHyperParams):
+class StackingForecastCombinerHyperParams(ForecastCombinerHyperParams):
     """HyperParams for Stacking Final Learner."""
 
     feature_adders: Sequence[TimeSeriesTransform] = Field(
@@ -58,11 +58,11 @@ class StackingFinalLearnerHyperParams(FinalLearnerHyperParams):
     )
 
 
-class StackingFinalLearner(FinalLearner):
+class StackingForecastCombiner(ForecastCombiner):
     """Combines base learner predictions per quantile into final predictions using a regression approach."""
 
     def __init__(
-        self, quantiles: list[Quantile], hyperparams: StackingFinalLearnerHyperParams, horizon: LeadTime
+        self, quantiles: list[Quantile], hyperparams: StackingForecastCombinerHyperParams, horizon: LeadTime
     ) -> None:
         """Initialize the Stacking final learner.
 
@@ -164,7 +164,7 @@ class StackingFinalLearner(FinalLearner):
 
     @property
     def is_fitted(self) -> bool:
-        """Check the StackingFinalLearner is fitted."""
+        """Check the StackingForecastCombiner is fitted."""
         return all(x.is_fitted for x in self.models)
 
 
@@ -177,8 +177,8 @@ class StackingHyperParams(HyperParams):
         "Defaults to [LGBMHyperParams, GBLinearHyperParams].",
     )
 
-    final_hyperparams: StackingFinalLearnerHyperParams = Field(
-        default=StackingFinalLearnerHyperParams(),
+    final_hyperparams: StackingForecastCombinerHyperParams = Field(
+        default=StackingForecastCombinerHyperParams(),
         description="Hyperparameters for the final learner.",
     )
 
@@ -216,9 +216,9 @@ class StackingForecaster(EnsembleForecaster):
             config=config, base_hyperparams=config.hyperparams.base_hyperparams
         )
 
-        self._final_learner = StackingFinalLearner(
+        self._final_learner = StackingForecastCombiner(
             quantiles=config.quantiles, hyperparams=config.hyperparams.final_hyperparams, horizon=config.max_horizon
         )
 
 
-__all__ = ["StackingFinalLearner", "StackingForecaster", "StackingForecasterConfig", "StackingHyperParams"]
+__all__ = ["StackingForecastCombiner", "StackingForecaster", "StackingForecasterConfig", "StackingHyperParams"]

@@ -5,47 +5,47 @@
 from datetime import timedelta
 
 import pytest
+from lightgbm import LGBMClassifier
+from sklearn.linear_model import LogisticRegression
+from xgboost import XGBClassifier
 
 from openstef_core.datasets import ForecastInputDataset
 from openstef_core.exceptions import NotFittedError
 from openstef_core.types import LeadTime, Q
 from openstef_meta.models.learned_weights_forecaster import (
+    Classifier,
     LearnedWeightsForecaster,
     LearnedWeightsForecasterConfig,
     LearnedWeightsHyperParams,
-    LGBMLearner,
-    LGBMLearnerHyperParams,
-    LogisticLearner,
-    LogisticLearnerHyperParams,
-    LWFLHyperParams,
-    RandomForestLearner,
-    RFLearnerHyperParams,
-    WeightsLearner,
-    XGBLearner,
-    XGBLearnerHyperParams,
+    LGBMCombinerHyperParams,
+    LogisticCombinerHyperParams,
+    RFCombinerHyperParams,
+    WeightsCombiner,
+    WeightsCombinerHyperParams,
+    XGBCombinerHyperParams,
 )
 from openstef_models.transforms.time_domain.cyclic_features_adder import CyclicFeaturesAdder
 
 
 @pytest.fixture(params=["rf", "lgbm", "xgboost", "logistic"])
-def final_hyperparams(request: pytest.FixtureRequest) -> LWFLHyperParams:
+def combiner_hyperparams(request: pytest.FixtureRequest) -> WeightsCombinerHyperParams:
     """Fixture to provide different primary models types."""
     learner_type = request.param
     if learner_type == "rf":
-        return RFLearnerHyperParams()
+        return RFCombinerHyperParams()
     if learner_type == "lgbm":
-        return LGBMLearnerHyperParams()
+        return LGBMCombinerHyperParams()
     if learner_type == "xgboost":
-        return XGBLearnerHyperParams()
-    return LogisticLearnerHyperParams()
+        return XGBCombinerHyperParams()
+    return LogisticCombinerHyperParams()
 
 
 @pytest.fixture
-def base_config(final_hyperparams: LWFLHyperParams) -> LearnedWeightsForecasterConfig:
+def base_config(combiner_hyperparams: WeightsCombinerHyperParams) -> LearnedWeightsForecasterConfig:
     """Base configuration for LearnedWeights forecaster tests."""
 
     params = LearnedWeightsHyperParams(
-        final_hyperparams=final_hyperparams,
+        combiner_hyperparams=combiner_hyperparams,
     )
     return LearnedWeightsForecasterConfig(
         quantiles=[Q(0.1), Q(0.5), Q(0.9)],
@@ -55,21 +55,23 @@ def base_config(final_hyperparams: LWFLHyperParams) -> LearnedWeightsForecasterC
     )
 
 
-def test_final_learner_corresponds_to_hyperparams(base_config: LearnedWeightsForecasterConfig):
-    """Test that the final learner corresponds to the specified hyperparameters."""
+def test_forecast_combiner_corresponds_to_hyperparams(base_config: LearnedWeightsForecasterConfig):
+    """Test that the forecast combiner learner corresponds to the specified hyperparameters."""
     forecaster = LearnedWeightsForecaster(config=base_config)
-    final_learner = forecaster._final_learner
+    forecast_combiner = forecaster._forecast_combiner
+    assert isinstance(forecast_combiner, WeightsCombiner)
+    classifier = forecast_combiner.models[0]
 
-    mapping: dict[type[LWFLHyperParams], type[WeightsLearner]] = {
-        RFLearnerHyperParams: RandomForestLearner,
-        LGBMLearnerHyperParams: LGBMLearner,
-        XGBLearnerHyperParams: XGBLearner,
-        LogisticLearnerHyperParams: LogisticLearner,
+    mapping: dict[type[WeightsCombinerHyperParams], type[Classifier]] = {
+        RFCombinerHyperParams: LGBMClassifier,
+        LGBMCombinerHyperParams: LGBMClassifier,
+        XGBCombinerHyperParams: XGBClassifier,
+        LogisticCombinerHyperParams: LogisticRegression,
     }
-    expected_learner_type = mapping[type(base_config.hyperparams.final_hyperparams)]
+    expected_type = mapping[type(base_config.hyperparams.combiner_hyperparams)]
 
-    assert isinstance(final_learner, expected_learner_type), (
-        f"Final learner type {type(final_learner)} does not match expected type {expected_learner_type}"
+    assert isinstance(classifier, expected_type), (
+        f"Final learner type {type(forecast_combiner)} does not match expected type {expected_type}"
     )
 
 
@@ -157,7 +159,7 @@ def test_learned_weights_forecaster_with_additional_features(
     # Arrange
     # Add a simple feature adder that adds a constant feature
 
-    base_config.hyperparams.final_hyperparams.feature_adders.append(CyclicFeaturesAdder())  # type: ignore
+    base_config.hyperparams.combiner_hyperparams.feature_adders.append(CyclicFeaturesAdder())  # type: ignore
     forecaster = LearnedWeightsForecaster(config=base_config)
 
     # Act

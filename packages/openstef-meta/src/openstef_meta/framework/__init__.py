@@ -4,13 +4,13 @@
 """This module provides meta-forecasting models and related hyperparameters for the OpenSTEF project."""
 
 from .base_learner import BaseLearner, BaseLearnerHyperParams
-from .final_learner import FinalLearner, FinalLearnerHyperParams
+from .final_learner import ForecastCombiner, ForecastCombinerHyperParams
 from .meta_forecaster import MetaForecaster
 
 __all__ = [
     "BaseLearner",
     "BaseLearnerHyperParams",
-    "FinalLearner",
-    "FinalLearnerHyperParams",
+    "ForecastCombiner",
+    "ForecastCombinerHyperParams",
     "MetaForecaster",
 ]

@@ -19,7 +19,7 @@ from openstef_meta.framework.base_learner import (
     BaseLearner,
     BaseLearnerHyperParams,
 )
-from openstef_meta.framework.final_learner import FinalLearner, FinalLearnerHyperParams
+from openstef_meta.framework.final_learner import ForecastCombiner, ForecastCombinerHyperParams
 from openstef_meta.framework.meta_forecaster import (
     EnsembleForecaster,
 )
@@ -37,7 +37,7 @@ from openstef_models.transforms.time_domain import HolidayFeatureAdder
 logger = logging.getLogger(__name__)
 
 
-class RulesLearnerHyperParams(FinalLearnerHyperParams):
+class RulesLearnerHyperParams(ForecastCombinerHyperParams):
     """HyperParams for Stacking Final Learner."""
 
     feature_adders: Sequence[TimeSeriesTransform] = Field(
@@ -57,7 +57,7 @@ class RulesLearnerHyperParams(FinalLearnerHyperParams):
         return v
 
 
-class RulesLearner(FinalLearner):
+class RulesLearner(ForecastCombiner):
     """Combines base learner predictions per quantile into final predictions using a regression approach."""
 
     def __init__(self, quantiles: list[Quantile], hyperparams: RulesLearnerHyperParams) -> None:
@@ -82,7 +82,7 @@ class RulesLearner(FinalLearner):
         # No fitting needed for rule-based final learner
         # Check that additional features are provided
         if additional_features is None:
-            raise ValueError("Additional features must be provided for RulesFinalLearner prediction.")
+            raise ValueError("Additional features must be provided for RulesForecastCombiner prediction.")
 
         if sample_weights is not None:
             logger.warning("Sample weights are ignored in RulesLearner.fit method.")
@@ -108,7 +108,7 @@ class RulesLearner(FinalLearner):
         additional_features: ForecastInputDataset | None,
     ) -> ForecastDataset:
         if additional_features is None:
-            raise ValueError("Additional features must be provided for RulesFinalLearner prediction.")
+            raise ValueError("Additional features must be provided for RulesForecastCombiner prediction.")
 
         decisions = self._predict_tree(
             additional_features.data, columns=base_predictions.select_quantile(quantile=self.quantiles[0]).data.columns
