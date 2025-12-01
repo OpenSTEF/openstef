@@ -12,6 +12,7 @@ comprehensive hyperparameter control for production forecasting workflows.
 from typing import TYPE_CHECKING, Literal, override
 
 import numpy as np
+from openstef_models.utils.conformalized_quantile_regressor import ConformalizedQuantileRegressor
 import pandas as pd
 from lightgbm import LGBMRegressor
 from pydantic import Field
@@ -107,6 +108,11 @@ class LGBMHyperParams(HyperParams):
     colsample_bytree: float = Field(
         default=1.0,
         description="Fraction of features used when constructing each tree. Range: (0,1]",
+    )
+
+    conformalized: bool = Field(
+        default=True,
+        description="Whether to apply conformalized quantile regression adjustments.",
     )
 
     @classmethod
@@ -242,12 +248,20 @@ class LGBMForecaster(Forecaster, ExplainableForecaster):
             **config.hyperparams.model_dump(),
         }
 
-        self._lgbm_model: MultiQuantileRegressor = MultiQuantileRegressor(
-            base_learner=LGBMRegressor,  # type: ignore
-            quantile_param="alpha",
-            hyperparams=lgbm_params,
-            quantiles=[float(q) for q in config.quantiles],
-        )
+        if config.hyperparams.conformalized:
+            self._lgbm_model: MultiQuantileRegressor | ConformalizedQuantileRegressor = ConformalizedQuantileRegressor(
+                base_learner=LGBMRegressor,  # type: ignore
+                quantile_param="alpha",
+                hyperparams=lgbm_params,
+                quantiles=[float(q) for q in config.quantiles],
+            )
+        else:
+            self._lgbm_model: MultiQuantileRegressor | ConformalizedQuantileRegressor = MultiQuantileRegressor(
+                base_learner=LGBMRegressor,  # type: ignore
+                quantile_param="alpha",
+                hyperparams=lgbm_params,
+                quantiles=[float(q) for q in config.quantiles],
+            )
 
     @property
     @override
@@ -289,10 +303,6 @@ class LGBMForecaster(Forecaster, ExplainableForecaster):
         self._lgbm_model.fit(
             X=input_data,
             y=target,
-            feature_name=input_data.columns.tolist(),
-            sample_weight=sample_weight,
-            eval_set=eval_set,
-            eval_sample_weight=sample_weight_eval_set,
         )
 
     @override
@@ -301,7 +311,7 @@ class LGBMForecaster(Forecaster, ExplainableForecaster):
             raise NotFittedError(self.__class__.__name__)
 
         input_data: pd.DataFrame = data.input_data(start=data.forecast_start)
-        prediction: npt.NDArray[np.floating] = self._lgbm_model.predict(X=input_data)
+        prediction: pd.DataFrame = self._lgbm_model.predict(X=input_data)
 
         return ForecastDataset(
             data=pd.DataFrame(
