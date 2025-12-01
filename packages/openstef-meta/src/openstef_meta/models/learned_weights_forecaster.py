@@ -162,6 +162,19 @@ class WeightsLearner(FinalLearner):
 
         return dataset.input_data().mul(weights).sum(axis=1)
 
+    def predict_contributions(
+                        self, 
+                        X: pd.DataFrame, 
+                        model_index: int
+                        ) ->dict[Quantile, pd.DataFrame]:
+        weights_per_quantile: dict[Quantile, pd.DataFrame] = {}
+        for q in self.quantiles: 
+            weights = self._predict_model_weights_quantile(base_predictions=X, model_index = model_index)
+            # TODO: fix typing. 
+            weights_per_quantile[q] = weights
+        return weights_per_quantile
+    
+    
     @override
     def predict(
         self,
@@ -190,6 +203,7 @@ class WeightsLearner(FinalLearner):
             target_column=base_predictions.target_column,
             forecast_start=base_predictions.forecast_start,
         )
+    
 
     @property
     @override

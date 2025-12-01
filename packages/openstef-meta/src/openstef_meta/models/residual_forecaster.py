@@ -14,6 +14,7 @@ from typing import override
 
 import pandas as pd
 from pydantic import Field
+import numpy as np
 
 from openstef_core.datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import (
@@ -109,7 +110,6 @@ class ResidualForecaster(MetaForecaster):
         Args:
             data: Training data in the expected ForecastInputDataset format.
             data_val: Validation data for tuning the model (optional, not used in this implementation).
-
         """
         # Fit primary model
         self._primary_model.fit(data=data, data_val=data_val)
@@ -204,6 +204,27 @@ class ResidualForecaster(MetaForecaster):
             data=pd.DataFrame(predictions),
             sample_interval=data.sample_interval,
         )
+    
+    def predict_contributions(self,data : ForecastInputDataset) -> dict[str, ForecastDataset]:
+        """Generate prediction contributions using the ResidualForecaster model.
+
+        Args:
+            data: Input data for prediction.
+
+        Returns:
+            dict[str, ForecastDataset]: Dictionary containing contributions from primary and secondary models.
+        """
+        if not self.is_fitted:
+            raise NotFittedError("The ResidualForecaster instance is not fitted yet. Call 'fit' first.")
+        primary_predictions = self._primary_model.predict(data=data)
+        secondary_predictions = self._predict_secodary_model(data=data)
+        total_predictions = primary_predictions.data + secondary_predictions.data
+        return {
+            "primary_model": primary_predictions/np.abs(total_predictions),
+            "secondary_model": secondary_predictions/np.abs(total_predictions)
+            }
+        
+
 
     def predict(self, data: ForecastInputDataset) -> ForecastDataset:
         """Generate predictions using the ResidualForecaster model.
