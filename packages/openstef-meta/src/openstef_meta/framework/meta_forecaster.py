@@ -22,7 +22,7 @@ from openstef_meta.framework.base_learner import (
     BaseLearnerHyperParams,
     BaseLearnerNames,
 )
-from openstef_meta.framework.final_learner import ForecastCombiner
+from openstef_meta.framework.forecast_combiner import ForecastCombiner
 from openstef_meta.utils.datasets import EnsembleForecastDataset
 from openstef_models.models.forecasting.forecaster import (
     Forecaster,
@@ -118,7 +118,7 @@ class EnsembleForecaster(MetaForecaster):
         base_predictions = self._predict_base_learners(data=full_dataset)
 
         if self._forecast_combiner.has_features:
-            self._forecast_combiner.final_learner_processing.fit(full_dataset)
+            self._forecast_combiner.pre_processing.fit(full_dataset)
             features = self._forecast_combiner.calculate_features(data=full_dataset)
         else:
             features = None

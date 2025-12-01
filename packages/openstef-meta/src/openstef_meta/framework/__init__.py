@@ -4,7 +4,7 @@
 """This module provides meta-forecasting models and related hyperparameters for the OpenSTEF project."""
 
 from .base_learner import BaseLearner, BaseLearnerHyperParams
-from .final_learner import ForecastCombiner, ForecastCombinerHyperParams
+from .forecast_combiner import ForecastCombiner, ForecastCombinerHyperParams
 from .meta_forecaster import MetaForecaster
 
 __all__ = [

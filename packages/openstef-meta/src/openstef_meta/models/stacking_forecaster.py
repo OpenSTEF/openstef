@@ -27,7 +27,7 @@ from openstef_meta.framework.base_learner import (
     BaseLearner,
     BaseLearnerHyperParams,
 )
-from openstef_meta.framework.final_learner import ForecastCombiner, ForecastCombinerHyperParams
+from openstef_meta.framework.forecast_combiner import ForecastCombiner, ForecastCombinerHyperParams
 from openstef_meta.framework.meta_forecaster import (
     EnsembleForecaster,
 )
@@ -115,28 +115,29 @@ class StackingForecastCombiner(ForecastCombiner):
     @override
     def fit(
         self,
-        base_predictions: EnsembleForecastDataset,
-        additional_features: ForecastInputDataset | None,
+        data: EnsembleForecastDataset,
+        data_val: EnsembleForecastDataset | None = None,
+        additional_features: ForecastInputDataset | None = None,
         sample_weights: pd.Series | None = None,
     ) -> None:
 
         for i, q in enumerate(self.quantiles):
             if additional_features is not None:
-                dataset = base_predictions.select_quantile(quantile=q)
-                data = self._combine_datasets(
+                dataset = data.select_quantile(quantile=q)
+                input_data = self._combine_datasets(
                     data=dataset,
                     additional_features=additional_features,
                 )
             else:
-                data = base_predictions.select_quantile(quantile=q)
+                input_data = data.select_quantile(quantile=q)
 
-            self.models[i].fit(data=data, data_val=None)
+            self.models[i].fit(data=input_data, data_val=None)
 
     @override
     def predict(
         self,
-        base_predictions: EnsembleForecastDataset,
-        additional_features: ForecastInputDataset | None,
+        data: EnsembleForecastDataset,
+        additional_features: ForecastInputDataset | None = None,
     ) -> ForecastDataset:
         if not self.is_fitted:
             raise NotFittedError(self.__class__.__name__)
@@ -145,13 +146,13 @@ class StackingForecastCombiner(ForecastCombiner):
         predictions: list[pd.DataFrame] = []
         for i, q in enumerate(self.quantiles):
             if additional_features is not None:
-                data = self._combine_datasets(
-                    data=base_predictions.select_quantile(quantile=q),
+                input_data = self._combine_datasets(
+                    data=data.select_quantile(quantile=q),
                     additional_features=additional_features,
                 )
             else:
-                data = base_predictions.select_quantile(quantile=q)
-            p = self.models[i].predict(data=data).data
+                input_data = data.select_quantile(quantile=q)
+            p = self.models[i].predict(data=input_data).data
             predictions.append(p)
 
         # Concatenate predictions along columns to form a DataFrame with quantile columns
@@ -159,7 +160,7 @@ class StackingForecastCombiner(ForecastCombiner):
 
         return ForecastDataset(
             data=df,
-            sample_interval=base_predictions.sample_interval,
+            sample_interval=data.sample_interval,
         )
 
     @property
@@ -177,7 +178,7 @@ class StackingHyperParams(HyperParams):
         "Defaults to [LGBMHyperParams, GBLinearHyperParams].",
     )
 
-    final_hyperparams: StackingForecastCombinerHyperParams = Field(
+    combiner_hyperparams: StackingForecastCombinerHyperParams = Field(
         default=StackingForecastCombinerHyperParams(),
         description="Hyperparameters for the final learner.",
     )
@@ -216,8 +217,8 @@ class StackingForecaster(EnsembleForecaster):
             config=config, base_hyperparams=config.hyperparams.base_hyperparams
         )
 
-        self._final_learner = StackingForecastCombiner(
-            quantiles=config.quantiles, hyperparams=config.hyperparams.final_hyperparams, horizon=config.max_horizon
+        self._forecast_combiner = StackingForecastCombiner(
+            quantiles=config.quantiles, hyperparams=config.hyperparams.combiner_hyperparams, horizon=config.max_horizon
         )
 
 

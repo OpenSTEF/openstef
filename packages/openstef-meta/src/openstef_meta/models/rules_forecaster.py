@@ -19,7 +19,7 @@ from openstef_meta.framework.base_learner import (
     BaseLearner,
     BaseLearnerHyperParams,
 )
-from openstef_meta.framework.final_learner import ForecastCombiner, ForecastCombinerHyperParams
+from openstef_meta.framework.forecast_combiner import ForecastCombiner, ForecastCombinerHyperParams
 from openstef_meta.framework.meta_forecaster import (
     EnsembleForecaster,
 )
@@ -75,8 +75,9 @@ class RulesLearner(ForecastCombiner):
     @override
     def fit(
         self,
-        base_predictions: EnsembleForecastDataset,
-        additional_features: ForecastInputDataset | None,
+        data: EnsembleForecastDataset,
+        data_val: EnsembleForecastDataset | None = None,
+        additional_features: ForecastInputDataset | None = None,
         sample_weights: pd.Series | None = None,
     ) -> None:
         # No fitting needed for rule-based final learner
@@ -104,20 +105,20 @@ class RulesLearner(ForecastCombiner):
     @override
     def predict(
         self,
-        base_predictions: EnsembleForecastDataset,
-        additional_features: ForecastInputDataset | None,
+        data: EnsembleForecastDataset,
+        additional_features: ForecastInputDataset | None = None,
     ) -> ForecastDataset:
         if additional_features is None:
             raise ValueError("Additional features must be provided for RulesForecastCombiner prediction.")
 
         decisions = self._predict_tree(
-            additional_features.data, columns=base_predictions.select_quantile(quantile=self.quantiles[0]).data.columns
+            additional_features.data, columns=data.select_quantile(quantile=self.quantiles[0]).data.columns
         )
 
         # Generate predictions
         predictions: list[pd.DataFrame] = []
         for q in self.quantiles:
-            dataset = base_predictions.select_quantile(quantile=q)
+            dataset = data.select_quantile(quantile=q)
             preds = dataset.input_data().multiply(decisions).sum(axis=1)
 
             predictions.append(preds.to_frame(name=Quantile(q).format()))
@@ -127,7 +128,7 @@ class RulesLearner(ForecastCombiner):
 
         return ForecastDataset(
             data=df,
-            sample_interval=base_predictions.sample_interval,
+            sample_interval=data.sample_interval,
         )
 
     @property
@@ -190,7 +191,7 @@ class RulesForecaster(EnsembleForecaster):
             config=config, base_hyperparams=config.hyperparams.base_hyperparams
         )
 
-        self._final_learner = RulesLearner(
+        self._forecast_combiner = RulesLearner(
             quantiles=config.quantiles,
             hyperparams=config.hyperparams.final_hyperparams,
         )

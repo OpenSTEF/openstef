@@ -45,7 +45,7 @@ class ForecastCombiner(Predictor[EnsembleForecastDataset, ForecastDataset]):
         """Initialize the Final Learner."""
         self.quantiles = quantiles
         self.hyperparams = hyperparams
-        self.final_learner_processing: TransformPipeline[TimeSeriesDataset] = TransformPipeline(
+        self.pre_processing: TransformPipeline[TimeSeriesDataset] = TransformPipeline(
             transforms=hyperparams.feature_adders
         )
         self._is_fitted: bool = False
@@ -94,7 +94,7 @@ class ForecastCombiner(Predictor[EnsembleForecastDataset, ForecastDataset]):
         Returns:
             ForecastInputDataset with additional features.
         """
-        data_transformed = self.final_learner_processing.transform(data)
+        data_transformed = self.pre_processing.transform(data)
 
         return ForecastInputDataset(
             data=data_transformed.data,
@@ -134,4 +134,4 @@ class ForecastCombiner(Predictor[EnsembleForecastDataset, ForecastDataset]):
     @property
     def has_features(self) -> bool:
         """Indicates whether the final learner uses additional features."""
-        return len(self.final_learner_processing.transforms) > 0
+        return len(self.pre_processing.transforms) > 0

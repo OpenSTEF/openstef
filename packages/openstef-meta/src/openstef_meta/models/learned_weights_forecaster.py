@@ -32,7 +32,11 @@ from openstef_meta.framework.base_learner import (
     BaseLearner,
     BaseLearnerHyperParams,
 )
-from openstef_meta.framework.final_learner import EnsembleForecastDataset, ForecastCombiner, ForecastCombinerHyperParams
+from openstef_meta.framework.forecast_combiner import (
+    EnsembleForecastDataset,
+    ForecastCombiner,
+    ForecastCombinerHyperParams,
+)
 from openstef_meta.framework.meta_forecaster import (
     EnsembleForecaster,
 )
