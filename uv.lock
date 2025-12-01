@@ -1584,6 +1584,20 @@ wheels = [
 ]
 
 [[package]]
+name = "mapie"
+version = "1.2.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy" },
+    { name = "scikit-learn" },
+    { name = "scipy" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/15/1e/880bd30214d77a9c9686fc4cc1e282287d532bcf97dc68a9652ebcb4c5ff/mapie-1.2.0.tar.gz", hash = "sha256:d632d19675063e7319c3cec896bbb61680532bb64ba075b517d375fbf8a875fa", size = 158379, upload-time = "2025-11-17T09:46:34.379Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/56/73/62de46b5baf2de4fc866546312e6d41cf6e04cf22b40eb62c98d9568c357/mapie-1.2.0-py3-none-any.whl", hash = "sha256:26d9786e6744905b5e1bf41a0f64e09e0c39bc13f9da1caff532613c5c97a891", size = 194459, upload-time = "2025-11-17T09:46:32.829Z" },
+]
+
+[[package]]
 name = "markdown"
 version = "3.10"
 source = { registry = "https://pypi.org/simple" }
@@ -2119,8 +2133,6 @@ all = [
     { name = "openstef-beam", extra = ["all"] },
     { name = "openstef-core" },
     { name = "openstef-models", extra = ["xgb-cpu"] },
-    { name = "openstef-meta" },
-
 ]
 beam = [
     { name = "huggingface-hub" },
@@ -2303,6 +2315,7 @@ source = { editable = "packages/openstef-models" }
 dependencies = [
     { name = "holidays" },
     { name = "lightgbm" },
+    { name = "mapie" },
     { name = "mlflow-skinny" },
     { name = "openstef-beam" },
     { name = "openstef-core" },
@@ -2326,6 +2339,7 @@ xgb-gpu = [
 requires-dist = [
     { name = "holidays", specifier = ">=0.79" },
     { name = "lightgbm", specifier = ">=4.6" },
+    { name = "mapie", specifier = ">=1.2.0" },
     { name = "mlflow-skinny", specifier = ">=3,<4" },
     { name = "openstef-beam", editable = "packages/openstef-beam" },
     { name = "openstef-core", editable = "packages/openstef-core" },

@@ -23,7 +23,7 @@ from openstef_core.exceptions import (
 from openstef_core.mixins import HyperParams
 from openstef_models.explainability.mixins import ExplainableForecaster
 from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
-from openstef_models.utils.multi_quantile_regressor import MultiQuantileRegressor
+from openstef_models.utils.multi_quantile_regressor import ConformalizeQuantileRegressor
 
 if TYPE_CHECKING:
     import numpy.typing as npt
@@ -242,7 +242,7 @@ class LGBMForecaster(Forecaster, ExplainableForecaster):
             **config.hyperparams.model_dump(),
         }
 
-        self._lgbm_model: MultiQuantileRegressor = MultiQuantileRegressor(
+        self._lgbm_model: ConformalizeQuantileRegressor = ConformalizeQuantileRegressor(
             base_learner=LGBMRegressor,  # type: ignore
             quantile_param="alpha",
             hyperparams=lgbm_params,

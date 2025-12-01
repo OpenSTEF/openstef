@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Literal, override
 
-from huggingface_hub import snapshot_download  # type: ignore[reportUnknownVariableType]
+# from huggingface_hub import snapshot_download  # type: ignore[reportUnknownVariableType]
 from pydantic import Field
 
 from openstef_beam.analysis import AnalysisConfig

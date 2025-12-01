@@ -138,20 +138,20 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
         description="Hyperparameters for LightGBM forecaster.",
     )
 
-    residual_hyperparams: ResidualForecaster.HyperParams = Field(
-        default=ResidualForecaster.HyperParams(),
-        description="Hyperparameters for Residual forecaster.",
-    )
+    # residual_hyperparams: ResidualForecaster.HyperParams = Field(
+    #     default=ResidualForecaster.HyperParams(),
+    #     description="Hyperparameters for Residual forecaster.",
+    # )
 
-    stacking_hyperparams: StackingForecaster.HyperParams = Field(
-        default=StackingForecaster.HyperParams(),
-        description="Hyperparameters for Stacking forecaster.",
-    )
+    # stacking_hyperparams: StackingForecaster.HyperParams = Field(
+    #     default=StackingForecaster.HyperParams(),
+    #     description="Hyperparameters for Stacking forecaster.",
+    # )
 
-    learned_weights_hyperparams: LearnedWeightsForecaster.HyperParams = Field(
-        default=LearnedWeightsForecaster.HyperParams(),
-        description="Hyperparameters for Learned Weights forecaster.",
-    )
+    # learned_weights_hyperparams: LearnedWeightsForecaster.HyperParams = Field(
+    #     default=LearnedWeightsForecaster.HyperParams(),
+    #     description="Hyperparameters for Learned Weights forecaster.",
+    # )
 
     location: LocationConfig = Field(
         default=LocationConfig(),
