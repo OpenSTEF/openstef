@@ -90,7 +90,6 @@ class TestLinearQuantile(BaseTestCase):
         """Test that predict_mean=False causes the model to predict zero."""
         # Arrange
         model = FlatlinerRegressor(predict_mean=False)
-        
         x_train = train_input.iloc[:, 1:]
         y_train = train_input.iloc[:, 0]
 
