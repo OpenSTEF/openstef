@@ -101,6 +101,7 @@ valid_model_kwargs = {
     ],
     ModelType.FLATLINER: [
         "quantiles",
+        "predict_mean",
     ],
     ModelType.LINEAR_QUANTILE: [
         "alpha",

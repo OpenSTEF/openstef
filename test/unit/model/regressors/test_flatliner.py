@@ -64,3 +64,42 @@ class TestLinearQuantile(BaseTestCase):
         self.assertTrue(
             (feature_importance == np.array([0, 0, 0], dtype=np.float32)).all()
         )
+
+    def test_predict_mean_when_enabled(self):
+        """Test that predict_mean=True causes the model to predict the mean of the load."""
+        # Arrange
+        model = FlatlinerRegressor(predict_mean=True)
+        
+        # Create test data with known load values
+        x_train = train_input.iloc[:, 1:]
+        y_train = train_input.iloc[:, 0]
+        expected_mean = y_train.mean()
+
+        # Act
+        model.fit(x_train, y_train)
+        result = model.predict(x_train)
+
+        # Assert
+        # check if the model was fitted
+        self.assertIsNone(sklearn.utils.validation.check_is_fitted(model))
+        
+        # check if model predicts the mean
+        self.assertEqual(len(result), len(x_train))
+        self.assertTrue(np.allclose(result, expected_mean))
+        self.assertAlmostEqual(model.predicted_value_, expected_mean)
+
+    def test_predict_zero_when_predict_mean_disabled(self):
+        """Test that predict_mean=False causes the model to predict zero."""
+        # Arrange
+        model = FlatlinerRegressor(predict_mean=False)
+        
+        x_train = train_input.iloc[:, 1:]
+        y_train = train_input.iloc[:, 0]
+
+        # Act
+        model.fit(x_train, y_train)
+        result = model.predict(x_train)
+
+        # Assert
+        self.assertTrue((result == 0).all())
+        self.assertEqual(model.predicted_value_, 0.0)

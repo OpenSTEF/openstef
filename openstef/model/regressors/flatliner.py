@@ -15,15 +15,23 @@ from openstef.model.regressors.regressor import OpenstfRegressor
 class FlatlinerRegressor(OpenstfRegressor, RegressorMixin):
     feature_names_: List[str] = []
 
-    def __init__(self, quantiles=None):
+    def __init__(self, quantiles=None, predict_mean: bool = False):
         """Initialize FlatlinerRegressor.
 
-        The model always predicts 0.0, regardless of the input features. The model is meant to be used for flatliner
-        locations that still expect a prediction while preserving the prediction interface.
+        The model always predicts a constant value, regardless of the input features.
+        The model is meant to be used for flatliner locations that still expect a
+        prediction while preserving the prediction interface.
+
+        Args:
+            quantiles: Quantiles to predict (optional).
+            predict_mean: If True, predicts the mean of the training load data.
+                If False, predicts 0.0.
 
         """
         super().__init__()
         self.quantiles = quantiles
+        self.predict_mean = predict_mean
+        self.predicted_value_: float = 0.0
 
     @property
     def feature_names(self) -> list:
@@ -48,16 +56,22 @@ class FlatlinerRegressor(OpenstfRegressor, RegressorMixin):
 
         Args:
             x: Feature matrix
-            y: Labels
+            y: Labels (load measurements)
 
         Returns:
-            Fitted LinearQuantile model
+            Fitted FlatlinerRegressor model
 
         """
         self.feature_names_ = list(x.columns)
         self.feature_importances_ = np.ones(len(self.feature_names_)) / (
             len(self.feature_names_) or 1.0
         )
+
+        # Calculate the predicted value based on predict_mean setting
+        if self.predict_mean and len(y) > 0:
+            self.predicted_value_ = float(y.mean())
+        else:
+            self.predicted_value_ = 0.0
 
         return self
 
@@ -66,12 +80,12 @@ class FlatlinerRegressor(OpenstfRegressor, RegressorMixin):
 
         Args:
             x: Feature matrix
-            quantile: Quantile for which a prediciton is desired,
-                note that only quantile are available for which a model is trained,
+            quantile: Quantile for which a prediction is desired,
+                note that only quantiles are available for which a model is trained,
                 and that this is a quantile-model specific keyword
 
         Returns:
-            Prediction
+            Prediction (constant value for all rows)
 
         Raises:
             ValueError in case no model is trained for the requested quantile
@@ -79,7 +93,7 @@ class FlatlinerRegressor(OpenstfRegressor, RegressorMixin):
         """
         check_is_fitted(self)
 
-        return np.zeros(x.shape[0])
+        return np.full(x.shape[0], self.predicted_value_)
 
     def _get_feature_importance_from_linear(self, quantile: float = 0.5) -> np.array:
         check_is_fitted(self)
@@ -89,6 +103,7 @@ class FlatlinerRegressor(OpenstfRegressor, RegressorMixin):
     def _get_param_names(cls):
         return [
             "quantiles",
+            "predict_mean",
         ]
 
     def __sklearn_is_fitted__(self) -> bool:

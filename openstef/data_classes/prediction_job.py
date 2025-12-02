@@ -105,6 +105,10 @@ class PredictionJobDataClass(BaseModel):
         False,
         description="If True, flatliners are also detected on non-zero values (median of the load).",
     )
+    predict_non_zero_flatliner: bool = Field(
+        False,
+        description="If True, the flatliner model predicts the mean of the load measurements instead of zero.",
+    )
     data_balancing_ratio: Optional[float] = Field(
         None,
         description="If data balancing is enabled, the data will be balanced with data from 1 year ago in the future.",
