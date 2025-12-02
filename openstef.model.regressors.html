@@ -1017,7 +1017,7 @@ sub-estimator of a meta-estimator, e.g. used inside a
 <span id="openstef-model-regressors-flatliner-module"></span><h2>openstef.model.regressors.flatliner module<a class="headerlink" href="#module-openstef.model.regressors.flatliner" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="openstef.model.regressors.flatliner.FlatlinerRegressor">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.model.regressors.flatliner.</span></span><span class="sig-name descname"><span class="pre">FlatlinerRegressor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">quantiles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.regressors.flatliner.FlatlinerRegressor" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef.model.regressors.flatliner.</span></span><span class="sig-name descname"><span class="pre">FlatlinerRegressor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">quantiles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predict_median</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#openstef.model.regressors.flatliner.FlatlinerRegressor" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#openstef.model.regressors.regressor.OpenstfRegressor" title="openstef.model.regressors.regressor.OpenstfRegressor"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpenstfRegressor</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RegressorMixin</span></code></p>
 <dl class="py property">
 <dt class="sig sig-object py" id="openstef.model.regressors.flatliner.FlatlinerRegressor.can_predict_quantiles">
@@ -1054,14 +1054,14 @@ sub-estimator of a meta-estimator, e.g. used inside a
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>x</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Feature matrix</p></li>
-<li><p><strong>y</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code>) – Labels</p></li>
+<li><p><strong>y</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code>) – Labels (load measurements)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">RegressorMixin</span></code></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Fitted LinearQuantile model</p>
+<dd class="field-odd"><p>Fitted FlatlinerRegressor model</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1074,8 +1074,8 @@ sub-estimator of a meta-estimator, e.g. used inside a
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>x</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code>) – Feature matrix</p></li>
-<li><p><strong>quantile</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Quantile for which a prediciton is desired,
-note that only quantile are available for which a model is trained,
+<li><p><strong>quantile</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Quantile for which a prediction is desired,
+note that only quantiles are available for which a model is trained,
 and that this is a quantile-model specific keyword</p></li>
 </ul>
 </dd>
@@ -1083,7 +1083,7 @@ and that this is a quantile-model specific keyword</p></li>
 <dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Prediction</p>
+<dd class="field-odd"><p>Prediction (constant value for all rows)</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>ValueError in case no model is trained for the requested quantile</strong> – </p>
