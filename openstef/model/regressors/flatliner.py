@@ -15,22 +15,22 @@ from openstef.model.regressors.regressor import OpenstfRegressor
 class FlatlinerRegressor(OpenstfRegressor, RegressorMixin):
     feature_names_: List[str] = []
 
-    def __init__(self, quantiles=None, predict_mean: bool = False):
+    def __init__(self, quantiles=None, predict_median: bool = False):
         """Initialize FlatlinerRegressor.
 
         The model always predicts a constant value, regardless of the input features.
-        The model is meant to be used for flatliner locations that still expect a
+        The model is mediant to be used for flatliner locations that still expect a
         prediction while preserving the prediction interface.
 
         Args:
             quantiles: Quantiles to predict (optional).
-            predict_mean: If True, predicts the mean of the training load data.
+            predict_median: If True, predicts the median of the training load data.
                 If False, predicts 0.0.
 
         """
         super().__init__()
         self.quantiles = quantiles
-        self.predict_mean = predict_mean
+        self.predict_median = predict_median
         self.predicted_value_: float = 0.0
 
     @property
@@ -67,9 +67,9 @@ class FlatlinerRegressor(OpenstfRegressor, RegressorMixin):
             len(self.feature_names_) or 1.0
         )
 
-        # Calculate the predicted value based on predict_mean setting
-        if self.predict_mean and len(y) > 0:
-            self.predicted_value_ = float(y.mean())
+        # Calculate the predicted value based on predict_median setting
+        if self.predict_median and len(y) > 0:
+            self.predicted_value_ = float(y.median())
         else:
             self.predicted_value_ = 0.0
 
@@ -103,7 +103,7 @@ class FlatlinerRegressor(OpenstfRegressor, RegressorMixin):
     def _get_param_names(cls):
         return [
             "quantiles",
-            "predict_mean",
+            "predict_median",
         ]
 
     def __sklearn_is_fitted__(self) -> bool:

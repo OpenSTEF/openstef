@@ -458,10 +458,10 @@ def train_pipeline_step_train_model(
             "'load' column should be first and 'horizon' column last."
         )
 
-    # Prepare model kwargs, including predict_mean for flatliner models
+    # Prepare model kwargs, including predict_median for flatliner models
     model_kwargs = dict(pj.model_kwargs or {})
     if pj.get("predict_non_zero_flatliner", False):
-        model_kwargs["predict_mean"] = True
+        model_kwargs["predict_median"] = True
 
     # Create relevant model
     model = ModelCreator.create_model(

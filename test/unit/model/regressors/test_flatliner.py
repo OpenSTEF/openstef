@@ -65,14 +65,14 @@ class TestLinearQuantile(BaseTestCase):
             (feature_importance == np.array([0, 0, 0], dtype=np.float32)).all()
         )
 
-    def test_predict_mean_when_enabled(self):
-        """Test that predict_mean=True causes the model to predict the mean of the load."""
+    def test_predict_median_when_enabled(self):
+        """Test that predict_median=True causes the model to predict the median of the load."""
         # Arrange
-        model = FlatlinerRegressor(predict_mean=True)
+        model = FlatlinerRegressor(predict_median=True)
         # Create test data with known load values
         x_train = train_input.iloc[:, 1:]
         y_train = train_input.iloc[:, 0]
-        expected_mean = y_train.mean()
+        expected_median = y_train.median()
 
         # Act
         model.fit(x_train, y_train)
@@ -81,15 +81,15 @@ class TestLinearQuantile(BaseTestCase):
         # Assert
         # check if the model was fitted
         self.assertIsNone(sklearn.utils.validation.check_is_fitted(model))
-        # check if model predicts the mean
+        # check if model predicts the median
         self.assertEqual(len(result), len(x_train))
-        self.assertTrue(np.allclose(result, expected_mean))
-        self.assertAlmostEqual(model.predicted_value_, expected_mean)
+        self.assertTrue(np.allclose(result, expected_median))
+        self.assertAlmostEqual(model.predicted_value_, expected_median)
 
-    def test_predict_zero_when_predict_mean_disabled(self):
-        """Test that predict_mean=False causes the model to predict zero."""
+    def test_predict_zero_when_predict_median_disabled(self):
+        """Test that predict_median=False causes the model to predict zero."""
         # Arrange
-        model = FlatlinerRegressor(predict_mean=False)
+        model = FlatlinerRegressor(predict_median=False)
         x_train = train_input.iloc[:, 1:]
         y_train = train_input.iloc[:, 0]
 
