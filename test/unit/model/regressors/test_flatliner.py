@@ -81,7 +81,6 @@ class TestLinearQuantile(BaseTestCase):
         # Assert
         # check if the model was fitted
         self.assertIsNone(sklearn.utils.validation.check_is_fitted(model))
-        
         # check if model predicts the mean
         self.assertEqual(len(result), len(x_train))
         self.assertTrue(np.allclose(result, expected_mean))
