@@ -18,6 +18,7 @@ from openstef_core.base_model import BaseModel
 from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesDataset
 from openstef_core.datasets.validated_datasets import ForecastDataset
 from openstef_core.exceptions import NotFittedError, SkipFitting
+from openstef_meta.models.ensemble_forecasting_model import EnsembleForecastingModel
 from openstef_models.mixins import ModelIdentifier, PredictorCallback
 from openstef_models.mixins.callbacks import WorkflowContext
 from openstef_models.models.forecasting_model import ForecastingModel, ModelFitResult
@@ -117,7 +118,7 @@ class CustomForecastingWorkflow(BaseModel):
         ... ) # doctest: +SKIP
     """
 
-    model: ForecastingModel = Field(description="The forecasting model to use.")
+    model: ForecastingModel | EnsembleForecastingModel = Field(description="The forecasting model to use.")
     callbacks: list[ForecastingCallback] = Field(
         default_factory=list[ForecastingCallback], description="List of callbacks to execute during workflow events."
     )

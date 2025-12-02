@@ -12,6 +12,8 @@ The implementation is based on sklearn's ResidualRegressor.
 import logging
 from typing import override
 
+from openstef_models.models.forecasting.lgbmlinear_forecaster import LGBMLinearForecaster, LGBMLinearHyperParams
+from openstef_models.models.forecasting.xgboost_forecaster import XGBoostForecaster, XGBoostHyperParams
 import pandas as pd
 from pydantic import Field
 
@@ -21,22 +23,22 @@ from openstef_core.exceptions import (
 )
 from openstef_core.mixins import HyperParams
 from openstef_core.types import Quantile
-from openstef_meta.framework.base_learner import (
-    BaseLearner,
-    BaseLearnerHyperParams,
-)
-from openstef_meta.framework.meta_forecaster import (
-    MetaForecaster,
-)
+
+
 from openstef_models.models.forecasting.forecaster import (
+    Forecaster,
     ForecasterConfig,
 )
 from openstef_models.models.forecasting.gblinear_forecaster import (
+    GBLinearForecaster,
     GBLinearHyperParams,
 )
-from openstef_models.models.forecasting.lgbm_forecaster import LGBMHyperParams
+from openstef_models.models.forecasting.lgbm_forecaster import LGBMForecaster, LGBMHyperParams
 
 logger = logging.getLogger(__name__)
+
+BaseLearner = LGBMForecaster | LGBMLinearForecaster | XGBoostForecaster | GBLinearForecaster
+BaseLearnerHyperParams = LGBMHyperParams | LGBMLinearHyperParams | XGBoostHyperParams | GBLinearHyperParams
 
 
 class ResidualHyperParams(HyperParams):
@@ -64,7 +66,7 @@ class ResidualForecasterConfig(ForecasterConfig):
     )
 
 
-class ResidualForecaster(MetaForecaster):
+class ResidualForecaster(Forecaster):
     """MetaForecaster that implements residual modeling.
 
     It takes in a primary forecaster and a residual forecaster. The primary forecaster makes initial predictions,
@@ -101,6 +103,29 @@ class ResidualForecaster(MetaForecaster):
             models.append(secondary_model)
 
         return models
+
+    @staticmethod
+    def _init_base_learners(
+        config: ForecasterConfig, base_hyperparams: list[BaseLearnerHyperParams]
+    ) -> list[BaseLearner]:
+        """Initialize base learners based on provided hyperparameters.
+
+        Returns:
+            list[Forecaster]: List of initialized base learner forecasters.
+        """
+        base_learners: list[BaseLearner] = []
+        horizons = config.horizons
+        quantiles = config.quantiles
+
+        for hyperparams in base_hyperparams:
+            forecaster_cls = hyperparams.forecaster_class()
+            config = forecaster_cls.Config(horizons=horizons, quantiles=quantiles)
+            if "hyperparams" in forecaster_cls.Config.model_fields:
+                config = config.model_copy(update={"hyperparams": hyperparams})
+
+            base_learners.append(config.forecaster_from_config())
+
+        return base_learners
 
     @override
     def fit(self, data: ForecastInputDataset, data_val: ForecastInputDataset | None = None) -> None:

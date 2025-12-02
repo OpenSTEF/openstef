@@ -9,15 +9,15 @@ while ensuring full compatability with regular Forecasters.
 """
 
 from abc import abstractmethod
-from collections.abc import Sequence
+from typing import Self
 
 import pandas as pd
 from pydantic import ConfigDict, Field
 
-from openstef_core.datasets import ForecastDataset, ForecastInputDataset, TimeSeriesDataset
-from openstef_core.mixins import HyperParams, Predictor, TransformPipeline
-from openstef_core.transforms import TimeSeriesTransform
-from openstef_core.types import Quantile
+from openstef_core.base_model import BaseConfig
+from openstef_core.datasets import ForecastDataset, ForecastInputDataset
+from openstef_core.mixins import HyperParams, Predictor
+from openstef_core.types import LeadTime, Quantile
 from openstef_meta.transforms.selector import Selector
 from openstef_meta.utils.datasets import EnsembleForecastDataset
 from openstef_models.utils.feature_selection import FeatureSelection
@@ -27,28 +27,74 @@ SELECTOR = Selector(
 )
 
 
-class ForecastCombinerHyperParams(HyperParams):
+class ForecastCombinerConfig(BaseConfig):
     """Hyperparameters for the Final Learner."""
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    feature_adders: Sequence[TimeSeriesTransform] = Field(
-        default=[],
-        description="Additional features to add to the base learner predictions before fitting the final learner.",
+    hyperparams: HyperParams = Field(
+        description="Hyperparameters for the final learner.",
     )
+
+    quantiles: list[Quantile] = Field(
+        default=[Quantile(0.5)],
+        description=(
+            "Probability levels for uncertainty estimation. Each quantile represents a confidence level "
+            "(e.g., 0.1 = 10th percentile, 0.5 = median, 0.9 = 90th percentile). "
+            "Models must generate predictions for all specified quantiles."
+        ),
+        min_length=1,
+    )
+
+    horizons: list[LeadTime] = Field(
+        default=...,
+        description=(
+            "Lead times for predictions, accounting for data availability and versioning cutoffs. "
+            "Each horizon defines how far ahead the model should predict."
+        ),
+        min_length=1,
+    )
+
+    @property
+    def max_horizon(self) -> LeadTime:
+        """Returns the maximum lead time (horizon) from the configured horizons.
+
+        Useful for determining the furthest prediction distance required by the model.
+        This is commonly used for data preparation and validation logic.
+
+        Returns:
+            The maximum lead time.
+        """
+        return max(self.horizons)
+
+    def with_horizon(self, horizon: LeadTime) -> Self:
+        """Create a new configuration with a different horizon.
+
+        Useful for creating multiple forecaster instances for different prediction
+        horizons from a single base configuration.
+
+        Args:
+            horizon: The new lead time to use for predictions.
+
+        Returns:
+            New configuration instance with the specified horizon.
+        """
+        return self.model_copy(update={"horizons": [horizon]})
+
+    @classmethod
+    def combiner_class(cls) -> type["ForecastCombiner"]:
+        """Get the associated Forecaster class for this configuration.
+
+        Returns:
+            The Forecaster class that uses this configuration.
+        """
+        raise NotImplementedError("Subclasses must implement combiner_class")
 
 
 class ForecastCombiner(Predictor[EnsembleForecastDataset, ForecastDataset]):
     """Combines base learner predictions for each quantile into final predictions."""
 
-    def __init__(self, quantiles: list[Quantile], hyperparams: ForecastCombinerHyperParams) -> None:
-        """Initialize the Final Learner."""
-        self.quantiles = quantiles
-        self.hyperparams = hyperparams
-        self.pre_processing: TransformPipeline[TimeSeriesDataset] = TransformPipeline(
-            transforms=hyperparams.feature_adders
-        )
-        self._is_fitted: bool = False
+    config: ForecastCombinerConfig
 
     @abstractmethod
     def fit(
@@ -85,24 +131,6 @@ class ForecastCombiner(Predictor[EnsembleForecastDataset, ForecastDataset]):
         """
         raise NotImplementedError("Subclasses must implement the predict method.")
 
-    def calculate_features(self, data: ForecastInputDataset) -> ForecastInputDataset:
-        """Calculate additional features for the final learner.
-
-        Args:
-            data: Input ForecastInputDataset to calculate features on.
-
-        Returns:
-            ForecastInputDataset with additional features.
-        """
-        data_transformed = self.pre_processing.transform(data)
-
-        return ForecastInputDataset(
-            data=data_transformed.data,
-            sample_interval=data.sample_interval,
-            target_column=data.target_column,
-            forecast_start=data.forecast_start,
-        )
-
     @staticmethod
     def _prepare_input_data(
         dataset: ForecastInputDataset, additional_features: ForecastInputDataset | None
@@ -130,8 +158,3 @@ class ForecastCombiner(Predictor[EnsembleForecastDataset, ForecastDataset]):
     def is_fitted(self) -> bool:
         """Indicates whether the final learner has been fitted."""
         raise NotImplementedError("Subclasses must implement the is_fitted property.")
-
-    @property
-    def has_features(self) -> bool:
-        """Indicates whether the final learner uses additional features."""
-        return len(self.pre_processing.transforms) > 0

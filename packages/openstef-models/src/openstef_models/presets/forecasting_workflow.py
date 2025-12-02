@@ -25,9 +25,7 @@ from openstef_beam.evaluation.metric_providers import (
 from openstef_core.base_model import BaseConfig
 from openstef_core.mixins import TransformPipeline
 from openstef_core.types import LeadTime, Q, Quantile, QuantileOrGlobal
-from openstef_meta.models.learned_weights_forecaster import LearnedWeightsForecaster
-from openstef_meta.models.residual_forecaster import ResidualForecaster
-from openstef_meta.models.stacking_forecaster import StackingForecaster
+from openstef_meta.models.forecasting.residual_forecaster import ResidualForecaster
 from openstef_models.integrations.mlflow import MLFlowStorage, MLFlowStorageCallback
 from openstef_models.mixins import ModelIdentifier
 from openstef_models.models import ForecastingModel
@@ -141,16 +139,6 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
     residual_hyperparams: ResidualForecaster.HyperParams = Field(
         default=ResidualForecaster.HyperParams(),
         description="Hyperparameters for Residual forecaster.",
-    )
-
-    stacking_hyperparams: StackingForecaster.HyperParams = Field(
-        default=StackingForecaster.HyperParams(),
-        description="Hyperparameters for Stacking forecaster.",
-    )
-
-    learned_weights_hyperparams: LearnedWeightsForecaster.HyperParams = Field(
-        default=LearnedWeightsForecaster.HyperParams(),
-        description="Hyperparameters for Learned Weights forecaster.",
     )
 
     location: LocationConfig = Field(
@@ -437,28 +425,7 @@ def create_forecasting_workflow(
         postprocessing = [
             ConfidenceIntervalApplicator(quantiles=config.quantiles),
         ]
-    elif config.model == "learned_weights":
-        preprocessing = [
-            *checks,
-            *feature_adders,
-            *feature_standardizers,
-            Imputer(
-                selection=Exclude(config.target_column),
-                imputation_strategy="mean",
-                fill_future_values=Include(config.energy_price_column),
-            ),
-            NaNDropper(
-                selection=Exclude(config.target_column),
-            ),
-        ]
-        forecaster = LearnedWeightsForecaster(
-            config=LearnedWeightsForecaster.Config(
-                quantiles=config.quantiles,
-                horizons=config.horizons,
-                hyperparams=config.learned_weights_hyperparams,
-            )
-        )
-        postprocessing = [QuantileSorter()]
+
     elif config.model == "residual":
         preprocessing = [
             *checks,
@@ -478,28 +445,6 @@ def create_forecasting_workflow(
                 quantiles=config.quantiles,
                 horizons=config.horizons,
                 hyperparams=config.residual_hyperparams,
-            )
-        )
-        postprocessing = [QuantileSorter()]
-    elif config.model == "stacking":
-        preprocessing = [
-            *checks,
-            *feature_adders,
-            *feature_standardizers,
-            Imputer(
-                selection=Exclude(config.target_column),
-                imputation_strategy="mean",
-                fill_future_values=Include(config.energy_price_column),
-            ),
-            NaNDropper(
-                selection=Exclude(config.target_column),
-            ),
-        ]
-        forecaster = StackingForecaster(
-            config=StackingForecaster.Config(
-                quantiles=config.quantiles,
-                horizons=config.horizons,
-                hyperparams=config.stacking_hyperparams,
             )
         )
         postprocessing = [QuantileSorter()]
