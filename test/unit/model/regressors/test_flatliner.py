@@ -69,7 +69,6 @@ class TestLinearQuantile(BaseTestCase):
         """Test that predict_mean=True causes the model to predict the mean of the load."""
         # Arrange
         model = FlatlinerRegressor(predict_mean=True)
-        
         # Create test data with known load values
         x_train = train_input.iloc[:, 1:]
         y_train = train_input.iloc[:, 0]
