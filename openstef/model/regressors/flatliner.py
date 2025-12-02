@@ -19,7 +19,7 @@ class FlatlinerRegressor(OpenstfRegressor, RegressorMixin):
         """Initialize FlatlinerRegressor.
 
         The model always predicts a constant value, regardless of the input features.
-        The model is mediant to be used for flatliner locations that still expect a
+        The model is meant to be used for flatliner locations that still expect a
         prediction while preserving the prediction interface.
 
         Args:
