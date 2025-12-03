@@ -226,8 +226,9 @@ class StackingCombiner(ForecastCombiner):
         for q in self.quantiles:
             # Extract base predictions for this quantile
             # TODO Florian implement contributions extraction per quantile
+            pass
 
-        return pd.DataFrame()  # Placeholder for actual implementation
+        return contributions  # Placeholder for actual implementation
 
     @staticmethod
     def contributions_from_predictions(
