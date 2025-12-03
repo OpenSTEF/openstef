@@ -3,7 +3,6 @@ from datetime import datetime, timedelta
 from typing import override
 
 import numpy as np
-from openstef_core.mixins.predictor import HyperParams
 import pandas as pd
 import pytest
 
@@ -11,6 +10,7 @@ from openstef_core.datasets import ForecastInputDataset
 from openstef_core.datasets.timeseries_dataset import TimeSeriesDataset
 from openstef_core.datasets.validated_datasets import ForecastDataset
 from openstef_core.exceptions import NotFittedError
+from openstef_core.mixins.predictor import HyperParams
 from openstef_core.mixins.transform import TransformPipeline
 from openstef_core.testing import assert_timeseries_equal, create_synthetic_forecasting_dataset
 from openstef_core.types import LeadTime, Q
@@ -61,6 +61,11 @@ class SimpleForecaster(Forecaster):
 
 class SimpleCombiner(ForecastCombiner):
     """Simple combiner that averages base learner predictions."""
+
+    def __init__(self, config: ForecastCombinerConfig):
+        self._config = config
+        self._is_fitted = False
+        self.quantiles = config.quantiles
 
     def fit(
         self,
@@ -128,7 +133,6 @@ def model() -> EnsembleForecastingModel:
 
     combiner = SimpleCombiner(
         config=combiner_config,
-        quantiles=quantiles,
     )
 
     # Act
@@ -231,7 +235,6 @@ def test_forecasting_model__pickle_roundtrip():
 
     combiner = SimpleCombiner(
         config=combiner_config,
-        quantiles=quantiles,
     )
 
     original_model = EnsembleForecastingModel(

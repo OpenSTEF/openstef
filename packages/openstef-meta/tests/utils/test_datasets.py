@@ -11,7 +11,6 @@ import pytest
 
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset, TimeSeriesDataset
 from openstef_core.types import Quantile
-from openstef_meta.framework.base_learner import BaseLearnerNames
 from openstef_meta.utils.datasets import EnsembleForecastDataset
 
 
@@ -79,26 +78,25 @@ def forecast_dataset_factory() -> Callable[[], ForecastDataset]:
 
 
 @pytest.fixture
-def base_learner_output(
+def base_predictions(
     forecast_dataset_factory: Callable[[], ForecastDataset],
-) -> dict[BaseLearnerNames, ForecastDataset]:
-
+) -> dict[str, ForecastDataset]:
     return {
-        "GBLinearForecaster": forecast_dataset_factory(),
-        "LGBMForecaster": forecast_dataset_factory(),
+        "model_1": forecast_dataset_factory(),
+        "model_2": forecast_dataset_factory(),
     }
 
 
 @pytest.fixture
-def ensemble_dataset(base_learner_output: dict[BaseLearnerNames, ForecastDataset]) -> EnsembleForecastDataset:
-    return EnsembleForecastDataset.from_forecast_datasets(base_learner_output)
+def ensemble_dataset(base_predictions: dict[str, ForecastDataset]) -> EnsembleForecastDataset:
+    return EnsembleForecastDataset.from_forecast_datasets(base_predictions)
 
 
 def test_from_ensemble_output(ensemble_dataset: EnsembleForecastDataset):
 
     assert isinstance(ensemble_dataset, EnsembleForecastDataset)
     assert ensemble_dataset.data.shape == (3, 7)  # 3 timestamps, 2 learners * 3 quantiles + target
-    assert set(ensemble_dataset.model_names) == {"GBLinearForecaster", "LGBMForecaster"}
+    assert set(ensemble_dataset.forecaster_names) == {"model_1", "model_2"}
     assert set(ensemble_dataset.quantiles) == {Quantile(0.1), Quantile(0.5), Quantile(0.9)}
 
 
@@ -116,4 +114,4 @@ def test_select_quantile_classification(ensemble_dataset: EnsembleForecastDatase
 
     assert isinstance(dataset, ForecastInputDataset)
     assert dataset.data.shape == (3, 3)  # 3 timestamps, 2 learners * 1 quantiles + target
-    assert all(dataset.target_series.apply(lambda x: x in BaseLearnerNames.__args__))  # type: ignore
+    assert all(dataset.target_series.apply(lambda x: x in {"model_1", "model_2"}))  # type: ignore

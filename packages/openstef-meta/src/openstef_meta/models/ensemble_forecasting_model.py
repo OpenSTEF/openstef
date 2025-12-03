@@ -215,20 +215,17 @@ class EnsembleForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastD
         )
 
         # Prepare input datasets for metrics calculation
-        input_data_train = self.prepare_input(data=data)
-        input_data_val = self.prepare_input(data=data_val) if data_val else None
-        input_data_test = self.prepare_input(data=data_test) if data_test else None
 
-        metrics_train = self._predict_and_score(input_data=input_data_train)
-        metrics_val = self._predict_and_score(input_data=input_data_val) if input_data_val else None
-        metrics_test = self._predict_and_score(input_data=input_data_test) if input_data_test else None
+        metrics_train = self._predict_and_score(data=data)
+        metrics_val = self._predict_and_score(data=data_val) if data_val else None
+        metrics_test = self._predict_and_score(data=data_test) if data_test else None
         metrics_full = self.score(data=data)
 
         return ModelFitResult(
             input_dataset=data,
-            input_data_train=input_data_train,
-            input_data_val=input_data_val,
-            input_data_test=input_data_test,
+            input_data_train=ForecastInputDataset.from_timeseries(data),
+            input_data_val=ForecastInputDataset.from_timeseries(data_val) if data_val else None,
+            input_data_test=ForecastInputDataset.from_timeseries(data_test) if data_test else None,
             metrics_train=metrics_train,
             metrics_val=metrics_val,
             metrics_test=metrics_test,
@@ -274,52 +271,28 @@ class EnsembleForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastD
             predictions_raw, target_series=data.data[self.target_column]
         )
 
-    def _predict_forecasters(self, data: TimeSeriesDataset) -> EnsembleForecastDataset:
+    def _predict_forecasters(
+        self, data: TimeSeriesDataset, forecast_start: datetime | None = None
+    ) -> EnsembleForecastDataset:
         """Generate predictions from base learners.
 
         Args:
             data: Input data for prediction.
+            forecast_start: Optional start time for forecasts.
 
         Returns:
             DataFrame containing base learner predictions.
         """
         base_predictions: dict[str, ForecastDataset] = {}
         for name, forecaster in self.forecasters.items():
-            forecaster_data = self.prepare_input(data, forecaster_name=name)
-            preds = forecaster.predict(data=forecaster_data)
+            forecaster_data = self.prepare_input(data, forecaster_name=name, forecast_start=forecast_start)
+            preds_raw = forecaster.predict(data=forecaster_data)
+            preds = self.postprocessing.transform(data=preds_raw)
             base_predictions[name] = preds
 
         return EnsembleForecastDataset.from_forecast_datasets(
             base_predictions, target_series=data.data[self.target_column]
         )
-
-    @override
-    def predict(self, data: TimeSeriesDataset, forecast_start: datetime | None = None) -> ForecastDataset:
-        """Generate forecasts using the trained model.
-
-        Transforms input data through the preprocessing pipeline, generates predictions
-        using the underlying forecaster, and applies postprocessing transformations.
-
-        Args:
-            data: Input time series data for generating forecasts.
-            forecast_start: Starting time for forecasts. If None, uses data end time.
-
-        Returns:
-            Processed forecast dataset with predictions and uncertainty estimates.
-
-        Raises:
-            NotFittedError: If the model hasn't been trained yet.
-        """
-        if not self.is_fitted:
-            raise NotFittedError(self.__class__.__name__)
-
-        # Transform the input data to a valid forecast input
-        input_data = self.prepare_input(data=data, forecast_start=forecast_start)
-
-        # Generate predictions
-        raw_predictions = self._predict(input_data=input_data)
-
-        return self.postprocessing.transform(data=raw_predictions)
 
     def prepare_input(
         self,
@@ -369,21 +342,33 @@ class EnsembleForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastD
             forecast_start=forecast_start,
         )
 
-    def _predict_and_score(self, input_data: ForecastInputDataset) -> SubsetMetric:
-        prediction_raw = self._predict(input_data=input_data)
-        prediction = self.postprocessing.transform(data=prediction_raw)
+    def _predict_and_score(self, data: TimeSeriesDataset) -> SubsetMetric:
+        prediction = self.predict(data)
         return self._calculate_score(prediction=prediction)
 
-    def _predict(self, input_data: ForecastInputDataset) -> ForecastDataset:
+    def predict(self, data: TimeSeriesDataset, forecast_start: datetime | None = None) -> ForecastDataset:
+        """Generate forecasts for the provided dataset.
 
+        Args:
+            data: Input time series dataset for prediction.
+            forecast_start: Optional start time for forecasts.
+
+        Returns:
+            ForecastDataset containing the generated forecasts.
+
+        Raises:
+            NotFittedError: If the model has not been fitted yet.
+        """
         if not self.is_fitted:
             raise NotFittedError(self.__class__.__name__)
 
-        ensemble_predictions = self._predict_forecasters(data=input_data)
+        ensemble_predictions = self._predict_forecasters(data=data, forecast_start=forecast_start)
 
         additional_features = (
             ForecastInputDataset.from_timeseries(
-                self.combiner_preprocessing.transform(data=input_data), target_column=self.target_column
+                self.combiner_preprocessing.transform(data=data),
+                target_column=self.target_column,
+                forecast_start=forecast_start,
             )
             if len(self.combiner_preprocessing.transforms) > 0
             else None
@@ -394,7 +379,8 @@ class EnsembleForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastD
             data=ensemble_predictions,
             additional_features=additional_features,
         )
-        return restore_target(dataset=prediction, original_dataset=input_data, target_column=self.target_column)
+
+        return restore_target(dataset=prediction, original_dataset=data, target_column=self.target_column)
 
     def score(
         self,
@@ -429,14 +415,14 @@ class EnsembleForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastD
             # Needs only one horizon since we are using only a single prediction step
             # If a more comprehensive test is needed, a backtest should be run.
             config=EvaluationConfig(available_ats=[], lead_times=[self.config[0].max_horizon]),
-            quantiles=self.combiner.config.quantiles,
+            quantiles=self.config[0].quantiles,
             # Similarly windowed metrics are not relevant for single predictions.
             window_metric_providers=[],
             global_metric_providers=self.evaluation_metrics,
         )
 
         evaluation_result = pipeline.run_for_subset(
-            filtering=self.combiner.config.max_horizon,
+            filtering=self.config[0].max_horizon,
             predictions=prediction,
         )
         global_metric = evaluation_result.get_global_metric()

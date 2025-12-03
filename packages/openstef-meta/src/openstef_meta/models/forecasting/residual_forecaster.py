@@ -12,8 +12,6 @@ The implementation is based on sklearn's ResidualRegressor.
 import logging
 from typing import override
 
-from openstef_models.models.forecasting.lgbmlinear_forecaster import LGBMLinearForecaster, LGBMLinearHyperParams
-from openstef_models.models.forecasting.xgboost_forecaster import XGBoostForecaster, XGBoostHyperParams
 import pandas as pd
 from pydantic import Field
 
@@ -23,8 +21,6 @@ from openstef_core.exceptions import (
 )
 from openstef_core.mixins import HyperParams
 from openstef_core.types import Quantile
-
-
 from openstef_models.models.forecasting.forecaster import (
     Forecaster,
     ForecasterConfig,
@@ -34,22 +30,24 @@ from openstef_models.models.forecasting.gblinear_forecaster import (
     GBLinearHyperParams,
 )
 from openstef_models.models.forecasting.lgbm_forecaster import LGBMForecaster, LGBMHyperParams
+from openstef_models.models.forecasting.lgbmlinear_forecaster import LGBMLinearForecaster, LGBMLinearHyperParams
+from openstef_models.models.forecasting.xgboost_forecaster import XGBoostForecaster, XGBoostHyperParams
 
 logger = logging.getLogger(__name__)
 
-BaseLearner = LGBMForecaster | LGBMLinearForecaster | XGBoostForecaster | GBLinearForecaster
-BaseLearnerHyperParams = LGBMHyperParams | LGBMLinearHyperParams | XGBoostHyperParams | GBLinearHyperParams
+ResidualBaseForecaster = LGBMForecaster | LGBMLinearForecaster | XGBoostForecaster | GBLinearForecaster
+ResidualBaseForecasterHyperParams = LGBMHyperParams | LGBMLinearHyperParams | XGBoostHyperParams | GBLinearHyperParams
 
 
 class ResidualHyperParams(HyperParams):
     """Hyperparameters for Stacked LGBM GBLinear Regressor."""
 
-    primary_hyperparams: BaseLearnerHyperParams = Field(
+    primary_hyperparams: ResidualBaseForecasterHyperParams = Field(
         default=GBLinearHyperParams(),
         description="Primary model hyperparams. Defaults to GBLinearHyperParams.",
     )
 
-    secondary_hyperparams: BaseLearnerHyperParams = Field(
+    secondary_hyperparams: ResidualBaseForecasterHyperParams = Field(
         default=LGBMHyperParams(),
         description="Hyperparameters for the final learner. Defaults to LGBMHyperparams.",
     )
@@ -80,22 +78,22 @@ class ResidualForecaster(Forecaster):
         """Initialize the Hybrid forecaster."""
         self._config = config
 
-        self._primary_model: BaseLearner = self._init_base_learners(
+        self._primary_model: ResidualBaseForecaster = self._init_base_learners(
             config=config, base_hyperparams=[config.hyperparams.primary_hyperparams]
         )[0]
 
-        self._secondary_model: list[BaseLearner] = self._init_secondary_model(
+        self._secondary_model: list[ResidualBaseForecaster] = self._init_secondary_model(
             hyperparams=config.hyperparams.secondary_hyperparams
         )
         self._is_fitted = False
 
-    def _init_secondary_model(self, hyperparams: BaseLearnerHyperParams) -> list[BaseLearner]:
+    def _init_secondary_model(self, hyperparams: ResidualBaseForecasterHyperParams) -> list[ResidualBaseForecaster]:
         """Initialize secondary model for residual forecasting.
 
         Returns:
             list[Forecaster]: List containing the initialized secondary model forecaster.
         """
-        models: list[BaseLearner] = []
+        models: list[ResidualBaseForecaster] = []
         # Different datasets per quantile, so we need a model per quantile
         for q in self.config.quantiles:
             config = self._config.model_copy(update={"quantiles": [q]})
@@ -106,14 +104,14 @@ class ResidualForecaster(Forecaster):
 
     @staticmethod
     def _init_base_learners(
-        config: ForecasterConfig, base_hyperparams: list[BaseLearnerHyperParams]
-    ) -> list[BaseLearner]:
+        config: ForecasterConfig, base_hyperparams: list[ResidualBaseForecasterHyperParams]
+    ) -> list[ResidualBaseForecaster]:
         """Initialize base learners based on provided hyperparameters.
 
         Returns:
             list[Forecaster]: List of initialized base learner forecasters.
         """
-        base_learners: list[BaseLearner] = []
+        base_learners: list[ResidualBaseForecaster] = []
         horizons = config.horizons
         quantiles = config.quantiles
 
@@ -255,6 +253,15 @@ class ResidualForecaster(Forecaster):
             data=final_predictions,
             sample_interval=data.sample_interval,
         )
+
+    @property
+    def config(self) -> ResidualForecasterConfig:
+        """Get the configuration of the ResidualForecaster.
+
+        Returns:
+            ResidualForecasterConfig: The configuration of the forecaster.
+        """
+        return self._config
 
 
 __all__ = ["ResidualForecaster", "ResidualForecasterConfig", "ResidualHyperParams"]

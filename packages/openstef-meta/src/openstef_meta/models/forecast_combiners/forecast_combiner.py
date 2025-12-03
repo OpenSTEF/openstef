@@ -81,15 +81,6 @@ class ForecastCombinerConfig(BaseConfig):
         """
         return self.model_copy(update={"horizons": [horizon]})
 
-    @classmethod
-    def combiner_class(cls) -> type["ForecastCombiner"]:
-        """Get the associated Forecaster class for this configuration.
-
-        Returns:
-            The Forecaster class that uses this configuration.
-        """
-        raise NotImplementedError("Subclasses must implement combiner_class")
-
 
 class ForecastCombiner(Predictor[EnsembleForecastDataset, ForecastDataset]):
     """Combines base learner predictions for each quantile into final predictions."""
@@ -158,3 +149,21 @@ class ForecastCombiner(Predictor[EnsembleForecastDataset, ForecastDataset]):
     def is_fitted(self) -> bool:
         """Indicates whether the final learner has been fitted."""
         raise NotImplementedError("Subclasses must implement the is_fitted property.")
+
+    @abstractmethod
+    def predict_contributions(
+        self,
+        data: EnsembleForecastDataset,
+        additional_features: ForecastInputDataset | None = None,
+    ) -> pd.DataFrame:
+        """Generate final predictions based on base learner predictions.
+
+        Args:
+            data: EnsembleForecastDataset containing base learner predictions.
+            data_val: Optional EnsembleForecastDataset for validation during prediction. Will be ignored
+            additional_features: Optional ForecastInputDataset containing additional features for the final learner.
+
+        Returns:
+            ForecastDataset containing the final contributions.
+        """
+        raise NotImplementedError("Subclasses must implement the predict method.")
