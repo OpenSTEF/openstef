@@ -141,6 +141,34 @@ class RulesCombiner(ForecastCombiner):
             sample_interval=data.sample_interval,
         )
 
+    @override
+    def predict_contributions(
+        self,
+        data: EnsembleForecastDataset,
+        additional_features: ForecastInputDataset | None = None,
+    ) -> pd.DataFrame:
+        if additional_features is None:
+            raise ValueError("Additional features must be provided for RulesForecastCombiner prediction.")
+
+        decisions = self._predict_tree(
+            additional_features.data, columns=data.select_quantile(quantile=self.quantiles[0]).data.columns
+        )
+
+        # Generate predictions
+        predictions: list[pd.DataFrame] = []
+        for q in self.quantiles:
+            dataset = data.select_quantile(quantile=q)
+            preds = dataset.input_data().multiply(decisions).sum(axis=1)
+
+            predictions.append(preds.to_frame(name=Quantile(q).format()))
+
+        # Concatenate predictions along columns to form a DataFrame with quantile columns
+        df = pd.concat(predictions, axis=1)
+
+        # TODO FLORIAN return only Decision datadrame
+
+        return df
+
     @property
     def is_fitted(self) -> bool:
         """Check the Rules Final Learner is fitted."""

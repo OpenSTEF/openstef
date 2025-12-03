@@ -6,8 +6,6 @@ from datetime import timedelta
 
 import pytest
 
-from openstef_core.datasets import ForecastInputDataset
-from openstef_core.exceptions import NotFittedError
 from openstef_core.types import LeadTime, Q
 from openstef_meta.models.forecast_combiners.rules_combiner import (
     RulesCombiner,

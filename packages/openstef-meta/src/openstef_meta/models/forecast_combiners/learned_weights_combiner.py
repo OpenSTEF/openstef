@@ -336,6 +336,46 @@ class WeightsCombiner(ForecastCombiner):
             forecast_start=data.forecast_start,
         )
 
+    @override
+    def predict_contributions(
+        self,
+        data: EnsembleForecastDataset,
+        additional_features: ForecastInputDataset | None = None,
+    ) -> pd.DataFrame:
+        if not self.is_fitted:
+            raise NotFittedError(self.__class__.__name__)
+
+        # Generate predictions
+        contributions = pd.DataFrame({
+            Quantile(q).format(): self._generate_contributions_quantile(
+                dataset=data.select_quantile(quantile=Quantile(q)),
+                additional_features=additional_features,
+                model_index=i,
+            )
+            for i, q in enumerate(self.quantiles)
+        })
+        target_series = data.target_series
+        if target_series is not None:
+            contributions[data.target_column] = target_series
+
+        return contributions
+
+    def _generate_contributions_quantile(
+        self,
+        dataset: ForecastInputDataset,
+        additional_features: ForecastInputDataset | None,
+        model_index: int,
+    ) -> pd.DataFrame:
+        # TODO: FLORIAN Update content
+        # input_data = self._prepare_input_data(
+        #     dataset=dataset,
+        #     additional_features=additional_features,
+        # )
+
+        # weights = self._predict_model_weights_quantile(base_predictions=input_data, model_index=model_index)
+
+        return pd.DataFrame()
+
     @property
     @override
     def is_fitted(self) -> bool:

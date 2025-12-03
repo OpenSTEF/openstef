@@ -198,6 +198,55 @@ class StackingCombiner(ForecastCombiner):
             sample_interval=data.sample_interval,
         )
 
+    @override
+    def predict_contributions(
+        self,
+        data: EnsembleForecastDataset,
+        additional_features: ForecastInputDataset | None = None,
+    ) -> pd.DataFrame:
+        if not self.is_fitted:
+            raise NotFittedError(self.__class__.__name__)
+
+        # Generate predictions
+        predictions: list[pd.DataFrame] = []
+        for i, q in enumerate(self.quantiles):
+            if additional_features is not None:
+                input_data = self._combine_datasets(
+                    data=data.select_quantile(quantile=q),
+                    additional_features=additional_features,
+                )
+            else:
+                input_data = data.select_quantile(quantile=q)
+            p = self.models[i].predict(data=input_data).data
+            predictions.append(p)
+        # Concatenate predictions along columns to form a DataFrame with quantile columns
+        df = pd.concat(predictions, axis=1)
+
+        contributions = pd.DataFrame()
+        for q in self.quantiles:
+            # Extract base predictions for this quantile
+            # TODO Florian implement contributions extraction per quantile
+
+        return pd.DataFrame()  # Placeholder for actual implementation
+
+    @staticmethod
+    def contributions_from_predictions(
+        base_predictions: pd.DataFrame,
+        final_predictions: pd.Series,
+    ) -> pd.DataFrame:
+        """Extract contributions from predictions DataFrame.
+
+        Args:
+            predictions: DataFrame containing predictions.
+
+        Returns:
+            DataFrame with contributions per base learner.
+        """
+        # TODO Florian implement contributions extraction
+        # abs(final_predictions) / sum(abs(base_predictions), axis=1)
+
+        return pd.DataFrame()  # Placeholder for actual implementation
+
     @property
     def is_fitted(self) -> bool:
         """Check the StackingForecastCombiner is fitted."""
