@@ -32,13 +32,13 @@ def test_is_fitted_always_true(config: FlatlinerForecasterConfig):
     assert forecaster.is_fitted
 
 
-def test_predict_returns_median_when_use_median_is_true(sample_forecast_input_dataset: ForecastInputDataset):
-    """Test that the forecaster predicts the median of load measurements when use_median is True."""
+def test_predict_returns_median_when_predict_median_is_true(sample_forecast_input_dataset: ForecastInputDataset):
+    """Test that the forecaster predicts the median of load measurements when predict_median is True."""
     # Arrange
     config = FlatlinerForecasterConfig(
         quantiles=[Quantile(0.5), Quantile(0.9)],
         horizons=[LeadTime(timedelta(hours=1))],
-        use_median=True,
+        predict_median=True,
     )
     forecaster = FlatlinerForecaster(config)
 

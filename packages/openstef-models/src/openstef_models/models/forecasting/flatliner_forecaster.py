@@ -21,7 +21,7 @@ from openstef_models.models.forecasting.forecaster import Forecaster, Forecaster
 class FlatlinerForecasterConfig(ForecasterConfig):
     """Configuration for flatliner forecaster."""
 
-    use_median: bool = Field(
+    predict_median: bool = Field(
         default=False,
         description="If True, predict the median of load measurements instead of zero.",
     )
@@ -81,8 +81,8 @@ class FlatlinerForecaster(Forecaster, ExplainableForecaster):
     @property
     @override
     def is_fitted(self) -> bool:
-        # When use_median is True, the model needs to be fitted to compute the median
-        if self._config.use_median:
+        # When predict_median is True, the model needs to be fitted to compute the median
+        if self._config.predict_median:
             return self._median_value is not None
         return True
 
@@ -92,14 +92,14 @@ class FlatlinerForecaster(Forecaster, ExplainableForecaster):
         data: ForecastInputDataset,
         data_val: ForecastInputDataset | None = None,
     ) -> None:
-        if self._config.use_median:
+        if self._config.predict_median:
             self._median_value = float(data.target_series.median())
 
     @override
     def predict(self, data: ForecastInputDataset) -> ForecastDataset:
         forecast_index = data.create_forecast_range(horizon=self.config.max_horizon)
 
-        prediction_value = self._median_value if self._config.use_median else 0.0
+        prediction_value = self._median_value if self._config.predict_median else 0.0
 
         return ForecastDataset(
             data=pd.DataFrame(
