@@ -1,0 +1,10 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+timedelta_to_isoformat
+======================
+
+.. currentmodule:: openstef_core.utils
+
+.. autofunction:: timedelta_to_isoformat
