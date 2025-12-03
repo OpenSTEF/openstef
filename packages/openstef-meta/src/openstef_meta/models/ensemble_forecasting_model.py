@@ -61,16 +61,24 @@ class EnsembleForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastD
         >>> from openstef_models.models.forecasting.constant_median_forecaster import (
         ...     ConstantMedianForecaster, ConstantMedianForecasterConfig
         ... )
+        >>> from openstef_meta.models.forecast_combiners.learned_weights_combiner import WeightsCombiner
         >>> from openstef_core.types import LeadTime
         >>>
         >>> # Note: This is a conceptual example showing the API structure
         >>> # Real usage requires implemented forecaster classes
-        >>> forecaster = ConstantMedianForecaster(
+        >>> forecaster_1 = ConstantMedianForecaster(
         ...     config=ConstantMedianForecasterConfig(horizons=[LeadTime.from_string("PT36H")])
         ... )
+        >>> forecaster_2 = ConstantMedianForecaster(
+        ...     config=ConstantMedianForecasterConfig(horizons=[LeadTime.from_string("PT36H")])
+        ... )
+        >>> combiner_config = WeightsCombiner.Config(
+        ...     horizons=[LeadTime.from_string("PT36H")],
+        ... )
         >>> # Create and train model
-        >>> model = ForecastingModel(
-        ...     forecaster=forecaster,
+        >>> model = EnsembleForecastingModel(
+        ...     forecasters={"constant_median": forecaster_1, "constant_median_2": forecaster_2},
+        ...     combiner=WeightsCombiner(config=combiner_config),
         ...     cutoff_history=timedelta(days=14),  # Match your maximum lag in preprocessing
         ... )
         >>> model.fit(training_data)  # doctest: +SKIP
@@ -308,6 +316,7 @@ class EnsembleForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastD
 
         Args:
             data: Raw time series dataset to prepare for forecasting.
+            forecaster_name: Name of the forecaster for model-specific preprocessing.
             forecast_start: Optional start time for forecasts. If provided and earlier
                 than the cutoff time, overrides the cutoff for data filtering.
 

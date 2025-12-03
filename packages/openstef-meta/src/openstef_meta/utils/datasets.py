@@ -78,7 +78,6 @@ class EnsembleForecastDataset(TimeSeriesDataset):
         Raises:
             ValueError: If an invalid base learner name is found in a feature name.
         """
-
         forecasters: set[str] = set()
         quantiles: set[Quantile] = set()
 

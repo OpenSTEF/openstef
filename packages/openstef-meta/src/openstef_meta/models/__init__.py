@@ -2,4 +2,4 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-"""Mixins for OpenSTEF-Meta package."""
+"""Meta Forecasting models."""

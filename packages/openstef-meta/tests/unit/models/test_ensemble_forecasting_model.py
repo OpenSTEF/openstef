@@ -1,4 +1,8 @@
-import pickle
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+#
+# SPDX-License-Identifier: MPL-2.0
+
+import pickle  # noqa: S403 - Controlled test
 from datetime import datetime, timedelta
 from typing import override
 
@@ -136,10 +140,9 @@ def model() -> EnsembleForecastingModel:
     )
 
     # Act
-    model = EnsembleForecastingModel(
+    return EnsembleForecastingModel(
         forecasters=forecasters, combiner=combiner, common_preprocessing=TransformPipeline()
     )
-    return model
 
 
 def test_forecasting_model__init__uses_defaults(model: EnsembleForecastingModel):
