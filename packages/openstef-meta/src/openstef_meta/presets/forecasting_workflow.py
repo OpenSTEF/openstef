@@ -354,7 +354,7 @@ def create_ensemble_workflow(config: EnsembleWorkflowConfig) -> CustomForecastin
                 ),
                 Selector(
                     selection=FeatureSelection(
-                        exclude={
+                        exclude={  # Fix hardcoded lag features should be replaced by a LagsAdder classmethod
                             "load_lag_P14D",
                             "load_lag_P13D",
                             "load_lag_P12D",
@@ -362,12 +362,35 @@ def create_ensemble_workflow(config: EnsembleWorkflowConfig) -> CustomForecastin
                             "load_lag_P10D",
                             "load_lag_P9D",
                             "load_lag_P8D",
-                            "load_lag_P7D",
+                            # "load_lag_P7D", # Keep 7D lag for weekly seasonality
                             "load_lag_P6D",
                             "load_lag_P5D",
                             "load_lag_P4D",
                             "load_lag_P3D",
                             "load_lag_P2D",
+                        }
+                    )
+                ),
+                Selector(  # Fix hardcoded holiday features should be replaced by a HolidayFeatureAdder classmethod
+                    selection=FeatureSelection(
+                        exclude={
+                            "is_ascension_day",
+                            "is_christmas_day",
+                            "is_easter_monday",
+                            "is_easter_sunday",
+                            "is_good_friday",
+                            "is_holiday",
+                            "is_king_s_day",
+                            "is_liberation_day",
+                            "is_new_year_s_day",
+                            "is_second_day_of_christmas",
+                            "is_sunday",
+                            "is_week_day",
+                            "is_weekend_day",
+                            "is_whit_monday",
+                            "is_whit_sunday",
+                            "month_of_year",
+                            "quarter_of_year",
                         }
                     )
                 ),
