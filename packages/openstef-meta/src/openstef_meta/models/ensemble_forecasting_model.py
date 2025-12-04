@@ -35,6 +35,8 @@ from openstef_models.models.forecasting.forecaster import ForecasterConfig
 from openstef_models.models.forecasting_model import ModelFitResult
 from openstef_models.utils.data_split import DataSplitter
 
+logger = logging.getLogger(__name__)
+
 
 class EnsembleForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset]):
     """Complete forecasting pipeline combining preprocessing, prediction, and postprocessing.
@@ -191,6 +193,15 @@ class EnsembleForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastD
         Returns:
             FitResult containing training details and metrics.
         """
+
+        # Transform the input data to a valid forecast input and split into train/val/test
+        data, data_val, data_test = self.data_splitter.split_dataset(
+            data=data,
+            data_val=data_val,
+            data_test=data_test,
+            target_column=self.target_column,
+        )
+
         # Fit the feature engineering transforms
         self.common_preprocessing.fit(data=data)
 
@@ -249,27 +260,24 @@ class EnsembleForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastD
 
         predictions_raw: dict[str, ForecastDataset] = {}
 
+        if data_test is not None:
+            logger.info("Data test provided during fit, but will be ignored for MetaForecating")
+
         for name, forecaster in self.forecasters.items():
             validate_horizons_present(data, forecaster.config.horizons)
 
             # Transform and split input data
-            input_data_train = self.prepare_input(data=data, forecaster_name=name)
-            input_data_val = self.prepare_input(data=data_val, forecaster_name=name) if data_val else None
-            input_data_test = self.prepare_input(data=data_test, forecaster_name=name) if data_test else None
+            input_data_train = self.prepare_input(data=data, forecaster_name=name, forecast_start=data.index[0])
+            input_data_val = (
+                self.prepare_input(data=data_val, forecaster_name=name, forecast_start=data_val.index[0])
+                if data_val
+                else None
+            )
 
             # Drop target column nan's from training data. One can not train on missing targets.
             target_dropna = partial(pd.DataFrame.dropna, subset=[self.target_column])  # pyright: ignore[reportUnknownMemberType]
             input_data_train = input_data_train.pipe_pandas(target_dropna)
             input_data_val = input_data_val.pipe_pandas(target_dropna) if input_data_val else None
-            input_data_test = input_data_test.pipe_pandas(target_dropna) if input_data_test else None
-
-            # Transform the input data to a valid forecast input and split into train/val/test
-            input_data_train, input_data_val, input_data_test = self.data_splitter.split_dataset(
-                data=input_data_train,
-                data_val=input_data_val,
-                data_test=input_data_test,
-                target_column=self.target_column,
-            )
 
             # Fit the model
             forecaster.fit(data=input_data_train, data_val=input_data_val)

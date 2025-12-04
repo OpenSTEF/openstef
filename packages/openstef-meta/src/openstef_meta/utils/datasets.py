@@ -20,6 +20,43 @@ from openstef_meta.utils.pinball_errors import calculate_pinball_errors
 DEFAULT_TARGET_COLUMN = {Quantile(0.5): "load"}
 
 
+def combine_forecast_input_datasets(
+    dataset: ForecastInputDataset, other: ForecastInputDataset | None, join: str = "inner"
+) -> ForecastInputDataset:
+    """Combine multiple TimeSeriesDatasets into a single dataset.
+
+    Args:
+        dataset: First ForecastInputDataset.
+        other: Second ForecastInputDataset or None.
+        join: Type of join to perform on the datasets. Defaults to "inner".
+
+    Returns:
+        Combined ForecastDataset.
+    """
+    if not isinstance(other, ForecastInputDataset):
+        return dataset
+    if join != "inner":
+        raise NotImplementedError("Only 'inner' join is currently supported.")
+    df_other = other.data
+    if dataset.target_column in df_other.columns:
+        df_other = df_other.drop(columns=[dataset.target_column])
+
+    df_one = dataset.data
+    df = pd.concat(
+        [df_one, df_other],
+        axis=1,
+        join="inner",
+    )
+
+    return ForecastInputDataset(
+        data=df,
+        sample_interval=dataset.sample_interval,
+        target_column=dataset.target_column,
+        sample_weight_column=dataset.sample_weight_column,
+        forecast_start=dataset.forecast_start,
+    )
+
+
 class EnsembleForecastDataset(TimeSeriesDataset):
     """First stage output format for ensemble forecasters."""
 
