@@ -289,7 +289,10 @@ class WeightsCombiner(ForecastCombiner):
 
     def _predict_model_weights_quantile(self, base_predictions: pd.DataFrame, model_index: int) -> pd.DataFrame:
         model = self.models[model_index]
-        return model.predict_proba(X=base_predictions)  # type: ignore
+        weights_array = model.predict_proba(base_predictions.to_numpy())  # type: ignore
+
+        return pd.DataFrame(weights_array, index=base_predictions.index, columns=self._label_encoder.classes_)  # type: ignore
+ 
 
     def _generate_predictions_quantile(
         self,
@@ -346,14 +349,17 @@ class WeightsCombiner(ForecastCombiner):
             raise NotFittedError(self.__class__.__name__)
 
         # Generate predictions
-        contributions = pd.DataFrame({
-            Quantile(q).format(): self._generate_contributions_quantile(
+        contribution_list = [
+            self._generate_contributions_quantile(
                 dataset=data.select_quantile(quantile=Quantile(q)),
                 additional_features=additional_features,
                 model_index=i,
             )
             for i, q in enumerate(self.quantiles)
-        })
+        ]
+
+        contributions = pd.concat(contribution_list, axis=1)
+
         target_series = data.target_series
         if target_series is not None:
             contributions[data.target_column] = target_series
@@ -366,15 +372,30 @@ class WeightsCombiner(ForecastCombiner):
         additional_features: ForecastInputDataset | None,
         model_index: int,
     ) -> pd.DataFrame:
-        # TODO: FLORIAN Update content
-        # input_data = self._prepare_input_data(
-        #     dataset=dataset,
-        #     additional_features=additional_features,
-        # )
+        input_data = self._prepare_input_data(
+            dataset=dataset,
+            additional_features=additional_features,
+        )
+        weights = self._predict_model_weights_quantile(base_predictions=input_data, model_index=model_index)
+        weights.columns = [f"{col}_{Quantile(self.quantiles[model_index]).format()}" for col in weights.columns]
+        return weights
+ 
 
-        # weights = self._predict_model_weights_quantile(base_predictions=input_data, model_index=model_index)
+    # def _generate_contributions_quantile(
+    #     self,
+    #     dataset: ForecastInputDataset,
+    #     additional_features: ForecastInputDataset | None,
+    #     model_index: int,
+    # ) -> pd.DataFrame:
+    #     # TODO: FLORIAN Update content
+    #     # input_data = self._prepare_input_data(
+    #     #     dataset=dataset,
+    #     #     additional_features=additional_features,
+    #     # )
 
-        return pd.DataFrame()
+    #     # weights = self._predict_model_weights_quantile(base_predictions=input_data, model_index=model_index)
+
+    #     return pd.DataFrame()
 
     @property
     @override

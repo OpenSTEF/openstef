@@ -204,37 +204,30 @@ class StackingCombiner(ForecastCombiner):
         data: EnsembleForecastDataset,
         additional_features: ForecastInputDataset | None = None,
     ) -> pd.DataFrame:
-        if not self.is_fitted:
-            raise NotFittedError(self.__class__.__name__)
-
-        # Generate predictions
-        predictions: list[pd.DataFrame] = []
-        for i, q in enumerate(self.quantiles):
-            if additional_features is not None:
-                input_data = self._combine_datasets(
-                    data=data.select_quantile(quantile=q),
-                    additional_features=additional_features,
-                )
-            else:
-                input_data = data.select_quantile(quantile=q)
-            p = self.models[i].predict(data=input_data).data
-            predictions.append(p)
         # Concatenate predictions along columns to form a DataFrame with quantile columns
-        df = pd.concat(predictions, axis=1)
-
-        contributions = pd.DataFrame()
-        for q in self.quantiles:
+        predictions = self.predict(data=data, additional_features = additional_features).data
+        contributions = {}
+        
+        for i, q in enumerate(self.quantiles):
             # Extract base predictions for this quantile
             # TODO Florian implement contributions extraction per quantile
-            pass
-
-        return contributions  # Placeholder for actual implementation
+            quantile_label = Quantile(q).format()
+            final_prediction = predictions.loc[:,quantile_label]
+            base_predictions = data.select_quantile(q).data
+            contributions[quantile_label] = self.contributions_from_predictions(
+                                            base_predictions=base_predictions,
+                                            #Final_prediction taken as the biggest value 
+                                            final_predictions=final_prediction
+                                            )
+        contributions = pd.DataFrame(contributions)
+            
+        return pd.DataFrame(contributions)  # Placeholder for actual implementation
 
     @staticmethod
     def contributions_from_predictions(
         base_predictions: pd.DataFrame,
         final_predictions: pd.Series,
-    ) -> pd.DataFrame:
+    ) -> pd.Series:
         """Extract contributions from predictions DataFrame.
 
         Args:
@@ -244,9 +237,7 @@ class StackingCombiner(ForecastCombiner):
             DataFrame with contributions per base learner.
         """
         # TODO Florian implement contributions extraction
-        # abs(final_predictions) / sum(abs(base_predictions), axis=1)
-
-        return pd.DataFrame()  # Placeholder for actual implementation
+        return final_predictions.abs()/base_predictions.abs().sum(axis=1)  # Placeholder for actual implementation
 
     @property
     def is_fitted(self) -> bool:

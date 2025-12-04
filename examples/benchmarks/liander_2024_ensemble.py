@@ -141,6 +141,7 @@ def _target_forecaster_factory(
         config=backtest_config,
         workflow_factory=_create_workflow,
         debug=False,
+        contributions=True,
         cache_dir=OUTPUT_PATH / "cache" / f"{context.run_name}_{target.name}",
     )
 
@@ -149,7 +150,7 @@ if __name__ == "__main__":
     start_time = time.time()
     create_liander2024_benchmark_runner(
         storage=LocalBenchmarkStorage(base_path=OUTPUT_PATH / model),
-        data_dir=Path("../data/liander2024-energy-forecasting-benchmark"),
+        data_dir=Path("local_data/liander2024-energy-forecasting-benchmark"),
         callbacks=[StrictExecutionCallback()],
     ).run(
         forecaster_factory=_target_forecaster_factory,
