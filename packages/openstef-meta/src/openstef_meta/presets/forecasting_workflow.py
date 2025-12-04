@@ -263,6 +263,12 @@ def checks(config: EnsembleWorkflowConfig) -> list[Transform[TimeSeriesDataset, 
 
 def feature_adders(config: EnsembleWorkflowConfig) -> list[Transform[TimeSeriesDataset, TimeSeriesDataset]]:
     return [
+        LagsAdder(
+            history_available=config.predict_history,
+            horizons=config.horizons,
+            add_trivial_lags=True,
+            target_column=config.target_column,
+        ),
         WindPowerFeatureAdder(
             windspeed_reference_column=config.wind_speed_column,
         ),
@@ -287,18 +293,10 @@ def feature_adders(config: EnsembleWorkflowConfig) -> list[Transform[TimeSeriesD
     ]
 
 
-def feature_standardizers(
-    config: EnsembleWorkflowConfig, model_type: str
-) -> list[Transform[TimeSeriesDataset, TimeSeriesDataset]]:
+def feature_standardizers(config: EnsembleWorkflowConfig) -> list[Transform[TimeSeriesDataset, TimeSeriesDataset]]:
     return [
         Clipper(selection=Include(config.energy_price_column).combine(config.clip_features), mode="standard"),
         Scaler(selection=Exclude(config.target_column), method="standard"),
-        SampleWeighter(
-            target_column=config.target_column,
-            weight_exponent=config.forecaster_sample_weight_exponent[model_type],
-            weight_floor=config.sample_weight_floor,
-            weight_scale_percentile=config.sample_weight_scale_percentile,
-        ),
         EmptyFeatureRemover(),
     ]
 
@@ -315,6 +313,17 @@ def create_ensemble_workflow(config: EnsembleWorkflowConfig) -> CustomForecastin
     Raises:
         ValueError: If an unsupported base model or combiner type is specified.
     """
+    # Common preprocessing
+    common_preprocessing = TransformPipeline(
+        transforms=[
+            *checks(config),
+            *feature_adders(config),
+            HolidayFeatureAdder(country_code=config.location.country_code),
+            DatetimeFeaturesAdder(onehot_encode=False),
+            *feature_standardizers(config),
+        ]
+    )
+
     # Build forecasters and their processing pipelines
     forecaster_preprocessing: dict[str, list[Transform[TimeSeriesDataset, TimeSeriesDataset]]] = {}
     forecasters: dict[str, Forecaster] = {}
@@ -324,17 +333,12 @@ def create_ensemble_workflow(config: EnsembleWorkflowConfig) -> CustomForecastin
                 config=LGBMForecaster.Config(quantiles=config.quantiles, horizons=config.horizons)
             )
             forecaster_preprocessing[model_type] = [
-                *checks(config),
-                *feature_adders(config),
-                LagsAdder(
-                    history_available=config.predict_history,
-                    horizons=config.horizons,
-                    add_trivial_lags=True,
+                SampleWeighter(
                     target_column=config.target_column,
+                    weight_exponent=config.forecaster_sample_weight_exponent[model_type],
+                    weight_floor=config.sample_weight_floor,
+                    weight_scale_percentile=config.sample_weight_scale_percentile,
                 ),
-                HolidayFeatureAdder(country_code=config.location.country_code),
-                DatetimeFeaturesAdder(onehot_encode=False),
-                *feature_standardizers(config, model_type),
             ]
 
         elif model_type == "gblinear":
@@ -342,18 +346,31 @@ def create_ensemble_workflow(config: EnsembleWorkflowConfig) -> CustomForecastin
                 config=GBLinearForecaster.Config(quantiles=config.quantiles, horizons=config.horizons)
             )
             forecaster_preprocessing[model_type] = [
-                *checks(config),
-                *feature_adders(config),
-                LagsAdder(
-                    history_available=config.predict_history,
-                    horizons=config.horizons,
-                    add_trivial_lags=False,
+                SampleWeighter(
                     target_column=config.target_column,
-                    custom_lags=[timedelta(days=7)],
+                    weight_exponent=config.forecaster_sample_weight_exponent[model_type],
+                    weight_floor=config.sample_weight_floor,
+                    weight_scale_percentile=config.sample_weight_scale_percentile,
                 ),
-                HolidayFeatureAdder(country_code=config.location.country_code),
-                DatetimeFeaturesAdder(onehot_encode=False),
-                *feature_standardizers(config, model_type),
+                Selector(
+                    selection=FeatureSelection(
+                        exclude={
+                            "load_lag_P14D",
+                            "load_lag_P13D",
+                            "load_lag_P12D",
+                            "load_lag_P11D",
+                            "load_lag_P10D",
+                            "load_lag_P9D",
+                            "load_lag_P8D",
+                            "load_lag_P7D",
+                            "load_lag_P6D",
+                            "load_lag_P5D",
+                            "load_lag_P4D",
+                            "load_lag_P3D",
+                            "load_lag_P2D",
+                        }
+                    )
+                ),
                 Imputer(
                     selection=Exclude(config.target_column),
                     imputation_strategy="mean",
@@ -368,34 +385,24 @@ def create_ensemble_workflow(config: EnsembleWorkflowConfig) -> CustomForecastin
                 config=XGBoostForecaster.Config(quantiles=config.quantiles, horizons=config.horizons)
             )
             forecaster_preprocessing[model_type] = [
-                *checks(config),
-                *feature_adders(config),
-                LagsAdder(
-                    history_available=config.predict_history,
-                    horizons=config.horizons,
-                    add_trivial_lags=True,
+                SampleWeighter(
                     target_column=config.target_column,
+                    weight_exponent=config.forecaster_sample_weight_exponent[model_type],
+                    weight_floor=config.sample_weight_floor,
+                    weight_scale_percentile=config.sample_weight_scale_percentile,
                 ),
-                HolidayFeatureAdder(country_code=config.location.country_code),
-                DatetimeFeaturesAdder(onehot_encode=False),
-                *feature_standardizers(config, model_type),
             ]
         elif model_type == "lgbm_linear":
             forecasters[model_type] = LGBMLinearForecaster(
                 config=LGBMLinearForecaster.Config(quantiles=config.quantiles, horizons=config.horizons)
             )
             forecaster_preprocessing[model_type] = [
-                *checks(config),
-                *feature_adders(config),
-                LagsAdder(
-                    history_available=config.predict_history,
-                    horizons=config.horizons,
-                    add_trivial_lags=True,
+                SampleWeighter(
                     target_column=config.target_column,
+                    weight_exponent=config.forecaster_sample_weight_exponent[model_type],
+                    weight_floor=config.sample_weight_floor,
+                    weight_scale_percentile=config.sample_weight_scale_percentile,
                 ),
-                HolidayFeatureAdder(country_code=config.location.country_code),
-                DatetimeFeaturesAdder(onehot_encode=False),
-                *feature_standardizers(config, model_type),
             ]
         else:
             msg = f"Unsupported base model type: {model_type}"
@@ -465,7 +472,7 @@ def create_ensemble_workflow(config: EnsembleWorkflowConfig) -> CustomForecastin
     combiner_preprocessing: TransformPipeline[TimeSeriesDataset] = TransformPipeline(transforms=combiner_transforms)
 
     ensemble_model = EnsembleForecastingModel(
-        common_preprocessing=TransformPipeline(transforms=[]),
+        common_preprocessing=common_preprocessing,
         model_specific_preprocessing=model_specific_preprocessing,
         combiner_preprocessing=combiner_preprocessing,
         postprocessing=TransformPipeline(transforms=postprocessing),
