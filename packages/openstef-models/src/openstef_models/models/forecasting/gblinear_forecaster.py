@@ -272,7 +272,7 @@ class GBLinearForecaster(Forecaster, ExplainableForecaster):
             raise InputValidationError("The input data is empty after dropping NaN values.")
 
         # Fit the scalers
-        self._target_scaler.fit(data.target_series.to_frame())
+        self._target_scaler.fit(data.target_series.to_frame().to_numpy())
 
         # Prepare training data
         input_data, target, sample_weight = self._prepare_fit_input(data)

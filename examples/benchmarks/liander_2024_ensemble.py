@@ -11,6 +11,7 @@ The benchmark will evaluate XGBoost and GBLinear models on the dataset from Hugg
 # SPDX-License-Identifier: MPL-2.0
 
 import os
+import time
 
 os.environ["OMP_NUM_THREADS"] = "1"  # Set OMP_NUM_THREADS to 1 to avoid issues with parallel execution and xgboost
 os.environ["OPENBLAS_NUM_THREADS"] = "1"
@@ -31,11 +32,11 @@ from openstef_beam.benchmarking.callbacks.strict_execution_callback import Stric
 from openstef_beam.benchmarking.models.benchmark_target import BenchmarkTarget
 from openstef_beam.benchmarking.storage.local_storage import LocalBenchmarkStorage
 from openstef_core.types import LeadTime, Q
-from openstef_models.integrations.mlflow.mlflow_storage import MLFlowStorage
-from openstef_models.presets import (
-    ForecastingWorkflowConfig,
-    create_forecasting_workflow,
+from openstef_meta.presets import (
+    EnsembleWorkflowConfig,
+    create_ensemble_workflow,
 )
+from openstef_models.integrations.mlflow.mlflow_storage import MLFlowStorage
 from openstef_models.presets.forecasting_workflow import LocationConfig
 from openstef_models.workflows import CustomForecastingWorkflow
 
@@ -43,13 +44,18 @@ logging.basicConfig(level=logging.INFO, format="[%(asctime)s][%(levelname)s] %(m
 
 OUTPUT_PATH = Path("./benchmark_results")
 
-BENCHMARK_RESULTS_PATH_XGBOOST = OUTPUT_PATH / "XGBoost"
-BENCHMARK_RESULTS_PATH_GBLINEAR = OUTPUT_PATH / "GBLinear"
-N_PROCESSES = multiprocessing.cpu_count()  # Amount of parallel processes to use for the benchmark
+N_PROCESSES = 1  # multiprocessing.cpu_count()  # Amount of parallel processes to use for the benchmark
 
+ensemble_type = "stacking"  # "stacking", "learned_weights" or "rules"
+base_models = ["lgbm", "gblinear"]  # combination of "lgbm", "gblinear", "xgboost" and "lgbm_linear"
+combiner_model = (
+    "lgbm"  # "lgbm", "xgboost", "rf" or "logistic" for learned weights combiner, gblinear for stacking combiner
+)
+
+model = "Ensemble_" + "_".join(base_models) + "_" + ensemble_type + "_" + combiner_model
 
 # Model configuration
-FORECAST_HORIZONS = [LeadTime.from_string("P3D")]  # Forecast horizon(s)
+FORECAST_HORIZONS = [LeadTime.from_string("PT36H")]  # Forecast horizon(s)
 PREDICTION_QUANTILES = [
     Q(0.05),
     Q(0.1),
@@ -72,9 +78,11 @@ if USE_MLFLOW_STORAGE:
 else:
     storage = None
 
-common_config = ForecastingWorkflowConfig(
+common_config = EnsembleWorkflowConfig(
     model_id="common_model_",
-    model="flatliner",
+    ensemble_type=ensemble_type,
+    base_models=base_models,  # type: ignore
+    combiner_model=combiner_model,
     horizons=FORECAST_HORIZONS,
     quantiles=PREDICTION_QUANTILES,
     model_reuse_enable=False,
@@ -86,11 +94,10 @@ common_config = ForecastingWorkflowConfig(
     temperature_column="temperature_2m",
     relative_humidity_column="relative_humidity_2m",
     energy_price_column="EPEX_NL",
+    forecast_combiner_sample_weight_exponent=1,
+    forecaster_sample_weight_exponent={"gblinear": 1, "lgbm": 1, "xgboost": 0, "lgbm_linear": 0},
 )
 
-xgboost_config = common_config.model_copy(update={"model": "xgboost"})
-
-gblinear_config = common_config.model_copy(update={"model": "gblinear"})
 
 # Create the backtest configuration
 backtest_config = BacktestForecasterConfig(
@@ -111,11 +118,11 @@ def _target_forecaster_factory(
 ) -> OpenSTEF4BacktestForecaster:
     # Factory function that creates a forecaster for a given target.
     prefix = context.run_name
-    base_config = xgboost_config if context.run_name == "xgboost" else gblinear_config
+    base_config = common_config
 
     def _create_workflow() -> CustomForecastingWorkflow:
         # Create a new workflow instance with fresh model.
-        return create_forecasting_workflow(
+        return create_ensemble_workflow(
             config=base_config.model_copy(
                 update={
                     "model_id": f"{prefix}_{target.name}",
@@ -141,24 +148,17 @@ def _target_forecaster_factory(
 
 
 if __name__ == "__main__":
-    # Run for XGBoost model
+    start_time = time.time()
     create_liander2024_benchmark_runner(
-        storage=LocalBenchmarkStorage(base_path=BENCHMARK_RESULTS_PATH_XGBOOST),
+        storage=LocalBenchmarkStorage(base_path=OUTPUT_PATH / model),
+        data_dir=Path("../data/liander2024-energy-forecasting-benchmark"),
         callbacks=[StrictExecutionCallback()],
     ).run(
         forecaster_factory=_target_forecaster_factory,
-        run_name="xgboost",
+        run_name=model,
         n_processes=N_PROCESSES,
         filter_args=BENCHMARK_FILTER,
     )
 
-    # Run for GBLinear model
-    create_liander2024_benchmark_runner(
-        storage=LocalBenchmarkStorage(base_path=BENCHMARK_RESULTS_PATH_GBLINEAR),
-        callbacks=[StrictExecutionCallback()],
-    ).run(
-        forecaster_factory=_target_forecaster_factory,
-        run_name="gblinear",
-        n_processes=N_PROCESSES,
-        filter_args=BENCHMARK_FILTER,
-    )
+    end_time = time.time()
+    print(f"Benchmark completed in {end_time - start_time:.2f} seconds.")

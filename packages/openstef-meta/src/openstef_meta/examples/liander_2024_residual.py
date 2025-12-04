@@ -11,6 +11,7 @@ The benchmark will evaluate XGBoost and GBLinear models on the dataset from Hugg
 # SPDX-License-Identifier: MPL-2.0
 
 import os
+import time
 
 os.environ["OMP_NUM_THREADS"] = "1"  # Set OMP_NUM_THREADS to 1 to avoid issues with parallel execution and xgboost
 os.environ["OPENBLAS_NUM_THREADS"] = "1"
@@ -41,15 +42,16 @@ from openstef_models.workflows import CustomForecastingWorkflow
 
 logging.basicConfig(level=logging.INFO, format="[%(asctime)s][%(levelname)s] %(message)s")
 
+logger = logging.getLogger(__name__)
+
 OUTPUT_PATH = Path("./benchmark_results")
 
-BENCHMARK_RESULTS_PATH_XGBOOST = OUTPUT_PATH / "XGBoost"
-BENCHMARK_RESULTS_PATH_GBLINEAR = OUTPUT_PATH / "GBLinear"
 N_PROCESSES = multiprocessing.cpu_count()  # Amount of parallel processes to use for the benchmark
 
+model = "residual"  # Can be "stacking", "learned_weights" or "residual"
 
 # Model configuration
-FORECAST_HORIZONS = [LeadTime.from_string("P3D")]  # Forecast horizon(s)
+FORECAST_HORIZONS = [LeadTime.from_string("PT36H")]  # Forecast horizon(s)
 PREDICTION_QUANTILES = [
     Q(0.05),
     Q(0.1),
@@ -74,7 +76,7 @@ else:
 
 common_config = ForecastingWorkflowConfig(
     model_id="common_model_",
-    model="flatliner",
+    model=model,
     horizons=FORECAST_HORIZONS,
     quantiles=PREDICTION_QUANTILES,
     model_reuse_enable=False,
@@ -88,9 +90,6 @@ common_config = ForecastingWorkflowConfig(
     energy_price_column="EPEX_NL",
 )
 
-xgboost_config = common_config.model_copy(update={"model": "xgboost"})
-
-gblinear_config = common_config.model_copy(update={"model": "gblinear"})
 
 # Create the backtest configuration
 backtest_config = BacktestForecasterConfig(
@@ -111,7 +110,7 @@ def _target_forecaster_factory(
 ) -> OpenSTEF4BacktestForecaster:
     # Factory function that creates a forecaster for a given target.
     prefix = context.run_name
-    base_config = xgboost_config if context.run_name == "xgboost" else gblinear_config
+    base_config = common_config
 
     def _create_workflow() -> CustomForecastingWorkflow:
         # Create a new workflow instance with fresh model.
@@ -141,24 +140,19 @@ def _target_forecaster_factory(
 
 
 if __name__ == "__main__":
-    # Run for XGBoost model
+    start_time = time.time()
+
     create_liander2024_benchmark_runner(
-        storage=LocalBenchmarkStorage(base_path=BENCHMARK_RESULTS_PATH_XGBOOST),
+        storage=LocalBenchmarkStorage(base_path=OUTPUT_PATH / model),
+        data_dir=Path("../data/liander2024-energy-forecasting-benchmark"),  # adjust path as needed
         callbacks=[StrictExecutionCallback()],
     ).run(
         forecaster_factory=_target_forecaster_factory,
-        run_name="xgboost",
+        run_name=model,
         n_processes=N_PROCESSES,
         filter_args=BENCHMARK_FILTER,
     )
 
-    # Run for GBLinear model
-    create_liander2024_benchmark_runner(
-        storage=LocalBenchmarkStorage(base_path=BENCHMARK_RESULTS_PATH_GBLINEAR),
-        callbacks=[StrictExecutionCallback()],
-    ).run(
-        forecaster_factory=_target_forecaster_factory,
-        run_name="gblinear",
-        n_processes=N_PROCESSES,
-        filter_args=BENCHMARK_FILTER,
-    )
+    end_time = time.time()
+    msg = f"Benchmark completed in {end_time - start_time:.2f} seconds."
+    logger.info(msg)
