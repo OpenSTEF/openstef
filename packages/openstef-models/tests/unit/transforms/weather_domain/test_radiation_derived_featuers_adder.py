@@ -24,7 +24,7 @@ pvlib = pytest.importorskip("pvlib")
 def sample_dataset() -> TimeSeriesDataset:
     """Create a sample TimeSeriesDataset with radiation data for testing."""
     data = pd.DataFrame(
-        {"radiation": [3600000, 7200000, 5400000, 1800000, 0]},  # J/m² values
+        {"radiation": [1000, 2000, 3000, 500, 0]},  # W/m² values
         index=pd.date_range("2025-06-01 08:00", periods=5, freq="h", tz="Europe/Amsterdam"),
     )
     return TimeSeriesDataset(data, timedelta(hours=1))
@@ -34,7 +34,7 @@ def sample_dataset() -> TimeSeriesDataset:
 def sample_dataset_no_tz() -> TimeSeriesDataset:
     """Create a sample TimeSeriesDataset without timezone for testing error cases."""
     data = pd.DataFrame(
-        {"radiation": [3600000, 7200000, 5400000]}, index=pd.date_range("2025-06-01", periods=3, freq="h")
+        {"radiation": [1000, 2000, 3000]}, index=pd.date_range("2025-06-01", periods=3, freq="h")
     )
     return TimeSeriesDataset(data, timedelta(hours=1))
 
@@ -147,27 +147,6 @@ def test_transform_preserves_original_data_and_metadata(
         pd.testing.assert_series_equal(result.data[feature], sample_dataset.data[feature])
 
 
-def test_transform_radiation_unit_conversion():
-    """Test that radiation is correctly converted from J/m² to kWh/m² for pvlib."""
-    # Arrange
-    data = pd.DataFrame(
-        {"radiation": [3600000, 7200000]},  # 1000 and 2000 kWh/m² when divided by 3.6e6
-        index=pd.date_range("2025-06-01 12:00", periods=2, freq="1h", tz="Europe/Amsterdam"),
-    )
-    dataset = TimeSeriesDataset(data, timedelta(hours=1))
-    transform = RadiationDerivedFeaturesAdder(coordinate=Coordinate(latitude=Latitude(52.0), longitude=Longitude(5.0)))
-
-    # Act
-    result = transform.transform(dataset)
-
-    # Assert
-    # The exact values depend on solar calculations, but we can verify the result is reasonable
-    assert "dni" in result.data.columns
-    assert "gti" in result.data.columns
-    assert (result.data["dni"] >= 0).all()
-    assert (result.data["gti"] >= 0).all()
-
-
 def test_transform_with_empty_dataset():
     """Test handling of empty dataset."""
     # Arrange
@@ -222,7 +201,7 @@ def test_transform_custom_radiation_column():
     """Test transform with custom radiation column name."""
     # Arrange
     data = pd.DataFrame(
-        {"solar_irradiance": [3600000, 7200000]},
+        {"solar_irradiance": [1000, 2000]},
         index=pd.date_range("2025-06-01 12:00", periods=2, freq="1h", tz="Europe/Amsterdam"),
     )
     dataset = TimeSeriesDataset(data, timedelta(hours=1))
@@ -243,7 +222,7 @@ def test_transform_handles_missing_columns():
     # Arrange
     dataset = TimeSeriesDataset(
         data=pd.DataFrame(
-            {"radiation": [3600000, 7200000]},
+            {"radiation": [1000, 2000]},
             index=pd.date_range("2025-06-01 12:00", periods=2, freq="1h", tz="Europe/Amsterdam"),
         ),
         sample_interval=timedelta(hours=1),
@@ -271,7 +250,7 @@ def test_pvlib_integration_different_locations(latitude: float, longitude: float
     """Test RadiationDerivedFeaturesAdder with real pvlib calls across different locations."""
     # Arrange
     data = pd.DataFrame(
-        {"radiation": [7200000, 5400000]},  # J/m² values
+        {"radiation": [2000, 3000]},
         index=pd.date_range("2025-06-01 12:00", periods=2, freq="1h", tz=timezone),
     )
     dataset = TimeSeriesDataset(data, timedelta(hours=1))
@@ -302,7 +281,7 @@ def test_pvlib_integration_summer_midday():
     """Test that solar calculations produce reasonable results during summer midday."""
     # Arrange - Use summer midday for better solar radiation
     data = pd.DataFrame(
-        {"radiation": [7200000, 10800000, 14400000]},  # High radiation values for summer
+        {"radiation": [3000, 4000, 5000]},  # High radiation values for summer
         index=pd.date_range("2025-06-21 11:00", periods=3, freq="1h", tz="Europe/Amsterdam"),
     )
     dataset = TimeSeriesDataset(data, timedelta(hours=1))
@@ -332,7 +311,7 @@ def test_pvlib_integration_surface_orientations():
     """Test different surface orientations with real pvlib calculations."""
     # Arrange
     data = pd.DataFrame(
-        {"radiation": [7200000, 7200000]},
+        {"radiation": [2000, 2000]},
         index=pd.date_range("2025-06-01 12:00", periods=2, freq="1h", tz="Europe/Amsterdam"),
     )
     dataset = TimeSeriesDataset(data, timedelta(hours=1))
