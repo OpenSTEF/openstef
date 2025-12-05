@@ -154,6 +154,12 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
         default=False,
         description="If True, flatliners are also detected on non-zero values (median of the load).",
     )
+    predict_nonzero_flatliner: bool = Field(
+        default=False,
+        description="If True, predict the median of load measurements instead of zero (only for flatliner model).",
+    )
+
+    # Feature engineering
     rolling_aggregate_features: list[AggregationFunction] = Field(
         default=[],
         description="If not None, rolling aggregate(s) of load will be used as features in the model.",
@@ -343,6 +349,7 @@ def create_forecasting_workflow(config: ForecastingWorkflowConfig) -> CustomFore
             config=FlatlinerForecaster.Config(
                 quantiles=[Q(0.5)],
                 horizons=config.horizons,
+                predict_median=config.predict_nonzero_flatliner,
             )
         )
         postprocessing = []
