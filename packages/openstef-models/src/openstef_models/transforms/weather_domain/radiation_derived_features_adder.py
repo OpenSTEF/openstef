@@ -29,8 +29,8 @@ class RadiationDerivedFeaturesAdder(BaseConfig, TimeSeriesTransform):
     Computes features that are derived from radiation data (in W/m²) based on geographical coordinates
     (latitude and longitude) and solar position.
     The features added can include:
-        - dni: Direct Normal Irradiance (DNI) in Wh/m².
-        - gti: Global Tilted Irradiance (GTI) in Wh/m² on a tilted surface.
+        - dni: Direct Normal Irradiance (DNI) in W/m².
+        - gti: Global Tilted Irradiance (GTI) in W/m² on a tilted surface.
 
     Note:
         The input radiation data must be in W/m² units.
