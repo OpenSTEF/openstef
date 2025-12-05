@@ -92,7 +92,7 @@ def test_single_horizon_workflow(
     assert not result.data["stdev"].isna().any()
 
 
-def test_single_horizon_workflow__no_add_quantiles_from_std(
+def test_no_add_quantiles_from_std(
     validation_predictions: ForecastDataset,
     predictions: ForecastDataset,
 ):
@@ -112,6 +112,24 @@ def test_single_horizon_workflow__no_add_quantiles_from_std(
     assert "stdev" in result.data.columns
     assert not result.data["quantile_P50"].isna().any()
     assert not result.data["stdev"].isna().any()
+
+
+@pytest.mark.parametrize("add_quantiles_from_std", [True, False])
+def test_quantiles_none(
+    add_quantiles_from_std: bool,
+    validation_predictions: ForecastDataset,
+    predictions: ForecastDataset,
+):
+    """Test complete single-horizon workflow with quantile generation."""
+    # Arrange
+    applicator = ConfidenceIntervalApplicator(quantiles=None, add_quantiles_from_std=add_quantiles_from_std)
+
+    # Act
+    applicator.fit(validation_predictions)
+    result = applicator.transform(predictions)
+
+    # Assert
+    pd.testing.assert_frame_equal(result.data, predictions.data)
 
 
 def test_multi_horizon_workflow(

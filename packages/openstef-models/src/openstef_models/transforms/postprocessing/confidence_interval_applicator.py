@@ -143,12 +143,6 @@ class ConfidenceIntervalApplicator(BaseModel, Transform[ForecastDataset, Forecas
 
         return forecast._copy_with_data(data=data)  # noqa: SLF001 - safe - invariant preserved
 
-    @staticmethod
-    def _add_stdev_column(forecast: ForecastDataset, stdev_series: pd.Series) -> ForecastDataset:
-        data = forecast.data.copy(deep=False)
-        data[forecast.standard_deviation_column] = stdev_series
-        return forecast._copy_with_data(data=data)  # noqa: SLF001 - safe - invariant preserved
-
     @override
     def transform(self, data: ForecastDataset) -> ForecastDataset:
         if not self._is_fitted:
@@ -160,7 +154,9 @@ class ConfidenceIntervalApplicator(BaseModel, Transform[ForecastDataset, Forecas
         # Compute standard deviation series
         stdev_series = self._compute_stdev_series(data)
 
-        data = self._add_stdev_column(forecast=data, stdev_series=stdev_series)
+        # Add standard deviation column
+        stdev_column = data.standard_deviation_column
+        data = data.pipe_pandas(lambda df: df.assign(**{stdev_column: stdev_series}))
 
         # Add quantiles based on standard deviation
         if self.add_quantiles_from_std:
