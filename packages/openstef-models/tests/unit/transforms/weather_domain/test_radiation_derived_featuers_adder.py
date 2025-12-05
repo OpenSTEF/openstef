@@ -33,9 +33,7 @@ def sample_dataset() -> TimeSeriesDataset:
 @pytest.fixture
 def sample_dataset_no_tz() -> TimeSeriesDataset:
     """Create a sample TimeSeriesDataset without timezone for testing error cases."""
-    data = pd.DataFrame(
-        {"radiation": [1000, 2000, 3000]}, index=pd.date_range("2025-06-01", periods=3, freq="h")
-    )
+    data = pd.DataFrame({"radiation": [1000, 2000, 3000]}, index=pd.date_range("2025-06-01", periods=3, freq="h"))
     return TimeSeriesDataset(data, timedelta(hours=1))
 
 
