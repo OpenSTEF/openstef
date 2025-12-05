@@ -3,7 +3,7 @@
 # # SPDX-License-Identifier: MPL-2.0
 
 from datetime import timedelta
-
+import pandas as pd
 import pytest
 
 from openstef_core.exceptions import NotFittedError
@@ -17,13 +17,13 @@ from openstef_meta.utils.datasets import EnsembleForecastDataset
 
 @pytest.fixture(params=["lgbm", "gblinear"])
 def regressor(request: pytest.FixtureRequest) -> str:
-    """Fixture to provide different classifier types for LearnedWeightsCombiner tests."""
+    """Fixture to provide different regressor types for Stacking tests."""
     return request.param
 
 
 @pytest.fixture
 def config(regressor: str) -> StackingCombinerConfig:
-    """Fixture to create StackingCombinerConfig based on the classifier type."""
+    """Fixture to create StackingCombinerConfig based on the regressor type."""
     if regressor == "lgbm":
         hp = StackingCombiner.LGBMHyperParams(num_leaves=5, n_estimators=10)
     elif regressor == "gblinear":
@@ -83,3 +83,20 @@ def test_stacking_combiner_not_fitted_error(
     # Act & Assert
     with pytest.raises(NotFittedError):
         forecaster.predict(ensemble_dataset)
+
+
+def test_stacking_combiner_predict_contributions(
+    ensemble_dataset: EnsembleForecastDataset,
+    config: StackingCombinerConfig,
+):
+    """Test that predict_contributions method returns contributions with correct shape."""
+    # Arrange
+    forecaster = StackingCombiner(config=config)
+    forecaster.fit(ensemble_dataset)
+
+    # Act
+    contributions = forecaster.predict_contributions(ensemble_dataset)
+
+    # Assert
+    assert isinstance(contributions, pd.DataFrame), "Contributions should be returned as a DataFrame."
+    assert len(contributions.columns) == len(ensemble_dataset.quantiles) * len(ensemble_dataset.forecaster_names)

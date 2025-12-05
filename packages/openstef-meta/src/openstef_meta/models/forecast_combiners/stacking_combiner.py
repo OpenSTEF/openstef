@@ -10,7 +10,7 @@ The implementation is based on sklearn's StackingRegressor.
 """
 
 import logging
-from typing import TYPE_CHECKING, cast, override
+from typing import cast, override
 
 import pandas as pd
 from pydantic import Field, field_validator
@@ -23,14 +23,12 @@ from openstef_core.mixins import HyperParams
 from openstef_core.types import LeadTime, Quantile
 from openstef_meta.models.forecast_combiners.forecast_combiner import ForecastCombiner, ForecastCombinerConfig
 from openstef_meta.utils.datasets import EnsembleForecastDataset
+from openstef_models.models.forecasting.forecaster import Forecaster
 from openstef_models.models.forecasting.gblinear_forecaster import (
     GBLinearForecaster,
     GBLinearHyperParams,
 )
 from openstef_models.models.forecasting.lgbm_forecaster import LGBMForecaster, LGBMHyperParams
-
-if TYPE_CHECKING:
-    from openstef_models.models.forecasting.forecaster import Forecaster
 
 logger = logging.getLogger(__name__)
 
@@ -204,40 +202,26 @@ class StackingCombiner(ForecastCombiner):
         data: EnsembleForecastDataset,
         additional_features: ForecastInputDataset | None = None,
     ) -> pd.DataFrame:
-        # Concatenate predictions along columns to form a DataFrame with quantile columns
-        predictions = self.predict(data=data, additional_features = additional_features).data
-        contributions = {}
-        
+
+        # Generate predictions
+        predictions: list[pd.DataFrame] = []
         for i, q in enumerate(self.quantiles):
-            # Extract base predictions for this quantile
-            # TODO Florian implement contributions extraction per quantile
-            quantile_label = Quantile(q).format()
-            final_prediction = predictions.loc[:,quantile_label]
-            base_predictions = data.select_quantile(q).data
-            contributions[quantile_label] = self.contributions_from_predictions(
-                                            base_predictions=base_predictions,
-                                            #Final_prediction taken as the biggest value 
-                                            final_predictions=final_prediction
-                                            )
-        contributions = pd.DataFrame(contributions)
-            
-        return pd.DataFrame(contributions)  # Placeholder for actual implementation
+            if additional_features is not None:
+                input_data = self._combine_datasets(
+                    data=data.select_quantile(quantile=q),
+                    additional_features=additional_features,
+                )
+            else:
+                input_data = data.select_quantile(quantile=q)
+            p = self.predict_contributions_quantile(
+                model=self.models[i],
+                data=input_data,
+            )
+            p.columns = [f"{col}_{Quantile(self.quantiles[i]).format()}" for col in p.columns]
+            predictions.append(p)
 
-    @staticmethod
-    def contributions_from_predictions(
-        base_predictions: pd.DataFrame,
-        final_predictions: pd.Series,
-    ) -> pd.Series:
-        """Extract contributions from predictions DataFrame.
-
-        Args:
-            predictions: DataFrame containing predictions.
-
-        Returns:
-            DataFrame with contributions per base learner.
-        """
-        # TODO Florian implement contributions extraction
-        return final_predictions.abs()/base_predictions.abs().sum(axis=1)  # Placeholder for actual implementation
+        # Concatenate predictions along columns to form a DataFrame with quantile columns
+        return pd.concat(predictions, axis=1)
 
     @property
     def is_fitted(self) -> bool:

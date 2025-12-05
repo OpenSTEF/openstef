@@ -65,7 +65,7 @@ class OpenSTEF4BacktestForecaster(BaseModel, BacktestForecasterMixin):
         if self._workflow is None:
             self._workflow = self.workflow_factory()
         # Extract quantiles from the workflow's model
-        return self._workflow.model.forecaster.config.quantiles # type: ignore
+        return self._workflow.model.forecaster.config.quantiles  # type: ignore
 
     @override
     def fit(self, data: RestrictedHorizonVersionedTimeSeries) -> None:
@@ -76,7 +76,6 @@ class OpenSTEF4BacktestForecaster(BaseModel, BacktestForecasterMixin):
         training_data = data.get_window(
             start=data.horizon - self.config.training_context_length, end=data.horizon, available_before=data.horizon
         )
-        
 
         if self.debug:
             id_str = data.horizon.strftime("%Y%m%d%H%M%S")
@@ -98,7 +97,6 @@ class OpenSTEF4BacktestForecaster(BaseModel, BacktestForecasterMixin):
             self._workflow.model.prepare_input(training_data).to_parquet(  # pyright: ignore[reportPrivateUsage]
                 path=self.cache_dir / f"debug_{id_str}_prepared_training.parquet"
             )
-
 
     @override
     def predict(self, data: RestrictedHorizonVersionedTimeSeries) -> TimeSeriesDataset | None:

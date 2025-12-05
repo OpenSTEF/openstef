@@ -13,7 +13,7 @@ import logging
 from typing import override
 
 import pandas as pd
-from pydantic import Field
+from pydantic import Field, model_validator
 
 from openstef_core.datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import (
@@ -52,6 +52,30 @@ class ResidualHyperParams(HyperParams):
         description="Hyperparameters for the final learner. Defaults to LGBMHyperparams.",
     )
 
+    primary_name: str = Field(
+        default="primary_model",
+        description="Name identifier for the primary model.",
+    )
+
+    secondary_name: str = Field(
+        default="secondary_model",
+        description="Name identifier for the secondary model.",
+    )
+
+    @model_validator(mode="after")
+    def validate_names(self) -> "ResidualHyperParams":
+        """Validate that primary and secondary names are not the same.
+
+        Raises:
+            ValueError: If primary and secondary names are the same.
+
+        Returns:
+            ResidualHyperParams: The validated hyperparameters.
+        """
+        if self.primary_name == self.secondary_name:
+            raise ValueError("Primary and secondary model names must be different.")
+        return self
+
 
 class ResidualForecasterConfig(ForecasterConfig):
     """Configuration for Hybrid-based forecasting models."""
@@ -85,6 +109,8 @@ class ResidualForecaster(Forecaster):
         self._secondary_model: list[ResidualBaseForecaster] = self._init_secondary_model(
             hyperparams=config.hyperparams.secondary_hyperparams
         )
+        self.primary_name = config.hyperparams.primary_name
+        self.secondary_name = config.hyperparams.secondary_name
         self._is_fitted = False
 
     def _init_secondary_model(self, hyperparams: ResidualBaseForecasterHyperParams) -> list[ResidualBaseForecaster]:
@@ -253,6 +279,39 @@ class ResidualForecaster(Forecaster):
             data=final_predictions,
             sample_interval=data.sample_interval,
         )
+
+    def predict_contributions(self, data: ForecastInputDataset, *, scale: bool = True) -> pd.DataFrame:
+        """Generate prediction contributions using the ResidualForecaster model.
+
+        Args:
+            data: Input data for prediction contributions.
+
+        Returns:
+            pd.DataFrame containing the prediction contributions.
+        """
+        primary_predictions = self._primary_model.predict(data=data).data
+
+        secondary_predictions = self._predict_secodary_model(data=data).data
+
+        if not scale:
+            primary_contributions = primary_predictions
+            primary_name = self._primary_model.__class__.__name__
+            primary_contributions.columns = [f"{primary_name}_{q}" for q in primary_contributions.columns]
+
+            secondary_contributions = secondary_predictions
+            secondary_name = self._secondary_model[0].__class__.__name__
+            secondary_contributions.columns = [f"{secondary_name}_{q}" for q in secondary_contributions.columns]
+
+            return pd.concat([primary_contributions, secondary_contributions], axis=1)
+
+        primary_contributions = primary_predictions.abs() / (primary_predictions.abs() + secondary_predictions.abs())
+        primary_contributions.columns = [f"{self.primary_name}_{q}" for q in primary_contributions.columns]
+
+        secondary_contributions = secondary_predictions.abs() / (
+                                primary_predictions.abs() + secondary_predictions.abs())
+        secondary_contributions.columns = [f"{self.secondary_name}_{q}" for q in secondary_contributions.columns]
+
+        return pd.concat([primary_contributions, secondary_contributions], axis=1)
 
     @property
     def config(self) -> ResidualForecasterConfig:

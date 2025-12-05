@@ -292,7 +292,6 @@ class WeightsCombiner(ForecastCombiner):
         weights_array = model.predict_proba(base_predictions.to_numpy())  # type: ignore
 
         return pd.DataFrame(weights_array, index=base_predictions.index, columns=self._label_encoder.classes_)  # type: ignore
- 
 
     def _generate_predictions_quantile(
         self,
@@ -379,23 +378,6 @@ class WeightsCombiner(ForecastCombiner):
         weights = self._predict_model_weights_quantile(base_predictions=input_data, model_index=model_index)
         weights.columns = [f"{col}_{Quantile(self.quantiles[model_index]).format()}" for col in weights.columns]
         return weights
- 
-
-    # def _generate_contributions_quantile(
-    #     self,
-    #     dataset: ForecastInputDataset,
-    #     additional_features: ForecastInputDataset | None,
-    #     model_index: int,
-    # ) -> pd.DataFrame:
-    #     # TODO: FLORIAN Update content
-    #     # input_data = self._prepare_input_data(
-    #     #     dataset=dataset,
-    #     #     additional_features=additional_features,
-    #     # )
-
-    #     # weights = self._predict_model_weights_quantile(base_predictions=input_data, model_index=model_index)
-
-    #     return pd.DataFrame()
 
     @property
     @override

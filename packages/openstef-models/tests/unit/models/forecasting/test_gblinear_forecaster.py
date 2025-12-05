@@ -4,6 +4,7 @@
 
 from datetime import timedelta
 
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -132,3 +133,34 @@ def test_gblinear_forecaster__feature_importances(
     col_sums = feature_importances.sum(axis=0)
     pd.testing.assert_series_equal(col_sums, pd.Series(1.0, index=expected_columns), atol=1e-10)
     assert (feature_importances >= 0).all().all()
+
+
+def test_gblinear_forecaster_predict_contributions(
+    sample_forecast_input_dataset: ForecastInputDataset,
+    base_config: GBLinearForecasterConfig,
+):
+    """Test basic fit and predict workflow with output validation."""
+    # Arrange
+    expected_quantiles = base_config.quantiles
+    forecaster = GBLinearForecaster(config=base_config)
+
+    # Act
+    forecaster.fit(sample_forecast_input_dataset)
+    result = forecaster.predict_contributions(sample_forecast_input_dataset, scale=True)
+
+    # Assert
+    # Basic functionality
+    assert forecaster.is_fitted, "Model should be fitted after calling fit()"
+
+    # Check that necessary quantiles are present
+    input_features = sample_forecast_input_dataset.input_data().columns
+    expected_columns = [f"{col}_{q.format()}" for col in input_features for q in expected_quantiles]
+    assert list(result.columns) == expected_columns, (
+        f"Expected columns {expected_columns}, got {list(result.columns)}"
+    )
+
+    # Contributions should sum to 1.0 per quantile
+    for q in expected_quantiles:
+        quantile_cols = [col for col in result.columns if col.endswith(f"_{q.format()}")]
+        col_sums = result[quantile_cols].sum(axis=1)
+        pd.testing.assert_series_equal(col_sums, pd.Series(1.0, index=result.index, dtype=np.float32), atol=1e-10)

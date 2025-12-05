@@ -17,11 +17,13 @@ from openstef_meta.utils.datasets import EnsembleForecastDataset
 def forecast_dataset_factory() -> Callable[[], ForecastDataset]:
     def _make() -> ForecastDataset:
         rng = np.random.default_rng()
+        coef = rng.normal(0, 1, 3)
+
         df = pd.DataFrame(
             data={
-                "quantile_P10": [90, 180, 270],
-                "quantile_P50": [100, 200, 300],
-                "quantile_P90": [110, 220, 330],
+                "quantile_P10": np.array([1, 2, 3]) * coef[0],
+                "quantile_P50": np.array([1, 2, 3]) * coef[1],
+                "quantile_P90": np.array([1, 2, 3]) * coef[2],
                 "load": [100, 200, 300],
             },
             index=pd.to_datetime([

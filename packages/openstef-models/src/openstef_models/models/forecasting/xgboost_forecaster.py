@@ -420,6 +420,51 @@ class XGBoostForecaster(Forecaster, ExplainableForecaster):
             sample_interval=data.sample_interval,
         )
 
+    def predict_contributions(self, data: ForecastInputDataset, *, scale: bool) -> pd.DataFrame:
+        """Get feature contributions for each prediction.
+
+        Args:
+            data: Input dataset for which to compute feature contributions.
+            scale: If True, scale contributions to sum to 1.0 per quantile.
+
+        Returns:
+            DataFrame with contributions per base learner.
+        """
+        # Get input features for prediction
+        input_data: pd.DataFrame = data.input_data(start=data.forecast_start)
+        xgb_input: xgb.DMatrix = xgb.DMatrix(data=input_data)
+
+        # Generate predictions
+        booster = self._xgboost_model.get_booster()
+        predictions_array: np.ndarray = booster.predict(xgb_input, pred_contribs=True, strict_shape=True)[:, :, :-1]
+
+        # Remove last column
+        contribs = predictions_array / np.sum(predictions_array, axis=-1, keepdims=True)
+
+        # Flatten to 2D array, name columns accordingly
+        contribs = contribs.reshape(contribs.shape[0], -1)
+
+        df = pd.DataFrame(
+            data=contribs,
+            index=input_data.index,
+            columns=[
+                f"{feature}_{quantile.format()}"
+                for feature in input_data.columns
+                for quantile in self.config.quantiles
+
+            ],
+        )
+
+        if scale:
+            # Scale contributions so that they sum to 1.0 per quantile and are positive
+            for q in self.config.quantiles:
+                quantile_cols = [col for col in df.columns if col.endswith(f"_{q.format()}")]
+                row_sums = df[quantile_cols].abs().sum(axis=1)
+                df[quantile_cols] = df[quantile_cols].abs().div(row_sums, axis=0)
+
+        # Construct DataFrame with appropriate quantile columns
+        return df
+
     @property
     @override
     def feature_importances(self) -> pd.DataFrame:
