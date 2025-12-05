@@ -72,6 +72,11 @@ class ConfidenceIntervalApplicator(BaseModel, Transform[ForecastDataset, Forecas
     """
 
     quantiles: list[Quantile] | None = Field(default=None)
+    add_quantiles_from_std: bool = Field(
+        default=True,
+        description="If True, adds quantiles based on computed standard deviation. "
+        "If False, only computes standard deviation without adding quantiles.",
+    )
 
     _standard_deviation: pd.DataFrame = PrivateAttr(default_factory=pd.DataFrame)
     _is_fitted: bool = PrivateAttr(default=False)
@@ -138,6 +143,12 @@ class ConfidenceIntervalApplicator(BaseModel, Transform[ForecastDataset, Forecas
 
         return forecast._copy_with_data(data=data)  # noqa: SLF001 - safe - invariant preserved
 
+    @staticmethod
+    def _add_stdev_column(forecast: ForecastDataset, stdev_series: pd.Series) -> ForecastDataset:
+        data = forecast.data.copy(deep=False)
+        data[forecast.standard_deviation_column] = stdev_series
+        return forecast._copy_with_data(data=data)  # noqa: SLF001 - safe - invariant preserved
+
     @override
     def transform(self, data: ForecastDataset) -> ForecastDataset:
         if not self._is_fitted:
@@ -149,8 +160,13 @@ class ConfidenceIntervalApplicator(BaseModel, Transform[ForecastDataset, Forecas
         # Compute standard deviation series
         stdev_series = self._compute_stdev_series(data)
 
+        data = self._add_stdev_column(forecast=data, stdev_series=stdev_series)
+
         # Add quantiles based on standard deviation
-        return self._add_quantiles_from_stdev(forecast=data, stdev_series=stdev_series, quantiles=self.quantiles)
+        if self.add_quantiles_from_std:
+            return self._add_quantiles_from_stdev(forecast=data, stdev_series=stdev_series, quantiles=self.quantiles)
+
+        return data
 
 
 def _calculate_hourly_std(errors: pd.Series) -> pd.Series:
