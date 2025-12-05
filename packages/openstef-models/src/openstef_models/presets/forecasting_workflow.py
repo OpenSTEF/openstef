@@ -33,7 +33,7 @@ from openstef_models.models.forecasting.gblinear_forecaster import GBLinearForec
 from openstef_models.models.forecasting.xgboost_forecaster import XGBoostForecaster
 from openstef_models.transforms.energy_domain import WindPowerFeatureAdder
 from openstef_models.transforms.general import Clipper, EmptyFeatureRemover, Imputer, NaNDropper, SampleWeighter, Scaler
-from openstef_models.transforms.postprocessing import QuantileSorter
+from openstef_models.transforms.postprocessing import ConfidenceIntervalApplicator, QuantileSorter
 from openstef_models.transforms.time_domain import (
     CyclicFeaturesAdder,
     DatetimeFeaturesAdder,
@@ -312,7 +312,13 @@ def create_forecasting_workflow(config: ForecastingWorkflowConfig) -> CustomFore
                 verbosity=config.verbosity,
             )
         )
-        postprocessing = [QuantileSorter()]
+        postprocessing = [
+            QuantileSorter(),
+            ConfidenceIntervalApplicator(
+                quantiles=config.quantiles,
+                add_quantiles_from_std=False,
+            ),
+        ]
 
     elif config.model == "gblinear":
         preprocessing = [
@@ -336,7 +342,13 @@ def create_forecasting_workflow(config: ForecastingWorkflowConfig) -> CustomFore
                 verbosity=config.verbosity,
             ),
         )
-        postprocessing = []
+        postprocessing = [
+            QuantileSorter(),
+            ConfidenceIntervalApplicator(
+                quantiles=config.quantiles,
+                add_quantiles_from_std=False,
+            ),
+        ]
     elif config.model == "flatliner":
         preprocessing = []
         forecaster = FlatlinerForecaster(
@@ -345,7 +357,13 @@ def create_forecasting_workflow(config: ForecastingWorkflowConfig) -> CustomFore
                 horizons=config.horizons,
             )
         )
-        postprocessing = []
+        postprocessing = [
+            QuantileSorter(),
+            ConfidenceIntervalApplicator(
+                quantiles=[Q(0.5)],
+                add_quantiles_from_std=False,
+            ),
+        ]
     else:
         msg = f"Unsupported model type: {config.model}"
         raise ValueError(msg)
