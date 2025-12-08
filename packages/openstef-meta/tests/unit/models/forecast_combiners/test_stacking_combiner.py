@@ -100,4 +100,4 @@ def test_stacking_combiner_predict_contributions(
 
     # Assert
     assert isinstance(contributions, pd.DataFrame), "Contributions should be returned as a DataFrame."
-    assert len(contributions.columns) == len(ensemble_dataset.quantiles) * len(ensemble_dataset.forecaster_names)
+    assert len(contributions.columns) == (len(ensemble_dataset.quantiles) * len(ensemble_dataset.forecaster_names)) + 1

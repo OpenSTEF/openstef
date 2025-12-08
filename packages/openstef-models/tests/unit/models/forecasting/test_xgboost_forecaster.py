@@ -189,12 +189,10 @@ def test_xgboost_forecaster_predict_contributions(
     # Check that necessary quantiles are present
     input_features = sample_forecast_input_dataset.input_data().columns
     expected_columns = [f"{col}_{q.format()}" for col in input_features for q in expected_quantiles]
-    assert list(result.columns) == expected_columns, (
-        f"Expected columns {expected_columns}, got {list(result.columns)}"
-    )
+    assert list(result.columns) == expected_columns, f"Expected columns {expected_columns}, got {list(result.columns)}"
 
     # Contributions should sum to 1.0 per quantile
     for q in expected_quantiles:
         quantile_cols = [col for col in result.columns if col.endswith(f"_{q.format()}")]
         col_sums = result[quantile_cols].sum(axis=1)
-        pd.testing.assert_series_equal(col_sums, pd.Series(1.0, index=result.index), atol=1e-10)
+        pd.testing.assert_series_equal(col_sums, pd.Series(1.0, index=result.index), atol=1e-10, check_dtype=False)

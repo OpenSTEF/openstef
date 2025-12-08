@@ -155,9 +155,7 @@ def test_gblinear_forecaster_predict_contributions(
     # Check that necessary quantiles are present
     input_features = sample_forecast_input_dataset.input_data().columns
     expected_columns = [f"{col}_{q.format()}" for col in input_features for q in expected_quantiles]
-    assert list(result.columns) == expected_columns, (
-        f"Expected columns {expected_columns}, got {list(result.columns)}"
-    )
+    assert list(result.columns) == expected_columns, f"Expected columns {expected_columns}, got {list(result.columns)}"
 
     # Contributions should sum to 1.0 per quantile
     for q in expected_quantiles:

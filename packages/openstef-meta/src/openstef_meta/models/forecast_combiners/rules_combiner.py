@@ -163,11 +163,7 @@ class RulesCombiner(ForecastCombiner):
             predictions.append(preds.to_frame(name=Quantile(q).format()))
 
         # Concatenate predictions along columns to form a DataFrame with quantile columns
-        df = pd.concat(predictions, axis=1)
-
-        # TODO FLORIAN return only Decision datadrame
-
-        return df
+        return pd.concat(predictions, axis=1)
 
     @property
     def is_fitted(self) -> bool:

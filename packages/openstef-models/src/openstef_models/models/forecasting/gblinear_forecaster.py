@@ -353,10 +353,7 @@ class GBLinearForecaster(Forecaster, ExplainableForecaster):
             data=contribs,
             index=input_data.index,
             columns=[
-                f"{feature}_{quantile.format()}"
-                for feature in input_data.columns
-                for quantile in self.config.quantiles
-
+                f"{feature}_{quantile.format()}" for feature in input_data.columns for quantile in self.config.quantiles
             ],
         )
 

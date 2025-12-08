@@ -285,6 +285,7 @@ class ResidualForecaster(Forecaster):
 
         Args:
             data: Input data for prediction contributions.
+            scale: Whether to scale contributions to sum to 1. Defaults to True.
 
         Returns:
             pd.DataFrame containing the prediction contributions.
@@ -308,7 +309,8 @@ class ResidualForecaster(Forecaster):
         primary_contributions.columns = [f"{self.primary_name}_{q}" for q in primary_contributions.columns]
 
         secondary_contributions = secondary_predictions.abs() / (
-                                primary_predictions.abs() + secondary_predictions.abs())
+            primary_predictions.abs() + secondary_predictions.abs()
+        )
         secondary_contributions.columns = [f"{self.secondary_name}_{q}" for q in secondary_contributions.columns]
 
         return pd.concat([primary_contributions, secondary_contributions], axis=1)

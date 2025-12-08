@@ -338,11 +338,13 @@ class LGBMForecaster(Forecaster, ExplainableForecaster):
                 # Scale contributions so that they sum to 1.0 per quantile
                 contribs_quantile = np.abs(contribs_quantile) / np.sum(np.abs(contribs_quantile), axis=1, keepdims=True)
 
-            contributions.append(pd.DataFrame(
-                data=contribs_quantile,
-                index=input_data.index,
-                columns=[f"{feature}_{quantile.format()}" for feature in input_data.columns],
-            ))
+            contributions.append(
+                pd.DataFrame(
+                    data=contribs_quantile,
+                    index=input_data.index,
+                    columns=[f"{feature}_{quantile.format()}" for feature in input_data.columns],
+                )
+            )
 
         # Construct DataFrame
         return pd.concat(contributions, axis=1)

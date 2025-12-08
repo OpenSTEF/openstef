@@ -289,7 +289,11 @@ class WeightsCombiner(ForecastCombiner):
 
     def _predict_model_weights_quantile(self, base_predictions: pd.DataFrame, model_index: int) -> pd.DataFrame:
         model = self.models[model_index]
-        weights_array = model.predict_proba(base_predictions.to_numpy())  # type: ignore
+        if isinstance(model, DummyClassifier):
+            weights_array = pd.DataFrame(0, index=base_predictions.index, columns=self._label_encoder.classes_)
+            weights_array[self._label_encoder.classes_[0]] = 1.0
+        else:
+            weights_array = model.predict_proba(base_predictions.to_numpy())  # type: ignore
 
         return pd.DataFrame(weights_array, index=base_predictions.index, columns=self._label_encoder.classes_)  # type: ignore
 
