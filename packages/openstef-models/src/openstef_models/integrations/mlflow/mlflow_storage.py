@@ -36,14 +36,15 @@ class MLFlowStorage(BaseConfig):
     """
 
     tracking_uri: str = Field(default="./mlflow", description="MLflow tracking server URI.")
-    local_artifacts_path: Path = Field(default=Path("./mlflow_artifacts_local"), description="Local path for storing MLflow artifacts before upload.")
+    local_artifacts_path: Path = Field(
+        default=Path("./mlflow_artifacts_local"), description="Local path for storing MLflow artifacts before upload."
+    )
     experiment_name_prefix: str = Field(default="", description="Prefix for MLflow experiment names.")
     # Artifact subdirectories
     data_path: str = Field(default="data", description="Subdirectory for storing training data artifacts.")
     model_path: str = Field(default="model", description="Subdirectory for storing model artifacts.")
     enable_mlflow_stdout: bool = Field(
-        default=False, 
-        description="Keep MLflow stdout messages which circumvent standard logging."
+        default=False, description="Keep MLflow stdout messages which circumvent standard logging."
     )
 
     model_serializer: ModelSerializer = Field(default_factory=JoblibModelSerializer)
