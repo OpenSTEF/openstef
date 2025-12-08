@@ -35,12 +35,16 @@ class MLFlowStorage(BaseConfig):
     before uploading to MLflow tracking server.
     """
 
-    tracking_uri: str = Field(default="./mlflow")
-    local_artifacts_path: Path = Field(default=Path("./mlflow_artifacts_local"))
-    experiment_name_prefix: str = Field(default="")
+    tracking_uri: str = Field(default="./mlflow", description="MLflow tracking server URI.")
+    local_artifacts_path: Path = Field(default=Path("./mlflow_artifacts_local"), description="Local path for storing MLflow artifacts before upload.")
+    experiment_name_prefix: str = Field(default="", description="Prefix for MLflow experiment names.")
     # Artifact subdirectories
-    data_path: str = Field(default="data")
-    model_path: str = Field(default="model")
+    data_path: str = Field(default="data", description="Subdirectory for storing training data artifacts.")
+    model_path: str = Field(default="model", description="Subdirectory for storing model artifacts.")
+    enable_mlflow_stdout: bool = Field(
+        default=False, 
+        description="Keep MLflow stdout messages which circumvent standard logging."
+    )
 
     model_serializer: ModelSerializer = Field(default_factory=JoblibModelSerializer)
 
@@ -49,7 +53,10 @@ class MLFlowStorage(BaseConfig):
 
     @override
     def model_post_init(self, context: Any) -> None:
-        os.environ.setdefault("MLFLOW_ENABLE_ARTIFACTS_PROGRESS_BAR", "false")
+        if not self.enable_mlflow_stdout:
+            # Suppress MLflow's stdout messages (emoji URLs)
+            os.environ.setdefault("MLFLOW_SUPPRESS_PRINTING_URL_TO_STDOUT", "true")
+            os.environ.setdefault("MLFLOW_ENABLE_ARTIFACTS_PROGRESS_BAR", "false")
         self._client = MlflowClient(tracking_uri=self.tracking_uri)
 
     def create_run(
