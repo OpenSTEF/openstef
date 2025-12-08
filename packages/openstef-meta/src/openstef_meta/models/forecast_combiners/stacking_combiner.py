@@ -10,9 +10,8 @@ The implementation is based on sklearn's StackingRegressor.
 """
 
 import logging
-from typing import cast, override
+from typing import TYPE_CHECKING, cast, override
 
-from openstef_models.explainability.mixins import ExplainableForecaster
 import pandas as pd
 from pydantic import Field, field_validator
 
@@ -24,12 +23,15 @@ from openstef_core.mixins import HyperParams
 from openstef_core.types import LeadTime, Quantile
 from openstef_meta.models.forecast_combiners.forecast_combiner import ForecastCombiner, ForecastCombinerConfig
 from openstef_meta.utils.datasets import EnsembleForecastDataset
-from openstef_models.models.forecasting.forecaster import Forecaster
+from openstef_models.explainability.mixins import ExplainableForecaster
 from openstef_models.models.forecasting.gblinear_forecaster import (
     GBLinearForecaster,
     GBLinearHyperParams,
 )
 from openstef_models.models.forecasting.lgbm_forecaster import LGBMForecaster, LGBMHyperParams
+
+if TYPE_CHECKING:
+    from openstef_models.models.forecasting.forecaster import Forecaster
 
 logger = logging.getLogger(__name__)
 
@@ -221,7 +223,13 @@ class StackingCombiner(ForecastCombiner):
             p = model.predict_contributions(data=input_data, scale=True)
             predictions.append(p)
 
-        return pd.concat(predictions, axis=1)
+        contributions = pd.concat(predictions, axis=1)
+
+        target_series = data.target_series
+        if target_series is not None:
+            contributions[data.target_column] = target_series
+
+        return contributions
 
     @property
     def is_fitted(self) -> bool:

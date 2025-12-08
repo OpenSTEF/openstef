@@ -361,7 +361,6 @@ class EnsembleForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastD
 
         Args:
             data: Raw time series dataset to prepare for forecasting.
-            forecaster_name: Optional name of the forecaster for model-specific preprocessing.
             forecast_start: Optional start time for forecasts. If provided and earlier
                 than the cutoff time, overrides the cutoff for data filtering.
 

@@ -9,6 +9,7 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any, override
 
+import pandas as pd
 from pydantic import Field, PrivateAttr
 
 from openstef_beam.backtesting.backtest_forecaster.mixins import BacktestForecasterConfig, BacktestForecasterMixin
@@ -19,7 +20,6 @@ from openstef_core.exceptions import FlatlinerDetectedError, NotFittedError
 from openstef_core.types import Q
 from openstef_meta.models.ensemble_forecasting_model import EnsembleForecastingModel
 from openstef_models.workflows.custom_forecasting_workflow import CustomForecastingWorkflow
-from openstef_meta.models.ensemble_forecasting_model import EnsembleForecastingModel
 
 
 class OpenSTEF4BacktestForecaster(BaseModel, BacktestForecasterMixin):
@@ -137,7 +137,9 @@ class OpenSTEF4BacktestForecaster(BaseModel, BacktestForecasterMixin):
         if self.contributions and isinstance(self._workflow.model, EnsembleForecastingModel):
             contr_str = data.horizon.strftime("%Y%m%d%H%M%S")
             contributions = self._workflow.model.predict_contributions(predict_data)
-            contributions.to_parquet(path=self.cache_dir / f"contrib_{contr_str}_predict.parquet")
+            df = pd.concat([contributions, forecast.data.drop(columns=["load"])])
+
+            df.to_parquet(path=self.cache_dir / f"contrib_{contr_str}_predict.parquet")
         return forecast
 
 

@@ -122,7 +122,7 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
         # Store feature importance plot if enabled
         if (
             self.store_feature_importance_plot
-            and isinstance(context.workflow.model, ForecastingModel)
+            and isinstance(context.workflow.model, ForecastingModel)  # type: ignore
             and isinstance(context.workflow.model.forecaster, ExplainableForecaster)
         ):
             fig = context.workflow.model.forecaster.plot_feature_importances()

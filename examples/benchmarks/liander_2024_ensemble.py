@@ -44,9 +44,9 @@ logging.basicConfig(level=logging.INFO, format="[%(asctime)s][%(levelname)s] %(m
 
 OUTPUT_PATH = Path("./benchmark_results")
 
-N_PROCESSES = multiprocessing.cpu_count()  # Amount of parallel processes to use for the benchmark
+N_PROCESSES = 1  # multiprocessing.cpu_count()  # Amount of parallel processes to use for the benchmark
 
-ensemble_type = "learned_weights"  # "stacking", "learned_weights" or "rules"
+ensemble_type = "stacking"  # "stacking", "learned_weights" or "rules"
 base_models = ["lgbm", "gblinear"]  # combination of "lgbm", "gblinear", "xgboost" and "lgbm_linear"
 combiner_model = (
     "lgbm"  # "lgbm", "xgboost", "rf" or "logistic" for learned weights combiner, gblinear for stacking combiner
@@ -152,7 +152,7 @@ if __name__ == "__main__":
     start_time = time.time()
     create_liander2024_benchmark_runner(
         storage=LocalBenchmarkStorage(base_path=OUTPUT_PATH / model),
-        data_dir=Path("local_data/liander2024-energy-forecasting-benchmark"),
+        data_dir=Path("../data/liander2024-energy-forecasting-benchmark"),
         callbacks=[StrictExecutionCallback()],
     ).run(
         forecaster_factory=_target_forecaster_factory,
