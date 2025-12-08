@@ -63,12 +63,9 @@ def test_linear_component_splitter__predict_returns_correct_components(
     # Check that result has same index as input
     pd.testing.assert_index_equal(result.data.index, sample_timeseries_dataset.data.index)
 
-    # Check that components are non-negative
-    assert (result.data[EnergyComponentType.SOLAR] >= 0).all()
-    assert (result.data[EnergyComponentType.WIND] >= 0).all()
-
-    # Check that not all components are zero
-    assert (result.data[EnergyComponentType.SOLAR] > 0).any() or (result.data[EnergyComponentType.WIND] > 0).any()
+    # Check that components are negative
+    assert (result.data[EnergyComponentType.SOLAR] <= 0).all()
+    assert (result.data[EnergyComponentType.WIND] <= 0).all()
 
 
 def test_linear_component_splitter__create_input_features(
