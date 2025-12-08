@@ -4,7 +4,6 @@
 
 from datetime import timedelta
 
-import pandas as pd
 import pytest
 
 from openstef_core.datasets import ForecastInputDataset
@@ -161,10 +160,7 @@ def test_residual_forecaster_predict_contributions(
     assert forecaster.is_fitted, "Model should be fitted after calling fit()"
 
     # Check that necessary quantiles are present
-    base_models = [
-        forecaster.primary_name,
-        forecaster.secondary_name
-    ]
+    base_models = [forecaster.primary_name, forecaster.secondary_name]
     expected_columns = [f"{col}_{q.format()}" for col in base_models for q in expected_quantiles]
     assert sorted(result.columns) == sorted(expected_columns), (
         f"Expected columns {expected_columns}, got {list(result.columns)}"

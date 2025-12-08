@@ -51,6 +51,7 @@ class ExplainableForecaster(ABC):
 
         Args:
             data: Input dataset for which to compute feature contributions.
+            scale: Whether to scale contributions to sum to the prediction value.
 
         Returns:
             DataFrame with contributions per base learner.

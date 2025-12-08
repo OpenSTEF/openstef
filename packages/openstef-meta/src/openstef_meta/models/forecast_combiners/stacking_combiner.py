@@ -12,6 +12,7 @@ The implementation is based on sklearn's StackingRegressor.
 import logging
 from typing import cast, override
 
+from openstef_models.explainability.mixins import ExplainableForecaster
 import pandas as pd
 from pydantic import Field, field_validator
 
@@ -203,7 +204,6 @@ class StackingCombiner(ForecastCombiner):
         additional_features: ForecastInputDataset | None = None,
     ) -> pd.DataFrame:
 
-        # Generate predictions
         predictions: list[pd.DataFrame] = []
         for i, q in enumerate(self.quantiles):
             if additional_features is not None:
@@ -213,14 +213,14 @@ class StackingCombiner(ForecastCombiner):
                 )
             else:
                 input_data = data.select_quantile(quantile=q)
-            p = self.predict_contributions_quantile(
-                model=self.models[i],
-                data=input_data,
-            )
-            p.columns = [f"{col}_{Quantile(self.quantiles[i]).format()}" for col in p.columns]
+            model = self.models[i]
+            if not isinstance(model, ExplainableForecaster):
+                raise NotImplementedError(
+                    "Predicting contributions is only supported for ExplainableForecaster models."
+                )
+            p = model.predict_contributions(data=input_data, scale=True)
             predictions.append(p)
 
-        # Concatenate predictions along columns to form a DataFrame with quantile columns
         return pd.concat(predictions, axis=1)
 
     @property

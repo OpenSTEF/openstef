@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+#
+# SPDX-License-Identifier: MPL-2.0
+
 """Ensemble forecasting workflow preset.
 
 Mimics OpenSTEF-models forecasting workflow with ensemble capabilities.
@@ -235,8 +239,18 @@ class EnsembleWorkflowConfig(BaseConfig):
     )
 
 
-def create_ensemble_workflow(config: EnsembleWorkflowConfig) -> CustomForecastingWorkflow:
-    """Create an ensemble forecasting workflow from configuration."""
+def create_ensemble_workflow(config: EnsembleWorkflowConfig) -> CustomForecastingWorkflow:  # noqa: C901, PLR0912, PLR0915
+    """Create an ensemble forecasting workflow from configuration.
+
+    Args:
+        config: Configuration for the ensemble forecasting workflow.
+
+    Returns:
+        An instance of CustomForecastingWorkflow configured as an ensemble forecaster.
+
+    Raises:
+        ValueError: If an unsupported base model or combiner type is specified.
+    """
 
     # Build preprocessing components
     def checks() -> list[Transform[TimeSeriesDataset, TimeSeriesDataset]]:

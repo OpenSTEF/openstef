@@ -22,6 +22,7 @@ from openstef_core.datasets.timeseries_dataset import TimeSeriesDataset
 from openstef_core.datasets.versioned_timeseries_dataset import VersionedTimeSeriesDataset
 from openstef_core.exceptions import ModelNotFoundError, SkipFitting
 from openstef_core.types import Q, QuantileOrGlobal
+from openstef_meta.models.ensemble_forecasting_model import EnsembleForecastingModel
 from openstef_models.explainability import ExplainableForecaster
 from openstef_models.integrations.mlflow.mlflow_storage import MLFlowStorage
 from openstef_models.mixins.callbacks import WorkflowContext
@@ -96,6 +97,11 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
     ) -> None:
         if self.model_selection_enable:
             self._run_model_selection(workflow=context.workflow, result=result)
+
+        if isinstance(context.workflow.model, EnsembleForecastingModel):
+            raise NotImplementedError(
+                "MLFlowStorageCallback does not yet support EnsembleForecastingWorkflow model storage."
+            )
 
         # Create a new run
         run = self.storage.create_run(

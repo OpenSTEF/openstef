@@ -44,7 +44,7 @@ logging.basicConfig(level=logging.INFO, format="[%(asctime)s][%(levelname)s] %(m
 
 OUTPUT_PATH = Path("./benchmark_results")
 
-N_PROCESSES = 1  # multiprocessing.cpu_count()  # Amount of parallel processes to use for the benchmark
+N_PROCESSES = multiprocessing.cpu_count()  # Amount of parallel processes to use for the benchmark
 
 ensemble_type = "learned_weights"  # "stacking", "learned_weights" or "rules"
 base_models = ["lgbm", "gblinear"]  # combination of "lgbm", "gblinear", "xgboost" and "lgbm_linear"
