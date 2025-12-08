@@ -24,7 +24,7 @@ class Selector(BaseConfig, TimeSeriesTransform):
 
     selection: FeatureSelection = Field(
         default=FeatureSelection.ALL,
-        description="Features to check for NaN values. Rows with NaN in any selected column are dropped.",
+        description="Feature selection for efficient model specific preprocessing.x",
     )
 
     @override

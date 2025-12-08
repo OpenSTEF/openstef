@@ -17,6 +17,7 @@ from openstef_core.base_model import BaseModel
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.exceptions import FlatlinerDetectedError, NotFittedError
 from openstef_core.types import Q
+from openstef_meta.models.ensemble_forecasting_model import EnsembleForecastingModel
 from openstef_models.workflows.custom_forecasting_workflow import CustomForecastingWorkflow
 from openstef_meta.models.ensemble_forecasting_model import EnsembleForecastingModel
 
@@ -65,7 +66,12 @@ class OpenSTEF4BacktestForecaster(BaseModel, BacktestForecasterMixin):
         if self._workflow is None:
             self._workflow = self.workflow_factory()
         # Extract quantiles from the workflow's model
-        return self._workflow.model.forecaster.config.quantiles  # type: ignore
+
+        if isinstance(self._workflow.model, EnsembleForecastingModel):
+            # Assuming all ensemble members have the same quantiles
+            name = self._workflow.model.forecaster_names[0]
+            return self._workflow.model.forecasters[name].config.quantiles
+        return self._workflow.model.forecaster.config.quantiles
 
     @override
     def fit(self, data: RestrictedHorizonVersionedTimeSeries) -> None:

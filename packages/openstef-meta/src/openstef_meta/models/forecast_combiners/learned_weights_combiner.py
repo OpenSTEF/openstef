@@ -32,7 +32,7 @@ from openstef_meta.models.forecast_combiners.forecast_combiner import (
     ForecastCombiner,
     ForecastCombinerConfig,
 )
-from openstef_meta.utils.datasets import EnsembleForecastDataset
+from openstef_meta.utils.datasets import EnsembleForecastDataset, combine_forecast_input_datasets
 
 logger = logging.getLogger(__name__)
 
@@ -241,18 +241,17 @@ class WeightsCombiner(ForecastCombiner):
         for i, q in enumerate(self.quantiles):
             # Data preparation
             dataset = data.select_quantile_classification(quantile=q)
-            input_data = self._prepare_input_data(
+            combined_data = combine_forecast_input_datasets(
                 dataset=dataset,
-                additional_features=additional_features,
+                other=additional_features,
             )
-            labels = dataset.target_series
+            input_data = combined_data.input_data()
+            labels = combined_data.target_series
             self._validate_labels(labels=labels, model_index=i)
             labels = self._label_encoder.transform(labels)
 
             # Balance classes, adjust with sample weights
-            weights = compute_sample_weight("balanced", labels)
-            if sample_weights is not None:
-                weights *= sample_weights
+            weights = compute_sample_weight("balanced", labels) * combined_data.sample_weight_series
 
             self.models[i].fit(X=input_data, y=labels, sample_weight=weights)  # type: ignore
         self._is_fitted = True
@@ -276,6 +275,7 @@ class WeightsCombiner(ForecastCombiner):
             df = pd.concat(
                 [df, df_a],
                 axis=1,
+                join="inner",
             )
         return df
 

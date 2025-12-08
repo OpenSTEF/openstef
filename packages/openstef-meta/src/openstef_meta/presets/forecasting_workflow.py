@@ -9,7 +9,7 @@ Mimics OpenSTEF-models forecasting workflow with ensemble capabilities.
 
 from collections.abc import Sequence
 from datetime import timedelta
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
 from pydantic import Field
 
@@ -28,9 +28,9 @@ from openstef_meta.models.forecast_combiners.learned_weights_combiner import Wei
 from openstef_meta.models.forecast_combiners.rules_combiner import RulesCombiner
 from openstef_meta.models.forecast_combiners.stacking_combiner import StackingCombiner
 from openstef_meta.models.forecasting.residual_forecaster import ResidualForecaster
-from openstef_models.integrations.mlflow import MLFlowStorage, MLFlowStorageCallback
+from openstef_meta.transforms.selector import Selector
+from openstef_models.integrations.mlflow import MLFlowStorage
 from openstef_models.mixins.model_serializer import ModelIdentifier
-from openstef_models.models.forecasting.forecaster import Forecaster
 from openstef_models.models.forecasting.gblinear_forecaster import GBLinearForecaster
 from openstef_models.models.forecasting.lgbm_forecaster import LGBMForecaster
 from openstef_models.models.forecasting.lgbmlinear_forecaster import LGBMLinearForecaster
@@ -58,6 +58,9 @@ from openstef_models.transforms.weather_domain import (
 from openstef_models.utils.data_split import DataSplitter
 from openstef_models.utils.feature_selection import Exclude, FeatureSelection, Include
 from openstef_models.workflows.custom_forecasting_workflow import CustomForecastingWorkflow, ForecastingCallback
+
+if TYPE_CHECKING:
+    from openstef_models.models.forecasting.forecaster import Forecaster
 
 
 class EnsembleWorkflowConfig(BaseConfig):
@@ -169,14 +172,19 @@ class EnsembleWorkflowConfig(BaseConfig):
         description="Percentile of target values used as scaling reference. "
         "Values are normalized relative to this percentile before weighting.",
     )
-    sample_weight_exponent: float = Field(
-        default_factory=lambda data: 1.0
-        if data.get("model") in {"gblinear", "lgbmlinear", "lgbm", "learned_weights", "stacking", "residual", "xgboost"}
-        else 0.0,
+    forecaster_sample_weight_exponent: dict[str, float] = Field(
+        default={"gblinear": 1.0, "lgbm": 0, "xgboost": 0, "lgbm_linear": 0},
         description="Exponent applied to scale the sample weights. "
         "0=uniform weights, 1=linear scaling, >1=stronger emphasis on high values. "
         "Note: Defaults to 1.0 for gblinear congestion models.",
     )
+
+    forecast_combiner_sample_weight_exponent: float = Field(
+        default=0,
+        description="Exponent applied to scale the sample weights for the forecast combiner model. "
+        "0=uniform weights, 1=linear scaling, >1=stronger emphasis on high values.",
+    )
+
     sample_weight_floor: float = Field(
         default=0.1,
         description="Minimum weight value to ensure all samples contribute to training.",
@@ -239,71 +247,82 @@ class EnsembleWorkflowConfig(BaseConfig):
     )
 
 
+# Build preprocessing components
+def checks(config: EnsembleWorkflowConfig) -> list[Transform[TimeSeriesDataset, TimeSeriesDataset]]:
+    return [
+        InputConsistencyChecker(),
+        FlatlineChecker(
+            load_column=config.target_column,
+            flatliner_threshold=config.flatliner_threshold,
+            detect_non_zero_flatliner=config.detect_non_zero_flatliner,
+            error_on_flatliner=False,
+        ),
+        CompletenessChecker(completeness_threshold=config.completeness_threshold),
+    ]
+
+
+def feature_adders(config: EnsembleWorkflowConfig) -> list[Transform[TimeSeriesDataset, TimeSeriesDataset]]:
+    return [
+        LagsAdder(
+            history_available=config.predict_history,
+            horizons=config.horizons,
+            add_trivial_lags=True,
+            target_column=config.target_column,
+        ),
+        WindPowerFeatureAdder(
+            windspeed_reference_column=config.wind_speed_column,
+        ),
+        AtmosphereDerivedFeaturesAdder(
+            pressure_column=config.pressure_column,
+            relative_humidity_column=config.relative_humidity_column,
+            temperature_column=config.temperature_column,
+        ),
+        RadiationDerivedFeaturesAdder(
+            coordinate=config.location.coordinate,
+            radiation_column=config.radiation_column,
+        ),
+        CyclicFeaturesAdder(),
+        DaylightFeatureAdder(
+            coordinate=config.location.coordinate,
+        ),
+        RollingAggregatesAdder(
+            feature=config.target_column,
+            aggregation_functions=config.rolling_aggregate_features,
+            horizons=config.horizons,
+        ),
+    ]
+
+
+def feature_standardizers(config: EnsembleWorkflowConfig) -> list[Transform[TimeSeriesDataset, TimeSeriesDataset]]:
+    return [
+        Clipper(selection=Include(config.energy_price_column).combine(config.clip_features), mode="standard"),
+        Scaler(selection=Exclude(config.target_column), method="standard"),
+        EmptyFeatureRemover(),
+    ]
+
+
 def create_ensemble_workflow(config: EnsembleWorkflowConfig) -> CustomForecastingWorkflow:  # noqa: C901, PLR0912, PLR0915
     """Create an ensemble forecasting workflow from configuration.
 
     Args:
-        config: Configuration for the ensemble forecasting workflow.
+        config (EnsembleWorkflowConfig): Configuration for the ensemble workflow.
 
     Returns:
-        An instance of CustomForecastingWorkflow configured as an ensemble forecaster.
+        CustomForecastingWorkflow: Configured ensemble forecasting workflow.
 
     Raises:
         ValueError: If an unsupported base model or combiner type is specified.
     """
-
-    # Build preprocessing components
-    def checks() -> list[Transform[TimeSeriesDataset, TimeSeriesDataset]]:
-        return [
-            InputConsistencyChecker(),
-            FlatlineChecker(
-                load_column=config.target_column,
-                flatliner_threshold=config.flatliner_threshold,
-                detect_non_zero_flatliner=config.detect_non_zero_flatliner,
-                error_on_flatliner=False,
-            ),
-            CompletenessChecker(completeness_threshold=config.completeness_threshold),
+    # Common preprocessing
+    common_preprocessing = TransformPipeline(
+        transforms=[
+            *checks(config),
+            *feature_adders(config),
+            HolidayFeatureAdder(country_code=config.location.country_code),
+            DatetimeFeaturesAdder(onehot_encode=False),
+            *feature_standardizers(config),
         ]
-
-    def feature_adders() -> list[Transform[TimeSeriesDataset, TimeSeriesDataset]]:
-        return [
-            WindPowerFeatureAdder(
-                windspeed_reference_column=config.wind_speed_column,
-            ),
-            AtmosphereDerivedFeaturesAdder(
-                pressure_column=config.pressure_column,
-                relative_humidity_column=config.relative_humidity_column,
-                temperature_column=config.temperature_column,
-            ),
-            RadiationDerivedFeaturesAdder(
-                coordinate=config.location.coordinate,
-                radiation_column=config.radiation_column,
-            ),
-            CyclicFeaturesAdder(),
-            DaylightFeatureAdder(
-                coordinate=config.location.coordinate,
-            ),
-            RollingAggregatesAdder(
-                feature=config.target_column,
-                aggregation_functions=config.rolling_aggregate_features,
-                horizons=config.horizons,
-            ),
-        ]
-
-    def feature_standardizers() -> list[Transform[TimeSeriesDataset, TimeSeriesDataset]]:
-        return [
-            Clipper(selection=Include(config.energy_price_column).combine(config.clip_features), mode="standard"),
-            Scaler(selection=Exclude(config.target_column), method="standard"),
-            SampleWeighter(
-                target_column=config.target_column,
-                weight_exponent=config.sample_weight_exponent,
-                weight_floor=config.sample_weight_floor,
-                weight_scale_percentile=config.sample_weight_scale_percentile,
-            ),
-            EmptyFeatureRemover(),
-        ]
-
-    # Model Specific LagsAdder
+    )
 
     # Build forecasters and their processing pipelines
     forecaster_preprocessing: dict[str, list[Transform[TimeSeriesDataset, TimeSeriesDataset]]] = {}
@@ -314,17 +333,12 @@ def create_ensemble_workflow(config: EnsembleWorkflowConfig) -> CustomForecastin
                 config=LGBMForecaster.Config(quantiles=config.quantiles, horizons=config.horizons)
             )
             forecaster_preprocessing[model_type] = [
-                *checks(),
-                *feature_adders(),
-                LagsAdder(
-                    history_available=config.predict_history,
-                    horizons=config.horizons,
-                    add_trivial_lags=True,
+                SampleWeighter(
                     target_column=config.target_column,
+                    weight_exponent=config.forecaster_sample_weight_exponent[model_type],
+                    weight_floor=config.sample_weight_floor,
+                    weight_scale_percentile=config.sample_weight_scale_percentile,
                 ),
-                HolidayFeatureAdder(country_code=config.location.country_code),
-                DatetimeFeaturesAdder(onehot_encode=False),
-                *feature_standardizers(),
             ]
 
         elif model_type == "gblinear":
@@ -332,18 +346,54 @@ def create_ensemble_workflow(config: EnsembleWorkflowConfig) -> CustomForecastin
                 config=GBLinearForecaster.Config(quantiles=config.quantiles, horizons=config.horizons)
             )
             forecaster_preprocessing[model_type] = [
-                *checks(),
-                *feature_adders(),
-                LagsAdder(
-                    history_available=config.predict_history,
-                    horizons=config.horizons,
-                    add_trivial_lags=False,
+                SampleWeighter(
                     target_column=config.target_column,
-                    custom_lags=[timedelta(days=7)],
+                    weight_exponent=config.forecaster_sample_weight_exponent[model_type],
+                    weight_floor=config.sample_weight_floor,
+                    weight_scale_percentile=config.sample_weight_scale_percentile,
                 ),
-                HolidayFeatureAdder(country_code=config.location.country_code),
-                DatetimeFeaturesAdder(onehot_encode=False),
-                *feature_standardizers(),
+                Selector(
+                    selection=FeatureSelection(
+                        exclude={  # Fix hardcoded lag features should be replaced by a LagsAdder classmethod
+                            "load_lag_P14D",
+                            "load_lag_P13D",
+                            "load_lag_P12D",
+                            "load_lag_P11D",
+                            "load_lag_P10D",
+                            "load_lag_P9D",
+                            "load_lag_P8D",
+                            # "load_lag_P7D", # Keep 7D lag for weekly seasonality
+                            "load_lag_P6D",
+                            "load_lag_P5D",
+                            "load_lag_P4D",
+                            "load_lag_P3D",
+                            "load_lag_P2D",
+                        }
+                    )
+                ),
+                Selector(  # Fix hardcoded holiday features should be replaced by a HolidayFeatureAdder classmethod
+                    selection=FeatureSelection(
+                        exclude={
+                            "is_ascension_day",
+                            "is_christmas_day",
+                            "is_easter_monday",
+                            "is_easter_sunday",
+                            "is_good_friday",
+                            "is_holiday",
+                            "is_king_s_day",
+                            "is_liberation_day",
+                            "is_new_year_s_day",
+                            "is_second_day_of_christmas",
+                            "is_sunday",
+                            "is_week_day",
+                            "is_weekend_day",
+                            "is_whit_monday",
+                            "is_whit_sunday",
+                            "month_of_year",
+                            "quarter_of_year",
+                        }
+                    )
+                ),
                 Imputer(
                     selection=Exclude(config.target_column),
                     imputation_strategy="mean",
@@ -358,34 +408,24 @@ def create_ensemble_workflow(config: EnsembleWorkflowConfig) -> CustomForecastin
                 config=XGBoostForecaster.Config(quantiles=config.quantiles, horizons=config.horizons)
             )
             forecaster_preprocessing[model_type] = [
-                *checks(),
-                *feature_adders(),
-                LagsAdder(
-                    history_available=config.predict_history,
-                    horizons=config.horizons,
-                    add_trivial_lags=True,
+                SampleWeighter(
                     target_column=config.target_column,
+                    weight_exponent=config.forecaster_sample_weight_exponent[model_type],
+                    weight_floor=config.sample_weight_floor,
+                    weight_scale_percentile=config.sample_weight_scale_percentile,
                 ),
-                HolidayFeatureAdder(country_code=config.location.country_code),
-                DatetimeFeaturesAdder(onehot_encode=False),
-                *feature_standardizers(),
             ]
         elif model_type == "lgbm_linear":
             forecasters[model_type] = LGBMLinearForecaster(
                 config=LGBMLinearForecaster.Config(quantiles=config.quantiles, horizons=config.horizons)
             )
             forecaster_preprocessing[model_type] = [
-                *checks(),
-                *feature_adders(),
-                LagsAdder(
-                    history_available=config.predict_history,
-                    horizons=config.horizons,
-                    add_trivial_lags=True,
+                SampleWeighter(
                     target_column=config.target_column,
+                    weight_exponent=config.forecaster_sample_weight_exponent[model_type],
+                    weight_floor=config.sample_weight_floor,
+                    weight_scale_percentile=config.sample_weight_scale_percentile,
                 ),
-                HolidayFeatureAdder(country_code=config.location.country_code),
-                DatetimeFeaturesAdder(onehot_encode=False),
-                *feature_standardizers(),
             ]
         else:
             msg = f"Unsupported base model type: {model_type}"
@@ -439,27 +479,34 @@ def create_ensemble_workflow(config: EnsembleWorkflowConfig) -> CustomForecastin
         name: TransformPipeline(transforms=transforms) for name, transforms in forecaster_preprocessing.items()
     }
 
+    if config.forecast_combiner_sample_weight_exponent != 0:
+        combiner_transforms = [
+            SampleWeighter(
+                target_column=config.target_column,
+                weight_exponent=config.forecast_combiner_sample_weight_exponent,
+                weight_floor=config.sample_weight_floor,
+                weight_scale_percentile=config.sample_weight_scale_percentile,
+            ),
+            Selector(selection=Include("sample_weight", config.target_column)),
+        ]
+    else:
+        combiner_transforms = []
+
+    combiner_preprocessing: TransformPipeline[TimeSeriesDataset] = TransformPipeline(transforms=combiner_transforms)
+
     ensemble_model = EnsembleForecastingModel(
-        common_preprocessing=TransformPipeline(transforms=[]),
+        common_preprocessing=common_preprocessing,
         model_specific_preprocessing=model_specific_preprocessing,
+        combiner_preprocessing=combiner_preprocessing,
         postprocessing=TransformPipeline(transforms=postprocessing),
         forecasters=forecasters,
         combiner=combiner,
         target_column=config.target_column,
+        data_splitter=config.data_splitter,
     )
 
     callbacks: list[ForecastingCallback] = []
-    if config.mlflow_storage is not None:
-        callbacks.append(
-            MLFlowStorageCallback(
-                storage=config.mlflow_storage,
-                model_reuse_enable=config.model_reuse_enable,
-                model_reuse_max_age=config.model_reuse_max_age,
-                model_selection_enable=config.model_selection_enable,
-                model_selection_metric=config.model_selection_metric,
-                model_selection_old_model_penalty=config.model_selection_old_model_penalty,
-            )
-        )
+    # TODO(Egor): Implement MLFlow for OpenSTEF-meta # noqa: TD003
 
     return CustomForecastingWorkflow(model=ensemble_model, model_id=config.model_id, callbacks=callbacks)
 

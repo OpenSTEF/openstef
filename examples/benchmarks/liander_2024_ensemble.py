@@ -94,6 +94,8 @@ common_config = EnsembleWorkflowConfig(
     temperature_column="temperature_2m",
     relative_humidity_column="relative_humidity_2m",
     energy_price_column="EPEX_NL",
+    forecast_combiner_sample_weight_exponent=1,
+    forecaster_sample_weight_exponent={"gblinear": 1, "lgbm": 1, "xgboost": 0, "lgbm_linear": 0},
 )
 
 

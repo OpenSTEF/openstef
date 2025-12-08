@@ -122,28 +122,6 @@ class ForecastCombiner(Predictor[EnsembleForecastDataset, ForecastDataset]):
         """
         raise NotImplementedError("Subclasses must implement the predict method.")
 
-    @staticmethod
-    def _prepare_input_data(
-        dataset: ForecastInputDataset, additional_features: ForecastInputDataset | None
-    ) -> pd.DataFrame:
-        """Prepare input data by combining base predictions with additional features if provided.
-
-        Args:
-            dataset: ForecastInputDataset containing base predictions.
-            additional_features: Optional ForecastInputDataset containing additional features.
-
-        Returns:
-            pd.DataFrame: Combined DataFrame of base predictions and additional features if provided.
-        """
-        df = dataset.input_data(start=dataset.index[0])
-        if additional_features is not None:
-            df_a = additional_features.input_data(start=dataset.index[0])
-            df = pd.concat(
-                [df, df_a],
-                axis=1,
-            )
-        return df
-
     @property
     @abstractmethod
     def is_fitted(self) -> bool:
