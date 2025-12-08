@@ -11,7 +11,6 @@ from collections.abc import Sequence
 from datetime import timedelta
 from typing import TYPE_CHECKING, Literal
 
-from openstef_meta.transforms.selector import Selector
 from pydantic import Field
 
 from openstef_beam.evaluation.metric_providers import (
@@ -29,6 +28,7 @@ from openstef_meta.models.forecast_combiners.learned_weights_combiner import Wei
 from openstef_meta.models.forecast_combiners.rules_combiner import RulesCombiner
 from openstef_meta.models.forecast_combiners.stacking_combiner import StackingCombiner
 from openstef_meta.models.forecasting.residual_forecaster import ResidualForecaster
+from openstef_meta.transforms.selector import Selector
 from openstef_models.integrations.mlflow import MLFlowStorage
 from openstef_models.mixins.model_serializer import ModelIdentifier
 from openstef_models.models.forecasting.gblinear_forecaster import GBLinearForecaster
@@ -84,7 +84,7 @@ class EnsembleWorkflowConfig(BaseConfig):
         description="Time interval between consecutive data samples.",
     )
     horizons: list[LeadTime] = Field(
-        default=[LeadTime.from_string("PT36H")],
+        default=[LeadTime.from_string("PT48H")],
         description="List of forecast horizons to predict.",
     )
 

@@ -193,7 +193,6 @@ class EnsembleForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastD
         Returns:
             FitResult containing training details and metrics.
         """
-
         score_data = data.copy_with(data=data.data)
         # Fit the feature engineering transforms
         self.common_preprocessing.fit(data=data)
@@ -204,16 +203,8 @@ class EnsembleForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastD
         if data_test is not None:
             data_test = self.common_preprocessing.transform(data=data_test)
 
-        # Transform the input data to a valid forecast input and split into train/val/test
-        data, data_val, data_test = self.data_splitter.split_dataset(
-            data=data,
-            data_val=data_val,
-            data_test=data_test,
-            target_column=self.target_column,
-        )
-
-        # Fit predict forecasters
-        ensemble_predictions = self._preprocess_fit_forecasters(
+        # Fit forecasters
+        ensemble_predictions = self._fit_forecasters(
             data=data,
             data_val=data_val,
             data_test=data_test,
@@ -280,8 +271,7 @@ class EnsembleForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastD
     def _transform_combiner_data(self, data: TimeSeriesDataset) -> ForecastInputDataset | None:
         if len(self.combiner_preprocessing.transforms) == 0:
             return None
-        combiner_data = self.prepare_input(data=data)
-        combiner_data = self.combiner_preprocessing.transform(combiner_data)
+        combiner_data = self.combiner_preprocessing.transform(data)
         return ForecastInputDataset.from_timeseries(combiner_data, target_column=self.target_column)
 
     def _fit_transform_combiner_data(self, data: TimeSeriesDataset) -> ForecastInputDataset | None:
@@ -292,28 +282,32 @@ class EnsembleForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastD
         combiner_data = self.combiner_preprocessing.transform(combiner_data)
         return ForecastInputDataset.from_timeseries(combiner_data, target_column=self.target_column)
 
-    def _preprocess_fit_forecasters(
+    def _fit_forecasters(
         self,
         data: TimeSeriesDataset,
         data_val: TimeSeriesDataset | None = None,
         data_test: TimeSeriesDataset | None = None,
     ) -> EnsembleForecastDataset:
 
-        predictions_raw: dict[str, ForecastDataset] = {}
+        predictions: dict[str, ForecastDataset] = {}
 
         if data_test is not None:
             logger.info("Data test provided during fit, but will be ignored for MetaForecating")
 
         for name, forecaster in self.forecasters.items():
             validate_horizons_present(data, forecaster.config.horizons)
+            # Apply model-specific preprocessing if available
 
-            # Transform and split input data
-            input_data_train = self.prepare_input(data=data, forecaster_name=name, forecast_start=data.index[0])
-            input_data_val = (
-                self.prepare_input(data=data_val, forecaster_name=name, forecast_start=data_val.index[0])
-                if data_val
-                else None
-            )
+            if name in self.model_specific_preprocessing:
+                self.model_specific_preprocessing[name].fit(data=data)
+                data = self.model_specific_preprocessing[name].transform(data=data)
+                data_val = self.model_specific_preprocessing[name].transform(data=data_val) if data_val else None
+
+            input_data_train = self.prepare_input(data=data, forecast_start=data.index[0])
+            if data_val is not None:
+                input_data_val = self.prepare_input(data=data_val, forecast_start=data_val.index[0])
+            else:
+                input_data_val = None
 
             # Drop target column nan's from training data. One can not train on missing targets.
             target_dropna = partial(pd.DataFrame.dropna, subset=[self.target_column])  # pyright: ignore[reportUnknownMemberType]
@@ -322,11 +316,11 @@ class EnsembleForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastD
 
             # Fit the model
             forecaster.fit(data=input_data_train, data_val=input_data_val)
-            predictions_raw[name] = self.forecasters[name].predict(data=input_data_train)
+            predictions_raw = self.forecasters[name].predict(data=input_data_train)
 
-        return EnsembleForecastDataset.from_forecast_datasets(
-            predictions_raw, target_series=data.data[self.target_column]
-        )
+            predictions[name] = self.postprocessing.transform(data=predictions_raw)
+
+        return EnsembleForecastDataset.from_forecast_datasets(predictions, target_series=data.data[self.target_column])
 
     def _predict_forecasters(
         self, data: TimeSeriesDataset, forecast_start: datetime | None = None
@@ -340,9 +334,16 @@ class EnsembleForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastD
         Returns:
             DataFrame containing base learner predictions.
         """
+        data_common = self.common_preprocessing.transform(data=data)
+
         base_predictions: dict[str, ForecastDataset] = {}
         for name, forecaster in self.forecasters.items():
-            forecaster_data = self.prepare_input(data, forecaster_name=name, forecast_start=forecast_start)
+            forecaster_data = (
+                self.model_specific_preprocessing[name].transform(data=data_common)
+                if name in self.model_specific_preprocessing
+                else data_common
+            )
+            forecaster_data = self.prepare_input(forecaster_data, forecast_start=forecast_start)
             preds_raw = forecaster.predict(data=forecaster_data)
             preds = self.postprocessing.transform(data=preds_raw)
             base_predictions[name] = preds
@@ -354,29 +355,18 @@ class EnsembleForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastD
     def prepare_input(
         self,
         data: TimeSeriesDataset,
-        forecaster_name: str | None = None,
         forecast_start: datetime | None = None,
     ) -> ForecastInputDataset:
-        """Prepare input data for forecasting by applying preprocessing and filtering.
-
-        Transforms raw time series data through the preprocessing pipeline, restores
-        the target column, and filters out incomplete historical data to ensure
-        training quality.
+        """Prepare input data for forecastingfiltering.
 
         Args:
             data: Raw time series dataset to prepare for forecasting.
-            forecaster_name: Name of the forecaster for model-specific preprocessing.
             forecast_start: Optional start time for forecasts. If provided and earlier
                 than the cutoff time, overrides the cutoff for data filtering.
 
         Returns:
             Processed forecast input dataset ready for model prediction.
         """
-        # Apply model-specific preprocessing if available
-        if forecaster_name in self.model_specific_preprocessing:
-            self.model_specific_preprocessing[forecaster_name].fit(data=data)
-            data = self.model_specific_preprocessing[forecaster_name].transform(data=data)
-
         input_data = restore_target(dataset=data, original_dataset=data, target_column=self.target_column)
 
         # Cut away input history to avoid training on incomplete data
@@ -401,6 +391,7 @@ class EnsembleForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastD
         self, ensemble_dataset: EnsembleForecastDataset, additional_features: ForecastInputDataset | None = None
     ) -> SubsetMetric:
         prediction = self.combiner.predict(ensemble_dataset, additional_features=additional_features)
+        prediction.data[ensemble_dataset.target_column] = ensemble_dataset.target_series
         return self._calculate_score(prediction=prediction)
 
     def predict(self, data: TimeSeriesDataset, forecast_start: datetime | None = None) -> ForecastDataset:
@@ -418,9 +409,6 @@ class EnsembleForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastD
         """
         if not self.is_fitted:
             raise NotFittedError(self.__class__.__name__)
-
-        # Common preprocessing
-        data = self.common_preprocessing.transform(data=data)
 
         ensemble_predictions = self._predict_forecasters(data=data, forecast_start=forecast_start)
 
