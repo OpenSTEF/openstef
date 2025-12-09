@@ -186,6 +186,15 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
                 cast(str, run.info.run_id),
             )
             return
+
+        if old_model != new_model:
+            self._logger.info(
+                "Old ForecastingModel configuration differs from new ForecastingModel configuration, "
+                "skipping model selection for run %s",
+                cast(str, run.info.run_id),
+            )
+            return
+
         old_metrics = old_model.score(result.input_dataset)
 
         if self._check_is_new_model_better(old_metrics=old_metrics, new_metrics=new_metrics):

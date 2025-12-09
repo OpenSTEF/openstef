@@ -8,6 +8,9 @@ import time
 from datetime import timedelta
 from typing import TYPE_CHECKING, cast, override
 
+from openstef_core.mixins import TransformPipeline
+from openstef_models.transforms.general import Clipper
+from openstef_models.transforms.postprocessing import QuantileSorter
 import pandas as pd
 import pytest
 
@@ -255,3 +258,49 @@ def test_mlflow_storage_callback__model_selection__keeps_better_model(
     # Act & Assert - Should raise SkipFitting because new model is worse
     with pytest.raises(SkipFitting, match="New model did not improve"):
         callback.on_fit_end(context=worse_context, result=worse_result)
+
+
+@pytest.mark.parametrize(
+    "new_model",
+    [
+        pytest.param(ForecastingModel(
+            forecaster=SimpleTestForecaster(config=ForecasterConfig(horizons=[LeadTime(timedelta(hours=0))], quantiles=[Q(0.5)])),
+        ), id="different_horizon"),
+        pytest.param(ForecastingModel(
+            preprocessing=TransformPipeline(transforms=[Clipper()]),
+            forecaster=SimpleTestForecaster(config=ForecasterConfig(horizons=[LeadTime(timedelta(hours=1))], quantiles=[Q(0.5)])),
+        ), id="different_preprocessing"),
+        pytest.param(ForecastingModel(
+            forecaster=SimpleTestForecaster(config=ForecasterConfig(horizons=[LeadTime(timedelta(hours=1))], quantiles=[Q(0.5)])),
+            postprocessing=TransformPipeline(transforms=[QuantileSorter()]),
+        ), id="different_postprocessing"),
+    ]
+)
+def test_mlflow_storage_callback__model_selection__skips_on_model_change(
+    new_model: ForecastingModel,
+    storage: MLFlowStorage,
+    workflow: CustomForecastingWorkflow,
+    fit_result: ModelFitResult,
+    sample_dataset: TimeSeriesDataset,
+):
+    """Test that model selection keeps the better performing model."""
+    # Arrange - Create callback with R2 metric (capital letters)
+    callback = MLFlowStorageCallback(
+        storage=storage,
+        model_selection_metric=(Q(0.5), "R2", "higher_is_better"),
+    )
+
+    # Store an initial model
+    context = WorkflowContext(workflow=workflow)
+    callback.on_fit_end(context=context, result=fit_result)
+
+    # Create a new result by fitting with the new model
+    new_workflow = CustomForecastingWorkflow(model_id="test_model", model=new_model)
+    new_result = new_model.fit(sample_dataset)
+
+    # Act
+    result = callback._run_model_selection(workflow=new_workflow, result=new_result)
+
+    # Assert - Should not raise SkipFitting because model changed
+    assert result is None
+    assert new_workflow.model == new_model
