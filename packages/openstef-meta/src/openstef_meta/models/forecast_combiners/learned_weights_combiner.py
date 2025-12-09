@@ -293,7 +293,7 @@ class WeightsCombiner(ForecastCombiner):
             weights_array = pd.DataFrame(0, index=base_predictions.index, columns=self._label_encoder.classes_)
             weights_array[self._label_encoder.classes_[0]] = 1.0
         else:
-            weights_array = model.predict_proba(base_predictions.to_numpy())  # type: ignore
+            weights_array = model.predict_proba(base_predictions)  # type: ignore
 
         return pd.DataFrame(weights_array, index=base_predictions.index, columns=self._label_encoder.classes_)  # type: ignore
 
