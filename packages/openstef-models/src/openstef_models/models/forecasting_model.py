@@ -9,6 +9,7 @@ Handles both single-horizon and multi-horizon forecasters while providing consis
 data transformation and validation.
 """
 
+import json
 import logging
 from datetime import datetime, timedelta
 from functools import partial
@@ -107,17 +108,17 @@ class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset])
     preprocessing: TransformPipeline[TimeSeriesDataset] = Field(
         default_factory=TransformPipeline[TimeSeriesDataset],
         description="Feature engineering pipeline for transforming raw input data into model-ready features.",
-        exclude=True,
+        # exclude=True,
     )
     forecaster: Forecaster = Field(
         default=...,
         description="Underlying forecasting algorithm, either single-horizon or multi-horizon.",
-        exclude=True,
+        # exclude=True,
     )
     postprocessing: TransformPipeline[ForecastDataset] = Field(
         default_factory=TransformPipeline[ForecastDataset],
         description="Postprocessing pipeline for transforming model outputs into final forecasts.",
-        exclude=True,
+        # exclude=True,
     )
     target_column: str = Field(
         default="load",
@@ -358,23 +359,6 @@ class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset])
             )
 
         return global_metric
-
-
-def check_model_compatibility(
-    model1: ForecastingModel,
-    model2: ForecastingModel,
-) -> bool:
-    return (
-        model1.preprocessing == model2.preprocessing
-        and model1.forecaster.config == model2.forecaster.config
-        and model1.forecaster.hyperparams == model2.forecaster.hyperparams
-        and model1.postprocessing == model2.postprocessing
-        and model1.target_column == model2.target_column
-        and model1.data_splitter == model2.data_splitter
-        and model1.cutoff_history == model2.cutoff_history
-        and model1.evaluation_metrics == model2.evaluation_metrics
-        and model1.tags == model2.tags
-    )
 
 
 def restore_target[T: TimeSeriesDataset](

@@ -20,13 +20,19 @@ from openstef_beam.evaluation.metric_providers import MetricDirection
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets.timeseries_dataset import TimeSeriesDataset
 from openstef_core.datasets.versioned_timeseries_dataset import VersionedTimeSeriesDataset
-from openstef_core.exceptions import ModelNotFoundError, SkipFitting
+from openstef_core.exceptions import (
+    FlatlinerDetectedError,
+    MissingColumnsError,
+    ModelNotFoundError,
+    SkipFitting,
+    TimeSeriesValidationError,
+)
 from openstef_core.types import Q, QuantileOrGlobal
 from openstef_models.explainability import ExplainableForecaster
 from openstef_models.integrations.mlflow.mlflow_storage import MLFlowStorage
 from openstef_models.mixins.callbacks import WorkflowContext
 from openstef_models.models import ForecastingModel
-from openstef_models.models.forecasting_model import ModelFitResult, check_model_compatibility
+from openstef_models.models.forecasting_model import ModelFitResult
 from openstef_models.workflows.custom_forecasting_workflow import (
     CustomForecastingWorkflow,
     ForecastingCallback,
@@ -156,7 +162,9 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
 
         # Load the model from the latest run
         run_id: str = run.info.run_id
-        old_model = self.storage.load_run_model(run_id=run_id)
+
+        old_model = self.storage.load_run_model(run_id=run_id, model_id=context.workflow.model_id)
+
         if not isinstance(old_model, ForecastingModel):
             self._logger.warning(
                 "Loaded model from run %s is not a ForecastingModel, cannot use for prediction",
@@ -174,28 +182,27 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
         if run is None:
             return
 
-        # Backup the new model
+        run_id = cast(str, run.info.run_id)
+
+        if not self._check_tags_compatible(
+            run_tags=run.data.tags,  # pyright: ignore[reportUnknownMemberType, reportUnknownArgumentType]
+            new_tags=workflow.model.tags,
+            run_id=run_id
+        ):
+            return
+
         new_model = workflow.model
         new_metrics = result.metrics_full
 
-        # Restore the old model and evaluate
-        old_model = self.storage.load_run_model(run_id=cast(str, run.info.run_id))
-        if not isinstance(old_model, ForecastingModel):
-            self._logger.warning(
-                "Loaded old model from run %s is not a ForecastingModel, skipping model selection",
-                cast(str, run.info.run_id),
-            )
+        old_results = self._restore_model_and_evaluate(
+            run_id=run_id,
+            workflow=workflow,
+            input_data=result.input_dataset
+        )
+        if old_results is None:
             return
 
-        if not check_model_compatibility(model1=old_model, model2=new_model):
-            self._logger.info(
-                "Old ForecastingModel configuration differs from new ForecastingModel configuration, "
-                "skipping model selection for run %s",
-                cast(str, run.info.run_id),
-            )
-            return
-
-        old_metrics = old_model.score(result.input_dataset)
+        old_model, old_metrics = old_results
 
         if self._check_is_new_model_better(old_metrics=old_metrics, new_metrics=new_metrics):
             workflow.model = new_model
@@ -204,9 +211,64 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
             self._logger.info(
                 "New model did not improve %s metric from previous run %s, reusing old model",
                 self.model_selection_metric,
-                cast(str, run.info.run_id),
+                run_id,
             )
             raise SkipFitting("New model did not improve monitored metric, skipping re-fit.")
+
+    def _restore_model_and_evaluate(
+        self,
+        run_id: str,
+        workflow: CustomForecastingWorkflow,
+        input_data: TimeSeriesDataset,
+    ) -> tuple[ForecastingModel, SubsetMetric] | None:
+        try:
+            old_model = self.storage.load_run_model(run_id=run_id, model_id=workflow.model_id)
+        except ModelNotFoundError:
+            self._logger.warning(
+                "Could not load model from previous run %s for model %s, skipping model selection",
+                run_id,
+                workflow.model_id,
+            )
+            return None
+
+        if not isinstance(old_model, ForecastingModel):
+            self._logger.warning(
+                "Loaded old model from run %s is not a ForecastingModel, skipping model selection",
+                run_id,
+            )
+            return None
+
+        try:
+            return old_model, old_model.score(input_data)
+        except (MissingColumnsError, ValueError) as e:
+            self._logger.warning(
+                "Could not evaluate old model from run %s, skipping model selection: %s",
+                run_id,
+                e,
+            )
+            return None
+
+    def _check_tags_compatible(self, run_tags: dict[str, str], new_tags: dict[str, str], run_id: str) -> bool:
+        """Check if model tags are compatible, excluding mlflow.runName.
+
+        Returns:
+            True if tags are compatible, False otherwise.
+        """
+        old_tags = {k: v for k, v in run_tags.items() if k != "mlflow.runName"}
+
+        if old_tags == new_tags:
+            return True
+
+        differences = {k: (old_tags.get(k), new_tags.get(k))
+                      for k in old_tags.keys() | new_tags.keys()
+                      if old_tags.get(k) != new_tags.get(k)}
+
+        self._logger.info(
+            "Model tags changed since run %s, skipping model selection. Changes: %s",
+            run_id,
+            differences,
+        )
+        return False
 
     def _check_is_new_model_better(
         self,

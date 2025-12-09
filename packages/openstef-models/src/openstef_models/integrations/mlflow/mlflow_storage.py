@@ -19,6 +19,8 @@ from typing import Any, cast, override
 
 from mlflow import MlflowClient
 from mlflow.entities import Metric, Param, Run
+from mlflow.exceptions import MlflowException
+from openstef_core.exceptions import ModelNotFoundError
 from pydantic import Field, PrivateAttr
 
 from openstef_core.base_model import BaseConfig
@@ -235,7 +237,7 @@ class MLFlowStorage(BaseConfig):
         with Path(model_path / f"model.{self.model_serializer.extension}").open("wb") as f:
             self.model_serializer.serialize(model, file=f)
 
-    def load_run_model(self, run_id: str) -> object:
+    def load_run_model(self, run_id: str, model_id: ModelIdentifier) -> object:
         """Load a trained model from MLflow artifacts.
 
         Downloads model artifacts from MLflow and deserializes them into the
@@ -243,15 +245,21 @@ class MLFlowStorage(BaseConfig):
 
         Args:
             run_id: MLflow run ID containing the model artifacts.
+            model_id: Model identifier for locating artifact paths.
 
         Returns:
             Model instance with restored state from the run.
+
+        Raises:
+            ModelNotFoundError: If the model artifacts cannot be found in MLflow.
         """
-        # Download and load the model
-        with TemporaryDirectory() as tmpdir:
-            self._client.download_artifacts(run_id=run_id, path=self.model_path, dst_path=tmpdir)
-            with (Path(tmpdir) / self.model_path / f"model.{self.model_serializer.extension}").open("rb") as f:
-                model = cast(Any, self.model_serializer.deserialize(file=f))
+        try:
+            with TemporaryDirectory() as tmpdir:
+                self._client.download_artifacts(run_id=run_id, path=self.model_path, dst_path=tmpdir)
+                with (Path(tmpdir) / self.model_path / f"model.{self.model_serializer.extension}").open("rb") as f:
+                    model = cast(Any, self.model_serializer.deserialize(file=f))
+        except (MlflowException, FileNotFoundError) as e:
+            raise ModelNotFoundError(model_id=model_id) from e
 
         return model
 
