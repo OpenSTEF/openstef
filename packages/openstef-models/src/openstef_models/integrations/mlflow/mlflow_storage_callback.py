@@ -22,6 +22,7 @@ from openstef_core.datasets.timeseries_dataset import TimeSeriesDataset
 from openstef_core.datasets.versioned_timeseries_dataset import VersionedTimeSeriesDataset
 from openstef_core.exceptions import ModelNotFoundError, SkipFitting
 from openstef_core.types import Q, QuantileOrGlobal
+from openstef_meta.models.ensemble_forecasting_model import EnsembleForecastingModel
 from openstef_models.explainability import ExplainableForecaster
 from openstef_models.integrations.mlflow.mlflow_storage import MLFlowStorage
 from openstef_models.mixins.callbacks import WorkflowContext
@@ -97,11 +98,16 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
         if self.model_selection_enable:
             self._run_model_selection(workflow=context.workflow, result=result)
 
+        if isinstance(context.workflow.model, EnsembleForecastingModel):
+            raise NotImplementedError(
+                "MLFlowStorageCallback does not yet support EnsembleForecastingWorkflow model storage."
+            )
+
         # Create a new run
         run = self.storage.create_run(
             model_id=context.workflow.model_id,
             tags=context.workflow.model.tags,
-            hyperparams=context.workflow.model.forecaster.hyperparams,
+            hyperparams=context.workflow.model.forecaster.hyperparams,  # type: ignore TODO Make MLFlow compatible with OpenSTEF Meta
         )
         run_id: str = run.info.run_id
         self._logger.info("Created MLflow run %s for model %s", run_id, context.workflow.model_id)
@@ -114,7 +120,11 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
         self._logger.info("Stored training data at %s for run %s", data_path, run_id)
 
         # Store feature importance plot if enabled
-        if self.store_feature_importance_plot and isinstance(context.workflow.model.forecaster, ExplainableForecaster):
+        if (
+            self.store_feature_importance_plot
+            and isinstance(context.workflow.model, ForecastingModel)
+            and isinstance(context.workflow.model.forecaster, ExplainableForecaster)
+        ):
             fig = context.workflow.model.forecaster.plot_feature_importances()
             fig.write_html(data_path / "feature_importances.html")  # pyright: ignore[reportUnknownMemberType]
 

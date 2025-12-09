@@ -25,12 +25,12 @@ from openstef_beam.evaluation.metric_providers import (
 from openstef_core.base_model import BaseConfig
 from openstef_core.mixins import TransformPipeline
 from openstef_core.types import LeadTime, Q, Quantile, QuantileOrGlobal
+from openstef_meta.models.forecasting.residual_forecaster import ResidualForecaster
 from openstef_models.integrations.mlflow import MLFlowStorage, MLFlowStorageCallback
 from openstef_models.mixins import ModelIdentifier
 from openstef_models.models import ForecastingModel
 from openstef_models.models.forecasting.flatliner_forecaster import FlatlinerForecaster
 from openstef_models.models.forecasting.gblinear_forecaster import GBLinearForecaster
-from openstef_models.models.forecasting.hybrid_forecaster import HybridForecaster
 from openstef_models.models.forecasting.lgbm_forecaster import LGBMForecaster
 from openstef_models.models.forecasting.lgbmlinear_forecaster import LGBMLinearForecaster
 from openstef_models.models.forecasting.xgboost_forecaster import XGBoostForecaster
@@ -100,9 +100,9 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
     model_id: ModelIdentifier = Field(description="Unique identifier for the forecasting model.")
 
     # Model configuration
-    model: Literal["xgboost", "gblinear", "flatliner", "hybrid", "lgbm", "lgbmlinear"] = Field(
-        description="Type of forecasting model to use."
-    )  # TODO(#652): Implement median forecaster
+    model: Literal[
+        "xgboost", "gblinear", "flatliner", "stacking", "residual", "learned_weights", "lgbm", "lgbmlinear"
+    ] = Field(description="Type of forecasting model to use.")  # TODO(#652): Implement median forecaster
     quantiles: list[Quantile] = Field(
         default=[Q(0.5)],
         description="List of quantiles to predict for probabilistic forecasting.",
@@ -136,9 +136,9 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
         description="Hyperparameters for LightGBM forecaster.",
     )
 
-    hybrid_hyperparams: HybridForecaster.HyperParams = Field(
-        default=HybridForecaster.HyperParams(),
-        description="Hyperparameters for Hybrid forecaster.",
+    residual_hyperparams: ResidualForecaster.HyperParams = Field(
+        default=ResidualForecaster.HyperParams(),
+        description="Hyperparameters for Residual forecaster.",
     )
 
     location: LocationConfig = Field(
@@ -202,7 +202,7 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
     )
     sample_weight_exponent: float = Field(
         default_factory=lambda data: 1.0
-        if data.get("model") in {"gblinear", "lgbmlinear", "lgbm", "hybrid", "xgboost"}
+        if data.get("model") in {"gblinear", "lgbmlinear", "lgbm", "learned_weights", "stacking", "residual", "xgboost"}
         else 0.0,
         description="Exponent applied to scale the sample weights. "
         "0=uniform weights, 1=linear scaling, >1=stronger emphasis on high values. "
@@ -301,9 +301,12 @@ def create_forecasting_workflow(
         LagsAdder(
             history_available=config.predict_history,
             horizons=config.horizons,
-            add_trivial_lags=config.model not in {"gblinear", "hybrid"},  # GBLinear uses only 7day lag.
+            add_trivial_lags=config.model
+            not in {"gblinear", "residual", "stacking", "learned_weights"},  # GBLinear uses only 7day lag.
             target_column=config.target_column,
-            custom_lags=[timedelta(days=7)] if config.model in {"gblinear", "hybrid"} else [],
+            custom_lags=[timedelta(days=7)]
+            if config.model in {"gblinear", "residual", "stacking", "learned_weights"}
+            else [],
         ),
         WindPowerFeatureAdder(
             windspeed_reference_column=config.wind_speed_column,
@@ -328,10 +331,7 @@ def create_forecasting_workflow(
         ),
     ]
     feature_standardizers = [
-        Clipper(
-            selection=Include(config.energy_price_column).combine(config.clip_features),
-            mode="standard",
-        ),
+        Clipper(selection=Include(config.energy_price_column).combine(config.clip_features), mode="standard"),
         Scaler(selection=Exclude(config.target_column), method="standard"),
         SampleWeighter(
             target_column=config.target_column,
@@ -425,7 +425,8 @@ def create_forecasting_workflow(
         postprocessing = [
             ConfidenceIntervalApplicator(quantiles=config.quantiles),
         ]
-    elif config.model == "hybrid":
+
+    elif config.model == "residual":
         preprocessing = [
             *checks,
             *feature_adders,
@@ -439,11 +440,11 @@ def create_forecasting_workflow(
                 selection=Exclude(config.target_column),
             ),
         ]
-        forecaster = HybridForecaster(
-            config=HybridForecaster.Config(
+        forecaster = ResidualForecaster(
+            config=ResidualForecaster.Config(
                 quantiles=config.quantiles,
                 horizons=config.horizons,
-                hyperparams=config.hybrid_hyperparams,
+                hyperparams=config.residual_hyperparams,
             )
         )
         postprocessing = [QuantileSorter()]

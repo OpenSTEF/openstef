@@ -9,6 +9,7 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any, override
 
+import pandas as pd
 from pydantic import Field, PrivateAttr
 
 from openstef_beam.backtesting.backtest_forecaster.mixins import BacktestForecasterConfig, BacktestForecasterMixin
@@ -17,6 +18,7 @@ from openstef_core.base_model import BaseModel
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.exceptions import FlatlinerDetectedError, NotFittedError
 from openstef_core.types import Q
+from openstef_meta.models.ensemble_forecasting_model import EnsembleForecastingModel
 from openstef_models.workflows.custom_forecasting_workflow import CustomForecastingWorkflow
 
 
@@ -40,6 +42,10 @@ class OpenSTEF4BacktestForecaster(BaseModel, BacktestForecasterMixin):
         default=False,
         description="When True, saves intermediate input data for debugging",
     )
+    contributions: bool = Field(
+        default=False,
+        description="When True, saves intermediate input data for explainability",
+    )
 
     _workflow: CustomForecastingWorkflow | None = PrivateAttr(default=None)
     _is_flatliner_detected: bool = PrivateAttr(default=False)
@@ -50,6 +56,8 @@ class OpenSTEF4BacktestForecaster(BaseModel, BacktestForecasterMixin):
     def model_post_init(self, context: Any) -> None:
         if self.debug:
             self.cache_dir.mkdir(parents=True, exist_ok=True)
+        if self.contributions:
+            self.cache_dir.mkdir(parents=True, exist_ok=True)
 
     @property
     @override
@@ -58,6 +66,11 @@ class OpenSTEF4BacktestForecaster(BaseModel, BacktestForecasterMixin):
         if self._workflow is None:
             self._workflow = self.workflow_factory()
         # Extract quantiles from the workflow's model
+
+        if isinstance(self._workflow.model, EnsembleForecastingModel):
+            # Assuming all ensemble members have the same quantiles
+            name = self._workflow.model.forecaster_names[0]
+            return self._workflow.model.forecasters[name].config.quantiles
         return self._workflow.model.forecaster.config.quantiles
 
     @override
@@ -121,6 +134,12 @@ class OpenSTEF4BacktestForecaster(BaseModel, BacktestForecasterMixin):
             predict_data.to_parquet(path=self.cache_dir / f"debug_{id_str}_predict.parquet")
             forecast.to_parquet(path=self.cache_dir / f"debug_{id_str}_forecast.parquet")
 
+        if self.contributions and isinstance(self._workflow.model, EnsembleForecastingModel):
+            contr_str = data.horizon.strftime("%Y%m%d%H%M%S")
+            contributions = self._workflow.model.predict_contributions(predict_data, forecast_start=data.horizon)
+            df = pd.concat([contributions, forecast.data.drop(columns=["load"])], axis=1)
+
+            df.to_parquet(path=self.cache_dir / f"contrib_{contr_str}_predict.parquet")
         return forecast
 
 

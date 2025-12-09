@@ -189,6 +189,23 @@ class BaseCaseForecaster(Forecaster, ExplainableForecaster):
             sample_interval=data.sample_interval,
         )
 
+    @override
+    def predict_contributions(self, data: ForecastInputDataset, *, scale: bool = True) -> pd.DataFrame:
+        """Generate feature contributions.
+
+        Args:
+            data: The forecast input dataset containing target variable history.
+            scale: Whether to scale contributions to sum to 1. Defaults to True.
+
+        Returns:
+            pd.DataFrame containing the prediction contributions.
+        """
+        return pd.DataFrame(
+            data=1.0,
+            index=data.index,
+            columns=["load_" + quantile.format() for quantile in self.config.quantiles],
+        )
+
     @property
     @override
     def feature_importances(self) -> pd.DataFrame:
