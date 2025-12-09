@@ -192,7 +192,7 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
         new_model = workflow.model
         new_metrics = result.metrics_full
 
-        old_model = self._restore_model(
+        old_model = self._try_load_model(
             run_id=run_id,
             workflow=workflow,
         )
@@ -200,7 +200,7 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
         if old_model is None:
             return
 
-        old_metrics = self._evaluate_model(
+        old_metrics = self._try_evaluate_model(
             run_id=run_id,
             old_model=old_model,
             input_data=result.input_dataset,
@@ -220,7 +220,7 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
             )
             raise SkipFitting("New model did not improve monitored metric, skipping re-fit.")
 
-    def _restore_model(
+    def _try_load_model(
         self,
         run_id: str,
         workflow: CustomForecastingWorkflow,
@@ -244,7 +244,7 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
 
         return old_model
 
-    def _evaluate_model(
+    def _try_evaluate_model(
         self,
         run_id: str,
         old_model: ForecastingModel,
