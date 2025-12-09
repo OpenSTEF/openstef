@@ -9,7 +9,6 @@ Handles both single-horizon and multi-horizon forecasters while providing consis
 data transformation and validation.
 """
 
-import json
 import logging
 from datetime import datetime, timedelta
 from functools import partial
@@ -108,17 +107,17 @@ class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset])
     preprocessing: TransformPipeline[TimeSeriesDataset] = Field(
         default_factory=TransformPipeline[TimeSeriesDataset],
         description="Feature engineering pipeline for transforming raw input data into model-ready features.",
-        # exclude=True,
+        exclude=True,
     )
     forecaster: Forecaster = Field(
         default=...,
         description="Underlying forecasting algorithm, either single-horizon or multi-horizon.",
-        # exclude=True,
+        exclude=True,
     )
     postprocessing: TransformPipeline[ForecastDataset] = Field(
         default_factory=TransformPipeline[ForecastDataset],
         description="Postprocessing pipeline for transforming model outputs into final forecasts.",
-        # exclude=True,
+        exclude=True,
     )
     target_column: str = Field(
         default="load",

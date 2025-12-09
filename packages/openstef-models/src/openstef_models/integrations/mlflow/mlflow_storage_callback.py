@@ -21,11 +21,9 @@ from openstef_core.base_model import BaseConfig
 from openstef_core.datasets.timeseries_dataset import TimeSeriesDataset
 from openstef_core.datasets.versioned_timeseries_dataset import VersionedTimeSeriesDataset
 from openstef_core.exceptions import (
-    FlatlinerDetectedError,
     MissingColumnsError,
     ModelNotFoundError,
     SkipFitting,
-    TimeSeriesValidationError,
 )
 from openstef_core.types import Q, QuantileOrGlobal
 from openstef_models.explainability import ExplainableForecaster
@@ -187,22 +185,29 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
         if not self._check_tags_compatible(
             run_tags=run.data.tags,  # pyright: ignore[reportUnknownMemberType, reportUnknownArgumentType]
             new_tags=workflow.model.tags,
-            run_id=run_id
+            run_id=run_id,
         ):
             return
 
         new_model = workflow.model
         new_metrics = result.metrics_full
 
-        old_results = self._restore_model_and_evaluate(
+        old_model = self._restore_model(
             run_id=run_id,
             workflow=workflow,
-            input_data=result.input_dataset
         )
-        if old_results is None:
+
+        if old_model is None:
             return
 
-        old_model, old_metrics = old_results
+        old_metrics = self._evaluate_model(
+            run_id=run_id,
+            old_model=old_model,
+            input_data=result.input_dataset,
+        )
+
+        if old_metrics is None:
+            return
 
         if self._check_is_new_model_better(old_metrics=old_metrics, new_metrics=new_metrics):
             workflow.model = new_model
@@ -215,12 +220,11 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
             )
             raise SkipFitting("New model did not improve monitored metric, skipping re-fit.")
 
-    def _restore_model_and_evaluate(
+    def _restore_model(
         self,
         run_id: str,
         workflow: CustomForecastingWorkflow,
-        input_data: TimeSeriesDataset,
-    ) -> tuple[ForecastingModel, SubsetMetric] | None:
+    ) -> ForecastingModel | None:
         try:
             old_model = self.storage.load_run_model(run_id=run_id, model_id=workflow.model_id)
         except ModelNotFoundError:
@@ -238,8 +242,16 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
             )
             return None
 
+        return old_model
+
+    def _evaluate_model(
+        self,
+        run_id: str,
+        old_model: ForecastingModel,
+        input_data: TimeSeriesDataset,
+    ) -> SubsetMetric | None:
         try:
-            return old_model, old_model.score(input_data)
+            return old_model.score(input_data)
         except (MissingColumnsError, ValueError) as e:
             self._logger.warning(
                 "Could not evaluate old model from run %s, skipping model selection: %s",
@@ -259,9 +271,11 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
         if old_tags == new_tags:
             return True
 
-        differences = {k: (old_tags.get(k), new_tags.get(k))
-                      for k in old_tags.keys() | new_tags.keys()
-                      if old_tags.get(k) != new_tags.get(k)}
+        differences = {
+            k: (old_tags.get(k), new_tags.get(k))
+            for k in old_tags.keys() | new_tags.keys()
+            if old_tags.get(k) != new_tags.get(k)
+        }
 
         self._logger.info(
             "Model tags changed since run %s, skipping model selection. Changes: %s",

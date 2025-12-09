@@ -14,14 +14,11 @@ import pytest
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import ModelNotFoundError, SkipFitting
-from openstef_core.mixins import TransformPipeline
 from openstef_core.types import LeadTime, Q
 from openstef_models.integrations.mlflow import MLFlowStorage, MLFlowStorageCallback
 from openstef_models.mixins.callbacks import WorkflowContext
 from openstef_models.models.forecasting import Forecaster, ForecasterConfig
 from openstef_models.models.forecasting_model import ForecastingModel, ModelFitResult
-from openstef_models.transforms.general import Clipper
-from openstef_models.transforms.postprocessing import QuantileSorter
 from openstef_models.workflows.custom_forecasting_workflow import CustomForecastingWorkflow
 
 if TYPE_CHECKING:
@@ -131,7 +128,7 @@ def test_mlflow_storage_callback__on_fit_end__stores_model_and_metrics(
 
     # Assert - Model can be loaded from the run
     run_id = cast(str, runs[0].info.run_id)
-    loaded_model = callback.storage.load_run_model(run_id=run_id)
+    loaded_model = callback.storage.load_run_model(model_id=workflow.model_id, run_id=run_id)
     assert isinstance(loaded_model, ForecastingModel)
     assert loaded_model.is_fitted
 
@@ -260,39 +257,7 @@ def test_mlflow_storage_callback__model_selection__keeps_better_model(
         callback.on_fit_end(context=worse_context, result=worse_result)
 
 
-@pytest.mark.parametrize(
-    "new_model",
-    [
-        pytest.param(
-            ForecastingModel(
-                forecaster=SimpleTestForecaster(
-                    config=ForecasterConfig(horizons=[LeadTime(timedelta(hours=0))], quantiles=[Q(0.5)])
-                ),
-            ),
-            id="different_horizon",
-        ),
-        pytest.param(
-            ForecastingModel(
-                preprocessing=TransformPipeline(transforms=[Clipper()]),
-                forecaster=SimpleTestForecaster(
-                    config=ForecasterConfig(horizons=[LeadTime(timedelta(hours=1))], quantiles=[Q(0.5)])
-                ),
-            ),
-            id="different_preprocessing",
-        ),
-        pytest.param(
-            ForecastingModel(
-                forecaster=SimpleTestForecaster(
-                    config=ForecasterConfig(horizons=[LeadTime(timedelta(hours=1))], quantiles=[Q(0.5)])
-                ),
-                postprocessing=TransformPipeline(transforms=[QuantileSorter()]),
-            ),
-            id="different_postprocessing",
-        ),
-    ],
-)
-def test_mlflow_storage_callback__model_selection__skips_on_model_change(
-    new_model: ForecastingModel,
+def test_mlflow_storage_callback__model_selection__skips_on_tag_change(
     storage: MLFlowStorage,
     workflow: CustomForecastingWorkflow,
     fit_result: ModelFitResult,
@@ -309,7 +274,13 @@ def test_mlflow_storage_callback__model_selection__skips_on_model_change(
     context = WorkflowContext(workflow=workflow)
     callback.on_fit_end(context=context, result=fit_result)
 
-    # Create a new result by fitting with the new model
+    # Create a new result by fitting with a model with a different tag
+    new_model = ForecastingModel(
+        forecaster=SimpleTestForecaster(
+            config=ForecasterConfig(horizons=[LeadTime(timedelta(hours=6))], quantiles=[Q(0.5)])
+        ),
+        tags={"version": "2.0"},
+    )
     new_workflow = CustomForecastingWorkflow(model_id="test_model", model=new_model)
     new_result = new_model.fit(sample_dataset)
 

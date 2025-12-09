@@ -6,7 +6,6 @@ import pickle  # noqa: S403 - controlled test
 from datetime import datetime, timedelta
 
 import numpy as np
-from openstef_models.transforms.general import Clipper
 import pandas as pd
 import pytest
 
@@ -21,7 +20,7 @@ from openstef_models.models.forecasting.constant_median_forecaster import (
     ConstantMedianForecasterConfig,
 )
 from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
-from openstef_models.models.forecasting_model import ForecastingModel, check_model_compatibility
+from openstef_models.models.forecasting_model import ForecastingModel
 from openstef_models.transforms.postprocessing.quantile_sorter import QuantileSorter
 from openstef_models.transforms.time_domain.lags_adder import LagsAdder
 

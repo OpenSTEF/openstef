@@ -20,10 +20,10 @@ from typing import Any, cast, override
 from mlflow import MlflowClient
 from mlflow.entities import Metric, Param, Run
 from mlflow.exceptions import MlflowException
-from openstef_core.exceptions import ModelNotFoundError
 from pydantic import Field, PrivateAttr
 
 from openstef_core.base_model import BaseConfig
+from openstef_core.exceptions import ModelNotFoundError
 from openstef_core.mixins import HyperParams
 from openstef_models.integrations.joblib import JoblibModelSerializer
 from openstef_models.mixins import ModelIdentifier, ModelSerializer
