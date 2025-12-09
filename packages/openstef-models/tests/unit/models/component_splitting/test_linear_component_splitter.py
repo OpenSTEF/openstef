@@ -24,8 +24,8 @@ def sample_timeseries_dataset() -> TimeSeriesDataset:
     """
     data = pd.DataFrame(
         {
-            "load": [100.0, 150.0, 200.0, 250.0, 300.0],
-            "radiation": [0.0, 0.0, 10.0, 50.0, 100.0],
+            "load": [10.0, 15.0, 20.0, 25.0, 30.0],
+            "radiation": [0.0, 0.0, 1000.0, 5000.0, 1000.0],
             "windspeed_100m": [10.0, 5.0, 0.0, 3.0, 7.0],
         },
         index=pd.date_range(datetime.fromisoformat("2025-01-01T00:00:00"), periods=5, freq="1h"),
@@ -66,6 +66,9 @@ def test_linear_component_splitter__predict_returns_correct_components(
     # Check that components are negative
     assert (result.data[EnergyComponentType.SOLAR] <= 0).all()
     assert (result.data[EnergyComponentType.WIND] <= 0).all()
+
+    # Check that not all components are zero
+    assert (result.data[EnergyComponentType.SOLAR] < 0).any() or (result.data[EnergyComponentType.WIND] < 0).any()
 
 
 def test_linear_component_splitter__create_input_features(
