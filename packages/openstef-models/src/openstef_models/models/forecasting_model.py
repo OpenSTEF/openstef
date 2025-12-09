@@ -359,30 +359,22 @@ class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset])
 
         return global_metric
 
-    def __eq__(self, other: object) -> bool:
-        """Check equality based on model configuration and components.
 
-        Args:
-            other: Another object to compare against.
-
-        Returns:
-            True if both are ForecastingModel instances with identical configurations
-            and components; False otherwise.
-        """
-        if not isinstance(other, ForecastingModel):
-            return False
-
-        return (
-            self.preprocessing == other.preprocessing
-            and self.forecaster.config == other.forecaster.config
-            and self.forecaster.hyperparams == other.forecaster.hyperparams
-            and self.postprocessing == other.postprocessing
-            and self.target_column == other.target_column
-            and self.data_splitter == other.data_splitter
-            and self.cutoff_history == other.cutoff_history
-            and self.evaluation_metrics == other.evaluation_metrics
-            and self.tags == other.tags
-        )
+def check_model_compatibility(
+    model1: ForecastingModel,
+    model2: ForecastingModel,
+) -> bool:
+    return (
+        model1.preprocessing == model2.preprocessing
+        and model1.forecaster.config == model2.forecaster.config
+        and model1.forecaster.hyperparams == model2.forecaster.hyperparams
+        and model1.postprocessing == model2.postprocessing
+        and model1.target_column == model2.target_column
+        and model1.data_splitter == model2.data_splitter
+        and model1.cutoff_history == model2.cutoff_history
+        and model1.evaluation_metrics == model2.evaluation_metrics
+        and model1.tags == model2.tags
+    )
 
 
 def restore_target[T: TimeSeriesDataset](

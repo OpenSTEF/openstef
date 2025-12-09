@@ -26,7 +26,7 @@ from openstef_models.explainability import ExplainableForecaster
 from openstef_models.integrations.mlflow.mlflow_storage import MLFlowStorage
 from openstef_models.mixins.callbacks import WorkflowContext
 from openstef_models.models import ForecastingModel
-from openstef_models.models.forecasting_model import ModelFitResult
+from openstef_models.models.forecasting_model import ModelFitResult, check_model_compatibility
 from openstef_models.workflows.custom_forecasting_workflow import (
     CustomForecastingWorkflow,
     ForecastingCallback,
@@ -187,7 +187,7 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
             )
             return
 
-        if old_model != new_model:
+        if not check_model_compatibility(model1=old_model, model2=new_model):
             self._logger.info(
                 "Old ForecastingModel configuration differs from new ForecastingModel configuration, "
                 "skipping model selection for run %s",

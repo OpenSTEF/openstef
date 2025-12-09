@@ -8,20 +8,20 @@ import time
 from datetime import timedelta
 from typing import TYPE_CHECKING, cast, override
 
-from openstef_core.mixins import TransformPipeline
-from openstef_models.transforms.general import Clipper
-from openstef_models.transforms.postprocessing import QuantileSorter
 import pandas as pd
 import pytest
 
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import ModelNotFoundError, SkipFitting
+from openstef_core.mixins import TransformPipeline
 from openstef_core.types import LeadTime, Q
 from openstef_models.integrations.mlflow import MLFlowStorage, MLFlowStorageCallback
 from openstef_models.mixins.callbacks import WorkflowContext
 from openstef_models.models.forecasting import Forecaster, ForecasterConfig
 from openstef_models.models.forecasting_model import ForecastingModel, ModelFitResult
+from openstef_models.transforms.general import Clipper
+from openstef_models.transforms.postprocessing import QuantileSorter
 from openstef_models.workflows.custom_forecasting_workflow import CustomForecastingWorkflow
 
 if TYPE_CHECKING:
@@ -263,18 +263,33 @@ def test_mlflow_storage_callback__model_selection__keeps_better_model(
 @pytest.mark.parametrize(
     "new_model",
     [
-        pytest.param(ForecastingModel(
-            forecaster=SimpleTestForecaster(config=ForecasterConfig(horizons=[LeadTime(timedelta(hours=0))], quantiles=[Q(0.5)])),
-        ), id="different_horizon"),
-        pytest.param(ForecastingModel(
-            preprocessing=TransformPipeline(transforms=[Clipper()]),
-            forecaster=SimpleTestForecaster(config=ForecasterConfig(horizons=[LeadTime(timedelta(hours=1))], quantiles=[Q(0.5)])),
-        ), id="different_preprocessing"),
-        pytest.param(ForecastingModel(
-            forecaster=SimpleTestForecaster(config=ForecasterConfig(horizons=[LeadTime(timedelta(hours=1))], quantiles=[Q(0.5)])),
-            postprocessing=TransformPipeline(transforms=[QuantileSorter()]),
-        ), id="different_postprocessing"),
-    ]
+        pytest.param(
+            ForecastingModel(
+                forecaster=SimpleTestForecaster(
+                    config=ForecasterConfig(horizons=[LeadTime(timedelta(hours=0))], quantiles=[Q(0.5)])
+                ),
+            ),
+            id="different_horizon",
+        ),
+        pytest.param(
+            ForecastingModel(
+                preprocessing=TransformPipeline(transforms=[Clipper()]),
+                forecaster=SimpleTestForecaster(
+                    config=ForecasterConfig(horizons=[LeadTime(timedelta(hours=1))], quantiles=[Q(0.5)])
+                ),
+            ),
+            id="different_preprocessing",
+        ),
+        pytest.param(
+            ForecastingModel(
+                forecaster=SimpleTestForecaster(
+                    config=ForecasterConfig(horizons=[LeadTime(timedelta(hours=1))], quantiles=[Q(0.5)])
+                ),
+                postprocessing=TransformPipeline(transforms=[QuantileSorter()]),
+            ),
+            id="different_postprocessing",
+        ),
+    ],
 )
 def test_mlflow_storage_callback__model_selection__skips_on_model_change(
     new_model: ForecastingModel,
