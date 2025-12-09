@@ -37,6 +37,8 @@ from openstef_models.utils.data_split import DataSplitter
 
 logger = logging.getLogger(__name__)
 
+logger = logging.getLogger(__name__)
+
 
 class EnsembleForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset]):
     """Complete forecasting pipeline combining preprocessing, prediction, and postprocessing.
@@ -421,6 +423,31 @@ class EnsembleForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastD
         )
 
         return restore_target(dataset=prediction, original_dataset=data, target_column=self.target_column)
+
+    def predict_contributions(self, data: TimeSeriesDataset, forecast_start: datetime | None = None) -> pd.DataFrame:
+        """Generate forecasts for the provided dataset.
+
+        Args:
+            data: Input time series dataset for prediction.
+            forecast_start: Optional start time for forecasts.
+
+        Returns:
+            ForecastDataset containing the generated forecasts.
+
+        Raises:
+            NotFittedError: If the model has not been fitted yet.
+        """
+        if not self.is_fitted:
+            raise NotFittedError(self.__class__.__name__)
+
+        ensemble_predictions = self._predict_forecasters(data=data, forecast_start=forecast_start)
+
+        features = self._transform_combiner_data(data=data)
+
+        return self.combiner.predict_contributions(
+            data=ensemble_predictions,
+            additional_features=features,
+        )
 
     def score(
         self,

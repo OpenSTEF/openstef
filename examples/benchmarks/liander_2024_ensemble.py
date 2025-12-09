@@ -143,6 +143,7 @@ def _target_forecaster_factory(
         config=backtest_config,
         workflow_factory=_create_workflow,
         debug=False,
+        contributions=True,
         cache_dir=OUTPUT_PATH / "cache" / f"{context.run_name}_{target.name}",
     )
 

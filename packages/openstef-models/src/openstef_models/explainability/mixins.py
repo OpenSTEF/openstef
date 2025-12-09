@@ -13,6 +13,7 @@ from abc import ABC, abstractmethod
 import pandas as pd
 import plotly.graph_objects as go
 
+from openstef_core.datasets.validated_datasets import ForecastInputDataset
 from openstef_core.types import Q, Quantile
 from openstef_models.explainability.plotters.feature_importance_plotter import FeatureImportancePlotter
 
@@ -41,6 +42,19 @@ class ExplainableForecaster(ABC):
             The returned DataFrame must have feature names as index and quantile
             columns in format 'quantile_PXX' (e.g., 'quantile_P50', 'quantile_P95').
             All quantile values must be between 0 and 1.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def predict_contributions(self, data: ForecastInputDataset, *, scale: bool) -> pd.DataFrame:
+        """Get feature contributions for each prediction.
+
+        Args:
+            data: Input dataset for which to compute feature contributions.
+            scale: Whether to scale contributions to sum to the prediction value.
+
+        Returns:
+            DataFrame with contributions per base learner.
         """
         raise NotImplementedError
 

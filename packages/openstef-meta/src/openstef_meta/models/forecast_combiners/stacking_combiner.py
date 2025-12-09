@@ -23,6 +23,7 @@ from openstef_core.mixins import HyperParams
 from openstef_core.types import LeadTime, Quantile
 from openstef_meta.models.forecast_combiners.forecast_combiner import ForecastCombiner, ForecastCombinerConfig
 from openstef_meta.utils.datasets import EnsembleForecastDataset
+from openstef_models.explainability.mixins import ExplainableForecaster
 from openstef_models.models.forecasting.gblinear_forecaster import (
     GBLinearForecaster,
     GBLinearHyperParams,
@@ -197,6 +198,38 @@ class StackingCombiner(ForecastCombiner):
             data=df,
             sample_interval=data.sample_interval,
         )
+
+    @override
+    def predict_contributions(
+        self,
+        data: EnsembleForecastDataset,
+        additional_features: ForecastInputDataset | None = None,
+    ) -> pd.DataFrame:
+
+        predictions: list[pd.DataFrame] = []
+        for i, q in enumerate(self.quantiles):
+            if additional_features is not None:
+                input_data = self._combine_datasets(
+                    data=data.select_quantile(quantile=q),
+                    additional_features=additional_features,
+                )
+            else:
+                input_data = data.select_quantile(quantile=q)
+            model = self.models[i]
+            if not isinstance(model, ExplainableForecaster):
+                raise NotImplementedError(
+                    "Predicting contributions is only supported for ExplainableForecaster models."
+                )
+            p = model.predict_contributions(data=input_data, scale=True)
+            predictions.append(p)
+
+        contributions = pd.concat(predictions, axis=1)
+
+        target_series = data.target_series
+        if target_series is not None:
+            contributions[data.target_column] = target_series
+
+        return contributions
 
     @property
     def is_fitted(self) -> bool:

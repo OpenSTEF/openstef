@@ -314,6 +314,45 @@ class LGBMLinearForecaster(Forecaster, ExplainableForecaster):
             sample_interval=data.sample_interval,
         )
 
+    @override
+    def predict_contributions(self, data: ForecastInputDataset, *, scale: bool) -> pd.DataFrame:
+        """Get feature contributions for each prediction.
+
+        Args:
+            data: Input dataset for which to compute feature contributions.
+            scale: If True, scale contributions to sum to 1.0 per quantile.
+
+        Returns:
+            DataFrame with contributions per base learner.
+        """
+        raise NotImplementedError("predict_contributions is not yet implemented for LGBMLinearForecaster")
+        # Get input features for prediction
+        input_data: pd.DataFrame = data.input_data(start=data.forecast_start)
+
+        contributions: list[pd.DataFrame] = []
+
+        for i, quantile in enumerate(self.config.quantiles):
+            # Get model for specific quantile
+            model: LGBMRegressor = self._lgbmlinear_model.models[i]  # type: ignore
+
+            # Generate contributions NOT AVAILABLE FOR LGBM with linear_trees=true
+            contribs_quantile: np.ndarray[float] = model.predict(input_data, pred_contrib=True)[:, :-1]  # type: ignore
+
+            if scale:
+                # Scale contributions so that they sum to 1.0 per quantile
+                contribs_quantile = np.abs(contribs_quantile) / np.sum(np.abs(contribs_quantile), axis=1, keepdims=True)
+
+            contributions.append(
+                pd.DataFrame(
+                    data=contribs_quantile,
+                    index=input_data.index,
+                    columns=[f"{feature}_{quantile.format()}" for feature in input_data.columns],
+                )
+            )
+
+        # Construct DataFrame
+        return pd.concat(contributions, axis=1)
+
     @property
     @override
     def feature_importances(self) -> pd.DataFrame:
