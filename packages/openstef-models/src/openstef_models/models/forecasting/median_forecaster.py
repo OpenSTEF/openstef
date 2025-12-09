@@ -426,6 +426,6 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
                 f"The input data frequency ({input_data_predictors.index.freq}) does not match the model frequency ({self.frequency})."
             )
 
-        self.feature_importances_ = np.ones(len(self.feature_names_)) / (
-            len(self.feature_names_) or 1.0
+        self.feature_importances = np.ones(len(self.feature_names)) / (
+            len(self.feature_names) or 1.0
         )
