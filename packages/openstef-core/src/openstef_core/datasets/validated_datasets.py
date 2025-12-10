@@ -257,8 +257,7 @@ class ForecastDataset(TimeSeriesDataset):
         else:
             self.forecast_start = forecast_start if forecast_start is not None else data.index.min().to_pydatetime()
         self.target_column = data.attrs.get("target_column", target_column)
-        self.stdev_column = data.attrs.get("standard_deviation_column", standard_deviation_column)
-        self.standard_deviation_column = standard_deviation_column
+        self.standard_deviation_column = data.attrs.get("standard_deviation_column", standard_deviation_column)
 
         super().__init__(
             data=data,
