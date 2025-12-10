@@ -123,6 +123,10 @@ class CustomForecastingWorkflow(BaseModel):
     )
     model_id: ModelIdentifier = Field(...)
     run_name: str | None = Field(default=None, description="Optional name for this workflow run.")
+    experiment_tags: dict[str, str] = Field(
+        default_factory=dict,
+        description="Optional metadata tags for experiment tracking.",
+    )
 
     _logger: logging.Logger = PrivateAttr(default_factory=lambda: logging.getLogger(__name__))
 

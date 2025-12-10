@@ -88,14 +88,17 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
         if run is not None:
             # Check if the run is recent enough to skip re-fitting
             now = datetime.now(tz=UTC)
-            run_end_datetime = datetime.fromtimestamp(cast(float, run.info.end_time) / 1000, tz=UTC)
+            end_time_millis = cast(float | None, run.info.end_time)
+            run_end_datetime = (
+                datetime.fromtimestamp(end_time_millis / 1000, tz=UTC) if end_time_millis is not None else None
+            )
             self._logger.info(
                 "Found previous MLflow run %s for model %s ended at %s",
                 cast(str, run.info.run_id),
                 context.workflow.model_id,
                 run_end_datetime,
             )
-            if (now - run_end_datetime) <= self.model_reuse_max_age:
+            if run_end_datetime is not None and (now - run_end_datetime) <= self.model_reuse_max_age:
                 raise SkipFitting("Model is recent enough, skipping re-fit.")
 
     @override
@@ -113,6 +116,7 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
             tags=context.workflow.model.tags,
             hyperparams=context.workflow.model.forecaster.hyperparams,
             run_name=context.workflow.run_name,
+            experiment_tags=context.workflow.experiment_tags,
         )
         run_id: str = run.info.run_id
         self._logger.info("Created MLflow run %s for model %s", run_id, context.workflow.model_id)
