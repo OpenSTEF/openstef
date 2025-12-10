@@ -231,7 +231,11 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
     # Metadata
     tags: dict[str, str] = Field(
         default_factory=dict,
-        description="Optional metadata tags for the model.",
+        description="Optional metadata tags for the model run.",
+    )
+    experiment_tags: dict[str, str] = Field(
+        default_factory=dict,
+        description="Optional metadata tags for experiment tracking.",
     )
 
 
@@ -410,4 +414,5 @@ def create_forecasting_workflow(config: ForecastingWorkflowConfig) -> CustomFore
         model_id=config.model_id,
         run_name=config.run_name,
         callbacks=callbacks,
+        experiment_tags=config.experiment_tags,
     )
