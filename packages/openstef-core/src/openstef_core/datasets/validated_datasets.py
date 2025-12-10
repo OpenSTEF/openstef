@@ -311,7 +311,7 @@ class ForecastDataset(TimeSeriesDataset):
         """
         if self.standard_deviation_column not in self.data.columns:
             raise MissingColumnsError(missing_columns=[self.standard_deviation_column])
-        return self.data[self.standard_deviation_column]
+        return self.data[self.standard_deviation_column]  # pyright: ignore[reportUnknownVariableType]
 
     @property
     def quantiles_data(self) -> pd.DataFrame:
