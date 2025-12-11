@@ -408,7 +408,7 @@ dependencies = [
 requires-dist = [
     { name = "huggingface-hub", specifier = ">=1.2.2" },
     { name = "jupyter", specifier = ">=1.1.1" },
-    { name = "openstef", specifier = "==4.0.0a7" },
+    { name = "openstef", directory = "../../" },
     { name = "scikit-learn", specifier = "==1.7.2" },
     { name = "xgboost", specifier = "==3.1.1" },
 ]
@@ -1338,21 +1338,51 @@ wheels = [
 
 [[package]]
 name = "openstef"
-version = "4.0.0a7"
-source = { registry = "https://pypi.org/simple" }
+version = "0.0.0"
+source = { directory = "../../" }
 dependencies = [
     { name = "openstef-core" },
     { name = "openstef-models", extra = ["xgb-cpu"] },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/94/34/a3d396922f04d4b32755a2afca69c8d75bb632ffdf506701eab15a0e5e44/openstef-4.0.0a7.tar.gz", hash = "sha256:61619d1b29d67bb5dc3ede01e1294cb36560a330746e5c874e74832aa9390b29", size = 1330205, upload-time = "2025-12-10T10:15:39.55Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/09/a2/b4d352e22738cbb5e9ce65cea3fc7f6d56a8a455ce0b837491342739c996/openstef-4.0.0a7-py3-none-any.whl", hash = "sha256:96182b323d833185e86c3e750d6e2bf3cb323251e201951f9149c74e04b1f764", size = 8541, upload-time = "2025-12-10T10:15:38.253Z" },
+
+[package.metadata]
+requires-dist = [
+    { name = "huggingface-hub", marker = "extra == 'beam'", specifier = ">=0.35.3" },
+    { name = "openstef-beam", marker = "extra == 'beam'", editable = "../../packages/openstef-beam" },
+    { name = "openstef-beam", extras = ["all"], marker = "extra == 'all'", editable = "../../packages/openstef-beam" },
+    { name = "openstef-core", editable = "../../packages/openstef-core" },
+    { name = "openstef-core", marker = "extra == 'all'", editable = "../../packages/openstef-core" },
+    { name = "openstef-models", extras = ["xgb-cpu"], editable = "../../packages/openstef-models" },
+    { name = "openstef-models", extras = ["xgb-cpu"], marker = "extra == 'all'", editable = "../../packages/openstef-models" },
+    { name = "openstef-models", extras = ["xgb-cpu"], marker = "extra == 'models'", editable = "../../packages/openstef-models" },
+]
+provides-extras = ["all", "beam", "models"]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "licensecheck", specifier = ">=2025.1" },
+    { name = "microsoft-python-type-stubs", git = "https://github.com/microsoft/python-type-stubs.git" },
+    { name = "moto", extras = ["s3", "server"], specifier = ">=5.1.11" },
+    { name = "openstef-beam", editable = "../../packages/openstef-beam" },
+    { name = "openstef-core", editable = "../../packages/openstef-core" },
+    { name = "openstef-docs", editable = "../../docs" },
+    { name = "openstef-models", editable = "../../packages/openstef-models" },
+    { name = "pandas-stubs", specifier = ">=2.3.0.250703" },
+    { name = "poethepoet", specifier = ">=0.36" },
+    { name = "pyproject-fmt", specifier = ">=2.6" },
+    { name = "pyright", specifier = ">=1.1.404" },
+    { name = "pytest", specifier = ">=8.4.1" },
+    { name = "pytest-cov", specifier = ">=6.2.1" },
+    { name = "pytest-xdist", specifier = ">=3.8" },
+    { name = "reuse", specifier = ">=5.0.2" },
+    { name = "ruff", specifier = ">=0.12.8" },
+    { name = "scipy-stubs", specifier = ">=1.16.2.4" },
 ]
 
 [[package]]
 name = "openstef-beam"
-version = "4.0.0a7"
-source = { registry = "https://pypi.org/simple" }
+version = "0.0.0"
+source = { editable = "../../packages/openstef-beam" }
 dependencies = [
     { name = "openstef-core" },
     { name = "plotly" },
@@ -1360,15 +1390,22 @@ dependencies = [
     { name = "scoringrules" },
     { name = "tqdm" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/4d/4d/d62951d3906e8b6f5451d0a990c6a1f2fd52a82083e25fa0efb2de25f885/openstef_beam-4.0.0a7.tar.gz", hash = "sha256:a6c2a9f84a230f97661ba0e070e8385030cd773074a45e6fadaf5b8d486c6dcc", size = 115578, upload-time = "2025-12-10T10:15:41.959Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/6c/97/756e88192f002e33b721d33cc1ea9ff81557f7fc5519ceffaa76f9170db1/openstef_beam-4.0.0a7-py3-none-any.whl", hash = "sha256:50ab6fa40bd9072844089f656984aea2b9c175ea16d2f50abdc05093a7f68482", size = 121203, upload-time = "2025-12-10T10:15:40.584Z" },
+
+[package.metadata]
+requires-dist = [
+    { name = "openstef-core", editable = "../../packages/openstef-core" },
+    { name = "plotly", specifier = ">=6.3" },
+    { name = "pyyaml", specifier = ">=6.0.2" },
+    { name = "s3fs", marker = "extra == 'all'", specifier = ">=2025.5.1" },
+    { name = "scoringrules", specifier = ">=0.8" },
+    { name = "tqdm", specifier = ">=4.67.1" },
 ]
+provides-extras = ["all"]
 
 [[package]]
 name = "openstef-core"
-version = "4.0.0a7"
-source = { registry = "https://pypi.org/simple" }
+version = "0.0.0"
+source = { editable = "../../packages/openstef-core" }
 dependencies = [
     { name = "joblib" },
     { name = "numpy" },
@@ -1377,15 +1414,21 @@ dependencies = [
     { name = "pydantic" },
     { name = "pydantic-extra-types" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/85/55/6bc4175b303385a282ef503e1fa6621e2341e81772d934742f126946943f/openstef_core-4.0.0a7.tar.gz", hash = "sha256:ad7b7e5d08d851a65a1b8bd237baa8d78d2bdefed366396e49c55e63d8a05cf4", size = 41091, upload-time = "2025-12-10T10:15:44.276Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/62/89/354ddb5ee6398a00cb125a5f5a65dd51e3097b01082c64254ca84e01c8f7/openstef_core-4.0.0a7-py3-none-any.whl", hash = "sha256:1fbe996a313993de2522060a152d55c81984a26e431bb63225db75be88e754bd", size = 44167, upload-time = "2025-12-10T10:15:42.976Z" },
+
+[package.metadata]
+requires-dist = [
+    { name = "joblib", specifier = ">=1,<2" },
+    { name = "numpy", specifier = ">=2.3.2,<3" },
+    { name = "pandas", specifier = ">=2.3.1,<3" },
+    { name = "pyarrow", specifier = ">=21" },
+    { name = "pydantic", specifier = ">=2.12.4,<3" },
+    { name = "pydantic-extra-types", specifier = ">=2.10.5,<3" },
 ]
 
 [[package]]
 name = "openstef-models"
-version = "4.0.0a7"
-source = { registry = "https://pypi.org/simple" }
+version = "0.0.0"
+source = { editable = "../../packages/openstef-models" }
 dependencies = [
     { name = "holidays" },
     { name = "mlflow-skinny" },
@@ -1396,16 +1439,28 @@ dependencies = [
     { name = "scikit-learn" },
     { name = "scipy" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/d8/3b/b0db9ad19c336664f5c3f0000f44d1113295d7e80f698cf1a1be9cf25fd8/openstef_models-4.0.0a7.tar.gz", hash = "sha256:16c97f859e581f9471ef5a14d8bb77e16cb0413401b43c9d932a4d9356b16ea7", size = 111851, upload-time = "2025-12-10T10:15:46.893Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/ee/34/d358ad830cae0c23a524e2b8021b2d121fce6e164e1725b1dbfc8fb5c751/openstef_models-4.0.0a7-py3-none-any.whl", hash = "sha256:5e613421292349f7a78f9a9830bb4251d50a2639cab60dd5d6124ecb1a8c1442", size = 123819, upload-time = "2025-12-10T10:15:45.369Z" },
-]
 
 [package.optional-dependencies]
 xgb-cpu = [
     { name = "xgboost", marker = "sys_platform == 'darwin'" },
     { name = "xgboost-cpu", marker = "sys_platform == 'linux' or sys_platform == 'win32'" },
 ]
+
+[package.metadata]
+requires-dist = [
+    { name = "holidays", specifier = ">=0.79" },
+    { name = "mlflow-skinny", specifier = ">=3,<4" },
+    { name = "openstef-beam", editable = "../../packages/openstef-beam" },
+    { name = "openstef-core", editable = "../../packages/openstef-core" },
+    { name = "pvlib", specifier = ">=0.13" },
+    { name = "pycountry", specifier = ">=24.6.1" },
+    { name = "scikit-learn", specifier = ">=1.7.1,<1.8" },
+    { name = "scipy", specifier = ">=1.16.3,<2" },
+    { name = "xgboost", marker = "sys_platform == 'darwin' and extra == 'xgb-cpu'", specifier = ">=3,<4" },
+    { name = "xgboost", marker = "extra == 'xgb-gpu'", specifier = ">=3,<4" },
+    { name = "xgboost-cpu", marker = "(sys_platform == 'linux' and extra == 'xgb-cpu') or (sys_platform == 'win32' and extra == 'xgb-cpu')", specifier = ">=3,<4" },
+]
+provides-extras = ["xgb-cpu", "xgb-gpu"]
 
 [[package]]
 name = "opentelemetry-api"

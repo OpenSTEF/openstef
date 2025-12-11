@@ -2291,7 +2291,7 @@ requires-dist = [
     { name = "openstef-core", editable = "packages/openstef-core" },
     { name = "pvlib", specifier = ">=0.13" },
     { name = "pycountry", specifier = ">=24.6.1" },
-    { name = "scikit-learn", specifier = ">=1.7.1,<2" },
+    { name = "scikit-learn", specifier = ">=1.7.1,<1.8" },
     { name = "scipy", specifier = ">=1.16.3,<2" },
     { name = "xgboost", marker = "sys_platform == 'darwin' and extra == 'xgb-cpu'", specifier = ">=3,<4" },
     { name = "xgboost", marker = "extra == 'xgb-gpu'", specifier = ">=3,<4" },

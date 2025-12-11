@@ -4,19 +4,24 @@
 
 """OpenSTEF 4.0 forecaster for backtesting pipelines."""
 
+from datetime import timedelta
 import logging
 from collections.abc import Callable
+from functools import partial
 from pathlib import Path
-from typing import Any, override
+from typing import Any, cast, override
 
 from pydantic import Field, PrivateAttr
+from pydantic_extra_types.coordinate import Coordinate
 
 from openstef_beam.backtesting.backtest_forecaster.mixins import BacktestForecasterConfig, BacktestForecasterMixin
 from openstef_beam.backtesting.restricted_horizon_timeseries import RestrictedHorizonVersionedTimeSeries
+from openstef_beam.benchmarking.benchmark_pipeline import BenchmarkContext, BenchmarkTarget, ForecasterFactory
 from openstef_core.base_model import BaseConfig, BaseModel
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.exceptions import FlatlinerDetectedError, NotFittedError
 from openstef_core.types import Q
+from openstef_models.presets import ForecastingWorkflowConfig
 from openstef_models.workflows.custom_forecasting_workflow import CustomForecastingWorkflow
 
 
@@ -134,4 +139,76 @@ class OpenSTEF4BacktestForecaster(BaseModel, BacktestForecasterMixin):
         return forecast
 
 
-__all__ = ["OpenSTEF4BacktestForecaster", "WorkflowCreationContext"]
+class OpenSTEF4PresetBacktestForecaster(OpenSTEF4BacktestForecaster):
+    pass
+
+
+def _preset_target_forecaster_factory(
+    base_config: ForecastingWorkflowConfig,
+    backtest_config: BacktestForecasterConfig,
+    cache_dir: Path,
+    context: BenchmarkContext,
+    target: BenchmarkTarget,
+) -> OpenSTEF4BacktestForecaster:
+    from openstef_models.presets import create_forecasting_workflow  # noqa: PLC0415
+    from openstef_models.presets.forecasting_workflow import LocationConfig  # noqa: PLC0415
+
+    # Factory function that creates a forecaster for a given target.
+    prefix = context.run_name
+
+    def _create_workflow(context: WorkflowCreationContext) -> CustomForecastingWorkflow:
+        # Create a new workflow instance with fresh model.
+        return create_forecasting_workflow(
+            config=base_config.model_copy(
+                update={
+                    "model_id": f"{prefix}_{target.name}",
+                    "run_name": context.step_name,
+                    "location": LocationConfig(
+                        name=target.name,
+                        description=target.description,
+                        coordinate=Coordinate(
+                            latitude=target.latitude,
+                            longitude=target.longitude,
+                        ),
+                    ),
+                }
+            )
+        )
+
+    return OpenSTEF4BacktestForecaster(
+        config=backtest_config,
+        workflow_factory=_create_workflow,
+        debug=False,
+        cache_dir=cache_dir / f"{context.run_name}_{target.name}",
+    )
+
+
+def create_openstef4_preset_backtest_forecaster(
+    workflow_config: ForecastingWorkflowConfig,
+    backtest_config: BacktestForecasterConfig | None = None,
+    cache_dir: Path = Path("cache"),
+) -> ForecasterFactory[BenchmarkTarget]:
+    if backtest_config is None:
+        backtest_config = BacktestForecasterConfig(
+            requires_training=True,
+            predict_length=timedelta(days=7),
+            predict_min_length=timedelta(minutes=15),
+            predict_context_length=timedelta(days=14),  # Context needed for lag features
+            predict_context_min_coverage=0.5,
+            training_context_length=timedelta(days=90),  # Three months of training data
+            training_context_min_coverage=0.5,
+            predict_sample_interval=timedelta(minutes=15),
+        )
+
+    return cast(
+        ForecasterFactory[BenchmarkTarget],
+        partial(
+            _preset_target_forecaster_factory,
+            workflow_config,
+            backtest_config,
+            cache_dir,
+        ),
+    )
+
+
+__all__ = ["OpenSTEF4BacktestForecaster", "WorkflowCreationContext", "create_openstef4_preset_backtest_forecaster"]
