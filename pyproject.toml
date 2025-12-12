@@ -81,10 +81,11 @@ microsoft-python-type-stubs = { git = "git+https://github.com/microsoft/python-t
 
 [tool.uv.workspace]
 members = [
-  "packages/openstef-models",
-  "packages/openstef-beam",
   "docs",
+  "examples",
+  "packages/openstef-beam",
   "packages/openstef-core",
+  "packages/openstef-models",
 ]
 
 [tool.ruff]
