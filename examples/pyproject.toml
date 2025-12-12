@@ -1,0 +1,28 @@
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+#
+# SPDX-License-Identifier: MPL-2.0
+
+[project]
+name = "openstef-examples"
+version = "0.0.0"
+description = "Examples and tutorials for OpenSTEF"
+readme = "README.md"
+requires-python = ">=3.12,<4.0"
+dependencies = [
+  "openstef",
+  "openstef-beam",
+  "openstef-core",
+  "openstef-models",
+]
+
+optional-dependencies.tutorials = [
+  "huggingface-hub>=1.2.2",
+  "jupyter>=1.1.1",
+  "kaleido"
+]
+
+[tool.uv.sources]
+openstef = { workspace = true }
+openstef-beam = { workspace = true }
+openstef-core = { workspace = true }
+openstef-models = { workspace = true }
