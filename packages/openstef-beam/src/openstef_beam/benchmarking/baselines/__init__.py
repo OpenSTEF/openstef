@@ -1,3 +1,8 @@
+"""Benchmarks baselines used by the OpenSTEF Beam benchmarking utilities.
+
+This package exposes baseline forecasters for use in backtesting.
+"""
+
 # SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0

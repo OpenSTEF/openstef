@@ -188,6 +188,20 @@ def create_openstef4_preset_backtest_forecaster(
     backtest_config: BacktestForecasterConfig | None = None,
     cache_dir: Path = Path("cache"),
 ) -> ForecasterFactory[BenchmarkTarget]:
+    """Create a factory that returns an OpenSTEF4BacktestForecaster for a benchmark target.
+
+    Args:
+        workflow_config: The configured `ForecastingWorkflowConfig` that will be cloned and
+            assigned to a target-specific workflow instance.
+        backtest_config: Optional `BacktestForecasterConfig` to control training/prediction windows.
+            If None, a sensible default is created.
+        cache_dir: Directory to store cached artifacts for created forecasters. A subdirectory will be
+            created per benchmark run and target.
+
+    Returns:
+        A `ForecasterFactory[BenchmarkTarget]` partial which accepts a `BenchmarkContext` and a
+        `BenchmarkTarget` and returns a configured `OpenSTEF4BacktestForecaster`.
+    """
     if backtest_config is None:
         backtest_config = BacktestForecasterConfig(
             requires_training=True,
