@@ -5,6 +5,7 @@ path = [
     ".github/ISSUE_TEMPLATE/**",
     ".python-version",
     "uv.lock",
+    "examples/*/*.ipynb",
 ]
 precedence = "override"
 SPDX-FileCopyrightText = "2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>"

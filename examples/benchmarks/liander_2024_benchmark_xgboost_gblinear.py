@@ -12,7 +12,6 @@ The benchmark will evaluate XGBoost and GBLinear models on the dataset from Hugg
 
 import os
 
-
 os.environ["OMP_NUM_THREADS"] = "1"  # Set OMP_NUM_THREADS to 1 to avoid issues with parallel execution and xgboost
 os.environ["OPENBLAS_NUM_THREADS"] = "1"
 os.environ["MKL_NUM_THREADS"] = "1"
@@ -20,7 +19,6 @@ os.environ["MKL_NUM_THREADS"] = "1"
 import logging
 import multiprocessing
 from pathlib import Path
-
 
 from openstef_beam.benchmarking.baselines import (
     create_openstef4_preset_backtest_forecaster,

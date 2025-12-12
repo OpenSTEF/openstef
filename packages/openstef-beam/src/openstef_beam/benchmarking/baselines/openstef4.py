@@ -4,9 +4,9 @@
 
 """OpenSTEF 4.0 forecaster for backtesting pipelines."""
 
-from datetime import timedelta
 import logging
 from collections.abc import Callable
+from datetime import timedelta
 from functools import partial
 from pathlib import Path
 from typing import Any, cast, override
