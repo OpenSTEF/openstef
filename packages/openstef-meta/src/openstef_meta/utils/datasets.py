@@ -256,3 +256,27 @@ class EnsembleForecastDataset(TimeSeriesDataset):
             target_column=self.target_column,
             forecast_start=self.forecast_start,
         )
+
+    def select_forecaster(self, forecaster_name: str) -> ForecastDataset:
+        """Select data for a specific base learner across all quantiles.
+
+        Args:
+            forecaster_name: Name of the base learner to select.
+
+        Returns:
+            ForecastDataset containing predictions from the specified base learner.
+        """
+        selected_columns = [
+            f"{forecaster_name}_{q.format()}" for q in self.quantiles if f"{forecaster_name}_{q.format()}" in self.data
+        ]
+        prediction_data = self.data[selected_columns].copy()
+        prediction_data.columns = [q.format() for q in self.quantiles]
+
+        prediction_data[self.target_column] = self.data[self.target_column]
+
+        return ForecastDataset(
+            data=prediction_data,
+            sample_interval=self.sample_interval,
+            forecast_start=self.forecast_start,
+            target_column=self.target_column,
+        )
