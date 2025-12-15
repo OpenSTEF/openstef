@@ -233,7 +233,6 @@ class WeightsCombiner(ForecastCombiner):
         data: EnsembleForecastDataset,
         data_val: EnsembleForecastDataset | None = None,
         additional_features: ForecastInputDataset | None = None,
-        sample_weights: pd.Series | None = None,
     ) -> None:
 
         self._label_encoder.fit(data.forecaster_names)

@@ -9,7 +9,7 @@ Mimics OpenSTEF-models forecasting workflow with ensemble capabilities.
 
 from collections.abc import Sequence
 from datetime import timedelta
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Literal, cast
 
 from pydantic import Field
 
@@ -294,11 +294,14 @@ def feature_adders(config: EnsembleWorkflowConfig) -> list[Transform[TimeSeriesD
 
 
 def feature_standardizers(config: EnsembleWorkflowConfig) -> list[Transform[TimeSeriesDataset, TimeSeriesDataset]]:
-    return [
-        Clipper(selection=Include(config.energy_price_column).combine(config.clip_features), mode="standard"),
-        Scaler(selection=Exclude(config.target_column), method="standard"),
-        EmptyFeatureRemover(),
-    ]
+    return cast(
+        list[Transform[TimeSeriesDataset, TimeSeriesDataset]],
+        [
+            Clipper(selection=Include(config.energy_price_column).combine(config.clip_features), mode="standard"),
+            Scaler(selection=Exclude(config.target_column), method="standard"),
+            EmptyFeatureRemover(),
+        ],
+    )
 
 
 def create_ensemble_workflow(config: EnsembleWorkflowConfig) -> CustomForecastingWorkflow:  # noqa: C901, PLR0912, PLR0915
@@ -454,7 +457,7 @@ def create_ensemble_workflow(config: EnsembleWorkflowConfig) -> CustomForecastin
         if config.combiner_model == "lgbm":
             combiner_hp = StackingCombiner.LGBMHyperParams()
         elif config.combiner_model == "gblinear":
-            combiner_hp = StackingCombiner.GBLinearHyperParams()
+            combiner_hp = StackingCombiner.GBLinearHyperParams(reg_alpha=0.0, reg_lambda=0.0)
         else:
             msg = f"Unsupported combiner model type for stacking: {config.combiner_model}"
             raise ValueError(msg)

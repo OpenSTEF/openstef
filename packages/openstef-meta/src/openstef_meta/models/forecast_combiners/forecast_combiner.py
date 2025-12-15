@@ -93,7 +93,6 @@ class ForecastCombiner(Predictor[EnsembleForecastDataset, ForecastDataset]):
         data: EnsembleForecastDataset,
         data_val: EnsembleForecastDataset | None = None,
         additional_features: ForecastInputDataset | None = None,
-        sample_weights: pd.Series | None = None,
     ) -> None:
         """Fit the final learner using base learner predictions.
 
@@ -101,7 +100,6 @@ class ForecastCombiner(Predictor[EnsembleForecastDataset, ForecastDataset]):
             data: EnsembleForecastDataset
             data_val: Optional EnsembleForecastDataset for validation during fitting. Will be ignored
             additional_features: Optional ForecastInputDataset containing additional features for the final learner.
-            sample_weights: Optional series of sample weights for fitting.
         """
         raise NotImplementedError("Subclasses must implement the fit method.")
 

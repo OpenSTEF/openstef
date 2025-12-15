@@ -10,6 +10,7 @@ The implementation is based on sklearn's StackingRegressor.
 """
 
 import logging
+from functools import partial
 from typing import TYPE_CHECKING, cast, override
 
 import pandas as pd
@@ -154,7 +155,6 @@ class StackingCombiner(ForecastCombiner):
         data: EnsembleForecastDataset,
         data_val: EnsembleForecastDataset | None = None,
         additional_features: ForecastInputDataset | None = None,
-        sample_weights: pd.Series | None = None,
     ) -> None:
 
         for i, q in enumerate(self.quantiles):
@@ -166,6 +166,10 @@ class StackingCombiner(ForecastCombiner):
                 )
             else:
                 input_data = data.select_quantile(quantile=q)
+
+            # Prepare input data by dropping rows with NaN target values
+            target_dropna = partial(pd.DataFrame.dropna, subset=[input_data.target_column])  # pyright: ignore[reportUnknownMemberType]
+            input_data = input_data.pipe_pandas(target_dropna)
 
             self.models[i].fit(data=input_data, data_val=None)
 
@@ -188,6 +192,12 @@ class StackingCombiner(ForecastCombiner):
                 )
             else:
                 input_data = data.select_quantile(quantile=q)
+
+            if isinstance(self.models[i], GBLinearForecaster):
+                feature_cols = [x for x in input_data.data.columns if x != data.target_column]
+                feature_dropna = partial(pd.DataFrame.dropna, subset=feature_cols)  # pyright: ignore[reportUnknownMemberType]
+                input_data = input_data.pipe_pandas(feature_dropna)
+
             p = self.models[i].predict(data=input_data).data
             predictions.append(p)
 

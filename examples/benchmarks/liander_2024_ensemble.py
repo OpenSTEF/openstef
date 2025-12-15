@@ -44,12 +44,12 @@ logging.basicConfig(level=logging.INFO, format="[%(asctime)s][%(levelname)s] %(m
 
 OUTPUT_PATH = Path("./benchmark_results")
 
-N_PROCESSES = multiprocessing.cpu_count()  # Amount of parallel processes to use for the benchmark
+N_PROCESSES = 1 if True else multiprocessing.cpu_count()  # Amount of parallel processes to use for the benchmark
 
-ensemble_type = "learned_weights"  # "stacking", "learned_weights" or "rules"
+ensemble_type = "stacking"  # "stacking", "learned_weights" or "rules"
 base_models = ["lgbm", "gblinear"]  # combination of "lgbm", "gblinear", "xgboost" and "lgbm_linear"
 combiner_model = (
-    "lgbm"  # "lgbm", "xgboost", "rf" or "logistic" for learned weights combiner, gblinear for stacking combiner
+    "gblinear"  # "lgbm", "xgboost", "rf" or "logistic" for learned weights combiner, gblinear for stacking combiner
 )
 
 model = "Ensemble_" + "_".join(base_models) + "_" + ensemble_type + "_" + combiner_model
@@ -94,8 +94,8 @@ common_config = EnsembleWorkflowConfig(
     temperature_column="temperature_2m",
     relative_humidity_column="relative_humidity_2m",
     energy_price_column="EPEX_NL",
-    forecast_combiner_sample_weight_exponent=1,
-    forecaster_sample_weight_exponent={"gblinear": 1, "lgbm": 1, "xgboost": 0, "lgbm_linear": 0},
+    forecast_combiner_sample_weight_exponent=0,
+    forecaster_sample_weight_exponent={"gblinear": 1, "lgbm": 0, "xgboost": 0, "lgbm_linear": 0},
 )
 
 
@@ -143,7 +143,7 @@ def _target_forecaster_factory(
         config=backtest_config,
         workflow_factory=_create_workflow,
         debug=False,
-        contributions=True,
+        contributions=False,
         cache_dir=OUTPUT_PATH / "cache" / f"{context.run_name}_{target.name}",
     )
 

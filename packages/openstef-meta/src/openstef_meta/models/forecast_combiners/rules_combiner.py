@@ -88,15 +88,11 @@ class RulesCombiner(ForecastCombiner):
         data: EnsembleForecastDataset,
         data_val: EnsembleForecastDataset | None = None,
         additional_features: ForecastInputDataset | None = None,
-        sample_weights: pd.Series | None = None,
     ) -> None:
         # No fitting needed for rule-based final learner
         # Check that additional features are provided
         if additional_features is None:
             raise ValueError("Additional features must be provided for RulesForecastCombiner prediction.")
-
-        if sample_weights is not None:
-            logger.warning("Sample weights are ignored in RulesLearner.fit method.")
 
     def _predict_tree(self, data: pd.DataFrame, columns: pd.Index) -> pd.DataFrame:
         """Predict using the decision tree rules.
