@@ -66,6 +66,16 @@ class LGBMCombinerHyperParams(HyperParams, ClassifierParamsMixin):
         description="Number of leaves for the LGBM Classifier. Defaults to 31.",
     )
 
+    reg_alpha: float = Field(
+        default=0.0,
+        description="L1 regularization term on weights. Defaults to 0.0.",
+    )
+
+    reg_lambda: float = Field(
+        default=0.0,
+        description="L2 regularization term on weights. Defaults to 0.0.",
+    )
+
     @override
     def get_classifier(self) -> LGBMClassifier:
         """Returns the LGBM Classifier."""
@@ -73,6 +83,8 @@ class LGBMCombinerHyperParams(HyperParams, ClassifierParamsMixin):
             class_weight="balanced",
             n_estimators=self.n_estimators,
             num_leaves=self.n_leaves,
+            reg_alpha=self.reg_alpha,
+            reg_lambda=self.reg_lambda,
             n_jobs=1,
         )
 
@@ -190,6 +202,15 @@ class WeightsCombinerConfig(ForecastCombinerConfig):
         min_length=1,
     )
 
+    hard_selection: bool = Field(
+        default=False,
+        description=(
+            "If True, the combiner will select the base model with the highest predicted probability "
+            "for each instance (hard selection). If False, it will use the predicted probabilities as "
+            "weights to combine base model predictions (soft selection)."
+        ),
+    )
+
     @property
     def get_classifier(self) -> Classifier:
         """Returns the classifier instance from hyperparameters.
@@ -223,6 +244,7 @@ class WeightsCombiner(ForecastCombiner):
         self._is_fitted: bool = False
         self._is_fitted = False
         self._label_encoder = LabelEncoder()
+        self.hard_selection = config.hard_selection
 
         # Initialize a classifier per quantile
         self.models: list[Classifier] = [config.get_classifier for _ in self.quantiles]
@@ -309,6 +331,11 @@ class WeightsCombiner(ForecastCombiner):
         )
 
         weights = self._predict_model_weights_quantile(base_predictions=input_data, model_index=model_index)
+
+        if self.hard_selection:
+            # If selection mode is hard, set the max weight to 1 and others to 0
+            # Edge case if max weights are equal, distribute equally
+            weights = (weights == weights.max(axis=1).to_frame().to_numpy()) / weights.sum(axis=1).to_frame().to_numpy()
 
         return dataset.input_data().mul(weights).sum(axis=1)
 

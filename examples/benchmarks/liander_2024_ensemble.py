@@ -44,12 +44,12 @@ logging.basicConfig(level=logging.INFO, format="[%(asctime)s][%(levelname)s] %(m
 
 OUTPUT_PATH = Path("./benchmark_results")
 
-N_PROCESSES = 1 if True else multiprocessing.cpu_count()  # Amount of parallel processes to use for the benchmark
+N_PROCESSES = 11 if True else multiprocessing.cpu_count()  # Amount of parallel processes to use for the benchmark
 
-ensemble_type = "stacking"  # "stacking", "learned_weights" or "rules"
+ensemble_type = "learned_weights"  # "stacking", "learned_weights" or "rules"
 base_models = ["lgbm", "gblinear"]  # combination of "lgbm", "gblinear", "xgboost" and "lgbm_linear"
 combiner_model = (
-    "gblinear"  # "lgbm", "xgboost", "rf" or "logistic" for learned weights combiner, gblinear for stacking combiner
+    "lgbm"  # "lgbm", "xgboost", "rf" or "logistic" for learned weights combiner, gblinear for stacking combiner
 )
 
 model = "Ensemble_" + "_".join(base_models) + "_" + ensemble_type + "_" + combiner_model

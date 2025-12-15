@@ -120,11 +120,7 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
         self._logger.info("Stored training data at %s for run %s", data_path, run_id)
 
         # Store feature importance plot if enabled
-        if (
-            self.store_feature_importance_plot
-            and isinstance(context.workflow.model, ForecastingModel)
-            and isinstance(context.workflow.model.forecaster, ExplainableForecaster)
-        ):
+        if self.store_feature_importance_plot and isinstance(context.workflow.model.forecaster, ExplainableForecaster):
             fig = context.workflow.model.forecaster.plot_feature_importances()
             fig.write_html(data_path / "feature_importances.html")  # pyright: ignore[reportUnknownMemberType]
 
