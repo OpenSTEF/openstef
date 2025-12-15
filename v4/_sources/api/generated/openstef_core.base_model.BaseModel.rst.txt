@@ -1,0 +1,12 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+BaseModel
+=========
+
+.. currentmodule:: openstef_core.base_model
+
+.. autoclass:: BaseModel
+   :show-inheritance:
+   :members:

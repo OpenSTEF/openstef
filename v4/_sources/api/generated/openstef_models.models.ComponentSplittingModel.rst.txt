@@ -1,0 +1,12 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+ComponentSplittingModel
+=======================
+
+.. currentmodule:: openstef_models.models
+
+.. autoclass:: ComponentSplittingModel
+   :show-inheritance:
+   :members:
