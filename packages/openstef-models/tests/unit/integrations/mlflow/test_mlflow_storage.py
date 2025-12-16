@@ -107,7 +107,7 @@ def test_model_roundtrip(storage: MLFlowStorage, model_id: str):
     # Act
     storage.save_run_model(model_id=model_id, run_id=run_id, model=original_model)
     storage.finalize_run(model_id=model_id, run_id=run_id)
-    loaded_model = storage.load_run_model(run_id=run_id)
+    loaded_model = storage.load_run_model(model_id=model_id, run_id=run_id)
 
     # Assert
     assert isinstance(loaded_model, SimpleStatefulModel)

@@ -189,9 +189,9 @@ class LinearComponentSplitter(ComponentSplitter):
             index=input_df.index,
         )
 
-        # Clip wind and solar components to be non-negative
-        forecasts[EnergyComponentType.SOLAR] = forecasts[EnergyComponentType.SOLAR].clip(lower=0.0)
-        forecasts[EnergyComponentType.WIND] = forecasts[EnergyComponentType.WIND].clip(lower=0.0)
+        # Clip wind and solar components to be strictly negative
+        forecasts[EnergyComponentType.SOLAR] = forecasts[EnergyComponentType.SOLAR].clip(upper=0.0)
+        forecasts[EnergyComponentType.WIND] = forecasts[EnergyComponentType.WIND].clip(upper=0.0)
 
         # Calculate "other" component as residual
         forecasts[EnergyComponentType.OTHER] = (

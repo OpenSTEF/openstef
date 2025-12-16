@@ -257,7 +257,7 @@ class ForecastDataset(TimeSeriesDataset):
         else:
             self.forecast_start = forecast_start if forecast_start is not None else data.index.min().to_pydatetime()
         self.target_column = data.attrs.get("target_column", target_column)
-        self.standard_deviation_column = standard_deviation_column
+        self.standard_deviation_column = data.attrs.get("standard_deviation_column", standard_deviation_column)
 
         super().__init__(
             data=data,
@@ -266,7 +266,8 @@ class ForecastDataset(TimeSeriesDataset):
             available_at_column=available_at_column,
         )
 
-        quantile_feature_names = [col for col in self.feature_names if col != target_column]
+        exclude_columns = {target_column, standard_deviation_column}
+        quantile_feature_names = [col for col in self.feature_names if col not in exclude_columns]
         if not all(Quantile.is_valid_quantile_string(col) for col in quantile_feature_names):
             raise ValueError("All feature names must be valid quantile strings.")
 
@@ -310,7 +311,7 @@ class ForecastDataset(TimeSeriesDataset):
         """
         if self.standard_deviation_column not in self.data.columns:
             raise MissingColumnsError(missing_columns=[self.standard_deviation_column])
-        return self.data[self.standard_deviation_column]
+        return self.data[self.standard_deviation_column]  # pyright: ignore[reportUnknownVariableType]
 
     @property
     def quantiles_data(self) -> pd.DataFrame:
