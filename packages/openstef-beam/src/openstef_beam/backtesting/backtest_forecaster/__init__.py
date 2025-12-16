@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -16,14 +16,10 @@ from openstef_beam.backtesting.backtest_forecaster.mixins import (
     BacktestForecasterConfig,
     BacktestForecasterMixin,
 )
-from openstef_beam.backtesting.backtest_forecaster.openstef4_backtest_forecaster import (
-    OpenSTEF4BacktestForecaster,
-)
 
 __all__ = [
     "BacktestBatchForecasterMixin",
     "BacktestForecasterConfig",
     "BacktestForecasterMixin",
     "DummyForecaster",
-    "OpenSTEF4BacktestForecaster",
 ]

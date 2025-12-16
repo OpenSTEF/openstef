@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -32,7 +32,7 @@ def test_gblinear_forecaster__fit_predict(
     sample_forecast_input_dataset: ForecastInputDataset,
     base_config: GBLinearForecasterConfig,
 ):
-    """Test basic fit and predict workflow with comprehensive output validation."""
+    """Test basic fit and predict workflow with output validation."""
     # Arrange
     expected_quantiles = base_config.quantiles
     forecaster = GBLinearForecaster(config=base_config)

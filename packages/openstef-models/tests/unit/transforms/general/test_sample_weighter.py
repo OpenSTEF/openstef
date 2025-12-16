@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -72,6 +72,7 @@ def test_sample_weighter__fit_transform():
         weight_exponent=1.0,
         weight_floor=0.1,
         target_column="load",
+        normalize_target=True,
     )
 
     # Act
@@ -84,7 +85,7 @@ def test_sample_weighter__fit_transform():
     # With scale_percentile=95, the 95th percentile of [10, 50, 100, 200, 150] is 190
     # Each value is scaled by dividing by 190, raised to exponent 1.0, and clipped to [0.1, 1.0]
     expected_weights = pd.Series(
-        [0.9504, 0.5372, 0.1, 1.0, 0.495868],
+        data=[0.9504, 0.5372, 0.1, 1.0, 0.495868],
         index=dataset.index,
         name="sample_weight",
     )

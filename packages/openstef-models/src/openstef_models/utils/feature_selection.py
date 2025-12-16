@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 """Feature selection utilities for transforms.
@@ -36,6 +36,7 @@ class FeatureSelection(BaseConfig):
     )
 
     ALL: ClassVar[Self]
+    NONE: ClassVar[Self]
 
     def resolve(self, features: list[str]) -> list[str]:
         """Resolve the final list of features based on include and exclude lists.
@@ -72,6 +73,7 @@ class FeatureSelection(BaseConfig):
 
 
 FeatureSelection.ALL = FeatureSelection(include=None, exclude=None)
+FeatureSelection.NONE = FeatureSelection(include=set(), exclude=None)
 
 
 def Include(*features: str) -> FeatureSelection:  # noqa: N802

@@ -1,0 +1,83 @@
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+# SPDX-License-Identifier: MPL-2.0
+
+name: Release V4
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag to release (e.g., v4.1.0 or 4.1.0). Prefixing with v is optional.'
+        required: true
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    if: ${{ startsWith(github.ref, 'refs/tags/v4.') || (github.event_name == 'workflow_dispatch' && startsWith(github.event.inputs.version, 'v4')) }}
+    name: Quality Checks
+    uses: ./.github/workflows/_job_quality_check.yaml
+
+  release-pypi:
+    name: Release PyPI Package
+    needs: quality
+    runs-on: ubuntu-latest
+    environment: release
+    if: ${{ (startsWith(github.ref, 'refs/tags/v4.') || (github.event_name == 'workflow_dispatch' && startsWith(github.event.inputs.version, 'v4'))) && needs.quality.result == 'success' }}
+    permissions:
+      # IMPORTANT: this permission is mandatory for trusted publishing
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          show-progress: false
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          activate-environment: true
+          enable-cache: true
+      - name: Install build dependencies
+        run: uv sync --frozen --no-install-project --all-groups --all-extras
+
+      # Start of release steps
+      - name: Set version from release
+        id: ver
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          INPUT_VERSION: ${{ github.event.inputs.version }}
+        run: |
+          # Prefer release payload tag_name, otherwise fallback to the workflow_dispatch input
+          if [ -n "$RELEASE_TAG" ]; then
+            VERSION="$RELEASE_TAG"
+          elif [ -n "$INPUT_VERSION" ]; then
+            VERSION="$INPUT_VERSION"
+          else
+            # As a last-resort fallback, try to get the ref tag from GITHUB_REF
+            if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+              VERSION="${GITHUB_REF#refs/tags/}"
+            else
+              echo "No version provided via release or workflow input, aborting"
+              exit 1
+            fi
+          fi
+          # Remove leading 'v' if present
+          VERSION="${VERSION#v}"
+          echo "Release version: $VERSION"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+      - name: Apply version
+        run: poe version --version "${{ steps.ver.outputs.version }}"
+      - name: Build all packages
+        run: poe build
+      - name: Publish packages
+        run: uv publish --trusted-publishing always
+      - name: Summary
+        run: echo "Published version ${{ steps.ver.outputs.version }}"

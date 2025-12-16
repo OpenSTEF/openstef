@@ -1,4 +1,4 @@
-.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 ..
 .. SPDX-License-Identifier: MPL-2.0
 
@@ -111,7 +111,7 @@ The editing workflow
        git commit -m "feat: add transformer-based forecasting model
 
        - Implement attention mechanism for temporal dependencies
-       - Add comprehensive tests with 95% coverage
+       - Add tests with 95% coverage
        - Update documentation with usage examples
        
        Closes #123"
@@ -252,7 +252,7 @@ The ``reuse --fix`` command automatically adds the correct license header to new
 
 .. code-block:: python
 
-    # SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+    # SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
     #
     # SPDX-License-Identifier: MPL-2.0
 
@@ -290,7 +290,7 @@ Example PR description:
     
     - Add `TransformerForecaster` class in `openstef_models.models.forecasting`
     - Implement attention mechanism for temporal dependencies
-    - Add comprehensive tests with 95% coverage
+    - Add tests with 95% coverage
     - Update documentation with usage examples
     
     ## Testing
@@ -322,6 +322,7 @@ OpenSTEF 4.0 uses a monorepo structure with multiple packages. When making chang
 * **Changes in** ``openstef-models`` **affect the core forecasting functionality**
 * **Changes in** ``openstef-beam`` **affect evaluation and analysis tools**
 * **Changes in** ``docs`` **affect documentation**
+* **Changes in** ``openstef-core`` **affect shared dataset types and utilities and therefore can impact both `openstef-models` and `openstef-beam`**
 
 If your changes span multiple packages, make sure to:
 

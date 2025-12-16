@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -155,9 +155,9 @@ def stratified_train_test_split[T: TimeSeriesDataset](
     max_days, min_days, other_days = _get_extreme_days(target_series=target_series, fraction=stratification_fraction)
 
     # Split each group proportionally between train and test
-    test_max_days, _ = _sample_dates_for_split(dates=max_days, test_fraction=test_fraction, rng=rng)
-    test_min_days, _ = _sample_dates_for_split(dates=min_days, test_fraction=test_fraction, rng=rng)
-    test_other_days, _ = _sample_dates_for_split(dates=other_days, test_fraction=test_fraction, rng=rng)
+    _, test_max_days = _sample_dates_for_split(dates=max_days, test_fraction=test_fraction, rng=rng)
+    _, test_min_days = _sample_dates_for_split(dates=min_days, test_fraction=test_fraction, rng=rng)
+    _, test_other_days = _sample_dates_for_split(dates=other_days, test_fraction=test_fraction, rng=rng)
 
     # Combine all train and test dates
     test_dates = cast(pd.DatetimeIndex, test_max_days.union(test_min_days).union(test_other_days))
@@ -166,12 +166,15 @@ def stratified_train_test_split[T: TimeSeriesDataset](
 
 
 def _sample_dates_for_split(
-    dates: pd.DatetimeIndex, test_fraction: float, rng: np.random.Generator
+    dates: pd.DatetimeIndex,
+    test_fraction: float,
+    rng: np.random.Generator,
 ) -> tuple[pd.DatetimeIndex, pd.DatetimeIndex]:
     if dates.empty:
         return pd.DatetimeIndex([]), pd.DatetimeIndex([])
 
-    n_test = max(1, int(test_fraction * len(dates)))
+    min_test_days = 1 if test_fraction > 0.0 else 0
+    n_test = max(min_test_days, int(test_fraction * len(dates)))
     n_test = min(n_test, len(dates) - 1)  # Ensure at least one for train if possible
 
     if len(dates) == 1:
@@ -181,7 +184,7 @@ def _sample_dates_for_split(
     test_dates = pd.DatetimeIndex(np.sort(rng.choice(dates, size=n_test, replace=False)))
     train_dates = dates.difference(test_dates, sort=True)  # type: ignore
 
-    return test_dates, train_dates
+    return train_dates, test_dates
 
 
 def _get_extreme_days(
@@ -279,6 +282,10 @@ class DataSplitter(BaseConfig):
         default=4,
         description="Minimum number of unique days required to perform stratified splitting.",
     )
+    random_state: int = Field(
+        default=42,
+        description="Random seed for reproducible splits when stratification is used.",
+    )
 
     def split_dataset[T: TimeSeriesDataset](
         self,
@@ -306,7 +313,7 @@ class DataSplitter(BaseConfig):
                 test_fraction=fraction,
                 stratification_fraction=self.stratification_fraction,
                 target_column=target_column,
-                random_state=42,
+                random_state=self.random_state,
                 min_days_for_stratification=self.min_days_for_stratification,
             ),
             val_fraction=self.val_fraction if data_val is None else 0.0,

@@ -1,19 +1,23 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
 """Time series plotting for forecast data visualization.
 
-This module provides comprehensive time series plotting capabilities for comparing
+This module provides time series plotting capabilities for comparing
 forecasts, measurements, and uncertainty quantiles across multiple models.
 """
 
+from datetime import timedelta
 from typing import Any, ClassVar, Self, TypedDict, cast
 
 import numpy as np
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+from pydantic import Field, PrivateAttr
+
+from openstef_core.base_model import BaseConfig
 
 
 class ModelData(TypedDict):
@@ -53,7 +57,7 @@ class QuantilePolygonStyle(TypedDict):
     legendgroup: str
 
 
-class ForecastTimeSeriesPlotter:
+class ForecastTimeSeriesPlotter(BaseConfig):
     """Creates interactive time series charts comparing forecasts, measurements, and uncertainty bands.
 
     This plotter visualizes forecast performance over time by overlaying multiple models'
@@ -98,6 +102,8 @@ class ForecastTimeSeriesPlotter:
         "green": "Greens",
         "purple": "Purples",
         "orange": "Oranges",
+        "magenta": "Magenta",
+        "grey": "Greys",
     }
     colors: ClassVar[list[str]] = list(COLOR_SCHEME.keys())
     colormaps: ClassVar[list[str]] = list(COLOR_SCHEME.values())
@@ -109,17 +115,21 @@ class ForecastTimeSeriesPlotter:
     stroke_opacity: float = 0.8
     stroke_width: float = 1.5
 
-    def __init__(self, *, connect_gaps: bool = True):
-        """Initialize the ForecastTimeSeriesPlotter.
+    sample_interval: timedelta = Field(
+        default=timedelta(minutes=15),
+        description="Expected interval between consecutive samples in the time series data.",
+    )
+    connect_gaps: bool = Field(
+        default=True,
+        description=(
+            "If True, connects data points across missing timestamps with lines. "
+            "If False, leaves gaps where data is missing (no interpolation)."
+        ),
+    )
 
-        Args:
-            connect_gaps: If True, connects data points across missing timestamps with lines.
-                If False, leaves gaps where data is missing (no interpolation).
-        """
-        self.measurements: pd.Series | None = None
-        self.models_data: list[ModelData] = []
-        self.limits: list[dict[str, Any]] = []
-        self.connect_gaps = connect_gaps
+    _measurements: pd.Series | None = PrivateAttr(default=None)
+    _models_data: list[ModelData] = PrivateAttr(default_factory=list[ModelData])
+    _limits: list[dict[str, Any]] = PrivateAttr(default_factory=list[dict[str, Any]])
 
     def _insert_gaps_for_missing_timestamps(self, series: pd.Series, sample_interval: pd.Timedelta) -> pd.Series:
         """Insert NaN values where there are temporal gaps larger than the expected sample interval.
@@ -156,7 +166,7 @@ class ForecastTimeSeriesPlotter:
         Returns:
             ForecastTimeSeriesPlotter: The current instance for method chaining.
         """
-        self.measurements = measurements
+        self._measurements = measurements
         return self
 
     def add_model(
@@ -198,7 +208,7 @@ class ForecastTimeSeriesPlotter:
             "quantiles": quantiles,
         }
 
-        self.models_data.append(model_data)
+        self._models_data.append(model_data)
         return self
 
     def add_limit(
@@ -217,9 +227,9 @@ class ForecastTimeSeriesPlotter:
             ForecastTimeSeriesPlotter: The current instance for method chaining.
         """
         if name is None:
-            name = f"Limit {len(self.limits) + 1}"
+            name = f"Limit {len(self._limits) + 1}"
 
-        self.limits.append({
+        self._limits.append({
             "value": value,
             "name": name,
         })
@@ -371,7 +381,7 @@ class ForecastTimeSeriesPlotter:
             List of BandData dictionaries with quantile band information.
         """
         bands: list[BandData] = []
-        for model_index, model_data in enumerate(self.models_data):
+        for model_index, model_data in enumerate(self._models_data):
             if model_data["quantiles"] is None:
                 continue
 
@@ -406,7 +416,7 @@ class ForecastTimeSeriesPlotter:
             List of LineData dictionaries with forecast line information.
         """
         lines: list[LineData] = []
-        for model_index, model_data in enumerate(self.models_data):
+        for model_index, model_data in enumerate(self._models_data):
             model_name = model_data["model_name"]
             forecast = model_data["forecast"]
 
@@ -428,7 +438,7 @@ class ForecastTimeSeriesPlotter:
             List of LineData dictionaries with 50th quantile line information.
         """
         lines: list[LineData] = []
-        for model_index, model_data in enumerate(self.models_data):
+        for model_index, model_data in enumerate(self._models_data):
             model_name = model_data["model_name"]
             quantiles = model_data["quantiles"]
             forecast = model_data["forecast"]
@@ -497,17 +507,17 @@ class ForecastTimeSeriesPlotter:
 
     def _add_measurements_to_figure(self, figure: go.Figure) -> None:
         """Add measurements to the figure."""
-        if self.measurements is not None:
+        if self._measurements is not None:
             if self.connect_gaps:
                 # Original behavior - use data as-is
-                measurements_data = self.measurements
+                measurements_data = self._measurements
                 x_data = measurements_data.index
                 y_data = measurements_data
             else:
                 # Process data to insert gaps for missing timestamps
-                measurements_data = self.measurements
+                measurements_data = self._measurements
                 processed_data = self._insert_gaps_for_missing_timestamps(
-                    measurements_data, pd.Timedelta(self.measurements.sample_interval)
+                    measurements_data, pd.Timedelta(self.sample_interval)
                 )
                 x_data = processed_data.index
                 y_data = processed_data
@@ -527,7 +537,7 @@ class ForecastTimeSeriesPlotter:
 
     def _add_limits_to_figure(self, figure: go.Figure) -> None:
         """Add horizontal limit lines to the figure."""
-        for limit in self.limits:
+        for limit in self._limits:
             figure.add_hline(  # type: ignore[reportUnknownMemberType]
                 y=limit["value"],
                 line_dash="dot",
@@ -558,7 +568,7 @@ class ForecastTimeSeriesPlotter:
         Raises:
             ValueError: If no data has been added to the plotter.
         """
-        if not self.models_data and self.measurements is None:
+        if not self._models_data and self._measurements is None:
             msg = "No data has been added. Use add_measurements or add_model first."
             raise ValueError(msg)
 

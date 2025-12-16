@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -19,6 +19,7 @@ from openstef_beam.benchmarking.storage.base import BenchmarkStorage
 from openstef_beam.benchmarking.storage.local_storage import LocalBenchmarkStorage
 from openstef_beam.evaluation import EvaluationReport
 from openstef_core.datasets import TimeSeriesDataset
+from openstef_core.exceptions import MissingExtraError
 
 _logger = logging.getLogger(__name__)
 
@@ -52,7 +53,7 @@ class S3BenchmarkStorage(BenchmarkStorage):
                 for authentication and configuration.
 
         Raises:
-            ImportError: When s3fs package is not installed.
+            MissingExtraError: When s3fs package is not installed.
         """
         super().__init__()
         self.local_storage = local_storage
@@ -66,8 +67,7 @@ class S3BenchmarkStorage(BenchmarkStorage):
 
             self.fs = s3fs.S3FileSystem(**self.s3fs_kwargs)
         except ImportError as e:
-            _logger.exception("s3fs not installed. Please install with 'pip install s3fs'")
-            raise ImportError("s3fs package is required for S3StorageCallback") from e
+            raise MissingExtraError("s3fs", package="openstef-models") from e
 
     @override
     def save_backtest_output(self, target: BenchmarkTarget, output: TimeSeriesDataset) -> None:

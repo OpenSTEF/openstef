@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -19,6 +19,7 @@ from datetime import timedelta
 from pathlib import Path
 from typing import cast, override
 
+import numpy as np
 import pandas as pd
 from pydantic import Field, TypeAdapter
 
@@ -268,16 +269,6 @@ class SimpleTargetProvider[T: BenchmarkTarget, F](TargetProvider[T, F]):
     def get_metrics_for_target(self, target: T) -> list[MetricProvider]:
         return self.metrics if isinstance(self.metrics, list) else self.metrics(target)  # type: ignore[return-value]
 
-    measurements_path_for_target: Callable[[T], Path] = Field(
-        default=lambda target: Path(target.group_name) / f"load_data_{target.name}.parquet",
-        description="Function to build file path for target measurements using configured template",
-    )
-
-    weather_path_for_target: Callable[[T], Path] = Field(
-        default=lambda target: Path(target.group_name) / f"weather_data_{target.name}.parquet",
-        description="Function to build file path for target weather data using configured template",
-    )
-
     def _get_measurements_path_for_target(self, target: T) -> Path:
         return self.data_dir / str(target.group_name) / self.measurements_path_template.format(name=target.name)
 
@@ -353,4 +344,60 @@ class SimpleTargetProvider[T: BenchmarkTarget, F](TargetProvider[T, F]):
 
     @override
     def get_evaluation_mask_for_target(self, target: T) -> pd.DatetimeIndex | None:
-        return None
+        measurement_series = self.get_measurements_for_target(target).select_version().data[self.target_column]
+
+        filtered_series = filter_away_flatline_chunks(
+            measurement_series=measurement_series,
+            min_length=24 * 4,
+            threshold=0.05,
+        )
+        return pd.DatetimeIndex(cast(pd.DatetimeIndex, filtered_series.dropna().index))  # type: ignore[reportUnknownMemberType]
+
+
+def filter_away_flatline_chunks(
+    measurement_series: pd.Series,
+    min_length: int = 96,
+    threshold: float = 1.0,
+) -> pd.Series:
+    """Mask long flatline segments in a target series.
+
+    Detects contiguous segments where the standard deviation inside both centered and
+    right-aligned windows falls below `threshold` times the global standard deviation
+    for at least `min_length` samples. Values inside those segments are replaced with
+    `NaN` so downstream logic can drop them and derive a clean evaluation mask.
+
+    Args:
+        measurement_series: Time-indexed series containing the target observations.
+        min_length: Minimum length (in samples) for a chunk to be treated as a flatline.
+        threshold: Multiplier on the global standard deviation to define the flatline cutoff.
+
+    Returns:
+        A copy of *measurement_series* with flatline chunks set to `NaN`.
+    """
+    series_std = measurement_series.std()
+    actual_threshold = threshold * series_std
+
+    rolling_std_center = measurement_series.rolling(window=min_length, center=True).std()
+    rolling_std_right = measurement_series.rolling(window=min_length, center=False).std()
+
+    flatline_mask = (rolling_std_center < actual_threshold) | (rolling_std_right < actual_threshold)
+    flatline_mask = flatline_mask.fillna(value=False)  # pyright: ignore[reportUnknownMemberType]
+
+    flatline_chunks: list[tuple[int, int]] = []
+    start_idx: int | None = None
+    for idx, is_flat in enumerate(flatline_mask):
+        if is_flat and start_idx is None:
+            start_idx = idx
+        elif not is_flat and start_idx is not None:
+            if idx - start_idx >= min_length:
+                flatline_chunks.append((start_idx, idx))
+            start_idx = None
+
+    if start_idx is not None and len(flatline_mask) - start_idx >= min_length:
+        flatline_chunks.append((start_idx, len(flatline_mask)))
+
+    filtered_series = measurement_series.copy()
+    for start, end in flatline_chunks:
+        filtered_series.iloc[start:end] = np.nan
+
+    return filtered_series

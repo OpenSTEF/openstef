@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -102,6 +102,10 @@ class InsufficientlyCompleteError(Exception):
 
 class PredictError(Exception):
     """Exception raised for errors during forecasting operations."""
+
+
+class InputValidationError(ValueError):
+    """Exception raised for input validation errors."""
 
 
 class ModelLoadingError(Exception):

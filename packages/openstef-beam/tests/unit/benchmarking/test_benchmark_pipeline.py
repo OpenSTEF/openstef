@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -163,8 +163,8 @@ def forecaster_config() -> BacktestForecasterConfig:
     """Create a realistic forecaster config with all required fields."""
     return BacktestForecasterConfig(
         requires_training=True,
-        horizon_length=timedelta(hours=24),
-        horizon_min_length=timedelta(hours=1),
+        predict_length=timedelta(hours=24),
+        predict_min_length=timedelta(hours=1),
         predict_context_length=timedelta(hours=48),
         predict_context_min_coverage=0.8,
         training_context_length=timedelta(days=14),

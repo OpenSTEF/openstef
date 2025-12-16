@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -117,8 +117,8 @@ def test_run_training_scenarios(
     config = BacktestConfig(predict_interval=timedelta(hours=6), train_interval=timedelta(hours=12))
     forecaster_config = BacktestForecasterConfig(
         requires_training=requires_training,
-        horizon_length=timedelta(hours=24),
-        horizon_min_length=timedelta(hours=1),
+        predict_length=timedelta(hours=24),
+        predict_min_length=timedelta(hours=1),
         predict_context_length=timedelta(hours=6),
         predict_context_min_coverage=0.5,
         training_context_length=timedelta(hours=12),
@@ -173,8 +173,8 @@ def test_run_date_boundary_handling(
     mock_forecaster = MockForecaster(
         BacktestForecasterConfig(
             requires_training=True,
-            horizon_length=timedelta(hours=24),
-            horizon_min_length=timedelta(hours=1),
+            predict_length=timedelta(hours=24),
+            predict_min_length=timedelta(hours=1),
             predict_context_length=timedelta(hours=6),
             predict_context_min_coverage=0.5,
             training_context_length=timedelta(hours=12),
@@ -211,8 +211,8 @@ def test_run_output_validation_and_concatenation(
     mock_forecaster = MockForecaster(
         BacktestForecasterConfig(
             requires_training=True,
-            horizon_length=timedelta(hours=24),
-            horizon_min_length=timedelta(hours=1),
+            predict_length=timedelta(hours=24),
+            predict_min_length=timedelta(hours=1),
             predict_context_length=timedelta(hours=6),
             predict_context_min_coverage=0.5,
             training_context_length=timedelta(hours=12),
@@ -272,8 +272,8 @@ def test_run_handles_none_predictions(datasets: tuple[VersionedTimeSeriesDataset
     mock_forecaster = MockForecaster(
         BacktestForecasterConfig(
             requires_training=True,
-            horizon_length=timedelta(hours=24),
-            horizon_min_length=timedelta(hours=1),
+            predict_length=timedelta(hours=24),
+            predict_min_length=timedelta(hours=1),
             predict_context_length=timedelta(hours=6),
             predict_context_min_coverage=0.5,
             training_context_length=timedelta(hours=12),
@@ -335,8 +335,8 @@ def test_run_edge_cases(
 
     base_model_config = BacktestForecasterConfig(
         requires_training=True,
-        horizon_length=timedelta(hours=24),
-        horizon_min_length=timedelta(hours=1),
+        predict_length=timedelta(hours=24),
+        predict_min_length=timedelta(hours=1),
         predict_context_length=timedelta(hours=1),
         predict_context_min_coverage=0.8,
         training_context_length=timedelta(hours=12),

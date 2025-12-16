@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -72,6 +72,11 @@ class ConfidenceIntervalApplicator(BaseModel, Transform[ForecastDataset, Forecas
     """
 
     quantiles: list[Quantile] | None = Field(default=None)
+    add_quantiles_from_std: bool = Field(
+        default=True,
+        description="If True, adds quantiles based on computed standard deviation. "
+        "If False, only computes standard deviation without adding quantiles.",
+    )
 
     _standard_deviation: pd.DataFrame = PrivateAttr(default_factory=pd.DataFrame)
     _is_fitted: bool = PrivateAttr(default=False)
@@ -149,8 +154,15 @@ class ConfidenceIntervalApplicator(BaseModel, Transform[ForecastDataset, Forecas
         # Compute standard deviation series
         stdev_series = self._compute_stdev_series(data)
 
+        # Add standard deviation column
+        stdev_column = data.standard_deviation_column
+        data = data.pipe_pandas(lambda df: df.assign(**{stdev_column: stdev_series}))
+
         # Add quantiles based on standard deviation
-        return self._add_quantiles_from_stdev(forecast=data, stdev_series=stdev_series, quantiles=self.quantiles)
+        if self.add_quantiles_from_std:
+            return self._add_quantiles_from_stdev(forecast=data, stdev_series=stdev_series, quantiles=self.quantiles)
+
+        return data
 
 
 def _calculate_hourly_std(errors: pd.Series) -> pd.Series:

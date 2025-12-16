@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -70,7 +70,7 @@ class ConstantComponentSplitter(ComponentSplitter):
         ...     }
         ... )
         >>> splitter = ConstantComponentSplitter(config)
-        >>> # components = splitter.predict(time_series_data)
+        >>> components = splitter.predict(time_series_data) # doctest: +SKIP
 
         Using predefined configurations:
 

@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -27,7 +27,7 @@ class MetricAggregation(NamedTuple):
 
 
 class SummaryTableVisualization(VisualizationProvider):
-    """Creates comprehensive HTML tables summarizing evaluation metrics.
+    """Creates HTML tables summarizing evaluation metrics.
 
     Generates sortable HTML tables presenting evaluation metrics organized by quantiles,
     targets, and model runs. Tables automatically aggregate statistics and provide

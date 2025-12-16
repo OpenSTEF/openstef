@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -99,7 +99,7 @@ class VisualizationProvider(BaseConfig):
                 return self.create_by_run_and_target(reports=grouped_reports)
 
             case AnalysisAggregation.RUN_AND_GROUP:
-                # Group by both run_name and group_name for comprehensive comparison matrix
+                # Group by both run_name and group_name for comparison matrix
                 grouped_reports = groupby((((m.run_name, m.group_name), (m, r)) for m, r in reports))
                 return self.create_by_run_and_group(reports=grouped_reports)
 
@@ -183,7 +183,7 @@ class VisualizationProvider(BaseConfig):
     def create_by_run_and_group(
         self, reports: dict[tuple[RunName, GroupName], list[ReportTuple]]
     ) -> VisualizationOutput:
-        """Creates comprehensive visualization across multiple runs and target groups.
+        """Creates visualization across multiple runs and target groups.
 
         Creates matrix-style comparisons showing how different models perform
         across different target categories, enabling full comparative analysis.
@@ -193,7 +193,7 @@ class VisualizationProvider(BaseConfig):
                 of (metadata, report) tuples for that combination.
 
         Returns:
-            Comprehensive visualization matrix comparing runs across target groups.
+            Visualization matrix comparing runs across target groups.
         """
         raise NotImplementedError
 

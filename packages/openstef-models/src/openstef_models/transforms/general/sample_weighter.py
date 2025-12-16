@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -53,11 +53,11 @@ class SampleWeighter(BaseConfig, TimeSeriesTransform):
         >>> result.data[["load", "sample_weight"]]
                               load  sample_weight
         timestamp
-        2025-01-01 00:00:00   10.0       0.950413
-        2025-01-01 01:00:00   50.0       0.537190
-        2025-01-01 02:00:00  100.0       0.100000
+        2025-01-01 00:00:00   10.0       0.100000
+        2025-01-01 01:00:00   50.0       0.263158
+        2025-01-01 02:00:00  100.0       0.526316
         2025-01-01 03:00:00  200.0       1.000000
-        2025-01-01 04:00:00  150.0       0.495868
+        2025-01-01 04:00:00  150.0       0.789474
     """
 
     weight_scale_percentile: int = Field(
@@ -81,6 +81,10 @@ class SampleWeighter(BaseConfig, TimeSeriesTransform):
     sample_weight_column: str = Field(
         default="sample_weight",
         description="Name of the column where computed weights will be stored.",
+    )
+    normalize_target: bool = Field(
+        default=False,
+        description="Whether to normalize target values using StandardScaler before weighting.",
     )
 
     _scaler: StandardScaler = PrivateAttr(default_factory=StandardScaler)
@@ -125,10 +129,11 @@ class SampleWeighter(BaseConfig, TimeSeriesTransform):
 
         # Normalize target values using the fitted scaler
         target = np.asarray(target_series.values, dtype=np.float64)
-        target_scaled = self._scaler.transform(target.reshape(-1, 1)).flatten()
+        if self.normalize_target:
+            target = self._scaler.transform(target.reshape(-1, 1)).flatten()
 
         df.loc[mask, self.sample_weight_column] = exponential_sample_weight(
-            x=target_scaled,
+            x=target,
             scale_percentile=self.weight_scale_percentile,
             exponent=self.weight_exponent,
             floor=self.weight_floor,

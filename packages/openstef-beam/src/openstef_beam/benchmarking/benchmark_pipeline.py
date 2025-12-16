@@ -1,10 +1,10 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
 """Benchmark pipeline for systematic forecasting model evaluation.
 
-Provides a standardized framework for running comprehensive forecasting benchmarks
+Provides a standardized framework for running forecasting benchmarks
 across multiple targets, models, and evaluation metrics. Coordinates backtesting,
 evaluation, and analysis phases while managing parallel execution and result storage.
 
@@ -59,7 +59,7 @@ type ForecasterFactory[T] = Callable[[BenchmarkContext, T], BacktestForecasterMi
 
 
 class BenchmarkPipeline[T: BenchmarkTarget, F]:
-    """Orchestrates comprehensive forecasting model benchmarks across multiple targets.
+    """Orchestrates forecasting model benchmarks across multiple targets.
 
     Provides a standardized framework for systematic evaluation of forecasting models.
     Coordinates the entire benchmark workflow from data preparation through analysis,
@@ -187,6 +187,7 @@ class BenchmarkPipeline[T: BenchmarkTarget, F]:
             process_fn=partial(self._run_for_target, context, forecaster_factory),
             items=targets,
             n_processes=n_processes,
+            mode="loky",
         )
 
         if not self.storage.has_analysis_output(

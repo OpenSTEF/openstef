@@ -1,4 +1,4 @@
-.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 ..
 .. SPDX-License-Identifier: MPL-2.0
 
@@ -9,7 +9,7 @@ Documentation Guide
 ===================
 
 OpenSTEF welcomes improvements to documentation! Whether you're fixing typos, clarifying 
-explanations, or adding comprehensive tutorials, your contributions help make forecasting 
+explanations, or adding tutorials, your contributions help make forecasting 
 more accessible to everyone.
 
 Getting started
@@ -38,7 +38,7 @@ The documentation lives in several places:
 
     examples/             # Example scripts and tutorials
     ├── examples/         # Gallery examples
-    └── tutorials/        # Comprehensive tutorials
+    └── tutorials/        # Tutorials
 
     packages/*/src/       # Inline code documentation (docstrings)
 
@@ -144,7 +144,7 @@ the type information:
 .. code-block:: python
 
     # Good: Type hints in signature, description in docstring
-    def train_model(data: TimeseriesDataset, config: ModelConfig) -> ForecastModel:
+    def train_model(data: TimeSeriesDataset, config: ModelConfig) -> ForecastModel:
         """Train a forecasting model on the provided dataset.
         
         Args:
@@ -156,11 +156,11 @@ the type information:
         """
 
     # Avoid: Repeating type information in docstring
-    def train_model(data: TimeseriesDataset, config: ModelConfig) -> ForecastModel:
+    def train_model(data: TimeSeriesDataset, config: ModelConfig) -> ForecastModel:
         """Train a forecasting model on the provided dataset.
         
         Args:
-            data (TimeseriesDataset): Training dataset with features and targets.
+            data (TimeSeriesDataset): Training dataset with features and targets.
             config (ModelConfig): Model configuration including hyperparameters.
             
         Returns:
@@ -312,7 +312,7 @@ Examples and tutorials are crucial for user onboarding. When adding new examples
 1. **Choose the right location**:
    
    * ``examples/examples/`` - Short, focused examples
-   * ``examples/tutorials/`` - Comprehensive, multi-step tutorials
+   * ``examples/tutorials/`` - Multi-step tutorials
 
 2. **Follow naming conventions**:
    
