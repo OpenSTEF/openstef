@@ -13,17 +13,21 @@ from openstef_models.transforms.general.dimensionality_reducer import Dimensiona
 from openstef_models.transforms.general.empty_feature_remover import (
     EmptyFeatureRemover,
 )
+from openstef_models.transforms.general.flagger import Flagger
 from openstef_models.transforms.general.imputer import Imputer
 from openstef_models.transforms.general.nan_dropper import NaNDropper
 from openstef_models.transforms.general.sample_weighter import SampleWeighter
 from openstef_models.transforms.general.scaler import Scaler
+from openstef_models.transforms.general.selector import Selector
 
 __all__ = [
     "Clipper",
     "DimensionalityReducer",
     "EmptyFeatureRemover",
+    "Flagger",
     "Imputer",
     "NaNDropper",
     "SampleWeighter",
     "Scaler",
+    "Selector",
 ]

@@ -8,7 +8,7 @@ import pandas as pd
 import pytest
 
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_meta.transforms import Flagger
+from openstef_models.transforms.general import Flagger
 from openstef_models.utils.feature_selection import FeatureSelection
 
 

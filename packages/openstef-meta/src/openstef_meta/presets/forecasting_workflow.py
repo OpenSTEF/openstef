@@ -28,7 +28,7 @@ from openstef_meta.models.forecast_combiners.learned_weights_combiner import Wei
 from openstef_meta.models.forecast_combiners.rules_combiner import RulesCombiner
 from openstef_meta.models.forecast_combiners.stacking_combiner import StackingCombiner
 from openstef_meta.models.forecasting.residual_forecaster import ResidualForecaster
-from openstef_meta.transforms.selector import Selector
+from openstef_models.transforms.general.selector import Selector
 from openstef_models.integrations.mlflow import MLFlowStorage
 from openstef_models.mixins.model_serializer import ModelIdentifier
 from openstef_models.models.forecasting.gblinear_forecaster import GBLinearForecaster

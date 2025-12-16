@@ -76,7 +76,6 @@ class SimpleCombiner(ForecastCombiner):
         data: EnsembleForecastDataset,
         data_val: EnsembleForecastDataset | None = None,
         additional_features: ForecastInputDataset | None = None,
-        sample_weights: pd.Series | None = None,
     ) -> None:
         self._is_fitted = True
 
