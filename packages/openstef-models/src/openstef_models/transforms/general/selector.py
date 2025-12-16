@@ -21,7 +21,32 @@ from openstef_models.utils.feature_selection import FeatureSelection
 
 
 class Selector(BaseConfig, TimeSeriesTransform):
-    """Selects features based on FeatureSelection."""
+    """Selects features based on FeatureSelection.
+
+    Example:
+        >>> import pandas as pd
+        >>> from datetime import timedelta
+        >>> from openstef_core.datasets import TimeSeriesDataset
+        >>> from openstef_models.transforms.general import Selector
+        >>> from openstef_models.utils.feature_selection import FeatureSelection
+        >>>
+        >>> # Create sample dataset
+        >>> data = pd.DataFrame(
+        ...     {
+        ...         "load": [100.0, 110.0, 120.0],
+        ...         "temperature": [20.0, 22.0, 23.0],
+        ...         "humidity": [60.0, 65.0, 70.0],
+        ...     },
+        ...     index=pd.date_range("2025-01-01", periods=3, freq="1h"),
+        ... )
+        >>> dataset = TimeSeriesDataset(data, timedelta(hours=1))
+        >>>
+        >>> # Select specific features
+        >>> selector = Selector(selection=FeatureSelection(include={'load', 'temperature'}))
+        >>> transformed = selector.transform(dataset)
+        >>> transformed.feature_names
+        ['load', 'temperature']
+    """
 
     selection: FeatureSelection = Field(
         default=FeatureSelection.ALL,
