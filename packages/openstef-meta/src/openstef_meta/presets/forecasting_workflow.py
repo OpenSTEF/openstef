@@ -28,7 +28,6 @@ from openstef_meta.models.forecast_combiners.learned_weights_combiner import Wei
 from openstef_meta.models.forecast_combiners.rules_combiner import RulesCombiner
 from openstef_meta.models.forecast_combiners.stacking_combiner import StackingCombiner
 from openstef_meta.models.forecasting.residual_forecaster import ResidualForecaster
-from openstef_models.transforms.general.selector import Selector
 from openstef_models.integrations.mlflow import MLFlowStorage
 from openstef_models.mixins.model_serializer import ModelIdentifier
 from openstef_models.models.forecasting.gblinear_forecaster import GBLinearForecaster
@@ -40,6 +39,7 @@ from openstef_models.transforms.energy_domain import WindPowerFeatureAdder
 from openstef_models.transforms.general import Clipper, EmptyFeatureRemover, SampleWeighter, Scaler
 from openstef_models.transforms.general.imputer import Imputer
 from openstef_models.transforms.general.nan_dropper import NaNDropper
+from openstef_models.transforms.general.selector import Selector
 from openstef_models.transforms.postprocessing import QuantileSorter
 from openstef_models.transforms.time_domain import (
     CyclicFeaturesAdder,

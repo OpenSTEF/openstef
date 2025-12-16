@@ -433,7 +433,6 @@ class EnsembleForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastD
 
         # Fit the model
         logger.debug("Started fitting forecaster '%s'.", forecaster_name)
-        logger.debug(input_data_train.data.head().iloc[:, :5])
         forecaster.fit(data=input_data_train, data_val=input_data_val)
         logger.debug("Completed fitting forecaster '%s'.", forecaster_name)
 
@@ -470,7 +469,6 @@ class EnsembleForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastD
     def _predict_forecaster(self, input_data: ForecastInputDataset, forecaster_name: str) -> ForecastDataset:
         # Predict and restore target column
         logger.debug("Predicting forecaster '%s'.", forecaster_name)
-        logger.debug(input_data.data.head().iloc[:, :5])
         prediction_raw = self.forecasters[forecaster_name].predict(data=input_data)
         prediction = self.postprocessing.transform(prediction_raw)
         return restore_target(dataset=prediction, original_dataset=input_data, target_column=self.target_column)
