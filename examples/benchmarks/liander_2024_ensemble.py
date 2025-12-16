@@ -40,7 +40,7 @@ from openstef_models.integrations.mlflow.mlflow_storage import MLFlowStorage
 from openstef_models.presets.forecasting_workflow import LocationConfig
 from openstef_models.workflows import CustomForecastingWorkflow
 
-logging.basicConfig(level=logging.INFO, format="[%(asctime)s][%(levelname)s] %(message)s")
+logging.basicConfig(level=logging.DEBUG, format="[%(asctime)s][%(levelname)s] %(message)s")
 
 OUTPUT_PATH = Path("./benchmark_results")
 

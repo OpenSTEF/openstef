@@ -346,9 +346,6 @@ class EnsembleForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastD
         predictions_test: dict[str, ForecastDataset | None] = {}
         results: dict[str, ModelFitResult] = {}
 
-        if data_test is not None:
-            logger.info("Data test provided during fit, but will be ignored for MetaForecating")
-
         # Fit the feature engineering transforms
         self.common_preprocessing.fit(data=data)
         data_transformed = self.common_preprocessing.transform(data=data)
@@ -360,12 +357,12 @@ class EnsembleForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastD
 
         # Fit the forecasters
         for name in self.forecasters:
-            logger.debug("Started fitting Forecaster '%s'.", name)
+            logger.debug("Fitting Forecaster '%s'.", name)
             predictions_train[name], predictions_val[name], predictions_test[name], results[name] = (
                 self._fit_forecaster(
                     data=data,
                     data_val=data_val,
-                    data_test=None,
+                    data_test=data_test,
                     forecaster_name=name,
                 )
             )
@@ -436,6 +433,7 @@ class EnsembleForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastD
 
         # Fit the model
         logger.debug("Started fitting forecaster '%s'.", forecaster_name)
+        logger.debug(input_data_train.data.head().iloc[:, :5])
         forecaster.fit(data=input_data_train, data_val=input_data_val)
         logger.debug("Completed fitting forecaster '%s'.", forecaster_name)
 
@@ -471,6 +469,8 @@ class EnsembleForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastD
 
     def _predict_forecaster(self, input_data: ForecastInputDataset, forecaster_name: str) -> ForecastDataset:
         # Predict and restore target column
+        logger.debug("Predicting forecaster '%s'.", forecaster_name)
+        logger.debug(input_data.data.head().iloc[:, :5])
         prediction_raw = self.forecasters[forecaster_name].predict(data=input_data)
         prediction = self.postprocessing.transform(prediction_raw)
         return restore_target(dataset=prediction, original_dataset=input_data, target_column=self.target_column)
@@ -535,16 +535,22 @@ class EnsembleForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastD
             forecast_start=forecast_start,
         )
 
-    def _predict_combiner(
+    def _predict_transform_combiner(
         self, ensemble_dataset: EnsembleForecastDataset, original_data: TimeSeriesDataset
     ) -> ForecastDataset:
         logger.debug("Predicting combiner.")
         features = self._transform_combiner_data(data=original_data)
+
+        return self._predict_combiner(ensemble_dataset, features)
+
+    def _predict_combiner(
+        self, ensemble_dataset: EnsembleForecastDataset, features: ForecastInputDataset | None
+    ) -> ForecastDataset:
+        logger.debug("Predicting combiner.")
         prediction_raw = self.combiner.predict(ensemble_dataset, additional_features=features)
         prediction = self.postprocessing.transform(prediction_raw)
 
-        prediction.data[ensemble_dataset.target_column] = ensemble_dataset.target_series
-        return prediction
+        return restore_target(dataset=prediction, original_dataset=ensemble_dataset, target_column=self.target_column)
 
     def _fit_combiner(
         self,
@@ -565,18 +571,18 @@ class EnsembleForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastD
             data=train_ensemble_dataset, data_val=val_ensemble_dataset, additional_features=features_train
         )
 
-        prediction_train = self.combiner.predict(train_ensemble_dataset, additional_features=features_train)
+        prediction_train = self._predict_combiner(train_ensemble_dataset, features=features_train)
         metrics_train = self._calculate_score(prediction=prediction_train)
 
         if val_ensemble_dataset is not None:
-            prediction_val = self.combiner.predict(val_ensemble_dataset, additional_features=features_val)
+            prediction_val = self._predict_combiner(val_ensemble_dataset, features=features_val)
             metrics_val = self._calculate_score(prediction=prediction_val)
         else:
             prediction_val = None
             metrics_val = None
 
         if test_ensemble_dataset is not None:
-            prediction_test = self.combiner.predict(test_ensemble_dataset, additional_features=features_test)
+            prediction_test = self._predict_combiner(test_ensemble_dataset, features=features_test)
             metrics_test = self._calculate_score(prediction=prediction_test)
         else:
             prediction_test = None
@@ -624,11 +630,10 @@ class EnsembleForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastD
         ensemble_predictions = self._predict_forecasters(data=data, forecast_start=forecast_start)
 
         # Predict and restore target column
-        prediction = self._predict_combiner(
+        return self._predict_transform_combiner(
             ensemble_dataset=ensemble_predictions,
             original_data=data,
         )
-        return restore_target(dataset=prediction, original_dataset=data, target_column=self.target_column)
 
     def predict_contributions(self, data: TimeSeriesDataset, forecast_start: datetime | None = None) -> pd.DataFrame:
         """Generate forecasts for the provided dataset.
