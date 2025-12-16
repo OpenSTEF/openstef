@@ -54,7 +54,7 @@ class ExplainableForecaster(ABC):
             scale: Whether to scale contributions to sum to the prediction value.
 
         Returns:
-            DataFrame with contributions per base learner.
+            DataFrame with contributions per feature.
         """
         raise NotImplementedError
 

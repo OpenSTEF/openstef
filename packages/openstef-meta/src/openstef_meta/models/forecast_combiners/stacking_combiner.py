@@ -1,12 +1,10 @@
 # SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
 #
 # SPDX-License-Identifier: MPL-2.0
-"""Hybrid Forecaster (Stacked LightGBM + Linear Model Gradient Boosting).
+"""Stacking Forecast Combiner.
 
-Provides method that attempts to combine the advantages of a linear model (Extraplolation)
-and tree-based model (Non-linear patterns). This is acieved by training two base learners,
-followed by a small linear model that regresses on the baselearners' predictions.
-The implementation is based on sklearn's StackingRegressor.
+This module implements a Stacking Combiner that integrates predictions from multiple base Forecasters.
+It uses a regression approach to combine the predictions for each quantile into final forecasts.
 """
 
 import logging
@@ -88,7 +86,7 @@ class StackingCombinerConfig(ForecastCombinerConfig):
 
 
 class StackingCombiner(ForecastCombiner):
-    """Combines base learner predictions per quantile into final predictions using a regression approach."""
+    """Combines base Forecaster predictions per quantile into final predictions using a regression approach."""
 
     Config = StackingCombinerConfig
     LGBMHyperParams = LGBMHyperParams
@@ -128,10 +126,10 @@ class StackingCombiner(ForecastCombiner):
     def _combine_datasets(
         data: ForecastInputDataset, additional_features: ForecastInputDataset
     ) -> ForecastInputDataset:
-        """Combine base learner predictions with additional features for final learner input.
+        """Combine base Forecaster predictions with additional features for final learner input.
 
         Args:
-            data: ForecastInputDataset containing base learner predictions.
+            data: ForecastInputDataset containing base Forecaster predictions.
             additional_features: ForecastInputDataset containing additional features.
 
         Returns:

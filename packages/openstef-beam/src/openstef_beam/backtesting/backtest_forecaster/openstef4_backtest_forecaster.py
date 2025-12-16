@@ -44,7 +44,7 @@ class OpenSTEF4BacktestForecaster(BaseModel, BacktestForecasterMixin):
     )
     contributions: bool = Field(
         default=False,
-        description="When True, saves intermediate input data for explainability",
+        description="When True, saves base Forecaster prediction contributions for ensemble models in cache_dir",
     )
 
     _workflow: CustomForecastingWorkflow | None = PrivateAttr(default=None)
@@ -54,9 +54,7 @@ class OpenSTEF4BacktestForecaster(BaseModel, BacktestForecasterMixin):
 
     @override
     def model_post_init(self, context: Any) -> None:
-        if self.debug:
-            self.cache_dir.mkdir(parents=True, exist_ok=True)
-        if self.contributions:
+        if self.debug or self.contributions:
             self.cache_dir.mkdir(parents=True, exist_ok=True)
 
     @property
@@ -68,7 +66,6 @@ class OpenSTEF4BacktestForecaster(BaseModel, BacktestForecasterMixin):
         # Extract quantiles from the workflow's model
 
         if isinstance(self._workflow.model, EnsembleForecastingModel):
-            # Assuming all ensemble members have the same quantiles
             name = self._workflow.model.forecaster_names[0]
             return self._workflow.model.forecasters[name].config.quantiles
         return self._workflow.model.forecaster.config.quantiles

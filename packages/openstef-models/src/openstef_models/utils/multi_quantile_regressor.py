@@ -41,7 +41,7 @@ class MultiQuantileRegressor(BaseEstimator, RegressorMixin):
             base_learner: A scikit-learn compatible regressor class that supports quantile regression.
             quantile_param: The name of the parameter in base_learner that sets the quantile level.
             quantiles: List of quantiles to predict (e.g., [0.1, 0.5, 0.9]).
-            hyperparams: Dictionary of hyperparameters to pass to each base learner instance.
+            hyperparams: Dictionary of hyperparameters to pass to each estimator instance.
         """
         self.quantiles = quantiles
         self.hyperparams = hyperparams
@@ -56,7 +56,7 @@ class MultiQuantileRegressor(BaseEstimator, RegressorMixin):
         base_learner = self.base_learner(**params)
 
         if self.quantile_param not in base_learner.get_params():  # type: ignore
-            msg = f"The base learner does not support the quantile parameter '{self.quantile_param}'."
+            msg = f"The base estimator does not support the quantile parameter '{self.quantile_param}'."
             raise ValueError(msg)
 
         return base_learner
@@ -149,9 +149,9 @@ class MultiQuantileRegressor(BaseEstimator, RegressorMixin):
 
     @property
     def has_feature_names(self) -> bool:
-        """Check if the base learners have feature names.
+        """Check if the base estimators have feature names.
 
         Returns:
-            True if the base learners have feature names, False otherwise.
+            True if the base estimators have feature names, False otherwise.
         """
         return len(self.model_feature_names) > 0

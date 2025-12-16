@@ -268,10 +268,10 @@ class EnsembleForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastD
     def _combine_datasets(
         data: ForecastInputDataset, additional_features: ForecastInputDataset
     ) -> ForecastInputDataset:
-        """Combine base learner predictions with additional features for final learner input.
+        """Combine Forecaster learner predictions with additional features for ForecastCombiner input.
 
         Args:
-            data: ForecastInputDataset containing base learner predictions.
+            data: ForecastInputDataset containing base Forecaster predictions.
             additional_features: ForecastInputDataset containing additional features.
 
         Returns:
@@ -507,13 +507,12 @@ class EnsembleForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastD
             Processed forecast input dataset ready for model prediction.
         """
         logger.debug("Preparing input data for forecaster '%s'.", forecaster_name)
-        input_data = restore_target(dataset=data, original_dataset=data, target_column=self.target_column)
-
         # Transform the data
-        input_data = self.common_preprocessing.transform(data=input_data)
+        input_data = self.common_preprocessing.transform(data=data)
         if forecaster_name in self.model_specific_preprocessing:
             logger.debug("Applying model-specific preprocessing for forecaster '%s'.", forecaster_name)
             input_data = self.model_specific_preprocessing[forecaster_name].transform(data=input_data)
+        input_data = restore_target(dataset=input_data, original_dataset=data, target_column=self.target_column)
 
         # Cut away input history to avoid training on incomplete data
         input_data_start = cast("pd.Series[pd.Timestamp]", input_data.index).min().to_pydatetime()

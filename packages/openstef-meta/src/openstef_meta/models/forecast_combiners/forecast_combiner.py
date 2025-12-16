@@ -83,7 +83,7 @@ class ForecastCombinerConfig(BaseConfig):
 
 
 class ForecastCombiner(Predictor[EnsembleForecastDataset, ForecastDataset]):
-    """Combines base learner predictions for each quantile into final predictions."""
+    """Combines base Forecaster predictions for each quantile into final predictions."""
 
     config: ForecastCombinerConfig
 
@@ -94,7 +94,7 @@ class ForecastCombiner(Predictor[EnsembleForecastDataset, ForecastDataset]):
         data_val: EnsembleForecastDataset | None = None,
         additional_features: ForecastInputDataset | None = None,
     ) -> None:
-        """Fit the final learner using base learner predictions.
+        """Fit the final learner using base Forecaster predictions.
 
         Args:
             data: EnsembleForecastDataset
@@ -108,10 +108,10 @@ class ForecastCombiner(Predictor[EnsembleForecastDataset, ForecastDataset]):
         data: EnsembleForecastDataset,
         additional_features: ForecastInputDataset | None = None,
     ) -> ForecastDataset:
-        """Generate final predictions based on base learner predictions.
+        """Generate final predictions based on base Forecaster predictions.
 
         Args:
-            data: EnsembleForecastDataset containing base learner predictions.
+            data: EnsembleForecastDataset containing base Forecaster predictions.
             data_val: Optional EnsembleForecastDataset for validation during prediction. Will be ignored
             additional_features: Optional ForecastInputDataset containing additional features for the final learner.
 
@@ -132,10 +132,10 @@ class ForecastCombiner(Predictor[EnsembleForecastDataset, ForecastDataset]):
         data: EnsembleForecastDataset,
         additional_features: ForecastInputDataset | None = None,
     ) -> pd.DataFrame:
-        """Generate final predictions based on base learner predictions.
+        """Generate final predictions based on base Forecaster predictions.
 
         Args:
-            data: EnsembleForecastDataset containing base learner predictions.
+            data: EnsembleForecastDataset containing base Forecaster predictions.
             data_val: Optional EnsembleForecastDataset for validation during prediction. Will be ignored
             additional_features: Optional ForecastInputDataset containing additional features for the final learner.
 

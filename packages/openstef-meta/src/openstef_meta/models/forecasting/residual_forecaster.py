@@ -1,12 +1,11 @@
 # SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
 #
 # SPDX-License-Identifier: MPL-2.0
-"""Hybrid Forecaster (Stacked LightGBM + Linear Model Gradient Boosting).
+"""Residual Forecaster.
 
 Provides method that attempts to combine the advantages of a linear model (Extraplolation)
-and tree-based model (Non-linear patterns). This is acieved by training two base learners,
-followed by a small linear model that regresses on the baselearners' predictions.
-The implementation is based on sklearn's ResidualRegressor.
+and tree-based model (Non-linear patterns). This is achieved by training a primary model,
+typically linear, followed by a secondary model that learns to predict the residuals (errors) of the primary model.
 """
 
 import logging
@@ -132,10 +131,10 @@ class ResidualForecaster(Forecaster):
     def _init_base_learners(
         config: ForecasterConfig, base_hyperparams: list[ResidualBaseForecasterHyperParams]
     ) -> list[ResidualBaseForecaster]:
-        """Initialize base learners based on provided hyperparameters.
+        """Initialize base Forecaster based on provided hyperparameters.
 
         Returns:
-            list[Forecaster]: List of initialized base learner forecasters.
+            list[Forecaster]: List of initialized base Forecaster forecasters.
         """
         base_learners: list[ResidualBaseForecaster] = []
         horizons = config.horizons

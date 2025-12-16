@@ -355,47 +355,27 @@ def create_ensemble_workflow(config: EnsembleWorkflowConfig) -> CustomForecastin
                     weight_floor=config.sample_weight_floor,
                     weight_scale_percentile=config.sample_weight_scale_percentile,
                 ),
+                # Remove lags
                 Selector(
                     selection=FeatureSelection(
-                        exclude={  # Fix hardcoded lag features should be replaced by a LagsAdder classmethod
-                            "load_lag_P14D",
-                            "load_lag_P13D",
-                            "load_lag_P12D",
-                            "load_lag_P11D",
-                            "load_lag_P10D",
-                            "load_lag_P9D",
-                            "load_lag_P8D",
-                            # "load_lag_P7D", # Keep 7D lag for weekly seasonality
-                            "load_lag_P6D",
-                            "load_lag_P5D",
-                            "load_lag_P4D",
-                            "load_lag_P3D",
-                            "load_lag_P2D",
-                        }
+                        exclude=set(
+                            LagsAdder(
+                                history_available=config.predict_history,
+                                horizons=config.horizons,
+                                add_trivial_lags=True,
+                                target_column=config.target_column,
+                            ).features_added()
+                        ).difference({"load_lag_P7D"})
                     )
                 ),
-                Selector(  # Fix hardcoded holiday features should be replaced by a HolidayFeatureAdder classmethod
+                # Remove holiday features to avoid linear dependencies
+                Selector(
                     selection=FeatureSelection(
-                        exclude={
-                            "is_ascension_day",
-                            "is_christmas_day",
-                            "is_easter_monday",
-                            "is_easter_sunday",
-                            "is_good_friday",
-                            "is_holiday",
-                            "is_king_s_day",
-                            "is_liberation_day",
-                            "is_new_year_s_day",
-                            "is_second_day_of_christmas",
-                            "is_sunday",
-                            "is_week_day",
-                            "is_weekend_day",
-                            "is_whit_monday",
-                            "is_whit_sunday",
-                            "month_of_year",
-                            "quarter_of_year",
-                        }
+                        exclude=set(HolidayFeatureAdder(country_code=config.location.country_code).features_added())
                     )
+                ),
+                Selector(
+                    selection=FeatureSelection(exclude=set(DatetimeFeaturesAdder(onehot_encode=False).features_added()))
                 ),
                 Imputer(
                     selection=Exclude(config.target_column),
@@ -435,46 +415,64 @@ def create_ensemble_workflow(config: EnsembleWorkflowConfig) -> CustomForecastin
             raise ValueError(msg)
 
     # Build combiner
-    if config.ensemble_type == "learned_weights":
-        if config.combiner_model == "lgbm":
+    # Case: Ensemble type, combiner model
+    match (config.ensemble_type, config.combiner_model):
+        case ("learned_weights", "lgbm"):
             combiner_hp = WeightsCombiner.LGBMHyperParams()
-        elif config.combiner_model == "rf":
+            combiner_config = WeightsCombiner.Config(
+                hyperparams=combiner_hp, horizons=config.horizons, quantiles=config.quantiles
+            )
+            combiner = WeightsCombiner(
+                config=combiner_config,
+            )
+        case ("learned_weights", "rf"):
             combiner_hp = WeightsCombiner.RFHyperParams()
-        elif config.combiner_model == "xgboost":
+            combiner_config = WeightsCombiner.Config(
+                hyperparams=combiner_hp, horizons=config.horizons, quantiles=config.quantiles
+            )
+            combiner = WeightsCombiner(
+                config=combiner_config,
+            )
+        case ("learned_weights", "xgboost"):
             combiner_hp = WeightsCombiner.XGBHyperParams()
-        elif config.combiner_model == "logistic":
+            combiner_config = WeightsCombiner.Config(
+                hyperparams=combiner_hp, horizons=config.horizons, quantiles=config.quantiles
+            )
+            combiner = WeightsCombiner(
+                config=combiner_config,
+            )
+        case ("learned_weights", "logistic"):
             combiner_hp = WeightsCombiner.LogisticHyperParams()
-        else:
-            msg = f"Unsupported combiner model type: {config.combiner_model}"
-            raise ValueError(msg)
-        combiner_config = WeightsCombiner.Config(
-            hyperparams=combiner_hp, horizons=config.horizons, quantiles=config.quantiles
-        )
-        combiner = WeightsCombiner(
-            config=combiner_config,
-        )
-    elif config.ensemble_type == "stacking":
-        if config.combiner_model == "lgbm":
+            combiner_config = WeightsCombiner.Config(
+                hyperparams=combiner_hp, horizons=config.horizons, quantiles=config.quantiles
+            )
+            combiner = WeightsCombiner(
+                config=combiner_config,
+            )
+        case ("stacking", "lgbm"):
             combiner_hp = StackingCombiner.LGBMHyperParams()
-        elif config.combiner_model == "gblinear":
+            combiner_config = StackingCombiner.Config(
+                hyperparams=combiner_hp, horizons=config.horizons, quantiles=config.quantiles
+            )
+            combiner = StackingCombiner(
+                config=combiner_config,
+            )
+        case ("stacking", "gblinear"):
             combiner_hp = StackingCombiner.GBLinearHyperParams(reg_alpha=0.0, reg_lambda=0.0)
-        else:
-            msg = f"Unsupported combiner model type for stacking: {config.combiner_model}"
+            combiner_config = StackingCombiner.Config(
+                hyperparams=combiner_hp, horizons=config.horizons, quantiles=config.quantiles
+            )
+            combiner = StackingCombiner(
+                config=combiner_config,
+            )
+        case ("rules", _):
+            combiner_config = RulesCombiner.Config(horizons=config.horizons, quantiles=config.quantiles)
+            combiner = RulesCombiner(
+                config=combiner_config,
+            )
+        case _:
+            msg = f"Unsupported ensemble and combiner combination: {config.ensemble_type}, {config.combiner_model}"
             raise ValueError(msg)
-        combiner_config = StackingCombiner.Config(
-            hyperparams=combiner_hp, horizons=config.horizons, quantiles=config.quantiles
-        )
-        combiner = StackingCombiner(
-            config=combiner_config,
-        )
-    elif config.ensemble_type == "rules":
-        combiner_config = RulesCombiner.Config(horizons=config.horizons, quantiles=config.quantiles)
-        combiner = RulesCombiner(
-            config=combiner_config,
-        )
-    else:
-        msg = f"Unsupported ensemble type: {config.ensemble_type}"
-        raise ValueError(msg)
 
     postprocessing = [QuantileSorter()]
 

@@ -155,7 +155,7 @@ class CustomForecastingWorkflow(BaseModel):
             result = self.model.fit(data=data, data_val=data_val, data_test=data_test)
 
             if isinstance(result, EnsembleModelFitResult):
-                self._logger.info("Discarding EnsembleModelFitResult for compatibility.")
+                self._logger.debug("Discarding EnsembleModelFitResult for compatibility.")
                 result = result.combiner_fit_result
 
             for callback in self.callbacks:

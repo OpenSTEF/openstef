@@ -93,7 +93,7 @@ class EnsembleForecastDataset(TimeSeriesDataset):
         self.forecaster_names, self.quantiles = self.get_learner_and_quantile(pd.Index(quantile_feature_names))
         n_cols = len(self.forecaster_names) * len(self.quantiles)
         if len(data.columns) not in {n_cols + 1, n_cols}:
-            raise ValueError("Data columns do not match the expected number based on base learners and quantiles.")
+            raise ValueError("Data columns do not match the expected number based on base Forecasters and quantiles.")
 
     @property
     def target_series(self) -> pd.Series | None:
@@ -104,16 +104,16 @@ class EnsembleForecastDataset(TimeSeriesDataset):
 
     @staticmethod
     def get_learner_and_quantile(feature_names: pd.Index) -> tuple[list[str], list[Quantile]]:
-        """Extract base learner names and quantiles from feature names.
+        """Extract base Forecaster names and quantiles from feature names.
 
         Args:
             feature_names: Index of feature names in the dataset.
 
         Returns:
-            Tuple containing a list of base learner names and a list of quantiles.
+            Tuple containing a list of base Forecaster names and a list of quantiles.
 
         Raises:
-            ValueError: If an invalid base learner name is found in a feature name.
+            ValueError: If an invalid base Forecaster name is found in a feature name.
         """
         forecasters: set[str] = set()
         quantiles: set[Quantile] = set()
@@ -132,13 +132,13 @@ class EnsembleForecastDataset(TimeSeriesDataset):
 
     @staticmethod
     def get_quantile_feature_name(feature_name: str) -> tuple[str, Quantile]:
-        """Generate the feature name for a given base learner and quantile.
+        """Generate the feature name for a given base Forecaster and quantile.
 
         Args:
-            feature_name: Feature name string in the format "BaseLearner_Quantile".
+            feature_name: Feature name string in the format "model_Quantile".
 
         Returns:
-            Tuple containing the base learner name and Quantile object.
+            Tuple containing the base Forecaster name and Quantile object.
         """
         learner_part, quantile_part = feature_name.split("_", maxsplit=1)
         return learner_part, Quantile.parse(quantile_part)
@@ -192,10 +192,10 @@ class EnsembleForecastDataset(TimeSeriesDataset):
             quantile: Quantile for which to prepare classification data.
 
         Returns:
-            Series with categorical indicators of best-performing base learners.
+            Series with categorical indicators of best-performing base Forecasters.
         """
 
-        # Calculate pinball loss for each base learner
+        # Calculate pinball loss for each base Forecaster
         def column_pinball_losses(preds: pd.Series) -> pd.Series:
             return calculate_pinball_errors(y_true=target, y_pred=preds, quantile=quantile)
 
@@ -210,7 +210,7 @@ class EnsembleForecastDataset(TimeSeriesDataset):
             quantile: Quantile to select.
 
         Returns:
-            Series containing binary indicators of best-performing base learners for the specified quantile.
+            Series containing binary indicators of best-performing base Forecasters for the specified quantile.
 
         Raises:
             ValueError: If the target column is not found in the dataset.
@@ -258,13 +258,13 @@ class EnsembleForecastDataset(TimeSeriesDataset):
         )
 
     def select_forecaster(self, forecaster_name: str) -> ForecastDataset:
-        """Select data for a specific base learner across all quantiles.
+        """Select data for a specific base Forecaster across all quantiles.
 
         Args:
-            forecaster_name: Name of the base learner to select.
+            forecaster_name: Name of the base Forecaster to select.
 
         Returns:
-            ForecastDataset containing predictions from the specified base learner.
+            ForecastDataset containing predictions from the specified base Forecaster.
         """
         selected_columns = [
             f"{forecaster_name}_{q.format()}" for q in self.quantiles if f"{forecaster_name}_{q.format()}" in self.data

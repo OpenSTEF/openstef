@@ -64,7 +64,7 @@ class SimpleForecaster(Forecaster):
 
 
 class SimpleCombiner(ForecastCombiner):
-    """Simple combiner that averages base learner predictions."""
+    """Simple combiner that averages base Forecaster predictions."""
 
     def __init__(self, config: ForecastCombinerConfig):
         self._config = config

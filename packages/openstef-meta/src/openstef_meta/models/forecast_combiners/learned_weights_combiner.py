@@ -1,12 +1,13 @@
 # SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
 #
 # SPDX-License-Identifier: MPL-2.0
-"""Hybrid Forecaster (Stacked LightGBM + Linear Model Gradient Boosting).
+"""Learned Weights Combiner.
 
-Provides method that attempts to combine the advantages of a linear model (Extraplolation)
-and tree-based model (Non-linear patterns). This is acieved by training two base learners,
-followed by a small linear model that regresses on the baselearners' predictions.
-The implementation is based on sklearn's StackingRegressor.
+Forecast combiner that uses a classification approach to learn weights for base forecasters.
+It is designed to efficiently combine predictions from multiple base forecasters by learning which
+forecaster is likely to perform best under different conditions. The combiner can operate in two modes:
+- Hard Selection: Selects the base forecaster with the highest predicted probability for each instance.
+- Soft Selection: Uses the predicted probabilities as weights to combine base forecaster predictions.
 """
 
 import logging
@@ -228,7 +229,13 @@ class WeightsCombinerConfig(ForecastCombinerConfig):
 
 
 class WeightsCombiner(ForecastCombiner):
-    """Combines base learner predictions with a classification approach to determine which base learner to use."""
+    """Combines base Forecaster predictions with a classification approach.
+
+    The classifier is used to predict model weights for each base forecaster.
+    Depending on the `hard_selection` parameter in the configuration, the combiner can either
+    select the base forecaster with the highest predicted probability (hard selection) or use
+    the predicted probabilities as weights to combine base forecaster predictions (soft selection).
+    """
 
     Config = WeightsCombinerConfig
     LGBMHyperParams = LGBMCombinerHyperParams

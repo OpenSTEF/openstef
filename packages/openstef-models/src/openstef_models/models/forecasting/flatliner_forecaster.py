@@ -106,8 +106,6 @@ class FlatlinerForecaster(Forecaster, ExplainableForecaster):
     @override
     def predict_contributions(self, data: ForecastInputDataset, *, scale: bool = True) -> pd.DataFrame:
 
-        if scale:
-            pass
         forecast_index = data.create_forecast_range(horizon=self.config.max_horizon)
 
         return pd.DataFrame(
