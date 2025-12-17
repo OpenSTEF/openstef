@@ -605,7 +605,9 @@ class EnsembleForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastD
     ) -> pd.DataFrame:
 
         features = self._transform_combiner_data(data=original_data)
-        return self.combiner.predict_contributions(ensemble_dataset, additional_features=features)
+        predictions = self.combiner.predict_contributions(ensemble_dataset, additional_features=features)
+        predictions[ensemble_dataset.target_column] = ensemble_dataset.target_series
+        return predictions
 
     def predict(self, data: TimeSeriesDataset, forecast_start: datetime | None = None) -> ForecastDataset:
         """Generate forecasts for the provided dataset.
