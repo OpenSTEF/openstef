@@ -25,12 +25,22 @@ from pathlib import Path
 from pydantic_extra_types.coordinate import Coordinate
 from pydantic_extra_types.country import CountryAlpha2
 
-from openstef_beam.backtesting.backtest_forecaster import BacktestForecasterConfig, OpenSTEF4BacktestForecaster
+from openstef_beam.backtesting.backtest_forecaster import (
+    BacktestForecasterConfig,
+    OpenSTEF4BacktestForecaster,
+)
 from openstef_beam.benchmarking.benchmark_pipeline import BenchmarkContext
-from openstef_beam.benchmarking.benchmarks.liander2024 import Liander2024Category, create_liander2024_benchmark_runner
-from openstef_beam.benchmarking.callbacks.strict_execution_callback import StrictExecutionCallback
+from openstef_beam.benchmarking.benchmarks.liander2024 import (
+    Liander2024Category,
+    create_liander2024_benchmark_runner,
+)
+from openstef_beam.benchmarking.callbacks.strict_execution_callback import (
+    StrictExecutionCallback,
+)
 from openstef_beam.benchmarking.models.benchmark_target import BenchmarkTarget
-from openstef_beam.benchmarking.storage.local_storage import LocalBenchmarkStorage
+from openstef_beam.benchmarking.storage.local_storage import (
+    LocalBenchmarkStorage,
+)
 from openstef_core.types import LeadTime, Q
 from openstef_meta.presets import (
     EnsembleWorkflowConfig,
@@ -47,12 +57,15 @@ OUTPUT_PATH = Path("./benchmark_results")
 N_PROCESSES = 11 if True else multiprocessing.cpu_count()  # Amount of parallel processes to use for the benchmark
 
 ensemble_type = "learned_weights"  # "stacking", "learned_weights" or "rules"
-base_models = ["lgbm", "gblinear"]  # combination of "lgbm", "gblinear", "xgboost" and "lgbm_linear"
+base_models = [
+    "lgbm",
+    "gblinear",
+]  # combination of "lgbm", "gblinear", "xgboost" and "lgbm_linear"
 combiner_model = (
     "lgbm"  # "lgbm", "xgboost", "rf" or "logistic" for learned weights combiner, gblinear for stacking combiner
 )
 
-model = "Ensemble_" + "_".join(base_models) + "_" + ensemble_type + "_" + combiner_model
+model = "Ensemble_contributions_" + "_".join(base_models) + "_" + ensemble_type + "_" + combiner_model
 
 # Model configuration
 FORECAST_HORIZONS = [LeadTime.from_string("PT36H")]  # Forecast horizon(s)
@@ -95,7 +108,12 @@ common_config = EnsembleWorkflowConfig(
     relative_humidity_column="relative_humidity_2m",
     energy_price_column="EPEX_NL",
     forecast_combiner_sample_weight_exponent=0,
-    forecaster_sample_weight_exponent={"gblinear": 1, "lgbm": 0, "xgboost": 0, "lgbm_linear": 0},
+    forecaster_sample_weight_exponent={
+        "gblinear": 1,
+        "lgbm": 0,
+        "xgboost": 0,
+        "lgbm_linear": 0,
+    },
 )
 
 
@@ -112,10 +130,7 @@ backtest_config = BacktestForecasterConfig(
 )
 
 
-def _target_forecaster_factory(
-    context: BenchmarkContext,
-    target: BenchmarkTarget,
-) -> OpenSTEF4BacktestForecaster:
+def _target_forecaster_factory(context: BenchmarkContext, target: BenchmarkTarget) -> OpenSTEF4BacktestForecaster:
     # Factory function that creates a forecaster for a given target.
     prefix = context.run_name
     base_config = common_config
@@ -143,7 +158,7 @@ def _target_forecaster_factory(
         config=backtest_config,
         workflow_factory=_create_workflow,
         debug=False,
-        contributions=False,
+        contributions=True,
         cache_dir=OUTPUT_PATH / "cache" / f"{context.run_name}_{target.name}",
     )
 
@@ -152,7 +167,7 @@ if __name__ == "__main__":
     start_time = time.time()
     create_liander2024_benchmark_runner(
         storage=LocalBenchmarkStorage(base_path=OUTPUT_PATH / model),
-        data_dir=Path("../data/liander2024-energy-forecasting-benchmark"),
+        data_dir=Path("data/liander2024-energy-forecasting-benchmark"),
         callbacks=[StrictExecutionCallback()],
     ).run(
         forecaster_factory=_target_forecaster_factory,
