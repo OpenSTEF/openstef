@@ -170,25 +170,6 @@ class LGBMLinearForecasterConfig(ForecasterConfig):
         """
         return LGBMLinearForecaster(config=self)
 
-    random_state: int | None = Field(
-        default=None,
-        alias="seed",
-        description="Random seed for reproducibility. Controls tree structure randomness.",
-    )
-
-    early_stopping_rounds: int | None = Field(
-        default=None,
-        description="Training will stop if performance doesn't improve for this many rounds. Requires validation data.",
-    )
-
-    def forecaster_from_config(self) -> "LGBMLinearForecaster":
-        """Create a LGBMLinearForecaster instance from this configuration.
-
-        Returns:
-            Forecaster instance associated with this configuration.
-        """
-        return LGBMLinearForecaster(config=self)
-
 
 MODEL_CODE_VERSION = 1
 
@@ -296,9 +277,7 @@ class LGBMLinearForecaster(Forecaster, ExplainableForecaster):
         return input_data, target, sample_weight
 
     @override
-    def fit(
-        self, data: ForecastInputDataset, data_val: ForecastInputDataset | None = None
-    ) -> None:
+    def fit(self, data: ForecastInputDataset, data_val: ForecastInputDataset | None = None) -> None:
         # Prepare training data
         input_data, target, sample_weight = self._prepare_fit_input(data)
 
@@ -307,9 +286,7 @@ class LGBMLinearForecaster(Forecaster, ExplainableForecaster):
         sample_weight_eval_set = [sample_weight]
 
         if data_val is not None:
-            input_data_val, target_val, sample_weight_val = self._prepare_fit_input(
-                data_val
-            )
+            input_data_val, target_val, sample_weight_val = self._prepare_fit_input(data_val)
             eval_set.append((input_data_val, target_val))
             sample_weight_eval_set.append(sample_weight_val)
 
@@ -328,9 +305,7 @@ class LGBMLinearForecaster(Forecaster, ExplainableForecaster):
             raise NotFittedError(self.__class__.__name__)
 
         input_data: pd.DataFrame = data.input_data(start=data.forecast_start)
-        prediction: npt.NDArray[np.floating] = self._lgbmlinear_model.predict(
-            X=input_data
-        )
+        prediction: npt.NDArray[np.floating] = self._lgbmlinear_model.predict(X=input_data)
 
         return ForecastDataset(
             data=pd.DataFrame(
@@ -342,9 +317,7 @@ class LGBMLinearForecaster(Forecaster, ExplainableForecaster):
         )
 
     @override
-    def predict_contributions(
-        self, data: ForecastInputDataset, *, scale: bool
-    ) -> pd.DataFrame:
+    def predict_contributions(self, data: ForecastInputDataset, *, scale: bool) -> pd.DataFrame:
         """Get feature contributions for each prediction.
 
         Args:
@@ -354,9 +327,7 @@ class LGBMLinearForecaster(Forecaster, ExplainableForecaster):
         Returns:
             DataFrame with contributions per feature.
         """
-        raise NotImplementedError(
-            "predict_contributions is not yet implemented for LGBMLinearForecaster"
-        )
+        raise NotImplementedError("predict_contributions is not yet implemented for LGBMLinearForecaster")
 
     @property
     @override
@@ -365,9 +336,7 @@ class LGBMLinearForecaster(Forecaster, ExplainableForecaster):
         weights_df = pd.DataFrame(
             [models[i].feature_importances_ for i in range(len(models))],  # type: ignore
             index=[quantile.format() for quantile in self.config.quantiles],
-            columns=self._lgbmlinear_model.model_feature_names
-            if self._lgbmlinear_model.has_feature_names
-            else None,
+            columns=self._lgbmlinear_model.model_feature_names if self._lgbmlinear_model.has_feature_names else None,
         ).transpose()
 
         weights_df.index.name = "feature_name"

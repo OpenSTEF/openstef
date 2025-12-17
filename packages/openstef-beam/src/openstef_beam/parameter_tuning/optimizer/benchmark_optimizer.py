@@ -18,8 +18,7 @@ from typing import Any
 from optuna.trial import Trial
 
 from openstef_beam.backtesting.backtest_pipeline import BacktestPipeline
-from openstef_beam.benchmarking.benchmarks.liander2024 import Liander2024TargetProvider
-from openstef_beam.benchmarking.target_provider import BenchmarkTarget, SimpleTargetProvider, TargetProvider
+from openstef_beam.benchmarking.target_provider import BenchmarkTarget, TargetProvider
 from openstef_beam.parameter_tuning.optimizer.optimizer import OptimizerTrialContext, OptunaOptimizer
 from openstef_core.datasets.versioned_timeseries_dataset import TimeSeriesDataset
 from openstef_core.utils.multiprocessing import run_parallel

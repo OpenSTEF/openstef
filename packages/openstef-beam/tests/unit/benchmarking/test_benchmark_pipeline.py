@@ -23,6 +23,7 @@ from openstef_beam.benchmarking import (
 from openstef_beam.evaluation import EvaluationConfig, EvaluationReport, EvaluationSubsetReport, SubsetMetric
 from openstef_core.datasets import ForecastDataset, TimeSeriesDataset, VersionedTimeSeriesDataset
 from openstef_core.types import AvailableAt
+from openstef_models.presets.forecasting_workflow import Latitude, Longitude
 from tests.utils.mocks import MockForecaster, MockMetricsProvider, MockTargetProvider
 
 if TYPE_CHECKING:
@@ -37,8 +38,8 @@ def test_targets() -> list[BenchmarkTarget]:
         BenchmarkTarget(
             name="location1",
             description="Test location 1",
-            latitude=52.0,
-            longitude=5.0,
+            latitude=Latitude(52.0),
+            longitude=Longitude(5.0),
             limit=100.0,
             benchmark_start=datetime.fromisoformat("2023-01-15"),
             benchmark_end=datetime.fromisoformat("2023-02-15"),
@@ -47,8 +48,8 @@ def test_targets() -> list[BenchmarkTarget]:
         BenchmarkTarget(
             name="location2",
             description="Test location 2",
-            latitude=53.0,
-            longitude=6.0,
+            latitude=Latitude(53.0),
+            longitude=Longitude(6.0),
             limit=200.0,
             benchmark_start=datetime.fromisoformat("2023-01-15"),
             benchmark_end=datetime.fromisoformat("2023-02-15"),

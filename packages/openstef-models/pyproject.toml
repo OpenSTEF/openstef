@@ -5,16 +5,16 @@
 [build-system]
 build-backend = "hatchling.build"
 
-requires = ["hatchling"]
+requires = [ "hatchling" ]
 
 [project]
 name = "openstef-models"
 version = "0.0.0"
 description = "Core models for OpenSTEF"
 readme = "README.md"
-keywords = ["energy", "forecasting", "machinelearning"]
+keywords = [ "energy", "forecasting", "machinelearning" ]
 license = "MPL-2.0"
-authors = [{ name = "Alliander N.V", email = "openstef@lfenergy.org" }]
+authors = [ { name = "Alliander N.V", email = "openstef@lfenergy.org" } ]
 requires-python = ">=3.12,<4.0"
 classifiers = [
   "Development Status :: 5 - Production/Stable",
@@ -43,7 +43,7 @@ optional-dependencies.xgb-cpu = [
   "xgboost-cpu>=3,<4; sys_platform=='linux' or sys_platform=='win32'",
 ]
 
-optional-dependencies.xgb-gpu = ["xgboost>=3,<4"]
+optional-dependencies.xgb-gpu = [ "xgboost>=3,<4" ]
 
 urls.Documentation = "https://openstef.github.io/openstef/index.html"
 urls.Homepage = "https://lfenergy.org/projects/openstef/"
@@ -51,4 +51,4 @@ urls.Issues = "https://github.com/OpenSTEF/openstef/issues"
 urls.Repository = "https://github.com/OpenSTEF/openstef"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/openstef_models"]
+packages = [ "src/openstef_models" ]

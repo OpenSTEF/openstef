@@ -275,9 +275,7 @@ class LGBMForecaster(Forecaster, ExplainableForecaster):
         return input_data, target, sample_weight
 
     @override
-    def fit(
-        self, data: ForecastInputDataset, data_val: ForecastInputDataset | None = None
-    ) -> None:
+    def fit(self, data: ForecastInputDataset, data_val: ForecastInputDataset | None = None) -> None:
         # Prepare training data
         input_data, target, sample_weight = self._prepare_fit_input(data)
 
@@ -286,9 +284,7 @@ class LGBMForecaster(Forecaster, ExplainableForecaster):
         sample_weight_eval_set = [sample_weight]
 
         if data_val is not None:
-            input_data_val, target_val, sample_weight_val = self._prepare_fit_input(
-                data_val
-            )
+            input_data_val, target_val, sample_weight_val = self._prepare_fit_input(data_val)
             eval_set.append((input_data_val, target_val))
             sample_weight_eval_set.append(sample_weight_val)
 
@@ -318,9 +314,7 @@ class LGBMForecaster(Forecaster, ExplainableForecaster):
             sample_interval=data.sample_interval,
         )
 
-    def predict_contributions(
-        self, data: ForecastInputDataset, *, scale: bool
-    ) -> pd.DataFrame:
+    def predict_contributions(self, data: ForecastInputDataset, *, scale: bool) -> pd.DataFrame:
         """Get feature contributions for each prediction.
 
         Args:
@@ -340,24 +334,17 @@ class LGBMForecaster(Forecaster, ExplainableForecaster):
             model: LGBMRegressor = self._lgbm_model.models[i]  # type: ignore
 
             # Generate contributions using LightGBM's built-in method, and remove bias term
-            contribs_quantile: np.ndarray[float] = model.predict(
-                input_data, pred_contrib=True
-            )[:, :-1]  # type: ignore
+            contribs_quantile: np.ndarray[float] = model.predict(input_data, pred_contrib=True)[:, :-1]  # type: ignore
 
             if scale:
                 # Scale contributions so that they sum to 1.0 per quantile
-                contribs_quantile = np.abs(contribs_quantile) / np.sum(
-                    np.abs(contribs_quantile), axis=1, keepdims=True
-                )
+                contribs_quantile = np.abs(contribs_quantile) / np.sum(np.abs(contribs_quantile), axis=1, keepdims=True)
 
             contributions.append(
                 pd.DataFrame(
                     data=contribs_quantile,
                     index=input_data.index,
-                    columns=[
-                        f"{feature}_{quantile.format()}"
-                        for feature in input_data.columns
-                    ],
+                    columns=[f"{feature}_{quantile.format()}" for feature in input_data.columns],
                 )
             )
 
@@ -371,9 +358,7 @@ class LGBMForecaster(Forecaster, ExplainableForecaster):
         weights_df = pd.DataFrame(
             [models[i].feature_importances_ for i in range(len(models))],
             index=[quantile.format() for quantile in self.config.quantiles],
-            columns=self._lgbm_model.model_feature_names
-            if self._lgbm_model.has_feature_names
-            else None,
+            columns=self._lgbm_model.model_feature_names if self._lgbm_model.has_feature_names else None,
         ).transpose()
 
         weights_df.index.name = "feature_name"

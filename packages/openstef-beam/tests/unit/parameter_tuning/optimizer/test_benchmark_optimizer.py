@@ -3,10 +3,8 @@
 # SPDX-License-Identifier: MPL-2.0
 
 from datetime import datetime, timedelta
-from typing import TYPE_CHECKING, Any, override
-from unittest.mock import MagicMock
+from typing import Any, override
 
-from openstef_beam.parameter_tuning.optimizer.optimizer import OptimizerConfig
 import pandas as pd
 import pytest
 from pydantic import ConfigDict, Field
@@ -30,6 +28,7 @@ from openstef_beam.parameter_tuning.models import (
     ParameterSpace,
 )
 from openstef_beam.parameter_tuning.optimizer.benchmark_optimizer import BenchmarkOptimizer
+from openstef_beam.parameter_tuning.optimizer.optimizer import OptimizerConfig
 from openstef_core.datasets import ForecastDataset, VersionedTimeSeriesDataset
 from openstef_core.mixins.predictor import HyperParams
 from openstef_core.types import LeadTime, Quantile
@@ -302,7 +301,5 @@ def test_benchmark_optimizer_end_to_end(
     optimizer: BenchmarkOptimizer,
 ):
     """End-to-end test of the BenchmarkOptimizer with mock data and callbacks."""
-
-    # results = optimizer.optimize(experiment_name="Test Benchmark Optimization", target_provider=target_provider)
 
     assert True  # Placeholder assertion to indicate test ran successfully

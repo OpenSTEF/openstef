@@ -23,9 +23,7 @@ def base_config() -> LGBMForecasterConfig:
     return LGBMForecasterConfig(
         quantiles=[Q(0.1), Q(0.5), Q(0.9)],
         horizons=[LeadTime(timedelta(days=1))],
-        hyperparams=LGBMHyperParams(
-            n_estimators=100, max_depth=3, min_data_in_leaf=1, min_data_in_bin=1
-        ),
+        hyperparams=LGBMHyperParams(n_estimators=100, max_depth=3, min_data_in_leaf=1, min_data_in_bin=1),
         device="cpu",
         n_jobs=1,
         verbosity=0,
@@ -66,16 +64,12 @@ def test_quantile_lgbm_forecaster__fit_predict(
     )
 
     # Forecast data quality
-    assert not result.data.isna().any().any(), (
-        "Forecast should not contain NaN or None values"
-    )
+    assert not result.data.isna().any().any(), "Forecast should not contain NaN or None values"
 
     # Since forecast is deterministic with fixed random seed, check value spread (vectorized)
     # All quantiles should have some variation (not all identical values)
     stds = result.data.std()
-    assert (stds > 0).all(), (
-        f"All columns should have variation, got stds: {dict(stds)}"
-    )
+    assert (stds > 0).all(), f"All columns should have variation, got stds: {dict(stds)}"
 
 
 def test_lgbm_forecaster__not_fitted_error(
@@ -118,12 +112,8 @@ def test_lgbm_forecaster__with_sample_weights(
 
     # Assert
     # Both should produce valid forecasts
-    assert not result_with_weights.data.isna().any().any(), (
-        "Weighted forecast should not contain NaN values"
-    )
-    assert not result_without_weights.data.isna().any().any(), (
-        "Unweighted forecast should not contain NaN values"
-    )
+    assert not result_with_weights.data.isna().any().any(), "Weighted forecast should not contain NaN values"
+    assert not result_without_weights.data.isna().any().any(), "Unweighted forecast should not contain NaN values"
 
     # Sample weights should affect the model, so results should be different
     # (This is a statistical test - with different weights, predictions should differ)
@@ -147,16 +137,12 @@ def test_lgbm_forecaster__feature_importances(
     assert len(feature_importances.index) > 0
 
     # Columns should match expected quantile formats
-    expected_columns = pd.Index(
-        [q.format() for q in base_config.quantiles], name="quantiles"
-    )
+    expected_columns = pd.Index([q.format() for q in base_config.quantiles], name="quantiles")
     pd.testing.assert_index_equal(feature_importances.columns, expected_columns)
 
     # Values should be normalized (sum to 1.0 per quantile column) and non-negative
     col_sums = feature_importances.sum(axis=0)
-    pd.testing.assert_series_equal(
-        col_sums, pd.Series(1.0, index=expected_columns), atol=1e-10
-    )
+    pd.testing.assert_series_equal(col_sums, pd.Series(1.0, index=expected_columns), atol=1e-10)
     assert (feature_importances >= 0).all().all()
 
 
@@ -179,22 +165,16 @@ def test_lgbm_forecaster_predict_contributions(
 
     # Check that necessary quantiles are present
     input_features = sample_forecast_input_dataset.input_data().columns
-    expected_columns = [
-        f"{col}_{q.format()}" for col in input_features for q in expected_quantiles
-    ]
+    expected_columns = [f"{col}_{q.format()}" for col in input_features for q in expected_quantiles]
     assert sorted(result.columns) == sorted(expected_columns), (
         f"Expected columns {expected_columns}, got {list(result.columns)}"
     )
 
     # Contributions should sum to 1.0 per quantile
     for q in expected_quantiles:
-        quantile_cols = [
-            col for col in result.columns if col.endswith(f"_{q.format()}")
-        ]
+        quantile_cols = [col for col in result.columns if col.endswith(f"_{q.format()}")]
         col_sums = result[quantile_cols].sum(axis=1)
-        pd.testing.assert_series_equal(
-            col_sums, pd.Series(1.0, index=result.index), atol=1e-10
-        )
+        pd.testing.assert_series_equal(col_sums, pd.Series(1.0, index=result.index), atol=1e-10)
 
 
 # TODO(@MvLieshout): Add tests on different loss functions  # noqa: TD003
