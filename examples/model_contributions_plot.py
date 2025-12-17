@@ -11,7 +11,7 @@ from pathlib import Path
 
 import pandas as pd
 import plotly.graph_objects as go
-from plotly.subplots import make_subplots
+from plotly.subplots import make_subplots  # type: ignore[attr-defined]
 from tqdm import tqdm
 
 from openstef_beam.analysis.plots import ForecastTimeSeriesPlotter
@@ -46,11 +46,11 @@ def load_contribution_data(folder_path: Path, n_rows: int = 24) -> pd.DataFrame:
 
     df_list = []
     for file in tqdm(parquet_files, desc="Loading contribution data"):
-        df_temp = pd.read_parquet(file)
+        df_temp = pd.read_parquet(file)  # type: ignore[call-overload]
         df_subset = df_temp.head(n_rows)
-        df_list.append(df_subset)
+        df_list.append(df_subset)  # type: ignore[arg-type]
 
-    df_combined = pd.concat(df_list, axis=0, ignore_index=False)
+    df_combined = pd.concat(df_list, axis=0, ignore_index=False)  # type: ignore[arg-type]
     print(f"Combined dataframe shape: {df_combined.shape}")
     if not df_combined.empty:
         start_ts = df_combined.index.min()
@@ -81,13 +81,13 @@ def _filter_by_date_range(
 
     if start_date is not None:
         start_dt = pd.to_datetime(start_date)
-        if df_filtered.index.tz is not None and start_dt.tz is None:
+        if df_filtered.index.tz is not None and start_dt.tz is None:  # type: ignore[attr-defined]
             start_dt = start_dt.tz_localize("UTC")
         df_filtered = df_filtered[df_filtered.index >= start_dt]
 
     if end_date is not None:
         end_dt = pd.to_datetime(end_date)
-        if df_filtered.index.tz is not None and end_dt.tz is None:
+        if df_filtered.index.tz is not None and end_dt.tz is None:  # type: ignore[attr-defined]
             end_dt = end_dt.tz_localize("UTC")
         df_filtered = df_filtered[df_filtered.index <= end_dt]
 
@@ -114,7 +114,7 @@ def _create_model_traces(df: pd.DataFrame, quantiles: list[str], default_quantil
         is_visible = quantile == default_quantile
 
         # Add GBLinear trace
-        fig.add_trace(
+        fig.add_trace(  # type: ignore[call-overload]
             go.Scatter(
                 x=df.index,
                 y=df[gblinear_col],
@@ -127,7 +127,7 @@ def _create_model_traces(df: pd.DataFrame, quantiles: list[str], default_quantil
         )
 
         # Add LGBM trace
-        fig.add_trace(
+        fig.add_trace(  # type: ignore[call-overload]
             go.Scatter(
                 x=df.index,
                 y=df[lgbm_col],
@@ -142,7 +142,7 @@ def _create_model_traces(df: pd.DataFrame, quantiles: list[str], default_quantil
     return fig
 
 
-def _create_quantile_buttons(quantiles: list[str]) -> list[dict]:
+def _create_quantile_buttons(quantiles: list[str]) -> list[dict]:  # type: ignore[type-arg]
     """Create button controls for quantile selection.
 
     Args:
@@ -158,7 +158,7 @@ def _create_quantile_buttons(quantiles: list[str]) -> list[dict]:
         visible[i * 2] = True  # GBLinear
         visible[i * 2 + 1] = True  # LGBM
 
-        buttons.append({
+        buttons.append({  # type: ignore[arg-type]
             "label": quantile,
             "method": "update",
             "args": [
@@ -167,7 +167,7 @@ def _create_quantile_buttons(quantiles: list[str]) -> list[dict]:
             ],
         })
 
-    return buttons
+    return buttons  # type: ignore[return-value]
 
 
 def plot_model_contributions(
@@ -214,11 +214,11 @@ def plot_model_contributions(
     fig = _create_model_traces(df_plot, quantiles, default_quantile)
 
     # Create quantile selection buttons
-    buttons = _create_quantile_buttons(quantiles)
+    buttons = _create_quantile_buttons(quantiles)  # type: ignore[assignment]
     active_idx = quantiles.index(default_quantile)
 
     # Update layout with controls and styling
-    fig.update_layout(
+    fig.update_layout(  # type: ignore[call-overload]
         legend={
             "orientation": "v",
             "x": 1.02,
@@ -286,20 +286,15 @@ def plot_combined_visualization(
     df_plot = _filter_by_date_range(df, start_date, end_date)
 
     # Create forecast plot using ForecastTimeSeriesPlotter
-    # Prepare quantiles DataFrame for the plotter
     quantile_cols = [f"quantile_{q}" for q in quantiles]
-    quantiles_df = df_plot[quantile_cols].copy()
-
-    # Create measurements series
-    measurements = df_plot["load"]
 
     # Use ForecastTimeSeriesPlotter to create the forecast visualization
-    forecast_plotter = ForecastTimeSeriesPlotter()
-    forecast_plotter.add_measurements(measurements)
+    forecast_plotter = ForecastTimeSeriesPlotter()  # type: ignore[misc]
+    forecast_plotter.add_measurements(df_plot["load"])
     forecast_plotter.add_model(
         model_name="Ensemble",
         forecast=df_plot["quantile_P50"],
-        quantiles=quantiles_df,
+        quantiles=df_plot[quantile_cols].copy(),
     )
     forecast_fig = forecast_plotter.plot(title="Ensemble Forecast vs Measurements")
 
@@ -314,11 +309,11 @@ def plot_combined_visualization(
     )
 
     # Add forecast traces to top subplot (row=1)
-    for trace in forecast_fig.data:
-        fig.add_trace(trace, row=1, col=1)
+    for trace in forecast_fig.data:  # type: ignore[attr-defined]
+        fig.add_trace(trace, row=1, col=1)  # type: ignore[arg-type]
 
     # Count the number of forecast traces for visibility calculation
-    num_forecast_traces = len(forecast_fig.data)
+    num_forecast_traces = len(forecast_fig.data)  # type: ignore[arg-type]
 
     # Add contribution traces to bottom subplot (row=2)
     default_quantile = "P50" if "P50" in quantiles else quantiles[0]
@@ -330,7 +325,7 @@ def plot_combined_visualization(
         is_visible = quantile == default_quantile
 
         # Add GBLinear trace
-        fig.add_trace(
+        fig.add_trace(  # type: ignore[call-overload]
             go.Scatter(
                 x=df_plot.index,
                 y=df_plot[gblinear_col],
@@ -346,7 +341,7 @@ def plot_combined_visualization(
         )
 
         # Add LGBM trace
-        fig.add_trace(
+        fig.add_trace(  # type: ignore[call-overload]
             go.Scatter(
                 x=df_plot.index,
                 y=df_plot[lgbm_col],
@@ -372,7 +367,7 @@ def plot_combined_visualization(
         for j, _ in enumerate(quantiles):
             visible.extend([j == i, j == i])  # GBLinear and LGBM visibility
 
-        buttons.append({
+        buttons.append({  # type: ignore[arg-type]
             "label": quantile,
             "method": "update",
             "args": [
@@ -384,7 +379,7 @@ def plot_combined_visualization(
     active_idx = quantiles.index(default_quantile)
 
     # Update layout
-    fig.update_layout(
+    fig.update_layout(  # type: ignore[call-overload]
         title=f"Model Contributions & Forecast - Quantile {quantiles[active_idx]}",
         height=1000,
         hovermode="x unified",
@@ -409,9 +404,9 @@ def plot_combined_visualization(
     )
 
     # Update axes labels
-    fig.update_xaxes(title_text="Timestamp", row=2, col=1)
-    fig.update_yaxes(title_text="Load (MW)", row=1, col=1)
-    fig.update_yaxes(title_text="Contribution", row=2, col=1)
+    fig.update_xaxes(title_text="Timestamp", row=2, col=1)  # type: ignore[call-overload]
+    fig.update_yaxes(title_text="Load (MW)", row=1, col=1)  # type: ignore[call-overload]
+    fig.update_yaxes(title_text="Contribution", row=2, col=1)  # type: ignore[call-overload]
 
     return fig
 
@@ -433,10 +428,10 @@ def main() -> None:
     # Create combined visualization with contributions and forecast subplots
     combined_fig = plot_combined_visualization(df_combined)
     combined_output = project_root / "benchmark_results" / "model_contributions_combined_plot.html"
-    combined_fig.write_html(combined_output)
+    combined_fig.write_html(combined_output)  # type: ignore[call-overload]
     print(f"Combined plot saved to: {combined_output}")
 
-    combined_fig.show()
+    combined_fig.show()  # type: ignore[call-overload]
 
 
 if __name__ == "__main__":
