@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -128,7 +128,7 @@ def test_mlflow_storage_callback__on_fit_end__stores_model_and_metrics(
 
     # Assert - Model can be loaded from the run
     run_id = cast(str, runs[0].info.run_id)
-    loaded_model = callback.storage.load_run_model(run_id=run_id)
+    loaded_model = callback.storage.load_run_model(model_id=workflow.model_id, run_id=run_id)
     assert isinstance(loaded_model, ForecastingModel)
     assert loaded_model.is_fitted
 
@@ -255,3 +255,38 @@ def test_mlflow_storage_callback__model_selection__keeps_better_model(
     # Act & Assert - Should raise SkipFitting because new model is worse
     with pytest.raises(SkipFitting, match="New model did not improve"):
         callback.on_fit_end(context=worse_context, result=worse_result)
+
+
+def test_mlflow_storage_callback__model_selection__skips_on_tag_change(
+    storage: MLFlowStorage,
+    workflow: CustomForecastingWorkflow,
+    fit_result: ModelFitResult,
+    sample_dataset: TimeSeriesDataset,
+):
+    """Test that model selection keeps the better performing model."""
+    # Arrange - Create callback with R2 metric (capital letters)
+    callback = MLFlowStorageCallback(
+        storage=storage,
+        model_selection_metric=(Q(0.5), "R2", "higher_is_better"),
+    )
+
+    # Store an initial model
+    context = WorkflowContext(workflow=workflow)
+    callback.on_fit_end(context=context, result=fit_result)
+
+    # Create a new result by fitting with a model with a different tag
+    new_model = ForecastingModel(
+        forecaster=SimpleTestForecaster(
+            config=ForecasterConfig(horizons=[LeadTime(timedelta(hours=6))], quantiles=[Q(0.5)])
+        ),
+        tags={"version": "2.0"},
+    )
+    new_workflow = CustomForecastingWorkflow(model_id="test_model", model=new_model)
+    new_result = new_model.fit(sample_dataset)
+
+    # Act
+    result = callback._run_model_selection(workflow=new_workflow, result=new_result)
+
+    # Assert - Should not raise SkipFitting because model changed
+    assert result is None
+    assert new_workflow.model == new_model

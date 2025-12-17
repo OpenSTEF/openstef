@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -19,9 +19,11 @@ from typing import Any, cast, override
 
 from mlflow import MlflowClient
 from mlflow.entities import Metric, Param, Run
+from mlflow.exceptions import MlflowException
 from pydantic import Field, PrivateAttr
 
 from openstef_core.base_model import BaseConfig
+from openstef_core.exceptions import ModelNotFoundError
 from openstef_core.mixins import HyperParams
 from openstef_models.integrations.joblib import JoblibModelSerializer
 from openstef_models.mixins import ModelIdentifier, ModelSerializer
@@ -35,12 +37,17 @@ class MLFlowStorage(BaseConfig):
     before uploading to MLflow tracking server.
     """
 
-    tracking_uri: str = Field(default="./mlflow")
-    local_artifacts_path: Path = Field(default=Path("./mlflow_artifacts_local"))
-    experiment_name_prefix: str = Field(default="")
+    tracking_uri: str = Field(default="./mlflow", description="MLflow tracking server URI.")
+    local_artifacts_path: Path = Field(
+        default=Path("./mlflow_artifacts_local"), description="Local path for storing MLflow artifacts before upload."
+    )
+    experiment_name_prefix: str = Field(default="", description="Prefix for MLflow experiment names.")
     # Artifact subdirectories
-    data_path: str = Field(default="data")
-    model_path: str = Field(default="model")
+    data_path: str = Field(default="data", description="Subdirectory for storing training data artifacts.")
+    model_path: str = Field(default="model", description="Subdirectory for storing model artifacts.")
+    enable_mlflow_stdout: bool = Field(
+        default=False, description="Keep MLflow stdout messages which circumvent standard logging."
+    )
 
     model_serializer: ModelSerializer = Field(default_factory=JoblibModelSerializer)
 
@@ -49,7 +56,10 @@ class MLFlowStorage(BaseConfig):
 
     @override
     def model_post_init(self, context: Any) -> None:
-        os.environ.setdefault("MLFLOW_ENABLE_ARTIFACTS_PROGRESS_BAR", "false")
+        if not self.enable_mlflow_stdout:
+            # Suppress MLflow's stdout messages (emoji URLs)
+            os.environ.setdefault("MLFLOW_SUPPRESS_PRINTING_URL_TO_STDOUT", "true")
+            os.environ.setdefault("MLFLOW_ENABLE_ARTIFACTS_PROGRESS_BAR", "false")
         self._client = MlflowClient(tracking_uri=self.tracking_uri)
 
     def create_run(
@@ -173,6 +183,40 @@ class MLFlowStorage(BaseConfig):
             max_results=limit,
         )
 
+    def search_run(
+        self,
+        model_id: ModelIdentifier,
+        run_name: str,
+    ) -> Run | None:
+        """Search for a specific run of a model by its name in MLflow.
+
+        Queries MLflow for a run matching the provided run name.
+        Returns None if no experiment or run exists for the model.
+
+        Args:
+            model_id: Model identifier to search runs for.
+            run_name: Name of the run to search for.
+
+        Returns:
+            The matching Run object if found, otherwise None.
+        """
+        # Get related experiment
+        experiment = self._client.get_experiment_by_name(name=f"{self.experiment_name_prefix}{model_id}")
+        if experiment is None:
+            return None
+
+        # Search for the run by name
+        runs = self._client.search_runs(
+            experiment_ids=[experiment.experiment_id],
+            filter_string=f"attribute.run_name = '{run_name}'",
+            order_by=["start_time DESC"],
+            max_results=1,
+        )
+
+        if runs:
+            return runs[0]
+        return None
+
     def save_run_model(self, model_id: ModelIdentifier, run_id: str, model: object) -> None:
         """Save a trained model to local artifacts directory for the run.
 
@@ -193,7 +237,7 @@ class MLFlowStorage(BaseConfig):
         with Path(model_path / f"model.{self.model_serializer.extension}").open("wb") as f:
             self.model_serializer.serialize(model, file=f)
 
-    def load_run_model(self, run_id: str) -> object:
+    def load_run_model(self, run_id: str, model_id: ModelIdentifier) -> object:
         """Load a trained model from MLflow artifacts.
 
         Downloads model artifacts from MLflow and deserializes them into the
@@ -201,15 +245,21 @@ class MLFlowStorage(BaseConfig):
 
         Args:
             run_id: MLflow run ID containing the model artifacts.
+            model_id: Model identifier for locating artifact paths.
 
         Returns:
             Model instance with restored state from the run.
+
+        Raises:
+            ModelNotFoundError: If the model artifacts cannot be found in MLflow.
         """
-        # Download and load the model
-        with TemporaryDirectory() as tmpdir:
-            self._client.download_artifacts(run_id=run_id, path=self.model_path, dst_path=tmpdir)
-            with (Path(tmpdir) / self.model_path / f"model.{self.model_serializer.extension}").open("rb") as f:
-                model = cast(Any, self.model_serializer.deserialize(file=f))
+        try:
+            with TemporaryDirectory() as tmpdir:
+                self._client.download_artifacts(run_id=run_id, path=self.model_path, dst_path=tmpdir)
+                with (Path(tmpdir) / self.model_path / f"model.{self.model_serializer.extension}").open("rb") as f:
+                    model = cast(Any, self.model_serializer.deserialize(file=f))
+        except (MlflowException, FileNotFoundError) as e:
+            raise ModelNotFoundError(model_id=model_id) from e
 
         return model
 

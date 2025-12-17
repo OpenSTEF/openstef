@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 """General feature transforms for time series data.
@@ -17,6 +17,7 @@ from openstef_models.transforms.general.imputer import Imputer
 from openstef_models.transforms.general.nan_dropper import NaNDropper
 from openstef_models.transforms.general.sample_weighter import SampleWeighter
 from openstef_models.transforms.general.scaler import Scaler
+from openstef_models.transforms.general.selector import Selector
 
 __all__ = [
     "Clipper",
@@ -26,4 +27,5 @@ __all__ = [
     "NaNDropper",
     "SampleWeighter",
     "Scaler",
+    "Selector",
 ]

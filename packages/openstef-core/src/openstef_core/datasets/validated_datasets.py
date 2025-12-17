@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -250,12 +250,14 @@ class ForecastDataset(TimeSeriesDataset):
         *,
         horizon_column: str = "horizon",
         available_at_column: str = "available_at",
+        standard_deviation_column: str = "stdev",
     ) -> None:
         if "forecast_start" in data.attrs:
             self.forecast_start = datetime.fromisoformat(data.attrs["forecast_start"])
         else:
             self.forecast_start = forecast_start if forecast_start is not None else data.index.min().to_pydatetime()
         self.target_column = data.attrs.get("target_column", target_column)
+        self.standard_deviation_column = data.attrs.get("standard_deviation_column", standard_deviation_column)
 
         super().__init__(
             data=data,
@@ -264,7 +266,8 @@ class ForecastDataset(TimeSeriesDataset):
             available_at_column=available_at_column,
         )
 
-        quantile_feature_names = [col for col in self.feature_names if col != target_column]
+        exclude_columns = {target_column, standard_deviation_column}
+        quantile_feature_names = [col for col in self.feature_names if col not in exclude_columns]
         if not all(Quantile.is_valid_quantile_string(col) for col in quantile_feature_names):
             raise ValueError("All feature names must be valid quantile strings.")
 
@@ -295,6 +298,20 @@ class ForecastDataset(TimeSeriesDataset):
         if median_col not in self.feature_names:
             raise MissingColumnsError(missing_columns=[median_col])
         return self.data[median_col]
+
+    @property
+    def standard_deviation_series(self) -> pd.Series:
+        """Extract the standard deviation series if it exists.
+
+        Returns:
+            Time series containing standard deviation values with original datetime index.
+
+        Raises:
+            MissingColumnsError: If the standard deviation column is not found.
+        """
+        if self.standard_deviation_column not in self.data.columns:
+            raise MissingColumnsError(missing_columns=[self.standard_deviation_column])
+        return self.data[self.standard_deviation_column]  # pyright: ignore[reportUnknownVariableType]
 
     @property
     def quantiles_data(self) -> pd.DataFrame:
@@ -331,6 +348,7 @@ class ForecastDataset(TimeSeriesDataset):
         df = super().to_pandas()
         df.attrs["target_column"] = self.target_column
         df.attrs["forecast_start"] = self.forecast_start.isoformat()
+        df.attrs["standard_deviation_column"] = self.standard_deviation_column
         return df
 
     @classmethod

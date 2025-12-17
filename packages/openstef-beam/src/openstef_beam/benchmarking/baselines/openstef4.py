@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -6,18 +6,32 @@
 
 import logging
 from collections.abc import Callable
+from datetime import timedelta
+from functools import partial
 from pathlib import Path
-from typing import Any, override
+from typing import Any, cast, override
 
 from pydantic import Field, PrivateAttr
+from pydantic_extra_types.coordinate import Coordinate
 
 from openstef_beam.backtesting.backtest_forecaster.mixins import BacktestForecasterConfig, BacktestForecasterMixin
 from openstef_beam.backtesting.restricted_horizon_timeseries import RestrictedHorizonVersionedTimeSeries
-from openstef_core.base_model import BaseModel
+from openstef_beam.benchmarking.benchmark_pipeline import BenchmarkContext, BenchmarkTarget, ForecasterFactory
+from openstef_core.base_model import BaseConfig, BaseModel
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.exceptions import FlatlinerDetectedError, NotFittedError
 from openstef_core.types import Q
+from openstef_models.presets import ForecastingWorkflowConfig
 from openstef_models.workflows.custom_forecasting_workflow import CustomForecastingWorkflow
+
+
+class WorkflowCreationContext(BaseConfig):
+    """Context information for workflow execution within backtesting."""
+
+    step_name: str | None = Field(
+        default=None,
+        description="Name of the current backtesting step.",
+    )
 
 
 class OpenSTEF4BacktestForecaster(BaseModel, BacktestForecasterMixin):
@@ -30,7 +44,7 @@ class OpenSTEF4BacktestForecaster(BaseModel, BacktestForecasterMixin):
     config: BacktestForecasterConfig = Field(
         description="Configuration for the backtest forecaster interface",
     )
-    workflow_factory: Callable[[], CustomForecastingWorkflow] = Field(
+    workflow_factory: Callable[[WorkflowCreationContext], CustomForecastingWorkflow] = Field(
         description="Factory function that creates a new CustomForecastingWorkflow instance",
     )
     cache_dir: Path = Field(
@@ -56,14 +70,15 @@ class OpenSTEF4BacktestForecaster(BaseModel, BacktestForecasterMixin):
     def quantiles(self) -> list[Q]:
         # Create a workflow instance if needed to get quantiles
         if self._workflow is None:
-            self._workflow = self.workflow_factory()
+            self._workflow = self.workflow_factory(WorkflowCreationContext())
         # Extract quantiles from the workflow's model
         return self._workflow.model.forecaster.config.quantiles
 
     @override
     def fit(self, data: RestrictedHorizonVersionedTimeSeries) -> None:
         # Create a new workflow for this training cycle
-        workflow = self.workflow_factory()
+        context = WorkflowCreationContext(step_name=data.horizon.isoformat())
+        workflow = self.workflow_factory(context)
 
         # Extract the dataset for training
         training_data = data.get_window(
@@ -124,4 +139,90 @@ class OpenSTEF4BacktestForecaster(BaseModel, BacktestForecasterMixin):
         return forecast
 
 
-__all__ = ["OpenSTEF4BacktestForecaster"]
+class OpenSTEF4PresetBacktestForecaster(OpenSTEF4BacktestForecaster):
+    pass
+
+
+def _preset_target_forecaster_factory(
+    base_config: ForecastingWorkflowConfig,
+    backtest_config: BacktestForecasterConfig,
+    cache_dir: Path,
+    context: BenchmarkContext,
+    target: BenchmarkTarget,
+) -> OpenSTEF4BacktestForecaster:
+    from openstef_models.presets import create_forecasting_workflow  # noqa: PLC0415
+    from openstef_models.presets.forecasting_workflow import LocationConfig  # noqa: PLC0415
+
+    # Factory function that creates a forecaster for a given target.
+    prefix = context.run_name
+
+    def _create_workflow(context: WorkflowCreationContext) -> CustomForecastingWorkflow:
+        # Create a new workflow instance with fresh model.
+        return create_forecasting_workflow(
+            config=base_config.model_copy(
+                update={
+                    "model_id": f"{prefix}_{target.name}",
+                    "run_name": context.step_name,
+                    "location": LocationConfig(
+                        name=target.name,
+                        description=target.description,
+                        coordinate=Coordinate(
+                            latitude=target.latitude,
+                            longitude=target.longitude,
+                        ),
+                    ),
+                }
+            )
+        )
+
+    return OpenSTEF4BacktestForecaster(
+        config=backtest_config,
+        workflow_factory=_create_workflow,
+        debug=False,
+        cache_dir=cache_dir / f"{context.run_name}_{target.name}",
+    )
+
+
+def create_openstef4_preset_backtest_forecaster(
+    workflow_config: ForecastingWorkflowConfig,
+    backtest_config: BacktestForecasterConfig | None = None,
+    cache_dir: Path = Path("cache"),
+) -> ForecasterFactory[BenchmarkTarget]:
+    """Create a factory that returns an OpenSTEF4BacktestForecaster for a benchmark target.
+
+    Args:
+        workflow_config: The configured `ForecastingWorkflowConfig` that will be cloned and
+            assigned to a target-specific workflow instance.
+        backtest_config: Optional `BacktestForecasterConfig` to control training/prediction windows.
+            If None, a sensible default is created.
+        cache_dir: Directory to store cached artifacts for created forecasters. A subdirectory will be
+            created per benchmark run and target.
+
+    Returns:
+        A `ForecasterFactory[BenchmarkTarget]` partial which accepts a `BenchmarkContext` and a
+        `BenchmarkTarget` and returns a configured `OpenSTEF4BacktestForecaster`.
+    """
+    if backtest_config is None:
+        backtest_config = BacktestForecasterConfig(
+            requires_training=True,
+            predict_length=timedelta(days=7),
+            predict_min_length=timedelta(minutes=15),
+            predict_context_length=timedelta(days=14),  # Context needed for lag features
+            predict_context_min_coverage=0.5,
+            training_context_length=timedelta(days=90),  # Three months of training data
+            training_context_min_coverage=0.5,
+            predict_sample_interval=timedelta(minutes=15),
+        )
+
+    return cast(
+        ForecasterFactory[BenchmarkTarget],
+        partial(
+            _preset_target_forecaster_factory,
+            workflow_config,
+            backtest_config,
+            cache_dir,
+        ),
+    )
+
+
+__all__ = ["OpenSTEF4BacktestForecaster", "WorkflowCreationContext", "create_openstef4_preset_backtest_forecaster"]
