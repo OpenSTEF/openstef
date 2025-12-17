@@ -25,7 +25,6 @@ from openstef_beam.evaluation.metric_providers import (
 from openstef_core.base_model import BaseConfig
 from openstef_core.mixins import TransformPipeline
 from openstef_core.types import LeadTime, Q, Quantile, QuantileOrGlobal
-from openstef_meta.models.forecasting.residual_forecaster import ResidualForecaster
 from openstef_models.integrations.mlflow import MLFlowStorage, MLFlowStorageCallback
 from openstef_models.mixins import ModelIdentifier
 from openstef_models.models import ForecastingModel
@@ -44,6 +43,7 @@ from openstef_models.transforms.general import (
     NaNDropper,
     SampleWeighter,
     Scaler,
+    Selector,
 )
 from openstef_models.transforms.postprocessing import (
     ConfidenceIntervalApplicator,
@@ -84,9 +84,7 @@ class LocationConfig(BaseConfig):
         default="test_location",
         description="Name of the forecasting location or workflow.",
     )
-    description: str = Field(
-        default="", description="Description of the forecasting workflow."
-    )
+    description: str = Field(default="", description="Description of the forecasting workflow.")
     coordinate: Coordinate = Field(
         default=Coordinate(
             latitude=Latitude(Decimal("52.132633")),
@@ -117,17 +115,11 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
     hyperparameters, location information, data columns, and feature engineering settings.
     """
 
-    model_id: ModelIdentifier = Field(
-        description="Unique identifier for the forecasting model."
-    )
-    run_name: str | None = Field(
-        default=None, description="Optional name for this workflow run."
-    )
+    model_id: ModelIdentifier = Field(description="Unique identifier for the forecasting model.")
+    run_name: str | None = Field(default=None, description="Optional name for this workflow run.")
 
     # Model configuration
-    model: Literal[
-        "xgboost", "gblinear", "flatliner", "residual", "lgbm", "lgbmlinear"
-    ] = Field(
+    model: Literal["xgboost", "gblinear", "flatliner", "residual", "lgbm", "lgbmlinear"] = Field(
         description="Type of forecasting model to use."
     )  # TODO(#652): Implement median forecaster
     quantiles: list[Quantile] = Field(
@@ -163,36 +155,21 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
         description="Hyperparameters for LightGBM forecaster.",
     )
 
-    residual_hyperparams: ResidualForecaster.HyperParams = Field(
-        default=ResidualForecaster.HyperParams(),
-        description="Hyperparameters for Residual forecaster.",
-    )
-
     location: LocationConfig = Field(
         default=LocationConfig(),
         description="Location information for the forecasting workflow.",
     )
 
     # Data properties
-    target_column: str = Field(
-        default="load", description="Name of the target variable column in datasets."
-    )
+    target_column: str = Field(default="load", description="Name of the target variable column in datasets.")
     energy_price_column: str = Field(
         default="day_ahead_electricity_price",
         description="Name of the energy price column in datasets.",
     )
-    radiation_column: str = Field(
-        default="radiation", description="Name of the radiation column in datasets."
-    )
-    wind_speed_column: str = Field(
-        default="windspeed", description="Name of the wind speed column in datasets."
-    )
-    pressure_column: str = Field(
-        default="pressure", description="Name of the pressure column in datasets."
-    )
-    temperature_column: str = Field(
-        default="temperature", description="Name of the temperature column in datasets."
-    )
+    radiation_column: str = Field(default="radiation", description="Name of the radiation column in datasets.")
+    wind_speed_column: str = Field(default="windspeed", description="Name of the wind speed column in datasets.")
+    pressure_column: str = Field(default="pressure", description="Name of the pressure column in datasets.")
+    temperature_column: str = Field(default="temperature", description="Name of the temperature column in datasets.")
     relative_humidity_column: str = Field(
         default="relative_humidity",
         description="Name of the relative humidity column in datasets.",
@@ -510,28 +487,6 @@ def create_forecasting_workflow(
             ConfidenceIntervalApplicator(quantiles=config.quantiles),
         ]
 
-    elif config.model == "residual":
-        preprocessing = [
-            *checks,
-            *feature_adders,
-            *feature_standardizers,
-            Imputer(
-                selection=Exclude(config.target_column),
-                imputation_strategy="mean",
-                fill_future_values=Include(config.energy_price_column),
-            ),
-            NaNDropper(
-                selection=Exclude(config.target_column),
-            ),
-        ]
-        forecaster = ResidualForecaster(
-            config=ResidualForecaster.Config(
-                quantiles=config.quantiles,
-                horizons=config.horizons,
-                hyperparams=config.residual_hyperparams,
-            )
-        )
-        postprocessing = [QuantileSorter()]
     else:
         msg = f"Unsupported model type: {config.model}"
         raise ValueError(msg)

@@ -11,7 +11,6 @@ from functools import partial
 from pathlib import Path
 from typing import Any, cast, override
 
-import pandas as pd
 from pydantic import Field, PrivateAttr
 from pydantic_extra_types.coordinate import Coordinate
 
@@ -56,10 +55,8 @@ class OpenSTEF4BacktestForecaster(BaseModel, BacktestForecasterMixin):
     config: BacktestForecasterConfig = Field(
         description="Configuration for the backtest forecaster interface",
     )
-    workflow_factory: Callable[[WorkflowCreationContext], CustomForecastingWorkflow] = (
-        Field(
-            description="Factory function that creates a new CustomForecastingWorkflow instance",
-        )
+    workflow_factory: Callable[[WorkflowCreationContext], CustomForecastingWorkflow] = Field(
+        description="Factory function that creates a new CustomForecastingWorkflow instance",
     )
     cache_dir: Path = Field(
         description="Directory to use for caching model artifacts during backtesting",
@@ -91,9 +88,6 @@ class OpenSTEF4BacktestForecaster(BaseModel, BacktestForecasterMixin):
             self._workflow = self.workflow_factory(WorkflowCreationContext())
         # Extract quantiles from the workflow's model
 
-        if isinstance(self._workflow.model, EnsembleForecastingModel):
-            name = self._workflow.model.forecaster_names[0]
-            return self._workflow.model.forecasters[name].config.quantiles
         return self._workflow.model.forecaster.config.quantiles
 
     @override
@@ -111,9 +105,7 @@ class OpenSTEF4BacktestForecaster(BaseModel, BacktestForecasterMixin):
 
         if self.debug:
             id_str = data.horizon.strftime("%Y%m%d%H%M%S")
-            training_data.to_parquet(
-                path=self.cache_dir / f"debug_{id_str}_training.parquet"
-            )
+            training_data.to_parquet(path=self.cache_dir / f"debug_{id_str}_training.parquet")
 
         try:
             # Use the workflow's fit method
@@ -133,9 +125,7 @@ class OpenSTEF4BacktestForecaster(BaseModel, BacktestForecasterMixin):
             )
 
     @override
-    def predict(
-        self, data: RestrictedHorizonVersionedTimeSeries
-    ) -> TimeSeriesDataset | None:
+    def predict(self, data: RestrictedHorizonVersionedTimeSeries) -> TimeSeriesDataset | None:
         if self._is_flatliner_detected:
             self._logger.info("Skipping prediction due to prior flatliner detection")
             return None
@@ -146,8 +136,7 @@ class OpenSTEF4BacktestForecaster(BaseModel, BacktestForecasterMixin):
         # Extract the dataset including both historical context and forecast period
         predict_data = data.get_window(
             start=data.horizon - self.config.predict_context_length,
-            end=data.horizon
-            + self.config.predict_length,  # Include the forecast period
+            end=data.horizon + self.config.predict_length,  # Include the forecast period
             available_before=data.horizon,  # Only use data available at prediction time (prevents lookahead bias)
         )
 
@@ -162,25 +151,9 @@ class OpenSTEF4BacktestForecaster(BaseModel, BacktestForecasterMixin):
 
         if self.debug:
             id_str = data.horizon.strftime("%Y%m%d%H%M%S")
-            predict_data.to_parquet(
-                path=self.cache_dir / f"debug_{id_str}_predict.parquet"
-            )
-            forecast.to_parquet(
-                path=self.cache_dir / f"debug_{id_str}_forecast.parquet"
-            )
+            predict_data.to_parquet(path=self.cache_dir / f"debug_{id_str}_predict.parquet")
+            forecast.to_parquet(path=self.cache_dir / f"debug_{id_str}_forecast.parquet")
 
-        if self.contributions and isinstance(
-            self._workflow.model, EnsembleForecastingModel
-        ):
-            contr_str = data.horizon.strftime("%Y%m%d%H%M%S")
-            contributions = self._workflow.model.predict_contributions(
-                predict_data, forecast_start=data.horizon
-            )
-            df = pd.concat(
-                [contributions, forecast.data.drop(columns=["load"])], axis=1
-            )
-
-            df.to_parquet(path=self.cache_dir / f"contrib_{contr_str}_predict.parquet")
         return forecast
 
 
@@ -252,9 +225,7 @@ def create_openstef4_preset_backtest_forecaster(
             requires_training=True,
             predict_length=timedelta(days=7),
             predict_min_length=timedelta(minutes=15),
-            predict_context_length=timedelta(
-                days=14
-            ),  # Context needed for lag features
+            predict_context_length=timedelta(days=14),  # Context needed for lag features
             predict_context_min_coverage=0.5,
             training_context_length=timedelta(days=90),  # Three months of training data
             training_context_min_coverage=0.5,
