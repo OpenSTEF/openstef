@@ -85,8 +85,6 @@ StrOrCategoricalDistribution = CategoricalDistribution | str
 class ParameterSpace(BaseModel):
     """Defines a hyperparameter search space for tuning forecasting models."""
 
-    model_config = {"extra": "allow"}
-
     def items(self) -> list[tuple[str, DistributionOrParameter]]:
         """Get an iterator over the parameter space items.
 
@@ -129,9 +127,10 @@ class ParameterSpace(BaseModel):
         if object_cls == ParameterSpace:
             return self
 
-        default_params: type[HyperParams] = object_cls.default_hyperparams()
+        default_params: HyperParams = object_cls.default_hyperparams()
+        hp_class = default_params.__class__
 
-        allowed_params: list[str] = list(default_params.model_fields.keys())
+        allowed_params: list[str] = list(hp_class.model_fields.keys())
 
         for param, _val in iter(self):
             if param not in allowed_params:
@@ -144,11 +143,11 @@ class ParameterSpace(BaseModel):
         return self
 
     @classmethod
-    def default_hyperparams(cls) -> type[HyperParams]:
-        """Get the forecasting model class associated with this parameter space.
+    def default_hyperparams(cls) -> HyperParams:
+        """Get default hyperparameters for the associated forecaster.
 
         Returns:
-            The forecasting model class.
+            HyperParams instance.
         """
         raise NotImplementedError("Subclasses must implement the forecasting_model property.")
 
@@ -229,13 +228,13 @@ class LGBMParameterSpace(ParameterSpace):
     reg_lambda: FloatOrFloatDistribution = Field(default=FloatDistribution(low=1e-3, high=10.0, log=True))
 
     @classmethod
-    def default_hyperparams(cls) -> type[HyperParams]:
-        """Get the forecasting model class associated with this parameter space.
+    def default_hyperparams(cls) -> HyperParams:
+        """Get default hyperparameters for the associated forecaster.
 
         Returns:
-            The forecasting model class.
+            LGBMHyperParams instance.
         """
-        return LGBMHyperParams
+        return LGBMHyperParams()
 
 
 class LGBMLinearParameterSpace(ParameterSpace):
@@ -253,13 +252,13 @@ class LGBMLinearParameterSpace(ParameterSpace):
     min_child_weight: FloatOrFloatDistribution = Field(default=FloatDistribution(low=1e-3, high=100.0, log=True))
 
     @classmethod
-    def default_hyperparams(cls) -> type[HyperParams]:
-        """Get the forecasting model class associated with this parameter space.
+    def default_hyperparams(cls) -> HyperParams:
+        """Get default hyperparameters for the associated forecaster.
 
         Returns:
-            The forecasting model class.
+            LGBMLinearHyperParams instance.
         """
-        return LGBMLinearHyperParams
+        return LGBMLinearHyperParams()
 
 
 class XGBoostParameterSpace(ParameterSpace):
@@ -272,13 +271,13 @@ class XGBoostParameterSpace(ParameterSpace):
     reg_lambda: FloatOrFloatDistribution = Field(default=FloatDistribution(low=1e-3, high=10.0, log=True))
 
     @classmethod
-    def default_hyperparams(cls) -> type[HyperParams]:
-        """Get the forecasting model class associated with this parameter space.
+    def default_hyperparams(cls) -> HyperParams:
+        """Get default hyperparameters for the associated forecaster.
 
         Returns:
-            The forecasting model class.
+            XGBoostHyperParams instance.
         """
-        return XGBoostHyperParams
+        return XGBoostHyperParams()
 
 
 class GBLinearParameterSpace(ParameterSpace):
@@ -289,10 +288,10 @@ class GBLinearParameterSpace(ParameterSpace):
     reg_alpha: FloatOrFloatDistribution = Field(default=FloatDistribution(low=1e-5, high=10.0, log=True))
 
     @classmethod
-    def default_hyperparams(cls) -> type[HyperParams]:
-        """Get the forecasting model class associated with this parameter space.
+    def default_hyperparams(cls) -> HyperParams:
+        """Get default hyperparameters for the associated forecaster.
 
         Returns:
-            The forecasting model class.
+            GBLinearHyperParams instance.
         """
-        return GBLinearHyperParams
+        return GBLinearHyperParams()

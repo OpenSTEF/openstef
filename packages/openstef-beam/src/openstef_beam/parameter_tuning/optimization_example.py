@@ -25,9 +25,9 @@ from openstef_beam.parameter_tuning.models import (
     LGBMParameterSpace,
     OptimizationMetric,
 )
-from openstef_beam.parameter_tuning.optimizer import (
+from openstef_beam.parameter_tuning.optimizer.benchmark_optimizer import BenchmarkOptimizer
+from openstef_beam.parameter_tuning.optimizer.optimizer import (
     OptimizerConfig,
-    OptunaOptimizer,
 )
 from openstef_core.types import LeadTime, Quantile
 from openstef_models.presets import ForecastingWorkflowConfig
@@ -113,19 +113,9 @@ optimizer_config = OptimizerConfig(
     n_trials=20,
 )
 
-optimizer = OptunaOptimizer(config=optimizer_config)
-if single_target:
-    target = target_provider.get_targets()[0]
-    predictors = target_provider.get_predictors_for_target(target=target)
-    ground_truth = target_provider.get_measurements_for_target(target=target)
-    best_hyperparams = optimizer.optimize_dataset(
-        predictors=predictors, ground_truth=ground_truth, experiment_name=target.name
-    )
+optimizer = BenchmarkOptimizer(config=optimizer_config)
 
-else:
-    best_hyperparams = optimizer.optimize_target_provider(
-        experiment_name="Liander2024 Benchmark", target_provider=target_provider
-    )
+best_hyperparams = optimizer.optimize(experiment_name="Liander2024 Benchmark", target_provider=target_provider)
 
 msg = f"{forecaster_name} - Best hyperparameters found: {best_hyperparams}"
 logger.info(msg)

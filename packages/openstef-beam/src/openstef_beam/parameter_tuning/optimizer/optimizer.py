@@ -11,6 +11,7 @@ accurately reflect real-world model performance.
 """
 
 import logging
+from abc import ABC, abstractmethod
 from collections.abc import Callable
 from functools import partial
 from pathlib import Path
@@ -21,7 +22,7 @@ import pandas as pd
 from optuna.storages import JournalStorage
 from optuna.storages.journal import JournalFileBackend
 from optuna.study import Study
-from optuna.trial import FrozenTrial, Trial
+from optuna.trial import FrozenTrial
 from pydantic import Field
 
 from openstef_beam.backtesting.backtest_forecaster.mixins import (
@@ -40,16 +41,14 @@ from openstef_beam.parameter_tuning.models import (
 )
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import ForecastDataset, ForecastInputDataset
-from openstef_core.datasets.versioned_timeseries_dataset import TimeSeriesDataset, VersionedTimeSeriesDataset
+from openstef_core.datasets.versioned_timeseries_dataset import TimeSeriesDataset
 from openstef_core.utils.multiprocessing import run_parallel
 from openstef_models.models.forecasting.forecaster import HyperParams
 from openstef_models.presets import create_forecasting_workflow
 from openstef_models.presets.forecasting_workflow import (
     Coordinate,
     ForecastingWorkflowConfig,
-    Latitude,
     LocationConfig,
-    Longitude,
 )
 from openstef_models.workflows.custom_forecasting_workflow import (
     CustomForecastingWorkflow,
@@ -112,7 +111,7 @@ class OptimizerTrialContext(BaseConfig):
     target: BenchmarkTarget = Field(description="Benchmark target for the current optimization trial.")
 
 
-class OptunaOptimizer:
+class OptunaOptimizer(ABC):
     """Optimizer using Optuna for hyperparameter tuning."""
 
     def __init__(self, config: OptimizerConfig):
@@ -141,6 +140,34 @@ class OptunaOptimizer:
         self.direction = "minimize" if config.optimization_metric.direction_minimize else "maximize"
         self.metric = config.optimization_metric.metric
         self.metric_name: str = config.optimization_metric.name
+
+    @abstractmethod
+    def optimize(self, *args: Any, **kwargs: Any) -> HyperParams:
+        """Optimize hyperparameters using Optuna.
+
+        Args:
+            *args: Positional arguments.
+            **kwargs: Keyword arguments.
+
+        Returns:
+            The best hyperparameters found during optimization.
+        """
+        msg = "Subclasses must implement the optimize method."
+        raise NotImplementedError(msg)
+
+    @abstractmethod
+    def objective(self, *args: Any, **kwargs: Any) -> float:
+        """Objective function for optimizing hyperparameters.
+
+        Args:
+            *args: Positional arguments.
+            **kwargs: Keyword arguments.
+
+        Returns:
+            The metric value as a float.
+        """
+        msg = "Subclasses must implement the objective method."
+        raise NotImplementedError(msg)
 
     def _score_predictions(
         self, predictions: ForecastDataset | TimeSeriesDataset, ground_truth: TimeSeriesDataset
@@ -187,185 +214,6 @@ class OptunaOptimizer:
             "Best value: %s, Best params: %s",
             study.best_value,
             study.best_trial.params,
-        )
-
-    @staticmethod
-    def objective_target_provider(
-        trial: Trial,
-        target_provider: Liander2024TargetProvider,
-        parameter_space: ParameterSpace,
-        score_for_target: Callable[[HyperParams, BenchmarkTarget], float],
-        n_jobs: int = 1,
-    ) -> float:
-        """Objective function for optimizing over multiple targets.
-
-        Args:
-            trial: The Optuna trial object.
-            parameter_space: The parameter space to sample from.
-            default_params: The default hyperparameters of the model.
-            backtest_maker: Function to create a backtest pipeline given hyperparameters.
-            scoring_function: Function to score the predictions against ground truth.
-
-        Returns:
-            The average metric score across all targets.
-        """
-        # Draw hyperparameters from the parameter space
-        hyperparams = parameter_space.default_hyperparams()
-        hyperparams = hyperparams().model_copy(update=parameter_space.make_optuna(trial))
-
-        metrics: list[float] = []
-
-        if n_jobs > 1:
-            score_with_params = partial(score_for_target, hyperparams)
-
-            metrics = run_parallel(
-                score_with_params,
-                items=target_provider.get_targets()[:4],
-                n_processes=n_jobs,
-            )
-        else:
-            for target in target_provider.get_targets():
-                score = score_for_target(hyperparams, target)
-                metrics.append(score)
-
-        return sum(metrics) / len(metrics)
-
-    @staticmethod
-    def _run_trial_for_target(
-        hyperparams: HyperParams,
-        target: BenchmarkTarget,
-        target_provider: Liander2024TargetProvider,
-        base_config: ForecastingWorkflowConfig,
-        backtest_maker: Callable[[OptimizerTrialContext], BacktestPipeline],
-        scoring_maker: Callable[[TimeSeriesDataset, TimeSeriesDataset], float],
-    ) -> float:
-        predictors = target_provider.get_predictors_for_target(target)
-        ground_truth = target_provider.get_measurements_for_target(target)
-
-        trial_context = OptimizerTrialContext(
-            base_config=base_config,
-            hyperparams=hyperparams,
-            target=target,
-        )
-
-        backtest = backtest_maker(trial_context)
-
-        predictions: ForecastDataset | TimeSeriesDataset = backtest.run(
-            predictors=predictors,
-            ground_truth=ground_truth,
-            start=target.benchmark_start,
-            end=target.benchmark_end,
-        )
-        return scoring_maker(predictions, ground_truth.select_version())
-
-    def optimize_target_provider(self, experiment_name: str, target_provider: Liander2024TargetProvider) -> HyperParams:
-        """Optimize hyperparameters using Optuna over multiple targets.
-
-        In this case we run the optimizer with a single job, parralielization happens at the target level.
-
-        Args:
-            experiment_name: The target provider to get targets, predictors and ground truth from.
-
-        Returns:
-            The best hyperparameters found during optimization.
-        """
-        target_backtest_factory = partial(
-            self._run_trial_for_target,
-            target_provider=target_provider,
-            base_config=self.base_config,
-            backtest_maker=self._make_backtest,
-            scoring_maker=self._score_predictions,
-        )
-
-        objective = partial(
-            self.objective_target_provider,
-            parameter_space=self.parameter_space,
-            target_provider=target_provider,
-            score_for_target=target_backtest_factory,
-            n_jobs=self.n_jobs,
-        )
-
-        return self._run_optimization_sequential(
-            objective=objective,
-            experiment_name=experiment_name,
-            n_trials=self.n_trials,
-        )
-
-    def objective_dataset(
-        self,
-        trial: Trial,
-        parameter_space: ParameterSpace,
-        backtest_maker: Callable[[OptimizerTrialContext], BacktestPipeline],
-        scoring_function: Callable[[ForecastDataset | TimeSeriesDataset, TimeSeriesDataset], float],
-        predictors: VersionedTimeSeriesDataset,
-        ground_truth: VersionedTimeSeriesDataset,
-    ) -> float:
-        """Objective function for optimizing over a single dataset."""
-        # Convert to Optuna
-        params = parameter_space.make_optuna(trial)
-
-        # Generate HyperParams
-        hyperparams = parameter_space.default_hyperparams()
-        hyperparams = hyperparams().model_copy(update=params)
-
-        trial_context = OptimizerTrialContext(
-            base_config=self.base_config,
-            hyperparams=hyperparams,
-            target=BenchmarkTarget(
-                name="single_dataset",
-                description="Dataset provided directly for optimization",
-                latitude=Latitude(0.0),
-                longitude=Longitude(0.0),
-                benchmark_start=ground_truth.index[0],
-                benchmark_end=ground_truth.index[-1],
-                train_start=ground_truth.index[0],
-            ),
-        )
-
-        backtest = backtest_maker(trial_context)
-
-        predictions: ForecastDataset | TimeSeriesDataset = backtest.run(
-            predictors=predictors,
-            ground_truth=ground_truth,
-            start=ground_truth.index[0],
-            end=ground_truth.index[-1],
-        )
-
-        return scoring_function(predictions, ground_truth.select_version())
-
-    def optimize_dataset(
-        self,
-        predictors: VersionedTimeSeriesDataset,
-        ground_truth: VersionedTimeSeriesDataset,
-        experiment_name: str,
-    ) -> HyperParams:
-        """Optimize hyperparameters using Optuna.
-
-        Args:
-            predictors: The predictors dataset.
-            ground_truth: The ground truth dataset.
-
-        Returns:
-            The best hyperparameters found during optimization.
-        """
-        objective = partial(
-            self.objective_dataset,
-            parameter_space=self.parameter_space,
-            backtest_maker=self._make_backtest,
-            scoring_function=self._score_predictions,
-            predictors=predictors,
-            ground_truth=ground_truth,
-        )
-
-        if self.n_jobs > 1:
-            return self._run_optimization_parallel(
-                experiment_name=experiment_name, objective=objective, n_trials=self.n_trials, n_jobs=self.n_jobs
-            )
-
-        return self._run_optimization_sequential(
-            objective=objective,
-            experiment_name=experiment_name,
-            n_trials=self.n_trials,
         )
 
     @staticmethod
@@ -417,7 +265,7 @@ class OptunaOptimizer:
             storage=JournalStorage(JournalFileBackend(file_path=path)),
         )
 
-        return self.parameter_space.default_hyperparams()().model_copy(update=study.best_trial.params)
+        return self.parameter_space.default_hyperparams().model_copy(update=study.best_trial.params)
 
     def _run_optimization_sequential(
         self, experiment_name: str, objective: Callable[..., float], n_trials: int
@@ -435,7 +283,7 @@ class OptunaOptimizer:
         )
         study.optimize(objective, timeout=3600, n_trials=n_trials, callbacks=[self.logger_callback])
 
-        return self.parameter_space.default_hyperparams()().model_copy(update=study.best_trial.params)
+        return self.parameter_space.default_hyperparams().model_copy(update=study.best_trial.params)
 
     def _make_backtest(self, context: OptimizerTrialContext) -> BacktestPipeline:
         forecaster = self._make_backtest_forecaster(context=context)
