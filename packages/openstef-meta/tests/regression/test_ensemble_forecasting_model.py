@@ -82,7 +82,9 @@ def test_preprocessing(
     #  Check all base models
     for name, model in base_models.items():
         # Ensemble model
-        common_ensemble = ensemble_model.common_preprocessing.transform(data=sample_timeseries_dataset)
+        common_ensemble = ensemble_model.common_preprocessing.transform(
+            data=sample_timeseries_dataset.copy_with(sample_timeseries_dataset.data)
+        )
         ensemble_model.model_specific_preprocessing[name].fit(data=common_ensemble)
         transformed_ensemble = ensemble_model.model_specific_preprocessing[name].transform(data=common_ensemble)
         # Base model

@@ -2,11 +2,11 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-"""Transform for clipping feature values to observed ranges.
+"""Transform for flagging feature values inside or outside observed training ranges.
 
 This module provides functionality to clip feature values to their observed
-minimum and maximum ranges during training, preventing out-of-range values
-during inference and improving model robustness.
+minimum and maximum ranges during training. It is useful to flag data drift and
+can be used to inform forecast combiners which models might perform better.
 """
 
 from typing import override
@@ -32,7 +32,7 @@ class Flagger(BaseConfig, TimeSeriesTransform):
         >>> import pandas as pd
         >>> from datetime import timedelta
         >>> from openstef_core.datasets import TimeSeriesDataset
-        >>> from openstef_meta.transforms import Flagger
+        >>> from openstef_models.transforms.general import Flagger
         >>> from openstef_models.utils.feature_selection import FeatureSelection
         >>> # Create sample training dataset
         >>> training_data = pd.DataFrame({

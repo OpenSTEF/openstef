@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -18,7 +18,7 @@ from openstef_core.base_model import BaseModel
 from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesDataset
 from openstef_core.datasets.validated_datasets import ForecastDataset
 from openstef_core.exceptions import NotFittedError, SkipFitting
-from openstef_meta.models.ensemble_forecasting_model import EnsembleForecastingModel
+from openstef_meta.models.ensemble_forecasting_model import EnsembleForecastingModel, EnsembleModelFitResult
 from openstef_models.mixins import ModelIdentifier, PredictorCallback
 from openstef_models.mixins.callbacks import WorkflowContext
 from openstef_models.models.forecasting_model import ForecastingModel, ModelFitResult
@@ -123,6 +123,11 @@ class CustomForecastingWorkflow(BaseModel):
         default_factory=list[ForecastingCallback], description="List of callbacks to execute during workflow events."
     )
     model_id: ModelIdentifier = Field(...)
+    run_name: str | None = Field(default=None, description="Optional name for this workflow run.")
+    experiment_tags: dict[str, str] = Field(
+        default_factory=dict,
+        description="Optional metadata tags for experiment tracking.",
+    )
 
     _logger: logging.Logger = PrivateAttr(default_factory=lambda: logging.getLogger(__name__))
 
@@ -131,7 +136,7 @@ class CustomForecastingWorkflow(BaseModel):
         data: TimeSeriesDataset,
         data_val: TimeSeriesDataset | None = None,
         data_test: TimeSeriesDataset | None = None,
-    ) -> ModelFitResult | None:
+    ) -> ModelFitResult | EnsembleModelFitResult | None:
         """Train the forecasting model with callback execution.
 
         Executes the complete training workflow including pre-fit callbacks,
@@ -153,6 +158,10 @@ class CustomForecastingWorkflow(BaseModel):
                 callback.on_fit_start(context=context, data=data)
 
             result = self.model.fit(data=data, data_val=data_val, data_test=data_test)
+
+            if isinstance(result, EnsembleModelFitResult):
+                self._logger.debug("Discarding EnsembleModelFitResult for compatibility.")
+                result = result.combiner_fit_result
 
             for callback in self.callbacks:
                 callback.on_fit_end(context=context, result=result)

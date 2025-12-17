@@ -67,7 +67,7 @@ class RulesCombinerConfig(ForecastCombinerConfig):
 
 
 class RulesCombiner(ForecastCombiner):
-    """Combines base learner predictions per quantile into final predictions using a regression approach."""
+    """Combines base Forecaster predictions per quantile into final predictions using hard-coded rules."""
 
     Config = RulesCombinerConfig
 

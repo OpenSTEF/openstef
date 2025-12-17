@@ -1,5 +1,5 @@
 <!--
-SPDX-FileCopyrightText: 2017-2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+SPDX-FileCopyrightText: 2017-2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 
 SPDX-License-Identifier: MPL-2.0
 -->
@@ -142,4 +142,3 @@ This project includes third-party libraries licensed under their respective Open
 - **[GitHub Discussions](https://github.com/OpenSTEF/openstef/discussions)** - community Q&A and discussions
 - **[Issue Tracker](https://github.com/OpenSTEF/openstef/issues)** - bug reports and feature requests
 - **[LF Energy OpenSTEF](https://www.lfenergy.org/projects/openstef/)** - project homepage
-

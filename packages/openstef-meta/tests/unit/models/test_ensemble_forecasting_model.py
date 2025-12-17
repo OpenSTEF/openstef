@@ -64,7 +64,7 @@ class SimpleForecaster(Forecaster):
 
 
 class SimpleCombiner(ForecastCombiner):
-    """Simple combiner that averages base learner predictions."""
+    """Simple combiner that averages base Forecaster predictions."""
 
     def __init__(self, config: ForecastCombinerConfig):
         self._config = config
@@ -76,7 +76,6 @@ class SimpleCombiner(ForecastCombiner):
         data: EnsembleForecastDataset,
         data_val: EnsembleForecastDataset | None = None,
         additional_features: ForecastInputDataset | None = None,
-        sample_weights: pd.Series | None = None,
     ) -> None:
         self._is_fitted = True
 

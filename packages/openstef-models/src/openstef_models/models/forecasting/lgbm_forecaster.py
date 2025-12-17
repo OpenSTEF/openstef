@@ -320,7 +320,7 @@ class LGBMForecaster(Forecaster, ExplainableForecaster):
             scale: If True, scale contributions to sum to 1.0 per quantile.
 
         Returns:
-            DataFrame with contributions per base learner.
+            DataFrame with contributions per feature.
         """
         # Get input features for prediction
         input_data: pd.DataFrame = data.input_data(start=data.forecast_start)

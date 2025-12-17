@@ -22,39 +22,24 @@ import multiprocessing
 from datetime import timedelta
 from pathlib import Path
 
-from pydantic_extra_types.coordinate import Coordinate
-from pydantic_extra_types.country import CountryAlpha2
-
-from openstef_beam.backtesting.backtest_forecaster import (
-    BacktestForecasterConfig,
-    OpenSTEF4BacktestForecaster,
+from openstef_beam.backtesting.backtest_forecaster import BacktestForecasterConfig
+from openstef_beam.benchmarking.baselines import (
+    create_openstef4_preset_backtest_forecaster,
 )
-from openstef_beam.benchmarking.benchmark_pipeline import BenchmarkContext
-from openstef_beam.benchmarking.benchmarks.liander2024 import (
-    Liander2024Category,
-    create_liander2024_benchmark_runner,
-)
-from openstef_beam.benchmarking.callbacks.strict_execution_callback import (
-    StrictExecutionCallback,
-)
-from openstef_beam.benchmarking.models.benchmark_target import BenchmarkTarget
-from openstef_beam.benchmarking.storage.local_storage import (
-    LocalBenchmarkStorage,
-)
+from openstef_beam.benchmarking.benchmarks.liander2024 import Liander2024Category, create_liander2024_benchmark_runner
+from openstef_beam.benchmarking.callbacks.strict_execution_callback import StrictExecutionCallback
+from openstef_beam.benchmarking.storage.local_storage import LocalBenchmarkStorage
 from openstef_core.types import LeadTime, Q
 from openstef_meta.presets import (
     EnsembleWorkflowConfig,
-    create_ensemble_workflow,
 )
 from openstef_models.integrations.mlflow.mlflow_storage import MLFlowStorage
-from openstef_models.presets.forecasting_workflow import LocationConfig
-from openstef_models.workflows import CustomForecastingWorkflow
 
 logging.basicConfig(level=logging.INFO, format="[%(asctime)s][%(levelname)s] %(message)s")
 
 OUTPUT_PATH = Path("./benchmark_results")
 
-N_PROCESSES = 11 if True else multiprocessing.cpu_count()  # Amount of parallel processes to use for the benchmark
+N_PROCESSES = 1 if True else multiprocessing.cpu_count()  # Amount of parallel processes to use for the benchmark
 
 ensemble_type = "learned_weights"  # "stacking", "learned_weights" or "rules"
 base_models = [
@@ -91,7 +76,7 @@ if USE_MLFLOW_STORAGE:
 else:
     storage = None
 
-common_config = EnsembleWorkflowConfig(
+workflow_config = EnsembleWorkflowConfig(
     model_id="common_model_",
     ensemble_type=ensemble_type,
     base_models=base_models,  # type: ignore
@@ -130,39 +115,6 @@ backtest_config = BacktestForecasterConfig(
 )
 
 
-def _target_forecaster_factory(context: BenchmarkContext, target: BenchmarkTarget) -> OpenSTEF4BacktestForecaster:
-    # Factory function that creates a forecaster for a given target.
-    prefix = context.run_name
-    base_config = common_config
-
-    def _create_workflow() -> CustomForecastingWorkflow:
-        # Create a new workflow instance with fresh model.
-        return create_ensemble_workflow(
-            config=base_config.model_copy(
-                update={
-                    "model_id": f"{prefix}_{target.name}",
-                    "location": LocationConfig(
-                        name=target.name,
-                        description=target.description,
-                        coordinate=Coordinate(
-                            latitude=target.latitude,
-                            longitude=target.longitude,
-                        ),
-                        country_code=CountryAlpha2("NL"),
-                    ),
-                }
-            )
-        )
-
-    return OpenSTEF4BacktestForecaster(
-        config=backtest_config,
-        workflow_factory=_create_workflow,
-        debug=False,
-        contributions=True,
-        cache_dir=OUTPUT_PATH / "cache" / f"{context.run_name}_{target.name}",
-    )
-
-
 if __name__ == "__main__":
     start_time = time.time()
     create_liander2024_benchmark_runner(
@@ -170,7 +122,10 @@ if __name__ == "__main__":
         data_dir=Path("data/liander2024-energy-forecasting-benchmark"),
         callbacks=[StrictExecutionCallback()],
     ).run(
-        forecaster_factory=_target_forecaster_factory,
+        forecaster_factory=create_openstef4_preset_backtest_forecaster(
+            workflow_config=workflow_config,
+            cache_dir=OUTPUT_PATH / "cache",
+        ),
         run_name=model,
         n_processes=N_PROCESSES,
         filter_args=BENCHMARK_FILTER,

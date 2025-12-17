@@ -1,5 +1,5 @@
 <!--
-SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 
 SPDX-License-Identifier: MPL-2.0
 -->
@@ -31,7 +31,7 @@ For information about:
 
 - 💬 **Slack**: [LF Energy workspace](https://slack.lfenergy.org/) (#openstef channel)
 - 🐛 **Issues**: [GitHub Issues](https://github.com/OpenSTEF/openstef/issues)
-- 📧 **Email**: short.term.energy.forecasts@alliander.com
+- 📧 **Email**: openstef@lfenergy.org
 - 📖 **Support**: [Support page](https://openstef.github.io/openstef/v4/project/support.html)
 
 ## Good First Issues

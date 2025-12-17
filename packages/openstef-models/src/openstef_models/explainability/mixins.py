@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -54,7 +54,7 @@ class ExplainableForecaster(ABC):
             scale: Whether to scale contributions to sum to the prediction value.
 
         Returns:
-            DataFrame with contributions per base learner.
+            DataFrame with contributions per feature.
         """
         raise NotImplementedError
 
