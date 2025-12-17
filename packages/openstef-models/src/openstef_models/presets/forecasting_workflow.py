@@ -30,7 +30,6 @@ from openstef_models.mixins import ModelIdentifier
 from openstef_models.models import ForecastingModel
 from openstef_models.models.forecasting.flatliner_forecaster import FlatlinerForecaster
 from openstef_models.models.forecasting.gblinear_forecaster import GBLinearForecaster
-from openstef_models.models.forecasting.hybrid_forecaster import HybridForecaster
 from openstef_models.models.forecasting.lgbm_forecaster import LGBMForecaster
 from openstef_models.models.forecasting.lgbmlinear_forecaster import LGBMLinearForecaster
 from openstef_models.models.forecasting.xgboost_forecaster import XGBoostForecaster

@@ -68,9 +68,7 @@ class MultiQuantileRegressor(BaseEstimator, RegressorMixin):
         sample_weight: npt.NDArray[np.floating] | pd.Series | None = None,
         feature_name: list[str] | None = None,
         eval_set: list[tuple[pd.DataFrame, npt.NDArray[np.floating]]] | None = None,
-        eval_sample_weight: list[npt.NDArray[np.floating]]
-        | list[pd.Series]
-        | None = None,
+        eval_sample_weight: list[npt.NDArray[np.floating]] | list[pd.Series] | None = None,
     ) -> None:
         """Fit the multi-quantile regressor.
 
@@ -90,19 +88,13 @@ class MultiQuantileRegressor(BaseEstimator, RegressorMixin):
             if eval_set is None and "early_stopping_rounds" in self.hyperparams:
                 model.set_params(early_stopping_rounds=None)  # type: ignore
 
-            if (
-                eval_set is not None
-                and self.learner_eval_sample_weight_param is not None
-            ):  # type: ignore
+            if eval_set is not None and self.learner_eval_sample_weight_param is not None:  # type: ignore
                 kwargs[self.learner_eval_sample_weight_param] = eval_sample_weight
 
-            if (
-                "early_stopping_rounds" in self.hyperparams
-                and self.learner_eval_sample_weight_param is not None
-            ):
-                model.set_params(
+            if "early_stopping_rounds" in self.hyperparams and self.learner_eval_sample_weight_param is not None:
+                model.set_params(  # type: ignore
                     early_stopping_rounds=self.hyperparams["early_stopping_rounds"]
-                )  # type: ignore
+                )
 
             if feature_name:
                 self.model_feature_names = feature_name
@@ -136,9 +128,7 @@ class MultiQuantileRegressor(BaseEstimator, RegressorMixin):
         }
         return params.get(learner_name)
 
-    def predict(
-        self, X: npt.NDArray[np.floating] | pd.DataFrame
-    ) -> npt.NDArray[np.floating]:
+    def predict(self, X: npt.NDArray[np.floating] | pd.DataFrame) -> npt.NDArray[np.floating]:
         """Predict quantiles for the input features.
 
         Args:
