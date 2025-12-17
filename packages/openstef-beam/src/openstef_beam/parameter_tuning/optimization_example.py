@@ -22,51 +22,53 @@ from openstef_beam.evaluation.metric_providers import RCRPSSampleWeightedProvide
 from openstef_beam.parameter_tuning.models import (
     FloatDistribution,
     IntDistribution,
-    LGBMLinearParameterSpace,
+    LGBMParameterSpace,
     OptimizationMetric,
 )
 from openstef_beam.parameter_tuning.optimizer import (
-    RigorousOptimizerConfig,
-    RigorousOptunaOptimizer,
+    OptimizerConfig,
+    OptunaOptimizer,
 )
 from openstef_core.types import LeadTime, Quantile
-from openstef_models.presets import ForecastingWorkflowConfig, create_forecasting_workflow
-from openstef_models.workflows.custom_forecasting_workflow import CustomForecastingWorkflow
+from openstef_models.presets import ForecastingWorkflowConfig
 
 logger = logging.getLogger(__name__)
 handler = logging.StreamHandler(stream=sys.stdout)
 logger.addHandler(handler)
 
 
-single_target = True
+single_target = False
 
-horizon = LeadTime.from_string("PT12H")
+horizons = [LeadTime.from_string("PT12H")]
 quantiles = [Quantile(0.1), Quantile(0.3), Quantile(0.5), Quantile(0.7), Quantile(0.9)]
-forecaster_name = "lgbmlinear"  # Choose model type: "lgbm", "xgboost", "gblinear", "lgbmlinear", "hybrid", "flatliner"
+forecaster_name = "lgbm"  # Choose model type: "lgbm", "xgboost", "gblinear", "lgbmlinear", "hybrid", "flatliner"
 
-# Extract pre-defined forecasting model from preset (pre-processing, forecasting, post-processing)
-workflow: CustomForecastingWorkflow = create_forecasting_workflow(
-    config=ForecastingWorkflowConfig(
-        model_id=f"{forecaster_name}_forecaster_",
-        model=forecaster_name,
-        horizons=[horizon],
-        quantiles=quantiles,
-    )
+
+# Base Forecasting Workflow Config
+base_config = ForecastingWorkflowConfig(
+    model_id="common_model_",
+    run_name=None,
+    model=forecaster_name,
+    horizons=horizons,
+    quantiles=quantiles,
+    model_reuse_enable=True,
+    mlflow_storage=None,
+    radiation_column="shortwave_radiation",
+    rolling_aggregate_features=["mean", "median", "max", "min"],
+    wind_speed_column="wind_speed_80m",
+    pressure_column="surface_pressure",
+    temperature_column="temperature_2m",
+    relative_humidity_column="relative_humidity_2m",
+    energy_price_column="EPEX_NL",
 )
-model = workflow.model
+
 
 # Define hyperparameter search space
-params = LGBMLinearParameterSpace(
-    n_estimators=IntDistribution(low=10, high=200),
+params = LGBMParameterSpace(
     learning_rate=FloatDistribution(low=0.01, high=0.5, log=True),
     num_leaves=IntDistribution(low=5, high=120),
     max_depth=IntDistribution(low=1, high=3),
-    max_bin=IntDistribution(low=10, high=70),
     reg_lambda=0.2,
-    colsample_bytree=0.6,
-    min_data_in_leaf=IntDistribution(low=2, high=30),
-    min_data_in_bin=IntDistribution(low=2, high=30),
-    min_child_weight=FloatDistribution(low=1e-2, high=3, log=True),
 )
 
 # Set optimization goal
@@ -76,7 +78,9 @@ optimization_metric = OptimizationMetric(
 )
 
 # Load target provider with historical data
-target_provider = Liander2024TargetProvider(data_dir=Path("../data/liander2024-energy-forecasting-benchmark"))
+target_provider = Liander2024TargetProvider(
+    data_dir=Path("../data/liander2024-energy-forecasting-benchmark"),
+)
 
 # Create the backtest configuration
 backtest_config = BacktestConfig(
@@ -88,8 +92,8 @@ backtest_config = BacktestConfig(
 # Configure the backtest forecaster
 backtest_forecaster_config = BacktestForecasterConfig(
     requires_training=True,
-    horizon_length=timedelta(hours=13),
-    horizon_min_length=timedelta(hours=11),
+    predict_length=timedelta(hours=13),
+    predict_min_length=timedelta(hours=11),
     predict_context_length=timedelta(days=14),  # Context needed for lag features
     predict_context_min_coverage=0.5,
     training_context_length=timedelta(days=90),  # Three months of training data
@@ -97,26 +101,31 @@ backtest_forecaster_config = BacktestForecasterConfig(
     predict_sample_interval=timedelta(minutes=15),
 )
 
+
 # Create the optimizer configuration
-optimizer_config = RigorousOptimizerConfig(
+optimizer_config = OptimizerConfig(
+    base_config=base_config,
     parameter_space=params,
-    quantiles=quantiles,
-    horizon=horizon,
-    forecasting_model=model,
     backtest_config=backtest_config,
     backtest_forecaster_config=backtest_forecaster_config,
     optimization_metric=optimization_metric,
+    n_jobs=4,
+    n_trials=20,
 )
 
-optimizer = RigorousOptunaOptimizer(config=optimizer_config)
+optimizer = OptunaOptimizer(config=optimizer_config)
 if single_target:
     target = target_provider.get_targets()[0]
     predictors = target_provider.get_predictors_for_target(target=target)
     ground_truth = target_provider.get_measurements_for_target(target=target)
-    best_hyperparams = optimizer.optimize_dataset(predictors=predictors, ground_truth=ground_truth)
+    best_hyperparams = optimizer.optimize_dataset(
+        predictors=predictors, ground_truth=ground_truth, experiment_name=target.name
+    )
 
 else:
-    best_hyperparams = optimizer.optimize_target_provider(target_provider=target_provider)
+    best_hyperparams = optimizer.optimize_target_provider(
+        experiment_name="Liander2024 Benchmark", target_provider=target_provider
+    )
 
 msg = f"{forecaster_name} - Best hyperparameters found: {best_hyperparams}"
 logger.info(msg)

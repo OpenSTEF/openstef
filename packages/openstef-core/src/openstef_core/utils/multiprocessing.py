@@ -18,7 +18,7 @@ def run_parallel[T, R](
     process_fn: Callable[[T], R],
     items: Iterable[T],
     n_processes: int | None = None,
-    mode: Literal["loky", "spawn", "fork"] = "loky",
+    mode: Literal["loky", "spawn", "fork"] = "fork",  # TODO: change default to 'loky' in future release
 ) -> list[R]:
     """Execute a function in parallel across multiple processes.
 

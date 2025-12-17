@@ -11,7 +11,6 @@ accurately reflect real-world model performance.
 """
 
 import logging
-from abc import ABC, abstractmethod
 from collections.abc import Callable
 from functools import partial
 from pathlib import Path
@@ -28,15 +27,13 @@ from pydantic import Field
 from openstef_beam.backtesting.backtest_forecaster.mixins import (
     BacktestForecasterConfig,
 )
-from openstef_beam.backtesting.backtest_forecaster.openstef4_backtest_forecaster import (
-    OpenSTEF4BacktestForecaster,
-)
 from openstef_beam.backtesting.backtest_pipeline import BacktestConfig, BacktestPipeline
-from openstef_beam.benchmarking.benchmarks.liander2024 import Liander2024TargetProvider
-from openstef_beam.parameter_tuning.greedy_backtester import (
-    GreedyBacktestConfig,
-    GreedyBackTestPipeline,
+from openstef_beam.benchmarking.baselines.openstef4 import (
+    OpenSTEF4BacktestForecaster,
+    WorkflowCreationContext,
 )
+from openstef_beam.benchmarking.benchmarks.liander2024 import Liander2024TargetProvider
+from openstef_beam.benchmarking.target_provider import BenchmarkTarget
 from openstef_beam.parameter_tuning.models import (
     OptimizationMetric,
     ParameterSpace,
@@ -44,10 +41,16 @@ from openstef_beam.parameter_tuning.models import (
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.datasets.versioned_timeseries_dataset import TimeSeriesDataset, VersionedTimeSeriesDataset
-from openstef_core.types import LeadTime, Quantile
 from openstef_core.utils.multiprocessing import run_parallel
 from openstef_models.models.forecasting.forecaster import HyperParams
-from openstef_models.models.forecasting_model import ForecastingModel
+from openstef_models.presets import create_forecasting_workflow
+from openstef_models.presets.forecasting_workflow import (
+    Coordinate,
+    ForecastingWorkflowConfig,
+    Latitude,
+    LocationConfig,
+    Longitude,
+)
 from openstef_models.workflows.custom_forecasting_workflow import (
     CustomForecastingWorkflow,
 )
@@ -55,18 +58,10 @@ from openstef_models.workflows.custom_forecasting_workflow import (
 logger = logging.getLogger(__name__)
 
 
-class BaseOptimizerConfig(BaseConfig):
+class OptimizerConfig(BaseConfig):
     """Configuration for the optimizer."""
 
     parameter_space: ParameterSpace = Field(description="Parameter search space for optimization.")
-
-    quantiles: list[Quantile] = Field(description="Quantiles to be predicted by the forecaster.")
-
-    horizon: LeadTime = Field(description="Forecasting horizon for which the optimization is performed.")
-
-    forecasting_model: ForecastingModel = Field(
-        description="The base forecasting model to optimize. Note only the forecaster class is used from this model."
-    )
 
     optimization_metric: OptimizationMetric = Field(description="Metric used for optimization during parameter tuning.")
 
@@ -77,41 +72,66 @@ class BaseOptimizerConfig(BaseConfig):
         default="INFO", description="Verbosity level for the optimizer."
     )
 
-
-class RigorousOptimizerConfig(BaseOptimizerConfig):
-    """Configuration for the rigorous optimizer."""
-
     backtest_config: BacktestConfig = Field(description="Backtesting configuration for the optimizer.")
 
     backtest_forecaster_config: BacktestForecasterConfig = Field(
         description="Backtest forecaster configuration for the optimizer."
     )
 
+    base_config: ForecastingWorkflowConfig = Field(
+        description="Base configuration for creating forecasting workflows during backtesting."
+    )
 
-class GreedyOptimizerConfig(BaseOptimizerConfig):
-    """Configuration for the greedy optimizer."""
+    cache_dir: Path = Field(
+        default=Path("./optimizer_results/cache"),
+        description="Directory to use for caching model artifacts during backtesting",
+    )
 
-    backtest_config: GreedyBacktestConfig = Field(description="Backtesting configuration for the optimizer.")
+
+class OptimizerRunContext(BaseConfig):
+    """Context information for workflow execution within backtesting."""
+
+    base_config: ForecastingWorkflowConfig = Field(
+        description="Base configuration for creating forecasting workflows during backtesting."
+    )
+
+    parameter_space: ParameterSpace = Field(description="ParameterSpace for the optimization run")
+
+    target_provider: Liander2024TargetProvider = Field(description="Target provider")
 
 
-class BaseOptunaOptimizer(ABC):
+class OptimizerTrialContext(BaseConfig):
+    """Context information for workflow execution within backtesting."""
+
+    base_config: ForecastingWorkflowConfig = Field(
+        description="Base configuration for creating forecasting workflows during backtesting."
+    )
+
+    hyperparams: HyperParams = Field(description="Hyperparameters for the current optimization trial.")
+
+    target: BenchmarkTarget = Field(description="Benchmark target for the current optimization trial.")
+
+
+class OptunaOptimizer:
     """Optimizer using Optuna for hyperparameter tuning."""
 
-    def __init__(self, config: BaseOptimizerConfig):
+    def __init__(self, config: OptimizerConfig):
         """Initialize the Optuna optimizer.
 
         Args:
             config: Configuration for the optimizer.
         """
-        self._forecaster_class = config.forecasting_model.forecaster.__class__
-        self._forecaster_config = config.forecasting_model.forecaster.config
-        self._default_hyperparams = config.forecasting_model.forecaster.hyperparams
-
-        self.quantiles = config.quantiles
-        self.horizon = config.horizon
+        self.base_config = config.base_config
+        self.backtest_config = config.backtest_config
+        self.backtest_forecaster_config = config.backtest_forecaster_config
 
         self.n_trials = config.n_trials
         self.n_jobs = config.n_jobs
+
+        self.cache_dir = config.cache_dir
+
+        self.horizons = config.base_config.horizons
+        self.quantiles = config.base_config.quantiles
 
         logger.setLevel(config.verbosity)
 
@@ -121,30 +141,6 @@ class BaseOptunaOptimizer(ABC):
         self.direction = "minimize" if config.optimization_metric.direction_minimize else "maximize"
         self.metric = config.optimization_metric.metric
         self.metric_name: str = config.optimization_metric.name
-
-        self._base_model = config.forecasting_model
-
-    def _make_forecasting_workflow(
-        self, hyperparams: HyperParams, model_id: int | None = None
-    ) -> CustomForecastingWorkflow:
-        model = self._make_forecasting_model(hyperparams=hyperparams)
-
-        return CustomForecastingWorkflow(
-            model=model,
-            model_id=f"optuna_workflow_{model_id}" if model_id is not None else "optuna_workflow",
-            callbacks=[],
-        )
-
-    def _make_forecasting_model(self, hyperparams: HyperParams) -> ForecastingModel:
-        forecaster_config = self._forecaster_config.model_copy(
-            update={
-                "quantiles": self.quantiles,
-                "horizons": [self.horizon],
-                "hyperparams": hyperparams,
-            }
-        )
-        forecaster = self._forecaster_class(config=forecaster_config)
-        return self._base_model.model_copy(update={"forecaster": forecaster})
 
     def _score_predictions(
         self, predictions: ForecastDataset | TimeSeriesDataset, ground_truth: TimeSeriesDataset
@@ -183,11 +179,6 @@ class BaseOptunaOptimizer(ABC):
 
         return float(metric_value[self.metric_name])  # type: ignore
 
-    @abstractmethod
-    def _make_backtest(self, hyperparams: HyperParams) -> BacktestPipeline | GreedyBackTestPipeline:
-        """Create a backtest pipeline for the given hyperparameters."""
-        raise NotImplementedError("Subclasses must implement _make_backtest")
-
     @staticmethod
     def logger_callback(study: Study, trial: FrozenTrial) -> None:
         """Log the progress of the optimization study. To be used as an Optuna callback."""
@@ -201,10 +192,10 @@ class BaseOptunaOptimizer(ABC):
     @staticmethod
     def objective_target_provider(
         trial: Trial,
+        target_provider: Liander2024TargetProvider,
         parameter_space: ParameterSpace,
-        default_params: HyperParams,
-        backtest_maker: Callable[[HyperParams], BacktestPipeline | GreedyBackTestPipeline],
-        scoring_function: Callable[[ForecastDataset | TimeSeriesDataset, TimeSeriesDataset], float],
+        score_for_target: Callable[[HyperParams, BenchmarkTarget], float],
+        n_jobs: int = 1,
     ) -> float:
         """Objective function for optimizing over multiple targets.
 
@@ -218,55 +209,93 @@ class BaseOptunaOptimizer(ABC):
         Returns:
             The average metric score across all targets.
         """
-        params = parameter_space.make_optuna(trial)
-        hyperparams = default_params.model_copy(update=params)
-        target_provider = Liander2024TargetProvider(data_dir=Path("../data/liander2024-energy-forecasting-benchmark"))
+        # Draw hyperparameters from the parameter space
+        hyperparams = parameter_space.default_hyperparams()
+        hyperparams = hyperparams().model_copy(update=parameter_space.make_optuna(trial))
 
         metrics: list[float] = []
-        for target in target_provider.get_targets():
-            predictors = target_provider.get_predictors_for_target(target)
-            ground_truth = target_provider.get_measurements_for_target(target)
 
-            backtest = backtest_maker(hyperparams)
+        if n_jobs > 1:
+            score_with_params = partial(score_for_target, hyperparams)
 
-            predictions: ForecastDataset | TimeSeriesDataset = backtest.run(
-                predictors=predictors,
-                ground_truth=ground_truth,
-                start=target.benchmark_start,
-                end=target.benchmark_end,
+            metrics = run_parallel(
+                score_with_params,
+                items=target_provider.get_targets()[:4],
+                n_processes=n_jobs,
             )
-            score = scoring_function(predictions, ground_truth.select_version())
-            metrics.append(score)
+        else:
+            for target in target_provider.get_targets():
+                score = score_for_target(hyperparams, target)
+                metrics.append(score)
 
         return sum(metrics) / len(metrics)
 
-    def optimize_target_provider(self, experiment_name: str) -> HyperParams:
+    @staticmethod
+    def _run_trial_for_target(
+        hyperparams: HyperParams,
+        target: BenchmarkTarget,
+        target_provider: Liander2024TargetProvider,
+        base_config: ForecastingWorkflowConfig,
+        backtest_maker: Callable[[OptimizerTrialContext], BacktestPipeline],
+        scoring_maker: Callable[[TimeSeriesDataset, TimeSeriesDataset], float],
+    ) -> float:
+        predictors = target_provider.get_predictors_for_target(target)
+        ground_truth = target_provider.get_measurements_for_target(target)
+
+        trial_context = OptimizerTrialContext(
+            base_config=base_config,
+            hyperparams=hyperparams,
+            target=target,
+        )
+
+        backtest = backtest_maker(trial_context)
+
+        predictions: ForecastDataset | TimeSeriesDataset = backtest.run(
+            predictors=predictors,
+            ground_truth=ground_truth,
+            start=target.benchmark_start,
+            end=target.benchmark_end,
+        )
+        return scoring_maker(predictions, ground_truth.select_version())
+
+    def optimize_target_provider(self, experiment_name: str, target_provider: Liander2024TargetProvider) -> HyperParams:
         """Optimize hyperparameters using Optuna over multiple targets.
 
+        In this case we run the optimizer with a single job, parralielization happens at the target level.
+
         Args:
-            target_provider: The target provider to get targets, predictors and ground truth from.
+            experiment_name: The target provider to get targets, predictors and ground truth from.
 
         Returns:
             The best hyperparameters found during optimization.
         """
+        target_backtest_factory = partial(
+            self._run_trial_for_target,
+            target_provider=target_provider,
+            base_config=self.base_config,
+            backtest_maker=self._make_backtest,
+            scoring_maker=self._score_predictions,
+        )
+
         objective = partial(
             self.objective_target_provider,
             parameter_space=self.parameter_space,
-            default_params=self._default_hyperparams,
-            backtest_maker=self._make_backtest,
-            scoring_function=self._score_predictions,
+            target_provider=target_provider,
+            score_for_target=target_backtest_factory,
+            n_jobs=self.n_jobs,
         )
 
-        return self._run_optimization(
-            objective=objective, experiment_name=experiment_name, n_trials=self.n_trials, n_jobs=self.n_jobs
+        return self._run_optimization_sequential(
+            objective=objective,
+            experiment_name=experiment_name,
+            n_trials=self.n_trials,
         )
 
-    @staticmethod
     def objective_dataset(
+        self,
         trial: Trial,
         parameter_space: ParameterSpace,
-        default_params: HyperParams,
-        backtest_maker: Callable[[HyperParams], BacktestPipeline | GreedyBackTestPipeline],
+        backtest_maker: Callable[[OptimizerTrialContext], BacktestPipeline],
         scoring_function: Callable[[ForecastDataset | TimeSeriesDataset, TimeSeriesDataset], float],
         predictors: VersionedTimeSeriesDataset,
         ground_truth: VersionedTimeSeriesDataset,
@@ -274,10 +303,26 @@ class BaseOptunaOptimizer(ABC):
         """Objective function for optimizing over a single dataset."""
         # Convert to Optuna
         params = parameter_space.make_optuna(trial)
-        # Generate HyperParams and Config
-        hyperparams = default_params.model_copy(update=params)
 
-        backtest = backtest_maker(hyperparams)
+        # Generate HyperParams
+        hyperparams = parameter_space.default_hyperparams()
+        hyperparams = hyperparams().model_copy(update=params)
+
+        trial_context = OptimizerTrialContext(
+            base_config=self.base_config,
+            hyperparams=hyperparams,
+            target=BenchmarkTarget(
+                name="single_dataset",
+                description="Dataset provided directly for optimization",
+                latitude=Latitude(0.0),
+                longitude=Longitude(0.0),
+                benchmark_start=ground_truth.index[0],
+                benchmark_end=ground_truth.index[-1],
+                train_start=ground_truth.index[0],
+            ),
+        )
+
+        backtest = backtest_maker(trial_context)
 
         predictions: ForecastDataset | TimeSeriesDataset = backtest.run(
             predictors=predictors,
@@ -306,15 +351,21 @@ class BaseOptunaOptimizer(ABC):
         objective = partial(
             self.objective_dataset,
             parameter_space=self.parameter_space,
-            default_params=self._default_hyperparams,
             backtest_maker=self._make_backtest,
             scoring_function=self._score_predictions,
             predictors=predictors,
             ground_truth=ground_truth,
         )
 
-        return self._run_optimization(
-            objective=objective, experiment_name=experiment_name, n_trials=self.n_trials, n_jobs=self.n_jobs
+        if self.n_jobs > 1:
+            return self._run_optimization_parallel(
+                experiment_name=experiment_name, objective=objective, n_trials=self.n_trials, n_jobs=self.n_jobs
+            )
+
+        return self._run_optimization_sequential(
+            objective=objective,
+            experiment_name=experiment_name,
+            n_trials=self.n_trials,
         )
 
     @staticmethod
@@ -330,94 +381,100 @@ class BaseOptunaOptimizer(ABC):
         study.optimize(
             objective,
             timeout=3600,
-            n_jobs=config["n_jobs"],
+            n_jobs=1,
             n_trials=config["trials_per_job"],
             callbacks=[logger_callback],
         )
 
-    def _run_optimization(
+    def _run_optimization_parallel(
         self, experiment_name: str, objective: Callable[..., float], n_trials: int, n_jobs: int
     ) -> HyperParams:
         path = f"./optimization_results/{experiment_name}_journal.log"
+        # TODO: Clean up existing journal file if exists
+        journal_path = Path(path)
+        if journal_path.exists():
+            journal_path.unlink()
 
-        if n_jobs > 1:
-            trials_per_job = int(n_trials / n_jobs) + 1
-            # journal_path = Path(".benchmark_output/journal.log")
-            # if journal_path.exists():
-            #     journal_path.unlink()
+        trials_per_job = int(n_trials / n_jobs) + 1
 
-            run_parallel(
-                partial(
-                    self._run_optimization_job,
-                    config={
-                        "experiment_name": experiment_name,
-                        "direction": self.direction,
-                        "n_jobs": 1,
-                        "trials_per_job": trials_per_job,
-                        "log_path": path,
-                    },
-                    objective=objective,
-                    logger_callback=self.logger_callback,
-                ),
-                items=iter(range(trials_per_job)),
-                n_processes=n_jobs,
-            )
-            study = optuna.load_study(
-                study_name=experiment_name,
-                storage=JournalStorage(JournalFileBackend(file_path=path)),
-            )
+        run_parallel(
+            partial(
+                self._run_optimization_job,
+                config={
+                    "experiment_name": experiment_name,
+                    "direction": self.direction,
+                    "trials_per_job": trials_per_job,
+                    "log_path": path,
+                },
+                objective=objective,
+                logger_callback=self.logger_callback,
+            ),
+            items=iter(range(trials_per_job)),
+            n_processes=n_jobs,
+        )
+        study = optuna.load_study(
+            study_name=experiment_name,
+            storage=JournalStorage(JournalFileBackend(file_path=path)),
+        )
 
-        else:
-            study = optuna.create_study(
-                study_name=experiment_name,
-                direction=self.direction,
-                storage=JournalStorage(JournalFileBackend(file_path=path)),
-            )
-            study.optimize(objective, timeout=3600, n_jobs=1, n_trials=n_trials, callbacks=[self.logger_callback])
+        return self.parameter_space.default_hyperparams()().model_copy(update=study.best_trial.params)
 
-        return self._default_hyperparams.model_copy(update=study.best_trial.params)
+    def _run_optimization_sequential(
+        self, experiment_name: str, objective: Callable[..., float], n_trials: int
+    ) -> HyperParams:
+        path = f"./optimization_results/{experiment_name}_journal.log"
+        # TODO: Clean up existing journal file if exists
+        journal_path = Path(path)
+        if journal_path.exists():
+            journal_path.unlink()
 
+        study = optuna.create_study(
+            study_name=experiment_name,
+            direction=self.direction,
+            storage=JournalStorage(JournalFileBackend(file_path=path)),
+        )
+        study.optimize(objective, timeout=3600, n_trials=n_trials, callbacks=[self.logger_callback])
 
-class RigorousOptunaOptimizer(BaseOptunaOptimizer):
-    """Optimizer using Optuna for hyperparameter tuning with rigorous backtesting."""
+        return self.parameter_space.default_hyperparams()().model_copy(update=study.best_trial.params)
 
-    def __init__(self, config: RigorousOptimizerConfig):
-        """Initialize the rigorous Optuna optimizer."""
-        self.backtest_config = config.backtest_config
-        self.backtest_forecaster_config = config.backtest_forecaster_config
-        super().__init__(config=config)
-
-    def _make_backtest(self, hyperparams: HyperParams) -> BacktestPipeline:
-        forecaster = self._make_backtest_forecaster(hyperparams=hyperparams)
+    def _make_backtest(self, context: OptimizerTrialContext) -> BacktestPipeline:
+        forecaster = self._make_backtest_forecaster(context=context)
 
         return BacktestPipeline(
             forecaster=forecaster,
             config=self.backtest_config,
         )
 
-    def _make_backtest_forecaster(self, hyperparams: HyperParams) -> OpenSTEF4BacktestForecaster:
-        def _make_workflow() -> CustomForecastingWorkflow:
-            return self._make_forecasting_workflow(hyperparams=hyperparams, model_id=None)
+    def _make_backtest_forecaster(self, context: OptimizerTrialContext) -> OpenSTEF4BacktestForecaster:
+
+        prefix = "test"
+        target = context.target
+        base_config = context.base_config
+        hyperparams = context.hyperparams
+
+        def _create_workflow(context: WorkflowCreationContext) -> CustomForecastingWorkflow:
+            # Create a new workflow instance with fresh model.
+            return create_forecasting_workflow(
+                config=base_config.model_copy(
+                    update={
+                        "model_id": f"{prefix}_{target.name}",
+                        "run_name": context.step_name,
+                        "location": LocationConfig(
+                            name=target.name,
+                            description=target.description,
+                            coordinate=Coordinate(
+                                latitude=target.latitude,
+                                longitude=target.longitude,
+                            ),
+                        ),
+                        f"{base_config.model}_hyperparams": hyperparams,
+                    }
+                )
+            )
 
         return OpenSTEF4BacktestForecaster(
             config=self.backtest_forecaster_config,
-            workflow_factory=_make_workflow,
-            cache_dir=Path("/tmp/optuna_backtest_cache"),
+            workflow_factory=_create_workflow,
+            cache_dir=self.cache_dir,
             debug=False,
         )
-
-
-class GreedyOptunaOptimizer(BaseOptunaOptimizer):
-    """Optimizer using Optuna for hyperparameter tuning with greedy backtesting."""
-
-    def __init__(self, config: GreedyOptimizerConfig):
-        """Initialize the greedy Optuna optimizer."""
-        super().__init__(config=config)
-        self.backtest_config = config.backtest_config
-
-    def _make_backtest(self, hyperparams: HyperParams) -> GreedyBackTestPipeline:
-        backtest_config = self.backtest_config.model_copy(
-            update={"forecasting_model": self._make_forecasting_model(hyperparams=hyperparams)}
-        )
-
-        return GreedyBackTestPipeline(config=backtest_config)

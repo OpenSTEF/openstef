@@ -10,7 +10,6 @@ SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project
 from typing import Any, Literal, Self
 
 from optuna.trial import Trial
-from pydantic import BaseModel as PydanticBaseModel
 from pydantic import Field, model_validator
 
 from openstef_beam.evaluation.metric_providers import MetricProvider
@@ -83,7 +82,7 @@ BoolOrCategoricalDistribution = CategoricalDistribution | bool
 StrOrCategoricalDistribution = CategoricalDistribution | str
 
 
-class ParameterSpace(PydanticBaseModel):
+class ParameterSpace(BaseModel):
     """Defines a hyperparameter search space for tuning forecasting models."""
 
     model_config = {"extra": "allow"}
