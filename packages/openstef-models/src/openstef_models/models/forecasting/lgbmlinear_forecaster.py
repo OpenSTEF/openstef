@@ -9,11 +9,11 @@ forecasting. Optimized for time series data with specialized loss functions and
 comprehensive hyperparameter control for production forecasting workflows.
 """
 
-from typing import Literal, cast, override
+from typing import TYPE_CHECKING, Literal, override
 
 import numpy as np
-import numpy.typing as npt
 import pandas as pd
+from lightgbm import LGBMRegressor
 from pydantic import Field
 
 from openstef_core.datasets import ForecastDataset, ForecastInputDataset
@@ -21,9 +21,12 @@ from openstef_core.exceptions import (
     NotFittedError,
 )
 from openstef_core.mixins import HyperParams
-from openstef_models.estimators.lgbm import LGBMQuantileRegressor
 from openstef_models.explainability.mixins import ExplainableForecaster
 from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
+from openstef_models.utils.multi_quantile_regressor import MultiQuantileRegressor
+
+if TYPE_CHECKING:
+    import numpy.typing as npt
 
 
 class LGBMLinearHyperParams(HyperParams):
@@ -54,28 +57,28 @@ class LGBMLinearHyperParams(HyperParams):
         "increase training time and risk overfitting.",
     )
     learning_rate: float = Field(
-        default=0.3,
+        default=0.07,
         alias="eta",
         description="Step size shrinkage used to prevent overfitting. Range: [0,1]. Lower values require "
         "more boosting rounds.",
     )
     max_depth: int = Field(
-        default=3,
+        default=6,
         description="Maximum depth of trees. Higher values capture more complex patterns but risk "
         "overfitting. Range: [1,∞]",
     )
     min_child_weight: float = Field(
-        default=1,
+        default=0.06,
         description="Minimum sum of instance weight (hessian) needed in a child. Higher values prevent "
         "overfitting. Range: [0,∞]",
     )
 
     min_data_in_leaf: int = Field(
-        default=10,
+        default=500,
         description="Minimum number of data points in a leaf. Higher values prevent overfitting. Range: [1,∞]",
     )
     min_data_in_bin: int = Field(
-        default=10,
+        default=500,
         description="Minimum number of data points in a bin. Higher values prevent overfitting. Range: [1,∞]",
     )
 
@@ -91,7 +94,7 @@ class LGBMLinearHyperParams(HyperParams):
 
     # Tree Structure Control
     num_leaves: int = Field(
-        default=31,
+        default=30,
         description="Maximum number of leaves. 0 means no limit. Only relevant when grow_policy='lossguide'.",
     )
 
@@ -103,9 +106,18 @@ class LGBMLinearHyperParams(HyperParams):
 
     # Subsampling Parameters
     colsample_bytree: float = Field(
-        default=0.5,
+        default=1,
         description="Fraction of features used when constructing each tree. Range: (0,1]",
     )
+
+    @classmethod
+    def forecaster_class(cls) -> "type[LGBMLinearForecaster]":
+        """Get forecaster class for these hyperparams.
+
+        Returns:
+            Forecaster class associated with this configuration.
+        """
+        return LGBMLinearForecaster
 
 
 class LGBMLinearForecasterConfig(ForecasterConfig):
@@ -146,9 +158,36 @@ class LGBMLinearForecasterConfig(ForecasterConfig):
     )
 
     early_stopping_rounds: int | None = Field(
-        default=10,
+        default=None,
         description="Training will stop if performance doesn't improve for this many rounds. Requires validation data.",
     )
+
+    def forecaster_from_config(self) -> "LGBMLinearForecaster":
+        """Create a LGBMLinearForecaster instance from this configuration.
+
+        Returns:
+            Forecaster instance associated with this configuration.
+        """
+        return LGBMLinearForecaster(config=self)
+
+    random_state: int | None = Field(
+        default=None,
+        alias="seed",
+        description="Random seed for reproducibility. Controls tree structure randomness.",
+    )
+
+    early_stopping_rounds: int | None = Field(
+        default=None,
+        description="Training will stop if performance doesn't improve for this many rounds. Requires validation data.",
+    )
+
+    def forecaster_from_config(self) -> "LGBMLinearForecaster":
+        """Create a LGBMLinearForecaster instance from this configuration.
+
+        Returns:
+            Forecaster instance associated with this configuration.
+        """
+        return LGBMLinearForecaster(config=self)
 
 
 MODEL_CODE_VERSION = 1
@@ -200,7 +239,6 @@ class LGBMLinearForecaster(Forecaster, ExplainableForecaster):
     HyperParams = LGBMLinearHyperParams
 
     _config: LGBMLinearForecasterConfig
-    _lgbmlinear_model: LGBMQuantileRegressor
 
     def __init__(self, config: LGBMLinearForecasterConfig) -> None:
         """Initialize LgbLinear forecaster with configuration.
@@ -215,13 +253,21 @@ class LGBMLinearForecaster(Forecaster, ExplainableForecaster):
         """
         self._config = config
 
-        self._lgbmlinear_model = LGBMQuantileRegressor(
-            quantiles=[float(q) for q in config.quantiles],
-            linear_tree=True,
-            random_state=config.random_state,
-            early_stopping_rounds=config.early_stopping_rounds,
-            verbosity=config.verbosity,
+        lgbmlinear_params = {
+            "linear_tree": True,
+            "objective": "quantile",
+            "random_state": config.random_state,
+            "early_stopping_rounds": config.early_stopping_rounds,
+            "verbosity": config.verbosity,
+            "n_jobs": config.n_jobs,
             **config.hyperparams.model_dump(),
+        }
+
+        self._lgbmlinear_model: MultiQuantileRegressor = MultiQuantileRegressor(
+            base_learner=LGBMRegressor,  # type: ignore
+            quantile_param="alpha",
+            hyperparams=lgbmlinear_params,
+            quantiles=[float(q) for q in config.quantiles],
         )
 
     @property
@@ -237,32 +283,43 @@ class LGBMLinearForecaster(Forecaster, ExplainableForecaster):
     @property
     @override
     def is_fitted(self) -> bool:
-        return self._lgbmlinear_model.__sklearn_is_fitted__()
+        return self._lgbmlinear_model.is_fitted
+
+    @staticmethod
+    def _prepare_fit_input(
+        data: ForecastInputDataset,
+    ) -> tuple[pd.DataFrame, np.ndarray, pd.Series]:
+        input_data: pd.DataFrame = data.input_data()
+        target: np.ndarray = np.asarray(data.target_series.values)
+        sample_weight: pd.Series = data.sample_weight_series
+
+        return input_data, target, sample_weight
 
     @override
-    def fit(self, data: ForecastInputDataset, data_val: ForecastInputDataset | None = None) -> None:
-        input_data: pd.DataFrame = data.input_data()
-        target: npt.NDArray[np.floating] = data.target_series.to_numpy()  # type: ignore
-        sample_weight = data.sample_weight_series
+    def fit(
+        self, data: ForecastInputDataset, data_val: ForecastInputDataset | None = None
+    ) -> None:
+        # Prepare training data
+        input_data, target, sample_weight = self._prepare_fit_input(data)
 
-        # Prepare validation data if provided
-        eval_set = None
-        eval_sample_weight = None
+        # Evaluation sets
+        eval_set = [(input_data, target)]
+        sample_weight_eval_set = [sample_weight]
+
         if data_val is not None:
-            val_input_data: pd.DataFrame = data_val.input_data()
-            val_target: npt.NDArray[np.floating] = data_val.target_series.to_numpy()  # type: ignore
-            val_sample_weight = cast(npt.NDArray[np.floating], data_val.sample_weight_series.to_numpy())  # type: ignore
-            eval_set = [(val_input_data, val_target)]
+            input_data_val, target_val, sample_weight_val = self._prepare_fit_input(
+                data_val
+            )
+            eval_set.append((input_data_val, target_val))
+            sample_weight_eval_set.append(sample_weight_val)
 
-            eval_sample_weight = [val_sample_weight]
-
-        self._lgbmlinear_model.fit(  # type: ignore
+        self._lgbmlinear_model.fit(
             X=input_data,
             y=target,
             feature_name=input_data.columns.tolist(),
             sample_weight=sample_weight,
             eval_set=eval_set,
-            eval_sample_weight=eval_sample_weight,
+            eval_sample_weight=sample_weight_eval_set,
         )
 
     @override
@@ -271,7 +328,9 @@ class LGBMLinearForecaster(Forecaster, ExplainableForecaster):
             raise NotFittedError(self.__class__.__name__)
 
         input_data: pd.DataFrame = data.input_data(start=data.forecast_start)
-        prediction: npt.NDArray[np.floating] = self._lgbmlinear_model.predict(X=input_data)
+        prediction: npt.NDArray[np.floating] = self._lgbmlinear_model.predict(
+            X=input_data
+        )
 
         return ForecastDataset(
             data=pd.DataFrame(
@@ -282,14 +341,33 @@ class LGBMLinearForecaster(Forecaster, ExplainableForecaster):
             sample_interval=data.sample_interval,
         )
 
+    @override
+    def predict_contributions(
+        self, data: ForecastInputDataset, *, scale: bool
+    ) -> pd.DataFrame:
+        """Get feature contributions for each prediction.
+
+        Args:
+            data: Input dataset for which to compute feature contributions.
+            scale: If True, scale contributions to sum to 1.0 per quantile.
+
+        Returns:
+            DataFrame with contributions per feature.
+        """
+        raise NotImplementedError(
+            "predict_contributions is not yet implemented for LGBMLinearForecaster"
+        )
+
     @property
     @override
     def feature_importances(self) -> pd.DataFrame:
         models = self._lgbmlinear_model._models  # noqa: SLF001
         weights_df = pd.DataFrame(
-            [models[i].feature_importances_ for i in range(len(models))],
+            [models[i].feature_importances_ for i in range(len(models))],  # type: ignore
             index=[quantile.format() for quantile in self.config.quantiles],
-            columns=models[0].feature_name_,
+            columns=self._lgbmlinear_model.model_feature_names
+            if self._lgbmlinear_model.has_feature_names
+            else None,
         ).transpose()
 
         weights_df.index.name = "feature_name"
@@ -301,4 +379,8 @@ class LGBMLinearForecaster(Forecaster, ExplainableForecaster):
         return weights_abs / total
 
 
-__all__ = ["LGBMLinearForecaster", "LGBMLinearForecasterConfig", "LGBMLinearHyperParams"]
+__all__ = [
+    "LGBMLinearForecaster",
+    "LGBMLinearForecasterConfig",
+    "LGBMLinearHyperParams",
+]

@@ -25,14 +25,16 @@ from openstef_beam.evaluation.metric_providers import (
 from openstef_core.base_model import BaseConfig
 from openstef_core.mixins import TransformPipeline
 from openstef_core.types import LeadTime, Q, Quantile, QuantileOrGlobal
+from openstef_meta.models.forecasting.residual_forecaster import ResidualForecaster
 from openstef_models.integrations.mlflow import MLFlowStorage, MLFlowStorageCallback
 from openstef_models.mixins import ModelIdentifier
 from openstef_models.models import ForecastingModel
 from openstef_models.models.forecasting.flatliner_forecaster import FlatlinerForecaster
 from openstef_models.models.forecasting.gblinear_forecaster import GBLinearForecaster
-from openstef_models.models.forecasting.hybrid_forecaster import HybridForecaster
 from openstef_models.models.forecasting.lgbm_forecaster import LGBMForecaster
-from openstef_models.models.forecasting.lgbmlinear_forecaster import LGBMLinearForecaster
+from openstef_models.models.forecasting.lgbmlinear_forecaster import (
+    LGBMLinearForecaster,
+)
 from openstef_models.models.forecasting.xgboost_forecaster import XGBoostForecaster
 from openstef_models.transforms.energy_domain import WindPowerFeatureAdder
 from openstef_models.transforms.general import (
@@ -42,9 +44,11 @@ from openstef_models.transforms.general import (
     NaNDropper,
     SampleWeighter,
     Scaler,
-    Selector,
 )
-from openstef_models.transforms.postprocessing import ConfidenceIntervalApplicator, QuantileSorter
+from openstef_models.transforms.postprocessing import (
+    ConfidenceIntervalApplicator,
+    QuantileSorter,
+)
 from openstef_models.transforms.time_domain import (
     CyclicFeaturesAdder,
     DatetimeFeaturesAdder,
@@ -52,8 +56,14 @@ from openstef_models.transforms.time_domain import (
     RollingAggregatesAdder,
 )
 from openstef_models.transforms.time_domain.lags_adder import LagsAdder
-from openstef_models.transforms.time_domain.rolling_aggregates_adder import AggregationFunction
-from openstef_models.transforms.validation import CompletenessChecker, FlatlineChecker, InputConsistencyChecker
+from openstef_models.transforms.time_domain.rolling_aggregates_adder import (
+    AggregationFunction,
+)
+from openstef_models.transforms.validation import (
+    CompletenessChecker,
+    FlatlineChecker,
+    InputConsistencyChecker,
+)
 from openstef_models.transforms.weather_domain import (
     AtmosphereDerivedFeaturesAdder,
     DaylightFeatureAdder,
@@ -74,7 +84,9 @@ class LocationConfig(BaseConfig):
         default="test_location",
         description="Name of the forecasting location or workflow.",
     )
-    description: str = Field(default="", description="Description of the forecasting workflow.")
+    description: str = Field(
+        default="", description="Description of the forecasting workflow."
+    )
     coordinate: Coordinate = Field(
         default=Coordinate(
             latitude=Latitude(Decimal("52.132633")),
@@ -105,11 +117,17 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
     hyperparameters, location information, data columns, and feature engineering settings.
     """
 
-    model_id: ModelIdentifier = Field(description="Unique identifier for the forecasting model.")
-    run_name: str | None = Field(default=None, description="Optional name for this workflow run.")
+    model_id: ModelIdentifier = Field(
+        description="Unique identifier for the forecasting model."
+    )
+    run_name: str | None = Field(
+        default=None, description="Optional name for this workflow run."
+    )
 
     # Model configuration
-    model: Literal["xgboost", "gblinear", "flatliner", "hybrid", "lgbm", "lgbmlinear"] = Field(
+    model: Literal[
+        "xgboost", "gblinear", "flatliner", "residual", "lgbm", "lgbmlinear"
+    ] = Field(
         description="Type of forecasting model to use."
     )  # TODO(#652): Implement median forecaster
     quantiles: list[Quantile] = Field(
@@ -145,9 +163,9 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
         description="Hyperparameters for LightGBM forecaster.",
     )
 
-    hybrid_hyperparams: HybridForecaster.HyperParams = Field(
-        default=HybridForecaster.HyperParams(),
-        description="Hyperparameters for Hybrid forecaster.",
+    residual_hyperparams: ResidualForecaster.HyperParams = Field(
+        default=ResidualForecaster.HyperParams(),
+        description="Hyperparameters for Residual forecaster.",
     )
 
     location: LocationConfig = Field(
@@ -156,15 +174,25 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
     )
 
     # Data properties
-    target_column: str = Field(default="load", description="Name of the target variable column in datasets.")
+    target_column: str = Field(
+        default="load", description="Name of the target variable column in datasets."
+    )
     energy_price_column: str = Field(
         default="day_ahead_electricity_price",
         description="Name of the energy price column in datasets.",
     )
-    radiation_column: str = Field(default="radiation", description="Name of the radiation column in datasets.")
-    wind_speed_column: str = Field(default="windspeed", description="Name of the wind speed column in datasets.")
-    pressure_column: str = Field(default="pressure", description="Name of the pressure column in datasets.")
-    temperature_column: str = Field(default="temperature", description="Name of the temperature column in datasets.")
+    radiation_column: str = Field(
+        default="radiation", description="Name of the radiation column in datasets."
+    )
+    wind_speed_column: str = Field(
+        default="windspeed", description="Name of the wind speed column in datasets."
+    )
+    pressure_column: str = Field(
+        default="pressure", description="Name of the pressure column in datasets."
+    )
+    temperature_column: str = Field(
+        default="temperature", description="Name of the temperature column in datasets."
+    )
     relative_humidity_column: str = Field(
         default="relative_humidity",
         description="Name of the relative humidity column in datasets.",
@@ -221,7 +249,16 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
     )
     sample_weight_exponent: float = Field(
         default_factory=lambda data: 1.0
-        if data.get("model") in {"gblinear", "lgbmlinear", "lgbm", "hybrid", "xgboost"}
+        if data.get("model")
+        in {
+            "gblinear",
+            "lgbmlinear",
+            "lgbm",
+            "learned_weights",
+            "stacking",
+            "residual",
+            "xgboost",
+        }
         else 0.0,
         description="Exponent applied to scale the sample weights. "
         "0=uniform weights, 1=linear scaling, >1=stronger emphasis on high values. "
@@ -279,7 +316,7 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
     )
 
     verbosity: Literal[0, 1, 2, 3, True] = Field(
-        default=1, description="Verbosity level. 0=silent, 1=warning, 2=info, 3=debug"
+        default=0, description="Verbosity level. 0=silent, 1=warning, 2=info, 3=debug"
     )
 
     # Metadata
@@ -325,9 +362,17 @@ def create_forecasting_workflow(
         LagsAdder(
             history_available=config.predict_history,
             horizons=config.horizons,
-            add_trivial_lags=config.model != "gblinear",  # GBLinear uses only 7day lag.
+            add_trivial_lags=config.model
+            not in {
+                "gblinear",
+                "residual",
+                "stacking",
+                "learned_weights",
+            },  # GBLinear uses only 7day lag.
             target_column=config.target_column,
-            custom_lags=[timedelta(days=7)] if config.model == "gblinear" else [],
+            custom_lags=[timedelta(days=7)]
+            if config.model in {"gblinear", "residual", "stacking", "learned_weights"}
+            else [],
         ),
         WindPowerFeatureAdder(
             windspeed_reference_column=config.wind_speed_column,
@@ -462,12 +507,31 @@ def create_forecasting_workflow(
             )
         )
         postprocessing = [
-            QuantileSorter(),
-            ConfidenceIntervalApplicator(
-                quantiles=[Q(0.5)],
-                add_quantiles_from_std=False,
+            ConfidenceIntervalApplicator(quantiles=config.quantiles),
+        ]
+
+    elif config.model == "residual":
+        preprocessing = [
+            *checks,
+            *feature_adders,
+            *feature_standardizers,
+            Imputer(
+                selection=Exclude(config.target_column),
+                imputation_strategy="mean",
+                fill_future_values=Include(config.energy_price_column),
+            ),
+            NaNDropper(
+                selection=Exclude(config.target_column),
             ),
         ]
+        forecaster = ResidualForecaster(
+            config=ResidualForecaster.Config(
+                quantiles=config.quantiles,
+                horizons=config.horizons,
+                hyperparams=config.residual_hyperparams,
+            )
+        )
+        postprocessing = [QuantileSorter()]
     else:
         msg = f"Unsupported model type: {config.model}"
         raise ValueError(msg)

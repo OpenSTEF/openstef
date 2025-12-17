@@ -111,6 +111,15 @@ class ForecasterConfig(BaseConfig):
         """
         return self.model_copy(update={"horizons": [horizon]})
 
+    @classmethod
+    def forecaster_class(cls) -> type["Forecaster"]:
+        """Get the associated Forecaster class for this configuration.
+
+        Returns:
+            The Forecaster class that uses this configuration.
+        """
+        raise NotImplementedError("Subclasses must implement forecaster_class")
+
 
 class ConfigurableForecaster:
     @property

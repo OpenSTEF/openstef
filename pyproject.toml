@@ -41,6 +41,7 @@ optional-dependencies.beam = [
   "openstef-beam",
 ]
 optional-dependencies.models = [
+  "openstef-meta",
   "openstef-models[xgb-cpu]",
 ]
 urls.Documentation = "https://openstef.github.io/openstef/index.html"
@@ -77,6 +78,7 @@ openstef-beam = { workspace = true }
 openstef-models = { workspace = true }
 openstef-docs = { workspace = true }
 openstef-core = { workspace = true }
+openstef-meta = { workspace = true }
 microsoft-python-type-stubs = { git = "git+https://github.com/microsoft/python-type-stubs.git" }
 
 [tool.uv.workspace]
@@ -85,7 +87,7 @@ members = [
   "examples",
   "packages/openstef-beam",
   "packages/openstef-core",
-  "packages/openstef-models",
+  "packages/openstef-meta",
 ]
 
 [tool.ruff]
@@ -191,6 +193,7 @@ source = [
   "packages/openstef-beam/src",
   "packages/openstef-models/src",
   "packages/openstef-core/src",
+  "packages/openstef-meta/src",
 ]
 omit = [
   "tests/*",
