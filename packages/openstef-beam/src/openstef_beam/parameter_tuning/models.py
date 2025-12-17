@@ -13,7 +13,7 @@ from optuna.trial import Trial
 from pydantic import Field, model_validator
 
 from openstef_beam.evaluation.metric_providers import MetricProvider
-from openstef_core.base_model import BaseModel
+from openstef_core.base_model import BaseConfig, BaseModel
 from openstef_models.models.forecasting.forecaster import HyperParams
 from openstef_models.models.forecasting.gblinear_forecaster import GBLinearHyperParams
 from openstef_models.models.forecasting.lgbm_forecaster import LGBMHyperParams
@@ -42,6 +42,24 @@ class OptimizationMetric(BaseModel):
         }
 
         return name_map[name]
+
+    @model_validator(mode="after")
+    def validate_metric(self) -> Self:
+        """Validate that the metric name is present in the name_map.
+
+        Returns:
+            Self: The validated OptimizationMetric instance.
+
+        Raises:
+            KeyError: If the metric name is not recognized.
+        """
+        try:
+            _ = self.name
+        except KeyError as e:
+            msg = f"Please add the metric name to the name_map: {self.metric.__class__.__name__}"
+            raise KeyError(msg) from e
+
+        return self
 
 
 class Distribution(BaseModel):
@@ -82,7 +100,7 @@ BoolOrCategoricalDistribution = CategoricalDistribution | bool
 StrOrCategoricalDistribution = CategoricalDistribution | str
 
 
-class ParameterSpace(BaseModel):
+class ParameterSpace(BaseConfig):
     """Defines a hyperparameter search space for tuning forecasting models."""
 
     def items(self) -> list[tuple[str, DistributionOrParameter]]:
@@ -149,7 +167,7 @@ class ParameterSpace(BaseModel):
         Returns:
             HyperParams instance.
         """
-        raise NotImplementedError("Subclasses must implement the forecasting_model property.")
+        raise NotImplementedError("Subclasses must implement the default_hyperparams property.")
 
     @classmethod
     def get_preset(cls, model: str) -> "ParameterSpace":

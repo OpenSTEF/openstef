@@ -271,10 +271,6 @@ class OptunaOptimizer(ABC):
         self, experiment_name: str, objective: Callable[..., float], n_trials: int
     ) -> HyperParams:
         path = f"./optimization_results/{experiment_name}_journal.log"
-        # TODO: Clean up existing journal file if exists
-        journal_path = Path(path)
-        if journal_path.exists():
-            journal_path.unlink()
 
         study = optuna.create_study(
             study_name=experiment_name,

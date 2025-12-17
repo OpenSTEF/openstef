@@ -13,12 +13,13 @@ accurately reflect real-world model performance.
 import logging
 from collections.abc import Callable
 from functools import partial
+from typing import Any
 
 from optuna.trial import Trial
 
 from openstef_beam.backtesting.backtest_pipeline import BacktestPipeline
 from openstef_beam.benchmarking.benchmarks.liander2024 import Liander2024TargetProvider
-from openstef_beam.benchmarking.target_provider import BenchmarkTarget
+from openstef_beam.benchmarking.target_provider import BenchmarkTarget, SimpleTargetProvider, TargetProvider
 from openstef_beam.parameter_tuning.optimizer.optimizer import OptimizerTrialContext, OptunaOptimizer
 from openstef_core.datasets.versioned_timeseries_dataset import TimeSeriesDataset
 from openstef_core.utils.multiprocessing import run_parallel
@@ -36,7 +37,7 @@ class BenchmarkOptimizer(OptunaOptimizer):
     def objective(
         self,
         trial: Trial,
-        target_provider: Liander2024TargetProvider,
+        target_provider: TargetProvider[BenchmarkTarget, Any],
         score_for_target: Callable[[HyperParams, BenchmarkTarget], float],
         n_jobs: int = 1,
     ) -> float:
@@ -77,7 +78,7 @@ class BenchmarkOptimizer(OptunaOptimizer):
     def _run_trial_for_target(
         hyperparams: HyperParams,
         target: BenchmarkTarget,
-        target_provider: Liander2024TargetProvider,
+        target_provider: TargetProvider[BenchmarkTarget, Any],
         base_config: ForecastingWorkflowConfig,
         backtest_maker: Callable[[OptimizerTrialContext], BacktestPipeline],
         scoring_maker: Callable[[TimeSeriesDataset, TimeSeriesDataset], float],
@@ -101,7 +102,7 @@ class BenchmarkOptimizer(OptunaOptimizer):
         )
         return scoring_maker(predictions, ground_truth.select_version())
 
-    def optimize(self, experiment_name: str, target_provider: Liander2024TargetProvider) -> HyperParams:
+    def optimize(self, experiment_name: str, target_provider: TargetProvider[BenchmarkTarget, Any]) -> HyperParams:
         """Optimize hyperparameters using Optuna over multiple targets.
 
         In this case we run the optimizer with a single job, parralielization happens at the target level.
