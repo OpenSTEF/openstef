@@ -37,7 +37,7 @@ from openstef_models.utils.feature_selection import FeatureSelection
         pytest.param(
             TimeSeriesDataset,
             FeatureSelection.NONE,
-            {},
+            set(),
             id="no_features",
         ),
         pytest.param(

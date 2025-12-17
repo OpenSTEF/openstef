@@ -87,7 +87,6 @@ class OpenSTEF4BacktestForecaster(BaseModel, BacktestForecasterMixin):
         if self._workflow is None:
             self._workflow = self.workflow_factory(WorkflowCreationContext())
         # Extract quantiles from the workflow's model
-
         return self._workflow.model.forecaster.config.quantiles
 
     @override

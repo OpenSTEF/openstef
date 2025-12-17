@@ -41,7 +41,7 @@ class MultiQuantileRegressor(BaseEstimator, RegressorMixin):
             base_learner: A scikit-learn compatible regressor class that supports quantile regression.
             quantile_param: The name of the parameter in base_learner that sets the quantile level.
             quantiles: List of quantiles to predict (e.g., [0.1, 0.5, 0.9]).
-            hyperparams: Dictionary of hyperparameters to pass to each estimator instance.
+            hyperparams: Dictionary of hyperparameters to pass to each base learner instance.
         """
         self.quantiles = quantiles
         self.hyperparams = hyperparams
@@ -56,7 +56,7 @@ class MultiQuantileRegressor(BaseEstimator, RegressorMixin):
         base_learner = self.base_learner(**params)
 
         if self.quantile_param not in base_learner.get_params():  # type: ignore
-            msg = f"The base estimator does not support the quantile parameter '{self.quantile_param}'."
+            msg = f"The base learner does not support the quantile parameter '{self.quantile_param}'."
             raise ValueError(msg)
 
         return base_learner
@@ -68,7 +68,9 @@ class MultiQuantileRegressor(BaseEstimator, RegressorMixin):
         sample_weight: npt.NDArray[np.floating] | pd.Series | None = None,
         feature_name: list[str] | None = None,
         eval_set: list[tuple[pd.DataFrame, npt.NDArray[np.floating]]] | None = None,
-        eval_sample_weight: list[npt.NDArray[np.floating]] | list[pd.Series] | None = None,
+        eval_sample_weight: list[npt.NDArray[np.floating]]
+        | list[pd.Series]
+        | None = None,
     ) -> None:
         """Fit the multi-quantile regressor.
 
@@ -88,11 +90,19 @@ class MultiQuantileRegressor(BaseEstimator, RegressorMixin):
             if eval_set is None and "early_stopping_rounds" in self.hyperparams:
                 model.set_params(early_stopping_rounds=None)  # type: ignore
 
-            if eval_set is not None and self.learner_eval_sample_weight_param is not None:  # type: ignore
+            if (
+                eval_set is not None
+                and self.learner_eval_sample_weight_param is not None
+            ):  # type: ignore
                 kwargs[self.learner_eval_sample_weight_param] = eval_sample_weight
 
-            if "early_stopping_rounds" in self.hyperparams and self.learner_eval_sample_weight_param is not None:
-                model.set_params(early_stopping_rounds=self.hyperparams["early_stopping_rounds"])  # type: ignore
+            if (
+                "early_stopping_rounds" in self.hyperparams
+                and self.learner_eval_sample_weight_param is not None
+            ):
+                model.set_params(
+                    early_stopping_rounds=self.hyperparams["early_stopping_rounds"]
+                )  # type: ignore
 
             if feature_name:
                 self.model_feature_names = feature_name
@@ -126,7 +136,9 @@ class MultiQuantileRegressor(BaseEstimator, RegressorMixin):
         }
         return params.get(learner_name)
 
-    def predict(self, X: npt.NDArray[np.floating] | pd.DataFrame) -> npt.NDArray[np.floating]:
+    def predict(
+        self, X: npt.NDArray[np.floating] | pd.DataFrame
+    ) -> npt.NDArray[np.floating]:
         """Predict quantiles for the input features.
 
         Args:
@@ -149,9 +161,9 @@ class MultiQuantileRegressor(BaseEstimator, RegressorMixin):
 
     @property
     def has_feature_names(self) -> bool:
-        """Check if the base estimators have feature names.
+        """Check if the base learners have feature names.
 
         Returns:
-            True if the base estimators have feature names, False otherwise.
+            True if the base learners have feature names, False otherwise.
         """
         return len(self.model_feature_names) > 0

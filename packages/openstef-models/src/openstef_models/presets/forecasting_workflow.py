@@ -30,10 +30,9 @@ from openstef_models.mixins import ModelIdentifier
 from openstef_models.models import ForecastingModel
 from openstef_models.models.forecasting.flatliner_forecaster import FlatlinerForecaster
 from openstef_models.models.forecasting.gblinear_forecaster import GBLinearForecaster
+from openstef_models.models.forecasting.hybrid_forecaster import HybridForecaster
 from openstef_models.models.forecasting.lgbm_forecaster import LGBMForecaster
-from openstef_models.models.forecasting.lgbmlinear_forecaster import (
-    LGBMLinearForecaster,
-)
+from openstef_models.models.forecasting.lgbmlinear_forecaster import LGBMLinearForecaster
 from openstef_models.models.forecasting.xgboost_forecaster import XGBoostForecaster
 from openstef_models.transforms.energy_domain import WindPowerFeatureAdder
 from openstef_models.transforms.general import (
@@ -45,10 +44,7 @@ from openstef_models.transforms.general import (
     Scaler,
     Selector,
 )
-from openstef_models.transforms.postprocessing import (
-    ConfidenceIntervalApplicator,
-    QuantileSorter,
-)
+from openstef_models.transforms.postprocessing import ConfidenceIntervalApplicator, QuantileSorter
 from openstef_models.transforms.time_domain import (
     CyclicFeaturesAdder,
     DatetimeFeaturesAdder,
@@ -178,6 +174,7 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
         default=FeatureSelection.ALL,
         description="Feature seletion for which features to include/exclude.",
     )
+
     predict_history: timedelta = Field(
         default=timedelta(days=14),
         description="Amount of historical data available at prediction time.",
@@ -343,13 +340,9 @@ def create_forecasting_workflow(
             not in {
                 "gblinear",
                 "residual",
-                "stacking",
-                "learned_weights",
             },  # GBLinear uses only 7day lag.
             target_column=config.target_column,
-            custom_lags=[timedelta(days=7)]
-            if config.model in {"gblinear", "residual", "stacking", "learned_weights"}
-            else [],
+            custom_lags=[timedelta(days=7)] if config.model in {"gblinear", "residual"} else [],
         ),
         WindPowerFeatureAdder(
             windspeed_reference_column=config.wind_speed_column,

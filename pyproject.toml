@@ -89,7 +89,6 @@ members = [
   "packages/openstef-beam",
   "packages/openstef-core",
   "packages/openstef-models",
-
 ]
 
 [tool.ruff]
