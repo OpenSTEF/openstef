@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -136,13 +136,6 @@ class LinearComponentSplitter(ComponentSplitter):
         radiation_col = self.config.radiation_column
         wind_col = self.config.windspeed_100m_column
 
-        # Validate required columns
-        required_cols = [source_col, radiation_col, wind_col]
-        missing_cols = [col for col in required_cols if col not in df.columns]
-        if missing_cols:
-            error_msg = f"Missing required columns for linear model prediction: {missing_cols}"
-            raise ValueError(error_msg)
-
         # Create feature dataframe with the expected column names
         input_df = pd.DataFrame(
             {
@@ -196,9 +189,9 @@ class LinearComponentSplitter(ComponentSplitter):
             index=input_df.index,
         )
 
-        # Clip wind and solar components to be non-negative
-        forecasts[EnergyComponentType.SOLAR] = forecasts[EnergyComponentType.SOLAR].clip(lower=0.0)
-        forecasts[EnergyComponentType.WIND] = forecasts[EnergyComponentType.WIND].clip(lower=0.0)
+        # Clip wind and solar components to be strictly negative
+        forecasts[EnergyComponentType.SOLAR] = forecasts[EnergyComponentType.SOLAR].clip(upper=0.0)
+        forecasts[EnergyComponentType.WIND] = forecasts[EnergyComponentType.WIND].clip(upper=0.0)
 
         # Calculate "other" component as residual
         forecasts[EnergyComponentType.OTHER] = (

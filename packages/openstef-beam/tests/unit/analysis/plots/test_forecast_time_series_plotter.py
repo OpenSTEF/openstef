@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 # pyright: basic, reportAttributeAccessIssue=false
@@ -23,11 +23,11 @@ def test_add_model_with_forecast_only():
     plotter.add_model(model_name="Model A", forecast=forecast)
 
     # Assert
-    assert len(plotter.models_data) == 1
-    assert plotter.models_data[0]["model_name"] == "Model A"
-    assert plotter.models_data[0]["forecast"] is not None
-    pd.testing.assert_series_equal(plotter.models_data[0]["forecast"], forecast)
-    assert plotter.models_data[0]["quantiles"] is None
+    assert len(plotter._models_data) == 1
+    assert plotter._models_data[0]["model_name"] == "Model A"
+    assert plotter._models_data[0]["forecast"] is not None
+    pd.testing.assert_series_equal(plotter._models_data[0]["forecast"], forecast)
+    assert plotter._models_data[0]["quantiles"] is None
 
 
 def test_add_model_with_quantiles_only():
@@ -42,11 +42,11 @@ def test_add_model_with_quantiles_only():
     plotter.add_model(model_name="Model B", quantiles=quantiles)
 
     # Assert
-    assert len(plotter.models_data) == 1
-    assert plotter.models_data[0]["model_name"] == "Model B"
-    assert plotter.models_data[0]["forecast"] is None
-    assert plotter.models_data[0]["quantiles"] is not None
-    pd.testing.assert_frame_equal(plotter.models_data[0]["quantiles"], quantiles)
+    assert len(plotter._models_data) == 1
+    assert plotter._models_data[0]["model_name"] == "Model B"
+    assert plotter._models_data[0]["forecast"] is None
+    assert plotter._models_data[0]["quantiles"] is not None
+    pd.testing.assert_frame_equal(plotter._models_data[0]["quantiles"], quantiles)
 
 
 def test_add_model_with_forecast_and_quantiles():
@@ -64,12 +64,12 @@ def test_add_model_with_forecast_and_quantiles():
     plotter.add_model(model_name="Model C", forecast=forecast, quantiles=quantiles)
 
     # Assert
-    assert len(plotter.models_data) == 1
-    assert plotter.models_data[0]["model_name"] == "Model C"
-    assert plotter.models_data[0]["forecast"] is not None
-    pd.testing.assert_series_equal(plotter.models_data[0]["forecast"], forecast)
-    assert plotter.models_data[0]["quantiles"] is not None
-    pd.testing.assert_frame_equal(plotter.models_data[0]["quantiles"], quantiles)
+    assert len(plotter._models_data) == 1
+    assert plotter._models_data[0]["model_name"] == "Model C"
+    assert plotter._models_data[0]["forecast"] is not None
+    pd.testing.assert_series_equal(plotter._models_data[0]["forecast"], forecast)
+    assert plotter._models_data[0]["quantiles"] is not None
+    pd.testing.assert_frame_equal(plotter._models_data[0]["quantiles"], quantiles)
 
 
 def test_method_chaining():
@@ -88,11 +88,11 @@ def test_method_chaining():
     )
 
     # Assert
-    assert plotter.measurements is not None
-    pd.testing.assert_series_equal(plotter.measurements, measurements)
-    assert len(plotter.models_data) == 2
-    assert plotter.models_data[0]["model_name"] == "Model 1"
-    assert plotter.models_data[1]["model_name"] == "Model 2"
+    assert plotter._measurements is not None
+    pd.testing.assert_series_equal(plotter._measurements, measurements)
+    assert len(plotter._models_data) == 2
+    assert plotter._models_data[0]["model_name"] == "Model 1"
+    assert plotter._models_data[1]["model_name"] == "Model 2"
 
 
 def test_add_model_raises_if_no_data():
@@ -126,8 +126,8 @@ def test_add_measurements():
     plotter.add_measurements(measurements)
 
     # Assert
-    assert plotter.measurements is not None
-    pd.testing.assert_series_equal(plotter.measurements, measurements)
+    assert plotter._measurements is not None
+    pd.testing.assert_series_equal(plotter._measurements, measurements)
 
 
 def test_plot_with_no_data_raises():

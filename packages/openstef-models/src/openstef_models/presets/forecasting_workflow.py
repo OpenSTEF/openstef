@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -35,7 +35,15 @@ from openstef_models.models.forecasting.lgbm_forecaster import LGBMForecaster
 from openstef_models.models.forecasting.lgbmlinear_forecaster import LGBMLinearForecaster
 from openstef_models.models.forecasting.xgboost_forecaster import XGBoostForecaster
 from openstef_models.transforms.energy_domain import WindPowerFeatureAdder
-from openstef_models.transforms.general import Clipper, EmptyFeatureRemover, Imputer, NaNDropper, SampleWeighter, Scaler
+from openstef_models.transforms.general import (
+    Clipper,
+    EmptyFeatureRemover,
+    Imputer,
+    NaNDropper,
+    SampleWeighter,
+    Scaler,
+    Selector,
+)
 from openstef_models.transforms.postprocessing import ConfidenceIntervalApplicator, QuantileSorter
 from openstef_models.transforms.time_domain import (
     CyclicFeaturesAdder,
@@ -98,6 +106,7 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
     """
 
     model_id: ModelIdentifier = Field(description="Unique identifier for the forecasting model.")
+    run_name: str | None = Field(default=None, description="Optional name for this workflow run.")
 
     # Model configuration
     model: Literal["xgboost", "gblinear", "flatliner", "residual", "lgbm", "lgbmlinear"] = Field(
@@ -160,6 +169,11 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
         default="relative_humidity",
         description="Name of the relative humidity column in datasets.",
     )
+    selected_features: FeatureSelection = Field(
+        default=FeatureSelection.ALL,
+        description="Feature selection for which features to include/exclude.",
+    )
+
     predict_history: timedelta = Field(
         default=timedelta(days=14),
         description="Amount of historical data available at prediction time.",
@@ -187,6 +201,12 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
         default=False,
         description="If True, flatliners are also detected on non-zero values (median of the load).",
     )
+    predict_nonzero_flatliner: bool = Field(
+        default=False,
+        description="If True, predict the median of load measurements instead of zero (only for flatliner model).",
+    )
+
+    # Feature engineering
     rolling_aggregate_features: list[AggregationFunction] = Field(
         default=[],
         description="If not None, rolling aggregate(s) of load will be used as features in the model.",
@@ -266,7 +286,11 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
     # Metadata
     tags: dict[str, str] = Field(
         default_factory=dict,
-        description="Optional metadata tags for the model.",
+        description="Optional metadata tags for the model run.",
+    )
+    experiment_tags: dict[str, str] = Field(
+        default_factory=dict,
+        description="Optional metadata tags for experiment tracking.",
     )
 
 
@@ -288,6 +312,7 @@ def create_forecasting_workflow(
         ValueError: If an unsupported model type is specified.
     """
     checks = [
+        Selector(selection=config.selected_features),
         InputConsistencyChecker(),
         FlatlineChecker(
             load_column=config.target_column,
@@ -358,7 +383,13 @@ def create_forecasting_workflow(
                 verbosity=config.verbosity,
             )
         )
-        postprocessing = [QuantileSorter()]
+        postprocessing = [
+            QuantileSorter(),
+            ConfidenceIntervalApplicator(
+                quantiles=config.quantiles,
+                add_quantiles_from_std=False,
+            ),
+        ]
     elif config.model == "lgbmlinear":
         preprocessing = [
             *checks,
@@ -413,16 +444,24 @@ def create_forecasting_workflow(
                 verbosity=config.verbosity,
             ),
         )
-        postprocessing = [QuantileSorter()]
+        postprocessing = [
+            QuantileSorter(),
+            ConfidenceIntervalApplicator(
+                quantiles=config.quantiles,
+                add_quantiles_from_std=False,
+            ),
+        ]
     elif config.model == "flatliner":
         preprocessing = []
         forecaster = FlatlinerForecaster(
             config=FlatlinerForecaster.Config(
                 quantiles=[Q(0.5)],
                 horizons=config.horizons,
+                predict_median=config.predict_nonzero_flatliner,
             )
         )
         postprocessing = [
+            QuantileSorter(),
             ConfidenceIntervalApplicator(quantiles=config.quantiles),
         ]
 
@@ -485,5 +524,7 @@ def create_forecasting_workflow(
             tags=tags,
         ),
         model_id=config.model_id,
+        run_name=config.run_name,
         callbacks=callbacks,
+        experiment_tags=config.experiment_tags,
     )
