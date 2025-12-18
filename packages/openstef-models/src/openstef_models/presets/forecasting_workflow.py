@@ -169,6 +169,7 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
         default="relative_humidity",
         description="Name of the relative humidity column in datasets.",
     )
+
     selected_features: FeatureSelection = Field(
         default=FeatureSelection.ALL,
         description="Feature seletion for which features to include/exclude.",
@@ -403,8 +404,9 @@ def create_forecasting_workflow(
                 add_quantiles_from_std=False,
             ),
         ]
+<<<<<<<<< Temporary merge branch 1
 
-        postprocessing = [QuantileSorter()]
+=========
     elif config.model == "lgbmlinear":
         preprocessing = [
             *checks,
@@ -476,9 +478,34 @@ def create_forecasting_workflow(
             )
         )
         postprocessing = [
-            ConfidenceIntervalApplicator(quantiles=config.quantiles),
+            QuantileSorter(),
+            ConfidenceIntervalApplicator(
+                quantiles=[Q(0.5)],
+                add_quantiles_from_std=False,
+            ),
         ]
-
+    elif config.model == "hybrid":
+        preprocessing = [
+            *checks,
+            *feature_adders,
+            *feature_standardizers,
+            Imputer(
+                selection=Exclude(config.target_column),
+                imputation_strategy="mean",
+                fill_future_values=Include(config.energy_price_column),
+            ),
+            NaNDropper(
+                selection=Exclude(config.target_column),
+            ),
+        ]
+        forecaster = HybridForecaster(
+            config=HybridForecaster.Config(
+                quantiles=config.quantiles,
+                horizons=config.horizons,
+                hyperparams=config.hybrid_hyperparams,
+            )
+        )
+        postprocessing = [QuantileSorter()]
     else:
         msg = f"Unsupported model type: {config.model}"
         raise ValueError(msg)
