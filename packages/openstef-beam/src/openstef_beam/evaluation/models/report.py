@@ -47,8 +47,6 @@ class EvaluationSubsetReport(BaseModel):
         Args:
             path: Directory where to save the report data.
         """
-        # Sanitize path by replacing colons (invalid on Windows)
-        path = Path(str(path).replace(":", "_"))
         path.mkdir(parents=True, exist_ok=True)
         (path / "metrics.json").write_bytes(TypeAdapter(list[SubsetMetric]).dump_json(self.metrics))
         self.subset.to_parquet(path / "subset.parquet")
@@ -66,7 +64,9 @@ class EvaluationSubsetReport(BaseModel):
         metrics = TypeAdapter[list[SubsetMetric]](list[SubsetMetric]).validate_json(
             (path / "metrics.json").read_bytes()
         )
-        filtering = TypeAdapter[Filtering](Filtering).validate_python(path.name)
+        # Reverse sanitization: convert underscores back to colons for parsing
+        filtering_str = path.name.replace("_", ":")
+        filtering = TypeAdapter[Filtering](Filtering).validate_python(filtering_str)
         subset = ForecastDataset.read_parquet(path / "subset.parquet")
         return cls(filtering=filtering, subset=subset, metrics=metrics)
 
