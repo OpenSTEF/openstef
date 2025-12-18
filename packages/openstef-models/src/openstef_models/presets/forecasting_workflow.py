@@ -404,9 +404,6 @@ def create_forecasting_workflow(
                 add_quantiles_from_std=False,
             ),
         ]
-<<<<<<<<< Temporary merge branch 1
-
-=========
     elif config.model == "lgbmlinear":
         preprocessing = [
             *checks,
@@ -484,28 +481,6 @@ def create_forecasting_workflow(
                 add_quantiles_from_std=False,
             ),
         ]
-    elif config.model == "hybrid":
-        preprocessing = [
-            *checks,
-            *feature_adders,
-            *feature_standardizers,
-            Imputer(
-                selection=Exclude(config.target_column),
-                imputation_strategy="mean",
-                fill_future_values=Include(config.energy_price_column),
-            ),
-            NaNDropper(
-                selection=Exclude(config.target_column),
-            ),
-        ]
-        forecaster = HybridForecaster(
-            config=HybridForecaster.Config(
-                quantiles=config.quantiles,
-                horizons=config.horizons,
-                hyperparams=config.hybrid_hyperparams,
-            )
-        )
-        postprocessing = [QuantileSorter()]
     else:
         msg = f"Unsupported model type: {config.model}"
         raise ValueError(msg)

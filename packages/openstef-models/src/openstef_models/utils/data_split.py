@@ -160,7 +160,7 @@ def stratified_train_test_split[T: TimeSeriesDataset](
     _, test_other_days = _sample_dates_for_split(dates=other_days, test_fraction=test_fraction, rng=rng)
 
     # Combine all train and test dates
-    test_dates = cast(pd.DatetimeIndex, test_max_days.union(test_min_days).union(test_other_days))
+    test_dates = cast(pd.DatetimeIndex, test_max_days.union(test_min_days).union(test_other_days))  # type: ignore
 
     return split_by_dates(dataset=dataset, dates_test=test_dates)
 

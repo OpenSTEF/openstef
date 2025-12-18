@@ -235,7 +235,7 @@ class EvaluationPipeline:
         for lead_time in self.config.lead_times:
             predictions_filtered = predictions.filter_by_lead_time(lead_time=lead_time).select_version()
             if evaluation_mask is not None:
-                predictions_filtered = predictions_filtered.filter_index(evaluation_mask)
+                predictions_filtered = predictions_filtered.filter_index(evaluation_mask)  # type: ignore
 
             # Remove target column from predictions to avoid duplication
             if target_column in predictions_filtered.data.columns:
