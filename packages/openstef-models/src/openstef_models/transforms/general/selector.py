@@ -74,9 +74,7 @@ class Selector(BaseConfig, TimeSeriesTransform):
     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
         features = self.selection.resolve(data.feature_names)
 
-        transformed_data = data.data.drop(
-            columns=[col for col in data.feature_names if col not in features]
-        )
+        transformed_data = data.data.drop(columns=[col for col in data.feature_names if col not in features])
 
         return data.copy_with(data=transformed_data, is_sorted=True)
 

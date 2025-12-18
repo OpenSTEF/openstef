@@ -93,9 +93,7 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
             now = datetime.now(tz=UTC)
             end_time_millis = cast(float | None, run.info.end_time)
             run_end_datetime = (
-                datetime.fromtimestamp(end_time_millis / 1000, tz=UTC)
-                if end_time_millis is not None
-                else None
+                datetime.fromtimestamp(end_time_millis / 1000, tz=UTC) if end_time_millis is not None else None
             )
             self._logger.info(
                 "Found previous MLflow run %s for model %s ended at %s",
@@ -103,10 +101,7 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
                 context.workflow.model_id,
                 run_end_datetime,
             )
-            if (
-                run_end_datetime is not None
-                and (now - run_end_datetime) <= self.model_reuse_max_age
-            ):
+            if run_end_datetime is not None and (now - run_end_datetime) <= self.model_reuse_max_age:
                 raise SkipFitting("Model is recent enough, skipping re-fit.")
 
     @override
@@ -132,23 +127,17 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
             experiment_tags=context.workflow.experiment_tags,
         )
         run_id: str = run.info.run_id
-        self._logger.info(
-            "Created MLflow run %s for model %s", run_id, context.workflow.model_id
-        )
+        self._logger.info("Created MLflow run %s for model %s", run_id, context.workflow.model_id)
 
         # Store the model input
-        run_path = self.storage.get_artifacts_path(
-            model_id=context.workflow.model_id, run_id=run_id
-        )
+        run_path = self.storage.get_artifacts_path(model_id=context.workflow.model_id, run_id=run_id)
         data_path = run_path / self.storage.data_path
         data_path.mkdir(parents=True, exist_ok=True)
         result.input_dataset.to_parquet(path=data_path / "data.parquet")
         self._logger.info("Stored training data at %s for run %s", data_path, run_id)
 
         # Store feature importance plot if enabled
-        if self.store_feature_importance_plot and isinstance(
-            context.workflow.model.forecaster, ExplainableForecaster
-        ):
+        if self.store_feature_importance_plot and isinstance(context.workflow.model.forecaster, ExplainableForecaster):
             fig = context.workflow.model.forecaster.plot_feature_importances()
             fig.write_html(data_path / "feature_importances.html")  # pyright: ignore[reportUnknownMemberType]
 
@@ -166,17 +155,11 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
         if result.metrics_val is not None:
             metrics.update(_metrics_to_dict(metrics=result.metrics_val, prefix="val_"))
         if result.metrics_test is not None:
-            metrics.update(
-                _metrics_to_dict(metrics=result.metrics_test, prefix="test_")
-            )
+            metrics.update(_metrics_to_dict(metrics=result.metrics_test, prefix="test_"))
 
         # Mark the run as finished
-        self.storage.finalize_run(
-            model_id=context.workflow.model_id, run_id=run_id, metrics=metrics
-        )
-        self._logger.info(
-            "Stored MLflow run %s for model %s", run_id, context.workflow.model_id
-        )
+        self.storage.finalize_run(model_id=context.workflow.model_id, run_id=run_id, metrics=metrics)
+        self._logger.info("Stored MLflow run %s for model %s", run_id, context.workflow.model_id)
 
     @override
     def on_predict_start(
@@ -196,9 +179,7 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
         # Load the model from the latest run
         run_id: str = run.info.run_id
 
-        old_model = self.storage.load_run_model(
-            run_id=run_id, model_id=context.workflow.model_id
-        )
+        old_model = self.storage.load_run_model(run_id=run_id, model_id=context.workflow.model_id)
 
         if not isinstance(old_model, ForecastingModel):
             self._logger.warning(
@@ -214,9 +195,7 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
             context.workflow.model_id,
         )
 
-    def _run_model_selection(
-        self, workflow: CustomForecastingWorkflow, result: ModelFitResult
-    ) -> None:
+    def _run_model_selection(self, workflow: CustomForecastingWorkflow, result: ModelFitResult) -> None:
         # Find the latest successful run for this model
         runs = self.storage.search_latest_runs(model_id=workflow.model_id)
         run = next(iter(runs), None)
@@ -252,9 +231,7 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
         if old_metrics is None:
             return
 
-        if self._check_is_new_model_better(
-            old_metrics=old_metrics, new_metrics=new_metrics
-        ):
+        if self._check_is_new_model_better(old_metrics=old_metrics, new_metrics=new_metrics):
             workflow.model = new_model
         else:
             workflow.model = old_model
@@ -263,9 +240,7 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
                 self.model_selection_metric,
                 run_id,
             )
-            raise SkipFitting(
-                "New model did not improve monitored metric, skipping re-fit."
-            )
+            raise SkipFitting("New model did not improve monitored metric, skipping re-fit.")
 
     def _try_load_model(
         self,
@@ -273,9 +248,7 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
         workflow: CustomForecastingWorkflow,
     ) -> ForecastingModel | None:
         try:
-            old_model = self.storage.load_run_model(
-                run_id=run_id, model_id=workflow.model_id
-            )
+            old_model = self.storage.load_run_model(run_id=run_id, model_id=workflow.model_id)
         except ModelNotFoundError:
             self._logger.warning(
                 "Could not load model from previous run %s for model %s, skipping model selection",
@@ -309,9 +282,7 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
             )
             return None
 
-    def _check_tags_compatible(
-        self, run_tags: dict[str, str], new_tags: dict[str, str], run_id: str
-    ) -> bool:
+    def _check_tags_compatible(self, run_tags: dict[str, str], new_tags: dict[str, str], run_id: str) -> bool:
         """Check if model tags are compatible, excluding mlflow.runName.
 
         Returns:
@@ -363,13 +334,9 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
         )
 
         match direction:
-            case "higher_is_better" if (
-                new_metric >= old_metric / self.model_selection_old_model_penalty
-            ):
+            case "higher_is_better" if new_metric >= old_metric / self.model_selection_old_model_penalty:
                 return True
-            case "lower_is_better" if (
-                new_metric <= old_metric / self.model_selection_old_model_penalty
-            ):
+            case "lower_is_better" if new_metric <= old_metric / self.model_selection_old_model_penalty:
                 return True
             case _:
                 return False
