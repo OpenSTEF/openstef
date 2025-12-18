@@ -117,3 +117,13 @@ class FlatlinerForecaster(Forecaster, ExplainableForecaster):
             index=["load"],
             columns=[quantile.format() for quantile in self.config.quantiles],
         )
+
+    @override
+    def predict_contributions(self, data: ForecastInputDataset, *, scale: bool = True) -> pd.DataFrame:
+
+        forecast_index = data.create_forecast_range(horizon=self.config.max_horizon)
+
+        return pd.DataFrame(
+            data={quantile.format(): 0.0 for quantile in self.config.quantiles},
+            index=forecast_index,
+        )

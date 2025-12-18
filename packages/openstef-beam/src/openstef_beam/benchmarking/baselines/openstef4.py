@@ -14,15 +14,26 @@ from typing import Any, cast, override
 from pydantic import Field, PrivateAttr
 from pydantic_extra_types.coordinate import Coordinate
 
-from openstef_beam.backtesting.backtest_forecaster.mixins import BacktestForecasterConfig, BacktestForecasterMixin
-from openstef_beam.backtesting.restricted_horizon_timeseries import RestrictedHorizonVersionedTimeSeries
-from openstef_beam.benchmarking.benchmark_pipeline import BenchmarkContext, BenchmarkTarget, ForecasterFactory
+from openstef_beam.backtesting.backtest_forecaster.mixins import (
+    BacktestForecasterConfig,
+    BacktestForecasterMixin,
+)
+from openstef_beam.backtesting.restricted_horizon_timeseries import (
+    RestrictedHorizonVersionedTimeSeries,
+)
+from openstef_beam.benchmarking.benchmark_pipeline import (
+    BenchmarkContext,
+    BenchmarkTarget,
+    ForecasterFactory,
+)
 from openstef_core.base_model import BaseConfig, BaseModel
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.exceptions import FlatlinerDetectedError, NotFittedError
 from openstef_core.types import Q
 from openstef_models.presets import ForecastingWorkflowConfig
-from openstef_models.workflows.custom_forecasting_workflow import CustomForecastingWorkflow
+from openstef_models.workflows.custom_forecasting_workflow import (
+    CustomForecastingWorkflow,
+)
 
 
 class WorkflowCreationContext(BaseConfig):
@@ -54,6 +65,10 @@ class OpenSTEF4BacktestForecaster(BaseModel, BacktestForecasterMixin):
         default=False,
         description="When True, saves intermediate input data for debugging",
     )
+    contributions: bool = Field(
+        default=False,
+        description="When True, saves base Forecaster prediction contributions for ensemble models in cache_dir",
+    )
 
     _workflow: CustomForecastingWorkflow | None = PrivateAttr(default=None)
     _is_flatliner_detected: bool = PrivateAttr(default=False)
@@ -62,7 +77,7 @@ class OpenSTEF4BacktestForecaster(BaseModel, BacktestForecasterMixin):
 
     @override
     def model_post_init(self, context: Any) -> None:
-        if self.debug:
+        if self.debug or self.contributions:
             self.cache_dir.mkdir(parents=True, exist_ok=True)
 
     @property
@@ -82,7 +97,9 @@ class OpenSTEF4BacktestForecaster(BaseModel, BacktestForecasterMixin):
 
         # Extract the dataset for training
         training_data = data.get_window(
-            start=data.horizon - self.config.training_context_length, end=data.horizon, available_before=data.horizon
+            start=data.horizon - self.config.training_context_length,
+            end=data.horizon,
+            available_before=data.horizon,
         )
 
         if self.debug:
@@ -225,4 +242,8 @@ def create_openstef4_preset_backtest_forecaster(
     )
 
 
-__all__ = ["OpenSTEF4BacktestForecaster", "WorkflowCreationContext", "create_openstef4_preset_backtest_forecaster"]
+__all__ = [
+    "OpenSTEF4BacktestForecaster",
+    "WorkflowCreationContext",
+    "create_openstef4_preset_backtest_forecaster",
+]

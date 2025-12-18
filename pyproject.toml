@@ -68,6 +68,9 @@ dev = [
   "ruff>=0.12.8",
   "scipy-stubs>=1.16.2.4",
 ]
+openstef-beam = [
+  "optuna>=4.6",
+]
 
 [tool.hatch.build.targets.wheel]
 bypass-selection = true

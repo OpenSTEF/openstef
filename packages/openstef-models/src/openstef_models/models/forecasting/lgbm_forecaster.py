@@ -56,13 +56,13 @@ class LGBMHyperParams(HyperParams):
         "increase training time and risk overfitting.",
     )
     learning_rate: float = Field(
-        default=0.49,  # 0.3
+        default=0.3,
         alias="eta",
         description="Step size shrinkage used to prevent overfitting. Range: [0,1]. Lower values require "
         "more boosting rounds.",
     )
     max_depth: int = Field(
-        default=2,  # 8,
+        default=5,
         description="Maximum depth of trees. Higher values capture more complex patterns but risk "
         "overfitting. Range: [1,∞]",
     )
@@ -93,7 +93,7 @@ class LGBMHyperParams(HyperParams):
 
     # Tree Structure Control
     num_leaves: int = Field(
-        default=100,  # 31
+        default=31,
         description="Maximum number of leaves. 0 means no limit. Only relevant when grow_policy='lossguide'.",
     )
 
@@ -265,7 +265,9 @@ class LGBMForecaster(Forecaster, ExplainableForecaster):
         return self._lgbm_model.is_fitted
 
     @staticmethod
-    def _prepare_fit_input(data: ForecastInputDataset) -> tuple[pd.DataFrame, np.ndarray, pd.Series]:
+    def _prepare_fit_input(
+        data: ForecastInputDataset,
+    ) -> tuple[pd.DataFrame, np.ndarray, pd.Series]:
         input_data: pd.DataFrame = data.input_data()
         target: np.ndarray = np.asarray(data.target_series.values)
         sample_weight: pd.Series = data.sample_weight_series
@@ -311,6 +313,43 @@ class LGBMForecaster(Forecaster, ExplainableForecaster):
             ),
             sample_interval=data.sample_interval,
         )
+
+    def predict_contributions(self, data: ForecastInputDataset, *, scale: bool) -> pd.DataFrame:
+        """Get feature contributions for each prediction.
+
+        Args:
+            data: Input dataset for which to compute feature contributions.
+            scale: If True, scale contributions to sum to 1.0 per quantile.
+
+        Returns:
+            DataFrame with contributions per feature.
+        """
+        # Get input features for prediction
+        input_data: pd.DataFrame = data.input_data(start=data.forecast_start)
+
+        contributions: list[pd.DataFrame] = []
+
+        for i, quantile in enumerate(self.config.quantiles):
+            # Get model for specific quantile
+            model: LGBMRegressor = self._lgbm_model.models[i]  # type: ignore
+
+            # Generate contributions using LightGBM's built-in method, and remove bias term
+            contribs_quantile: np.ndarray[float] = model.predict(input_data, pred_contrib=True)[:, :-1]  # type: ignore
+
+            if scale:
+                # Scale contributions so that they sum to 1.0 per quantile
+                contribs_quantile = np.abs(contribs_quantile) / np.sum(np.abs(contribs_quantile), axis=1, keepdims=True)
+
+            contributions.append(
+                pd.DataFrame(
+                    data=contribs_quantile,
+                    index=input_data.index,
+                    columns=[f"{feature}_{quantile.format()}" for feature in input_data.columns],
+                )
+            )
+
+        # Construct DataFrame
+        return pd.concat(contributions, axis=1)
 
     @property
     @override

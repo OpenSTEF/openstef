@@ -267,7 +267,9 @@ class LGBMLinearForecaster(Forecaster, ExplainableForecaster):
         return self._lgbmlinear_model.is_fitted
 
     @staticmethod
-    def _prepare_fit_input(data: ForecastInputDataset) -> tuple[pd.DataFrame, np.ndarray, pd.Series]:
+    def _prepare_fit_input(
+        data: ForecastInputDataset,
+    ) -> tuple[pd.DataFrame, np.ndarray, pd.Series]:
         input_data: pd.DataFrame = data.input_data()
         target: np.ndarray = np.asarray(data.target_series.values)
         sample_weight: pd.Series = data.sample_weight_series
@@ -314,6 +316,19 @@ class LGBMLinearForecaster(Forecaster, ExplainableForecaster):
             sample_interval=data.sample_interval,
         )
 
+    @override
+    def predict_contributions(self, data: ForecastInputDataset, *, scale: bool) -> pd.DataFrame:
+        """Get feature contributions for each prediction.
+
+        Args:
+            data: Input dataset for which to compute feature contributions.
+            scale: If True, scale contributions to sum to 1.0 per quantile.
+
+        Returns:
+            DataFrame with contributions per feature.
+        """
+        raise NotImplementedError("predict_contributions is not yet implemented for LGBMLinearForecaster")
+
     @property
     @override
     def feature_importances(self) -> pd.DataFrame:
@@ -333,4 +348,8 @@ class LGBMLinearForecaster(Forecaster, ExplainableForecaster):
         return weights_abs / total
 
 
-__all__ = ["LGBMLinearForecaster", "LGBMLinearForecasterConfig", "LGBMLinearHyperParams"]
+__all__ = [
+    "LGBMLinearForecaster",
+    "LGBMLinearForecasterConfig",
+    "LGBMLinearHyperParams",
+]

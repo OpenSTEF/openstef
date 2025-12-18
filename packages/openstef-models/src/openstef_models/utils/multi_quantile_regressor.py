@@ -92,7 +92,9 @@ class MultiQuantileRegressor(BaseEstimator, RegressorMixin):
                 kwargs[self.learner_eval_sample_weight_param] = eval_sample_weight
 
             if "early_stopping_rounds" in self.hyperparams and self.learner_eval_sample_weight_param is not None:
-                model.set_params(early_stopping_rounds=self.hyperparams["early_stopping_rounds"])  # type: ignore
+                model.set_params(  # type: ignore
+                    early_stopping_rounds=self.hyperparams["early_stopping_rounds"]
+                )
 
             if feature_name:
                 self.model_feature_names = feature_name

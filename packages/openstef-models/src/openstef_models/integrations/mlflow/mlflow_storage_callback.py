@@ -19,7 +19,9 @@ from openstef_beam.evaluation import SubsetMetric
 from openstef_beam.evaluation.metric_providers import MetricDirection
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets.timeseries_dataset import TimeSeriesDataset
-from openstef_core.datasets.versioned_timeseries_dataset import VersionedTimeSeriesDataset
+from openstef_core.datasets.versioned_timeseries_dataset import (
+    VersionedTimeSeriesDataset,
+)
 from openstef_core.exceptions import (
     MissingColumnsError,
     ModelNotFoundError,
@@ -134,7 +136,11 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
             fig.write_html(data_path / "feature_importances.html")  # pyright: ignore[reportUnknownMemberType]
 
         # Store the trained model
-        self.storage.save_run_model(model_id=context.workflow.model_id, run_id=run_id, model=context.workflow.model)
+        self.storage.save_run_model(
+            model_id=context.workflow.model_id,
+            run_id=run_id,
+            model=context.workflow.model,
+        )
         self._logger.info("Stored trained model for run %s", run_id)
 
         # Format the metrics for MLflow
@@ -151,7 +157,9 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
 
     @override
     def on_predict_start(
-        self, context: WorkflowContext[CustomForecastingWorkflow], data: VersionedTimeSeriesDataset | TimeSeriesDataset
+        self,
+        context: WorkflowContext[CustomForecastingWorkflow],
+        data: VersionedTimeSeriesDataset | TimeSeriesDataset,
     ):
         if context.workflow.model.is_fitted:
             return
@@ -175,7 +183,11 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
             return
 
         context.workflow.model = old_model
-        self._logger.info("Loaded model from MLflow run %s for model %s", run_id, context.workflow.model_id)
+        self._logger.info(
+            "Loaded model from MLflow run %s for model %s",
+            run_id,
+            context.workflow.model_id,
+        )
 
     def _run_model_selection(self, workflow: CustomForecastingWorkflow, result: ModelFitResult) -> None:
         # Find the latest successful run for this model

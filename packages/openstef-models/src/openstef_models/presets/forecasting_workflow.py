@@ -30,7 +30,6 @@ from openstef_models.mixins import ModelIdentifier
 from openstef_models.models import ForecastingModel
 from openstef_models.models.forecasting.flatliner_forecaster import FlatlinerForecaster
 from openstef_models.models.forecasting.gblinear_forecaster import GBLinearForecaster
-from openstef_models.models.forecasting.hybrid_forecaster import HybridForecaster
 from openstef_models.models.forecasting.lgbm_forecaster import LGBMForecaster
 from openstef_models.models.forecasting.lgbmlinear_forecaster import LGBMLinearForecaster
 from openstef_models.models.forecasting.xgboost_forecaster import XGBoostForecaster
@@ -52,8 +51,14 @@ from openstef_models.transforms.time_domain import (
     RollingAggregatesAdder,
 )
 from openstef_models.transforms.time_domain.lags_adder import LagsAdder
-from openstef_models.transforms.time_domain.rolling_aggregates_adder import AggregationFunction
-from openstef_models.transforms.validation import CompletenessChecker, FlatlineChecker, InputConsistencyChecker
+from openstef_models.transforms.time_domain.rolling_aggregates_adder import (
+    AggregationFunction,
+)
+from openstef_models.transforms.validation import (
+    CompletenessChecker,
+    FlatlineChecker,
+    InputConsistencyChecker,
+)
 from openstef_models.transforms.weather_domain import (
     AtmosphereDerivedFeaturesAdder,
     DaylightFeatureAdder,
@@ -109,7 +114,7 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
     run_name: str | None = Field(default=None, description="Optional name for this workflow run.")
 
     # Model configuration
-    model: Literal["xgboost", "gblinear", "flatliner", "hybrid", "lgbm", "lgbmlinear"] = Field(
+    model: Literal["xgboost", "gblinear", "flatliner", "residual", "lgbm", "lgbmlinear"] = Field(
         description="Type of forecasting model to use."
     )  # TODO(#652): Implement median forecaster
     quantiles: list[Quantile] = Field(
@@ -145,11 +150,6 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
         description="Hyperparameters for LightGBM forecaster.",
     )
 
-    hybrid_hyperparams: HybridForecaster.HyperParams = Field(
-        default=HybridForecaster.HyperParams(),
-        description="Hyperparameters for Hybrid forecaster.",
-    )
-
     location: LocationConfig = Field(
         default=LocationConfig(),
         description="Location information for the forecasting workflow.",
@@ -169,13 +169,10 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
         default="relative_humidity",
         description="Name of the relative humidity column in datasets.",
     )
+
     selected_features: FeatureSelection = Field(
         default=FeatureSelection.ALL,
-        description="Feature selection for which features to include/exclude.",
-    )
-    selected_features: FeatureSelection = Field(
-        default=FeatureSelection.ALL,
-        description="Feature selection for which features to include/exclude.",
+        description="Feature seletion for which features to include/exclude.",
     )
 
     predict_history: timedelta = Field(
@@ -226,7 +223,16 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
     )
     sample_weight_exponent: float = Field(
         default_factory=lambda data: 1.0
-        if data.get("model") in {"gblinear", "lgbmlinear", "lgbm", "hybrid", "xgboost"}
+        if data.get("model")
+        in {
+            "gblinear",
+            "lgbmlinear",
+            "lgbm",
+            "learned_weights",
+            "stacking",
+            "residual",
+            "xgboost",
+        }
         else 0.0,
         description="Exponent applied to scale the sample weights. "
         "0=uniform weights, 1=linear scaling, >1=stronger emphasis on high values. "
@@ -330,9 +336,13 @@ def create_forecasting_workflow(
         LagsAdder(
             history_available=config.predict_history,
             horizons=config.horizons,
-            add_trivial_lags=config.model not in {"gblinear", "hybrid"},  # GBLinear uses only 7day lag.
+            add_trivial_lags=config.model
+            not in {
+                "gblinear",
+                "residual",
+            },  # GBLinear uses only 7day lag.
             target_column=config.target_column,
-            custom_lags=[timedelta(days=7)] if config.model in {"gblinear", "hybrid"} else [],
+            custom_lags=[timedelta(days=7)] if config.model in {"gblinear", "residual"} else [],
         ),
         WindPowerFeatureAdder(
             windspeed_reference_column=config.wind_speed_column,
@@ -471,28 +481,6 @@ def create_forecasting_workflow(
                 add_quantiles_from_std=False,
             ),
         ]
-    elif config.model == "hybrid":
-        preprocessing = [
-            *checks,
-            *feature_adders,
-            *feature_standardizers,
-            Imputer(
-                selection=Exclude(config.target_column),
-                imputation_strategy="mean",
-                fill_future_values=Include(config.energy_price_column),
-            ),
-            NaNDropper(
-                selection=Exclude(config.target_column),
-            ),
-        ]
-        forecaster = HybridForecaster(
-            config=HybridForecaster.Config(
-                quantiles=config.quantiles,
-                horizons=config.horizons,
-                hyperparams=config.hybrid_hyperparams,
-            )
-        )
-        postprocessing = [QuantileSorter()]
     else:
         msg = f"Unsupported model type: {config.model}"
         raise ValueError(msg)

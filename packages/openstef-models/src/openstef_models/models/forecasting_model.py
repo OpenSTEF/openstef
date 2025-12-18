@@ -381,7 +381,7 @@ def restore_target[T: TimeSeriesDataset](
     target_series = original_dataset.select_features([target_column]).select_version().data[target_column]
 
     def _transform_restore_target(df: pd.DataFrame) -> pd.DataFrame:
-        return df.assign(**{str(target_series.name): df.index.map(target_series)})  # pyright: ignore[reportUnknownMemberType]
+        return df.assign(**{str(target_series.name): df.index.map(target_series)})  # type: ignore
 
     return dataset.pipe_pandas(_transform_restore_target)
 

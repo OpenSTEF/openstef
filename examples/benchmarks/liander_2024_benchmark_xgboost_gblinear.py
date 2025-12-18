@@ -40,6 +40,7 @@ BENCHMARK_RESULTS_PATH_XGBOOST = OUTPUT_PATH / "XGBoost"
 BENCHMARK_RESULTS_PATH_GBLINEAR = OUTPUT_PATH / "GBLinear"
 N_PROCESSES = multiprocessing.cpu_count()  # Amount of parallel processes to use for the benchmark
 
+
 # Model configuration
 FORECAST_HORIZONS = [LeadTime.from_string("P3D")]  # Forecast horizon(s)
 PREDICTION_QUANTILES = [

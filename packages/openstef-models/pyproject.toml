@@ -14,9 +14,7 @@ description = "Core models for OpenSTEF"
 readme = "README.md"
 keywords = [ "energy", "forecasting", "machinelearning" ]
 license = "MPL-2.0"
-authors = [
-  { name = "Alliander N.V", email = "openstef@lfenergy.org" },
-]
+authors = [ { name = "Alliander N.V", email = "openstef@lfenergy.org" } ]
 requires-python = ">=3.12,<4.0"
 classifiers = [
   "Development Status :: 5 - Production/Stable",
