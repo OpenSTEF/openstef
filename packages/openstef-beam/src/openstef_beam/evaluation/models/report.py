@@ -64,13 +64,11 @@ class EvaluationSubsetReport(BaseModel):
         metrics = TypeAdapter[list[SubsetMetric]](list[SubsetMetric]).validate_json(
             (path / "metrics.json").read_bytes()
         )
-        filtering = TypeAdapter[Filtering](Filtering).validate_python(path.name)
+        # Reverse sanitization: convert underscores back to colons for parsing
+        filtering_str = path.name.replace("_", ":")
+        filtering = TypeAdapter[Filtering](Filtering).validate_python(filtering_str)
         subset = ForecastDataset.read_parquet(path / "subset.parquet")
-        return cls(
-            filtering=filtering,
-            subset=subset,
-            metrics=metrics,
-        )
+        return cls(filtering=filtering, subset=subset, metrics=metrics)
 
     def get_global_metric(self) -> SubsetMetric | None:
         """Returns the SubsetMetric with window='global', or None if not found."""
@@ -129,7 +127,9 @@ class EvaluationReport(BaseModel):
         """
         path.mkdir(parents=True, exist_ok=True)
         for subset_report in self.subset_reports:
-            subset_report.to_parquet(path / str(subset_report.filtering))
+            # Sanitize filtering name for Windows compatibility (replace colons)
+            filtering_name = str(subset_report.filtering).replace(":", "_")
+            subset_report.to_parquet(path / filtering_name)
 
     @classmethod
     def read_parquet(cls, path: Path) -> Self:

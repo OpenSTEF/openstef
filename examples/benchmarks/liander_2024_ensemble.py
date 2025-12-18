@@ -42,12 +42,15 @@ OUTPUT_PATH = Path("./benchmark_results")
 N_PROCESSES = 1 if True else multiprocessing.cpu_count()  # Amount of parallel processes to use for the benchmark
 
 ensemble_type = "learned_weights"  # "stacking", "learned_weights" or "rules"
-base_models = ["lgbm", "gblinear"]  # combination of "lgbm", "gblinear", "xgboost" and "lgbm_linear"
+base_models = [
+    "lgbm",
+    "gblinear",
+]  # combination of "lgbm", "gblinear", "xgboost" and "lgbm_linear"
 combiner_model = (
     "lgbm"  # "lgbm", "xgboost", "rf" or "logistic" for learned weights combiner, gblinear for stacking combiner
 )
 
-model = "Ensemble_" + "_".join(base_models) + "_" + ensemble_type + "_" + combiner_model
+model = "Ensemble_contributions_" + "_".join(base_models) + "_" + ensemble_type + "_" + combiner_model
 
 # Model configuration
 FORECAST_HORIZONS = [LeadTime.from_string("PT36H")]  # Forecast horizon(s)
@@ -90,7 +93,12 @@ workflow_config = EnsembleWorkflowConfig(
     relative_humidity_column="relative_humidity_2m",
     energy_price_column="EPEX_NL",
     forecast_combiner_sample_weight_exponent=0,
-    forecaster_sample_weight_exponent={"gblinear": 1, "lgbm": 0, "xgboost": 0, "lgbm_linear": 0},
+    forecaster_sample_weight_exponent={
+        "gblinear": 1,
+        "lgbm": 0,
+        "xgboost": 0,
+        "lgbm_linear": 0,
+    },
 )
 
 
@@ -111,7 +119,7 @@ if __name__ == "__main__":
     start_time = time.time()
     create_liander2024_benchmark_runner(
         storage=LocalBenchmarkStorage(base_path=OUTPUT_PATH / model),
-        data_dir=Path("../data/liander2024-energy-forecasting-benchmark"),
+        data_dir=Path("data/liander2024-energy-forecasting-benchmark"),
         callbacks=[StrictExecutionCallback()],
     ).run(
         forecaster_factory=create_openstef4_preset_backtest_forecaster(
