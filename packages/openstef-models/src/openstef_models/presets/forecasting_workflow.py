@@ -173,6 +173,10 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
         default=FeatureSelection.ALL,
         description="Feature selection for which features to include/exclude.",
     )
+    selected_features: FeatureSelection = Field(
+        default=FeatureSelection.ALL,
+        description="Feature selection for which features to include/exclude.",
+    )
 
     predict_history: timedelta = Field(
         default=timedelta(days=14),
@@ -462,7 +466,10 @@ def create_forecasting_workflow(
         )
         postprocessing = [
             QuantileSorter(),
-            ConfidenceIntervalApplicator(quantiles=config.quantiles),
+            ConfidenceIntervalApplicator(
+                quantiles=[Q(0.5)],
+                add_quantiles_from_std=False,
+            ),
         ]
     elif config.model == "hybrid":
         preprocessing = [
