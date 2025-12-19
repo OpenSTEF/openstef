@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -46,15 +46,6 @@ class TimeSeriesTransform(Transform[TimeSeriesDataset, TimeSeriesDataset]):
         ...     def transform(self, data):
         ...         scaled_data = data.data / self.scale_factor
         ...         return TimeSeriesDataset(scaled_data, data.sample_interval)
-        ...
-        ...     def to_state(self):
-        ...         return {"scale_factor": self.scale_factor}
-        ...
-        ...     @classmethod
-        ...     def from_state(cls, state):
-        ...         instance = cls()
-        ...         instance.scale_factor = state["scale_factor"]
-        ...         return instance
     """
 
     # Stateless by default
@@ -84,7 +75,7 @@ class VersionedTimeSeriesTransform(Transform[VersionedTimeSeriesDataset, Version
     VersionedTimeSeriesDataset instances, which include time point versions
     enabling real life data availability simulation.
 
-    Subclasses must implement the fit, transform, to_state, and from_state methods.
+    Subclasses must implement the fit and transform methods.
     """
 
 

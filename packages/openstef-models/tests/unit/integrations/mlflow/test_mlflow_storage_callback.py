@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import time
 from datetime import timedelta
-from typing import TYPE_CHECKING, Self, cast, override
+from typing import TYPE_CHECKING, cast, override
 
 import pandas as pd
 import pytest
@@ -14,7 +14,6 @@ import pytest
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import ModelNotFoundError, SkipFitting
-from openstef_core.mixins import State
 from openstef_core.types import LeadTime, Q
 from openstef_models.integrations.mlflow import MLFlowStorage, MLFlowStorageCallback
 from openstef_models.mixins.callbacks import WorkflowContext
@@ -42,17 +41,6 @@ class SimpleTestForecaster(Forecaster):
     @override
     def is_fitted(self) -> bool:
         return self._is_fitted
-
-    @override
-    def to_state(self) -> State:
-        return cast(State, {"median": self._median_value, "fitted": self._is_fitted})
-
-    @override
-    def from_state(self, state: State) -> Self:
-        state_dict = cast(dict[str, object], state)
-        self._median_value = cast(float, state_dict.get("median", 0.0))
-        self._is_fitted = cast(bool, state_dict.get("fitted", False))
-        return self
 
     @override
     def fit(self, data: ForecastInputDataset, data_val: ForecastInputDataset | None = None) -> None:
@@ -140,7 +128,8 @@ def test_mlflow_storage_callback__on_fit_end__stores_model_and_metrics(
 
     # Assert - Model can be loaded from the run
     run_id = cast(str, runs[0].info.run_id)
-    loaded_model = callback.storage.load_run_model(run_id=run_id, model=workflow.model)
+    loaded_model = callback.storage.load_run_model(model_id=workflow.model_id, run_id=run_id)
+    assert isinstance(loaded_model, ForecastingModel)
     assert loaded_model.is_fitted
 
 
@@ -266,3 +255,38 @@ def test_mlflow_storage_callback__model_selection__keeps_better_model(
     # Act & Assert - Should raise SkipFitting because new model is worse
     with pytest.raises(SkipFitting, match="New model did not improve"):
         callback.on_fit_end(context=worse_context, result=worse_result)
+
+
+def test_mlflow_storage_callback__model_selection__skips_on_tag_change(
+    storage: MLFlowStorage,
+    workflow: CustomForecastingWorkflow,
+    fit_result: ModelFitResult,
+    sample_dataset: TimeSeriesDataset,
+):
+    """Test that model selection keeps the better performing model."""
+    # Arrange - Create callback with R2 metric (capital letters)
+    callback = MLFlowStorageCallback(
+        storage=storage,
+        model_selection_metric=(Q(0.5), "R2", "higher_is_better"),
+    )
+
+    # Store an initial model
+    context = WorkflowContext(workflow=workflow)
+    callback.on_fit_end(context=context, result=fit_result)
+
+    # Create a new result by fitting with a model with a different tag
+    new_model = ForecastingModel(
+        forecaster=SimpleTestForecaster(
+            config=ForecasterConfig(horizons=[LeadTime(timedelta(hours=6))], quantiles=[Q(0.5)])
+        ),
+        tags={"version": "2.0"},
+    )
+    new_workflow = CustomForecastingWorkflow(model_id="test_model", model=new_model)
+    new_result = new_model.fit(sample_dataset)
+
+    # Act
+    result = callback._run_model_selection(workflow=new_workflow, result=new_result)
+
+    # Assert - Should not raise SkipFitting because model changed
+    assert result is None
+    assert new_workflow.model == new_model

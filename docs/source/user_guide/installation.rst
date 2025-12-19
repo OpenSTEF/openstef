@@ -1,4 +1,4 @@
-.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 ..
 .. SPDX-License-Identifier: MPL-2.0
 
@@ -33,9 +33,11 @@ OpenSTEF 4.0 follows a modular design with specialized packages:
      - Description
    * - ``openstef``
      - Meta-package that installs the core components
-   * - ``openstef-models``
+     * - ``openstef-core``
+         - Core utilities, dataset types, shared types and base models
+     * - ``openstef-models``
      - Core ML models, feature engineering, and data processing
-   * - ``openstef-beam``
+    * - ``openstef-beam``
      - Backtesting, Evaluation, Analysis, and Metrics (BEAM)
    * - ``openstef-compatibility``
      - Compatibility layer for OpenSTEF 3.x (coming soon)
@@ -74,7 +76,8 @@ For most users, start with the meta-package:
 
             pixi add openstef
 
-This installs ``openstef-models`` by default, which provides the core forecasting functionality.
+This installs ``openstef`` meta-package by default, which provides the core functionality
+including `openstef-core` and `openstef-models`.
 
 Installation Options
 ====================
@@ -112,6 +115,9 @@ Install only the packages you need:
 
         .. code-block:: bash
 
+            # Core utilities and datasets only
+            pip install openstef-core
+
             # Core forecasting models only
             pip install openstef-models
             
@@ -124,6 +130,9 @@ Install only the packages you need:
     .. tab-item:: uv
 
         .. code-block:: bash
+
+            # Core utilities and datasets only
+            uv add openstef-core
 
             # Core forecasting models only
             uv add openstef-models
@@ -305,7 +314,7 @@ If you encounter issues:
 1. Check the `GitHub Issues <https://github.com/OpenSTEF/openstef/issues>`_
 2. Review the :doc:`../contribute/index` guide
 3. Visit our :ref:`support` page for community resources
-4. Contact us at short.term.energy.forecasts@alliander.com
+4. Contact us at openstef@lfenergy.org
 
 Platform-Specific Notes
 ========================

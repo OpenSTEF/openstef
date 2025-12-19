@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -9,7 +9,7 @@ emphasizing high-value periods for improved model performance on peak loads.
 """
 
 import logging
-from typing import Any, Self, cast, override
+from typing import override
 
 import numpy as np
 from pydantic import Field, PrivateAttr
@@ -17,7 +17,6 @@ from pydantic import Field, PrivateAttr
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets.timeseries_dataset import TimeSeriesDataset
 from openstef_core.exceptions import NotFittedError
-from openstef_core.mixins import State
 from openstef_core.transforms.dataset_transforms import TimeSeriesTransform
 from openstef_models.transforms.general.scaler import StandardScaler
 
@@ -54,11 +53,11 @@ class SampleWeighter(BaseConfig, TimeSeriesTransform):
         >>> result.data[["load", "sample_weight"]]
                               load  sample_weight
         timestamp
-        2025-01-01 00:00:00   10.0       0.950413
-        2025-01-01 01:00:00   50.0       0.537190
-        2025-01-01 02:00:00  100.0       0.100000
+        2025-01-01 00:00:00   10.0       0.100000
+        2025-01-01 01:00:00   50.0       0.263158
+        2025-01-01 02:00:00  100.0       0.526316
         2025-01-01 03:00:00  200.0       1.000000
-        2025-01-01 04:00:00  150.0       0.495868
+        2025-01-01 04:00:00  150.0       0.789474
     """
 
     weight_scale_percentile: int = Field(
@@ -82,6 +81,10 @@ class SampleWeighter(BaseConfig, TimeSeriesTransform):
     sample_weight_column: str = Field(
         default="sample_weight",
         description="Name of the column where computed weights will be stored.",
+    )
+    normalize_target: bool = Field(
+        default=False,
+        description="Whether to normalize target values using StandardScaler before weighting.",
     )
 
     _scaler: StandardScaler = PrivateAttr(default_factory=StandardScaler)
@@ -126,32 +129,17 @@ class SampleWeighter(BaseConfig, TimeSeriesTransform):
 
         # Normalize target values using the fitted scaler
         target = np.asarray(target_series.values, dtype=np.float64)
-        target_scaled = self._scaler.transform(target.reshape(-1, 1)).flatten()
+        if self.normalize_target:
+            target = self._scaler.transform(target.reshape(-1, 1)).flatten()
 
         df.loc[mask, self.sample_weight_column] = exponential_sample_weight(
-            x=target_scaled,
+            x=target,
             scale_percentile=self.weight_scale_percentile,
             exponent=self.weight_exponent,
             floor=self.weight_floor,
         )
 
         return data.copy_with(df)
-
-    @override
-    def to_state(self) -> State:
-        return {
-            "config": self.model_dump(mode="json"),
-            "is_fitted": self._is_fitted,
-            "scaler": self._scaler,
-        }
-
-    @override
-    def from_state(self, state: object) -> Self:
-        state = cast(dict[str, Any], state)
-        instance = self.model_validate(state["config"])
-        instance._is_fitted = state["is_fitted"]  # noqa: SLF001
-        instance._scaler = state["scaler"]  # noqa: SLF001
-        return self
 
     @override
     def features_added(self) -> list[str]:

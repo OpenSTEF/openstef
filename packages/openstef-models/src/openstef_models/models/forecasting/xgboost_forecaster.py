@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -9,10 +9,7 @@ forecasting. Optimized for time series data with specialized loss functions and
 comprehensive hyperparameter control for production forecasting workflows.
 """
 
-import base64
-import json
-from functools import partial
-from typing import Any, Literal, Self, cast, override
+from typing import Literal, override
 
 import numpy as np
 import pandas as pd
@@ -20,11 +17,16 @@ from pydantic import Field
 from sklearn.preprocessing import StandardScaler
 
 from openstef_core.datasets import ForecastDataset, ForecastInputDataset
-from openstef_core.exceptions import MissingExtraError, ModelLoadingError, NotFittedError
-from openstef_core.mixins import HyperParams, State
+from openstef_core.exceptions import MissingExtraError, NotFittedError
+from openstef_core.mixins import HyperParams
 from openstef_models.explainability.mixins import ExplainableForecaster
 from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
-from openstef_models.utils.loss_functions import OBJECTIVE_MAP, ObjectiveFunctionType, xgb_prepare_target_for_objective
+from openstef_models.utils.evaluation_functions import EvaluationFunctionType, get_evaluation_function
+from openstef_models.utils.loss_functions import (
+    ObjectiveFunctionType,
+    get_objective_function,
+    xgb_prepare_target_for_objective,
+)
 
 try:
     import xgboost as xgb
@@ -36,7 +38,7 @@ class XGBoostHyperParams(HyperParams):
     """XGBoost hyperparameters for gradient boosting tree models.
 
     Configures tree-specific parameters for XGBoost gbtree booster. Provides
-    comprehensive control over model complexity, regularization, and training
+    control over model complexity, regularization, and training
     behavior for energy forecasting tasks.
 
     These parameters control tree structure, learning rates, regularization,
@@ -63,7 +65,7 @@ class XGBoostHyperParams(HyperParams):
 
     # Core Tree Boosting Parameters
     n_estimators: int = Field(
-        default=500,
+        default=100,
         description="Number of boosting rounds/trees to fit. Higher values may improve performance but "
         "increase training time and risk overfitting.",
     )
@@ -92,6 +94,11 @@ class XGBoostHyperParams(HyperParams):
     objective: ObjectiveFunctionType = Field(
         default="pinball_loss",
         description="Objective function for training. 'pinball_loss' is recommended for probabilistic forecasting.",
+    )
+    evaluation_metric: EvaluationFunctionType = Field(
+        default="mean_pinball_loss",
+        description="Metric used for evaluation during training. Defaults to 'mean_pinball_loss' "
+        "for quantile regression.",
     )
 
     # Regularization
@@ -151,10 +158,10 @@ class XGBoostHyperParams(HyperParams):
 
     # General Parameters
     random_state: int | None = Field(
-        default=None, alias="seed", description="Random seed for reproducibility. Controls tree structure randomness."
+        default=42, description="Random seed for reproducibility. Controls tree structure randomness."
     )
     early_stopping_rounds: int | None = Field(
-        default=10,
+        default=None,
         description="Training will stop if performance doesn't improve for this many rounds. Requires validation data.",
     )
     use_target_scaling: bool = Field(
@@ -194,7 +201,7 @@ class XGBoostForecasterConfig(ForecasterConfig):
     n_jobs: int = Field(
         default=1, description="Number of parallel threads for tree construction. -1 uses all available cores."
     )
-    verbosity: Literal[0, 1, 2, 3] = Field(
+    verbosity: Literal[0, 1, 2, 3, True] = Field(
         default=1, description="Verbosity level. 0=silent, 1=warning, 2=info, 3=debug"
     )
 
@@ -207,7 +214,7 @@ class XGBoostForecaster(Forecaster, ExplainableForecaster):
 
     Implements gradient boosting trees using XGBoost for multi-quantile forecasting.
     Optimized for time series prediction with specialized loss functions and
-    comprehensive hyperparameter control suitable for production energy forecasting.
+    hyperparameter control suitable for production energy forecasting.
 
     The forecaster uses a multi-output strategy where each quantile is predicted
     by separate trees within the same boosting ensemble. This approach provides
@@ -264,8 +271,6 @@ class XGBoostForecaster(Forecaster, ExplainableForecaster):
         """
         self._config = config
 
-        objective = partial(OBJECTIVE_MAP[self._config.hyperparams.objective], quantiles=self._config.quantiles)
-
         self._xgboost_model = xgb.XGBRegressor(
             # Multi-output configuration
             multi_strategy="one_output_per_tree",
@@ -299,7 +304,13 @@ class XGBoostForecaster(Forecaster, ExplainableForecaster):
             # Early stopping handled in fit method
             early_stopping_rounds=self._config.hyperparams.early_stopping_rounds,
             # Objective
-            objective=objective,
+            objective=get_objective_function(
+                function_type=self._config.hyperparams.objective, quantiles=self._config.quantiles
+            ),
+            eval_metric=get_evaluation_function(
+                function_type=self._config.hyperparams.evaluation_metric, quantiles=self._config.quantiles
+            ),
+            disable_default_eval_metric=True,
         )
         self._target_scaler = StandardScaler() if self._config.hyperparams.use_target_scaling else None
 
@@ -312,42 +323,6 @@ class XGBoostForecaster(Forecaster, ExplainableForecaster):
     @override
     def hyperparams(self) -> XGBoostHyperParams:
         return self._config.hyperparams
-
-    @override
-    def to_state(self) -> State:
-        model_raw = self._xgboost_model.get_booster().save_raw()
-
-        return {
-            "config": self._config,
-            "version": MODEL_CODE_VERSION,
-            "model": base64.b64encode(model_raw).decode("utf-8"),
-            "scaler": self._target_scaler,
-        }
-
-    @override
-    def from_state(self, state: State) -> Self:
-        if not isinstance(state, dict) or "version" not in state:
-            raise ModelLoadingError("Invalid state format")
-
-        state = cast(dict[str, Any], state)
-        if state["version"] > MODEL_CODE_VERSION:
-            msg = f"Unsupported model version: {state['version']}"
-            raise ModelLoadingError(msg)
-
-        instance = self.__class__(config=state["config"])
-        model_raw = bytearray(base64.b64decode(state["model"]))
-        instance._xgboost_model.load_model(model_raw)  # pyright: ignore[reportUnknownMemberType]  # noqa: SLF001
-
-        booster = instance._xgboost_model.get_booster()  # noqa: SLF001
-        booster_config = json.loads(booster.save_config())
-        loaded_booster_type = booster_config.get("learner", {}).get("gradient_booster", {}).get("name", "")
-        if loaded_booster_type != "gbtree":
-            msg = f"Invalid booster type in state: expected 'gbtree', got '{loaded_booster_type}'"
-            raise ModelLoadingError(msg)
-
-        instance._target_scaler = state["scaler"]  # noqa: SLF001
-
-        return instance
 
     @property
     @override
@@ -410,10 +385,10 @@ class XGBoostForecaster(Forecaster, ExplainableForecaster):
         input_data: pd.DataFrame = data.input_data(start=data.forecast_start)
 
         # Generate predictions
-        predictions_array: np.ndarray = self._xgboost_model.predict(input_data)
+        predictions_array: np.ndarray = self._xgboost_model.predict(input_data).reshape(-1, len(self.config.quantiles))
 
         # Inverse transform the scaled predictions
-        if self._target_scaler is not None:
+        if self._target_scaler is not None and len(predictions_array) > 0:
             predictions_array = self._target_scaler.inverse_transform(predictions_array)
 
         # Construct DataFrame with appropriate quantile columns

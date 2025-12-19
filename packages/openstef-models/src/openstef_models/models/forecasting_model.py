@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -12,7 +12,7 @@ data transformation and validation.
 import logging
 from datetime import datetime, timedelta
 from functools import partial
-from typing import Any, Self, cast, override
+from typing import cast, override
 
 import pandas as pd
 from pydantic import Field, PrivateAttr
@@ -27,7 +27,7 @@ from openstef_core.datasets import (
 )
 from openstef_core.datasets.timeseries_dataset import validate_horizons_present
 from openstef_core.exceptions import NotFittedError
-from openstef_core.mixins import Predictor, State, TransformPipeline
+from openstef_core.mixins import Predictor, TransformPipeline
 from openstef_models.models.forecasting import Forecaster
 from openstef_models.models.forecasting.forecaster import ForecasterConfig
 from openstef_models.utils.data_split import DataSplitter
@@ -129,8 +129,8 @@ class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset])
     )
     cutoff_history: timedelta = Field(
         default=timedelta(days=0),
-        description="Amount of historical data to exclude from training due to incomplete features from lag-based "
-        "preprocessing. When using lag transforms (e.g., lag-14), the first N days contain NaN values. "
+        description="Amount of historical data to exclude from training and prediction due to incomplete features "
+        "from lag-based preprocessing. When using lag transforms (e.g., lag-14), the first N days contain NaN values. "
         "Set this to match your maximum lag duration (e.g., timedelta(days=14)). "
         "Default of 0 assumes no invalid rows are created by preprocessing.",
     )
@@ -358,25 +358,6 @@ class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset])
             )
 
         return global_metric
-
-    @override
-    def to_state(self) -> State:
-        return {
-            "target_column": self.target_column,
-            "preprocessing": self.preprocessing.to_state(),
-            "forecaster": self.forecaster.to_state(),
-            "postprocessing": self.postprocessing.to_state(),
-        }
-
-    @override
-    def from_state(self, state: State) -> Self:
-        state = cast(dict[str, Any], state)
-        return self.__class__(
-            target_column=state["target_column"],
-            preprocessing=self.preprocessing.from_state(state["preprocessing"]),
-            forecaster=self.forecaster.from_state(state["forecaster"]),
-            postprocessing=self.postprocessing.from_state(state["postprocessing"]),
-        )
 
 
 def restore_target[T: TimeSeriesDataset](

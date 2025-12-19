@@ -1,4 +1,4 @@
-.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 ..
 .. SPDX-License-Identifier: MPL-2.0
 
@@ -108,9 +108,9 @@ Control logging for specific modules:
 .. code-block:: python
 
     import logging
-    
-    # Only show errors from the training module
-    logging.getLogger('openstef_models.pipelines.training').setLevel(logging.ERROR)
+
+    # Only show errors from the presets module
+    logging.getLogger('openstef_models.presets').setLevel(logging.ERROR)
     
     # Debug feature engineering specifically
     logging.getLogger('openstef_models.transforms').setLevel(logging.DEBUG)

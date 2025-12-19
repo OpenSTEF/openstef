@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -66,7 +66,7 @@ class BenchmarkComparisonPipeline[T: BenchmarkTarget, F]:
         ...     TimeSeriesVisualization
         ... )
         >>>
-        >>> # Configure comprehensive analysis
+        >>> # Configure analysis
         >>> analysis_config = AnalysisConfig(
         ...     visualization_providers=[
         ...         GroupedTargetMetricVisualization(name="model_comparison", metric="rCRPS"),
@@ -89,7 +89,7 @@ class BenchmarkComparisonPipeline[T: BenchmarkTarget, F]:
         ...     "experimental_v3": LocalBenchmarkStorage("results/experimental")
         ... }
         >>>
-        >>> # Generate comprehensive comparison analysis
+        >>> # Generate comparison analysis
         >>> # comparison.run(
         >>> #    run_data=run_data,
         >>> # )

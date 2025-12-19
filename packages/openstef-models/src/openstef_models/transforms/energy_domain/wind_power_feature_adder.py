@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -9,7 +9,7 @@ based on wind speed data from measurements, forecasts, or model outputs.
 """
 
 import logging
-from typing import Self, override
+from typing import override
 
 import numpy as np
 import pandas as pd
@@ -17,7 +17,6 @@ from pydantic import Field, PrivateAttr
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.mixins.stateful import State
 from openstef_core.transforms import TimeSeriesTransform
 
 
@@ -130,14 +129,6 @@ class WindPowerFeatureAdder(BaseConfig, TimeSeriesTransform):
         df[self.feature_name] = self._calculate_wind_power(df[self.windspeed_hub_height_column])
 
         return data.copy_with(data=df, is_sorted=True)
-
-    @override
-    def to_state(self) -> State:
-        return self.model_dump(mode="json")
-
-    @override
-    def from_state(self, state: State) -> Self:
-        return self.model_validate(state)
 
     @override
     def features_added(self) -> list[str]:

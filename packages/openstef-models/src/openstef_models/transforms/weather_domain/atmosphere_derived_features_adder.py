@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -9,7 +9,7 @@ based on temperature, pressure, and relative humidity columns using established 
 """
 
 import logging
-from typing import Any, Literal, Self, override
+from typing import Any, Literal, override
 
 import numpy as np
 import pandas as pd
@@ -17,7 +17,6 @@ from pydantic import Field, PrivateAttr
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.mixins import State
 from openstef_core.transforms import TimeSeriesTransform
 
 type AirRelatedFeatureName = Literal["saturation_vapour_pressure", "vapour_pressure", "dewpoint", "air_density"]
@@ -200,14 +199,6 @@ class AtmosphereDerivedFeaturesAdder(BaseConfig, TimeSeriesTransform):
             )
 
         return data.copy_with(new_df, is_sorted=True)
-
-    @override
-    def to_state(self) -> State:
-        return self.model_dump(mode="json")
-
-    @override
-    def from_state(self, state: State) -> Self:
-        return self.model_validate(state)
 
     @override
     def features_added(self) -> list[str]:

@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -12,7 +12,7 @@ and autocorrelation-based lags for adaptive feature engineering.
 import logging
 import math
 from datetime import timedelta
-from typing import Any, Self, cast, override
+from typing import Any, cast, override
 
 import numpy as np
 import pandas as pd
@@ -20,7 +20,6 @@ from pydantic import Field, PrivateAttr
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset, validate_horizons_present
-from openstef_core.mixins import State
 from openstef_core.transforms import TimeSeriesTransform
 from openstef_core.types import LeadTime
 from openstef_core.utils import timedelta_to_isoformat
@@ -174,27 +173,6 @@ class LagsAdder(BaseConfig, TimeSeriesTransform):
                     df.loc[horizon_mask, feature_name] = df.loc[horizon_mask, self.target_column].shift(freq=lag)
 
         return data.copy_with(data=df, is_sorted=True)
-
-    @override
-    def to_state(self) -> State:
-        return cast(
-            State,
-            {
-                "config": self.model_dump(mode="json"),
-                "lags": self._lags,
-                "horizon_lags": self._horizon_lags,
-                "is_fitted": self._is_fitted,
-            },
-        )
-
-    @override
-    def from_state(self, state: State) -> Self:
-        state = cast(dict[str, Any], state)
-        instance = self.model_validate(state["config"])
-        instance._lags = state["lags"]  # noqa: SLF001
-        instance._horizon_lags = state["horizon_lags"]  # noqa: SLF001
-        instance._is_fitted = state["is_fitted"]  # noqa: SLF001
-        return instance
 
     def _lag_feature(self, lag: timedelta) -> str:
         return f"{self.target_column}_lag_{timedelta_to_isoformat(lag)}"

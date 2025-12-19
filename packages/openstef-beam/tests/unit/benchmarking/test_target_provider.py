@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -11,7 +11,10 @@ import pytest
 from pydantic import ValidationError
 
 from openstef_beam.benchmarking.models import BenchmarkTarget
-from openstef_beam.benchmarking.target_provider import SimpleTargetProvider
+from openstef_beam.benchmarking.target_provider import (
+    SimpleTargetProvider,
+    filter_away_flatline_chunks,
+)
 from openstef_core.datasets import VersionedTimeSeriesDataset
 
 
@@ -110,3 +113,46 @@ def test_get_predictors_for_target(tmp_path: Path, test_target: BenchmarkTarget)
     assert isinstance(result, VersionedTimeSeriesDataset)
     assert {"temp", "prof", "price"} <= set(result.feature_names)
     assert len(result.index) == 3
+
+
+@pytest.mark.parametrize(
+    (
+        "values",
+        "min_length",
+        "threshold",
+        "expected",
+    ),
+    [
+        pytest.param(
+            [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 6.0, 6.0, 6.0, 7.0, 8.0],
+            3,
+            0.1,
+            [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, float("nan"), float("nan"), float("nan"), 7.0, 8.0],
+            id="flatline-chunk-masked",
+        ),
+        pytest.param(
+            [1.0, 2.0, 3.0, 4.0],
+            2,
+            0.1,
+            [1.0, 2.0, 3.0, 4.0],
+            id="no-flatline",
+        ),
+    ],
+)
+def test_filter_away_flatline_chunks_expected_series(
+    values: list[float],
+    min_length: int,
+    threshold: float,
+    expected: list[float],
+) -> None:
+    """Compare the filtered output with the expected flatline suppression result."""
+    # Arrange
+    index = pd.date_range("2023-01-01", periods=len(values), freq="h")
+    series = pd.Series(values, index=index)
+
+    # Act
+    filtered = filter_away_flatline_chunks(series, min_length=min_length, threshold=threshold)
+
+    # Assert: the filtered series matches the expected output
+    expected_series = pd.Series(expected, index=index)
+    pd.testing.assert_series_equal(filtered, expected_series)

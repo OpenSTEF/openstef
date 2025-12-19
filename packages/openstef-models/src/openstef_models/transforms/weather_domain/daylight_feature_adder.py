@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -9,7 +9,7 @@ based on geographical location and datetime indices
 of time series datasets.
 """
 
-from typing import Self, override
+from typing import override
 
 import pandas as pd
 from pydantic import Field
@@ -18,7 +18,6 @@ from pydantic_extra_types.coordinate import Coordinate
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.exceptions import MissingExtraError
-from openstef_core.mixins import State
 from openstef_core.transforms import TimeSeriesTransform
 
 
@@ -69,14 +68,6 @@ class DaylightFeatureAdder(BaseConfig, TimeSeriesTransform):
             ),
             sample_interval=data.sample_interval,
         )
-
-    @override
-    def to_state(self) -> State:
-        return self.model_dump(mode="json")
-
-    @override
-    def from_state(self, state: State) -> Self:
-        return self.model_validate(state)
 
     @override
     def features_added(self) -> list[str]:

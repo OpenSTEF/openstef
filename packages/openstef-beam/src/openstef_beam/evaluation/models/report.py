@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -101,7 +101,7 @@ class EvaluationReport(BaseModel):
     """Complete evaluation report containing results for all data subsets.
 
     Aggregates evaluation results across different filtering criteria,
-    enabling comprehensive analysis of model performance across various
+    enabling analysis of model performance across various
     conditions (lead times, data availability, etc.).
     """
 

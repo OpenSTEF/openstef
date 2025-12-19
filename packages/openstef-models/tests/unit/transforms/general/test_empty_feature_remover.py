@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -146,23 +146,3 @@ def test_nonexistent_columns_are_ignored():
 
     # Assert
     assert list(result.data.columns) == ["radiation"]
-
-
-def test_remove_empty_columns_transform__state_roundtrip(sample_dataset_with_empty_columns: TimeSeriesDataset):
-    """Test remove empty columns transform state serialization and restoration."""
-    # Arrange
-    original_transform = EmptyFeatureRemover(
-        selection=FeatureSelection(include={"empty_col1", "radiation", "temperature"})
-    )
-    original_transform.fit(sample_dataset_with_empty_columns)
-
-    # Act
-    state = original_transform.to_state()
-    restored_transform = EmptyFeatureRemover()
-    restored_transform = restored_transform.from_state(state)
-
-    original_result = original_transform.transform(sample_dataset_with_empty_columns)
-    restored_result = restored_transform.transform(sample_dataset_with_empty_columns)
-
-    # Assert
-    pd.testing.assert_frame_equal(original_result.data, restored_result.data)

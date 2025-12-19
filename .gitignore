@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2025 Contributors to the OpenSTEF project <openstef@lfenergy.org> # noqa E501>
 # SPDX-License-Identifier: MPL-2.0
 
 # Core
@@ -124,4 +124,4 @@ certificates/
 *.pkl
 
 # Benchmark outputs
-benchmark_results/
+benchmark_results*/

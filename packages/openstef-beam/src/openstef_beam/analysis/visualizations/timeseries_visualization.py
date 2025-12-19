@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -102,7 +102,10 @@ class TimeSeriesVisualization(VisualizationProvider):
         report: EvaluationSubsetReport,
         metadata: TargetMetadata,
     ) -> VisualizationOutput:
-        plotter = ForecastTimeSeriesPlotter(connect_gaps=self.connect_gaps)
+        plotter = ForecastTimeSeriesPlotter(
+            connect_gaps=self.connect_gaps,
+            sample_interval=report.subset.sample_interval,
+        )
 
         # Add measurements as the baseline
         plotter.add_measurements(report.get_measurements())

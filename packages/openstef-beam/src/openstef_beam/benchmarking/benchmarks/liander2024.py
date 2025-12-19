@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -50,7 +50,10 @@ class Liander2024TargetProvider(SimpleTargetProvider[BenchmarkTarget, list[Liand
         default=datetime.fromisoformat("2024-02-01T00:00:00Z"),
         init=False,
         frozen=True,
-        description="Earliest timestamp to consider for training and benchmarking",
+        description=(
+            "Earliest timestamp to consider for training and benchmarking. "
+            "Defaults to 2024-02-01, because weather data before this date is incomplete."
+        ),
     )
 
     @override

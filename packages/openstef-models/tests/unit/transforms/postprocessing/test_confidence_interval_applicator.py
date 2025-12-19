@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -89,6 +89,47 @@ def test_single_horizon_workflow(
     assert not result.data["quantile_P10"].isna().any()
     assert not result.data["quantile_P50"].isna().any()
     assert not result.data["quantile_P90"].isna().any()
+    assert not result.data["stdev"].isna().any()
+
+
+def test_no_add_quantiles_from_std(
+    validation_predictions: ForecastDataset,
+    predictions: ForecastDataset,
+):
+    """Test complete single-horizon workflow with quantile generation."""
+    # Arrange
+    quantiles = [Quantile(0.1), Quantile(0.5), Quantile(0.9)]
+    applicator = ConfidenceIntervalApplicator(quantiles=quantiles, add_quantiles_from_std=False)
+
+    # Act
+    applicator.fit(validation_predictions)
+    result = applicator.transform(predictions)
+
+    # Assert
+    assert "quantile_P10" not in result.data.columns
+    assert "quantile_P90" not in result.data.columns
+    assert "quantile_P50" in result.data.columns
+    assert "stdev" in result.data.columns
+    assert not result.data["quantile_P50"].isna().any()
+    assert not result.data["stdev"].isna().any()
+
+
+@pytest.mark.parametrize("add_quantiles_from_std", [True, False])
+def test_quantiles_none(
+    add_quantiles_from_std: bool,
+    validation_predictions: ForecastDataset,
+    predictions: ForecastDataset,
+):
+    """Test complete single-horizon workflow with quantile generation."""
+    # Arrange
+    applicator = ConfidenceIntervalApplicator(quantiles=None, add_quantiles_from_std=add_quantiles_from_std)
+
+    # Act
+    applicator.fit(validation_predictions)
+    result = applicator.transform(predictions)
+
+    # Assert
+    pd.testing.assert_frame_equal(result.data, predictions.data)
 
 
 def test_multi_horizon_workflow(
@@ -113,6 +154,7 @@ def test_multi_horizon_workflow(
     assert "quantile_P10" in result.data.columns
     assert "quantile_P50" in result.data.columns
     assert "quantile_P90" in result.data.columns
+    assert "stdev" in result.data.columns
 
     # Quantiles should follow normal distribution properties
     assert (result.data["quantile_P10"] <= result.data["quantile_P50"]).all()
@@ -159,20 +201,3 @@ def test_transform__raises_error_when_not_fitted(
     # Act & Assert
     with pytest.raises(NotFittedError, match="ConfidenceIntervalApplicator"):
         applicator.transform(predictions)
-
-
-def test_state_roundtrip(
-    validation_predictions: ForecastDataset,
-):
-    """Test state serialization and restoration."""
-    # Arrange
-    original_transform = ConfidenceIntervalApplicator(quantiles=[Quantile(0.1), Quantile(0.9)])
-    original_transform.fit(validation_predictions)
-
-    # Act
-    state = original_transform.to_state()
-    restored_transform = ConfidenceIntervalApplicator(quantiles=[Quantile(0.1), Quantile(0.9)])
-    restored_transform = restored_transform.from_state(state)
-
-    # Assert
-    pd.testing.assert_frame_equal(original_transform.standard_deviation, restored_transform.standard_deviation)

@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -11,13 +11,14 @@ Stateful interface.
 """
 
 from abc import abstractmethod
-from collections.abc import Sequence
-from typing import Self, cast, override
+from collections.abc import Callable, Sequence
+from functools import partial
+from typing import Any, override
 
 from pydantic import Field
 
 from openstef_core.base_model import BaseModel
-from openstef_core.mixins.stateful import State, Stateful
+from openstef_core.mixins.stateful import Stateful
 
 
 class Transform[I, O](Stateful):
@@ -52,15 +53,6 @@ class Transform[I, O](Stateful):
         ...     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
         ...         scaled_data = data.data / self.scale_factor
         ...         return TimeSeriesDataset(scaled_data, data.sample_interval)
-        ...
-        ...     def to_state(self):
-        ...         return {"scale_factor": self.scale_factor}
-        ...
-        ...     @classmethod
-        ...     def from_state(cls, state):
-        ...         instance = cls()
-        ...         instance.scale_factor = state["scale_factor"]
-        ...         return instance
     """
 
     @property
@@ -138,18 +130,23 @@ class TransformPipeline[T](BaseModel, Transform[T, T]):
         description="Sequence of transforms to apply in sequence. If empty, the pipeline is a nop.",
     )
 
-    @override
-    def to_state(self) -> State:
-        return [transform.to_state() for transform in self.transforms]
+    def __reduce__(self) -> tuple[Callable[[], "TransformPipeline[Any]"], tuple[()], Any]:
+        """Support pickling of generic TransformPipeline instances.
 
-    @override
-    def from_state(self, state: State) -> Self:
-        state = cast(Sequence[State], state)
+        When TransformPipeline is parameterized (e.g., TransformPipeline[TimeSeriesDataset]),
+        Python creates a dynamic type that pickle cannot find by its module path.
+        This method provides custom pickling support by reducing to the base class
+        and reconstructing through __setstate__.
 
-        return self.__class__(
-            transforms=[
-                transform.from_state(state=state) for transform, state in zip(self.transforms, state, strict=True)
-            ]
+        Returns:
+            Tuple of (callable, args, state) for pickle reconstruction.
+        """
+        # Use partial to create a callable that reconstructs the instance
+        # without needing a dedicated helper function
+        return (
+            partial(TransformPipeline.__new__, TransformPipeline),
+            (),
+            self.__getstate__(),
         )
 
     @property

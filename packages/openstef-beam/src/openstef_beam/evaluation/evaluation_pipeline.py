@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -236,6 +236,10 @@ class EvaluationPipeline:
             predictions_filtered = predictions.filter_by_lead_time(lead_time=lead_time).select_version()
             if evaluation_mask is not None:
                 predictions_filtered = predictions_filtered.filter_index(evaluation_mask)
+
+            # Remove target column from predictions to avoid duplication
+            if target_column in predictions_filtered.data.columns:
+                predictions_filtered = predictions_filtered.pipe_pandas(lambda df: df.drop(columns=[target_column]))
 
             yield (
                 lead_time,

@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -52,16 +52,6 @@ class Predictor[I, O](Stateful):
         ...
         ...     def predict(self, data: list[float]) -> float:
         ...         return self.slope * sum(data) + self.intercept
-        ...
-        ...     def to_state(self):
-        ...         return {"slope": self.slope, "intercept": self.intercept}
-        ...
-        ...     @classmethod
-        ...     def from_state(cls, state):
-        ...         instance = cls()
-        ...         instance.slope = state["slope"]
-        ...         instance.intercept = state["intercept"]
-        ...         return instance
     """
 
     @property
@@ -163,16 +153,6 @@ class BatchPredictor[I, O](Predictor[I, O]):
         ...             except PredictError as e:
         ...                 result.append(e)
         ...         return result
-        ...
-        ...     def to_state(self):
-        ...         return {"slope": self.slope, "intercept": self.intercept}
-        ...
-        ...     @classmethod
-        ...     def from_state(cls, state):
-        ...         instance = cls()
-        ...         instance.slope = state["slope"]
-        ...         instance.intercept = state["intercept"]
-        ...         return instance
     """
 
     def predict_batch(self, data: list[I]) -> BatchResult[O]:

@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -32,9 +32,23 @@ def test_is_fitted_always_true(config: FlatlinerForecasterConfig):
     assert forecaster.is_fitted
 
 
-def test_to_state_and_from_state(config: FlatlinerForecasterConfig):
+def test_predict_returns_median_when_predict_median_is_true(sample_forecast_input_dataset: ForecastInputDataset):
+    """Test that the forecaster predicts the median of load measurements when predict_median is True."""
+    # Arrange
+    config = FlatlinerForecasterConfig(
+        quantiles=[Quantile(0.5), Quantile(0.9)],
+        horizons=[LeadTime(timedelta(hours=1))],
+        predict_median=True,
+    )
     forecaster = FlatlinerForecaster(config)
-    state = forecaster.to_state()
-    new_forecaster = forecaster.from_state(state)
-    assert isinstance(new_forecaster, FlatlinerForecaster)
-    assert isinstance(new_forecaster.config, FlatlinerForecasterConfig)
+
+    # Act
+    forecaster.fit(sample_forecast_input_dataset)
+    result = forecaster.predict(sample_forecast_input_dataset)
+
+    # Assert
+    expected_median = sample_forecast_input_dataset.target_series.median()
+    assert forecaster.is_fitted
+    assert isinstance(result.data, pd.DataFrame)
+    assert (result.data == expected_median).all().all()
+    assert set(result.data.columns) == {q.format() for q in config.quantiles}

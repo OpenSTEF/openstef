@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -41,9 +41,7 @@ class RestrictedHorizonVersionedTimeSeries:
         Returns:
             DataFrame with data from the specified window.
         """
-        dataset = self.dataset.filter_by_range(start=start, end=end)
-        if available_before is not None:
-            dataset = dataset.filter_by_available_before(available_before=available_before)
+        dataset = self.get_window_versioned(start=start, end=end, available_before=available_before)
 
         return dataset.select_version()
 
@@ -54,12 +52,19 @@ class RestrictedHorizonVersionedTimeSeries:
 
         Returns:
             DataFrame with data from the specified window.
-        """
-        dataset = self.dataset.filter_by_range(start=start, end=end)
-        if available_before is not None:
-            dataset = dataset.filter_by_available_before(available_before=available_before)
 
-        return dataset
+        Raises:
+            ValueError: If available_before is after the horizon.
+        """
+        if available_before is None:
+            available_before = self.horizon
+
+        if available_before > self.horizon:
+            raise ValueError("available_before cannot be after the horizon")
+
+        dataset = self.dataset.filter_by_range(start=start, end=end)
+        # Make sure to only include data available before the cutoff
+        return dataset.filter_by_available_before(available_before=available_before)
 
 
 __all__ = [

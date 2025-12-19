@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -99,7 +99,7 @@ class BacktestEventGenerator(BaseModel):
         current_time = align_datetime_to_time(self.start, self.align_time, mode="ceil")
 
         while current_time <= end_time:
-            horizon_end = current_time + self.forecaster_config.horizon_min_length
+            horizon_end = current_time + self.forecaster_config.predict_min_length
             if horizon_end > end_time:
                 break
 
@@ -124,12 +124,19 @@ class BacktestEventGenerator(BaseModel):
         current_time = align_datetime_to_time(self.start, self.align_time, mode="ceil")
 
         while current_time <= end_time:
-            horizon_end = current_time + self.forecaster_config.horizon_min_length
+            horizon_end = current_time + self.forecaster_config.predict_min_length
             if horizon_end > end_time:
                 break
 
-            training_start = current_time - self.forecaster_config.training_context_length
+            training_start = max(
+                current_time - self.forecaster_config.training_context_length,
+                self.index.min().to_pydatetime(),  # type: ignore[reportUnknownMemberType]
+            )
             training_end = current_time
+            if training_start == training_end:
+                current_time += self.train_interval
+                continue
+
             training_coverage = self._calculate_coverage(training_start, training_end)
             if training_coverage >= self.forecaster_config.training_context_min_coverage:
                 yield BacktestEvent(type="train", timestamp=current_time)

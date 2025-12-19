@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -10,7 +10,7 @@ forecasting where temporal dependencies matter but data availability varies.
 """
 
 from datetime import timedelta
-from typing import Self, cast, override
+from typing import cast, override
 
 import pandas as pd
 from pydantic import Field
@@ -19,7 +19,6 @@ from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.datasets.versioned_timeseries_dataset import VersionedTimeSeriesDataset
 from openstef_core.exceptions import MissingColumnsError
-from openstef_core.mixins import State
 from openstef_core.transforms import VersionedTimeSeriesTransform
 from openstef_core.utils import timedelta_to_isoformat
 
@@ -119,14 +118,6 @@ class VersionedLagsAdder(BaseConfig, VersionedTimeSeriesTransform):
                 *lag_parts,
             ]
         )
-
-    @override
-    def to_state(self) -> State:
-        return self.model_dump(mode="json")
-
-    @override
-    def from_state(self, state: State) -> Self:
-        return self.model_validate(state)
 
 
 def _transform_to_lag(data: TimeSeriesDataset, feature: str, lag: timedelta) -> TimeSeriesDataset:

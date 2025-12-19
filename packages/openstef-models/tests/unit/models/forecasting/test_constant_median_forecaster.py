@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -90,29 +90,3 @@ def test_constant_median_forecaster__predict_not_fitted_raises_error(
     # Act & Assert
     with pytest.raises(NotFittedError, match="ConstantMedianForecaster"):
         forecaster.predict(input_dataset)
-
-
-def test_constant_median_forecaster__state_serialize_restore(
-    sample_forecaster_config: ConstantMedianForecasterConfig,
-    sample_forecast_input_dataset: ForecastInputDataset,
-):
-    """Test that forecaster state can be serialized and restored with preserved functionality."""
-    # Arrange
-    original_forecaster = ConstantMedianForecaster(config=sample_forecaster_config)
-    original_forecaster.fit(sample_forecast_input_dataset)
-
-    # Act
-    # Serialize state and create new forecaster from state
-    state = original_forecaster.to_state()
-
-    restored_forecaster = ConstantMedianForecaster(config=sample_forecaster_config)
-    restored_forecaster = restored_forecaster.from_state(state)
-
-    # Assert
-    # Check that restored forecaster produces identical predictions
-    assert restored_forecaster.is_fitted
-    original_result = original_forecaster.predict(sample_forecast_input_dataset)
-    restored_result = restored_forecaster.predict(sample_forecast_input_dataset)
-
-    pd.testing.assert_frame_equal(original_result.data, restored_result.data)
-    assert original_result.sample_interval == restored_result.sample_interval

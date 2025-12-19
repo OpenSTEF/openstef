@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -9,7 +9,7 @@ minimum and maximum ranges during training, preventing out-of-range values
 during inference and improving model robustness.
 """
 
-from typing import Any, Literal, Self, cast, override
+from typing import Literal, override
 
 import pandas as pd
 from pydantic import Field, PrivateAttr
@@ -17,7 +17,6 @@ from pydantic import Field, PrivateAttr
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.exceptions import NotFittedError
-from openstef_core.mixins import State
 from openstef_core.transforms import TimeSeriesTransform
 from openstef_models.utils.feature_selection import FeatureSelection
 
@@ -116,36 +115,6 @@ class Clipper(BaseConfig, TimeSeriesTransform):
             transformed_data[features] = data.data[features].clip(lower=lower_bound, upper=upper_bound, axis=1)
 
         return TimeSeriesDataset(data=transformed_data, sample_interval=data.sample_interval)
-
-    @override
-    def to_state(self) -> State:
-        state: dict[str, Any] = {
-            "config": self.model_dump(mode="json"),
-            "is_fitted": self._is_fitted,
-            "mode": self.mode,
-        }
-        if self.mode == "minmax":
-            state["feature_mins"] = self._feature_mins
-            state["feature_maxs"] = self._feature_maxs
-        else:  # mode == "standard"
-            state["feature_means"] = self._feature_means
-            state["feature_stds"] = self._feature_stds
-        return cast(State, state)
-
-    @override
-    def from_state(self, state: State) -> Self:
-        state_dict = cast(dict[str, Any], state)
-        instance = self.model_validate(state_dict["config"])
-
-        if instance.mode == "minmax":
-            instance._feature_mins = state_dict["feature_mins"]  # noqa: SLF001
-            instance._feature_maxs = state_dict["feature_maxs"]  # noqa: SLF001
-        else:  # mode == "standard"
-            instance._feature_means = state_dict["feature_means"]  # noqa: SLF001
-            instance._feature_stds = state_dict["feature_stds"]  # noqa: SLF001
-
-        instance._is_fitted = state_dict["is_fitted"]  # noqa: SLF001
-        return instance
 
     @override
     def features_added(self) -> list[str]:

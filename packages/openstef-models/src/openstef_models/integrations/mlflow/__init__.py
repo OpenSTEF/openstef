@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -6,7 +6,7 @@
 
 Provides integration with MLflow for model lifecycle management, experiment
 tracking, and model registry functionality. This package enables OpenSTEF
-models to be stored, versioned, and tracked using MLflow's comprehensive
+models to be stored, versioned, and tracked using MLflow's
 model registry.
 
 Note:

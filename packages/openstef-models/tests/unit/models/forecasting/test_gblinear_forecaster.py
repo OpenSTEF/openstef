@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -6,10 +6,9 @@ from datetime import timedelta
 
 import pandas as pd
 import pytest
-import xgboost as xgb
 
 from openstef_core.datasets import ForecastInputDataset
-from openstef_core.exceptions import ModelLoadingError, NotFittedError
+from openstef_core.exceptions import NotFittedError
 from openstef_core.types import LeadTime, Q
 from openstef_models.models.forecasting.gblinear_forecaster import (
     GBLinearForecaster,
@@ -33,7 +32,7 @@ def test_gblinear_forecaster__fit_predict(
     sample_forecast_input_dataset: ForecastInputDataset,
     base_config: GBLinearForecasterConfig,
 ):
-    """Test basic fit and predict workflow with comprehensive output validation."""
+    """Test basic fit and predict workflow with output validation."""
     # Arrange
     expected_quantiles = base_config.quantiles
     forecaster = GBLinearForecaster(config=base_config)
@@ -59,63 +58,6 @@ def test_gblinear_forecaster__fit_predict(
     # All quantiles should have some variation (not all identical values)
     stds = result.data.std()
     assert (stds > 0).all(), f"All columns should have variation, got stds: {dict(stds)}"
-
-
-def test_gblinear_forecaster__state_roundtrip(
-    sample_forecast_input_dataset: ForecastInputDataset,
-    base_config: GBLinearForecasterConfig,
-):
-    """Test that forecaster state can be serialized and restored with preserved functionality."""
-    # Arrange
-    config = base_config
-
-    original_forecaster = GBLinearForecaster(config=config)
-    original_forecaster.fit(sample_forecast_input_dataset)
-
-    # Act
-    # Serialize state and create new forecaster from state
-    state = original_forecaster.to_state()
-
-    restored_forecaster = GBLinearForecaster(config=config)
-    restored_forecaster = restored_forecaster.from_state(state)
-
-    # Assert
-    # What matters: restored model produces identical forecasts
-    original_result = original_forecaster.predict(sample_forecast_input_dataset)
-    restored_result = restored_forecaster.predict(sample_forecast_input_dataset)
-
-    pd.testing.assert_frame_equal(original_result.data, restored_result.data)
-
-
-def test_gblinear_forecaster__rejects_other_booster_state(
-    sample_forecast_input_dataset: ForecastInputDataset,
-    base_config: GBLinearForecasterConfig,
-):
-    """Test that GBLinear forecaster rejects states from gbtree booster using XGBoostRegressor directly."""
-    # Arrange: Create and train a gbtree XGBoost model directly
-    input_data = sample_forecast_input_dataset.input_data()
-    target = sample_forecast_input_dataset.target_series
-
-    # Create XGBoost regressor with gbtree booster (default)
-    xgb_model = xgb.XGBRegressor(
-        booster="gbtree",
-        n_estimators=1,
-        verbosity=0,
-    )
-    xgb_model.fit(input_data, target)
-
-    # replace GBLinear model with the GBtree model
-    gbtree_forecaster = GBLinearForecaster(config=base_config)
-    gbtree_forecaster._gblinear_model = xgb_model
-
-    fake_state = gbtree_forecaster.to_state()
-
-    # Create GBLinear forecaster
-    gblinear_forecaster = GBLinearForecaster(config=base_config)
-
-    # Act & Assert: Should reject gbtree state
-    with pytest.raises(ModelLoadingError, match=r"Invalid booster type.*expected 'gblinear', got 'gbtree'"):
-        gblinear_forecaster.from_state(fake_state)
 
 
 def test_gblinear_forecaster__predict_not_fitted_raises_error(

@@ -1,86 +1,132 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
-"""State management utilities for serializable objects.
+"""State management for serializable objects.
 
-Provides the foundation for object persistence and serialization across the
-OpenSTEF ecosystem. Enables objects to save their state and restore
-it later, supporting use cases like model deployment, caching, and distributed
-processing scenarios.
+Enables objects to save their state and restore it later. Supports model
+deployment, caching, and distributed processing by providing versioned
+serialization with automatic state migration.
 """
 
-from abc import ABC, abstractmethod
-from typing import Self
+import warnings
+from typing import ClassVar, TypedDict, cast
 
-type State = object
+from openstef_core.types import Any
 
 
-class Stateful(ABC):
-    """Mixin for objects that can save and restore their internal state.
+class VersionedState(TypedDict):
+    """Versioned state structure for object serialization.
 
-    Enables object persistence by providing serialization capabilities. Implementations
-    must handle state management in a way that allows objects to be saved to disk,
-    transmitted over networks, or stored in databases, then restored to their exact
-    previous state.
-
-    State typically includes configuration, trained parameters, and any learned
-    patterns. The state format should be JSON-serializable for maximum compatibility.
-
-    Guarantees:
-        - to_state() followed by from_state() must restore identical behavior
-        - State format should be forward-compatible across minor version updates
-
-    Example:
-        Basic state management implementation:
-
-        >>> class MyPredictor(Stateful):
-        ...     def __init__(self, config):
-        ...         self.config = config
-        ...         self.trained_params = None
-        ...
-        ...     def to_state(self):
-        ...         return {
-        ...             "version": 1,
-        ...             "config": self.config,
-        ...             "trained_params": self.trained_params
-        ...         }
-        ...
-        ...     def from_state(self, state):
-        ...         instance = self.__class__(config=state["config"])
-        ...         instance.trained_params = state["trained_params"]
-        ...         return instance
-
-    See Also:
-        Transform: Data transformation interface using state management.
-        Predictor: Prediction interface using state management.
+    Contains version metadata and the actual object state, enabling
+    backward compatibility through state migration.
     """
 
-    @abstractmethod
-    def to_state(self) -> State:
-        """Serialize the current state of the object.
+    __version__: int
+    __class_name__: str
+    state: dict[str, Any]
 
-        Must capture all information needed to restore the object to its current state,
-        including configuration, trained parameters, and any internal state variables.
+
+class Stateful:
+    """Mixin for objects that can save and restore their internal state.
+
+    Provides versioned serialization with automatic state migration. Objects can be
+    pickled, saved to disk, transmitted over networks, or stored in databases, then
+    restored to their previous state. Version tracking ensures backward compatibility
+    when object structure changes.
+
+    Subclasses can override `_migrate_state` to handle state migrations between versions.
+    Increment `_VERSION` when making incompatible changes to object structure.
+    """
+
+    _VERSION: ClassVar[int] = 1
+
+    def __getstate__(self) -> VersionedState:
+        """Serialize object state with version metadata.
 
         Returns:
-            Serializable representation of the object state.
+            Versioned state dictionary containing version number, class name,
+            and the object's internal state.
         """
+        if hasattr(super(), "__getstate__"):
+            # In case of pydantic or other base classes implementing __getstate__
+            base_state = super().__getstate__()  # type: ignore[misc]
+            # Pydantic returns None for models with no fields
+            if base_state is None:
+                base_state = {}
+        else:
+            base_state = self.__dict__.copy()
 
-    @abstractmethod
-    def from_state(self, state: State) -> Self:
-        """Restore an object from its serialized state.
+        return VersionedState(
+            __version__=self._VERSION,
+            __class_name__=self.__class__.__name__,
+            state=cast(dict[str, Any], base_state),
+        )
 
-        Must reconstruct the object to match the exact state when to_state()
-        was called. Should handle version compatibility for older state formats
-        when possible.
+    def __setstate__(self, state: Any) -> None:
+        """Restore object from serialized state.
+
+        Handles both versioned and legacy state formats. Automatically migrates
+        state from older versions using `_migrate_state`. Warns when loading
+        legacy objects or when current version is older than saved version.
 
         Args:
-            state: Serialized state returned from to_state().
+            state: Serialized state, either VersionedState dict or legacy format.
+        """
+        # Handle legacy objects without versioning
+        if not isinstance(state, dict) or "__version__" not in state:  # pyright: ignore[reportUnnecessaryIsInstance]
+            warnings.warn(
+                f"Loading legacy {self.__class__.__name__} without version metadata.", UserWarning, stacklevel=2
+            )
+            self._restore_state(state)
+            return
+
+        state = cast(VersionedState, state)
+        saved_version: int = state["__version__"]
+        actual_state: dict[str, Any] = state["state"]
+
+        if saved_version < self._VERSION:
+            actual_state = self._migrate_state(state=actual_state, from_version=saved_version, to_version=self._VERSION)
+        elif saved_version > self._VERSION:
+            warnings.warn(
+                f"{self.__class__.__name__} saved with v{saved_version}, "
+                f"current is v{self._VERSION}. Forward compatibility not guaranteed.",
+                UserWarning,
+                stacklevel=2,
+            )
+
+        self._restore_state(actual_state)
+
+    def _restore_state(self, state: Any) -> None:
+        """Restore object's internal state from a dictionary.
+
+        Delegates to parent class `__setstate__` if available, otherwise
+        updates `__dict__` directly.
+
+        Args:
+            state: State dictionary to restore.
+        """
+        # Check if any parent class has __setstate__
+        if hasattr(super(), "__setstate__"):
+            super().__setstate__(state)  # type: ignore[misc]
+        elif state:  # Only update if state is not empty
+            self.__dict__.update(state)
+
+    @classmethod
+    def _migrate_state(cls, state: dict[str, Any], from_version: int, to_version: int) -> dict[str, Any]:
+        """Migrate state from an older version to the current version.
+
+        Override this method in subclasses to handle state transformations when
+        the object structure changes. Called automatically during deserialization
+        when saved_version < current_version.
+
+        Args:
+            state: State dictionary from the older version.
+            from_version: Version of the saved state.
+            to_version: Target version (current `_VERSION`).
 
         Returns:
-            Object instance restored to the exact previous state.
-
-        Raises:
-            ValueError: If state is invalid or incompatible.
+            Migrated state dictionary compatible with current version.
         """
+        _ = from_version, to_version  # Important arguments, but unused in base implementation
+        return state

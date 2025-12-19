@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -20,7 +20,6 @@ import pandas as pd
 from pydantic import Field, field_validator
 
 from openstef_core.datasets import EnergyComponentDataset, TimeSeriesDataset
-from openstef_core.mixins import State
 from openstef_core.types import EnergyComponentType
 from openstef_models.models.component_splitting.component_splitter import ComponentSplitter, ComponentSplitterConfig
 
@@ -71,7 +70,7 @@ class ConstantComponentSplitter(ComponentSplitter):
         ...     }
         ... )
         >>> splitter = ConstantComponentSplitter(config)
-        >>> # components = splitter.predict(time_series_data)
+        >>> components = splitter.predict(time_series_data) # doctest: +SKIP
 
         Using predefined configurations:
 
@@ -121,15 +120,6 @@ class ConstantComponentSplitter(ComponentSplitter):
             data=pd.DataFrame(components, index=data.data.index),
             sample_interval=data.sample_interval,
         )
-
-    @override
-    def to_state(self) -> State:
-        return self.config.model_dump(mode="json")
-
-    @override
-    def from_state(self, state: State) -> Self:
-        config = ConstantComponentSplitterConfig.model_validate(state)
-        return self.__class__(config=config)
 
     @classmethod
     def known_solar_park(cls) -> Self:

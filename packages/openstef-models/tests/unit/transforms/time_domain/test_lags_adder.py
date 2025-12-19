@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -362,41 +362,3 @@ def test_lags_adder__transform_versioned():
         index=index,
     )
     pd.testing.assert_frame_equal(horizon_2d.data[expected_2d.columns], expected_2d, check_freq=False)
-
-
-def test_lags_adder__state_roundtrip():
-    """Test LagsAdder state serialization and restoration, including trained autocorr lags."""
-    # Arrange
-    signal = _create_periodic_signal(num_samples=600)
-    dataset = create_timeseries_dataset(
-        index=pd.DatetimeIndex(signal.index),
-        load=signal,
-        sample_interval=timedelta(minutes=15),
-    )
-
-    original_transform = LagsAdder(
-        history_available=timedelta(hours=48),
-        horizons=[LeadTime(value=timedelta(minutes=15))],
-        add_trivial_lags=False,
-        add_autocorr_lags=True,
-        target_column="load",
-    )
-    original_transform.fit(dataset)
-
-    # Act
-    state = original_transform.to_state()
-    restored_transform = LagsAdder(
-        history_available=timedelta(hours=48),
-        horizons=[LeadTime(value=timedelta(minutes=15))],
-        add_trivial_lags=False,
-        add_autocorr_lags=True,
-    )
-    restored_transform = restored_transform.from_state(state)
-
-    original_result = original_transform.transform(dataset)
-    restored_result = restored_transform.transform(dataset)
-
-    # Assert - verify the fitted autocorr lags are preserved
-    assert original_transform.lags == restored_transform.lags
-    assert len(restored_transform.lags) > 0, "Autocorr lags should be preserved in state"
-    pd.testing.assert_frame_equal(original_result.data, restored_result.data)

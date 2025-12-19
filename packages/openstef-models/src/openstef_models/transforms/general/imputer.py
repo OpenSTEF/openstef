@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -8,21 +8,26 @@ This module provides functionality for handling missing values in time series da
 through various imputation strategies.
 """
 
-from typing import Any, Literal, Self, cast, override
+import logging
+from typing import Any, Literal, cast, override
 
 import numpy as np
 import pandas as pd
 from pydantic import Field, PrivateAttr, model_validator
-from sklearn.impute import SimpleImputer
+
+# This imputer is still experimental for now:
+# default parameters or details of behaviour might change without any deprecation cycle.
+from sklearn.experimental import enable_iterative_imputer  # noqa: F401 # type: ignore
+from sklearn.impute import IterativeImputer, SimpleImputer
+from sklearn.linear_model import BayesianRidge
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.exceptions import NotFittedError
-from openstef_core.mixins import State
 from openstef_core.transforms import TimeSeriesTransform
 from openstef_models.utils.feature_selection import FeatureSelection
 
-type ImputationStrategy = Literal["mean", "median", "most_frequent", "constant"]
+type ImputationStrategy = Literal["mean", "median", "most_frequent", "constant", "iterative"]
 
 
 def _check_for_empty_columns(data: pd.DataFrame, missing_value: float) -> set[str]:
@@ -63,6 +68,12 @@ class Imputer(BaseConfig, TimeSeriesTransform):
     2. Applying imputation to the specified columns
     3. Restoring trailing NaNs to preserve time series integrity
 
+    Imputation Strategies:
+        - Simple strategies (mean, median, most_frequent, constant): Use statistics
+          computed during fit()
+        - Iterative strategy: Multivariate imputation (default: BayesianRidge()).
+          Leverages relations between features but can be slower and needs parameter tuning.
+
     Note: If you have completely empty columns, use EmptyFeatureRemover first
     to remove them before applying imputation.
 
@@ -99,6 +110,32 @@ class Imputer(BaseConfig, TimeSeriesTransform):
     np.True_
     >>> result_selective.data["radiation"].isna().sum() == 2  # Radiation NaNs preserved
     np.True_
+    >>> # Use iterative imputation with custom estimator
+    >>> from sklearn.ensemble import RandomForestRegressor
+    >>> transform_iterative = Imputer(
+    ...     imputation_strategy="iterative",
+    ...     selection=FeatureSelection(include={"temperature", "radiation"}),
+    ...     impute_estimator=RandomForestRegressor(
+    ...         n_estimators=2,  # not many trees for test speed
+    ...         max_depth=3,  # shallow tree for test speed
+    ...         bootstrap=True,
+    ...         max_samples=0.5,
+    ...         n_jobs=1,
+    ...         random_state=0,
+    ...     ),
+    ...     max_iterations=20,
+    ...     tolerance=0.1
+    ... )
+    >>> transform_iterative.fit(dataset)
+    >>> result_iterative = transform_iterative.transform(dataset)
+    >>> result_iterative.data["temperature"].isna().sum() == 0  # Temperature NaNs filled
+    np.True_
+    >>> np.isnan(result_iterative.data["radiation"].iloc[1])  # Radiation first NaN replaced
+    np.False_
+    >>> np.isnan(result_iterative.data["radiation"].iloc[3]) # Check if trailing NaN is preserved
+    np.True_
+    >>> result_iterative.data["wind_speed"].isna().sum() == 2  # Wind speed NaNs preserved
+    np.True_
     """
 
     imputation_strategy: ImputationStrategy = Field(
@@ -113,13 +150,39 @@ class Imputer(BaseConfig, TimeSeriesTransform):
         default=None,
         description="Value to use when imputation_strategy is CONSTANT",
     )
+    impute_estimator: Any = Field(
+        default_factory=BayesianRidge,
+        description="Estimator to use for IterativeImputer. Defaults to BayesianRidge.",
+    )
+    initial_strategy: Literal["mean", "median", "most_frequent", "constant"] = Field(
+        default="mean",
+        description="Initial imputation strategy for IterativeImputer",
+    )
+    tolerance: float = Field(
+        default=1e-3,
+        description="Threshold for differences between consecutive iterations for IterativeImputer convergence",
+    )
+    max_iterations: int = Field(
+        default=40,
+        description="Maximum iterations for IterativeImputer",
+    )
     selection: FeatureSelection = Field(
         default=FeatureSelection.ALL,
-        description="Features to impute.",
+        description=(
+            "Features to impute. If strategy is 'iterative', these features are also used as predictors for imputation."
+        ),
+    )
+    fill_future_values: FeatureSelection = Field(
+        default=FeatureSelection.NONE,
+        description=(
+            "Features for which to fill future missing values. "
+            "This transform does not fill future missing values by default to preserve time series integrity."
+        ),
     )
 
-    _imputer: SimpleImputer = PrivateAttr()
+    _imputer: SimpleImputer | IterativeImputer = PrivateAttr()
     _is_fitted: bool = PrivateAttr(default=False)
+    _logger: logging.Logger = PrivateAttr(default=logging.getLogger(__name__))
 
     @model_validator(mode="after")
     def validate_fill_value_with_strategy(self) -> "Imputer":
@@ -137,12 +200,21 @@ class Imputer(BaseConfig, TimeSeriesTransform):
 
     @override
     def model_post_init(self, context: Any) -> None:
-        self._imputer = SimpleImputer(
-            strategy=self.imputation_strategy,
-            fill_value=self.fill_value,
-            missing_values=self.missing_value,
-            keep_empty_features=False,
-        )
+        if self.imputation_strategy == "iterative":
+            self._imputer = IterativeImputer(
+                random_state=0,
+                estimator=self.impute_estimator,
+                initial_strategy=self.initial_strategy,
+                max_iter=self.max_iterations,
+                tol=self.tolerance,
+            )
+        else:
+            self._imputer = SimpleImputer(
+                strategy=self.imputation_strategy,
+                fill_value=self.fill_value,
+                missing_values=self.missing_value,
+                keep_empty_features=False,
+            )
         self._imputer.set_output(transform="pandas")
 
     @property
@@ -175,11 +247,21 @@ class Imputer(BaseConfig, TimeSeriesTransform):
         if not features:
             return data
 
+        # Warn if using iterative imputation with only one feature
+        if self.imputation_strategy == "iterative" and len(features) < 2:  # noqa: PLR2004
+            self._logger.warning(
+                "Iterative imputer with only one feature will fall back to initial_strategy. "
+                "Using '%s' for imputation.",
+                self.initial_strategy,
+            )
+
         data_subset = data.data[features]
         data_transformed = cast(pd.DataFrame, self._imputer.transform(data_subset))
 
         # Set imputed trailing NaNs back to NaN since they cannot be reasonably imputed
-        for col in data_transformed.columns:
+        fill_future_features = self.fill_future_values.resolve(features)
+        no_fill_future_features = set(features) - set(fill_future_features)
+        for col in no_fill_future_features:
             last_valid = data_subset[col].last_valid_index()
             data_transformed.loc[data_transformed.index > (last_valid or data_transformed.index[0]), col] = np.nan
 
@@ -188,25 +270,6 @@ class Imputer(BaseConfig, TimeSeriesTransform):
         result_data[features] = data_transformed
 
         return TimeSeriesDataset(data=result_data, sample_interval=data.sample_interval)
-
-    @override
-    def to_state(self) -> State:
-        return cast(
-            State,
-            {
-                "config": self.model_dump(mode="json"),
-                "imputer": self._imputer.__getstate__(),  # pyright: ignore[reportUnknownMemberType]
-                "is_fitted": self._is_fitted,
-            },
-        )
-
-    @override
-    def from_state(self, state: State) -> Self:
-        state = cast(dict[str, Any], state)
-        instance = self.model_validate(state["config"])
-        instance._imputer.__setstate__(state["imputer"])  # pyright: ignore[reportUnknownMemberType]  # noqa: SLF001
-        instance._is_fitted = state["is_fitted"]  # noqa: SLF001
-        return instance
 
     @override
     def features_added(self) -> list[str]:

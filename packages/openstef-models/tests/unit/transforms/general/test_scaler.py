@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -127,21 +127,3 @@ def test_multiple_columns(sample_dataset: TimeSeriesDataset):
     # Each column scaled independently: [0,50,100] -> [0,0.5,1], [10,20,30] -> [0,0.5,1]
     assert np.allclose(result.data["load"].tolist(), [0.0, 0.5, 1.0])
     assert np.allclose(result.data["temperature"].tolist(), [0.0, 0.5, 1.0])
-
-
-def test_scaler_transform__state_roundtrip(sample_dataset: TimeSeriesDataset):
-    """Test scaler transform state serialization and restoration."""
-    # Arrange
-    original_transform = Scaler(method="standard")
-    original_transform.fit(sample_dataset)
-
-    # Act
-    state = original_transform.to_state()
-    restored_transform = Scaler(method="standard")
-    restored_transform = restored_transform.from_state(state)
-
-    original_result = original_transform.transform(sample_dataset)
-    restored_result = restored_transform.transform(sample_dataset)
-
-    # Assert
-    pd.testing.assert_frame_equal(original_result.data, restored_result.data)

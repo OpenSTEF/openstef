@@ -25,7 +25,7 @@ This example is useful for understanding how to integrate all OpenSTEF component
 into a working forecasting system.
 """
 
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 

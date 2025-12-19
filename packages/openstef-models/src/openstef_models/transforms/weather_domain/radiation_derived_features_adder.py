@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -9,7 +9,7 @@ to enhance time series datasets with additional insights related to solar radiat
 """
 
 import logging
-from typing import Literal, Self, cast, override
+from typing import Literal, cast, override
 
 import pandas as pd
 from pydantic import Field, PrivateAttr
@@ -18,7 +18,6 @@ from pydantic_extra_types.coordinate import Coordinate
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.exceptions import MissingExtraError, TimeSeriesValidationError
-from openstef_core.mixins import State
 from openstef_core.transforms import TimeSeriesTransform
 
 logger = logging.getLogger(__name__)
@@ -27,15 +26,14 @@ logger = logging.getLogger(__name__)
 class RadiationDerivedFeaturesAdder(BaseConfig, TimeSeriesTransform):
     """Transform that adds radiation derived features to time series data.
 
-    Computes features that are derived from radiation data (in J/m²) based on geographical coordinates
+    Computes features that are derived from radiation data (in W/m²) based on geographical coordinates
     (latitude and longitude) and solar position.
     The features added can include:
-        - dni: Direct Normal Irradiance (DNI) in kWh/m².
-        - gti: Global Tilted Irradiance (GTI) in kWh/m² on a tilted surface.
+        - dni: Direct Normal Irradiance (DNI) in W/m².
+        - gti: Global Tilted Irradiance (GTI) in W/m² on a tilted surface.
 
     Note:
-        The input radiation data must be in J/m² units. The transform will automatically
-        convert this to kWh/m² for internal calculations.
+        The input radiation data must be in W/m² units.
 
     Example:
         >>> import pandas as pd
@@ -46,9 +44,9 @@ class RadiationDerivedFeaturesAdder(BaseConfig, TimeSeriesTransform):
         ... )
         >>> from pydantic_extra_types.coordinate import Coordinate, Latitude, Longitude
         >>>
-        >>> # Create sample dataset with radiation data in J/m²
+        >>> # Create sample dataset with radiation data in W/m²
         >>> data = pd.DataFrame({
-        ...     'radiation': [3600000, 7200000, 5400000]  # Corresponds to 1, 2, and 1.5 kWh/m²
+        ...     'radiation': [1000, 2000, 1500]
         ... }, index=pd.date_range('2025-06-01', periods=3, freq='D', tz='Europe/Amsterdam'))
         >>> dataset = TimeSeriesDataset(data, sample_interval=timedelta(minutes=15))
         >>>
@@ -93,7 +91,7 @@ class RadiationDerivedFeaturesAdder(BaseConfig, TimeSeriesTransform):
     )
     radiation_column: str = Field(
         default="radiation",
-        description="Name of the column in the dataset containing radiation data in J/m².",
+        description="Name of the column in the dataset containing radiation data in W/m².",
     )
 
     _logger: logging.Logger = PrivateAttr(default=logging.getLogger(__name__))
@@ -116,8 +114,8 @@ class RadiationDerivedFeaturesAdder(BaseConfig, TimeSeriesTransform):
             )
             return data
 
-        # Convert radiation from J/m² to kWh/m² and rename to 'ghi'
-        ghi = (data.data[self.radiation_column] / 3600).rename("ghi")
+        # Rename radiation column to 'ghi'
+        ghi = data.data[self.radiation_column].rename("ghi")
 
         location = pvlib.location.Location(
             latitude=self.coordinate.latitude,
@@ -159,14 +157,6 @@ class RadiationDerivedFeaturesAdder(BaseConfig, TimeSeriesTransform):
             )["poa_global"]
 
         return data.copy_with(result)
-
-    @override
-    def to_state(self) -> State:
-        return self.model_dump(mode="json")
-
-    @override
-    def from_state(self, state: State) -> Self:
-        return self.model_validate(state)
 
     @override
     def features_added(self) -> list[str]:

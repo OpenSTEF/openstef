@@ -1,10 +1,10 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Self, cast, override
+from typing import TYPE_CHECKING, cast
 
 import pytest
 
@@ -28,17 +28,6 @@ class SimpleStatefulModel(Stateful):
     def __init__(self) -> None:
         self.param_a: str = "initial"
         self.param_b: int = 42
-
-    @override
-    def to_state(self) -> object:
-        return {"param_a": self.param_a, "param_b": self.param_b}
-
-    @override
-    def from_state(self, state: object) -> Self:
-        state_dict = cast(dict[str, object], state)
-        self.param_a = cast(str, state_dict.get("param_a", "initial"))
-        self.param_b = cast(int, state_dict.get("param_b", 42))
-        return self
 
 
 @pytest.fixture
@@ -118,9 +107,10 @@ def test_model_roundtrip(storage: MLFlowStorage, model_id: str):
     # Act
     storage.save_run_model(model_id=model_id, run_id=run_id, model=original_model)
     storage.finalize_run(model_id=model_id, run_id=run_id)
-    loaded_model = storage.load_run_model(run_id=run_id, model=SimpleStatefulModel())
+    loaded_model = storage.load_run_model(model_id=model_id, run_id=run_id)
 
     # Assert
+    assert isinstance(loaded_model, SimpleStatefulModel)
     assert loaded_model.param_a == "trained_value"
     assert loaded_model.param_b == 99
 
@@ -155,3 +145,18 @@ def test_search_latest_runs__no_experiment(storage: MLFlowStorage):
 
     # Assert
     assert latest_runs == []
+
+
+def test_search_run__returns_matching_run(storage: MLFlowStorage, model_id: str):
+    """Test that search_run finds a run by its name."""
+    # Arrange
+    run_name = "my_training_run"
+    created_run = storage.create_run(model_id=model_id, run_name=run_name)
+    created_run_id = cast(str, created_run.info.run_id)
+
+    # Act
+    found_run = storage.search_run(model_id=model_id, run_name=run_name)
+
+    # Assert
+    assert found_run is not None
+    assert cast(str, found_run.info.run_id) == created_run_id

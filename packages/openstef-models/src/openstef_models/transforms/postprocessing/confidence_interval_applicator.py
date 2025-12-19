@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -9,7 +9,7 @@ learned hour-specific uncertainty patterns from validation data.
 """
 
 from datetime import datetime
-from typing import Any, Self, cast, override
+from typing import cast, override
 
 import numpy as np
 import pandas as pd
@@ -18,7 +18,7 @@ from scipy import stats
 
 from openstef_core.datasets import ForecastDataset
 from openstef_core.exceptions import NotFittedError
-from openstef_core.mixins import State, Transform
+from openstef_core.mixins import Transform
 from openstef_core.types import LeadTime, Quantile
 from openstef_core.utils.invariants import not_none
 
@@ -72,6 +72,11 @@ class ConfidenceIntervalApplicator(BaseModel, Transform[ForecastDataset, Forecas
     """
 
     quantiles: list[Quantile] | None = Field(default=None)
+    add_quantiles_from_std: bool = Field(
+        default=True,
+        description="If True, adds quantiles based on computed standard deviation. "
+        "If False, only computes standard deviation without adding quantiles.",
+    )
 
     _standard_deviation: pd.DataFrame = PrivateAttr(default_factory=pd.DataFrame)
     _is_fitted: bool = PrivateAttr(default=False)
@@ -149,25 +154,15 @@ class ConfidenceIntervalApplicator(BaseModel, Transform[ForecastDataset, Forecas
         # Compute standard deviation series
         stdev_series = self._compute_stdev_series(data)
 
+        # Add standard deviation column
+        stdev_column = data.standard_deviation_column
+        data = data.pipe_pandas(lambda df: df.assign(**{stdev_column: stdev_series}))
+
         # Add quantiles based on standard deviation
-        return self._add_quantiles_from_stdev(forecast=data, stdev_series=stdev_series, quantiles=self.quantiles)
+        if self.add_quantiles_from_std:
+            return self._add_quantiles_from_stdev(forecast=data, stdev_series=stdev_series, quantiles=self.quantiles)
 
-    @override
-    def to_state(self) -> State:
-        return cast(
-            State,
-            {
-                "standard_deviation": self._standard_deviation.to_dict(orient="tight"),  # pyright: ignore[reportUnknownMemberType]
-                "is_fitted": self._is_fitted,
-            },
-        )
-
-    @override
-    def from_state(self, state: State) -> Self:
-        state_dict = cast(dict[str, Any], state)
-        self._standard_deviation = pd.DataFrame.from_dict(state_dict["standard_deviation"], orient="tight")
-        self._is_fitted = state_dict["is_fitted"]
-        return self
+        return data
 
 
 def _calculate_hourly_std(errors: pd.Series) -> pd.Series:
