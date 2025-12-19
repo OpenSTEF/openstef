@@ -1,3 +1,4 @@
+# ruff: noqa
 # SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
 #
 # SPDX-License-Identifier: MPL-2.0
@@ -34,18 +35,18 @@ Note that this is a autoregressive model, meaning that it uses the previous
 """
 
 from datetime import timedelta
-from typing import Self, override
+from typing import override
 
 import numpy as np
 import pandas as pd
 from pydantic import Field
 
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
-from openstef_core.exceptions import ModelLoadingError
-from openstef_core.mixins import State
+
 from openstef_core.mixins.predictor import HyperParams
 from openstef_core.types import LeadTime, Quantile
 from openstef_models.explainability.mixins import ExplainableForecaster
+from openstef_core.utils.pydantic import timedelta_from_isoformat
 from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
 
 
@@ -89,6 +90,7 @@ class MedianForecasterConfig(ForecasterConfig):
         default_factory=MedianForecasterHyperParams,
     )
 
+
 class MedianForecaster(Forecaster, ExplainableForecaster):
     """Median forecaster using lag features for predictions.
 
@@ -101,8 +103,11 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
         context_window: Time delta representing the context window size for input data.
                         This defines how much historical data is considered for making predictions.
 
-                _config: BaseCaseForecasterConfig
+                _config: MedianForecasterConfig
     """
+
+    Config = MedianForecasterConfig
+    HyperParams = MedianForecasterHyperParams
 
     def __init__(
         self,
@@ -115,6 +120,8 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
                    If None, uses default configuration with 7-day primary and 14-day fallback lags.
         """
         self._config = config
+        self.is_fitted_ = False
+        self.feature_names_: list[str] = []
 
     @property
     @override
@@ -126,148 +133,21 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
     def hyperparams(self) -> MedianForecasterHyperParams:
         return self._config.hyperparams
 
-    @override
-    def to_state(self) -> State:
-        return {
-            "version": MODEL_CODE_VERSION,
-            "config": self.config.model_dump(mode="json"),
-        }
-
-    @override
-    def from_state(self, state: State) -> Self:
-        if not isinstance(state, dict) or "version" not in state or state["version"] > MODEL_CODE_VERSION:
-            raise ModelLoadingError("Invalid state for BaseCaseForecaster")
-
-        return self.__class__(config=MedianForecasterConfig.model_validate(state["config"]))
-
     @property
     @override
     def is_fitted(self) -> bool:
-        return self._xgboost_model.__sklearn_is_fitted__() 
-
-
+        return self.is_fitted_
 
     @property
     @override
     def feature_importances(self) -> pd.DataFrame:
-        booster = self._xgboost_model.get_booster()
-        weights_df = pd.DataFrame(
-            data=booster.get_score(importance_type="gain"),
-            index=[quantile.format() for quantile in self.config.quantiles],
-        ).transpose()
-        weights_df.index.name = "feature_name"
-        weights_df.columns.name = "quantiles"
 
-        weights_abs = weights_df.abs()
-        total = weights_abs.sum(axis=0).replace(to_replace=0, value=1.0)  # pyright: ignore[reportUnknownMemberType]
-
-        return weights_abs / total
-
-
+        return pd.DataFrame(
+            data=self.feature_importances_, columns=[self.config.quantiles[0].format()], index=self.feature_names_
+        )
 
     @staticmethod
-    def _infer_frequency(index: pd.DatetimeIndex) -> pd.Timedelta:
-        """
-        Infer the frequency of a pandas DatetimeIndex if the freq attribute is not set.
-        This method calculates the most common time difference between consecutive timestamps,
-        which is more permissive of missing chunks of data than the pandas infer_freq method.
-
-        Args:
-            index (pd.DatetimeIndex): The datetime index to infer the frequency from.
-
-        Returns:
-            pd.Timedelta: The inferred frequency as a pandas Timedelta.
-        """
-        if len(index) < 2:
-            raise ValueError(
-                "Cannot infer frequency from an index with fewer than 2 timestamps."
-            )
-
-        # Calculate the differences between consecutive timestamps
-        deltas = index.to_series().diff().dropna()
-
-        # Find the most common difference
-        inferred_freq = deltas.mode().iloc[0]
-        return inferred_freq
-
-    def _frequency_matches(self, index: pd.DatetimeIndex) -> bool:
-        """
-        Check if the frequency of the input data matches the model frequency.
-
-        Args:
-            x (pd.DataFrame): The input data to check.
-
-        Returns:
-            bool: True if the frequencies match, False otherwise.
-        """
-        if not isinstance(index, pd.DatetimeIndex):
-            raise ValueError(
-                "The index of the input data must be a pandas DatetimeIndex."
-            )
-
-        if index.freq is None:
-            input_frequency = self._infer_frequency(index)
-        else:
-            input_frequency = index.freq
-
-        return input_frequency == pd.Timedelta(minutes=self.frequency)
-
-    @staticmethod
-    def _extract_and_validate_lags(
-        x: pd.DataFrame,
-    ) -> tuple[tuple[str], int, list[tuple[str, int]]]:
-        """Extract and validate the lag features from the input data.
-
-        This method checks that the lag features are evenly spaced and match the frequency of the input data.
-        It also extracts the lag features and their corresponding time deltas.
-        Args:
-            x (pd.DataFrame): The input data containing lag features.
-        Returns:
-            tuple: A tuple containing:
-                - A list of feature names, sorted by their lag in minutes.
-                - The frequency of the lag features in minutes.
-                - A list of tuples containing the lag feature names and their corresponding time deltas in minutes.
-        """
-        # Check that the input data contains the required lag features
-        feature_names = list(x.columns[x.columns.str.startswith("T-")])
-        if len(feature_names) == 0:
-            raise ValueError("No lag features found in the input data.")
-
-        # Convert all lags to minutes to make comparable
-        feature_to_lags_in_min = []
-        for feature in feature_names:
-            if feature.endswith("min"):
-                lag_in_min = int(feature.split("-")[1].split("min")[0])
-            elif feature.endswith("d"):
-                lag_in_min = int(feature.split("-")[1].split("d")[0]) * 60 * 24
-            else:
-                raise ValueError(
-                    f"Feature name '{feature}' does not follow the expected format."
-                    " Expected format is 'T-<lag_in_minutes>' or 'T-<lag_in_days>d'."
-                )
-            feature_to_lags_in_min.append((feature, lag_in_min))
-
-        # Sort the features by lag in minutes
-        feature_to_lags_in_min.sort(key=lambda x: x[1])
-        sorted_features, sorted_lags_in_min = zip(*feature_to_lags_in_min)
-
-        # Check that the lags are evenly spaced
-        diffs = np.diff(sorted_lags_in_min)
-        unique_diffs = np.unique(diffs)
-        if len(unique_diffs) > 1:
-            raise ValueError(
-                "Lag features are not evenly spaced. "
-                f"Got lags with differences: {unique_diffs} min. "
-                "Please ensure that the lag features are generated correctly."
-            )
-        frequency = unique_diffs[0]
-
-        return sorted_features, frequency, feature_to_lags_in_min
-
-    @staticmethod
-    def _fill_diagonal_with_median(
-        lag_array: np.ndarray, start: int, end: int, median: float
-    ) -> np.ndarray | None:
+    def _fill_diagonal_with_median(lag_array: np.ndarray, start: int, end: int, median: float) -> np.ndarray | None:
         # Use the calculated median to fill in future lag values where this prediction would be used as input.
 
         # If the start index is beyond the array bounds, no future updates are needed from this step.
@@ -310,17 +190,10 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
 
         input_data: pd.DataFrame = data.input_data(start=data.forecast_start)
 
-        if not self._frequency_matches(input_data.index):
-            raise ValueError(
-                f"The input data frequency ({input_data.index.freq}) does not match the model frequency ({self.frequency})."
-            )
-
         # Check that the input data contains the required lag features
-        missing_features = set(self.feature_names) - set(input_data.columns)
+        missing_features = set(self.feature_names_) - set(data.feature_names)
         if missing_features:
-            raise ValueError(
-                f"The input data is missing the following lag features: {missing_features}"
-            )
+            raise ValueError(f"The input data is missing the following lag features: {missing_features}")
 
         # Reindex the input data to ensure there are no gaps in the time series.
         # This is important for the autoregressive logic that follows.
@@ -328,14 +201,14 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
         original_index = input_data.index.copy()
         first_index = input_data.index[0]
         last_index = input_data.index[-1]
-        freq = pd.Timedelta(minutes=self.frequency)
+        freq = self.frequency_
         # Create a new date range with the expected frequency.
         new_index = pd.date_range(first_index, last_index, freq=freq)
         # Reindex the input DataFrame, filling any new timestamps with NaN.
         input_data = input_data.reindex(new_index, fill_value=np.nan)
 
         # Select only the lag feature columns in the specified order.
-        lag_df = input_data[self.feature_names]
+        lag_df = input_data[self.feature_names_]
 
         # Convert the lag DataFrame and its index to NumPy arrays for faster processing.
         lag_array = lag_df.to_numpy()
@@ -344,14 +217,10 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
         prediction = np.full(lag_array.shape[0], np.nan)
 
         # Calculate the time step size based on the model frequency.
-        step_size = pd.Timedelta(minutes=self.frequency)
+        step_size = self.frequency_
         # Determine the number of steps corresponding to the smallest and largest lags.
-        smallest_lag_steps = int(
-            self.lags_to_time_deltas_[self.feature_names[0]] / step_size
-        )
-        largest_lag_steps = int(
-            self.lags_to_time_deltas_[self.feature_names[-1]] / step_size
-        )
+        smallest_lag_steps = int(self.lags_to_time_deltas_[self.feature_names_[0]] / step_size)
+        largest_lag_steps = int(self.lags_to_time_deltas_[self.feature_names_[-1]] / step_size)
 
         # Iterate through each time step in the reindexed data.
         for time_step in range(lag_array.shape[0]):
@@ -377,23 +246,16 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
         # Convert the prediction array back to a pandas DataFrame using the reindexed time index.
         prediction_df = pd.DataFrame(prediction, index=time_index, columns=["median"])
         # Select only the predictions corresponding to the original input index.
-        prediction = prediction_df.loc[original_index].to_numpy().flatten()
-
-        # Return the final predictions as a ForecastDataset.
-        predictions = pd.DataFrame(
-            data=prediction,
-            index=input_data.index,
-            columns=[quantile.format() for quantile in self.config.quantiles],
-        )
+        # prediction = prediction_df.loc[original_index].to_numpy().flatten()
 
         return ForecastDataset(
-            data=predictions,
+            data=prediction_df.dropna().rename(columns={"median": self.config.quantiles[0].format()}),
             sample_interval=data.sample_interval,
         )
 
     @override
     def fit(self, data: ForecastInputDataset, data_val: ForecastInputDataset | None = None) -> None:
-                """This model does not have any hyperparameters to fit,
+        """This model does not have any hyperparameters to fit,
         but it does need to know the feature names of the lag features and the order of these.
 
         Lag features are expected to be evently spaced and match the frequency of the input data.
@@ -401,31 +263,20 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
         For example, T-1min, T-2min, T-3min or T-1d, T-2d.
 
         Which lag features are used is determined by the feature engineering step.
-        """                
-        input_data_predictors = data.input_data()
-    
-        target_series = data.target_series
-    
-        (
-            feature_names,
-            frequency,
-            feature_to_lags_in_min,
-        ) = self._extract_and_validate_lags(input_data_predictors)
+        """
+        lag_perfix = f"{data.target_column}_lag_"
+        self.feature_names_ = [
+            feature_name for feature_name in data.feature_names if feature_name.startswith(lag_perfix)
+        ]
 
-        self.feature_names_ = list(feature_names)
-        self.frequency_ = frequency
         self.lags_to_time_deltas_ = {
-            key: pd.Timedelta(minutes=val) for key, val in feature_to_lags_in_min
+            feature_name: timedelta_from_isoformat(feature_name.replace(lag_perfix, ""))
+            for feature_name in self.feature_names_
         }
 
-        # Check that the frequency of the input data matches frequency of the lags
-        if not self._frequency_matches(
-            input_data_predictors.index.drop_duplicates()
-        ):  # Several training horizons give duplicates
-            raise ValueError(
-                f"The input data frequency ({input_data_predictors.index.freq}) does not match the model frequency ({self.frequency})."
-            )
+        self.frequency_ = data.sample_interval
 
-        self.feature_importances = np.ones(len(self.feature_names)) / (
-            len(self.feature_names) or 1.0
-        )
+        self.feature_names_ = sorted(self.feature_names_, key=lambda f: self.lags_to_time_deltas_[f])
+
+        self.feature_importances_ = np.ones(len(self.feature_names_)) / (len(self.feature_names_) or 1.0)
+        self.is_fitted_ = True

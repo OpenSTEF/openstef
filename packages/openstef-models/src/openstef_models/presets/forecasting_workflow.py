@@ -30,6 +30,7 @@ from openstef_models.mixins import ModelIdentifier
 from openstef_models.models import ForecastingModel
 from openstef_models.models.forecasting.flatliner_forecaster import FlatlinerForecaster
 from openstef_models.models.forecasting.gblinear_forecaster import GBLinearForecaster
+from openstef_models.models.forecasting.median_forecaster import MedianForecaster
 from openstef_models.models.forecasting.xgboost_forecaster import XGBoostForecaster
 from openstef_models.transforms.energy_domain import WindPowerFeatureAdder
 from openstef_models.transforms.general import (
@@ -99,7 +100,7 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
     run_name: str | None = Field(default=None, description="Optional name for this workflow run.")
 
     # Model configuration
-    model: Literal["xgboost", "gblinear", "flatliner"] = Field(
+    model: Literal["xgboost", "gblinear", "flatliner", "median"] = Field(
         description="Type of forecasting model to use."
     )  # TODO(#652): Implement median forecaster
     quantiles: list[Quantile] = Field(
@@ -373,6 +374,22 @@ def create_forecasting_workflow(config: ForecastingWorkflowConfig) -> CustomFore
                 add_quantiles_from_std=False,
             ),
         ]
+    elif config.model == "median":
+        preprocessing = [
+            LagsAdder(
+                history_available=config.predict_history,
+                horizons=config.horizons,
+                add_trivial_lags=True,
+                target_column=config.target_column,
+            )
+        ]
+        forecaster = MedianForecaster(
+            config=MedianForecaster.Config(
+                quantiles=config.quantiles,
+                horizons=config.horizons,
+            ),
+        )
+        postprocessing = []
     elif config.model == "flatliner":
         preprocessing = []
         forecaster = FlatlinerForecaster(
