@@ -41,7 +41,10 @@ from openstef_models.transforms.general import (
     Scaler,
     Selector,
 )
-from openstef_models.transforms.postprocessing import ConfidenceIntervalApplicator, QuantileSorter
+from openstef_models.transforms.postprocessing import (
+    ConfidenceIntervalApplicator,
+    QuantileSorter,
+)
 from openstef_models.transforms.time_domain import (
     CyclicFeaturesAdder,
     DatetimeFeaturesAdder,
@@ -49,8 +52,14 @@ from openstef_models.transforms.time_domain import (
     RollingAggregatesAdder,
 )
 from openstef_models.transforms.time_domain.lags_adder import LagsAdder
-from openstef_models.transforms.time_domain.rolling_aggregates_adder import AggregationFunction
-from openstef_models.transforms.validation import CompletenessChecker, FlatlineChecker, InputConsistencyChecker
+from openstef_models.transforms.time_domain.rolling_aggregates_adder import (
+    AggregationFunction,
+)
+from openstef_models.transforms.validation import (
+    CompletenessChecker,
+    FlatlineChecker,
+    InputConsistencyChecker,
+)
 from openstef_models.transforms.weather_domain import (
     AtmosphereDerivedFeaturesAdder,
     DaylightFeatureAdder,
@@ -58,14 +67,22 @@ from openstef_models.transforms.weather_domain import (
 )
 from openstef_models.utils.data_split import DataSplitter
 from openstef_models.utils.feature_selection import Exclude, FeatureSelection, Include
-from openstef_models.workflows.custom_forecasting_workflow import CustomForecastingWorkflow, ForecastingCallback
+from openstef_models.workflows.custom_forecasting_workflow import (
+    CustomForecastingWorkflow,
+    ForecastingCallback,
+)
 
 
 class LocationConfig(BaseConfig):
     """Configuration for location information in forecasting workflows."""
 
-    name: str = Field(default="test_location", description="Name of the forecasting location or workflow.")
-    description: str = Field(default="", description="Description of the forecasting workflow.")
+    name: str = Field(
+        default="test_location",
+        description="Name of the forecasting location or workflow.",
+    )
+    description: str = Field(
+        default="", description="Description of the forecasting workflow."
+    )
     coordinate: Coordinate = Field(
         default=Coordinate(
             latitude=Latitude(Decimal("52.132633")),
@@ -74,7 +91,8 @@ class LocationConfig(BaseConfig):
         description="Geographic coordinate of the location.",
     )
     country_code: CountryAlpha2 = Field(
-        default=CountryAlpha2("NL"), description="Country code for holiday feature generation."
+        default=CountryAlpha2("NL"),
+        description="Country code for holiday feature generation.",
     )
 
     @property
@@ -95,46 +113,69 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
     hyperparameters, location information, data columns, and feature engineering settings.
     """
 
-    model_id: ModelIdentifier = Field(description="Unique identifier for the forecasting model.")
-    run_name: str | None = Field(default=None, description="Optional name for this workflow run.")
+    model_id: ModelIdentifier = Field(
+        description="Unique identifier for the forecasting model."
+    )
+    run_name: str | None = Field(
+        default=None,
+        description="Optional name for this workflow run, can be used for model versioning.",
+    )
 
     # Model configuration
     model: Literal["xgboost", "gblinear", "flatliner"] = Field(
         description="Type of forecasting model to use."
     )  # TODO(#652): Implement median forecaster
     quantiles: list[Quantile] = Field(
-        default=[Q(0.5)], description="List of quantiles to predict for probabilistic forecasting."
+        default=[Q(0.5)],
+        description="List of quantiles to predict for probabilistic forecasting.",
     )
 
     sample_interval: timedelta = Field(
-        default=timedelta(minutes=15), description="Time interval between consecutive data samples."
+        default=timedelta(minutes=15),
+        description="Time interval between consecutive data samples.",
     )
     horizons: list[LeadTime] = Field(
-        default=[LeadTime.from_string("PT48H")], description="List of forecast horizons to predict."
+        default=[LeadTime.from_string("PT48H")],
+        description="List of forecast horizons to predict.",
     )
 
     xgboost_hyperparams: XGBoostForecaster.HyperParams = Field(
-        default=XGBoostForecaster.HyperParams(), description="Hyperparameters for XGBoost forecaster."
+        default=XGBoostForecaster.HyperParams(),
+        description="Hyperparameters for XGBoost forecaster.",
     )
     gblinear_hyperparams: GBLinearForecaster.HyperParams = Field(
-        default=GBLinearForecaster.HyperParams(), description="Hyperparameters for GBLinear forecaster."
+        default=GBLinearForecaster.HyperParams(),
+        description="Hyperparameters for GBLinear forecaster.",
     )
 
     location: LocationConfig = Field(
-        default=LocationConfig(), description="Location information for the forecasting workflow."
+        default=LocationConfig(),
+        description="Location information for the forecasting workflow.",
     )
 
     # Data properties
-    target_column: str = Field(default="load", description="Name of the target variable column in datasets.")
-    energy_price_column: str = Field(
-        default="day_ahead_electricity_price", description="Name of the energy price column in datasets."
+    target_column: str = Field(
+        default="load", description="Name of the target variable column in datasets."
     )
-    radiation_column: str = Field(default="radiation", description="Name of the radiation column in datasets.")
-    wind_speed_column: str = Field(default="windspeed", description="Name of the wind speed column in datasets.")
-    pressure_column: str = Field(default="pressure", description="Name of the pressure column in datasets.")
-    temperature_column: str = Field(default="temperature", description="Name of the temperature column in datasets.")
+    energy_price_column: str = Field(
+        default="day_ahead_electricity_price",
+        description="Name of the energy price column in datasets.",
+    )
+    radiation_column: str = Field(
+        default="radiation", description="Name of the radiation column in datasets."
+    )
+    wind_speed_column: str = Field(
+        default="windspeed", description="Name of the wind speed column in datasets."
+    )
+    pressure_column: str = Field(
+        default="pressure", description="Name of the pressure column in datasets."
+    )
+    temperature_column: str = Field(
+        default="temperature", description="Name of the temperature column in datasets."
+    )
     relative_humidity_column: str = Field(
-        default="relative_humidity", description="Name of the relative humidity column in datasets."
+        default="relative_humidity",
+        description="Name of the relative humidity column in datasets.",
     )
     selected_features: FeatureSelection = Field(
         default=FeatureSelection.ALL,
@@ -157,7 +198,8 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
 
     # Feature engineering and validation
     completeness_threshold: float = Field(
-        default=0.5, description="Minimum fraction of data that should be available for making a regular forecast."
+        default=0.5,
+        description="Minimum fraction of data that should be available for making a regular forecast.",
     )
     flatliner_threshold: timedelta = Field(
         default=timedelta(hours=24),
@@ -217,16 +259,22 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
 
     # Callbacks
     mlflow_storage: MLFlowStorage | None = Field(
-        default_factory=MLFlowStorage, description="Configuration for MLflow experiment tracking and model storage."
+        default_factory=MLFlowStorage,
+        description="Configuration for MLflow experiment tracking and model storage.",
     )
 
-    model_reuse_enable: bool = Field(default=True, description="Whether to enable reuse of previously trained models.")
+    model_reuse_enable: bool = Field(
+        default=True,
+        description="Whether to enable reuse of previously trained models.",
+    )
     model_reuse_max_age: timedelta = Field(
-        default=timedelta(days=7), description="Maximum age of a model to be considered for reuse."
+        default=timedelta(days=7),
+        description="Maximum age of a model to be considered for reuse.",
     )
 
     model_selection_enable: bool = Field(
-        default=True, description="Whether to enable automatic model selection based on performance."
+        default=True,
+        description="Whether to enable automatic model selection based on performance.",
     )
     model_selection_metric: tuple[QuantileOrGlobal, str, MetricDirection] = Field(
         default=(Q(0.5), "R2", "higher_is_better"),
@@ -252,7 +300,9 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
     )
 
 
-def create_forecasting_workflow(config: ForecastingWorkflowConfig) -> CustomForecastingWorkflow:
+def create_forecasting_workflow(
+    config: ForecastingWorkflowConfig,
+) -> CustomForecastingWorkflow:
     """Create a forecasting workflow from configuration.
 
     Builds a complete forecasting pipeline including preprocessing, forecaster, and postprocessing
@@ -309,7 +359,10 @@ def create_forecasting_workflow(config: ForecastingWorkflowConfig) -> CustomFore
         ),
     ]
     feature_standardizers = [
-        Clipper(selection=Include(config.energy_price_column).combine(config.clip_features), mode="standard"),
+        Clipper(
+            selection=Include(config.energy_price_column).combine(config.clip_features),
+            mode="standard",
+        ),
         Scaler(selection=Exclude(config.target_column), method="standard"),
         SampleWeighter(
             target_column=config.target_column,
