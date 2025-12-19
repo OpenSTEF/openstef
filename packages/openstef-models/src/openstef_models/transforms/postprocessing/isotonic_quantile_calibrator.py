@@ -91,7 +91,8 @@ class IsotonicQuantileCalibrator(BaseModel, Transform[ForecastDataset, ForecastD
 
     use_local_quantile_estimation: bool = Field(
         default=False,
-        description="First estimate quantile from neighbours within window before applying isotonic regression. This is useful when the bias varies over the prediction range.",
+        description="First estimate quantile from neighbours within window before applying isotonic regression. \
+        Useful when bias varies over prediction range.",
     )
     window_size: int | None = Field(
         default=None,
