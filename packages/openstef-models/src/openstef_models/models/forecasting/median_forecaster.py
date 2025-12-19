@@ -1,4 +1,3 @@
-# ruff: noqa
 # SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
 #
 # SPDX-License-Identifier: MPL-2.0
@@ -42,11 +41,10 @@ import pandas as pd
 from pydantic import Field
 
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
-
 from openstef_core.mixins.predictor import HyperParams
 from openstef_core.types import LeadTime, Quantile
-from openstef_models.explainability.mixins import ExplainableForecaster
 from openstef_core.utils.pydantic import timedelta_from_isoformat
+from openstef_models.explainability.mixins import ExplainableForecaster
 from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
 
 
@@ -173,37 +171,37 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
             updated_diagonal = np.diag(view).copy()
             updated_diagonal[diagonal_nan_mask] = median
             np.fill_diagonal(view, updated_diagonal)
+        return None
 
     @override
     def predict(self, data: ForecastInputDataset) -> ForecastDataset:
-        """
-        Predict the median of the lag features for each time step in the context window.
+        """Predict the median of the lag features for each time step in the context window.
 
         Args:
-            x (pd.DataFrame): The input data for prediction. This should be a pandas dataframe with lag features.
+            data (ForecastInputDataset): The input data for prediction.
+            This should be a pandas dataframe with lag features.
 
         Returns:
             np.array: The predicted median for each time step in the context window.
             If any lag feature is NaN, this will be ignored.
             If all lag features are NaN, the regressor will return NaN.
-        """
 
+        Raises:
+            ValueError: If the input data is missing any of the required lag features.
+        """
         input_data: pd.DataFrame = data.input_data(start=data.forecast_start)
 
         # Check that the input data contains the required lag features
         missing_features = set(self.feature_names_) - set(data.feature_names)
         if missing_features:
-            raise ValueError(f"The input data is missing the following lag features: {missing_features}")
+            msg = f"The input data is missing the following lag features: {missing_features}"
+            raise ValueError(msg)
 
         # Reindex the input data to ensure there are no gaps in the time series.
         # This is important for the autoregressive logic that follows.
         # Store the original index to return predictions aligned with the input.
-        original_index = input_data.index.copy()
-        first_index = input_data.index[0]
-        last_index = input_data.index[-1]
-        freq = self.frequency_
         # Create a new date range with the expected frequency.
-        new_index = pd.date_range(first_index, last_index, freq=freq)
+        new_index = pd.date_range(input_data.index[0], input_data.index[-1], freq=self.frequency_)
         # Reindex the input DataFrame, filling any new timestamps with NaN.
         input_data = input_data.reindex(new_index, fill_value=np.nan)
 
@@ -212,7 +210,6 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
 
         # Convert the lag DataFrame and its index to NumPy arrays for faster processing.
         lag_array = lag_df.to_numpy()
-        time_index = lag_df.index.to_numpy()
         # Initialize the prediction array with NaNs.
         prediction = np.full(lag_array.shape[0], np.nan)
 
@@ -244,9 +241,7 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
             self._fill_diagonal_with_median(lag_array, start, end, median)
 
         # Convert the prediction array back to a pandas DataFrame using the reindexed time index.
-        prediction_df = pd.DataFrame(prediction, index=time_index, columns=["median"])
-        # Select only the predictions corresponding to the original input index.
-        # prediction = prediction_df.loc[original_index].to_numpy().flatten()
+        prediction_df = pd.DataFrame(prediction, index=lag_df.index.to_numpy(), columns=["median"])
 
         return ForecastDataset(
             data=prediction_df.dropna().rename(columns={"median": self.config.quantiles[0].format()}),
@@ -255,7 +250,9 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
 
     @override
     def fit(self, data: ForecastInputDataset, data_val: ForecastInputDataset | None = None) -> None:
-        """This model does not have any hyperparameters to fit,
+        """Take car of fitting the median forecaster.
+
+        This regressor does not need any fitting,
         but it does need to know the feature names of the lag features and the order of these.
 
         Lag features are expected to be evently spaced and match the frequency of the input data.
