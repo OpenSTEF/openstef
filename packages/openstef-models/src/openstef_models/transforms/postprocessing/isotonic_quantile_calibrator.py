@@ -8,6 +8,7 @@ This module provides transforms for calibrating quantile predictions using isoto
 regression to ensure predicted quantiles match observed quantile levels.
 """
 
+import logging
 from typing import Literal, override
 
 import numpy as np
@@ -23,6 +24,7 @@ from openstef_core.types import Quantile
 class IsotonicQuantileCalibrator(BaseModel, Transform[ForecastDataset, ForecastDataset]):
     """Calibrate quantile predictions using isotonic regression.
 
+    The predicted quantiles do not always match the observed quantile levels.
     This transform learns a monotonic mapping from predicted quantile values to
     calibrated values, ensuring that predicted quantiles match observed empirical
     quantiles in the validation data.
@@ -101,6 +103,7 @@ class IsotonicQuantileCalibrator(BaseModel, Transform[ForecastDataset, ForecastD
 
     _calibrators: dict[str, IsotonicRegression] = PrivateAttr(default_factory=dict[str, IsotonicRegression])
     _is_fitted: bool = PrivateAttr(default=False)
+    _logger: logging.Logger = PrivateAttr(default=logging.getLogger(__name__))
 
     @property
     @override
@@ -137,6 +140,18 @@ class IsotonicQuantileCalibrator(BaseModel, Transform[ForecastDataset, ForecastD
             if len(predictions_clean) == 0:
                 no_data_available_error = f"No valid data points for quantile {column_name}"
                 raise ValueError(no_data_available_error)
+
+            # Warning for insufficient data points
+            min_fraction = 0.05
+            required_points = int(min_fraction * len(predictions))
+            if len(predictions_clean) < required_points:
+                self._logger.warning(
+                    "Skipping calibration for quantile %s: not enough data points (found %d, require %d).",
+                    column_name,
+                    len(predictions_clean),
+                    required_points,
+                )
+                continue  # Skip this quantile
 
             if self.use_local_quantile_estimation:
                 actuals_clean = self._estimate_local_quantiles(predictions_clean, actuals_clean, float(quantile))
