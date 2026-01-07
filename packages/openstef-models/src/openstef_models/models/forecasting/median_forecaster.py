@@ -143,6 +143,16 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
         return pd.DataFrame(
             data=self.feature_importances_, columns=[self.config.quantiles[0].format()], index=self.feature_names_
         )
+    
+    @property
+    def frequency(self) -> int:
+        """Retrieve the model input frequency.
+
+        Returns:
+            The frequency of the model input
+
+        """
+        return self.frequency_
 
     @staticmethod
     def _fill_diagonal_with_median(lag_array: np.ndarray, start: int, end: int, median: float) -> np.ndarray | None:
@@ -172,6 +182,53 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
             updated_diagonal[diagonal_nan_mask] = median
             np.fill_diagonal(view, updated_diagonal)
         return None
+    
+    @staticmethod
+    def _infer_frequency(index: pd.DatetimeIndex) -> pd.Timedelta:
+        """
+        Infer the frequency of a pandas DatetimeIndex if the freq attribute is not set.
+        This method calculates the most common time difference between consecutive timestamps,
+        which is more permissive of missing chunks of data than the pandas infer_freq method.
+
+        Args:
+            index (pd.DatetimeIndex): The datetime index to infer the frequency from.
+
+        Returns:
+            pd.Timedelta: The inferred frequency as a pandas Timedelta.
+        """
+        if len(index) < 2:
+            raise ValueError(
+                "Cannot infer frequency from an index with fewer than 2 timestamps."
+            )
+
+        # Calculate the differences between consecutive timestamps
+        deltas = index.to_series().diff().dropna()
+
+        # Find the most common difference
+        inferred_freq = deltas.mode().iloc[0]
+        return inferred_freq
+    
+    def _frequency_matches(self, index: pd.DatetimeIndex) -> bool:
+        """
+        Check if the frequency of the input data matches the model frequency.
+
+        Args:
+            index (pd.DatetimeIndex): The input data to check.
+
+        Returns:
+            bool: True if the frequencies match, False otherwise.
+        """
+        if not isinstance(index, pd.DatetimeIndex):
+            raise ValueError(
+                "The index of the input data must be a pandas DatetimeIndex."
+            )
+
+        if index.freq is None:
+            input_frequency = self._infer_frequency(index)
+        else:
+            input_frequency = index.freq
+
+        return input_frequency == self.frequency
 
     @override
     def predict(self, data: ForecastInputDataset) -> ForecastDataset:
@@ -189,6 +246,11 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
         Raises:
             ValueError: If the input data is missing any of the required lag features.
         """
+
+        if not self.is_fitted:
+            msg = "This MedianForecaster instance is not fitted yet"
+            raise AttributeError(msg)
+
         input_data: pd.DataFrame = data.input_data(start=data.forecast_start)
 
         # Check that the input data contains the required lag features
@@ -196,10 +258,20 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
         if missing_features:
             msg = f"The input data is missing the following lag features: {missing_features}"
             raise ValueError(msg)
+        
+        if not self._frequency_matches(data.input_data().index):
+            msg = (
+                f"The frequency of the input data does not match the model frequency. "
+                f"Input data frequency: {data.input_data().index.freq}, "
+                f"Model frequency: {pd.Timedelta(minutes=self.frequency_)}"
+            )
+            raise ValueError(msg)
+        
 
         # Reindex the input data to ensure there are no gaps in the time series.
         # This is important for the autoregressive logic that follows.
         # Store the original index to return predictions aligned with the input.
+        old_index = input_data.index
         # Create a new date range with the expected frequency.
         new_index = pd.date_range(input_data.index[0], input_data.index[-1], freq=self.frequency_)
         # Reindex the input DataFrame, filling any new timestamps with NaN.
@@ -225,13 +297,15 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
             current_lags = lag_array[time_step]
             # Calculate the median of the available lag features, ignoring NaNs.
             median = np.nanmedian(current_lags)
-            # Store the calculated median in the prediction array.
-            prediction[time_step] = median
-
             # If the median calculation resulted in NaN (e.g., all lags were NaN), skip the autoregression step.
-            if np.isnan(median):
+            if not np.isnan(median):
+                median = float(median)
+            else:
                 continue
 
+            # Store the calculated median in the prediction array.
+            prediction[time_step] = median
+            
             # Auto-regressive step: update the lag array for future time steps.
             # Calculate the start and end indices in the future time steps that will be affected.
             start, end = (
@@ -243,9 +317,13 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
         # Convert the prediction array back to a pandas DataFrame using the reindexed time index.
         prediction_df = pd.DataFrame(prediction, index=lag_df.index.to_numpy(), columns=["median"])
 
+        # Reindex the prediction DataFrame back to the original input data index.
+        prediction_df = prediction_df.reindex(old_index)
+
         return ForecastDataset(
             data=prediction_df.dropna().rename(columns={"median": self.config.quantiles[0].format()}),
             sample_interval=data.sample_interval,
+            forecast_start=data.forecast_start,
         )
 
     @override
@@ -261,17 +339,37 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
 
         Which lag features are used is determined by the feature engineering step.
         """
+        self.frequency_ = data.sample_interval
+        # Check that the frequency of the input data matches frequency of the lags
+        if not self._frequency_matches(
+            data.data.index.drop_duplicates()
+        ):  # Several training horizons give duplicates
+            raise ValueError(
+                f"The input data frequency ({data.data.index.freq}) does not match the model frequency ({self.frequency_})."
+            )
+
         lag_perfix = f"{data.target_column}_lag_"
         self.feature_names_ = [
             feature_name for feature_name in data.feature_names if feature_name.startswith(lag_perfix)
         ]
+
+        if not self.feature_names_:
+            msg = f"No lag features found in the input data with prefix '{lag_perfix}'."
+            raise ValueError(msg)
 
         self.lags_to_time_deltas_ = {
             feature_name: timedelta_from_isoformat(feature_name.replace(lag_perfix, ""))
             for feature_name in self.feature_names_
         }
 
-        self.frequency_ = data.sample_interval
+        # Check if lags are evenly spaced
+        lag_deltas = sorted(self.lags_to_time_deltas_.values())
+        lag_intervals = [
+            (lag_deltas[i] - lag_deltas[i - 1]).total_seconds() for i in range(1, len(lag_deltas))
+        ]
+        if not all(interval == lag_intervals[0] for interval in lag_intervals):
+            msg = "Lag features are not evenly spaced. Please ensure lag features are evenly spaced and match the data frequency."
+            raise ValueError(msg)
 
         self.feature_names_ = sorted(self.feature_names_, key=lambda f: self.lags_to_time_deltas_[f])
 
