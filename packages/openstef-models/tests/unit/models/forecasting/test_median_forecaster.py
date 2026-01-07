@@ -16,42 +16,41 @@ from openstef_models.presets import ForecastingWorkflowConfig, create_forecastin
 
 
 def test_median_returns_median():
-    # Arrange     
+    # Arrange
     index = pd.date_range("2020-01-01T00:00", periods=3, freq="h")
     training_data = create_timeseries_dataset(
         index=index,
-        load=[1.0,4.0,7.0],
-        load_lag_PT1H=[1.0,np.nan, np.nan],
-        load_lag_PT2H=[4.0,1.0, np.nan],
-        load_lag_PT3H=[7.0,4.0,1.0],
+        load=[1.0, 4.0, 7.0],
+        load_lag_PT1H=[1.0, np.nan, np.nan],
+        load_lag_PT2H=[4.0, 1.0, np.nan],
+        load_lag_PT3H=[7.0, 4.0, 1.0],
         available_at=index,
-    )   
+    )
 
     training_input_data = ForecastInputDataset.from_timeseries(
-            dataset=training_data,
-            target_column="load",
-            forecast_start=index[0],
-        )
+        dataset=training_data,
+        target_column="load",
+        forecast_start=index[0],
+    )
 
     expected_result = ForecastDataset(
-            data=pd.DataFrame(
-                {
-                    "quantile_P50": [4.0, 4.0, 4.0],
-                },
-                index=index,
-            ),
-            sample_interval=training_input_data.sample_interval,
-        )
+        data=pd.DataFrame(
+            {
+                "quantile_P50": [4.0, 4.0, 4.0],
+            },
+            index=index,
+        ),
+        sample_interval=training_input_data.sample_interval,
+    )
     expected_result.index.freq = None
 
     config = MedianForecasterConfig(quantiles=[Q(0.5)], horizons=[LeadTime.from_string("PT36H")])
     model = MedianForecaster(config=config)
 
-
     # Act
     model.fit(training_input_data)
     result = model.predict(training_input_data)
-    
+
     # Assert
     assert result.sample_interval == expected_result.sample_interval
     pd.testing.assert_frame_equal(result.data, expected_result.data)
@@ -97,6 +96,7 @@ def test_median_handles_some_missing_data():
     assert result.sample_interval == expected_result.sample_interval
     pd.testing.assert_frame_equal(result.data, expected_result.data)
 
+
 def test_median_handles_missing_data_for_some_horizons():
     # Arrange
     index = pd.date_range("2023-01-01", periods=3, freq="h")
@@ -137,6 +137,7 @@ def test_median_handles_missing_data_for_some_horizons():
     assert result.sample_interval == expected_result.sample_interval
     pd.testing.assert_frame_equal(result.data, expected_result.data)
 
+
 def test_median_handles_all_missing_data():
     # Arrange
     index = pd.date_range("2023-01-01", periods=3, freq="h")
@@ -166,7 +167,6 @@ def test_median_handles_all_missing_data():
         forecast_start=training_input_data.forecast_start,
     )
 
-
     config = MedianForecasterConfig(quantiles=[Q(0.5)], horizons=[LeadTime.from_string("PT3M")])
     model = MedianForecaster(config=config)
 
@@ -177,6 +177,7 @@ def test_median_handles_all_missing_data():
     # Assert
     assert result.sample_interval == expected_result.sample_interval
     pd.testing.assert_frame_equal(result.data, expected_result.data)
+
 
 def test_median_uses_lag_features_if_available():
     # Arrange
@@ -218,17 +219,24 @@ def test_median_uses_lag_features_if_available():
     assert result.sample_interval == expected_result.sample_interval
     pd.testing.assert_frame_equal(result.data, expected_result.data)
 
+
 def test_median_handles_small_gap():
     # Arrange
     index = pd.date_range("2023-01-01T00:00", periods=5, freq="h")
     training_data = create_timeseries_dataset(
         index=index,
-        load=[5.0, 4.0,3.0,2.0,1.0,],
-        load_lag_PT1H=[1.0,np.nan, np.nan, np.nan, np.nan],
-        load_lag_PT2H=[2.0,1.0, np.nan, np.nan, np.nan],
-        load_lag_PT3H=[3.0,2.0,1.0, np.nan, np.nan],
-        load_lag_PT4H=[4.0,3.0,2.0,1.0, np.nan],
-        load_lag_PT5H=[5.0,4.0,3.0,2.0,1.0],
+        load=[
+            5.0,
+            4.0,
+            3.0,
+            2.0,
+            1.0,
+        ],
+        load_lag_PT1H=[1.0, np.nan, np.nan, np.nan, np.nan],
+        load_lag_PT2H=[2.0, 1.0, np.nan, np.nan, np.nan],
+        load_lag_PT3H=[3.0, 2.0, 1.0, np.nan, np.nan],
+        load_lag_PT4H=[4.0, 3.0, 2.0, 1.0, np.nan],
+        load_lag_PT5H=[5.0, 4.0, 3.0, 2.0, 1.0],
         available_at=index,
     )
 
@@ -241,11 +249,10 @@ def test_median_handles_small_gap():
     # Remove the second row to create a small gap
     training_input_data.data = training_input_data.data[training_input_data.data.index != "2023-01-01T01:00"]
 
-
     expected_result = ForecastDataset(
         data=pd.DataFrame(
             {
-                "quantile_P50": [3.0,  3.0, 3.0, 3.0],
+                "quantile_P50": [3.0, 3.0, 3.0, 3.0],
             },
             index=pd.date_range("2023-01-01T00:00", periods=5, freq="h").delete(1),
         ),
@@ -264,6 +271,7 @@ def test_median_handles_small_gap():
     assert result.sample_interval == expected_result.sample_interval
     pd.testing.assert_frame_equal(result.data, expected_result.data)
 
+
 def test_median_handles_large_gap():
     # Arrange
     index_1 = pd.date_range("2023-01-01T00:00", periods=3, freq="h")
@@ -274,7 +282,7 @@ def test_median_handles_large_gap():
         load_lag_PT2H=[7.0, 8.0, 9.0],
         available_at=index_1,
     )
-    
+
     index_2 = pd.date_range("2023-01-02T01:00", periods=3, freq="h")
     training_data_2 = create_timeseries_dataset(
         index=index_2,
@@ -283,11 +291,10 @@ def test_median_handles_large_gap():
         load_lag_PT2H=[16.0, 17.0, 18.0],
         available_at=index_2,
     )
-    
+
     training_data = training_data_1
 
     training_data.data = pd.concat([training_data_1.data, training_data_2.data])
-
 
     training_input_data = ForecastInputDataset.from_timeseries(
         dataset=training_data,
@@ -316,6 +323,7 @@ def test_median_handles_large_gap():
     # Assert
     assert result.sample_interval == expected_result.sample_interval
     pd.testing.assert_frame_equal(result.data, expected_result.data)
+
 
 def test_median_fit_with_missing_features_raises():
     # Arrange
@@ -353,6 +361,7 @@ def test_median_fit_with_missing_features_raises():
     with pytest.raises(ValueError, match="The input data is missing the following lag features"):
         model.predict(prediction_input_data)
 
+
 def test_median_fit_with_no_lag_features_raises():
     # Arrange
     index = pd.date_range("2023-01-01", periods=3, freq="h")
@@ -375,6 +384,7 @@ def test_median_fit_with_no_lag_features_raises():
     # Act & Assert
     with pytest.raises(ValueError, match="No lag features found in the input data."):
         model.fit(training_input_data)
+
 
 def test_median_fit_with_inconsistent_lag_features_raises():
     # Arrange
@@ -402,6 +412,7 @@ def test_median_fit_with_inconsistent_lag_features_raises():
     with pytest.raises(ValueError, match="Lag features are not evenly spaced"):
         model.fit(training_input_data)
 
+
 def test_median_fit_with_inconsistent_frequency_raises():
     # Arrange
     index = pd.date_range("2023-01-01", periods=3, freq="min")
@@ -426,6 +437,7 @@ def test_median_fit_with_inconsistent_frequency_raises():
     # Act & Assert
     with pytest.raises(ValueError, match="does not match the model frequency."):
         model.fit(training_input_data)
+
 
 def test_predicting_without_fitting_raises():
     # Arrange

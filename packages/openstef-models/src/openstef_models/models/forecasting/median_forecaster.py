@@ -196,9 +196,7 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
             pd.Timedelta: The inferred frequency as a pandas Timedelta.
         """
         if len(index) < 2:
-            raise ValueError(
-                "Cannot infer frequency from an index with fewer than 2 timestamps."
-            )
+            raise ValueError("Cannot infer frequency from an index with fewer than 2 timestamps.")
 
         # Calculate the differences between consecutive timestamps
         deltas = index.to_series().diff().dropna()
@@ -217,9 +215,7 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
             bool: True if the frequencies match, False otherwise.
         """
         if not isinstance(index, pd.DatetimeIndex):
-            raise ValueError(
-                "The index of the input data must be a pandas DatetimeIndex."
-            )
+            raise ValueError("The index of the input data must be a pandas DatetimeIndex.")
 
         if index.freq is None:
             input_frequency = self._infer_frequency(index)
@@ -337,9 +333,7 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
         """
         self.frequency_ = data.sample_interval
         # Check that the frequency of the input data matches frequency of the lags
-        if not self._frequency_matches(
-            data.data.index.drop_duplicates()
-        ):  # Several training horizons give duplicates
+        if not self._frequency_matches(data.data.index.drop_duplicates()):  # Several training horizons give duplicates
             raise ValueError(
                 f"The input data frequency ({data.data.index.freq}) does not match the model frequency ({self.frequency_})."
             )
@@ -360,9 +354,7 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
 
         # Check if lags are evenly spaced
         lag_deltas = sorted(self.lags_to_time_deltas_.values())
-        lag_intervals = [
-            (lag_deltas[i] - lag_deltas[i - 1]).total_seconds() for i in range(1, len(lag_deltas))
-        ]
+        lag_intervals = [(lag_deltas[i] - lag_deltas[i - 1]).total_seconds() for i in range(1, len(lag_deltas))]
         if not all(interval == lag_intervals[0] for interval in lag_intervals):
             msg = "Lag features are not evenly spaced. Please ensure lag features are evenly spaced and match the data frequency."
             raise ValueError(msg)
