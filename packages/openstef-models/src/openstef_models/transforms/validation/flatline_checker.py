@@ -97,7 +97,10 @@ class FlatlineChecker(BaseConfig, TimeSeriesTransform):
         Returns:
             Boolean indicating whether or not there is a flatliner ongoing for the given data.
         """
-        latest_measurement_time = cast(pd.Timestamp, data.last_valid_index())
+        last_valid_index = data.last_valid_index()
+        if last_valid_index is None:  # type: ignore[reportUnnecessaryComparison]  # None if no valid data
+            return False
+        latest_measurement_time = cast(pd.Timestamp, last_valid_index)
         start_time = latest_measurement_time - self.flatliner_threshold
         latest_measurements = data[start_time:latest_measurement_time].dropna()
 
