@@ -143,7 +143,7 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
         return pd.DataFrame(
             data=self.feature_importances_, columns=[self.config.quantiles[0].format()], index=self.feature_names_
         )
-    
+
     @property
     def frequency(self) -> int:
         """Retrieve the model input frequency.
@@ -182,11 +182,10 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
             updated_diagonal[diagonal_nan_mask] = median
             np.fill_diagonal(view, updated_diagonal)
         return None
-    
+
     @staticmethod
     def _infer_frequency(index: pd.DatetimeIndex) -> pd.Timedelta:
-        """
-        Infer the frequency of a pandas DatetimeIndex if the freq attribute is not set.
+        """Infer the frequency of a pandas DatetimeIndex if the freq attribute is not set.
         This method calculates the most common time difference between consecutive timestamps,
         which is more permissive of missing chunks of data than the pandas infer_freq method.
 
@@ -207,10 +206,9 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
         # Find the most common difference
         inferred_freq = deltas.mode().iloc[0]
         return inferred_freq
-    
+
     def _frequency_matches(self, index: pd.DatetimeIndex) -> bool:
-        """
-        Check if the frequency of the input data matches the model frequency.
+        """Check if the frequency of the input data matches the model frequency.
 
         Args:
             index (pd.DatetimeIndex): The input data to check.
@@ -246,7 +244,6 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
         Raises:
             ValueError: If the input data is missing any of the required lag features.
         """
-
         if not self.is_fitted:
             msg = "This MedianForecaster instance is not fitted yet"
             raise AttributeError(msg)
@@ -258,7 +255,7 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
         if missing_features:
             msg = f"The input data is missing the following lag features: {missing_features}"
             raise ValueError(msg)
-        
+
         if not self._frequency_matches(data.input_data().index):
             msg = (
                 f"The frequency of the input data does not match the model frequency. "
@@ -266,7 +263,6 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
                 f"Model frequency: {pd.Timedelta(minutes=self.frequency_)}"
             )
             raise ValueError(msg)
-        
 
         # Reindex the input data to ensure there are no gaps in the time series.
         # This is important for the autoregressive logic that follows.
@@ -305,7 +301,7 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
 
             # Store the calculated median in the prediction array.
             prediction[time_step] = median
-            
+
             # Auto-regressive step: update the lag array for future time steps.
             # Calculate the start and end indices in the future time steps that will be affected.
             start, end = (
