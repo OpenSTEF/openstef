@@ -1,18 +1,16 @@
-# ruff: noqa
 # SPDX-FileCopyrightText: 2017-2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
 import numpy as np
-from openstef_models.models.forecasting.forecaster import ForecastDataset
-from openstef_models.utils.data_split import DataSplitter
 import pandas as pd
 import pytest
-from openstef_models.models.forecasting.median_forecaster import MedianForecaster, MedianForecasterConfig
+
 from openstef_core.datasets import ForecastInputDataset
-from openstef_core.types import LeadTime, Q
 from openstef_core.testing import create_timeseries_dataset
-from openstef_models.presets import ForecastingWorkflowConfig, create_forecasting_workflow
+from openstef_core.types import LeadTime, Q
+from openstef_models.models.forecasting.forecaster import ForecastDataset
+from openstef_models.models.forecasting.median_forecaster import MedianForecaster, MedianForecasterConfig
 
 
 def test_median_returns_median():
@@ -382,7 +380,7 @@ def test_median_fit_with_no_lag_features_raises():
     model = MedianForecaster(config=config)
 
     # Act & Assert
-    with pytest.raises(ValueError, match="No lag features found in the input data."):
+    with pytest.raises(ValueError, match=r"No lag features found in the input data."):
         model.fit(training_input_data)
 
 
@@ -435,7 +433,7 @@ def test_median_fit_with_inconsistent_frequency_raises():
     model = MedianForecaster(config=config)
 
     # Act & Assert
-    with pytest.raises(ValueError, match="does not match the model frequency."):
+    with pytest.raises(ValueError, match=r"does not match the model frequency."):
         model.fit(training_input_data)
 
 

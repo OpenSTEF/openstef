@@ -218,11 +218,7 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
         Returns:
             bool: True if the frequencies match, False otherwise.
         """
-        if index.freq is None:
-            input_frequency = self._infer_frequency(index)
-        else:
-            input_frequency = index.freq
-
+        input_frequency = self._infer_frequency(index) if index.freq is None else index.freq
         return input_frequency == self.frequency
 
     @override
@@ -230,7 +226,8 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
         """Predict the median of the lag features for each time step in the context window.
 
         Args:
-            data (ForecastInputDataset): The input data for prediction, this should be a pandas dataframe with lag features.
+            data (ForecastInputDataset): The input data for prediction,
+            this should be a pandas dataframe with lag features.
 
         Returns:
             np.array: The predicted median for each time step in the context window.
@@ -263,15 +260,11 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
 
         # Reindex the input data to ensure there are no gaps in the time series.
         # This is important for the autoregressive logic that follows.
-        # Store the original index to return predictions aligned with the input.
-        old_index = input_data.index
         # Create a new date range with the expected frequency.
         new_index = pd.date_range(input_data.index[0], input_data.index[-1], freq=self.frequency_)
         # Reindex the input DataFrame, filling any new timestamps with NaN.
-        input_data = input_data.reindex(new_index, fill_value=np.nan)
-
         # Select only the lag feature columns in the specified order.
-        lag_df = input_data[self.feature_names_]
+        lag_df = input_data.reindex(new_index, fill_value=np.nan)[self.feature_names_]
 
         # Convert the lag DataFrame and its index to NumPy arrays for faster processing.
         lag_array = lag_df.to_numpy()
@@ -311,7 +304,7 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
         prediction_df = pd.DataFrame(prediction, index=lag_df.index.to_numpy(), columns=["median"])
 
         # Reindex the prediction DataFrame back to the original input data index.
-        prediction_df = prediction_df.reindex(old_index)
+        prediction_df = prediction_df.reindex(input_data.index)
 
         return ForecastDataset(
             data=prediction_df.dropna().rename(columns={"median": self.config.quantiles[0].format()}),
@@ -343,21 +336,25 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
         """
         self.frequency_ = data.sample_interval
         # Check that the frequency of the input data matches frequency of the lags
-        if not self._frequency_matches(data.data.index.drop_duplicates()):  # Several training horizons give duplicates
-            msg = f"The input data frequency ({data.data.index.freq}) does not match the model frequency ({self.frequency_})."
+        # Several training horizons give duplicates
+        if not self._frequency_matches(data.data.index.drop_duplicates()):
+            msg = (
+                f"The input data frequency ({data.data.index.freq}) "
+                f"does not match the model frequency ({self.frequency_})."
+            )
             raise ValueError(msg)
 
-        lag_perfix = f"{data.target_column}_lag_"
+        lag_prefix = f"{data.target_column}_lag_"
         self.feature_names_ = [
-            feature_name for feature_name in data.feature_names if feature_name.startswith(lag_perfix)
+            feature_name for feature_name in data.feature_names if feature_name.startswith(lag_prefix)
         ]
 
         if not self.feature_names_:
-            msg = f"No lag features found in the input data with prefix '{lag_perfix}'."
+            msg = f"No lag features found in the input data with prefix '{lag_prefix}'."
             raise ValueError(msg)
 
         self.lags_to_time_deltas_ = {
-            feature_name: timedelta_from_isoformat(feature_name.replace(lag_perfix, ""))
+            feature_name: timedelta_from_isoformat(feature_name.replace(lag_prefix, ""))
             for feature_name in self.feature_names_
         }
 
@@ -365,7 +362,10 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
         lag_deltas = sorted(self.lags_to_time_deltas_.values())
         lag_intervals = [(lag_deltas[i] - lag_deltas[i - 1]).total_seconds() for i in range(1, len(lag_deltas))]
         if not all(interval == lag_intervals[0] for interval in lag_intervals):
-            msg = "Lag features are not evenly spaced. Please ensure lag features are evenly spaced and match the data frequency."
+            msg = (
+                "Lag features are not evenly spaced. "
+                "Please ensure lag features are evenly spaced and match the data frequency."
+            )
             raise ValueError(msg)
 
         self.feature_names_ = sorted(self.feature_names_, key=lambda f: self.lags_to_time_deltas_[f])
