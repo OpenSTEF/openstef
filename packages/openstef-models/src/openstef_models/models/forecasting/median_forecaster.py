@@ -145,7 +145,7 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
         )
 
     @property
-    def frequency(self) -> int:
+    def frequency(self) -> timedelta:
         """Retrieve the model input frequency.
 
         Returns:
@@ -250,11 +250,11 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
             msg = f"The input data is missing the following lag features: {missing_features}"
             raise ValueError(msg)
 
-        if not self._frequency_matches(data.input_data().index):
+        if not self._frequency_matches(data.input_data().index):  # type: ignore
             msg = (
                 f"The frequency of the input data does not match the model frequency. "
-                f"Input data frequency: {data.input_data().index.freq}, "
-                f"Model frequency: {pd.Timedelta(minutes=self.frequency_)}"
+                f"Input data frequency: {data.input_data().index.freq}, "  # type: ignore
+                f"Model frequency: {self.frequency_}"
             )
             raise ValueError(msg)
 
@@ -282,10 +282,10 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
             # Get the lag features for the current time step.
             current_lags = lag_array[time_step]
             # Calculate the median of the available lag features, ignoring NaNs.
-            median = np.nanmedian(current_lags)
+            median = np.nanmedian(current_lags)  # type: ignore
             # If the median calculation resulted in NaN (e.g., all lags were NaN), skip the autoregression step.
-            if not np.isnan(median):
-                median = float(median)
+            if not np.isnan(median):  # type: ignore
+                median = float(median)  # type: ignore
             else:
                 continue
 
@@ -307,7 +307,7 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
         prediction_df = prediction_df.reindex(input_data.index)
 
         return ForecastDataset(
-            data=prediction_df.dropna().rename(columns={"median": self.config.quantiles[0].format()}),
+            data=prediction_df.dropna().rename(columns={"median": self.config.quantiles[0].format()}),  # type: ignore
             sample_interval=data.sample_interval,
             forecast_start=data.forecast_start,
         )
@@ -337,9 +337,9 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
         self.frequency_ = data.sample_interval
         # Check that the frequency of the input data matches frequency of the lags
         # Several training horizons give duplicates
-        if not self._frequency_matches(data.data.index.drop_duplicates()):
+        if not self._frequency_matches(data.data.index.drop_duplicates()):  # type: ignore
             msg = (
-                f"The input data frequency ({data.data.index.freq}) "
+                f"The input data frequency ({data.data.index.freq}) "  # type: ignore
                 f"does not match the model frequency ({self.frequency_})."
             )
             raise ValueError(msg)
