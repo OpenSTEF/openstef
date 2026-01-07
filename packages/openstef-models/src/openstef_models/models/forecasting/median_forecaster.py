@@ -186,6 +186,7 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
     @staticmethod
     def _infer_frequency(index: pd.DatetimeIndex) -> pd.Timedelta:
         """Infer the frequency of a pandas DatetimeIndex if the freq attribute is not set.
+
         This method calculates the most common time difference between consecutive timestamps,
         which is more permissive of missing chunks of data than the pandas infer_freq method.
 
@@ -194,16 +195,19 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
 
         Returns:
             pd.Timedelta: The inferred frequency as a pandas Timedelta.
+
+        Raises:
+            ValueError: If the index has fewer than 2 timestamps.
         """
-        if len(index) < 2:
+        minimum_required_length = 2
+        if len(index) < minimum_required_length:
             raise ValueError("Cannot infer frequency from an index with fewer than 2 timestamps.")
 
         # Calculate the differences between consecutive timestamps
         deltas = index.to_series().diff().dropna()
 
         # Find the most common difference
-        inferred_freq = deltas.mode().iloc[0]
-        return inferred_freq
+        return deltas.mode().iloc[0]
 
     def _frequency_matches(self, index: pd.DatetimeIndex) -> bool:
         """Check if the frequency of the input data matches the model frequency.
@@ -214,9 +218,6 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
         Returns:
             bool: True if the frequencies match, False otherwise.
         """
-        if not isinstance(index, pd.DatetimeIndex):
-            raise ValueError("The index of the input data must be a pandas DatetimeIndex.")
-
         if index.freq is None:
             input_frequency = self._infer_frequency(index)
         else:
@@ -229,8 +230,7 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
         """Predict the median of the lag features for each time step in the context window.
 
         Args:
-            data (ForecastInputDataset): The input data for prediction.
-            This should be a pandas dataframe with lag features.
+            data (ForecastInputDataset): The input data for prediction, this should be a pandas dataframe with lag features.
 
         Returns:
             np.array: The predicted median for each time step in the context window.
@@ -239,6 +239,7 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
 
         Raises:
             ValueError: If the input data is missing any of the required lag features.
+            AttributeError: If the model is not fitted yet.
         """
         if not self.is_fitted:
             msg = "This MedianForecaster instance is not fitted yet"
@@ -330,13 +331,21 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
         For example, T-1min, T-2min, T-3min or T-1d, T-2d.
 
         Which lag features are used is determined by the feature engineering step.
+
+        Args:
+            data (ForecastInputDataset): The training data containing lag features.
+            data_val (ForecastInputDataset | None): Optional validation data, not used in this regressor.
+
+        Raises:
+            ValueError: If the input data frequency does not match the model frequency.
+            ValueError: If no lag features are found in the input data.
+
         """
         self.frequency_ = data.sample_interval
         # Check that the frequency of the input data matches frequency of the lags
         if not self._frequency_matches(data.data.index.drop_duplicates()):  # Several training horizons give duplicates
-            raise ValueError(
-                f"The input data frequency ({data.data.index.freq}) does not match the model frequency ({self.frequency_})."
-            )
+            msg = f"The input data frequency ({data.data.index.freq}) does not match the model frequency ({self.frequency_})."
+            raise ValueError(msg)
 
         lag_perfix = f"{data.target_column}_lag_"
         self.feature_names_ = [
