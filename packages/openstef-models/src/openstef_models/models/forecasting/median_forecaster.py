@@ -5,8 +5,6 @@
 """Median regressor based forecasting models for energy forecasting.
 
 Provides median regression models for multi-quantile energy forecasting.
-Optimized for time series data with specialized loss functions and
-comprehensive hyperparameter control for production forecasting workflows.
 
 Note that this is a autoregressive model, meaning that it uses the previous
     predictions to predict the next value.
@@ -20,7 +18,7 @@ Note that this is a autoregressive model, meaning that it uses the previous
     over the last few timesteps adds some hysterisis to avoid triggering on noise.
 
     Tips for using this regressor:
-    - Set the lags to be evenly spaced and at a frequency mathching the
+    - Set the lags to be evenly spaced and at a frequency matching the
       frequency of the input data. For example, if the input data is at 15
       minute intervals, set the lags to be at 15 minute intervals as well.
     - Use a small training dataset, since there are no actual parameters to train.
@@ -28,9 +26,6 @@ Note that this is a autoregressive model, meaning that it uses the previous
     a problem if we get very small chunks of data in training or validation sets.
     - Use only one training horizon, since the regressor will use the same lags for all
       training horizons.
-    - Allow for missing data by setting completeness_threshold to 0. If the prediction horizon
-      is larger than the context window there will be a lot of nans in the input data, but
-      the autoregression solves that.
 """
 
 from datetime import timedelta
@@ -314,7 +309,7 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
 
     @override
     def fit(self, data: ForecastInputDataset, data_val: ForecastInputDataset | None = None) -> None:
-        """Take car of fitting the median forecaster.
+        """Take care of fitting the median forecaster.
 
         This regressor does not need any fitting,
         but it does need to know the feature names of the lag features and the order of these.

@@ -22,7 +22,6 @@ def test_median_returns_median():
         load_lag_PT1H=[1.0, np.nan, np.nan],
         load_lag_PT2H=[4.0, 1.0, np.nan],
         load_lag_PT3H=[7.0, 4.0, 1.0],
-        available_at=index,
     )
 
     training_input_data = ForecastInputDataset.from_timeseries(
@@ -63,7 +62,6 @@ def test_median_handles_some_missing_data():
         load_lag_PT1H=[1.0, np.nan, np.nan],
         load_lag_PT2H=[np.nan, 1.0, np.nan],
         load_lag_PT3H=[3.0, np.nan, 1.0],
-        available_at=index,
     )
 
     training_input_data = ForecastInputDataset.from_timeseries(
@@ -104,7 +102,6 @@ def test_median_handles_missing_data_for_some_horizons():
         load_lag_PT1H=[5.0, np.nan, np.nan],
         load_lag_PT2H=[np.nan, 5.0, np.nan],
         load_lag_PT3H=[np.nan, np.nan, 5.0],
-        available_at=index,
     )
 
     training_input_data = ForecastInputDataset.from_timeseries(
@@ -145,7 +142,6 @@ def test_median_handles_all_missing_data():
         load_lag_PT1H=[np.nan, np.nan, np.nan],
         load_lag_PT2H=[np.nan, np.nan, np.nan],
         load_lag_PT3H=[np.nan, np.nan, np.nan],
-        available_at=index,
     )
 
     training_input_data = ForecastInputDataset.from_timeseries(
@@ -186,7 +182,6 @@ def test_median_uses_lag_features_if_available():
         load_lag_PT1H=[1.0, 2.0, 3.0],
         load_lag_PT2H=[4.0, 5.0, 6.0],
         load_lag_PT3H=[7.0, 8.0, 9.0],
-        available_at=index,
     )
 
     training_input_data = ForecastInputDataset.from_timeseries(
@@ -235,7 +230,6 @@ def test_median_handles_small_gap():
         load_lag_PT3H=[3.0, 2.0, 1.0, np.nan, np.nan],
         load_lag_PT4H=[4.0, 3.0, 2.0, 1.0, np.nan],
         load_lag_PT5H=[5.0, 4.0, 3.0, 2.0, 1.0],
-        available_at=index,
     )
 
     training_input_data = ForecastInputDataset.from_timeseries(
@@ -278,7 +272,6 @@ def test_median_handles_large_gap():
         load=[1.0, 2.0, 3.0],
         load_lag_PT1H=[4.0, 5.0, 6.0],
         load_lag_PT2H=[7.0, 8.0, 9.0],
-        available_at=index_1,
     )
 
     index_2 = pd.date_range("2023-01-02T01:00", periods=3, freq="h")
@@ -287,7 +280,6 @@ def test_median_handles_large_gap():
         load=[10.0, 11.0, 12.0],
         load_lag_PT1H=[13.0, 14.0, 15.0],
         load_lag_PT2H=[16.0, 17.0, 18.0],
-        available_at=index_2,
     )
 
     training_data = training_data_1
@@ -332,7 +324,6 @@ def test_median_fit_with_missing_features_raises():
         load_lag_PT1H=[1.0, 2.0, 3.0],
         load_lag_PT2H=[4.0, 5.0, 6.0],
         load_lag_PT3H=[7.0, 8.0, 9.0],
-        available_at=index,
     )
 
     training_input_data = ForecastInputDataset.from_timeseries(
@@ -367,7 +358,6 @@ def test_median_fit_with_no_lag_features_raises():
         index=index,
         load=[1.0, 2.0, 3.0],
         unrelated_feature=[1.0, 2.0, 3.0],
-        available_at=index,
     )
 
     training_input_data = ForecastInputDataset.from_timeseries(
@@ -394,7 +384,6 @@ def test_median_fit_with_inconsistent_lag_features_raises():
         load_lag_PT5H=[4.0, 5.0, 6.0],
         load_lag_PT60H=[7.0, 8.0, 9.0],
         load_lag_P4D=[10.0, 11.0, 12.0],
-        available_at=index,
     )
 
     training_input_data = ForecastInputDataset.from_timeseries(
@@ -420,7 +409,6 @@ def test_median_fit_with_inconsistent_frequency_raises():
         load_lag_PT1H=[1.0, 2.0, 3.0],
         load_lag_PT2H=[4.0, 5.0, 6.0],
         load_lag_PT3H=[7.0, 8.0, 9.0],
-        available_at=index,
     )
 
     training_input_data = ForecastInputDataset.from_timeseries(
@@ -446,7 +434,6 @@ def test_predicting_without_fitting_raises():
         load_lag_PT1M=[1.0, 2.0, 3.0],
         load_lag_PT2M=[4.0, 5.0, 6.0],
         load_lag_PT3M=[7.0, 8.0, 9.0],
-        available_at=index,
     )
 
     training_input_data = ForecastInputDataset.from_timeseries(

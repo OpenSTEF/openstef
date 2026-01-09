@@ -102,7 +102,7 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
     # Model configuration
     model: Literal["xgboost", "gblinear", "flatliner", "median"] = Field(
         description="Type of forecasting model to use."
-    )  # TODO(#652): Implement median forecaster
+    )
     quantiles: list[Quantile] = Field(
         default=[Q(0.5)], description="List of quantiles to predict for probabilistic forecasting."
     )
