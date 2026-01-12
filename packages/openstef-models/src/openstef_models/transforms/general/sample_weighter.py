@@ -111,14 +111,14 @@ class SampleWeighter(BaseConfig, TimeSeriesTransform):
 
     @override
     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
-        if not self._is_fitted:
-            raise NotFittedError(self.__class__.__name__)
-
         if self.target_column not in data.feature_names:
             self._logger.warning(
                 "Target column '%s' not found in data features. Skipping sample weighting.", self.target_column
             )
             return data
+
+        if not self._is_fitted:
+            raise NotFittedError(self.__class__.__name__)
 
         df = data.data.copy(deep=False)
         df[self.sample_weight_column] = 1.0  # default uniform weight
@@ -126,10 +126,10 @@ class SampleWeighter(BaseConfig, TimeSeriesTransform):
         # Set weights only for rows where target is not NaN
         mask = df[self.target_column].notna()
         target_series = df.loc[mask, self.target_column]
+        target = np.asarray(target_series.values, dtype=np.float64)
 
         # Normalize target values using the fitted scaler
-        target = np.asarray(target_series.values, dtype=np.float64)
-        if self.normalize_target:
+        if self.normalize_target and target.size > 0:
             target = self._scaler.transform(target.reshape(-1, 1)).flatten()
 
         df.loc[mask, self.sample_weight_column] = exponential_sample_weight(
@@ -175,6 +175,9 @@ def exponential_sample_weight(
         The function uses absolute values throughout, so negative inputs
         are weighted by their magnitude.
     """
+    if x.size == 0:
+        return np.empty_like(x)
+
     scaling_value = np.percentile(np.abs(x), scale_percentile)
     if scaling_value == 0:
         return np.full_like(x, fill_value=1.0)
