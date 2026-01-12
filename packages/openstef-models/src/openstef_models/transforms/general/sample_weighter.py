@@ -104,7 +104,16 @@ class SampleWeighter(BaseConfig, TimeSeriesTransform):
             )
             return
 
-        target = np.asarray(data.data[self.target_column].dropna().values)
+        target_non_na = data.data[self.target_column].dropna()
+
+        if target_non_na.empty:
+            self._logger.warning(
+                "Only NaN values found in target column '%s'. Skipping sample weighting fit.",
+                self.target_column,
+            )
+            return
+
+        target = np.asarray(target_non_na.values)
         self._scaler.fit(target.reshape(-1, 1))
 
         self._is_fitted = True
@@ -125,6 +134,14 @@ class SampleWeighter(BaseConfig, TimeSeriesTransform):
 
         # Set weights only for rows where target is not NaN
         mask = df[self.target_column].notna()
+
+        if mask.sum() == 0:
+            self._logger.warning(
+                "Only NaN values found in target column '%s'. Skipping sample weighting fit.",
+                self.target_column,
+            )
+            return data.copy_with(df)
+
         target_series = df.loc[mask, self.target_column]
 
         # Normalize target values using the fitted scaler
