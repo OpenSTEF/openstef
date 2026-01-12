@@ -38,7 +38,7 @@ class NaNDropper(BaseConfig, TimeSeriesTransform):
         ...     'temperature': [20.0, 22.0, np.nan, 23.0],
         ...     'humidity': [60.0, 65.0, 70.0, 75.0]
         ... }, index=pd.date_range('2025-01-01', periods=4, freq='1h'))
-        >>> dataset = TimeSeriesDataset(data, timedelta(hours=1))
+        >>> dataset = TimeSeriesDataset(data)
         >>>
         >>> # Drop rows with NaN in load or temperature
         >>> dropper = NaNDropper(selection=FeatureSelection(include=['load', 'temperature']))
