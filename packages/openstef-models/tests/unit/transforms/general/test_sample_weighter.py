@@ -58,6 +58,15 @@ def test_exponential_sample_weight__exponents(exponent: float, expected_weights:
     np.testing.assert_allclose(result, expected_weights, rtol=1e-10)
 
 
+def test_exponential_sample_weight__empty_input():
+    """Test exponential_sample_weight with empty input array."""
+    # Arrange
+    x = np.array([])
+
+    # Act & Assert
+    np.testing.assert_array_equal(x, exponential_sample_weight(x=x))
+
+
 def test_sample_weighter__fit_transform():
     """Test that SampleWeighter correctly computes sample weights based on target values."""
     # Arrange

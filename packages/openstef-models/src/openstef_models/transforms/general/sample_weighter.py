@@ -130,17 +130,16 @@ class SampleWeighter(BaseConfig, TimeSeriesTransform):
         target_series = df.loc[mask, self.target_column]
         target = np.asarray(target_series.values, dtype=np.float64)
 
-        if target.size > 0:
-            # Normalize target values using the fitted scaler
-            if self.normalize_target:
-                target = self._scaler.transform(target.reshape(-1, 1)).flatten()
+        # Normalize target values using the fitted scaler
+        if self.normalize_target and target.size > 0:
+            target = self._scaler.transform(target.reshape(-1, 1)).flatten()
 
-            df.loc[mask, self.sample_weight_column] = exponential_sample_weight(
-                x=target,
-                scale_percentile=self.weight_scale_percentile,
-                exponent=self.weight_exponent,
-                floor=self.weight_floor,
-            )
+        df.loc[mask, self.sample_weight_column] = exponential_sample_weight(
+            x=target,
+            scale_percentile=self.weight_scale_percentile,
+            exponent=self.weight_exponent,
+            floor=self.weight_floor,
+        )
 
         return data.copy_with(df)
 
@@ -179,7 +178,7 @@ def exponential_sample_weight(
         are weighted by their magnitude.
     """
     if x.size == 0:
-        return x  # Return empty array for empty input
+        return np.empty_like(x)
 
     scaling_value = np.percentile(np.abs(x), scale_percentile)
     if scaling_value == 0:
