@@ -132,13 +132,14 @@ def test_forecasting_model__fit_all_nan_target():
     n_samples = 25
     data = TimeSeriesDataset(
         data=pd.DataFrame(
-        {
-            "load": [np.nan] * n_samples,
-            "temperature": [20.0] * n_samples,
-            "radiation": [500.0] * n_samples,
-        },
-        index=pd.date_range("2025-01-01 10:00", periods=n_samples, freq="h"),
-    ), sample_interval=timedelta(hours=1)
+            {
+                "load": [np.nan] * n_samples,
+                "temperature": [20.0] * n_samples,
+                "radiation": [500.0] * n_samples,
+            },
+            index=pd.date_range("2025-01-01 10:00", periods=n_samples, freq="h"),
+        ),
+        sample_interval=timedelta(hours=1),
     )
 
     # Act & Assert
