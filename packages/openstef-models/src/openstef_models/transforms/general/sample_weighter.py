@@ -104,9 +104,7 @@ class SampleWeighter(BaseConfig, TimeSeriesTransform):
             )
             return
 
-        target_non_na = data.data[self.target_column].dropna()
-
-        target = np.asarray(target_non_na.values)
+        target = np.asarray(data.data[self.target_column].dropna().values)
         self._scaler.fit(target.reshape(-1, 1))
 
         self._is_fitted = True
