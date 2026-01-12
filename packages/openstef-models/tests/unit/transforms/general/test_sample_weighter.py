@@ -95,3 +95,61 @@ def test_sample_weighter__fit_transform():
         expected_weights,
         atol=0.001,
     )
+
+
+def test_sample_weighter__no_target_column():
+    """Test that SampleWeighter raises error when target column is missing."""
+    # Arrange
+    dataset = create_timeseries_dataset(
+        index=pd.date_range("2025-01-01", periods=5, freq="1h"),
+        load=[10.0, 50.0, 100.0, 200.0, 150.0],
+        sample_interval=timedelta(hours=1),
+    )
+
+    transform = SampleWeighter(
+        target_column="non_existent_column",
+    )
+
+    # Act
+    transform.fit_transform(dataset)
+
+    # Assert
+    assert not transform.is_fitted
+    result = transform.transform(dataset)
+    assert "sample_weight" not in result.data.columns
+
+
+def test_sample_weighter__all_nan_target():
+    """Test that SampleWeighter handles all nan target column with warning."""
+    # Arrange
+    dataset = create_timeseries_dataset(
+        index=pd.date_range("2025-01-01", periods=5, freq="1h"),
+        load=[np.nan] * 5,
+        sample_interval=timedelta(hours=1),
+    )
+
+    transform = SampleWeighter(
+        weight_scale_percentile=95,
+        weight_exponent=1.0,
+        weight_floor=0.1,
+        target_column="load",
+        normalize_target=True,
+    )
+
+    # Act
+    result = transform.fit_transform(dataset)
+
+    # Assert
+    assert "sample_weight" in result.data.columns
+
+    expected_weights = pd.Series(
+        data=[1.0] * 5,
+        index=dataset.index,
+        name="sample_weight",
+    )
+
+    pd.testing.assert_series_equal(
+        result.data["sample_weight"],
+        expected_weights,
+        atol=0.001,
+    )

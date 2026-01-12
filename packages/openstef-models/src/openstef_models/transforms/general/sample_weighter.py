@@ -111,6 +111,7 @@ class SampleWeighter(BaseConfig, TimeSeriesTransform):
                 "Only NaN values found in target column '%s'. Skipping sample weighting fit.",
                 self.target_column,
             )
+            self._is_fitted = True
             return
 
         target = np.asarray(target_non_na.values)
@@ -120,14 +121,14 @@ class SampleWeighter(BaseConfig, TimeSeriesTransform):
 
     @override
     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
-        if not self._is_fitted:
-            raise NotFittedError(self.__class__.__name__)
-
         if self.target_column not in data.feature_names:
             self._logger.warning(
                 "Target column '%s' not found in data features. Skipping sample weighting.", self.target_column
             )
             return data
+
+        if not self._is_fitted:
+            raise NotFittedError(self.__class__.__name__)
 
         df = data.data.copy(deep=False)
         df[self.sample_weight_column] = 1.0  # default uniform weight
@@ -137,7 +138,7 @@ class SampleWeighter(BaseConfig, TimeSeriesTransform):
 
         if mask.sum() == 0:
             self._logger.warning(
-                "Only NaN values found in target column '%s'. Skipping sample weighting fit.",
+                "Only NaN values found in target column '%s'. Setting uniform sample weights.",
                 self.target_column,
             )
             return data.copy_with(df)
