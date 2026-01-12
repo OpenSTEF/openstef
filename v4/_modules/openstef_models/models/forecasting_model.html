@@ -467,7 +467,7 @@
     <span class="n">TimeSeriesDataset</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets.timeseries_dataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_horizons_present</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">NotFittedError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">InsufficientlyCompleteError</span><span class="p">,</span> <span class="n">NotFittedError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.mixins</span><span class="w"> </span><span class="kn">import</span> <span class="n">Predictor</span><span class="p">,</span> <span class="n">TransformPipeline</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.models.forecasting</span><span class="w"> </span><span class="kn">import</span> <span class="n">Forecaster</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.models.forecasting.forecaster</span><span class="w"> </span><span class="kn">import</span> <span class="n">ForecasterConfig</span>
@@ -626,8 +626,19 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            FitResult containing training details and metrics.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            InsufficientlyCompleteError: If no training data remains after dropping rows with NaN targets.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">validate_horizons_present</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">forecaster</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">horizons</span><span class="p">)</span>
+
+        <span class="n">target_dropna</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">dropna</span><span class="p">,</span> <span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">target_column</span><span class="p">])</span>  <span class="c1"># pyright: ignore[reportUnknownMemberType]</span>
+        <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">pipe_pandas</span><span class="p">(</span><span class="n">target_dropna</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;No training data available after dropping NaN targets in column &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">target_column</span><span class="si">}</span><span class="s2">&#39;. &quot;</span>
+                <span class="s2">&quot;Cannot fit the forecasting model.&quot;</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="n">InsufficientlyCompleteError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
         <span class="c1"># Fit the feature engineering transforms</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
@@ -638,7 +649,6 @@
         <span class="n">input_data_test</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_input</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data_test</span><span class="p">)</span> <span class="k">if</span> <span class="n">data_test</span> <span class="k">else</span> <span class="kc">None</span>
 
         <span class="c1"># Drop target column nan&#39;s from training data. One can not train on missing targets.</span>
-        <span class="n">target_dropna</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">dropna</span><span class="p">,</span> <span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">target_column</span><span class="p">])</span>  <span class="c1"># pyright: ignore[reportUnknownMemberType]</span>
         <span class="n">input_data_train</span> <span class="o">=</span> <span class="n">input_data_train</span><span class="o">.</span><span class="n">pipe_pandas</span><span class="p">(</span><span class="n">target_dropna</span><span class="p">)</span>
         <span class="n">input_data_val</span> <span class="o">=</span> <span class="n">input_data_val</span><span class="o">.</span><span class="n">pipe_pandas</span><span class="p">(</span><span class="n">target_dropna</span><span class="p">)</span> <span class="k">if</span> <span class="n">input_data_val</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="n">input_data_test</span> <span class="o">=</span> <span class="n">input_data_test</span><span class="o">.</span><span class="n">pipe_pandas</span><span class="p">(</span><span class="n">target_dropna</span><span class="p">)</span> <span class="k">if</span> <span class="n">input_data_test</span> <span class="k">else</span> <span class="kc">None</span>

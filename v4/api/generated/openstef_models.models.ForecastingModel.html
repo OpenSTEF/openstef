@@ -703,8 +703,11 @@ single-horizon and multi-horizon forecasters appropriately.</p>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>FitResult containing training details and metrics.</p>
 </dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelFitResult</span></code></span></p>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="openstef_core.exceptions.InsufficientlyCompleteError.html#openstef_core.exceptions.InsufficientlyCompleteError" title="openstef_core.exceptions.InsufficientlyCompleteError"><strong>InsufficientlyCompleteError</strong></a> – If no training data remains after dropping rows with NaN targets.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelFitResult</span></code></span></p>
 </dd>
 </dl>
 </dd></dl>
