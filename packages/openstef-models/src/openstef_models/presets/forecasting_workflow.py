@@ -277,10 +277,6 @@ def create_forecasting_workflow(config: ForecastingWorkflowConfig) -> CustomFore
             error_on_flatliner=True,
         ),
         CompletenessChecker(completeness_threshold=config.completeness_threshold),
-        CompletenessChecker(
-            columns=[config.target_column],
-            completeness_threshold=config.completeness_threshold,
-        )
     ]
     feature_adders = [
         LagsAdder(
