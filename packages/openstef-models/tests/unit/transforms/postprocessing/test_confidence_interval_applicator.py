@@ -32,7 +32,7 @@ def validation_predictions() -> ForecastDataset:
             },
             index=index,
         ),
-        sample_interval=timedelta(minutes=15),
+        sample_interval=timedelta(hours=1),
         forecast_start=datetime.fromisoformat("2018-01-01T00:00:00"),
     )
 
@@ -51,7 +51,7 @@ def predictions() -> ForecastDataset:
             },
             index=forecast_index,
         ),
-        sample_interval=timedelta(minutes=15),
+        sample_interval=timedelta(hours=1),
         forecast_start=forecast_start,
     )
 

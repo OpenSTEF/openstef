@@ -79,10 +79,10 @@ def test_daylight_features_nighttime_values():
 def test_daylight_features_different_coordinates():
     """Test daylight calculation with different geographical coordinates."""
     # Same time, different locations should give different results
-    time_index = pd.DatetimeIndex(["2025-06-21 12:00:00"], tz="UTC")
+    time_index = pd.DatetimeIndex(["2025-06-21 12:00:00", "2025-06-21 13:00:00"], tz="UTC")
 
     # Amsterdam vs Cape Town (southern hemisphere, winter)
-    data = pd.DataFrame({"value": [1.0]}, index=time_index)
+    data = pd.DataFrame({"value": [1.0, 2.0]}, index=time_index)
     input_data = TimeSeriesDataset(data, timedelta(hours=1))
 
     # Amsterdam (northern hemisphere, summer)

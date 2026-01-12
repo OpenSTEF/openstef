@@ -55,7 +55,6 @@ class MockModel(BacktestBatchForecasterMixin, BacktestForecasterMixin):
         timestamps = pd.date_range(start=data.horizon, periods=2, freq="1h")
         return TimeSeriesDataset(
             data=pd.DataFrame({"quantile_P50": [0.5, 0.5]}, index=timestamps),
-            sample_interval=self.config.predict_sample_interval,
         )
 
     def predict_batch(self, batch: list[RestrictedHorizonVersionedTimeSeries]) -> list[TimeSeriesDataset]:
@@ -66,7 +65,6 @@ class MockModel(BacktestBatchForecasterMixin, BacktestForecasterMixin):
             results.append(
                 TimeSeriesDataset(
                     data=pd.DataFrame({"quantile_P50": [0.5, 0.5]}, index=timestamps),
-                    sample_interval=self.config.predict_sample_interval,
                 )
             )
         return results

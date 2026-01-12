@@ -178,44 +178,6 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
             np.fill_diagonal(view, updated_diagonal)
         return None
 
-    @staticmethod
-    def _infer_frequency(index: pd.DatetimeIndex) -> pd.Timedelta:
-        """Infer the frequency of a pandas DatetimeIndex if the freq attribute is not set.
-
-        This method calculates the most common time difference between consecutive timestamps,
-        which is more permissive of missing chunks of data than the pandas infer_freq method.
-
-        Args:
-            index (pd.DatetimeIndex): The datetime index to infer the frequency from.
-
-        Returns:
-            pd.Timedelta: The inferred frequency as a pandas Timedelta.
-
-        Raises:
-            ValueError: If the index has fewer than 2 timestamps.
-        """
-        minimum_required_length = 2
-        if len(index) < minimum_required_length:
-            raise ValueError("Cannot infer frequency from an index with fewer than 2 timestamps.")
-
-        # Calculate the differences between consecutive timestamps
-        deltas = index.to_series().diff().dropna()
-
-        # Find the most common difference
-        return deltas.mode().iloc[0]
-
-    def _frequency_matches(self, index: pd.DatetimeIndex) -> bool:
-        """Check if the frequency of the input data matches the model frequency.
-
-        Args:
-            index (pd.DatetimeIndex): The input data to check.
-
-        Returns:
-            bool: True if the frequencies match, False otherwise.
-        """
-        input_frequency = self._infer_frequency(index) if index.freq is None else index.freq
-        return input_frequency == self.frequency
-
     @override
     def predict(self, data: ForecastInputDataset) -> ForecastDataset:
         """Predict the median of the lag features for each time step in the context window.
@@ -243,14 +205,6 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
         missing_features = set(self.feature_names_) - set(data.feature_names)
         if missing_features:
             msg = f"The input data is missing the following lag features: {missing_features}"
-            raise ValueError(msg)
-
-        if not self._frequency_matches(data.input_data().index):  # type: ignore
-            msg = (
-                f"The frequency of the input data does not match the model frequency. "
-                f"Input data frequency: {data.input_data().index.freq}, "  # type: ignore
-                f"Model frequency: {self.frequency_}"
-            )
             raise ValueError(msg)
 
         # Reindex the input data to ensure there are no gaps in the time series.
@@ -330,14 +284,6 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
 
         """
         self.frequency_ = data.sample_interval
-        # Check that the frequency of the input data matches frequency of the lags
-        # Several training horizons give duplicates
-        if not self._frequency_matches(data.data.index.drop_duplicates()):  # type: ignore
-            msg = (
-                f"The input data frequency ({data.data.index.freq}) "  # type: ignore
-                f"does not match the model frequency ({self.frequency_})."
-            )
-            raise ValueError(msg)
 
         lag_prefix = f"{data.target_column}_lag_"
         self.feature_names_ = [
@@ -360,6 +306,16 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
             msg = (
                 "Lag features are not evenly spaced. "
                 "Please ensure lag features are evenly spaced and match the data frequency."
+            )
+            raise ValueError(msg)
+
+        # Check that lag frequency matches data frequency
+        expected_lag_interval = lag_intervals[0]
+        if expected_lag_interval != self.frequency_.total_seconds():
+            msg = (
+                f"Lag feature interval ({timedelta(seconds=expected_lag_interval)}) does not match "
+                f"data frequency ({self.frequency_}). "
+                "Please ensure lag features match the data frequency."
             )
             raise ValueError(msg)
 

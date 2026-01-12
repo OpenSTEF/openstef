@@ -48,7 +48,7 @@ def test_datetime_features_weekday_weekend():
         {"value": [1.0, 2.0]},
         index=pd.DatetimeIndex(["2025-01-06", "2025-01-11"]),  # Monday, Saturday
     )
-    input_data = TimeSeriesDataset(data, timedelta(days=1))
+    input_data = TimeSeriesDataset(data, timedelta(days=5))
 
     transform = DatetimeFeaturesAdder()
     result = transform.transform(input_data)
@@ -82,7 +82,7 @@ def test_datetime_features_month_quarter():
         {"value": [1.0, 2.0, 3.0]},
         index=pd.DatetimeIndex(["2025-01-15", "2025-04-15", "2025-10-15"]),  # Jan Q1, Apr Q2, Oct Q4
     )
-    input_data = TimeSeriesDataset(data, timedelta(days=1))
+    input_data = TimeSeriesDataset(data, timedelta(days=90))
 
     transform = DatetimeFeaturesAdder()
     result = transform.transform(input_data)
@@ -102,7 +102,7 @@ def test_datetime_features_onehot_encoding():
         {"value": [1.0, 2.0]},
         index=pd.DatetimeIndex(["2025-01-15", "2025-04-15"]),  # Jan, Apr
     )
-    input_data = TimeSeriesDataset(data, timedelta(days=1))
+    input_data = TimeSeriesDataset(data, timedelta(days=90))
 
     transform = DatetimeFeaturesAdder(onehot_encode=True)
     result = transform.transform(input_data)

@@ -139,8 +139,7 @@ def test_run_training_scenarios(
 
     # Assert
     assert isinstance(result, TimeSeriesDataset)
-    assert result.sample_interval == forecaster_config.predict_sample_interval
-
+    assert result.sample_interval == timedelta(hours=6)
     # Validate call counts
     if expected_train_calls == ">0":
         assert mock_forecaster.train_call_count > 0
@@ -245,7 +244,7 @@ def test_run_output_validation_and_concatenation(
     )
 
     # Assert - Basic structure
-    assert result.sample_interval == mock_forecaster.config.predict_sample_interval
+    assert result.sample_interval == timedelta(hours=6)
     assert mock_forecaster.predict_call_count >= 2
 
     # Assert - Output validation
@@ -352,18 +351,20 @@ def test_run_edge_cases(
         timestamps = pd.date_range("2025-01-01T12:00:00", "2025-01-01T15:00:00", freq="1h")
         start_time = "2025-01-01T12:00:00"
         end_time = "2025-01-01T15:00:00"
+        sample_interval = timedelta(hours=1)
     else:  # sparse
         timestamps = pd.DatetimeIndex(["2025-01-01T12:00:00", "2025-01-01T18:00:00"])
         start_time = "2025-01-01T18:00:00"
         end_time = "2025-01-01T20:00:00"
+        sample_interval = timedelta(hours=6)
 
     ground_truth = VersionedTimeSeriesDataset.from_dataframe(
         data=pd.DataFrame({"available_at": timestamps, "target": range(len(timestamps))}, index=timestamps),
-        sample_interval=timedelta(hours=1),
+        sample_interval=sample_interval,
     )
     predictors = VersionedTimeSeriesDataset.from_dataframe(
         data=pd.DataFrame({"available_at": timestamps, "feature1": range(len(timestamps))}, index=timestamps),
-        sample_interval=timedelta(hours=1),
+        sample_interval=sample_interval,
     )
 
     # Act

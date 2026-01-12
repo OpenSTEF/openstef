@@ -92,7 +92,7 @@ def test_rolling_aggregate_features_missing_column_raises_error():
         {"not_load": [1.0, 2.0, 3.0]},
         index=pd.date_range("2023-01-01 00:00:00", periods=3, freq="1h"),
     )
-    dataset = TimeSeriesDataset(data, sample_interval=timedelta(minutes=15))
+    dataset = TimeSeriesDataset(data, sample_interval=timedelta(hours=1))
     transform = RollingAggregatesAdder(
         feature="load",
         horizons=[LeadTime.from_string("PT36H")],

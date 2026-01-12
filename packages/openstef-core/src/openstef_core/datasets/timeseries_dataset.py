@@ -99,7 +99,7 @@ class TimeSeriesDataset(TimeSeriesMixin, DatasetMixin):  # noqa: PLR0904 - impor
     def __init__(
         self,
         data: pd.DataFrame,
-        sample_interval: timedelta = timedelta(minutes=15),
+        sample_interval: timedelta | None = None,
         *,
         horizon_column: str = "horizon",
         available_at_column: str = "available_at",
@@ -122,9 +122,26 @@ class TimeSeriesDataset(TimeSeriesMixin, DatasetMixin):  # noqa: PLR0904 - impor
         Raises:
             TypeError: If data index is not a pandas DatetimeIndex or if versioning
                 columns have incorrect types.
+            ValueError: If data frequency does not match sample_interval.
         """
         if not isinstance(data.index, pd.DatetimeIndex):
             raise TypeError("Data index must be a pandas DatetimeIndex.")
+
+        if sample_interval is None:
+            inferred_freq = pd.Timedelta(
+                self._infer_frequency(data.index) if data.index.freq is None else data.index.freq  # type: ignore
+            )
+            sample_interval = inferred_freq.to_pytimedelta()
+
+        # Check input data frequency matches sample_interval, only if there are enough data points to infer frequency
+        minimum_required_length = 2
+        if len(data) >= minimum_required_length:
+            input_sample_interval = self._infer_frequency(data.index) if data.index.freq is None else data.index.freq
+            if input_sample_interval != sample_interval:
+                msg = (
+                    f"Data frequency ({input_sample_interval}) does not match the sample_interval ({sample_interval})."
+                )
+                raise ValueError(msg)
 
         self.data = data
         self.horizon_column = horizon_column
@@ -442,6 +459,44 @@ class TimeSeriesDataset(TimeSeriesMixin, DatasetMixin):  # noqa: PLR0904 - impor
             available_at_column=self.available_at_column,
             is_sorted=is_sorted,
         )
+
+    @staticmethod
+    def _infer_frequency(index: pd.DatetimeIndex) -> pd.Timedelta:
+        """Infer the frequency of a pandas DatetimeIndex if the freq attribute is not set.
+
+        This method calculates the most common time difference between consecutive timestamps,
+        which is more permissive of missing chunks of data than the pandas infer_freq method.
+
+        Args:
+            index (pd.DatetimeIndex): The datetime index to infer the frequency from.
+
+        Returns:
+            pd.Timedelta: The inferred frequency as a pandas Timedelta.
+
+        Raises:
+            ValueError: If the index has fewer than 2 timestamps.
+        """
+        minimum_required_length = 2
+        if len(index) < minimum_required_length:
+            raise ValueError("Cannot infer frequency from an index with fewer than 2 timestamps.")
+
+        # Calculate the differences between consecutive timestamps
+        deltas = index.to_series().drop_duplicates().sort_values().diff().dropna()
+
+        # Find the most common difference
+        return deltas.mode().iloc[0]
+
+    def _frequency_matches(self, index: pd.DatetimeIndex) -> bool:
+        """Check if the frequency of the data matches the model frequency.
+
+        Args:
+            index (pd.DatetimeIndex): The data to check.
+
+        Returns:
+            bool: True if the frequencies match, False otherwise.
+        """
+        input_sample_interval = self._infer_frequency(index) if index.freq is None else index.freq
+        return input_sample_interval == self.sample_interval
 
 
 def validate_horizons_present(dataset: TimeSeriesDataset, horizons: list[LeadTime]) -> None:

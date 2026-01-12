@@ -1,6 +1,8 @@
 # SPDX-FileCopyrightText: 2017-2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
+import re
+from datetime import timedelta
 
 import numpy as np
 import pandas as pd
@@ -409,6 +411,7 @@ def test_median_fit_with_inconsistent_frequency_raises():
         load_lag_PT1H=[1.0, 2.0, 3.0],
         load_lag_PT2H=[4.0, 5.0, 6.0],
         load_lag_PT3H=[7.0, 8.0, 9.0],
+        sample_interval=timedelta(minutes=1),
     )
 
     training_input_data = ForecastInputDataset.from_timeseries(
@@ -421,7 +424,12 @@ def test_median_fit_with_inconsistent_frequency_raises():
     model = MedianForecaster(config=config)
 
     # Act & Assert
-    with pytest.raises(ValueError, match=r"does not match the model frequency."):
+    with pytest.raises(
+        ValueError,
+        match=re.escape(
+            r"Lag feature interval (1:00:00) does not match data frequency (0:01:00). Please ensure lag features match the data frequency."
+        ),
+    ):
         model.fit(training_input_data)
 
 
@@ -434,6 +442,7 @@ def test_predicting_without_fitting_raises():
         load_lag_PT1M=[1.0, 2.0, 3.0],
         load_lag_PT2M=[4.0, 5.0, 6.0],
         load_lag_PT3M=[7.0, 8.0, 9.0],
+        sample_interval=timedelta(minutes=1),
     )
 
     training_input_data = ForecastInputDataset.from_timeseries(

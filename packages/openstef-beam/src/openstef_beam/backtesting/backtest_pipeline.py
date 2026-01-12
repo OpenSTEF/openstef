@@ -180,7 +180,6 @@ class BacktestPipeline:
 
         return TimeSeriesDataset(
             data=pd.concat([pred.data for pred in prediction_list], axis=0),
-            sample_interval=self.config.prediction_sample_interval,
         )
 
     def _process_train_event(self, event: BacktestEvent, dataset: VersionedTimeSeriesDataset) -> None:
