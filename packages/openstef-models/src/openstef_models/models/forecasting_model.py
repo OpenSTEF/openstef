@@ -187,6 +187,14 @@ class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset])
         """
         validate_horizons_present(data, self.forecaster.config.horizons)
 
+        target_dropna = partial(pd.DataFrame.dropna, subset=[self.target_column])  # pyright: ignore[reportUnknownMemberType]
+        if data.pipe_pandas(target_dropna).data.empty:
+            msg = (
+                f"No training data available after dropping NaN targets in column '{self.target_column}'. "
+                "Cannot fit the forecasting model."
+            )
+            raise InsufficientlyCompleteError(msg)
+
         # Fit the feature engineering transforms
         self.preprocessing.fit(data=data)
 
@@ -196,12 +204,7 @@ class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset])
         input_data_test = self.prepare_input(data=data_test) if data_test else None
 
         # Drop target column nan's from training data. One can not train on missing targets.
-        target_dropna = partial(pd.DataFrame.dropna, subset=[self.target_column])  # pyright: ignore[reportUnknownMemberType]
         input_data_train = input_data_train.pipe_pandas(target_dropna)
-
-        if input_data_train.data.empty:
-            raise InsufficientlyCompleteError("No training data available after dropping rows with NaN target values.")
-
         input_data_val = input_data_val.pipe_pandas(target_dropna) if input_data_val else None
         input_data_test = input_data_test.pipe_pandas(target_dropna) if input_data_test else None
 

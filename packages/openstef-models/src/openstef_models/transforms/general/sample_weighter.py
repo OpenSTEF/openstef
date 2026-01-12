@@ -106,14 +106,6 @@ class SampleWeighter(BaseConfig, TimeSeriesTransform):
 
         target_non_na = data.data[self.target_column].dropna()
 
-        if target_non_na.empty:
-            self._logger.warning(
-                "Only NaN values found in target column '%s'. Skipping sample weighting fit.",
-                self.target_column,
-            )
-            self._is_fitted = True
-            return
-
         target = np.asarray(target_non_na.values)
         self._scaler.fit(target.reshape(-1, 1))
 
@@ -135,27 +127,20 @@ class SampleWeighter(BaseConfig, TimeSeriesTransform):
 
         # Set weights only for rows where target is not NaN
         mask = df[self.target_column].notna()
-
-        if mask.sum() == 0:
-            self._logger.warning(
-                "Only NaN values found in target column '%s'. Setting uniform sample weights.",
-                self.target_column,
-            )
-            return data.copy_with(df)
-
         target_series = df.loc[mask, self.target_column]
-
-        # Normalize target values using the fitted scaler
         target = np.asarray(target_series.values, dtype=np.float64)
-        if self.normalize_target:
-            target = self._scaler.transform(target.reshape(-1, 1)).flatten()
 
-        df.loc[mask, self.sample_weight_column] = exponential_sample_weight(
-            x=target,
-            scale_percentile=self.weight_scale_percentile,
-            exponent=self.weight_exponent,
-            floor=self.weight_floor,
-        )
+        if target.size > 0:
+            # Normalize target values using the fitted scaler
+            if self.normalize_target:
+                target = self._scaler.transform(target.reshape(-1, 1)).flatten()
+
+            df.loc[mask, self.sample_weight_column] = exponential_sample_weight(
+                x=target,
+                scale_percentile=self.weight_scale_percentile,
+                exponent=self.weight_exponent,
+                floor=self.weight_floor,
+            )
 
         return data.copy_with(df)
 
@@ -193,6 +178,9 @@ def exponential_sample_weight(
         The function uses absolute values throughout, so negative inputs
         are weighted by their magnitude.
     """
+    if x.size == 0:
+        return x  # Return empty array for empty input
+
     scaling_value = np.percentile(np.abs(x), scale_percentile)
     if scaling_value == 0:
         return np.full_like(x, fill_value=1.0)

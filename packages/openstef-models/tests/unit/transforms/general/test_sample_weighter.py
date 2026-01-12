@@ -119,10 +119,15 @@ def test_sample_weighter__no_target_column():
     assert "sample_weight" not in result.data.columns
 
 
-def test_sample_weighter__all_nan_target():
-    """Test that SampleWeighter handles all nan target column with warning."""
+def test_sample_weighter__transform_all_nan_target():
+    """Test that SampleWeighter transform handles all nan target column gracefully."""
     # Arrange
-    dataset = create_timeseries_dataset(
+    train_dataset = dataset = create_timeseries_dataset(
+        index=pd.date_range("2025-01-01", periods=5, freq="1h"),
+        load=[10.0, 50.0, 100.0, 200.0, 150.0],
+        sample_interval=timedelta(hours=1),
+    )
+    predict_dataset = create_timeseries_dataset(
         index=pd.date_range("2025-01-01", periods=5, freq="1h"),
         load=[np.nan] * 5,
         sample_interval=timedelta(hours=1),
@@ -135,9 +140,10 @@ def test_sample_weighter__all_nan_target():
         target_column="load",
         normalize_target=True,
     )
+    transform.fit(train_dataset)
 
     # Act
-    result = transform.fit_transform(dataset)
+    result = transform.transform(predict_dataset)
 
     # Assert
     assert "sample_weight" in result.data.columns
