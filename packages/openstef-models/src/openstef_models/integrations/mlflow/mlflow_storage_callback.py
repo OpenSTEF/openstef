@@ -75,13 +75,14 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
         if not self.model_reuse_enable:
             return
 
-        # Find the latest successful run for this model
+        # If run_name is provided, load that specific run
         if context.workflow.run_name is not None:
             run = self.storage.search_run(
                 model_id=context.workflow.model_id,
                 run_name=context.workflow.run_name,
             )
         else:
+            # Find the latest successful run for this model
             runs = self.storage.search_latest_runs(model_id=context.workflow.model_id)
             run = next(iter(runs), None)
 
@@ -156,9 +157,17 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
         if context.workflow.model.is_fitted:
             return
 
-        # Find the latest successful run for this model
-        runs = self.storage.search_latest_runs(model_id=context.workflow.model_id)
-        run = next(iter(runs), None)
+        # If run_name is provided, load that specific run
+        if context.workflow.run_name is not None:
+            run = self.storage.search_run(
+                model_id=context.workflow.model_id,
+                run_name=context.workflow.run_name,
+            )
+        else:
+            # Find the latest successful run for this model
+            runs = self.storage.search_latest_runs(model_id=context.workflow.model_id)
+            run = next(iter(runs), None)
+
         if run is None:
             raise ModelNotFoundError(model_id=context.workflow.model_id)
 

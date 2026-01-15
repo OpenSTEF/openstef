@@ -97,7 +97,9 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
     """
 
     model_id: ModelIdentifier = Field(description="Unique identifier for the forecasting model.")
-    run_name: str | None = Field(default=None, description="Optional name for this workflow run.")
+    run_name: str | None = Field(
+        default=None, description="Optional name for this workflow run, can be used for versioning."
+    )
 
     # Model configuration
     model: Literal["xgboost", "gblinear", "flatliner", "median"] = Field(
