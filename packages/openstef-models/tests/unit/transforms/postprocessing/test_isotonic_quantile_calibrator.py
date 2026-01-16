@@ -9,6 +9,7 @@ import pandas as pd
 from openstef_core.datasets import ForecastDataset
 from openstef_core.types import Quantile
 from openstef_models.transforms.postprocessing.isotonic_quantile_calibrator import (
+    MIN_WINDOW_SIZE,
     IsotonicQuantileCalibrator,
 )
 
@@ -126,7 +127,9 @@ def test_isotonic_calibrator_local_vs_global():
 def test_isotonic_calibrator_nonlinear_data():
     """Demonstrate that isotonic regression can fit non-linear monotonic relationships."""
     # predictions with quadratic underestimation
-    train_predictions = np.arange(10.0, 101.0, 10.0)
+    # Need at least 2 * _MIN_WINDOW_SIZE points for direct isotonic regression
+    n_points = 2 * MIN_WINDOW_SIZE + 3  # Add a few extra for safety
+    train_predictions = np.linspace(10.0, 100.0, num=n_points)
     # true P90 higher, increasing quadratically
     train_actuals = train_predictions + (train_predictions / 20) ** 2
 
@@ -161,7 +164,9 @@ def test_isotonic_calibrator_does_not_capture_non_monotonic():
     """
     # non-monotonic bias: actuals follow U-shape (decreasing with increase in prediction and increasing half way)
     # while prediction increase linearly
-    train_predictions = np.linspace(10.0, 100.0, num=10)
+    # Need at least 2 * _MIN_WINDOW_SIZE points for direct isotonic regression
+    n_points = 2 * MIN_WINDOW_SIZE + 5  # Add a few extra for safety
+    train_predictions = np.linspace(10.0, 100.0, num=n_points)
     # U-shape: quadratic with minimum at center
     center = (train_predictions.max() + train_predictions.min()) / 2
     train_actuals = 20 + ((train_predictions - center) / 10) ** 2 * 20

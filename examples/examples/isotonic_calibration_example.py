@@ -82,7 +82,7 @@ model_calibrated = ForecastingModel(
             IsotonicQuantileCalibrator(
                 quantiles=[Q(0.1), Q(0.5), Q(0.9)],
                 use_local_quantile_estimation=True,  # Enable windowed approach
-                window_size=100,  # Window size for local estimation
+                # window_size uses adaptive sizing by default: max(_MIN_WINDOW_SIZE, n_samples // 10)
             ),
         ],
     ),

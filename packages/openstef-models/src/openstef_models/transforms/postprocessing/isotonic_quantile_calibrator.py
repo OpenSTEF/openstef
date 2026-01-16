@@ -20,6 +20,9 @@ from openstef_core.exceptions import NotFittedError
 from openstef_core.mixins import Transform
 from openstef_core.types import Quantile
 
+# Minimum window size for local quantile estimation
+MIN_WINDOW_SIZE = 20
+
 
 class IsotonicQuantileCalibrator(BaseModel, Transform[ForecastDataset, ForecastDataset]):
     """Calibrate quantile predictions using isotonic regression.
@@ -57,7 +60,7 @@ class IsotonicQuantileCalibrator(BaseModel, Transform[ForecastDataset, ForecastD
             local neighborhoods before fitting isotonic regression. Useful when
             bias varies across prediction range.
         window_size: Window size for local quantile estimation. If None, uses
-            adaptive sizing (max(5, n/10)). Only used when
+            adaptive sizing (max(_MIN_WINDOW_SIZE, n/10)). Only used when
             use_local_quantile_estimation=True.
 
     Invariants:
@@ -121,6 +124,9 @@ class IsotonicQuantileCalibrator(BaseModel, Transform[ForecastDataset, ForecastD
         if not quantiles_to_fit:
             raise ValueError("No quantiles found to calibrate.")
 
+        # Determine minimum required points based on estimation method
+        required_points = 3 * MIN_WINDOW_SIZE if self.use_local_quantile_estimation else 2 * MIN_WINDOW_SIZE
+
         # Fit isotonic regression for each quantile
         for quantile in quantiles_to_fit:
             column_name = quantile.format()
@@ -141,9 +147,6 @@ class IsotonicQuantileCalibrator(BaseModel, Transform[ForecastDataset, ForecastD
                 no_data_available_error = f"No valid data points for quantile {column_name}"
                 raise ValueError(no_data_available_error)
 
-            # Warning for insufficient data points
-            min_fraction = 0.05
-            required_points = int(min_fraction * len(predictions))
             if len(predictions_clean) < required_points:
                 self._logger.warning(
                     "Skipping calibration for quantile %s: not enough data points (found %d, require %d).",
@@ -166,6 +169,14 @@ class IsotonicQuantileCalibrator(BaseModel, Transform[ForecastDataset, ForecastD
             calibrator.fit(predictions_clean, actuals_clean)
             self._calibrators[column_name] = calibrator
 
+        # Ensure at least one calibrator was successfully fitted
+        if not self._calibrators:
+            msg = (
+                "Could not fit calibration for any quantile. "
+                f"All quantiles had insufficient data (require {required_points} points minimum)."
+            )
+            raise ValueError(msg)
+
         self._is_fitted = True
 
     def _estimate_local_quantiles(
@@ -183,7 +194,7 @@ class IsotonicQuantileCalibrator(BaseModel, Transform[ForecastDataset, ForecastD
 
         # Adaptive window size
         n_samples = len(sorted_predictions)
-        window_size = self.window_size if self.window_size is not None else max(5, n_samples // 10)
+        window_size = self.window_size if self.window_size is not None else max(MIN_WINDOW_SIZE, n_samples // 10)
 
         # Compute local quantiles
         calibrated_values = np.zeros(n_samples)
