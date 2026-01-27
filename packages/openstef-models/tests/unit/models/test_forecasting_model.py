@@ -11,7 +11,7 @@ import pytest
 
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
-from openstef_core.exceptions import NotFittedError
+from openstef_core.exceptions import InsufficientlyCompleteError, NotFittedError
 from openstef_core.mixins import TransformPipeline
 from openstef_core.testing import assert_timeseries_equal, create_synthetic_forecasting_dataset
 from openstef_core.types import LeadTime, Quantile, override
@@ -119,6 +119,34 @@ def test_forecasting_model__fit(sample_timeseries_dataset: TimeSeriesDataset):
     # R2 metric exists for the 50th quantile
     assert Quantile(0.5) in result.metrics_train.metrics
     assert "R2" in result.metrics_train.metrics[Quantile(0.5)]
+
+
+def test_forecasting_model__fit_all_nan_target():
+    """Test that fit raises error when fitted on all-NaN target column."""
+    # Arrange
+    horizons = [LeadTime(timedelta(hours=6))]
+
+    config = ForecasterConfig(quantiles=[Quantile(0.5)], horizons=horizons)
+    forecaster = SimpleForecaster(config=config)
+    model = ForecastingModel(forecaster=forecaster)
+    n_samples = 25
+    data = TimeSeriesDataset(
+        data=pd.DataFrame(
+            {
+                "load": [np.nan] * n_samples,
+                "temperature": [20.0] * n_samples,
+                "radiation": [500.0] * n_samples,
+            },
+            index=pd.date_range("2025-01-01 10:00", periods=n_samples, freq="h"),
+        ),
+        sample_interval=timedelta(hours=1),
+    )
+
+    # Act & Assert
+    with pytest.raises(InsufficientlyCompleteError):
+        model.fit(data=data)
+
+    assert not model.is_fitted
 
 
 def test_forecasting_model__predict(sample_timeseries_dataset: TimeSeriesDataset):

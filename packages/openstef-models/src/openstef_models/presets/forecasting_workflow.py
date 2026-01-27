@@ -32,7 +32,15 @@ from openstef_models.models.forecasting.flatliner_forecaster import FlatlinerFor
 from openstef_models.models.forecasting.gblinear_forecaster import GBLinearForecaster
 from openstef_models.models.forecasting.xgboost_forecaster import XGBoostForecaster
 from openstef_models.transforms.energy_domain import WindPowerFeatureAdder
-from openstef_models.transforms.general import Clipper, EmptyFeatureRemover, Imputer, NaNDropper, SampleWeighter, Scaler
+from openstef_models.transforms.general import (
+    Clipper,
+    EmptyFeatureRemover,
+    Imputer,
+    NaNDropper,
+    SampleWeighter,
+    Scaler,
+    Selector,
+)
 from openstef_models.transforms.postprocessing import ConfidenceIntervalApplicator, QuantileSorter
 from openstef_models.transforms.time_domain import (
     CyclicFeaturesAdder,
@@ -88,7 +96,9 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
     """
 
     model_id: ModelIdentifier = Field(description="Unique identifier for the forecasting model.")
-    run_name: str | None = Field(default=None, description="Optional name for this workflow run.")
+    run_name: str | None = Field(
+        default=None, description="Optional name for this workflow run, can be used for versioning."
+    )
 
     # Model configuration
     model: Literal["xgboost", "gblinear", "flatliner"] = Field(
@@ -128,6 +138,11 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
     relative_humidity_column: str = Field(
         default="relative_humidity", description="Name of the relative humidity column in datasets."
     )
+    selected_features: FeatureSelection = Field(
+        default=FeatureSelection.ALL,
+        description="Feature selection for which features to include/exclude.",
+    )
+
     predict_history: timedelta = Field(
         default=timedelta(days=14),
         description="Amount of historical data available at prediction time.",
@@ -255,6 +270,7 @@ def create_forecasting_workflow(config: ForecastingWorkflowConfig) -> CustomFore
         ValueError: If an unsupported model type is specified.
     """
     checks = [
+        Selector(selection=config.selected_features),
         InputConsistencyChecker(),
         FlatlineChecker(
             load_column=config.target_column,
