@@ -17,14 +17,10 @@ OUTPUT_PATH = BASE_DIR / "./benchmark_results_comparison"
 
 BENCHMARK_DIR_GBLINEAR = BASE_DIR / "benchmark_results" / "GBLinear"
 BENCHMARK_DIR_XGBOOST = BASE_DIR / "benchmark_results" / "XGBoost"
-BENCHMARK_DIR_GBLINEAR_OPENSTEF3 = BASE_DIR / "benchmark_results_openstef3" / "gblinear"
-BENCHMARK_DIR_XGBOOST_OPENSTEF3 = BASE_DIR / "benchmark_results_openstef3" / "xgboost"
 
 check_dirs = [
     BENCHMARK_DIR_GBLINEAR,
     BENCHMARK_DIR_XGBOOST,
-    BENCHMARK_DIR_GBLINEAR_OPENSTEF3,
-    BENCHMARK_DIR_XGBOOST_OPENSTEF3,
 ]
 for dir_path in check_dirs:
     if not dir_path.exists():
@@ -33,9 +29,7 @@ for dir_path in check_dirs:
 
 run_storages: dict[RunName, BenchmarkStorage] = {
     "gblinear": LocalBenchmarkStorage(base_path=BENCHMARK_DIR_GBLINEAR),
-    "gblinear_openstef3": LocalBenchmarkStorage(base_path=BENCHMARK_DIR_GBLINEAR_OPENSTEF3),
     "xgboost": LocalBenchmarkStorage(base_path=BENCHMARK_DIR_XGBOOST),
-    "xgboost_openstef3": LocalBenchmarkStorage(base_path=BENCHMARK_DIR_XGBOOST_OPENSTEF3),
 }
 
 target_provider = create_liander2024_benchmark_runner(
