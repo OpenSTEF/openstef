@@ -143,24 +143,41 @@ class SampleWeighter(BaseConfig, TimeSeriesTransform):
         if self.normalize_target and target.size > 0:
             target = self._scaler.transform(target.reshape(-1, 1)).flatten()
 
-        # Dispatch to appropriate weighting function
-        if self.method == "exponential":
-            weights = exponential_sample_weight(
-                x=target,
-                scale_percentile=self.weight_scale_percentile,
-                exponent=self.weight_exponent,
-                floor=self.weight_floor,
-            )
-        else:  # inverse_frequency
-            weights = inverse_frequency_sample_weight(
-                x=target,
-                n_bins=self.n_bins,
-                dampening_exponent=self.dampening_exponent,
-                floor=self.weight_floor,
-            )
+        weights = self._calculate_weights(target)
 
         df.loc[mask, self.sample_weight_column] = weights
         return data.copy_with(df)
+
+    def _calculate_weights(self, target: np.ndarray) -> np.ndarray:
+        """Calculate sample weights based on the configured method.
+
+        Args:
+            target: Array of target values to compute weights from.
+
+        Returns:
+            Array of weights in range [weight_floor, 1.0].
+
+        Raises:
+            ValueError: If an unknown weighting method is configured.
+        """
+        match self.method:
+            case "exponential":
+                return exponential_sample_weight(
+                    x=target,
+                    scale_percentile=self.weight_scale_percentile,
+                    exponent=self.weight_exponent,
+                    floor=self.weight_floor,
+                )
+            case "inverse_frequency":
+                return inverse_frequency_sample_weight(
+                    x=target,
+                    n_bins=self.n_bins,
+                    dampening_exponent=self.dampening_exponent,
+                    floor=self.weight_floor,
+                )
+            case _:
+                msg = f"Unknown weighting method: {self.method}"
+                raise ValueError(msg)
 
     @override
     def features_added(self) -> list[str]:
