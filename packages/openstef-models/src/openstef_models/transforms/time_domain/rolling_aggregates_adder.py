@@ -6,7 +6,7 @@
 
 import logging
 from datetime import timedelta
-from typing import Literal, override
+from typing import Any, Literal, override
 
 import pandas as pd
 from pydantic import Field, PrivateAttr
@@ -147,6 +147,14 @@ class RollingAggregatesAdder(BaseConfig, TimeSeriesTransform):
     @override
     def features_added(self) -> list[str]:
         return [self._make_column_name(func) for func in self.aggregation_functions]
+
+    @override
+    def __setstate__(self, state: Any) -> None:  # TODO(#799): delete after stable release
+        if "_last_valid_aggregates" not in state["__pydantic_private__"]:
+            state["__pydantic_private__"]["_last_valid_aggregates"] = {}
+        if "_is_fitted" not in state["__pydantic_private__"]:
+            state["__pydantic_private__"]["_is_fitted"] = True
+        return super().__setstate__(state)
 
 
 __all__ = ["RollingAggregatesAdder"]
