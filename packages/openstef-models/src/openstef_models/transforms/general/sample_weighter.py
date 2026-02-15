@@ -9,7 +9,7 @@ emphasizing high-value periods for improved model performance on peak loads.
 """
 
 import logging
-from typing import override
+from typing import Literal, override
 
 import numpy as np
 from pydantic import Field, PrivateAttr
@@ -22,15 +22,16 @@ from openstef_models.transforms.general.scaler import StandardScaler
 
 
 class SampleWeighter(BaseConfig, TimeSeriesTransform):
-    """Transform that adds sample weights based on target variable magnitude.
+    """Transform that adds sample weights based on target variable distribution.
 
-    Computes weights using exponential scaling to emphasize high-value samples
-    in model training. This is particularly useful for energy forecasting where
-    accurate predictions during peak demand periods are more critical.
+    Supports two weighting methods:
 
-    The weighting scheme scales values relative to a high percentile (default 95th),
-    applies an exponential transformation, and clips to a minimum floor value to
-    ensure all samples contribute to training.
+    - exponential (default): Scales weights by target magnitude relative to a
+      high percentile. Useful for emphasizing high-value samples like peak loads.
+    - inverse_frequency: Weights samples inversely proportional to their frequency
+      in the target distribution. Rare values receive higher weights.
+
+    Both methods clip weights to [weight_floor, 1.0] to ensure all samples contribute.
 
     Invariants:
         - Target column must exist in the dataset for weighting to be applied
@@ -60,15 +61,25 @@ class SampleWeighter(BaseConfig, TimeSeriesTransform):
         2025-01-01 04:00:00  150.0       0.789474
     """
 
+    method: Literal["exponential", "inverse_frequency"] = Field(
+        default="exponential",
+        description="Weighting method: 'exponential' scales by magnitude, 'inverse_frequency' by rarity.",
+    )
     weight_scale_percentile: int = Field(
         default=95,
-        description="Percentile of target values used as scaling reference. "
-        "Values are normalized relative to this percentile before weighting.",
+        description="[exponential method only] Percentile of target values used as scaling reference.",
     )
     weight_exponent: float = Field(
         default=1.0,
-        description="Exponent applied to to scale the sample weights. "
-        "0=uniform weights, 1=linear scaling, >1=stronger emphasis on high values.",
+        description="[exponential method only] Exponent for scaling: 0=uniform, 1=linear, >1=stronger emphasis.",
+    )
+    n_bins: int = Field(
+        default=50,
+        description="[inverse_frequency method only] Number of equal-width histogram bins for frequency estimation.",
+    )
+    dampening_exponent: float = Field(
+        default=0.5,
+        description="[inverse_frequency method only] Exponent in [0,1] applied to inverse frequency to compress range.",
     )
     weight_floor: float = Field(
         default=0.1,
@@ -132,14 +143,41 @@ class SampleWeighter(BaseConfig, TimeSeriesTransform):
         if self.normalize_target and target.size > 0:
             target = self._scaler.transform(target.reshape(-1, 1)).flatten()
 
-        df.loc[mask, self.sample_weight_column] = exponential_sample_weight(
-            x=target,
-            scale_percentile=self.weight_scale_percentile,
-            exponent=self.weight_exponent,
-            floor=self.weight_floor,
-        )
+        weights = self._calculate_weights(target)
 
+        df.loc[mask, self.sample_weight_column] = weights
         return data.copy_with(df)
+
+    def _calculate_weights(self, target: np.ndarray) -> np.ndarray:
+        """Calculate sample weights based on the configured method.
+
+        Args:
+            target: Array of target values to compute weights from.
+
+        Returns:
+            Array of weights in range [weight_floor, 1.0].
+
+        Raises:
+            ValueError: If an unknown weighting method is configured.
+        """
+        match self.method:
+            case "exponential":
+                return exponential_sample_weight(
+                    x=target,
+                    scale_percentile=self.weight_scale_percentile,
+                    exponent=self.weight_exponent,
+                    floor=self.weight_floor,
+                )
+            case "inverse_frequency":
+                return inverse_frequency_sample_weight(
+                    x=target,
+                    n_bins=self.n_bins,
+                    dampening_exponent=self.dampening_exponent,
+                    floor=self.weight_floor,
+                )
+            case _:
+                msg = f"Unknown weighting method: {self.method}"
+                raise ValueError(msg)
 
     @override
     def features_added(self) -> list[str]:
@@ -185,3 +223,50 @@ def exponential_sample_weight(
     x_scaled = np.abs(x / scaling_value)
     x_weighted = np.abs(x_scaled) ** exponent
     return np.clip(x_weighted, a_min=floor, a_max=1.0)
+
+
+def inverse_frequency_sample_weight(
+    x: np.ndarray,
+    n_bins: int = 50,
+    dampening_exponent: float = 0.5,
+    floor: float = 0.1,
+) -> np.ndarray:
+    """Calculate sample weights based on inverse frequency using histogram binning.
+
+    Values that occur more frequently receive lower weights, while values that
+    occur less frequently (rare samples) receive higher weights.
+
+    Args:
+        x: Array of target values to compute weights from.
+        n_bins: Number of equal-width histogram bins for frequency estimation.
+        dampening_exponent: Exponent in [0, 1] applied to inverse frequency ratio.
+            Lower values compress the weight range, reducing impact of very rare
+            samples. Use 1.0 for linear (no dampening), 0.0 for uniform weights.
+        floor: Minimum weight value. Ensures all samples contribute to training.
+
+    Returns:
+        Array of weights in range [floor, 1.0] with same shape as input.
+    """
+    if x.size == 0:
+        return np.empty_like(x)
+
+    # Compute histogram with equal-width bins
+    counts, bin_edges = np.histogram(x, bins=n_bins)
+
+    # Assign each value to a bin
+    bin_indices = np.digitize(x, bin_edges[:-1]) - 1
+    bin_indices = np.clip(bin_indices, 0, n_bins - 1)
+
+    # Get the count for each sample's bin
+    sample_counts = counts[bin_indices]
+
+    # Calculate inverse frequency ratio
+    max_count = counts.max()
+    inverse_freq_ratio = max_count / sample_counts
+
+    # Apply dampening exponent to compress the range
+    dampened_ratio = np.power(inverse_freq_ratio, dampening_exponent)
+
+    # Normalize to [floor, 1.0]
+    weights = dampened_ratio / dampened_ratio.max()
+    return weights * (1.0 - floor) + floor

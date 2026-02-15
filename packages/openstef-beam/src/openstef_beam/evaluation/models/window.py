@@ -10,7 +10,7 @@ specification across evaluation pipelines.
 """
 
 import re
-from datetime import timedelta
+from datetime import datetime, timedelta
 from typing import Any, Self, override
 
 from pydantic import TypeAdapter
@@ -104,3 +104,28 @@ class Window(PydanticStringPrimitive):
             return cls(lag=lag, size=size, stride=stride, minimum_coverage=minimum_coverage)
 
         return super().validate(v, _info)
+
+    def get_timerange(self, reference_date: datetime) -> tuple[datetime, datetime]:
+        """Get the start and end datetime of the evaluation window.
+
+        Args:
+            reference_date: The reference datetime to calculate the window from.
+
+        Returns:
+            A tuple containing the start and end datetime of the window.
+        """
+        return (
+            reference_date - self.lag - self.size,
+            reference_date - self.lag,
+        )
+
+    def is_future(self, reference_date: datetime) -> bool:
+        """Check if the window ends after the reference date.
+
+        Args:
+            reference_date: The reference datetime to check against.
+
+        Returns:
+            True if the window ends after the reference date, False otherwise.
+        """
+        return self.get_timerange(reference_date)[1] > reference_date

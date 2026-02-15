@@ -23,6 +23,7 @@ def iterate_by_window(
     index: pd.DatetimeIndex,
     window: Window,
     sample_interval: timedelta,
+    reference_date: datetime | None = None,
 ) -> Iterator[tuple[datetime, pd.DatetimeIndex]]:
     """Yields fixed-size sliding windows over a time series index.
 
@@ -36,10 +37,25 @@ def iterate_by_window(
         index: DatetimeIndex to create windows from
         window: Window specification with size, stride parameters
         sample_interval: Time interval between consecutive samples
+        reference_date: Reference date for single window evaluation. When provided, yields
+            a single window based on the reference date instead of all available windows.
 
     Yields:
         Iterator of (window end time, window DatetimeIndex) tuples
     """
+    if reference_date is not None:
+        start, end = window.get_timerange(reference_date)
+        yield (
+            end,
+            pd.date_range(
+                start=start,
+                end=end,
+                freq=sample_interval,
+                inclusive="both",
+            ),
+        )
+        return
+
     for end in pd.date_range(
         start=align_datetime(index.min() + window.size, window.stride, mode="ceil"),  # type: ignore[reportUnknownMemberType]
         end=align_datetime(index.max(), window.stride, mode="floor"),  # type: ignore[reportUnknownMemberType]
@@ -59,6 +75,7 @@ def iterate_by_window(
 def iterate_subsets_by_window[T: TimeSeriesDataset](
     subset: T,
     window: Window,
+    reference_date: datetime | None = None,
 ) -> Iterator[tuple[datetime, T]]:
     """Yields evaluation subsets for each window with sufficient data coverage.
 
@@ -70,6 +87,8 @@ def iterate_subsets_by_window[T: TimeSeriesDataset](
     Args:
         subset: The evaluation subset to iterate over
         window: Window specification with size, stride, and minimum coverage parameters
+        reference_date: Reference date for single window evaluation. When provided, yields
+            a single windowed subset based on the reference date instead of all available windows.
 
     Yields:
         Iterator of (window end time, windowed evaluation subset) tuples
@@ -78,6 +97,7 @@ def iterate_subsets_by_window[T: TimeSeriesDataset](
         index=subset.index,
         window=window,
         sample_interval=subset.sample_interval,
+        reference_date=reference_date,
     ):
         window_data = subset.filter_index(window_index)
 
