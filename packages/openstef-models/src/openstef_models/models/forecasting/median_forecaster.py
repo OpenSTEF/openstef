@@ -200,7 +200,7 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
             raise AttributeError(msg)
 
         # Check that the frequency of the input data matches the model frequency
-        if not data.frequency_matches(data.data.index):
+        if not data.frequency_matches(data.data.index):  # type: ignore
             msg = (
                 f"Input data frequency does not match model frequency ({self.frequency}). "
                 "Please ensure the input data index has the correct frequency set."
@@ -308,7 +308,7 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
         }
 
         # Check if the the training data frequency matches the model frequency
-        if not data.frequency_matches(data.data.index):
+        if not data.frequency_matches(data.data.index):  # type: ignore
             msg = (
                 f"Training data frequency does not match model frequency ({self.frequency}). "
                 "Please ensure the training data index has the correct frequency set."
