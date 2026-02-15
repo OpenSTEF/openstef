@@ -99,11 +99,12 @@ class TimeSeriesDataset(TimeSeriesMixin, DatasetMixin):  # noqa: PLR0904 - impor
     def __init__(
         self,
         data: pd.DataFrame,
-        sample_interval: timedelta | None = None,
+        sample_interval: timedelta = timedelta(minutes=15),
         *,
         horizon_column: str = "horizon",
         available_at_column: str = "available_at",
         is_sorted: bool = False,
+        check_frequency: bool = False,
     ) -> None:
         """Initialize a time series dataset.
 
@@ -118,6 +119,7 @@ class TimeSeriesDataset(TimeSeriesMixin, DatasetMixin):  # noqa: PLR0904 - impor
             horizon_column: Name of the column storing forecast horizons.
             available_at_column: Name of the column storing availability times.
             is_sorted: Whether the data is sorted by timestamp.
+            check_frequency: Whether to check that the data frequency matches sample_interval.
 
         Raises:
             TypeError: If data index is not a pandas DatetimeIndex or if versioning
@@ -127,28 +129,18 @@ class TimeSeriesDataset(TimeSeriesMixin, DatasetMixin):  # noqa: PLR0904 - impor
         if not isinstance(data.index, pd.DatetimeIndex):
             raise TypeError("Data index must be a pandas DatetimeIndex.")
 
-        if sample_interval is None:
-            inferred_freq = pd.Timedelta(
-                self._infer_frequency(data.index) if data.index.freq is None else data.index.freq  # type: ignore
-            )
-            sample_interval = inferred_freq.to_pytimedelta()
-
-        # Check input data frequency matches sample_interval, only if there are enough data points to infer frequency
-        minimum_required_length = 2
-        if len(data) >= minimum_required_length:
-            input_sample_interval = self._infer_frequency(data.index) if data.index.freq is None else data.index.freq
-            if input_sample_interval != sample_interval:
-                msg = (
-                    f"Data frequency ({input_sample_interval}) does not match the sample_interval ({sample_interval})."
-                )
-                raise ValueError(msg)
-
         self.data = data
         self.horizon_column = horizon_column
         self.available_at_column = available_at_column
         self._sample_interval = sample_interval
         self._internal_columns = set()
         data.index.name = self.index_name
+
+        # Check input data frequency matches sample_interval, only if there are enough data points to infer frequency
+        minimum_required_length = 2
+        if check_frequency and len(data) >= minimum_required_length and not self.frequency_matches(data.index):
+            msg = f"Data frequency does not match the sample_interval ({sample_interval})."
+            raise ValueError(msg)
 
         if self.horizon_column in data.columns:
             validate_timedelta_column(data[self.horizon_column])
@@ -486,7 +478,7 @@ class TimeSeriesDataset(TimeSeriesMixin, DatasetMixin):  # noqa: PLR0904 - impor
         # Find the most common difference
         return deltas.mode().iloc[0]
 
-    def _frequency_matches(self, index: pd.DatetimeIndex) -> bool:
+    def frequency_matches(self, index: pd.DatetimeIndex) -> bool:
         """Check if the frequency of the data matches the model frequency.
 
         Args:

@@ -24,6 +24,7 @@ def test_median_returns_median():
         load_lag_PT1H=[1.0, np.nan, np.nan],
         load_lag_PT2H=[4.0, 1.0, np.nan],
         load_lag_PT3H=[7.0, 4.0, 1.0],
+        check_frequency=True,
     )
 
     training_input_data = ForecastInputDataset.from_timeseries(
@@ -345,7 +346,7 @@ def test_median_fit_with_missing_features_raises():
         data=prediction_data,
         target_column="load",
         forecast_start=index[0],
-        sample_interval=training_input_data.sample_interval,
+        sample_interval=training_input_data._sample_interval,
     )
 
     # Act & Assert

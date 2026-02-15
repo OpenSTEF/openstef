@@ -199,6 +199,14 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
             msg = "This MedianForecaster instance is not fitted yet"
             raise AttributeError(msg)
 
+        # Check that the frequency of the input data matches the model frequency
+        if not data.frequency_matches(data.data.index):
+            msg = (
+                f"Input data frequency does not match model frequency ({self.frequency}). "
+                "Please ensure the input data index has the correct frequency set."
+            )
+            raise ValueError(msg)
+
         input_data: pd.DataFrame = data.input_data(start=data.forecast_start)
 
         # Check that the input data contains the required lag features
@@ -299,9 +307,17 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
             for feature_name in self.feature_names_
         }
 
+        # Check if the the training data frequency matches the model frequency
+        if not data.frequency_matches(data.data.index):
+            msg = (
+                f"Training data frequency does not match model frequency ({self.frequency}). "
+                "Please ensure the training data index has the correct frequency set."
+            )
+            raise ValueError(msg)
+
         # Check if lags are evenly spaced
         lag_deltas = sorted(self.lags_to_time_deltas_.values())
-        lag_intervals = [(lag_deltas[i] - lag_deltas[i - 1]).total_seconds() for i in range(1, len(lag_deltas))]
+        lag_intervals = [(lag_deltas[i] - lag_deltas[i - 1]) for i in range(1, len(lag_deltas))]
         if not all(interval == lag_intervals[0] for interval in lag_intervals):
             msg = (
                 "Lag features are not evenly spaced. "
@@ -311,9 +327,9 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
 
         # Check that lag frequency matches data frequency
         expected_lag_interval = lag_intervals[0]
-        if expected_lag_interval != self.frequency_.total_seconds():
+        if expected_lag_interval != self.frequency_:
             msg = (
-                f"Lag feature interval ({timedelta(seconds=expected_lag_interval)}) does not match "
+                f"Lag feature interval ({expected_lag_interval}) does not match "
                 f"data frequency ({self.frequency_}). "
                 "Please ensure lag features match the data frequency."
             )

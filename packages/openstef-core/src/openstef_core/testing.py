@@ -46,6 +46,8 @@ def create_timeseries_dataset(
     available_ats: pd.Series | list[datetime] | pd.DatetimeIndex | None = None,
     horizons: pd.Series | list[timedelta] | None = None,
     sample_interval: timedelta = timedelta(hours=1),
+    *,
+    check_frequency: bool = False,
     **kwargs: pd.Series | list[Any] | pd.DatetimeIndex,
 ) -> TimeSeriesDataset:
     """Create a TimeSeriesDataset for testing purposes.
@@ -56,6 +58,7 @@ def create_timeseries_dataset(
         horizons: Optional forecast horizons for each data point.
         sample_interval: Time interval between consecutive samples.
         **kwargs: Additional columns to include in the dataset.
+        check_frequency: Whether to check the frequency of the datetime index.
 
     Returns:
         TimeSeriesDataset with the specified structure.
@@ -66,7 +69,9 @@ def create_timeseries_dataset(
     elif horizons is not None:
         data["horizon"] = horizons
 
-    return TimeSeriesDataset(data=pd.DataFrame(data=data, index=index), sample_interval=sample_interval)
+    return TimeSeriesDataset(
+        data=pd.DataFrame(data=data, index=index), sample_interval=sample_interval, check_frequency=check_frequency
+    )
 
 
 def create_synthetic_forecasting_dataset(  # noqa: PLR0913, PLR0917 - complex function - testing utility
