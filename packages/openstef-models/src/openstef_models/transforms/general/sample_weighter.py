@@ -9,7 +9,7 @@ emphasizing high-value periods for improved model performance on peak loads.
 """
 
 import logging
-from typing import Literal, override
+from typing import Any, Literal, cast, override
 
 import numpy as np
 from pydantic import Field, PrivateAttr
@@ -182,6 +182,13 @@ class SampleWeighter(BaseConfig, TimeSeriesTransform):
     @override
     def features_added(self) -> list[str]:
         return [self.sample_weight_column]
+
+    @override
+    def __setstate__(self, state: dict[str, Any]) -> None:  # TODO(#799): delete after stable release
+        if "method" not in state["__dict__"]:
+            state["__dict__"]["method"] = "exponential"
+            cast(set[str], state["__pydantic_fields_set__"]).add("method")
+        return super().__setstate__(state)
 
 
 def exponential_sample_weight(
