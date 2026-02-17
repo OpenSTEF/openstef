@@ -27,7 +27,7 @@ from openstef_models.models.forecasting.gblinear_forecaster import (
     GBLinearForecaster,
     GBLinearHyperParams,
 )
-from openstef_models.models.forecasting.lgbm_forecaster import LGBMForecaster, LGBMHyperParams
+from openstef_models.models.forecasting.lgbm_forecaster import LGBMHyperParams
 
 if TYPE_CHECKING:
     from openstef_models.models.forecasting.forecaster import Forecaster
@@ -35,7 +35,6 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 ForecasterHyperParams = GBLinearHyperParams | LGBMHyperParams
-ForecasterType = GBLinearForecaster | LGBMForecaster
 
 
 class StackingCombinerConfig(ForecastCombinerConfig):
@@ -89,8 +88,6 @@ class StackingCombiner(ForecastCombiner):
     """Combines base Forecaster predictions per quantile into final predictions using a regression approach."""
 
     Config = StackingCombinerConfig
-    LGBMHyperParams = LGBMHyperParams
-    GBLinearHyperParams = GBLinearHyperParams
 
     def __init__(
         self,

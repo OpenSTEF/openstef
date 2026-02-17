@@ -1,11 +1,10 @@
 # SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
 #
 # SPDX-License-Identifier: MPL-2.0
-"""Core meta model interfaces and configurations.
+"""Forecast combiner base classes and configurations.
 
-Provides the fundamental building blocks for implementing meta models in OpenSTEF.
-These mixins establish contracts that ensure consistent behavior across different meta model types
-while ensuring full compatibility with regular Forecasters.
+Provides abstract base classes and configuration schemas for implementing
+forecast combiners that aggregate predictions from multiple base forecasters.
 """
 
 from abc import abstractmethod
@@ -19,12 +18,6 @@ from openstef_core.datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.mixins import HyperParams, Predictor
 from openstef_core.types import LeadTime, Quantile
 from openstef_meta.utils.datasets import EnsembleForecastDataset
-from openstef_models.transforms.general.selector import Selector
-from openstef_models.utils.feature_selection import FeatureSelection
-
-SELECTOR = Selector(
-    selection=FeatureSelection(include=None),
-)
 
 
 class ForecastCombinerConfig(BaseConfig):

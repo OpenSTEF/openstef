@@ -9,8 +9,12 @@ import pytest
 from openstef_core.exceptions import NotFittedError
 from openstef_core.types import LeadTime, Q
 from openstef_meta.models.forecast_combiners.learned_weights_combiner import (
+    LGBMCombinerHyperParams,
+    LogisticCombinerHyperParams,
+    RFCombinerHyperParams,
     WeightsCombiner,
     WeightsCombinerConfig,
+    XGBCombinerHyperParams,
 )
 from openstef_meta.utils.datasets import EnsembleForecastDataset
 
@@ -25,13 +29,13 @@ def classifier(request: pytest.FixtureRequest) -> str:
 def config(classifier: str) -> WeightsCombinerConfig:
     """Fixture to create WeightsCombinerConfig based on the classifier type."""
     if classifier == "lgbm":
-        hp = WeightsCombiner.LGBMHyperParams(n_leaves=5, n_estimators=10)
+        hp = LGBMCombinerHyperParams(n_leaves=5, n_estimators=10)
     elif classifier == "xgboost":
-        hp = WeightsCombiner.XGBHyperParams(n_estimators=10)
+        hp = XGBCombinerHyperParams(n_estimators=10)
     elif classifier == "rf":
-        hp = WeightsCombiner.RFHyperParams(n_estimators=10, n_leaves=5)
+        hp = RFCombinerHyperParams(n_estimators=10, n_leaves=5)
     elif classifier == "logistic":
-        hp = WeightsCombiner.LogisticHyperParams()
+        hp = LogisticCombinerHyperParams()
     else:
         msg = f"Unsupported classifier type: {classifier}"
         raise ValueError(msg)

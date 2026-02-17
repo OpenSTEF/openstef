@@ -24,9 +24,17 @@ from openstef_core.datasets.timeseries_dataset import TimeSeriesDataset
 from openstef_core.mixins.transform import Transform, TransformPipeline
 from openstef_core.types import LeadTime, Q, Quantile, QuantileOrGlobal
 from openstef_meta.models.ensemble_forecasting_model import EnsembleForecastingModel
-from openstef_meta.models.forecast_combiners.learned_weights_combiner import WeightsCombiner
+from openstef_meta.models.forecast_combiners.learned_weights_combiner import (
+    LGBMCombinerHyperParams,
+    LogisticCombinerHyperParams,
+    RFCombinerHyperParams,
+    WeightsCombiner,
+    XGBCombinerHyperParams,
+)
 from openstef_meta.models.forecast_combiners.rules_combiner import RulesCombiner
-from openstef_meta.models.forecast_combiners.stacking_combiner import StackingCombiner
+from openstef_meta.models.forecast_combiners.stacking_combiner import (
+    StackingCombiner,
+)
 from openstef_meta.models.forecasting.residual_forecaster import ResidualForecaster
 from openstef_models.integrations.mlflow import MLFlowStorage
 from openstef_models.mixins.model_serializer import ModelIdentifier
@@ -118,6 +126,34 @@ class EnsembleWorkflowConfig(BaseConfig):
         description="Hyperparameters for Residual forecaster.",
     )
 
+    # Learned weights combiner hyperparameters
+    lgbm_combiner_hyperparams: LGBMCombinerHyperParams = Field(
+        default=LGBMCombinerHyperParams(),
+        description="Hyperparameters for LightGBM combiner.",
+    )
+    rf_combiner_hyperparams: RFCombinerHyperParams = Field(
+        default=RFCombinerHyperParams(),
+        description="Hyperparameters for Random Forest combiner.",
+    )
+    xgboost_combiner_hyperparams: XGBCombinerHyperParams = Field(
+        default=XGBCombinerHyperParams(),
+        description="Hyperparameters for XGBoost combiner.",
+    )
+    logistic_combiner_hyperparams: LogisticCombinerHyperParams = Field(
+        default=LogisticCombinerHyperParams(),
+        description="Hyperparameters for Logistic Regression combiner.",
+    )
+
+    # Stacking combiner hyperparameters
+    stacking_lgbm_combiner_hyperparams: LGBMForecaster.HyperParams = Field(
+        default=LGBMForecaster.HyperParams(),
+        description="Hyperparameters for LightGBM stacking combiner.",
+    )
+    stacking_gblinear_combiner_hyperparams: GBLinearForecaster.HyperParams = Field(
+        default=GBLinearForecaster.HyperParams(),
+        description="Hyperparameters for GBLinear stacking combiner.",
+    )
+
     # Data properties
     target_column: str = Field(default="load", description="Name of the target variable column in datasets.")
     energy_price_column: str = Field(
@@ -167,6 +203,7 @@ class EnsembleWorkflowConfig(BaseConfig):
         default=FeatureSelection(include=None, exclude=None),
         description="Feature selection for which features to clip.",
     )
+    # TODO: Add sample weight method parameter
     sample_weight_scale_percentile: int = Field(
         default=95,
         description="Percentile of target values used as scaling reference. "
@@ -178,16 +215,15 @@ class EnsembleWorkflowConfig(BaseConfig):
         "0=uniform weights, 1=linear scaling, >1=stronger emphasis on high values. "
         "Note: Defaults to 1.0 for gblinear congestion models.",
     )
+    sample_weight_floor: float = Field(
+        default=0.1,
+        description="Minimum weight value to ensure all samples contribute to training.",
+    )
 
     forecast_combiner_sample_weight_exponent: float = Field(
         default=0,
         description="Exponent applied to scale the sample weights for the forecast combiner model. "
         "0=uniform weights, 1=linear scaling, >1=stronger emphasis on high values.",
-    )
-
-    sample_weight_floor: float = Field(
-        default=0.1,
-        description="Minimum weight value to ensure all samples contribute to training.",
     )
 
     # Data splitting strategy
@@ -304,7 +340,7 @@ def feature_standardizers(config: EnsembleWorkflowConfig) -> list[Transform[Time
     )
 
 
-def create_ensemble_workflow(config: EnsembleWorkflowConfig) -> CustomForecastingWorkflow:  # noqa: C901, PLR0912, PLR0915
+def create_ensemble_workflow(config: EnsembleWorkflowConfig) -> CustomForecastingWorkflow:  # noqa: C901, PLR0912
     """Create an ensemble forecasting workflow from configuration.
 
     Args:
@@ -415,61 +451,53 @@ def create_ensemble_workflow(config: EnsembleWorkflowConfig) -> CustomForecastin
             raise ValueError(msg)
 
     # Build combiner
-    # Case: Ensemble type, combiner model
     match (config.ensemble_type, config.combiner_model):
         case ("learned_weights", "lgbm"):
-            combiner_hp = WeightsCombiner.LGBMHyperParams()
-            combiner_config = WeightsCombiner.Config(
-                hyperparams=combiner_hp, horizons=config.horizons, quantiles=config.quantiles
-            )
             combiner = WeightsCombiner(
-                config=combiner_config,
+                config=WeightsCombiner.Config(
+                    hyperparams=config.lgbm_combiner_hyperparams, horizons=config.horizons, quantiles=config.quantiles
+                )
             )
         case ("learned_weights", "rf"):
-            combiner_hp = WeightsCombiner.RFHyperParams()
-            combiner_config = WeightsCombiner.Config(
-                hyperparams=combiner_hp, horizons=config.horizons, quantiles=config.quantiles
-            )
             combiner = WeightsCombiner(
-                config=combiner_config,
+                config=WeightsCombiner.Config(
+                    hyperparams=config.rf_combiner_hyperparams, horizons=config.horizons, quantiles=config.quantiles
+                )
             )
         case ("learned_weights", "xgboost"):
-            combiner_hp = WeightsCombiner.XGBHyperParams()
-            combiner_config = WeightsCombiner.Config(
-                hyperparams=combiner_hp, horizons=config.horizons, quantiles=config.quantiles
-            )
             combiner = WeightsCombiner(
-                config=combiner_config,
+                config=WeightsCombiner.Config(
+                    hyperparams=config.xgboost_combiner_hyperparams,
+                    horizons=config.horizons,
+                    quantiles=config.quantiles,
+                )
             )
         case ("learned_weights", "logistic"):
-            combiner_hp = WeightsCombiner.LogisticHyperParams()
-            combiner_config = WeightsCombiner.Config(
-                hyperparams=combiner_hp, horizons=config.horizons, quantiles=config.quantiles
-            )
             combiner = WeightsCombiner(
-                config=combiner_config,
+                config=WeightsCombiner.Config(
+                    hyperparams=config.logistic_combiner_hyperparams,
+                    horizons=config.horizons,
+                    quantiles=config.quantiles,
+                )
             )
         case ("stacking", "lgbm"):
-            combiner_hp = StackingCombiner.LGBMHyperParams()
-            combiner_config = StackingCombiner.Config(
-                hyperparams=combiner_hp, horizons=config.horizons, quantiles=config.quantiles
-            )
             combiner = StackingCombiner(
-                config=combiner_config,
+                config=StackingCombiner.Config(
+                    hyperparams=config.stacking_lgbm_combiner_hyperparams,
+                    horizons=config.horizons,
+                    quantiles=config.quantiles,
+                )
             )
         case ("stacking", "gblinear"):
-            combiner_hp = StackingCombiner.GBLinearHyperParams(reg_alpha=0.0, reg_lambda=0.0)
-            combiner_config = StackingCombiner.Config(
-                hyperparams=combiner_hp, horizons=config.horizons, quantiles=config.quantiles
-            )
             combiner = StackingCombiner(
-                config=combiner_config,
+                config=StackingCombiner.Config(
+                    hyperparams=config.stacking_gblinear_combiner_hyperparams,
+                    horizons=config.horizons,
+                    quantiles=config.quantiles,
+                )
             )
         case ("rules", _):
-            combiner_config = RulesCombiner.Config(horizons=config.horizons, quantiles=config.quantiles)
-            combiner = RulesCombiner(
-                config=combiner_config,
-            )
+            combiner = RulesCombiner(config=RulesCombiner.Config(horizons=config.horizons, quantiles=config.quantiles))
         case _:
             msg = f"Unsupported ensemble and combiner combination: {config.ensemble_type}, {config.combiner_model}"
             raise ValueError(msg)

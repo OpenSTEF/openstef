@@ -217,6 +217,7 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
         default=FeatureSelection(include=None, exclude=None),
         description="Feature selection for which features to clip.",
     )
+    # TODO: Add sample weight method parameter
     sample_weight_scale_percentile: int = Field(
         default=95,
         description="Percentile of target values used as scaling reference. "

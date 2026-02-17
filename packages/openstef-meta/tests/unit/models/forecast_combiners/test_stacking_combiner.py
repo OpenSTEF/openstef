@@ -14,6 +14,8 @@ from openstef_meta.models.forecast_combiners.stacking_combiner import (
     StackingCombinerConfig,
 )
 from openstef_meta.utils.datasets import EnsembleForecastDataset
+from openstef_models.models.forecasting.gblinear_forecaster import GBLinearForecaster
+from openstef_models.models.forecasting.lgbm_forecaster import LGBMForecaster
 
 
 @pytest.fixture(params=["lgbm", "gblinear"])
@@ -26,9 +28,9 @@ def regressor(request: pytest.FixtureRequest) -> str:
 def config(regressor: str) -> StackingCombinerConfig:
     """Fixture to create StackingCombinerConfig based on the regressor type."""
     if regressor == "lgbm":
-        hp = StackingCombiner.LGBMHyperParams(num_leaves=5, n_estimators=10)
+        hp = LGBMForecaster.HyperParams(num_leaves=5, n_estimators=10)
     elif regressor == "gblinear":
-        hp = StackingCombiner.GBLinearHyperParams(n_steps=10)
+        hp = GBLinearForecaster.HyperParams(n_steps=10)
     else:
         msg = f"Unsupported regressor type: {regressor}"
         raise ValueError(msg)

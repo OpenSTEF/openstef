@@ -238,10 +238,6 @@ class WeightsCombiner(ForecastCombiner):
     """
 
     Config = WeightsCombinerConfig
-    LGBMHyperParams = LGBMCombinerHyperParams  # TODO: do we need all these hyperparams here?
-    RFHyperParams = RFCombinerHyperParams
-    XGBHyperParams = XGBCombinerHyperParams
-    LogisticHyperParams = LogisticCombinerHyperParams
 
     def __init__(self, config: WeightsCombinerConfig) -> None:
         """Initialize the WeightsCombiner."""
