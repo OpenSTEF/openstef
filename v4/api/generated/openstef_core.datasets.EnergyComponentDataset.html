@@ -636,6 +636,7 @@ EnergyComponentType: Enum defining required energy component types.</p>
 <li><p><strong>horizon_column</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Name of the column storing forecast horizons.</p></li>
 <li><p><strong>available_at_column</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Name of the column storing availability times.</p></li>
 <li><p><strong>is_sorted</strong> – Whether the data is sorted by timestamp.</p></li>
+<li><p><strong>check_frequency</strong> – Whether to check that the data frequency matches sample_interval.</p></li>
 <li><p><strong>data</strong></p></li>
 <li><p><strong>sample_interval</strong></p></li>
 <li><p><strong>horizon_column</strong></p></li>
@@ -643,8 +644,11 @@ EnergyComponentType: Enum defining required energy component types.</p>
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>TypeError</strong> – If data index is not a pandas DatetimeIndex or if versioning
-    columns have incorrect types.</p>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>TypeError</strong> – If data index is not a pandas DatetimeIndex or if versioning
+    columns have incorrect types.</p></li>
+<li><p><strong>ValueError</strong> – If data frequency does not match sample_interval.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>

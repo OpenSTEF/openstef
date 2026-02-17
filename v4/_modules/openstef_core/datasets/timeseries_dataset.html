@@ -549,6 +549,7 @@
         <span class="n">horizon_column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;horizon&quot;</span><span class="p">,</span>
         <span class="n">available_at_column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;available_at&quot;</span><span class="p">,</span>
         <span class="n">is_sorted</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">check_frequency</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize a time series dataset.</span>
 
@@ -563,10 +564,12 @@
 <span class="sd">            horizon_column: Name of the column storing forecast horizons.</span>
 <span class="sd">            available_at_column: Name of the column storing availability times.</span>
 <span class="sd">            is_sorted: Whether the data is sorted by timestamp.</span>
+<span class="sd">            check_frequency: Whether to check that the data frequency matches sample_interval.</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            TypeError: If data index is not a pandas DatetimeIndex or if versioning</span>
 <span class="sd">                columns have incorrect types.</span>
+<span class="sd">            ValueError: If data frequency does not match sample_interval.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Data index must be a pandas DatetimeIndex.&quot;</span><span class="p">)</span>
@@ -577,6 +580,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_sample_interval</span> <span class="o">=</span> <span class="n">sample_interval</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_internal_columns</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index_name</span>
+
+        <span class="c1"># Check input data frequency matches sample_interval, only if there are enough data points to infer frequency</span>
+        <span class="n">minimum_required_length</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="k">if</span> <span class="n">check_frequency</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">minimum_required_length</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">frequency_matches</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="p">):</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Data frequency does not match the sample_interval (</span><span class="si">{</span><span class="n">sample_interval</span><span class="si">}</span><span class="s2">).&quot;</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">horizon_column</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
             <span class="n">validate_timedelta_column</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">horizon_column</span><span class="p">])</span>
@@ -929,6 +938,47 @@
             <span class="n">available_at_column</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">available_at_column</span><span class="p">,</span>
             <span class="n">is_sorted</span><span class="o">=</span><span class="n">is_sorted</span><span class="p">,</span>
         <span class="p">)</span></div>
+
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_infer_frequency</span><span class="p">(</span><span class="n">index</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Infer the frequency of a pandas DatetimeIndex if the freq attribute is not set.</span>
+
+<span class="sd">        This method calculates the most common time difference between consecutive timestamps,</span>
+<span class="sd">        which is more permissive of missing chunks of data than the pandas infer_freq method.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            index (pd.DatetimeIndex): The datetime index to infer the frequency from.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            pd.Timedelta: The inferred frequency as a pandas Timedelta.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If the index has fewer than 2 timestamps.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">minimum_required_length</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">index</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">minimum_required_length</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot infer frequency from an index with fewer than 2 timestamps.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Calculate the differences between consecutive timestamps</span>
+        <span class="n">deltas</span> <span class="o">=</span> <span class="n">index</span><span class="o">.</span><span class="n">to_series</span><span class="p">()</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span><span class="o">.</span><span class="n">sort_values</span><span class="p">()</span><span class="o">.</span><span class="n">diff</span><span class="p">()</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+
+        <span class="c1"># Find the most common difference</span>
+        <span class="k">return</span> <span class="n">deltas</span><span class="o">.</span><span class="n">mode</span><span class="p">()</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+<div class="viewcode-block" id="TimeSeriesDataset.frequency_matches">
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset.frequency_matches">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">frequency_matches</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if the frequency of the data matches the model frequency.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            index (pd.DatetimeIndex): The data to check.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: True if the frequencies match, False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">input_sample_interval</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_infer_frequency</span><span class="p">(</span><span class="n">index</span><span class="p">)</span> <span class="k">if</span> <span class="n">index</span><span class="o">.</span><span class="n">freq</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">index</span><span class="o">.</span><span class="n">freq</span>
+        <span class="k">return</span> <span class="n">input_sample_interval</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_interval</span></div>
 </div>
 
 
