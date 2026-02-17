@@ -140,7 +140,6 @@ def test_run_training_scenarios(
     # Assert
     assert isinstance(result, TimeSeriesDataset)
     assert result.sample_interval == forecaster_config.predict_sample_interval
-
     # Validate call counts
     if expected_train_calls == ">0":
         assert mock_forecaster.train_call_count > 0

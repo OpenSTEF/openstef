@@ -82,13 +82,13 @@ def test_get_predictors_for_target(tmp_path: Path, test_target: BenchmarkTarget)
     interval = timedelta(hours=1)
 
     weather = VersionedTimeSeriesDataset.from_dataframe(
-        pd.DataFrame({"temp": range(3), "available_at": index}, index=index), interval
+        pd.DataFrame({"temp": range(3), "available_at": index}, index=index), sample_interval=interval
     )
     profiles = VersionedTimeSeriesDataset.from_dataframe(
-        pd.DataFrame({"prof": range(3), "available_at": index}, index=index), interval
+        pd.DataFrame({"prof": range(3), "available_at": index}, index=index), sample_interval=interval
     )
     prices = VersionedTimeSeriesDataset.from_dataframe(
-        pd.DataFrame({"price": range(3), "available_at": index}, index=index), interval
+        pd.DataFrame({"price": range(3), "available_at": index}, index=index), sample_interval=interval
     )
 
     class TestProvider(SimpleTargetProvider[BenchmarkTarget, None]):
