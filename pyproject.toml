@@ -64,9 +64,11 @@ dev = [
   "pytest>=8.4.1",
   "pytest-cov>=6.2.1",
   "pytest-xdist>=3.8",
+  "pytest-memray>=1.8.0",
   "reuse>=5.0.2",
   "ruff>=0.12.8",
   "scipy-stubs>=1.16.2.4",
+  "memray>=1.19.1",
 ]
 
 [tool.hatch.build.targets.wheel]
@@ -245,6 +247,13 @@ cmd = "pyright packages/*/tests"
 [tool.poe.tasks.tests]
 help = "Run pytest with xdist, marker filtering, and coverage"
 cmd = "pytest --numprocesses=auto ${markers:+ -m $markers} --cov --cov-report=term-missing --cov-report=xml:coverage.xml"
+args = [
+  { name = "markers", type = "string", default = "", help = "Only run tests matching the given pytest markers expression" },
+]
+
+[tool.poe.tasks.tests-memory]
+help = "Run pytest with xdist, marker filtering, and coverage"
+cmd = "pytest --memray --most-allocations=10 --numprocesses=auto ${markers:+ -m $markers} --cov --cov-report=term-missing --cov-report=xml:coverage.xml"
 args = [
   { name = "markers", type = "string", default = "", help = "Only run tests matching the given pytest markers expression" },
 ]
