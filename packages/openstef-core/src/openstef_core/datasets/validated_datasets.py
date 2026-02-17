@@ -78,6 +78,7 @@ class ForecastInputDataset(TimeSeriesDataset):
         *,
         horizon_column: str = "horizon",
         available_at_column: str = "available_at",
+        check_frequency: bool = False,
         sample_weight_column: str = "sample_weight",
         target_column: str = "load",
     ) -> None:
@@ -95,6 +96,7 @@ class ForecastInputDataset(TimeSeriesDataset):
             sample_interval=sample_interval,
             horizon_column=horizon_column,
             available_at_column=available_at_column,
+            check_frequency=check_frequency,
         )
         self._internal_columns.add(self.sample_weight_column)
         self._feature_names = [col for col in self.data.columns if col not in self._internal_columns]

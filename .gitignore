@@ -125,3 +125,7 @@ certificates/
 
 # Benchmark outputs
 benchmark_results*/
+
+# Mlflow
+mlflow
+mlflow_artifacts_local
