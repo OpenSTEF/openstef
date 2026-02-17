@@ -98,6 +98,25 @@ def test_transform_does_not_raise_when_no_flatliner_detected() -> None:
         pytest.fail("FlatlinerDetectedError was raised unexpectedly.")
 
 
+def test_transform_does_not_raise_when_all_nan_load() -> None:
+    # Arrange
+    data = TimeSeriesDataset(
+        data=pd.DataFrame(
+            data={"load": [None, None, None, None]},
+            index=pd.date_range(datetime.fromisoformat("2025-01-01T00:00:00"), periods=4, freq="1h"),
+        ),
+        sample_interval=timedelta(hours=1),
+    )
+
+    transform = FlatlineChecker()
+
+    # Act & Assert
+    try:
+        transform.transform(data)
+    except FlatlinerDetectedError:
+        pytest.fail("FlatlinerDetectedError was raised unexpectedly.")
+
+
 def test_different_load_column_name() -> None:
     # Arrange
     data = TimeSeriesDataset(

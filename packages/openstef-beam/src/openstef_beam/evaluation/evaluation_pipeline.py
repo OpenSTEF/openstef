@@ -11,7 +11,7 @@ analysis of how model performance varies across different operational conditions
 
 import logging
 from collections.abc import Iterator
-from datetime import timedelta
+from datetime import datetime, timedelta
 from typing import cast
 
 import pandas as pd
@@ -108,6 +108,7 @@ class EvaluationPipeline:
         ground_truth: TimeSeriesMixin,
         target_column: str,
         evaluation_mask: pd.DatetimeIndex | None = None,
+        reference_date: datetime | None = None,
     ) -> EvaluationReport:
         """Evaluates predictions against ground truth.
 
@@ -119,6 +120,8 @@ class EvaluationPipeline:
             ground_truth: Actual observed values for comparison.
             target_column: Name of the target column in ground truth dataset.
             evaluation_mask: Optional datetime index to limit evaluation period.
+            reference_date: Reference date for windowed evaluation. When provided, enables
+                evaluation focused on a specific time period around this date.
 
         Returns:
             EvaluationReport containing metrics for each subset, organized by
@@ -149,7 +152,10 @@ class EvaluationPipeline:
                 _logger.warning("No overlapping data for filtering %s. Skipping.", filtering)
                 continue
 
-            subset_metrics = self._evaluate_subset(subset=subset)
+            subset_metrics = self._evaluate_subset(
+                subset=subset,
+                reference_date=reference_date,
+            )
 
             subsets.append(
                 EvaluationSubsetReport(
@@ -168,6 +174,7 @@ class EvaluationPipeline:
         filtering: Filtering,
         predictions: ForecastDataset,
         evaluation_mask: pd.DatetimeIndex | None = None,
+        reference_date: datetime | None = None,
     ) -> EvaluationSubsetReport:
         """Evaluates a single evaluation subset.
 
@@ -177,6 +184,8 @@ class EvaluationPipeline:
             filtering: The filtering criteria describing this subset.
             predictions: TimeSeriesDataset containing the predicted values.
             evaluation_mask: Optional datetime index to limit evaluation period.
+            reference_date: Reference date for windowed evaluation. When provided, enables
+                evaluation focused on a specific time period around this date.
 
         Returns:
             EvaluationSubsetReport containing computed metrics for the subset.
@@ -185,7 +194,10 @@ class EvaluationPipeline:
         if evaluation_mask is not None:
             subset = subset.filter_index(evaluation_mask)
 
-        subset_metrics = self._evaluate_subset(subset=subset)
+        subset_metrics = self._evaluate_subset(
+            subset=subset,
+            reference_date=reference_date,
+        )
 
         return EvaluationSubsetReport(
             filtering=filtering,
@@ -253,6 +265,7 @@ class EvaluationPipeline:
     def _evaluate_subset(
         self,
         subset: ForecastDataset,
+        reference_date: datetime | None = None,
     ) -> list[SubsetMetric]:
         """Computes metrics for a given evaluation subset.
 
@@ -279,16 +292,20 @@ class EvaluationPipeline:
                     for window_timestamp, window_subset in iterate_subsets_by_window(
                         subset=subset,
                         window=window,
+                        reference_date=reference_date,
                     )
                 ])
 
-        windowed_metrics.append(
-            SubsetMetric(
-                window="global",
-                timestamp=cast("pd.Series[pd.Timestamp]", subset.index).min().to_pydatetime(),
-                metrics=merge_quantile_metrics([provider(subset) for provider in self.global_metric_providers]),
+        if reference_date is None:
+            # When reference data is set, user likely wants metrics for that specific time frame
+            # So we skip global metrics in that case.
+            windowed_metrics.append(
+                SubsetMetric(
+                    window="global",
+                    timestamp=cast("pd.Series[pd.Timestamp]", subset.index).min().to_pydatetime(),
+                    metrics=merge_quantile_metrics([provider(subset) for provider in self.global_metric_providers]),
+                )
             )
-        )
         return windowed_metrics
 
 
