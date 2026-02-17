@@ -161,11 +161,11 @@ class OpenSTEF4BacktestForecaster(BaseModel, BacktestForecasterMixin):
             forecast.to_parquet(path=self.cache_dir / f"debug_{id_str}_forecast.parquet")
 
         if self.contributions and isinstance(self._workflow.model, EnsembleForecastingModel):
-            contr_str = data.horizon.strftime("%Y%m%d%H%M%S")  # TODO: Change variable naming...
+            id_str = data.horizon.strftime("%Y%m%d%H%M%S")
             contributions = self._workflow.model.predict_contributions(predict_data, forecast_start=data.horizon)
             df = pd.concat([contributions, forecast.data.drop(columns=["load"])], axis=1)
 
-            df.to_parquet(path=self.cache_dir / f"contrib_{contr_str}_predict.parquet")
+            df.to_parquet(path=self.cache_dir / f"contrib_{id_str}_predict.parquet")
         return forecast
 
 
