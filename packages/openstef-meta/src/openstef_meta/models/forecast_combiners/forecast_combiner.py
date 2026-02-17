@@ -5,7 +5,7 @@
 
 Provides the fundamental building blocks for implementing meta models in OpenSTEF.
 These mixins establish contracts that ensure consistent behavior across different meta model types
-while ensuring full compatability with regular Forecasters.
+while ensuring full compatibility with regular Forecasters.
 """
 
 from abc import abstractmethod

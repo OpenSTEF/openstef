@@ -495,7 +495,7 @@ class EnsembleForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastD
         forecaster_name: str = "",
         forecast_start: datetime | None = None,
     ) -> ForecastInputDataset:
-        """Prepare input data for forecastingfiltering.
+        """Prepare input data for forecasting and filtering.
 
         Args:
             data: Raw time series dataset to prepare for forecasting.

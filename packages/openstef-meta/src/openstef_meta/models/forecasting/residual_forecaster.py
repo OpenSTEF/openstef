@@ -3,9 +3,8 @@
 # SPDX-License-Identifier: MPL-2.0
 """Residual Forecaster.
 
-Provides method that attempts to combine the advantages of a linear model (Extraplolation)
-and tree-based model (Non-linear patterns). This is achieved by training a primary model,
-typically linear, followed by a secondary model that learns to predict the residuals (errors) of the primary model.
+This module implements a residual forecasting model that combines two forecasters:
+A primary model followed by a secondary model that learns to predict the residuals (errors) of the primary model.
 """
 
 import logging
@@ -241,7 +240,7 @@ class ResidualForecaster(Forecaster):
 
         return predictions_quantiles
 
-    def _predict_secodary_model(self, data: ForecastInputDataset) -> ForecastDataset:
+    def _predict_secondary_model(self, data: ForecastInputDataset) -> ForecastDataset:
         predictions: dict[str, pd.Series] = {}
         for model in self._secondary_model:
             pred = model.predict(data=data)
@@ -270,7 +269,7 @@ class ResidualForecaster(Forecaster):
 
         primary_predictions = self._primary_model.predict(data=data).data
 
-        secondary_predictions = self._predict_secodary_model(data=data).data
+        secondary_predictions = self._predict_secondary_model(data=data).data
 
         final_predictions = primary_predictions + secondary_predictions
 
@@ -291,7 +290,7 @@ class ResidualForecaster(Forecaster):
         """
         primary_predictions = self._primary_model.predict(data=data).data
 
-        secondary_predictions = self._predict_secodary_model(data=data).data
+        secondary_predictions = self._predict_secondary_model(data=data).data
 
         if not scale:
             primary_contributions = primary_predictions

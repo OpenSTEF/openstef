@@ -70,7 +70,7 @@ class OpenSTEF4BacktestForecaster(BaseModel, BacktestForecasterMixin):
     )
     contributions: bool = Field(
         default=False,
-        description="When True, saves base Forecaster prediction contributions for ensemble models in cache_dir",
+        description="When True, saves base forecaster prediction contributions for ensemble models",
     )
 
     _workflow: CustomForecastingWorkflow | None = PrivateAttr(default=None)
@@ -188,39 +188,25 @@ def _preset_target_forecaster_factory(
 
     def _create_workflow(context: WorkflowCreationContext) -> CustomForecastingWorkflow:
         # Create a new workflow instance with fresh model.
-        if isinstance(base_config, EnsembleWorkflowConfig):
-            return create_ensemble_workflow(
-                config=base_config.model_copy(
-                    update={
-                        "model_id": f"{prefix}_{target.name}",
-                        "location": LocationConfig(
-                            name=target.name,
-                            description=target.description,
-                            coordinate=Coordinate(
-                                latitude=target.latitude,
-                                longitude=target.longitude,
-                            ),
-                        ),
-                    }
-                )
-            )
-
-        return create_forecasting_workflow(
-            config=base_config.model_copy(
-                update={
-                    "model_id": f"{prefix}_{target.name}",
-                    "run_name": context.step_name,
-                    "location": LocationConfig(
-                        name=target.name,
-                        description=target.description,
-                        coordinate=Coordinate(
-                            latitude=target.latitude,
-                            longitude=target.longitude,
-                        ),
-                    ),
-                }
-            )
+        location = LocationConfig(
+            name=target.name,
+            description=target.description,
+            coordinate=Coordinate(
+                latitude=target.latitude,
+                longitude=target.longitude,
+            ),
         )
+
+        update = {
+            "model_id": f"{prefix}_{target.name}",
+            "location": location,
+            "run_name": context.step_name,
+        }
+
+        if isinstance(base_config, EnsembleWorkflowConfig):
+            return create_ensemble_workflow(config=base_config.model_copy(update=update))
+
+        return create_forecasting_workflow(config=base_config.model_copy(update=update))
 
     return OpenSTEF4BacktestForecaster(
         config=backtest_config,

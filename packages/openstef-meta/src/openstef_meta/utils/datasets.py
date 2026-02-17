@@ -5,7 +5,7 @@
 
 Validated dataset for ensemble forecasters first stage output.
 Implements methods to select quantile-specific ForecastInputDatasets for final learners.
-Also supports constructing classifation targets based on pinball loss.
+Also supports constructing classification targets based on pinball loss.
 """
 
 from datetime import datetime, timedelta

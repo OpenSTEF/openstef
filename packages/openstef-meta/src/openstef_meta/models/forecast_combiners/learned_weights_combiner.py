@@ -212,7 +212,7 @@ class WeightsCombinerConfig(ForecastCombinerConfig):
         ),
     )
 
-    @property
+    @property  # TODO: Check if this should be a property or a method
     def get_classifier(self) -> Classifier:
         """Returns the classifier instance from hyperparameters.
 
@@ -238,18 +238,18 @@ class WeightsCombiner(ForecastCombiner):
     """
 
     Config = WeightsCombinerConfig
-    LGBMHyperParams = LGBMCombinerHyperParams
+    LGBMHyperParams = LGBMCombinerHyperParams  # TODO: do we need all these hyperparams here?
     RFHyperParams = RFCombinerHyperParams
     XGBHyperParams = XGBCombinerHyperParams
     LogisticHyperParams = LogisticCombinerHyperParams
 
     def __init__(self, config: WeightsCombinerConfig) -> None:
-        """Initialize the Weigths Combiner."""
+        """Initialize the WeightsCombiner."""
         self.quantiles = config.quantiles
         self.config = config
         self.hyperparams = config.hyperparams
         self._is_fitted: bool = False
-        self._is_fitted = False
+
         self._label_encoder = LabelEncoder()
         self.hard_selection = config.hard_selection
 
