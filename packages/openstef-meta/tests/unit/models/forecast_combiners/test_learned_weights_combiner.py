@@ -45,13 +45,11 @@ def config(classifier: str) -> WeightsCombinerConfig:
     )
 
 
-@pytest.fixture
-def forecaster(config: WeightsCombinerConfig) -> WeightsCombiner:
-    return WeightsCombiner(config)
-
-
-def test_initialization(forecaster: WeightsCombiner):
-    assert isinstance(forecaster, WeightsCombiner)
+def test_initialization(config: WeightsCombinerConfig):
+    forecaster = WeightsCombiner(config)
+    assert forecaster.is_fitted is False
+    assert len(forecaster.models) == len(config.quantiles)
+    assert forecaster.quantiles == config.quantiles
 
 
 def test_quantile_weights_combiner__fit_predict(

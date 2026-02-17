@@ -15,7 +15,7 @@ from openstef_meta.utils.datasets import EnsembleForecastDataset
 
 @pytest.fixture
 def forecast_dataset_factory() -> Callable[[], ForecastDataset]:
-    def _make() -> ForecastDataset:
+    def _make_forecast_dataset() -> ForecastDataset:
         rng = np.random.default_rng()
         coef = rng.normal(0, 1, 3)
 
@@ -46,7 +46,7 @@ def forecast_dataset_factory() -> Callable[[], ForecastDataset]:
             target_column="load",
         )
 
-    return _make
+    return _make_forecast_dataset
 
 
 @pytest.fixture

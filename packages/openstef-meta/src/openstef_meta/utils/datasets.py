@@ -21,39 +21,39 @@ DEFAULT_TARGET_COLUMN = {Quantile(0.5): "load"}
 
 
 def combine_forecast_input_datasets(
-    dataset: ForecastInputDataset, other: ForecastInputDataset | None, join: str = "inner"
+    input_data: ForecastInputDataset, additional_features: ForecastInputDataset | None, join: str = "inner"
 ) -> ForecastInputDataset:
-    """Combine multiple TimeSeriesDatasets into a single dataset.
+    """Combine base forecaster predictions with optional additional features.
 
     Args:
-        dataset: First ForecastInputDataset.
-        other: Second ForecastInputDataset or None.
+        input_data: ForecastInputDataset containing base forecaster predictions.
+        additional_features: Optional ForecastInputDataset containing additional features to combine.
         join: Type of join to perform on the datasets. Defaults to "inner".
 
     Returns:
-        Combined ForecastDataset.
+        Combined ForecastInputDataset containing both input data and additional features.
     """
-    if not isinstance(other, ForecastInputDataset):
-        return dataset
+    if not isinstance(additional_features, ForecastInputDataset):
+        return input_data
     if join != "inner":
         raise NotImplementedError("Only 'inner' join is currently supported.")
-    df_other = other.data
-    if dataset.target_column in df_other.columns:
-        df_other = df_other.drop(columns=[dataset.target_column])
+    df_additional = additional_features.data
+    if input_data.target_column in df_additional.columns:
+        df_additional = df_additional.drop(columns=[input_data.target_column])
 
-    df_one = dataset.data
+    df_input = input_data.data
     df = pd.concat(
-        [df_one, df_other],
+        [df_input, df_additional],
         axis=1,
         join="inner",
     )
 
     return ForecastInputDataset(
         data=df,
-        sample_interval=dataset.sample_interval,
-        target_column=dataset.target_column,
-        sample_weight_column=dataset.sample_weight_column,
-        forecast_start=dataset.forecast_start,
+        sample_interval=input_data.sample_interval,
+        target_column=input_data.target_column,
+        sample_weight_column=input_data.sample_weight_column,
+        forecast_start=input_data.forecast_start,
     )
 
 
@@ -203,14 +203,19 @@ class EnsembleForecastDataset(TimeSeriesDataset):
 
         return pinball_losses.idxmin(axis=1)
 
-    def select_quantile_classification(self, quantile: Quantile) -> ForecastInputDataset:
-        """Select classification target for a specific quantile.
+    def get_best_forecaster_labels(self, quantile: Quantile) -> ForecastInputDataset:
+        """Get labels indicating the best-performing base forecaster for each sample at a specific quantile.
+
+        Creates a dataset where each sample's target is labeled with the name of the base forecaster
+        that performed best, determined by pinball loss. Used as classification target for training
+        the final learner.
 
         Args:
             quantile: Quantile to select.
 
         Returns:
-            Series containing binary indicators of best-performing base Forecasters for the specified quantile.
+            ForecastInputDataset where the target column contains labels of the best-performing
+            base forecaster for each sample.
 
         Raises:
             ValueError: If the target column is not found in the dataset.
@@ -236,14 +241,14 @@ class EnsembleForecastDataset(TimeSeriesDataset):
             forecast_start=self.forecast_start,
         )
 
-    def select_quantile(self, quantile: Quantile) -> ForecastInputDataset:
-        """Select data for a specific quantile.
+    def get_base_predictions_for_quantile(self, quantile: Quantile) -> ForecastInputDataset:
+        """Get base forecaster predictions for a specific quantile.
 
         Args:
             quantile: Quantile to select.
 
         Returns:
-            ForecastInputDataset containing base predictions for the specified quantile.
+            ForecastInputDataset containing predictions from all base forecasters at the specified quantile.
         """
         selected_columns = [f"{learner}_{quantile.format()}" for learner in self.forecaster_names]
         selected_columns.append(self.target_column)
@@ -255,28 +260,4 @@ class EnsembleForecastDataset(TimeSeriesDataset):
             sample_interval=self.sample_interval,
             target_column=self.target_column,
             forecast_start=self.forecast_start,
-        )
-
-    def select_forecaster(self, forecaster_name: str) -> ForecastDataset:
-        """Select data for a specific base Forecaster across all quantiles.
-
-        Args:
-            forecaster_name: Name of the base Forecaster to select.
-
-        Returns:
-            ForecastDataset containing predictions from the specified base Forecaster.
-        """
-        selected_columns = [
-            f"{forecaster_name}_{q.format()}" for q in self.quantiles if f"{forecaster_name}_{q.format()}" in self.data
-        ]
-        prediction_data = self.data[selected_columns].copy()
-        prediction_data.columns = [q.format() for q in self.quantiles]
-
-        prediction_data[self.target_column] = self.data[self.target_column]
-
-        return ForecastDataset(
-            data=prediction_data,
-            sample_interval=self.sample_interval,
-            forecast_start=self.forecast_start,
-            target_column=self.target_column,
         )

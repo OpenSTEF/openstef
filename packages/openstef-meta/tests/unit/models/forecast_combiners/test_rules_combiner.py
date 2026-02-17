@@ -40,7 +40,7 @@ def test_quantile_weights_combiner__fit_predict(
     # Arrange
     expected_quantiles = config.quantiles
     forecaster = RulesCombiner(config=config)
-    additional_features = ensemble_dataset.select_quantile(Q(0.5))
+    additional_features = ensemble_dataset.get_base_predictions_for_quantile(Q(0.5))
     additional_features.data = additional_features.data.drop(columns=additional_features.target_column)
     additional_features.data.columns = ["feature1", "feature2"]
 

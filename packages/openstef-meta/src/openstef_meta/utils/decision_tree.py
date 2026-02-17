@@ -140,4 +140,5 @@ class DecisionTree(BaseModel):
                 msg = f"Invalid node type at index {current_idx}."
                 raise TypeError(msg)
 
-    __all__ = ["Node", "Rule", "Decision", "DecisionTree"]
+
+__all__ = ["Decision", "DecisionTree", "Node", "Rule"]

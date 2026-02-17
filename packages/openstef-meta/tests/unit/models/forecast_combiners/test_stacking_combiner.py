@@ -40,13 +40,11 @@ def config(regressor: str) -> StackingCombinerConfig:
     )
 
 
-@pytest.fixture
-def forecaster(config: StackingCombinerConfig) -> StackingCombiner:
-    return StackingCombiner(config)
-
-
-def test_initialization(forecaster: StackingCombiner):
-    assert isinstance(forecaster, StackingCombiner)
+def test_initialization(config: StackingCombinerConfig):
+    forecaster = StackingCombiner(config)
+    assert forecaster.is_fitted is False
+    assert len(forecaster.models) == len(config.quantiles)
+    assert forecaster.quantiles == config.quantiles
 
 
 def test_quantile_weights_combiner__fit_predict(

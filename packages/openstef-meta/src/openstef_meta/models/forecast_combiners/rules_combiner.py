@@ -118,13 +118,14 @@ class RulesCombiner(ForecastCombiner):
             raise ValueError("Additional features must be provided for RulesForecastCombiner prediction.")
 
         decisions = self._predict_tree(
-            additional_features.data, columns=data.select_quantile(quantile=self.quantiles[0]).data.columns
+            additional_features.data,
+            columns=data.get_base_predictions_for_quantile(quantile=self.quantiles[0]).data.columns,
         )
 
         # Generate predictions
         predictions: list[pd.DataFrame] = []
         for q in self.quantiles:
-            dataset = data.select_quantile(quantile=q)
+            dataset = data.get_base_predictions_for_quantile(quantile=q)
             preds = dataset.input_data().multiply(decisions).sum(axis=1)
 
             predictions.append(preds.to_frame(name=Quantile(q).format()))
@@ -147,13 +148,14 @@ class RulesCombiner(ForecastCombiner):
             raise ValueError("Additional features must be provided for RulesForecastCombiner prediction.")
 
         decisions = self._predict_tree(
-            additional_features.data, columns=data.select_quantile(quantile=self.quantiles[0]).data.columns
+            additional_features.data,
+            columns=data.get_base_predictions_for_quantile(quantile=self.quantiles[0]).data.columns,
         )
 
         # Generate predictions
         predictions: list[pd.DataFrame] = []
         for q in self.quantiles:
-            dataset = data.select_quantile(quantile=q)
+            dataset = data.get_base_predictions_for_quantile(quantile=q)
             preds = dataset.input_data().multiply(decisions).sum(axis=1)
 
             predictions.append(preds.to_frame(name=Quantile(q).format()))

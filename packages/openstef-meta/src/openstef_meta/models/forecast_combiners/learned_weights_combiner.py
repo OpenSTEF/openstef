@@ -41,7 +41,6 @@ logger = logging.getLogger(__name__)
 # Base classes for Learned Weights Final Learner
 
 Classifier = LGBMClassifier | XGBClassifier | LogisticRegression | DummyClassifier
-ClassifierNames = Literal["lgbm", "xgb", "logistic_regression", "dummy"]
 
 
 class ClassifierParamsMixin:
@@ -212,7 +211,6 @@ class WeightsCombinerConfig(ForecastCombinerConfig):
         ),
     )
 
-    @property  # TODO: Check if this should be a property or a method
     def get_classifier(self) -> Classifier:
         """Returns the classifier instance from hyperparameters.
 
@@ -250,7 +248,7 @@ class WeightsCombiner(ForecastCombiner):
         self.hard_selection = config.hard_selection
 
         # Initialize a classifier per quantile
-        self.models: list[Classifier] = [config.get_classifier for _ in self.quantiles]
+        self.models: list[Classifier] = [config.get_classifier() for _ in self.quantiles]
 
     @override
     def fit(
@@ -264,10 +262,10 @@ class WeightsCombiner(ForecastCombiner):
 
         for i, q in enumerate(self.quantiles):
             # Data preparation
-            dataset = data.select_quantile_classification(quantile=q)
+            dataset = data.get_best_forecaster_labels(quantile=q)
             combined_data = combine_forecast_input_datasets(
-                dataset=dataset,
-                other=additional_features,
+                input_data=dataset,
+                additional_features=additional_features,
             )
             input_data = combined_data.input_data()
             labels = combined_data.target_series
@@ -277,7 +275,7 @@ class WeightsCombiner(ForecastCombiner):
             # Balance classes, adjust with sample weights
             weights = compute_sample_weight("balanced", labels) * combined_data.sample_weight_series
 
-            self.models[i].fit(X=input_data, y=labels, sample_weight=weights)  # type: ignore
+            self.models[i].fit(X=input_data, y=labels, sample_weight=weights)  # pyright: ignore[reportUnknownMemberType]
         self._is_fitted = True
 
     @staticmethod
@@ -354,7 +352,7 @@ class WeightsCombiner(ForecastCombiner):
         # Generate predictions
         predictions = pd.DataFrame({
             Quantile(q).format(): self._generate_predictions_quantile(
-                dataset=data.select_quantile(quantile=Quantile(q)),
+                dataset=data.get_base_predictions_for_quantile(quantile=Quantile(q)),
                 additional_features=additional_features,
                 model_index=i,
             )
@@ -383,7 +381,7 @@ class WeightsCombiner(ForecastCombiner):
         # Generate predictions
         contribution_list = [
             self._generate_contributions_quantile(
-                dataset=data.select_quantile(quantile=Quantile(q)),
+                dataset=data.get_base_predictions_for_quantile(quantile=Quantile(q)),
                 additional_features=additional_features,
                 model_index=i,
             )

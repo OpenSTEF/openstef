@@ -587,11 +587,15 @@ class EnsembleForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastD
 
         return ModelFitResult(
             input_dataset=train_ensemble_dataset,
-            input_data_train=train_ensemble_dataset.select_quantile(quantile=self.config[0].quantiles[0]),
-            input_data_val=val_ensemble_dataset.select_quantile(quantile=self.config[0].quantiles[0])
+            input_data_train=train_ensemble_dataset.get_base_predictions_for_quantile(
+                quantile=self.config[0].quantiles[0]
+            ),
+            input_data_val=val_ensemble_dataset.get_base_predictions_for_quantile(quantile=self.config[0].quantiles[0])
             if val_ensemble_dataset
             else None,
-            input_data_test=test_ensemble_dataset.select_quantile(quantile=self.config[0].quantiles[0])
+            input_data_test=test_ensemble_dataset.get_base_predictions_for_quantile(
+                quantile=self.config[0].quantiles[0]
+            )
             if test_ensemble_dataset
             else None,
             metrics_train=metrics_train,

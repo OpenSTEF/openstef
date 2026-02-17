@@ -154,13 +154,13 @@ class StackingCombiner(ForecastCombiner):
 
         for i, q in enumerate(self.quantiles):
             if additional_features is not None:
-                dataset = data.select_quantile(quantile=q)
+                dataset = data.get_base_predictions_for_quantile(quantile=q)
                 input_data = self._combine_datasets(
                     data=dataset,
                     additional_features=additional_features,
                 )
             else:
-                input_data = data.select_quantile(quantile=q)
+                input_data = data.get_base_predictions_for_quantile(quantile=q)
 
             # Prepare input data by dropping rows with NaN target values
             target_dropna = partial(pd.DataFrame.dropna, subset=[input_data.target_column])  # pyright: ignore[reportUnknownMemberType]
@@ -182,11 +182,11 @@ class StackingCombiner(ForecastCombiner):
         for i, q in enumerate(self.quantiles):
             if additional_features is not None:
                 input_data = self._combine_datasets(
-                    data=data.select_quantile(quantile=q),
+                    data=data.get_base_predictions_for_quantile(quantile=q),
                     additional_features=additional_features,
                 )
             else:
-                input_data = data.select_quantile(quantile=q)
+                input_data = data.get_base_predictions_for_quantile(quantile=q)
 
             if isinstance(self.models[i], GBLinearForecaster):
                 feature_cols = [x for x in input_data.data.columns if x != data.target_column]
@@ -215,11 +215,11 @@ class StackingCombiner(ForecastCombiner):
         for i, q in enumerate(self.quantiles):
             if additional_features is not None:
                 input_data = self._combine_datasets(
-                    data=data.select_quantile(quantile=q),
+                    data=data.get_base_predictions_for_quantile(quantile=q),
                     additional_features=additional_features,
                 )
             else:
-                input_data = data.select_quantile(quantile=q)
+                input_data = data.get_base_predictions_for_quantile(quantile=q)
             model = self.models[i]
             if not isinstance(model, ExplainableForecaster):
                 raise NotImplementedError(

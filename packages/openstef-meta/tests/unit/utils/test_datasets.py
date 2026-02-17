@@ -100,17 +100,17 @@ def test_from_ensemble_output(ensemble_dataset: EnsembleForecastDataset):
     assert set(ensemble_dataset.quantiles) == {Quantile(0.1), Quantile(0.5), Quantile(0.9)}
 
 
-def test_select_quantile(ensemble_dataset: EnsembleForecastDataset):
+def test_get_base_predictions_for_quantile(ensemble_dataset: EnsembleForecastDataset):
 
-    dataset = ensemble_dataset.select_quantile(Quantile(0.5))
+    dataset = ensemble_dataset.get_base_predictions_for_quantile(Quantile(0.5))
 
     assert isinstance(dataset, ForecastInputDataset)
     assert dataset.data.shape == (3, 3)  # 3 timestamps, 2 learners * 1 quantiles + target
 
 
-def test_select_quantile_classification(ensemble_dataset: EnsembleForecastDataset):
-
-    dataset = ensemble_dataset.select_quantile_classification(Quantile(0.5))
+def test_get_best_forecaster_labels(ensemble_dataset: EnsembleForecastDataset):
+    """Test get_best_forecaster_labels."""
+    dataset = ensemble_dataset.get_best_forecaster_labels(Quantile(0.5))
 
     assert isinstance(dataset, ForecastInputDataset)
     assert dataset.data.shape == (3, 3)  # 3 timestamps, 2 learners * 1 quantiles + target
