@@ -79,6 +79,11 @@ class RollingAggregatesAdder(BaseConfig, TimeSeriesTransform):
     _last_valid_aggregates: dict[str, float] = PrivateAttr(default_factory=dict[str, float])
     _is_fitted: bool = PrivateAttr(default=False)
 
+    @property
+    @override
+    def is_fitted(self) -> bool:
+        return self._is_fitted
+
     def _make_column_name(self, func: AggregationFunction) -> str:
         suffix = timedelta_to_isoformat(td=self.rolling_window_size)
         return f"rolling_{func}_{self.feature}_{suffix}"
