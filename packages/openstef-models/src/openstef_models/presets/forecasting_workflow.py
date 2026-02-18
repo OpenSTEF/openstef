@@ -40,6 +40,7 @@ from openstef_models.transforms.general import (
     EmptyFeatureRemover,
     Imputer,
     NaNDropper,
+    SampleWeightConfig,
     SampleWeighter,
     Scaler,
     Selector,
@@ -363,9 +364,11 @@ def create_forecasting_workflow(
         Scaler(selection=Exclude(config.target_column), method="standard"),
         SampleWeighter(
             target_column=config.target_column,
-            weight_exponent=config.sample_weight_exponent,
-            weight_floor=config.sample_weight_floor,
-            weight_scale_percentile=config.sample_weight_scale_percentile,
+            config=SampleWeightConfig(
+                weight_exponent=config.sample_weight_exponent,
+                weight_floor=config.sample_weight_floor,
+                weight_scale_percentile=config.sample_weight_scale_percentile,
+            ),
         ),
         EmptyFeatureRemover(),
     ]

@@ -15,6 +15,7 @@ from openstef_meta.models.ensemble_forecasting_model import EnsembleForecastingM
 from openstef_meta.presets import EnsembleWorkflowConfig, create_ensemble_workflow
 from openstef_models.models.forecasting_model import ForecastingModel
 from openstef_models.presets import ForecastingWorkflowConfig, create_forecasting_workflow
+from openstef_models.transforms.general import SampleWeightConfig
 
 
 @pytest.fixture
@@ -44,7 +45,10 @@ def config() -> EnsembleWorkflowConfig:
         combiner_model="lgbm",
         quantiles=[Q(0.1), Q(0.5), Q(0.9)],
         horizons=[LeadTime.from_string("PT36H")],
-        forecaster_sample_weight_exponent={"gblinear": 1, "lgbm": 0},
+        forecaster_sample_weights={
+            "gblinear": SampleWeightConfig(method="exponential", weight_exponent=1.0),
+            "lgbm": SampleWeightConfig(method="exponential", weight_exponent=0.0),
+        },
     )
 
 
@@ -57,12 +61,13 @@ def create_models(
 
     base_models: dict[str, ForecastingModel] = {}
     for forecaster_name in config.base_models:
+        sample_weight_config = config.forecaster_sample_weights.get(forecaster_name, SampleWeightConfig())
         model_config = ForecastingWorkflowConfig(
             model_id=f"{forecaster_name}_model_",
             model=forecaster_name,  # type: ignore
             quantiles=config.quantiles,
             horizons=config.horizons,
-            sample_weight_exponent=config.forecaster_sample_weight_exponent[forecaster_name],
+            sample_weight_exponent=sample_weight_config.weight_exponent,
         )
         base_model = create_forecasting_workflow(config=model_config).model
         base_models[forecaster_name] = cast(ForecastingModel, base_model)
@@ -70,7 +75,7 @@ def create_models(
     return ensemble_model, base_models
 
 
-def test_preprocessing( # TODO: Move this to unit/models/test_ensemble_forecasting_model.py?
+def test_preprocessing(  # TODO: Move this to unit/models/test_ensemble_forecasting_model.py?
     sample_timeseries_dataset: TimeSeriesDataset,
     create_models: tuple[EnsembleForecastingModel, dict[str, ForecastingModel]],
 ) -> None:

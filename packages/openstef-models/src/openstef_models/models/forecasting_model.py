@@ -10,15 +10,14 @@ data transformation and validation.
 """
 
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime
 from functools import partial
 from typing import cast, override
 
 import pandas as pd
 from pydantic import Field, PrivateAttr
 
-from openstef_beam.evaluation import EvaluationConfig, EvaluationPipeline, SubsetMetric
-from openstef_beam.evaluation.metric_providers import MetricProvider, ObservedProbabilityProvider, R2Provider
+from openstef_beam.evaluation import SubsetMetric
 from openstef_core.base_model import BaseModel
 from openstef_core.datasets import (
     ForecastDataset,
@@ -27,10 +26,9 @@ from openstef_core.datasets import (
 )
 from openstef_core.datasets.timeseries_dataset import validate_horizons_present
 from openstef_core.exceptions import InsufficientlyCompleteError, NotFittedError
-from openstef_core.mixins import Predictor, TransformPipeline
-from openstef_models.models.forecasting import Forecaster
-from openstef_models.models.forecasting.forecaster import ForecasterConfig
-from openstef_models.utils.data_split import DataSplitter
+from openstef_core.mixins import TransformPipeline
+from openstef_core.mixins.forecaster import Forecaster, ForecasterConfig
+from openstef_models.models.base_forecasting_model import BaseForecastingModel
 
 
 class ModelFitResult(BaseModel):
@@ -60,7 +58,7 @@ class ModelFitResult(BaseModel):
     metrics_full: SubsetMetric = Field(description="Evaluation metrics computed on the full original dataset.")
 
 
-class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset]):
+class ForecastingModel(BaseForecastingModel):
     """Complete forecasting pipeline combining preprocessing, prediction, and postprocessing.
 
     Orchestrates the full forecasting workflow by managing feature engineering,
@@ -86,6 +84,7 @@ class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset])
         ...     ConstantMedianForecaster, ConstantMedianForecasterConfig
         ... )
         >>> from openstef_core.types import LeadTime
+        >>> from datetime import timedelta
         >>>
         >>> # Note: This is a conceptual example showing the API structure
         >>> # Real usage requires implemented forecaster classes
@@ -114,42 +113,17 @@ class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset])
         description="Underlying forecasting algorithm, either single-horizon or multi-horizon.",
         exclude=True,
     )
-    postprocessing: TransformPipeline[ForecastDataset] = Field(
-        default_factory=TransformPipeline[ForecastDataset],
-        description="Postprocessing pipeline for transforming model outputs into final forecasts.",
-        exclude=True,
-    )
-    target_column: str = Field(
-        default="load",
-        description="Name of the target variable column in datasets.",
-    )
-    data_splitter: DataSplitter = Field(
-        default_factory=DataSplitter,
-        description="Data splitting strategy for train/validation/test sets.",
-    )
-    cutoff_history: timedelta = Field(
-        default=timedelta(days=0),
-        description="Amount of historical data to exclude from training and prediction due to incomplete features "
-        "from lag-based preprocessing. When using lag transforms (e.g., lag-14), the first N days contain NaN values. "
-        "Set this to match your maximum lag duration (e.g., timedelta(days=14)). "
-        "Default of 0 assumes no invalid rows are created by preprocessing.",
-    )
-    # Evaluation
-    evaluation_metrics: list[MetricProvider] = Field(
-        default_factory=lambda: [R2Provider(), ObservedProbabilityProvider()],
-        description="List of metric providers for evaluating model score.",
-    )
-    # Metadata
-    tags: dict[str, str] = Field(
-        default_factory=dict,
-        description="Optional metadata tags for the model.",
-    )
 
     _logger: logging.Logger = PrivateAttr(default=logging.getLogger(__name__))
 
     @property
     def config(self) -> ForecasterConfig:
         """Returns the configuration of the underlying forecaster."""
+        return self.forecaster.config
+
+    @property
+    @override
+    def scoring_config(self) -> ForecasterConfig:
         return self.forecaster.config
 
     @property
@@ -315,59 +289,6 @@ class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset])
         # Predict and restore target column
         prediction = self.forecaster.predict(data=input_data)
         return restore_target(dataset=prediction, original_dataset=input_data, target_column=self.target_column)
-
-    def score(
-        self,
-        data: TimeSeriesDataset,
-    ) -> SubsetMetric:
-        """Evaluate model performance on the provided dataset.
-
-        Generates predictions for the dataset and calculates evaluation metrics
-        by comparing against ground truth values. Uses the configured evaluation
-        metrics to assess forecast quality at the maximum forecast horizon.
-
-        Args:
-            data: Time series dataset containing both features and target values
-                for evaluation.
-
-        Returns:
-            Evaluation metrics including configured providers (e.g., R2, observed
-            probability) computed at the maximum forecast horizon.
-        """
-        prediction = self.predict(data=data)
-
-        return self._calculate_score(prediction=prediction)
-
-    def _calculate_score(self, prediction: ForecastDataset) -> SubsetMetric:
-        if prediction.target_series is None:
-            raise ValueError("Prediction dataset must contain target series for scoring.")
-
-        # We need to make sure there are no NaNs in the target label for metric calculation
-        prediction = prediction.pipe_pandas(pd.DataFrame.dropna, subset=[self.target_column])  # pyright: ignore[reportUnknownArgumentType, reportUnknownMemberType]
-
-        pipeline = EvaluationPipeline(
-            # Needs only one horizon since we are using only a single prediction step
-            # If a more comprehensive test is needed, a backtest should be run.
-            config=EvaluationConfig(available_ats=[], lead_times=[self.forecaster.config.max_horizon]),
-            quantiles=self.forecaster.config.quantiles,
-            # Similarly windowed metrics are not relevant for single predictions.
-            window_metric_providers=[],
-            global_metric_providers=self.evaluation_metrics,
-        )
-
-        evaluation_result = pipeline.run_for_subset(
-            filtering=self.forecaster.config.max_horizon,
-            predictions=prediction,
-        )
-        global_metric = evaluation_result.get_global_metric()
-        if not global_metric:
-            return SubsetMetric(
-                window="global",
-                timestamp=prediction.forecast_start,
-                metrics={},
-            )
-
-        return global_metric
 
 
 def restore_target[T: TimeSeriesDataset](

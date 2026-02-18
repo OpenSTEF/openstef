@@ -21,10 +21,10 @@ import pandas as pd
 from pydantic import Field
 
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
+from openstef_core.mixins.forecaster import Forecaster, ForecasterConfig
 from openstef_core.mixins.predictor import HyperParams
 from openstef_core.types import LeadTime, Quantile
 from openstef_models.explainability.mixins import ExplainableForecaster
-from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
 
 
 class BaseCaseForecasterHyperParams(HyperParams):

@@ -16,7 +16,7 @@ from openstef_models.transforms.general.empty_feature_remover import (
 from openstef_models.transforms.general.flagger import Flagger
 from openstef_models.transforms.general.imputer import Imputer
 from openstef_models.transforms.general.nan_dropper import NaNDropper
-from openstef_models.transforms.general.sample_weighter import SampleWeighter
+from openstef_models.transforms.general.sample_weighter import SampleWeightConfig, SampleWeighter
 from openstef_models.transforms.general.scaler import Scaler
 from openstef_models.transforms.general.selector import Selector
 
@@ -27,6 +27,7 @@ __all__ = [
     "Flagger",
     "Imputer",
     "NaNDropper",
+    "SampleWeightConfig",
     "SampleWeighter",
     "Scaler",
     "Selector",

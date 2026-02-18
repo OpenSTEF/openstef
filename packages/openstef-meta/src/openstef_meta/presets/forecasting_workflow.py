@@ -23,6 +23,7 @@ from openstef_core.base_model import BaseConfig
 from openstef_core.datasets.timeseries_dataset import TimeSeriesDataset
 from openstef_core.mixins.transform import Transform, TransformPipeline
 from openstef_core.types import LeadTime, Q, Quantile, QuantileOrGlobal
+from openstef_meta.integrations.mlflow import EnsembleMLFlowStorageCallback
 from openstef_meta.models.ensemble_forecasting_model import EnsembleForecastingModel
 from openstef_meta.models.forecast_combiners.learned_weights_combiner import (
     LGBMCombinerHyperParams,
@@ -43,7 +44,7 @@ from openstef_models.models.forecasting.lgbmlinear_forecaster import LGBMLinearF
 from openstef_models.models.forecasting.xgboost_forecaster import XGBoostForecaster
 from openstef_models.presets.forecasting_workflow import LocationConfig
 from openstef_models.transforms.energy_domain import WindPowerFeatureAdder
-from openstef_models.transforms.general import Clipper, EmptyFeatureRemover, SampleWeighter, Scaler
+from openstef_models.transforms.general import Clipper, EmptyFeatureRemover, SampleWeightConfig, SampleWeighter, Scaler
 from openstef_models.transforms.general.imputer import Imputer
 from openstef_models.transforms.general.nan_dropper import NaNDropper
 from openstef_models.transforms.general.selector import Selector
@@ -67,7 +68,7 @@ from openstef_models.utils.feature_selection import Exclude, FeatureSelection, I
 from openstef_models.workflows.custom_forecasting_workflow import CustomForecastingWorkflow, ForecastingCallback
 
 if TYPE_CHECKING:
-    from openstef_models.models.forecasting.forecaster import Forecaster
+    from openstef_core.mixins.forecaster import Forecaster
 
 
 class EnsembleWorkflowConfig(BaseConfig):
@@ -202,27 +203,19 @@ class EnsembleWorkflowConfig(BaseConfig):
         default=FeatureSelection(include=None, exclude=None),
         description="Feature selection for which features to clip.",
     )
-    # TODO: Add sample weight method parameters
-    sample_weight_scale_percentile: int = Field(
-        default=95,
-        description="Percentile of target values used as scaling reference. "
-        "Values are normalized relative to this percentile before weighting.",
+    forecaster_sample_weights: dict[str, SampleWeightConfig] = Field(
+        default={
+            "gblinear": SampleWeightConfig(method="exponential", weight_exponent=1.0),
+            "lgbm": SampleWeightConfig(weight_exponent=0.0),
+            "xgboost": SampleWeightConfig(weight_exponent=0.0),
+            "lgbm_linear": SampleWeightConfig(weight_exponent=0.0),
+        },
+        description="Per-forecaster sample weighting configuration. Use weight_exponent=0 to produce uniform weights.",
     )
-    forecaster_sample_weight_exponent: dict[str, float] = Field(
-        default={"gblinear": 1.0, "lgbm": 0, "xgboost": 0, "lgbm_linear": 0},
-        description="Exponent applied to scale the sample weights. "
-        "0=uniform weights, 1=linear scaling, >1=stronger emphasis on high values. "
-        "Note: Defaults to 1.0 for gblinear congestion models.",
-    )
-    sample_weight_floor: float = Field(
-        default=0.1,
-        description="Minimum weight value to ensure all samples contribute to training.",
-    )
-
-    forecast_combiner_sample_weight_exponent: float = Field(
-        default=0,
-        description="Exponent applied to scale the sample weights for the forecast combiner model. "
-        "0=uniform weights, 1=linear scaling, >1=stronger emphasis on high values.",
+    combiner_sample_weight: SampleWeightConfig = Field(
+        default_factory=lambda: SampleWeightConfig(weight_exponent=0.0),
+        description="Sample weighting configuration for the forecast combiner. "
+        "Defaults to weight_exponent=0 (uniform weights).",
     )
 
     # Data splitting strategy
@@ -366,20 +359,16 @@ def create_ensemble_workflow(config: EnsembleWorkflowConfig) -> CustomForecastin
     forecaster_preprocessing: dict[str, list[Transform[TimeSeriesDataset, TimeSeriesDataset]]] = {}
     forecasters: dict[str, Forecaster] = {}
     for model_type in config.base_models:
+        sample_weight_config = config.forecaster_sample_weights.get(model_type, SampleWeightConfig())
+        sample_weighter = SampleWeighter(config=sample_weight_config, target_column=config.target_column)
+
         if model_type == "lgbm":
             forecasters[model_type] = LGBMForecaster(
                 config=LGBMForecaster.Config(
                     hyperparams=config.lgbm_hyperparams, quantiles=config.quantiles, horizons=config.horizons
                 )
             )
-            forecaster_preprocessing[model_type] = [
-                SampleWeighter(
-                    target_column=config.target_column,
-                    weight_exponent=config.forecaster_sample_weight_exponent[model_type],
-                    weight_floor=config.sample_weight_floor,
-                    weight_scale_percentile=config.sample_weight_scale_percentile,
-                ),
-            ]
+            forecaster_preprocessing[model_type] = [sample_weighter]
 
         elif model_type == "gblinear":
             forecasters[model_type] = GBLinearForecaster(
@@ -388,12 +377,7 @@ def create_ensemble_workflow(config: EnsembleWorkflowConfig) -> CustomForecastin
                 )
             )
             forecaster_preprocessing[model_type] = [
-                SampleWeighter(
-                    target_column=config.target_column,
-                    weight_exponent=config.forecaster_sample_weight_exponent[model_type],
-                    weight_floor=config.sample_weight_floor,
-                    weight_scale_percentile=config.sample_weight_scale_percentile,
-                ),
+                sample_weighter,
                 # Remove lags
                 Selector(
                     selection=FeatureSelection(
@@ -431,28 +415,14 @@ def create_ensemble_workflow(config: EnsembleWorkflowConfig) -> CustomForecastin
                     hyperparams=config.xgboost_hyperparams, quantiles=config.quantiles, horizons=config.horizons
                 )
             )
-            forecaster_preprocessing[model_type] = [
-                SampleWeighter(
-                    target_column=config.target_column,
-                    weight_exponent=config.forecaster_sample_weight_exponent[model_type],
-                    weight_floor=config.sample_weight_floor,
-                    weight_scale_percentile=config.sample_weight_scale_percentile,
-                ),
-            ]
+            forecaster_preprocessing[model_type] = [sample_weighter]
         elif model_type == "lgbm_linear":
             forecasters[model_type] = LGBMLinearForecaster(
                 config=LGBMLinearForecaster.Config(
                     hyperparams=config.lgbmlinear_hyperparams, quantiles=config.quantiles, horizons=config.horizons
                 )
             )
-            forecaster_preprocessing[model_type] = [
-                SampleWeighter(
-                    target_column=config.target_column,
-                    weight_exponent=config.forecaster_sample_weight_exponent[model_type],
-                    weight_floor=config.sample_weight_floor,
-                    weight_scale_percentile=config.sample_weight_scale_percentile,
-                ),
-            ]
+            forecaster_preprocessing[model_type] = [sample_weighter]
         else:
             msg = f"Unsupported base model type: {model_type}"
             raise ValueError(msg)
@@ -513,36 +483,52 @@ def create_ensemble_workflow(config: EnsembleWorkflowConfig) -> CustomForecastin
         name: TransformPipeline(transforms=transforms) for name, transforms in forecaster_preprocessing.items()
     }
 
-    if config.forecast_combiner_sample_weight_exponent != 0:
-        combiner_transforms = [
-            SampleWeighter(
-                target_column=config.target_column,
-                weight_exponent=config.forecast_combiner_sample_weight_exponent,
-                weight_floor=config.sample_weight_floor,
-                weight_scale_percentile=config.sample_weight_scale_percentile,
-            ),
-            Selector(selection=Include("sample_weight", config.target_column)),
-        ]
-    else:
-        combiner_transforms = []
+    combiner_transforms = [
+        SampleWeighter(config=config.combiner_sample_weight, target_column=config.target_column),
+        Selector(selection=Include("sample_weight", config.target_column)),
+    ]
 
     combiner_preprocessing: TransformPipeline[TimeSeriesDataset] = TransformPipeline(transforms=combiner_transforms)
 
-    ensemble_model = EnsembleForecastingModel(
-        common_preprocessing=common_preprocessing,
-        model_specific_preprocessing=model_specific_preprocessing,
-        combiner_preprocessing=combiner_preprocessing,
-        postprocessing=TransformPipeline(transforms=postprocessing),
-        forecasters=forecasters,
-        combiner=combiner,
-        target_column=config.target_column,
-        data_splitter=config.data_splitter,
-    )
+    tags = {
+        **config.location.tags,
+        "ensemble_type": config.ensemble_type,
+        "combiner_model": config.combiner_model,
+        **config.tags,
+    }
 
     callbacks: list[ForecastingCallback] = []
-    # TODO(Egor): Implement MLFlow for OpenSTEF-meta # noqa: TD003
+    if config.mlflow_storage is not None:
+        callbacks.append(
+            EnsembleMLFlowStorageCallback(
+                storage=config.mlflow_storage,
+                model_reuse_enable=config.model_reuse_enable,
+                model_reuse_max_age=config.model_reuse_max_age,
+                model_selection_enable=config.model_selection_enable,
+                model_selection_metric=config.model_selection_metric,
+                model_selection_old_model_penalty=config.model_selection_old_model_penalty,
+            )
+        )
 
-    return CustomForecastingWorkflow(model=ensemble_model, model_id=config.model_id, callbacks=callbacks)
+    return CustomForecastingWorkflow(
+        model=EnsembleForecastingModel(
+            common_preprocessing=common_preprocessing,
+            model_specific_preprocessing=model_specific_preprocessing,
+            combiner_preprocessing=combiner_preprocessing,
+            postprocessing=TransformPipeline(transforms=postprocessing),
+            forecasters=forecasters,
+            combiner=combiner,
+            target_column=config.target_column,
+            data_splitter=config.data_splitter,
+            cutoff_history=config.cutoff_history,
+            # Evaluation
+            evaluation_metrics=config.evaluation_metrics,
+            # Other
+            tags=tags,
+        ),
+        model_id=config.model_id,
+        callbacks=callbacks,
+    )
 
 
 __all__ = ["EnsembleWorkflowConfig", "create_ensemble_workflow"]

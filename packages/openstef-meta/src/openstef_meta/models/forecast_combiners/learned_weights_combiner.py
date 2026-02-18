@@ -24,6 +24,7 @@ from sklearn.utils.class_weight import compute_sample_weight  # type: ignore
 from xgboost import XGBClassifier
 
 from openstef_core.datasets import ForecastDataset, ForecastInputDataset
+from openstef_core.datasets.validated_datasets import EnsembleForecastDataset
 from openstef_core.exceptions import (
     NotFittedError,
 )
@@ -33,7 +34,7 @@ from openstef_meta.models.forecast_combiners.forecast_combiner import (
     ForecastCombiner,
     ForecastCombinerConfig,
 )
-from openstef_meta.utils.datasets import EnsembleForecastDataset, combine_forecast_input_datasets
+from openstef_meta.utils.datasets import combine_forecast_input_datasets
 
 logger = logging.getLogger(__name__)
 

@@ -9,8 +9,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from openstef_core.datasets.validated_datasets import ForecastDataset
-from openstef_meta.utils.datasets import EnsembleForecastDataset
+from openstef_core.datasets.validated_datasets import EnsembleForecastDataset, ForecastDataset
 
 
 @pytest.fixture

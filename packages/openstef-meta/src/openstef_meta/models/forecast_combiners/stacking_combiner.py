@@ -15,13 +15,13 @@ import pandas as pd
 from pydantic import Field, field_validator
 
 from openstef_core.datasets import ForecastDataset, ForecastInputDataset
+from openstef_core.datasets.validated_datasets import EnsembleForecastDataset
 from openstef_core.exceptions import (
     NotFittedError,
 )
 from openstef_core.mixins import HyperParams
 from openstef_core.types import LeadTime, Quantile
 from openstef_meta.models.forecast_combiners.forecast_combiner import ForecastCombiner, ForecastCombinerConfig
-from openstef_meta.utils.datasets import EnsembleForecastDataset
 from openstef_models.explainability.mixins import ExplainableForecaster
 from openstef_models.models.forecasting.gblinear_forecaster import (
     GBLinearForecaster,
@@ -30,7 +30,7 @@ from openstef_models.models.forecasting.gblinear_forecaster import (
 from openstef_models.models.forecasting.lgbm_forecaster import LGBMHyperParams
 
 if TYPE_CHECKING:
-    from openstef_models.models.forecasting.forecaster import Forecaster
+    from openstef_core.mixins.forecaster import Forecaster
 
 logger = logging.getLogger(__name__)
 

@@ -12,16 +12,15 @@ import pytest
 
 from openstef_core.datasets import ForecastInputDataset
 from openstef_core.datasets.timeseries_dataset import TimeSeriesDataset
-from openstef_core.datasets.validated_datasets import ForecastDataset
+from openstef_core.datasets.validated_datasets import EnsembleForecastDataset, ForecastDataset
 from openstef_core.exceptions import NotFittedError
+from openstef_core.mixins.forecaster import Forecaster, ForecasterConfig
 from openstef_core.mixins.predictor import HyperParams
 from openstef_core.mixins.transform import TransformPipeline
 from openstef_core.testing import assert_timeseries_equal, create_synthetic_forecasting_dataset
 from openstef_core.types import LeadTime, Q
 from openstef_meta.models.ensemble_forecasting_model import EnsembleForecastingModel
 from openstef_meta.models.forecast_combiners.forecast_combiner import ForecastCombiner, ForecastCombinerConfig
-from openstef_meta.utils.datasets import EnsembleForecastDataset
-from openstef_models.models.forecasting import Forecaster, ForecasterConfig
 from openstef_models.transforms.postprocessing.quantile_sorter import QuantileSorter
 from openstef_models.transforms.time_domain.lags_adder import LagsAdder
 

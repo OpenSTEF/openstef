@@ -15,9 +15,9 @@ from pydantic import ConfigDict, Field
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import ForecastDataset, ForecastInputDataset
+from openstef_core.datasets.validated_datasets import EnsembleForecastDataset
 from openstef_core.mixins import HyperParams, Predictor
 from openstef_core.types import LeadTime, Quantile
-from openstef_meta.utils.datasets import EnsembleForecastDataset
 
 
 class ForecastCombinerConfig(BaseConfig):

@@ -11,6 +11,7 @@ entry point for production forecasting systems.
 
 import logging
 from datetime import datetime
+from typing import Any
 
 from pydantic import Field, PrivateAttr
 
@@ -18,10 +19,10 @@ from openstef_core.base_model import BaseModel
 from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesDataset
 from openstef_core.datasets.validated_datasets import ForecastDataset
 from openstef_core.exceptions import NotFittedError, SkipFitting
-from openstef_meta.models.ensemble_forecasting_model import EnsembleForecastingModel, EnsembleModelFitResult
 from openstef_models.mixins import ModelIdentifier, PredictorCallback
 from openstef_models.mixins.callbacks import WorkflowContext
-from openstef_models.models.forecasting_model import ForecastingModel, ModelFitResult
+from openstef_models.models.base_forecasting_model import BaseForecastingModel
+from openstef_models.models.forecasting_model import ModelFitResult
 
 
 class ForecastingCallback(
@@ -118,7 +119,7 @@ class CustomForecastingWorkflow(BaseModel):
         ... ) # doctest: +SKIP
     """
 
-    model: ForecastingModel | EnsembleForecastingModel = Field(description="The forecasting model to use.")
+    model: BaseForecastingModel = Field(description="The forecasting model to use.")
     callbacks: list[ForecastingCallback] = Field(
         default_factory=list[ForecastingCallback], description="List of callbacks to execute during workflow events."
     )
@@ -136,7 +137,7 @@ class CustomForecastingWorkflow(BaseModel):
         data: TimeSeriesDataset,
         data_val: TimeSeriesDataset | None = None,
         data_test: TimeSeriesDataset | None = None,
-    ) -> ModelFitResult | EnsembleModelFitResult | None:
+    ) -> ModelFitResult | None:
         """Train the forecasting model with callback execution.
 
         Executes the complete training workflow including pre-fit callbacks,
@@ -151,20 +152,29 @@ class CustomForecastingWorkflow(BaseModel):
             ModelFitResult containing training metrics and information,
             or None if fitting was skipped.
         """
+        result: ModelFitResult | None = None
         context: WorkflowContext[CustomForecastingWorkflow] = WorkflowContext(workflow=self)
 
         try:
             for callback in self.callbacks:
                 callback.on_fit_start(context=context, data=data)
 
-            result = self.model.fit(data=data, data_val=data_val, data_test=data_test)
+            fit_output: Any = self.model.fit(data=data, data_val=data_val, data_test=data_test)
 
-            if isinstance(result, EnsembleModelFitResult):
-                self._logger.debug("Discarding EnsembleModelFitResult for compatibility.")
-                result = result.combiner_fit_result
+            # Ensemble models return a composite result; extract the combiner result
+            # for callback compatibility (avoids importing EnsembleModelFitResult).
+            if isinstance(fit_output, ModelFitResult):
+                fit_result: ModelFitResult = fit_output
+            elif hasattr(fit_output, "combiner_fit_result"):
+                self._logger.debug("Extracting combiner_fit_result for callback compatibility.")
+                fit_result = fit_output.combiner_fit_result  # pyright: ignore[reportUnknownMemberType]
+            else:
+                fit_result = fit_output  # pyright: ignore[reportUnknownVariableType]
 
             for callback in self.callbacks:
-                callback.on_fit_end(context=context, result=result)
+                callback.on_fit_end(context=context, result=fit_result)
+
+            result = fit_result
         except SkipFitting as e:
             self._logger.info("Skipping model fitting: %s", e)
             result = None
@@ -203,4 +213,4 @@ class CustomForecastingWorkflow(BaseModel):
         return forecasts
 
 
-__all__ = ["CustomForecastingWorkflow"]
+__all__ = ["CustomForecastingWorkflow", "ForecastingCallback"]

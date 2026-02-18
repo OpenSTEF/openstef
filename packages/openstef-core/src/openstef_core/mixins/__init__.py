@@ -9,6 +9,7 @@ across the OpenSTEF codebase, including prediction interfaces, state management,
 and data transformation pipelines.
 """
 
+from .forecaster import Forecaster, ForecasterConfig
 from .predictor import BatchPredictor, BatchResult, HyperParams, Predictor
 from .stateful import Stateful
 from .transform import Transform, TransformPipeline
@@ -16,6 +17,8 @@ from .transform import Transform, TransformPipeline
 __all__ = [
     "BatchPredictor",
     "BatchResult",
+    "Forecaster",
+    "ForecasterConfig",
     "HyperParams",
     "Predictor",
     "Stateful",

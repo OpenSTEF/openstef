@@ -4,4 +4,6 @@
 
 """Utility functions and classes for OpenSTEF Meta."""
 
-__all__: list[str] = []
+from openstef_meta.utils.datasets import combine_forecast_input_datasets
+
+__all__: list[str] = ["combine_forecast_input_datasets"]

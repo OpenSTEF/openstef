@@ -13,13 +13,13 @@ from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import InsufficientlyCompleteError, NotFittedError
 from openstef_core.mixins import TransformPipeline
+from openstef_core.mixins.forecaster import Forecaster, ForecasterConfig
 from openstef_core.testing import assert_timeseries_equal, create_synthetic_forecasting_dataset
 from openstef_core.types import LeadTime, Quantile, override
 from openstef_models.models.forecasting.constant_median_forecaster import (
     ConstantMedianForecaster,
     ConstantMedianForecasterConfig,
 )
-from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
 from openstef_models.models.forecasting_model import ForecastingModel
 from openstef_models.transforms.postprocessing.quantile_sorter import QuantileSorter
 from openstef_models.transforms.time_domain.lags_adder import LagsAdder

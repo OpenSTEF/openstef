@@ -18,11 +18,11 @@ from openstef_core.exceptions import (
     NotFittedError,
 )
 from openstef_core.mixins import HyperParams
-from openstef_core.types import Quantile
-from openstef_models.models.forecasting.forecaster import (
+from openstef_core.mixins.forecaster import (
     Forecaster,
     ForecasterConfig,
 )
+from openstef_core.types import Quantile
 from openstef_models.models.forecasting.gblinear_forecaster import (
     GBLinearForecaster,
     GBLinearHyperParams,
@@ -86,7 +86,7 @@ class ResidualForecasterConfig(ForecasterConfig):
     )
 
 
-class ResidualForecaster(Forecaster):
+class ResidualForecaster(Forecaster):  # TODO: Move to a separate PR for now...
     """MetaForecaster that implements residual modeling.
 
     It takes in a primary forecaster and a residual forecaster. The primary forecaster makes initial predictions,

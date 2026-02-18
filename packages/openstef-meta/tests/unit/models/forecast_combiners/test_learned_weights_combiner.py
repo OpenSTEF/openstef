@@ -6,6 +6,7 @@ from datetime import timedelta
 
 import pytest
 
+from openstef_core.datasets.validated_datasets import EnsembleForecastDataset
 from openstef_core.exceptions import NotFittedError
 from openstef_core.types import LeadTime, Q
 from openstef_meta.models.forecast_combiners.learned_weights_combiner import (
@@ -16,7 +17,6 @@ from openstef_meta.models.forecast_combiners.learned_weights_combiner import (
     WeightsCombinerConfig,
     XGBCombinerHyperParams,
 )
-from openstef_meta.utils.datasets import EnsembleForecastDataset
 
 
 @pytest.fixture(params=["lgbm", "xgboost", "rf", "logistic"])

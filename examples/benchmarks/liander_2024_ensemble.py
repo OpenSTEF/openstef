@@ -34,6 +34,7 @@ from openstef_meta.presets import (
     EnsembleWorkflowConfig,
 )
 from openstef_models.integrations.mlflow.mlflow_storage import MLFlowStorage
+from openstef_models.transforms.general import SampleWeightConfig
 
 logging.basicConfig(level=logging.INFO, format="[%(asctime)s][%(levelname)s] %(message)s")
 
@@ -89,8 +90,12 @@ workflow_config = EnsembleWorkflowConfig(
     temperature_column="temperature_2m",
     relative_humidity_column="relative_humidity_2m",
     energy_price_column="EPEX_NL",
-    forecast_combiner_sample_weight_exponent=0,
-    forecaster_sample_weight_exponent={"gblinear": 1, "lgbm": 0, "xgboost": 0, "lgbm_linear": 0},
+    forecaster_sample_weights={
+        "gblinear": SampleWeightConfig(method="exponential", weight_exponent=1.0),
+        "lgbm": SampleWeightConfig(weight_exponent=0.0),
+        "xgboost": SampleWeightConfig(weight_exponent=0.0),
+        "lgbm_linear": SampleWeightConfig(weight_exponent=0.0),
+    },
 )
 
 

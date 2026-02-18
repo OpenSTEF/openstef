@@ -18,7 +18,7 @@ from openstef_core.types import Q, Quantile
 from openstef_models.explainability.plotters.feature_importance_plotter import FeatureImportancePlotter
 
 
-class ExplainableForecaster(ABC):
+class ExplainableForecaster(ABC):  # TODO: Inherit from Forecaster once it is moved to openstef-core?
     """Mixin for forecasters that can explain feature importance.
 
     Provides a standardized interface for accessing and visualizing feature

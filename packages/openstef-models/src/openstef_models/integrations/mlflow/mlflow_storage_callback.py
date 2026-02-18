@@ -11,6 +11,7 @@ metrics for each forecasting workflow execution.
 
 import logging
 from datetime import UTC, datetime, timedelta
+from pathlib import Path
 from typing import Any, cast, override
 
 from pydantic import Field, PrivateAttr
@@ -27,12 +28,13 @@ from openstef_core.exceptions import (
     ModelNotFoundError,
     SkipFitting,
 )
+from openstef_core.mixins.predictor import HyperParams
 from openstef_core.types import Q, QuantileOrGlobal
-from openstef_meta.models.ensemble_forecasting_model import EnsembleForecastingModel
 from openstef_models.explainability import ExplainableForecaster
 from openstef_models.integrations.mlflow.mlflow_storage import MLFlowStorage
 from openstef_models.mixins.callbacks import WorkflowContext
 from openstef_models.models import ForecastingModel
+from openstef_models.models.base_forecasting_model import BaseForecastingModel
 from openstef_models.models.forecasting_model import ModelFitResult
 from openstef_models.workflows.custom_forecasting_workflow import (
     CustomForecastingWorkflow,
@@ -114,21 +116,20 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
         if self.model_selection_enable:
             self._run_model_selection(workflow=context.workflow, result=result)
 
-        if isinstance(context.workflow.model, EnsembleForecastingModel):
-            raise NotImplementedError(
-                "MLFlowStorageCallback does not yet support EnsembleForecastingWorkflow model storage."
-            )  # TODO: Implement model selection and storage for EnsembleForecastingWorkflow, including handling of base forecasters and combiner model.
-
         # Create a new run
+        model = context.workflow.model
         run = self.storage.create_run(
             model_id=context.workflow.model_id,
-            tags=context.workflow.model.tags,
-            hyperparams=context.workflow.model.forecaster.hyperparams,
+            tags=model.tags,
+            hyperparams=self._get_hyperparams(model),
             run_name=context.workflow.run_name,
             experiment_tags=context.workflow.experiment_tags,
         )
         run_id: str = run.info.run_id
         self._logger.info("Created MLflow run %s for model %s", run_id, context.workflow.model_id)
+
+        # Hook for subclasses to log additional hyperparameters (e.g., per-component for ensembles)
+        self._log_additional_hyperparams(model=model, run_id=run_id)
 
         # Store the model input
         run_path = self.storage.get_artifacts_path(model_id=context.workflow.model_id, run_id=run_id)
@@ -137,10 +138,9 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
         result.input_dataset.to_parquet(path=data_path / "data.parquet")
         self._logger.info("Stored training data at %s for run %s", data_path, run_id)
 
-        # Store feature importance plot if enabled
-        if self.store_feature_importance_plot and isinstance(context.workflow.model.forecaster, ExplainableForecaster):
-            fig = context.workflow.model.forecaster.plot_feature_importances()
-            fig.write_html(data_path / "feature_importances.html")  # pyright: ignore[reportUnknownMemberType]
+        # Store feature importance plots if enabled
+        if self.store_feature_importance_plot:
+            self._store_feature_importance(model=model, data_path=data_path)
 
         # Store the trained model
         self.storage.save_run_model(
@@ -161,6 +161,36 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
         # Mark the run as finished
         self.storage.finalize_run(model_id=context.workflow.model_id, run_id=run_id, metrics=metrics)
         self._logger.info("Stored MLflow run %s for model %s", run_id, context.workflow.model_id)
+
+    def _get_hyperparams(self, model: BaseForecastingModel) -> HyperParams | None:
+        """Extract hyperparameters from the model for MLflow logging.
+
+        Override in subclasses for models with different hyperparameter structures.
+        """
+        if isinstance(model, ForecastingModel):
+            return model.forecaster.hyperparams
+        return None
+
+    def _log_additional_hyperparams(self, model: BaseForecastingModel, run_id: str) -> None:
+        """Hook for logging additional hyperparameters. Override in subclasses."""
+
+    @staticmethod
+    def _store_feature_importance(
+        model: BaseForecastingModel,
+        data_path: Path,
+    ) -> None:
+        """Store feature importance plots for the model.
+
+        For a ForecastingModel, stores a single feature importance plot if the
+        forecaster is explainable.
+
+        Args:
+            model: The model to extract feature importances from.
+            data_path: Directory path where HTML plots will be saved.
+        """
+        if isinstance(model, ForecastingModel) and isinstance(model.forecaster, ExplainableForecaster):
+            fig = model.forecaster.plot_feature_importances()
+            fig.write_html(data_path / "feature_importances.html")  # pyright: ignore[reportUnknownMemberType]
 
     @override
     def on_predict_start(
@@ -190,9 +220,9 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
 
         old_model = self.storage.load_run_model(run_id=run_id, model_id=context.workflow.model_id)
 
-        if not isinstance(old_model, ForecastingModel):
+        if not isinstance(old_model, BaseForecastingModel):
             self._logger.warning(
-                "Loaded model from run %s is not a ForecastingModel, cannot use for prediction",
+                "Loaded model from run %s is not a BaseForecastingModel, cannot use for prediction",
                 cast(str, run.info.run_id),
             )
             return
@@ -255,7 +285,7 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
         self,
         run_id: str,
         workflow: CustomForecastingWorkflow,
-    ) -> ForecastingModel | None:
+    ) -> BaseForecastingModel | None:
         try:
             old_model = self.storage.load_run_model(run_id=run_id, model_id=workflow.model_id)
         except ModelNotFoundError:
@@ -266,9 +296,9 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
             )
             return None
 
-        if not isinstance(old_model, ForecastingModel):
+        if not isinstance(old_model, BaseForecastingModel):
             self._logger.warning(
-                "Loaded old model from run %s is not a ForecastingModel, skipping model selection",
+                "Loaded old model from run %s is not a BaseForecastingModel, skipping model selection",
                 run_id,
             )
             return None
@@ -278,7 +308,7 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
     def _try_evaluate_model(
         self,
         run_id: str,
-        old_model: ForecastingModel,
+        old_model: BaseForecastingModel,
         input_data: TimeSeriesDataset,
     ) -> SubsetMetric | None:
         try:

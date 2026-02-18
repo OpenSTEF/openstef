@@ -33,6 +33,7 @@ from openstef_core.exceptions import FlatlinerDetectedError, NotFittedError
 from openstef_core.types import Q
 from openstef_meta.models.ensemble_forecasting_model import EnsembleForecastingModel
 from openstef_meta.presets import EnsembleWorkflowConfig, create_ensemble_workflow
+from openstef_models.models.forecasting_model import ForecastingModel
 from openstef_models.presets import ForecastingWorkflowConfig
 from openstef_models.workflows.custom_forecasting_workflow import (
     CustomForecastingWorkflow,
@@ -94,7 +95,10 @@ class OpenSTEF4BacktestForecaster(BaseModel, BacktestForecasterMixin):
         if isinstance(self._workflow.model, EnsembleForecastingModel):
             name = self._workflow.model.forecaster_names[0]
             return self._workflow.model.forecasters[name].config.quantiles
-        return self._workflow.model.forecaster.config.quantiles
+        if isinstance(self._workflow.model, ForecastingModel):
+            return self._workflow.model.forecaster.config.quantiles
+        msg = f"Unsupported model type: {type(self._workflow.model)}"
+        raise TypeError(msg)
 
     @override
     def fit(self, data: RestrictedHorizonVersionedTimeSeries) -> None:
@@ -124,7 +128,7 @@ class OpenSTEF4BacktestForecaster(BaseModel, BacktestForecasterMixin):
 
         self._workflow = workflow
 
-        if self.debug:
+        if self.debug and isinstance(self._workflow.model, ForecastingModel):
             id_str = data.horizon.strftime("%Y%m%d%H%M%S")
             self._workflow.model.prepare_input(training_data).to_parquet(  # pyright: ignore[reportPrivateUsage]
                 path=self.cache_dir / f"debug_{id_str}_prepared_training.parquet"
