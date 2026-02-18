@@ -146,8 +146,9 @@ def model() -> EnsembleForecastingModel:
 
 def test_forecasting_model__init__uses_defaults(model: EnsembleForecastingModel):
     """Test initialization uses default preprocessing and postprocessing when not provided."""
+    # Arrange & Act - model created by fixture
 
-    # Assert - Check that components are assigned correctly
+    # Assert
     assert model.common_preprocessing is not None
     assert model.postprocessing is not None
     assert model.target_column == "load"  # Default value
@@ -156,26 +157,24 @@ def test_forecasting_model__init__uses_defaults(model: EnsembleForecastingModel)
 
 def test_forecasting_model__fit(sample_timeseries_dataset: TimeSeriesDataset, model: EnsembleForecastingModel):
     """Test that fit correctly orchestrates preprocessing and forecaster calls, and returns metrics."""
-
     # Act
     result = model.fit(data=sample_timeseries_dataset)
 
-    # Assert - Model is fitted and returns metrics
+    # Assert
     assert model.is_fitted
     assert result is not None
 
 
 def test_forecasting_model__predict(sample_timeseries_dataset: TimeSeriesDataset, model: EnsembleForecastingModel):
     """Test that predict correctly orchestrates preprocessing and forecaster calls."""
-
-    # Fit the model first
+    # Arrange
     model.fit(data=sample_timeseries_dataset)
     forecast_start = datetime.fromisoformat("2025-01-01T12:00:00")
 
     # Act
     result = model.predict(data=sample_timeseries_dataset, forecast_start=forecast_start)
 
-    # Assert - Prediction returns a forecast dataset with expected properties
+    # Assert
     assert isinstance(result, ForecastDataset)
     assert result.sample_interval == sample_timeseries_dataset.sample_interval
     assert result.quantiles == [Q(0.3), Q(0.5), Q(0.7)]
@@ -188,7 +187,6 @@ def test_forecasting_model__predict__raises_error_when_not_fitted(
     sample_timeseries_dataset: TimeSeriesDataset, model: EnsembleForecastingModel
 ):
     """Test predict raises NotFittedError when model is not fitted."""
-
     # Act & Assert
     with pytest.raises(NotFittedError):
         model.predict(data=sample_timeseries_dataset)
@@ -198,16 +196,15 @@ def test_forecasting_model__score__returns_metrics(
     sample_timeseries_dataset: TimeSeriesDataset, model: EnsembleForecastingModel
 ):
     """Test that score evaluates model and returns metrics."""
-
+    # Arrange
     model.fit(data=sample_timeseries_dataset)
 
     # Act
     metrics = model.score(data=sample_timeseries_dataset)
 
-    # Assert - Metrics are calculated for the median quantile
+    # Assert
     assert metrics.metrics is not None
     assert all(x in metrics.metrics for x in [Q(0.3), Q(0.5), Q(0.7)])
-    # R2 metric should be present (default evaluation metric)
     assert "R2" in metrics.metrics[Q(0.5)]
 
 
@@ -217,15 +214,13 @@ def test_forecasting_model__pickle_roundtrip():
     This verifies that the entire forecasting pipeline, including transforms and forecaster,
     can be serialized and deserialized while maintaining functionality.
     """
-    # Arrange - create synthetic dataset
+    # Arrange
     dataset = create_synthetic_forecasting_dataset(
         length=timedelta(days=30),
         sample_interval=timedelta(hours=1),
         random_seed=42,
     )
 
-    # Create forecasting model with preprocessing and postprocessing
-    # Arrange
     horizons = [LeadTime(timedelta(hours=1))]
     quantiles = [Q(0.3), Q(0.5), Q(0.7)]
     config = ForecasterConfig(quantiles=quantiles, horizons=horizons)
@@ -264,11 +259,11 @@ def test_forecasting_model__pickle_roundtrip():
     # Get predictions from original model
     expected_predictions = original_model.predict(data=dataset)
 
-    # Act - pickle and unpickle the model
+    # Act
     pickled = pickle.dumps(original_model)
     restored_model = pickle.loads(pickled)  # noqa: S301 - Controlled test
 
-    # Assert - verify the restored model is the correct type
+    # Assert
     assert isinstance(restored_model, EnsembleForecastingModel)
     assert restored_model.is_fitted
     assert restored_model.target_column == original_model.target_column

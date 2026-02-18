@@ -9,38 +9,9 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset, TimeSeriesDataset
+from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.types import Quantile
 from openstef_meta.utils.datasets import EnsembleForecastDataset
-
-
-@pytest.fixture
-def simple_dataset() -> TimeSeriesDataset:
-    return TimeSeriesDataset(
-        data=pd.DataFrame(
-            data={
-                "available_at": pd.to_datetime([
-                    "2023-01-01T09:50:00",  # lead time = 10:00 - 09:50 = +10min
-                    "2023-01-01T10:55:00",  # lead time = 11:00 - 10:55 = +5min
-                    "2023-01-01T12:10:00",  # lead time = 12:00 - 12:10 = -10min
-                    "2023-01-01T13:20:00",  # lead time = 13:00 - 13:20 = -20min
-                    "2023-01-01T14:15:00",  # lead time = 14:00 - 14:15 = -15min
-                    "2023-01-01T14:30:00",  # lead time = 14:00 - 14:30 = -30min
-                ]),
-                "value1": [10, 20, 30, 40, 50, 55],  # 55 should override 50 for 14:00
-            },
-            index=pd.to_datetime([
-                "2023-01-01T10:00:00",
-                "2023-01-01T11:00:00",
-                "2023-01-01T12:00:00",
-                "2023-01-01T13:00:00",
-                # Duplicate timestamp with different availability
-                "2023-01-01T14:00:00",
-                "2023-01-01T14:00:00",
-            ]),
-        ),
-        sample_interval=timedelta(hours=1),
-    )
 
 
 @pytest.fixture
@@ -93,7 +64,7 @@ def ensemble_dataset(base_predictions: dict[str, ForecastDataset]) -> EnsembleFo
 
 
 def test_from_ensemble_output(ensemble_dataset: EnsembleForecastDataset):
-
+    # Assert
     assert isinstance(ensemble_dataset, EnsembleForecastDataset)
     assert ensemble_dataset.data.shape == (3, 7)  # 3 timestamps, 2 learners * 3 quantiles + target
     assert set(ensemble_dataset.forecaster_names) == {"model_1", "model_2"}
@@ -101,17 +72,20 @@ def test_from_ensemble_output(ensemble_dataset: EnsembleForecastDataset):
 
 
 def test_get_base_predictions_for_quantile(ensemble_dataset: EnsembleForecastDataset):
-
+    # Act
     dataset = ensemble_dataset.get_base_predictions_for_quantile(Quantile(0.5))
 
+    # Assert
     assert isinstance(dataset, ForecastInputDataset)
     assert dataset.data.shape == (3, 3)  # 3 timestamps, 2 learners * 1 quantiles + target
 
 
 def test_get_best_forecaster_labels(ensemble_dataset: EnsembleForecastDataset):
     """Test get_best_forecaster_labels."""
+    # Act
     dataset = ensemble_dataset.get_best_forecaster_labels(Quantile(0.5))
 
+    # Assert
     assert isinstance(dataset, ForecastInputDataset)
     assert dataset.data.shape == (3, 3)  # 3 timestamps, 2 learners * 1 quantiles + target
     assert all(dataset.target_series.apply(lambda x: x in {"model_1", "model_2"}))  # type: ignore

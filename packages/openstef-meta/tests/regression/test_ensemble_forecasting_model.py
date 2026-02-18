@@ -70,27 +70,27 @@ def create_models(
     return ensemble_model, base_models
 
 
-def test_preprocessing(
+def test_preprocessing( # TODO: Move this to unit/models/test_ensemble_forecasting_model.py?
     sample_timeseries_dataset: TimeSeriesDataset,
     create_models: tuple[EnsembleForecastingModel, dict[str, ForecastingModel]],
 ) -> None:
-
+    # Arrange
     ensemble_model, base_models = create_models
-
     ensemble_model.common_preprocessing.fit(data=sample_timeseries_dataset)
 
-    #  Check all base models
     for name, model in base_models.items():
-        # Ensemble model
+        # Act - Transform through ensemble pipeline
         common_ensemble = ensemble_model.common_preprocessing.transform(
             data=sample_timeseries_dataset.copy_with(sample_timeseries_dataset.data)
         )
         ensemble_model.model_specific_preprocessing[name].fit(data=common_ensemble)
         transformed_ensemble = ensemble_model.model_specific_preprocessing[name].transform(data=common_ensemble)
-        # Base model
+
+        # Act - Transform through base model pipeline
         model.preprocessing.fit(data=sample_timeseries_dataset)
         transformed_base = model.preprocessing.transform(data=sample_timeseries_dataset)
-        # Compare
+
+        # Assert
         pd.testing.assert_frame_equal(
             transformed_ensemble.data,
             transformed_base.data,

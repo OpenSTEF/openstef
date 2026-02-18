@@ -96,6 +96,7 @@ class ForecastCombiner(Predictor[EnsembleForecastDataset, ForecastDataset]):
         """
         raise NotImplementedError("Subclasses must implement the fit method.")
 
+    @abstractmethod
     def predict(
         self,
         data: EnsembleForecastDataset,

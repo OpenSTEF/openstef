@@ -65,8 +65,10 @@ def baselearner_config(request: pytest.FixtureRequest) -> BaseLearnerConfig:  # 
 
 
 def test_init_sets_quantiles_and_models(baselearner_config: BaseLearnerConfig):
+    # Arrange
     quantiles = [0.1, 0.5, 0.9]
 
+    # Act
     model = MultiQuantileRegressor(
         base_learner=baselearner_config.base_learner,
         quantile_param=baselearner_config.quantile_param,
@@ -74,13 +76,14 @@ def test_init_sets_quantiles_and_models(baselearner_config: BaseLearnerConfig):
         hyperparams=baselearner_config.hyperparams,
     )
 
+    # Assert
     assert model.quantiles == quantiles
     assert len(model._models) == len(quantiles)
 
 
 def test_fit_and_predict_shape(dataset: tuple[pd.DataFrame, pd.Series], baselearner_config: BaseLearnerConfig):
+    # Arrange
     quantiles = [0.1, 0.5, 0.9]
-
     X, y = dataset[0], dataset[1]
     model = MultiQuantileRegressor(
         base_learner=baselearner_config.base_learner,
@@ -89,12 +92,16 @@ def test_fit_and_predict_shape(dataset: tuple[pd.DataFrame, pd.Series], baselear
         hyperparams=baselearner_config.hyperparams,
     )
 
+    # Act
     model.fit(X, y)
     preds = model.predict(X)
+
+    # Assert
     assert preds.shape == (X.shape[0], len(quantiles))
 
 
 def test_is_fitted_true_after_fit(dataset: tuple[pd.DataFrame, pd.Series], baselearner_config: BaseLearnerConfig):
+    # Arrange
     quantiles = [0.1, 0.5, 0.9]
     X, y = dataset[0], dataset[1]
     model = MultiQuantileRegressor(
@@ -103,5 +110,9 @@ def test_is_fitted_true_after_fit(dataset: tuple[pd.DataFrame, pd.Series], basel
         quantiles=quantiles,
         hyperparams=baselearner_config.hyperparams,
     )
+
+    # Act
     model.fit(X, y)
+
+    # Assert
     assert model.is_fitted

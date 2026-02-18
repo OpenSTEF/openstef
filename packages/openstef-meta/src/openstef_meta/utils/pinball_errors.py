@@ -10,7 +10,7 @@ This module provides a function to compute the pinball loss for quantile regress
 import numpy as np
 import pandas as pd
 
-
+# TODO: Replace by openstef-beam implementation?
 def calculate_pinball_errors(y_true: pd.Series, y_pred: pd.Series, quantile: float) -> pd.Series:
     """Calculate pinball loss for given true and predicted values.
 

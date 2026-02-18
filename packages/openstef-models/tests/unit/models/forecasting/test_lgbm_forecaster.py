@@ -30,12 +30,11 @@ def base_config() -> LGBMForecasterConfig:
     )
 
 
-@pytest.fixture
-def forecaster(base_config: LGBMForecasterConfig) -> LGBMForecaster:
-    return LGBMForecaster(base_config)
+def test_initialization(base_config: LGBMForecasterConfig):
+    # Act
+    forecaster = LGBMForecaster(base_config)
 
-
-def test_initialization(forecaster: LGBMForecaster):
+    # Assert
     assert isinstance(forecaster, LGBMForecaster)
     assert forecaster.config.hyperparams.n_estimators == 100  # type: ignore
 

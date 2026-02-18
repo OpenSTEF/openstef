@@ -1,6 +1,6 @@
-# # SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
-# #
-# # SPDX-License-Identifier: MPL-2.0
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
+#
+# SPDX-License-Identifier: MPL-2.0
 
 from datetime import timedelta
 
@@ -41,7 +41,10 @@ def config(regressor: str) -> StackingCombinerConfig:
 
 
 def test_initialization(config: StackingCombinerConfig):
+    # Act
     forecaster = StackingCombiner(config)
+
+    # Assert
     assert forecaster.is_fitted is False
     assert len(forecaster.models) == len(config.quantiles)
     assert forecaster.quantiles == config.quantiles
