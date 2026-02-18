@@ -13,7 +13,6 @@ from .learned_weights_combiner import (
     WeightsCombinerConfig,
     XGBCombinerHyperParams,
 )
-from .rules_combiner import RulesCombiner, RulesCombinerConfig
 from .stacking_combiner import StackingCombiner, StackingCombinerConfig
 
 __all__ = [
@@ -22,8 +21,6 @@ __all__ = [
     "LGBMCombinerHyperParams",
     "LogisticCombinerHyperParams",
     "RFCombinerHyperParams",
-    "RulesCombiner",
-    "RulesCombinerConfig",
     "StackingCombiner",
     "StackingCombinerConfig",
     "WeightsCombiner",

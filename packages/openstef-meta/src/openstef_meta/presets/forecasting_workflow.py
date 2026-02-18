@@ -31,7 +31,6 @@ from openstef_meta.models.forecast_combiners.learned_weights_combiner import (
     WeightsCombiner,
     XGBCombinerHyperParams,
 )
-from openstef_meta.models.forecast_combiners.rules_combiner import RulesCombiner
 from openstef_meta.models.forecast_combiners.stacking_combiner import (
     StackingCombiner,
 )
@@ -496,8 +495,6 @@ def create_ensemble_workflow(config: EnsembleWorkflowConfig) -> CustomForecastin
                     quantiles=config.quantiles,
                 )
             )
-        case ("rules", _):
-            combiner = RulesCombiner(config=RulesCombiner.Config(horizons=config.horizons, quantiles=config.quantiles))
         case _:
             msg = f"Unsupported ensemble and combiner combination: {config.ensemble_type}, {config.combiner_model}"
             raise ValueError(msg)
