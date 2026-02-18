@@ -4,8 +4,4 @@
 
 """Utility functions and classes for OpenSTEF Meta."""
 
-from .pinball_errors import calculate_pinball_errors
-
-__all__ = [
-    "calculate_pinball_errors",
-]
+__all__: list[str] = []

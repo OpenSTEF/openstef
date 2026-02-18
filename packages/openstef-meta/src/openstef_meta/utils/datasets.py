@@ -11,11 +11,13 @@ Also supports constructing classification targets based on pinball loss.
 from datetime import datetime, timedelta
 from typing import Self, override
 
+import numpy as np
+import numpy.typing as npt
 import pandas as pd
 
+from openstef_beam.metrics import pinball_losses
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset, TimeSeriesDataset
 from openstef_core.types import Quantile
-from openstef_meta.utils.pinball_errors import calculate_pinball_errors
 
 DEFAULT_TARGET_COLUMN = {Quantile(0.5): "load"}
 
@@ -93,7 +95,7 @@ class EnsembleForecastDataset(TimeSeriesDataset):
         self.forecaster_names, self.quantiles = self.get_learner_and_quantile(pd.Index(quantile_feature_names))
         n_cols = len(self.forecaster_names) * len(self.quantiles)
         if len(data.columns) not in {n_cols + 1, n_cols}:
-            raise ValueError("Data columns do not match the expected number based on base Forecasters and quantiles.")
+            raise ValueError("Data columns do not match the expected number based on base forecasters and quantiles.")
 
     @property
     def target_series(self) -> pd.Series | None:
@@ -104,16 +106,16 @@ class EnsembleForecastDataset(TimeSeriesDataset):
 
     @staticmethod
     def get_learner_and_quantile(feature_names: pd.Index) -> tuple[list[str], list[Quantile]]:
-        """Extract base Forecaster names and quantiles from feature names.
+        """Extract base forecaster names and quantiles from feature names.
 
         Args:
             feature_names: Index of feature names in the dataset.
 
         Returns:
-            Tuple containing a list of base Forecaster names and a list of quantiles.
+            Tuple containing a list of base forecaster names and a list of quantiles.
 
         Raises:
-            ValueError: If an invalid base Forecaster name is found in a feature name.
+            ValueError: If an invalid base forecaster name is found in a feature name.
         """
         forecasters: set[str] = set()
         quantiles: set[Quantile] = set()
@@ -132,13 +134,13 @@ class EnsembleForecastDataset(TimeSeriesDataset):
 
     @staticmethod
     def get_quantile_feature_name(feature_name: str) -> tuple[str, Quantile]:
-        """Generate the feature name for a given base Forecaster and quantile.
+        """Generate the feature name for a given base forecaster and quantile.
 
         Args:
             feature_name: Feature name string in the format "model_Quantile".
 
         Returns:
-            Tuple containing the base Forecaster name and Quantile object.
+            Tuple containing the base forecaster name and Quantile object.
         """
         learner_part, quantile_part = feature_name.split("_", maxsplit=1)
         return learner_part, Quantile.parse(quantile_part)
@@ -192,16 +194,15 @@ class EnsembleForecastDataset(TimeSeriesDataset):
             quantile: Quantile for which to prepare classification data.
 
         Returns:
-            Series with categorical indicators of best-performing base Forecasters.
+            Series with categorical indicators of best-performing base forecasters.
         """
+        # Calculate pinball loss for each base forecaster
+        def _column_losses(preds: pd.Series) -> npt.NDArray[np.floating]:
+            return pinball_losses(y_true=np.asarray(target), y_pred=np.asarray(preds), quantile=quantile)
 
-        # Calculate pinball loss for each base Forecaster
-        def column_pinball_losses(preds: pd.Series) -> pd.Series:
-            return calculate_pinball_errors(y_true=target, y_pred=preds, quantile=quantile)
+        losses_per_forecaster = data.apply(_column_losses)
 
-        pinball_losses = data.apply(column_pinball_losses)
-
-        return pinball_losses.idxmin(axis=1)
+        return losses_per_forecaster.idxmin(axis=1)
 
     def get_best_forecaster_labels(self, quantile: Quantile) -> ForecastInputDataset:
         """Get labels indicating the best-performing base forecaster for each sample at a specific quantile.
