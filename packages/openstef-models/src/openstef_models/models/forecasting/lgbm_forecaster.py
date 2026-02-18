@@ -233,13 +233,29 @@ class LGBMForecaster(Forecaster, ExplainableForecaster):
         self._config = config
 
         lgbm_params = {
+            # Core parameters
             "linear_tree": False,
             "objective": "quantile",
+            "n_estimators": config.hyperparams.n_estimators,
+            "learning_rate": config.hyperparams.learning_rate,
+            "max_depth": config.hyperparams.max_depth,
+            "min_child_weight": config.hyperparams.min_child_weight,
+            # Data binning
+            "min_data_in_leaf": config.hyperparams.min_data_in_leaf,
+            "min_data_in_bin": config.hyperparams.min_data_in_bin,
+            # Regularization
+            "reg_alpha": config.hyperparams.reg_alpha,
+            "reg_lambda": config.hyperparams.reg_lambda,
+            # Tree structure control
+            "num_leaves": config.hyperparams.num_leaves,
+            "max_bin": config.hyperparams.max_bin,
+            # Subsampling
+            "colsample_bytree": config.hyperparams.colsample_bytree,
+            # General parameters
             "random_state": config.random_state,
             "early_stopping_rounds": config.early_stopping_rounds,
             "verbosity": config.verbosity,
             "n_jobs": config.n_jobs,
-            **config.hyperparams.model_dump(),
         }
 
         self._lgbm_model: MultiQuantileRegressor = MultiQuantileRegressor(

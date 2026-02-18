@@ -126,29 +126,29 @@ class EnsembleWorkflowConfig(BaseConfig):
     )
 
     # Learned weights combiner hyperparameters
-    lgbm_combiner_hyperparams: LGBMCombinerHyperParams = Field(
+    combiner_lgbm_hyperparams: LGBMCombinerHyperParams = Field(
         default=LGBMCombinerHyperParams(),
         description="Hyperparameters for LightGBM combiner.",
     )
-    rf_combiner_hyperparams: RFCombinerHyperParams = Field(
+    combiner_rf_hyperparams: RFCombinerHyperParams = Field(
         default=RFCombinerHyperParams(),
         description="Hyperparameters for Random Forest combiner.",
     )
-    xgboost_combiner_hyperparams: XGBCombinerHyperParams = Field(
+    combiner_xgboost_hyperparams: XGBCombinerHyperParams = Field(
         default=XGBCombinerHyperParams(),
         description="Hyperparameters for XGBoost combiner.",
     )
-    logistic_combiner_hyperparams: LogisticCombinerHyperParams = Field(
+    combiner_logistic_hyperparams: LogisticCombinerHyperParams = Field(
         default=LogisticCombinerHyperParams(),
         description="Hyperparameters for Logistic Regression combiner.",
     )
 
     # Stacking combiner hyperparameters
-    stacking_lgbm_combiner_hyperparams: LGBMForecaster.HyperParams = Field(
+    combiner_stacking_lgbm_hyperparams: LGBMForecaster.HyperParams = Field(
         default=LGBMForecaster.HyperParams(),
         description="Hyperparameters for LightGBM stacking combiner.",
     )
-    stacking_gblinear_combiner_hyperparams: GBLinearForecaster.HyperParams = Field(
+    combiner_stacking_gblinear_hyperparams: GBLinearForecaster.HyperParams = Field(
         default=GBLinearForecaster.HyperParams(),
         description="Hyperparameters for GBLinear stacking combiner.",
     )
@@ -202,7 +202,7 @@ class EnsembleWorkflowConfig(BaseConfig):
         default=FeatureSelection(include=None, exclude=None),
         description="Feature selection for which features to clip.",
     )
-    # TODO: Add sample weight method parameter
+    # TODO: Add sample weight method parameters
     sample_weight_scale_percentile: int = Field(
         default=95,
         description="Percentile of target values used as scaling reference. "
@@ -368,7 +368,9 @@ def create_ensemble_workflow(config: EnsembleWorkflowConfig) -> CustomForecastin
     for model_type in config.base_models:
         if model_type == "lgbm":
             forecasters[model_type] = LGBMForecaster(
-                config=LGBMForecaster.Config(quantiles=config.quantiles, horizons=config.horizons)
+                config=LGBMForecaster.Config(
+                    hyperparams=config.lgbm_hyperparams, quantiles=config.quantiles, horizons=config.horizons
+                )
             )
             forecaster_preprocessing[model_type] = [
                 SampleWeighter(
@@ -381,7 +383,9 @@ def create_ensemble_workflow(config: EnsembleWorkflowConfig) -> CustomForecastin
 
         elif model_type == "gblinear":
             forecasters[model_type] = GBLinearForecaster(
-                config=GBLinearForecaster.Config(quantiles=config.quantiles, horizons=config.horizons)
+                config=GBLinearForecaster.Config(
+                    hyperparams=config.gblinear_hyperparams, quantiles=config.quantiles, horizons=config.horizons
+                )
             )
             forecaster_preprocessing[model_type] = [
                 SampleWeighter(
@@ -423,7 +427,9 @@ def create_ensemble_workflow(config: EnsembleWorkflowConfig) -> CustomForecastin
             ]
         elif model_type == "xgboost":
             forecasters[model_type] = XGBoostForecaster(
-                config=XGBoostForecaster.Config(quantiles=config.quantiles, horizons=config.horizons)
+                config=XGBoostForecaster.Config(
+                    hyperparams=config.xgboost_hyperparams, quantiles=config.quantiles, horizons=config.horizons
+                )
             )
             forecaster_preprocessing[model_type] = [
                 SampleWeighter(
@@ -435,7 +441,9 @@ def create_ensemble_workflow(config: EnsembleWorkflowConfig) -> CustomForecastin
             ]
         elif model_type == "lgbm_linear":
             forecasters[model_type] = LGBMLinearForecaster(
-                config=LGBMLinearForecaster.Config(quantiles=config.quantiles, horizons=config.horizons)
+                config=LGBMLinearForecaster.Config(
+                    hyperparams=config.lgbmlinear_hyperparams, quantiles=config.quantiles, horizons=config.horizons
+                )
             )
             forecaster_preprocessing[model_type] = [
                 SampleWeighter(
@@ -454,19 +462,19 @@ def create_ensemble_workflow(config: EnsembleWorkflowConfig) -> CustomForecastin
         case ("learned_weights", "lgbm"):
             combiner = WeightsCombiner(
                 config=WeightsCombiner.Config(
-                    hyperparams=config.lgbm_combiner_hyperparams, horizons=config.horizons, quantiles=config.quantiles
+                    hyperparams=config.combiner_lgbm_hyperparams, horizons=config.horizons, quantiles=config.quantiles
                 )
             )
         case ("learned_weights", "rf"):
             combiner = WeightsCombiner(
                 config=WeightsCombiner.Config(
-                    hyperparams=config.rf_combiner_hyperparams, horizons=config.horizons, quantiles=config.quantiles
+                    hyperparams=config.combiner_rf_hyperparams, horizons=config.horizons, quantiles=config.quantiles
                 )
             )
         case ("learned_weights", "xgboost"):
             combiner = WeightsCombiner(
                 config=WeightsCombiner.Config(
-                    hyperparams=config.xgboost_combiner_hyperparams,
+                    hyperparams=config.combiner_xgboost_hyperparams,
                     horizons=config.horizons,
                     quantiles=config.quantiles,
                 )
@@ -474,7 +482,7 @@ def create_ensemble_workflow(config: EnsembleWorkflowConfig) -> CustomForecastin
         case ("learned_weights", "logistic"):
             combiner = WeightsCombiner(
                 config=WeightsCombiner.Config(
-                    hyperparams=config.logistic_combiner_hyperparams,
+                    hyperparams=config.combiner_logistic_hyperparams,
                     horizons=config.horizons,
                     quantiles=config.quantiles,
                 )
@@ -482,7 +490,7 @@ def create_ensemble_workflow(config: EnsembleWorkflowConfig) -> CustomForecastin
         case ("stacking", "lgbm"):
             combiner = StackingCombiner(
                 config=StackingCombiner.Config(
-                    hyperparams=config.stacking_lgbm_combiner_hyperparams,
+                    hyperparams=config.combiner_stacking_lgbm_hyperparams,
                     horizons=config.horizons,
                     quantiles=config.quantiles,
                 )
@@ -490,7 +498,7 @@ def create_ensemble_workflow(config: EnsembleWorkflowConfig) -> CustomForecastin
         case ("stacking", "gblinear"):
             combiner = StackingCombiner(
                 config=StackingCombiner.Config(
-                    hyperparams=config.stacking_gblinear_combiner_hyperparams,
+                    hyperparams=config.combiner_stacking_gblinear_hyperparams,
                     horizons=config.horizons,
                     quantiles=config.quantiles,
                 )

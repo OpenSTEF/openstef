@@ -153,8 +153,9 @@ class ConstantMedianForecaster(Forecaster, ExplainableForecaster):
         Returns:
             pd.DataFrame containing the prediction contributions.
         """
+        input_data = data.input_data(start=data.forecast_start)
         return pd.DataFrame(
             data=1.0,
-            index=data.index,
+            index=input_data.index,
             columns=["load_" + quantile.format() for quantile in self.config.quantiles],
         )

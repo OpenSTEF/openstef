@@ -117,7 +117,7 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
         if isinstance(context.workflow.model, EnsembleForecastingModel):
             raise NotImplementedError(
                 "MLFlowStorageCallback does not yet support EnsembleForecastingWorkflow model storage."
-            )
+            )  # TODO: Implement model selection and storage for EnsembleForecastingWorkflow, including handling of base forecasters and combiner model.
 
         # Create a new run
         run = self.storage.create_run(

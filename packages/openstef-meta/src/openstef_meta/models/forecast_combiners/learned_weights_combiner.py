@@ -38,8 +38,6 @@ from openstef_meta.utils.datasets import EnsembleForecastDataset, combine_foreca
 logger = logging.getLogger(__name__)
 
 
-# Base classes for Learned Weights Final Learner
-
 Classifier = LGBMClassifier | XGBClassifier | LogisticRegression | DummyClassifier
 
 
@@ -131,7 +129,6 @@ class RFCombinerHyperParams(HyperParams, ClassifierParamsMixin):
         )
 
 
-# 3 XGB Classifier
 class XGBCombinerHyperParams(HyperParams, ClassifierParamsMixin):
     """Hyperparameters for Learned Weights Final Learner with LGBM Random Forest Classifier."""
 
