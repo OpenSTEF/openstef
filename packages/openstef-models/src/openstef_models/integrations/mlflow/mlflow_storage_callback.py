@@ -9,10 +9,13 @@ and metrics to MLflow. Supports both single-model (ForecastingModel) and
 ensemble (EnsembleForecastingModel) workflows via protocol-based dispatch.
 
 Ensemble-specific behavior is enabled automatically when the model satisfies
-the ``HasForecasters`` and ``HasExplainableCombiner`` protocols:
+the ``EnsembleModel`` and ``ExplainableEnsembleModel`` protocols, and when the
+fit result satisfies ``EnsembleFitResult``:
 
 - Logs combiner hyperparameters as the primary hyperparams
 - Logs per-forecaster hyperparameters with name-prefixed keys
+- Stores per-forecaster training data as separate artifacts
+- Logs per-forecaster evaluation metrics with name-prefixed keys
 - Stores feature importance plots for each explainable forecaster component
 - Stores combiner feature importance plots
 """
@@ -51,7 +54,7 @@ from openstef_models.workflows.custom_forecasting_workflow import (
 
 
 @runtime_checkable
-class HasForecasters(Protocol):
+class EnsembleModel(Protocol):
     """Protocol for ensemble models with multiple base forecasters."""
 
     @property
@@ -61,12 +64,22 @@ class HasForecasters(Protocol):
 
 
 @runtime_checkable
-class HasExplainableCombiner(Protocol):
+class ExplainableEnsembleModel(Protocol):
     """Protocol for ensemble models with an explainable forecast combiner."""
 
     @property
     def combiner(self) -> ExplainableForecaster:
         """Return the explainable forecast combiner."""
+        ...
+
+
+@runtime_checkable
+class EnsembleFitResult(Protocol):
+    """Protocol for fit results that contain per-forecaster results."""
+
+    @property
+    def forecaster_fit_results(self) -> dict[str, ModelFitResult]:
+        """Return per-forecaster fit results."""
         ...
 
 
@@ -153,18 +166,18 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
         self._logger.info("Created MLflow run %s for model %s", run_id, context.workflow.model_id)
 
         # Log per-forecaster hyperparams for ensemble models
-        if isinstance(context.workflow.model, HasForecasters):
-            for name, forecaster in context.workflow.model.forecasters.items():
-                prefixed_params = {f"{name}.{k}": str(v) for k, v in forecaster.hyperparams.model_dump().items()}
-                self.storage.log_hyperparams(run_id=run_id, params=prefixed_params)
-                self._logger.debug("Logged hyperparams for forecaster '%s' in run %s", name, run_id)
+        if isinstance(context.workflow.model, EnsembleModel):
+            self._log_forecaster_hyperparams(context.workflow.model, run_id)
 
-        # Store the model input
+        # Store the model input and per-forecaster data
         run_path = self.storage.get_artifacts_path(model_id=context.workflow.model_id, run_id=run_id)
         data_path = run_path / self.storage.data_path
         data_path.mkdir(parents=True, exist_ok=True)
         result.input_dataset.to_parquet(path=data_path / "data.parquet")
         self._logger.info("Stored training data at %s for run %s", data_path, run_id)
+
+        if isinstance(result, EnsembleFitResult):
+            self._store_forecaster_data(result.forecaster_fit_results, data_path)
 
         # Store feature importance plots
         if self.store_feature_importance_plot:
@@ -179,12 +192,7 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
         self._logger.info("Stored trained model for run %s", run_id)
 
         # Format the metrics for MLflow
-        metrics = self.metrics_to_dict(metrics=result.metrics_full, prefix="full_")
-        metrics.update(self.metrics_to_dict(metrics=result.metrics_train, prefix="train_"))
-        if result.metrics_val is not None:
-            metrics.update(self.metrics_to_dict(metrics=result.metrics_val, prefix="val_"))
-        if result.metrics_test is not None:
-            metrics.update(self.metrics_to_dict(metrics=result.metrics_test, prefix="test_"))
+        metrics = self._collect_metrics(result)
 
         # Mark the run as finished
         self.storage.finalize_run(model_id=context.workflow.model_id, run_id=run_id, metrics=metrics)
@@ -263,6 +271,51 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
             )
             raise SkipFitting("New model did not improve monitored metric, skipping re-fit.")
 
+    def _log_forecaster_hyperparams(self, model: EnsembleModel, run_id: str) -> None:
+        """Log per-forecaster hyperparameters to the run."""
+        for name, forecaster in model.forecasters.items():
+            prefixed_params = {f"{name}.{k}": str(v) for k, v in forecaster.hyperparams.model_dump().items()}
+            self.storage.log_hyperparams(run_id=run_id, params=prefixed_params)
+            self._logger.debug("Logged hyperparams for forecaster '%s' in run %s", name, run_id)
+
+    def _store_forecaster_data(
+        self, forecaster_fit_results: dict[str, ModelFitResult], data_path: Path
+    ) -> None:
+        """Store per-forecaster training data as separate parquet files."""
+        for name, forecaster_result in forecaster_fit_results.items():
+            forecaster_data_path = data_path / name
+            forecaster_data_path.mkdir(parents=True, exist_ok=True)
+            forecaster_result.input_dataset.to_parquet(path=forecaster_data_path / "data.parquet")
+            self._logger.debug("Stored training data for forecaster '%s' at %s", name, forecaster_data_path)
+
+    def _collect_metrics(self, result: ModelFitResult) -> dict[str, float]:
+        """Collect all metrics from the fit result, including per-forecaster metrics for ensembles.
+
+        Returns:
+            Flat dictionary mapping metric names to values, including per-forecaster prefixed metrics.
+        """
+        metrics = self.metrics_to_dict(metrics=result.metrics_full, prefix="full_")
+        metrics.update(self.metrics_to_dict(metrics=result.metrics_train, prefix="train_"))
+        if result.metrics_val is not None:
+            metrics.update(self.metrics_to_dict(metrics=result.metrics_val, prefix="val_"))
+        if result.metrics_test is not None:
+            metrics.update(self.metrics_to_dict(metrics=result.metrics_test, prefix="test_"))
+
+        if isinstance(result, EnsembleFitResult):
+            for name, forecaster_result in result.forecaster_fit_results.items():
+                metrics.update(self.metrics_to_dict(metrics=forecaster_result.metrics_full, prefix=f"{name}_full_"))
+                metrics.update(self.metrics_to_dict(metrics=forecaster_result.metrics_train, prefix=f"{name}_train_"))
+                if forecaster_result.metrics_val is not None:
+                    metrics.update(
+                        self.metrics_to_dict(metrics=forecaster_result.metrics_val, prefix=f"{name}_val_")
+                    )
+                if forecaster_result.metrics_test is not None:
+                    metrics.update(
+                        self.metrics_to_dict(metrics=forecaster_result.metrics_test, prefix=f"{name}_test_")
+                    )
+
+        return metrics
+
     @staticmethod
     def _get_primary_hyperparams(model: ForecastingModel) -> HyperParams:
         """Determine primary hyperparameters from the model.
@@ -273,7 +326,7 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
         Returns:
             The primary hyperparameters extracted from the model.
         """
-        if isinstance(model, HasExplainableCombiner):
+        if isinstance(model, ExplainableEnsembleModel):
             config = getattr(model.combiner, "config", None)
             if config is not None:
                 return getattr(config, "hyperparams", HyperParams())  # pyright: ignore[reportUnknownMemberType, reportReturnType]
@@ -284,7 +337,7 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
     @staticmethod
     def _store_feature_importances(model: ForecastingModel, data_path: Path) -> None:
         """Store feature importance plots for all explainable components of the model."""
-        if isinstance(model, HasForecasters):
+        if isinstance(model, EnsembleModel):
             # Ensemble model: store per-forecaster feature importances
             for name, forecaster in model.forecasters.items():
                 if isinstance(forecaster, ExplainableForecaster):
@@ -296,7 +349,7 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
             fig.write_html(data_path / "feature_importances.html")  # pyright: ignore[reportUnknownMemberType]
 
         # Store combiner feature importances (if model has an explainable combiner)
-        if isinstance(model, HasExplainableCombiner):
+        if isinstance(model, ExplainableEnsembleModel):
             combiner_fi = model.combiner.feature_importances
             if not combiner_fi.empty:
                 fig = model.combiner.plot_feature_importances()
@@ -443,7 +496,8 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
 
 
 __all__ = [
-    "HasExplainableCombiner",
-    "HasForecasters",
+    "EnsembleFitResult",
+    "EnsembleModel",
+    "ExplainableEnsembleModel",
     "MLFlowStorageCallback",
 ]

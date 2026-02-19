@@ -17,14 +17,16 @@ Note:
 
 from .mlflow_storage import MLFlowStorage
 from .mlflow_storage_callback import (
-    HasExplainableCombiner,
-    HasForecasters,
+    EnsembleFitResult,
+    EnsembleModel,
+    ExplainableEnsembleModel,
     MLFlowStorageCallback,
 )
 
 __all__ = [
-    "HasExplainableCombiner",
-    "HasForecasters",
+    "EnsembleFitResult",
+    "EnsembleModel",
+    "ExplainableEnsembleModel",
     "MLFlowStorage",
     "MLFlowStorageCallback",
 ]
