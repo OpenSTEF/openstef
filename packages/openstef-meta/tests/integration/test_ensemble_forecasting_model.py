@@ -75,7 +75,7 @@ def create_models(
     return ensemble_model, base_models
 
 
-def test_preprocessing(  # TODO: Move this to unit/models/test_ensemble_forecasting_model.py?
+def test_preprocessing(
     sample_timeseries_dataset: TimeSeriesDataset,
     create_models: tuple[EnsembleForecastingModel, dict[str, ForecastingModel]],
 ) -> None:
