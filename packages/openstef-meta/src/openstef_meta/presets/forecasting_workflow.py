@@ -67,7 +67,7 @@ from openstef_models.utils.data_split import DataSplitter
 from openstef_models.utils.feature_selection import Exclude, FeatureSelection, Include
 
 if TYPE_CHECKING:
-    from openstef_core.mixins.forecaster import Forecaster
+    from openstef_models.models.forecasting.forecaster import Forecaster
 
 
 class EnsembleWorkflowConfig(BaseConfig):

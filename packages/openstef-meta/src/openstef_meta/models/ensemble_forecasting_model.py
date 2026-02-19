@@ -28,9 +28,9 @@ from openstef_core.datasets.timeseries_dataset import validate_horizons_present
 from openstef_core.datasets.validated_datasets import EnsembleForecastDataset
 from openstef_core.exceptions import NotFittedError
 from openstef_core.mixins import TransformPipeline
-from openstef_core.mixins.forecaster import Forecaster, ForecasterConfig
 from openstef_meta.models.forecast_combiners.forecast_combiner import ForecastCombiner
 from openstef_models.models.base_forecasting_model import BaseForecastingModel
+from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
 from openstef_models.models.forecasting_model import ModelFitResult
 
 logger = logging.getLogger(__name__)

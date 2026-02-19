@@ -30,7 +30,7 @@ from openstef_models.models.forecasting.gblinear_forecaster import (
 from openstef_models.models.forecasting.lgbm_forecaster import LGBMHyperParams
 
 if TYPE_CHECKING:
-    from openstef_core.mixins.forecaster import Forecaster
+    from openstef_models.models.forecasting.forecaster import Forecaster
 
 logger = logging.getLogger(__name__)
 

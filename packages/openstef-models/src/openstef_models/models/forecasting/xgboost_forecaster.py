@@ -19,8 +19,8 @@ from sklearn.preprocessing import StandardScaler
 from openstef_core.datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import MissingExtraError, NotFittedError
 from openstef_core.mixins import HyperParams
-from openstef_core.mixins.forecaster import Forecaster, ForecasterConfig
 from openstef_models.explainability.mixins import ExplainableForecaster
+from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
 from openstef_models.utils.evaluation_functions import EvaluationFunctionType, get_evaluation_function
 from openstef_models.utils.loss_functions import (
     ObjectiveFunctionType,

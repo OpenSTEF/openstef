@@ -21,11 +21,10 @@ from openstef_beam.evaluation.metric_providers import MetricProvider, ObservedPr
 from openstef_core.base_model import BaseModel
 from openstef_core.datasets import ForecastDataset, TimeSeriesDataset
 from openstef_core.mixins import Predictor, TransformPipeline
-from openstef_core.mixins.forecaster import ForecasterConfig
+from openstef_models.models.forecasting.forecaster import ForecasterConfig
 from openstef_models.utils.data_split import DataSplitter
 
 
-# TODO: Move to openstef-core?
 class BaseForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset]):
     """Abstract base for forecasting models."""
 

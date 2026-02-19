@@ -15,7 +15,6 @@ import pytest
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.datasets.validated_datasets import EnsembleForecastDataset, ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import SkipFitting
-from openstef_core.mixins.forecaster import Forecaster, ForecasterConfig
 from openstef_core.mixins.predictor import HyperParams
 from openstef_core.types import LeadTime, Q
 from openstef_meta.integrations.mlflow import EnsembleMLFlowStorageCallback
@@ -24,6 +23,7 @@ from openstef_meta.models.forecast_combiners.forecast_combiner import ForecastCo
 from openstef_meta.workflows import CustomEnsembleForecastingWorkflow
 from openstef_models.integrations.mlflow import MLFlowStorage
 from openstef_models.mixins.callbacks import WorkflowContext
+from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
 
 if TYPE_CHECKING:
     from pathlib import Path

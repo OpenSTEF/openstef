@@ -213,7 +213,7 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
         default=FeatureSelection(include=None, exclude=None),
         description="Feature selection for which features to clip.",
     )
-    # TODO: Add sample weight method parameter
+    # TODO: Add sample weight method parameter like in EnsembleWorkflowConfig
     sample_weight_scale_percentile: int = Field(
         default=95,
         description="Percentile of target values used as scaling reference. "
@@ -328,9 +328,7 @@ def create_forecasting_workflow(
             add_trivial_lags=config.model
             not in {"gblinear", "stacking", "learned_weights"},  # GBLinear uses only 7day lag.
             target_column=config.target_column,
-            custom_lags=[timedelta(days=7)]
-            if config.model in {"gblinear", "stacking", "learned_weights"}
-            else [],
+            custom_lags=[timedelta(days=7)] if config.model in {"gblinear", "stacking", "learned_weights"} else [],
         ),
         WindPowerFeatureAdder(
             windspeed_reference_column=config.wind_speed_column,

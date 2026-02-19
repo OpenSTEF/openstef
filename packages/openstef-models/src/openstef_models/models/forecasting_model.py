@@ -27,8 +27,8 @@ from openstef_core.datasets import (
 from openstef_core.datasets.timeseries_dataset import validate_horizons_present
 from openstef_core.exceptions import InsufficientlyCompleteError, NotFittedError
 from openstef_core.mixins import TransformPipeline
-from openstef_core.mixins.forecaster import Forecaster, ForecasterConfig
 from openstef_models.models.base_forecasting_model import BaseForecastingModel
+from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
 
 
 class ModelFitResult(BaseModel):
