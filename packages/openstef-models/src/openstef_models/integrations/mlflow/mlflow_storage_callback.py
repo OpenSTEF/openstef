@@ -4,37 +4,103 @@
 
 """MLflow integration for tracking and storing forecasting workflows.
 
-Provides callback functionality to log model training runs, artifacts,
-and metrics to MLflow. Automatically saves models, training data, and performance
-metrics for each forecasting workflow execution.
+Provides a single callback for logging model training runs, artifacts,
+and metrics to MLflow. Supports both single-model (ForecastingModel) and
+ensemble (EnsembleForecastingModel) workflows via protocol-based dispatch.
+
+Ensemble-specific behavior is enabled automatically when the model satisfies
+the ``HasForecasters`` and ``HasExplainableCombiner`` protocols:
+
+- Logs combiner hyperparameters as the primary hyperparams
+- Logs per-forecaster hyperparameters with name-prefixed keys
+- Stores feature importance plots for each explainable forecaster component
+- Stores combiner feature importance plots
 """
 
-from datetime import UTC, datetime
-from typing import cast, override
+import logging
+from datetime import UTC, datetime, timedelta
+from typing import Any, Protocol, cast, override, runtime_checkable
 
+from mlflow.entities import Run
+from pydantic import Field, PrivateAttr
+
+from openstef_beam.evaluation import SubsetMetric
+from openstef_beam.evaluation.metric_providers import MetricDirection
+from openstef_core.base_model import BaseConfig
 from openstef_core.datasets.timeseries_dataset import TimeSeriesDataset
 from openstef_core.datasets.versioned_timeseries_dataset import (
     VersionedTimeSeriesDataset,
 )
 from openstef_core.exceptions import (
+    MissingColumnsError,
     ModelNotFoundError,
     SkipFitting,
 )
+from openstef_core.mixins import HyperParams
+from openstef_core.types import Q, QuantileOrGlobal
 from openstef_models.explainability import ExplainableForecaster
-from openstef_models.integrations.mlflow.base_mlflow_storage_callback import (
-    BaseMLFlowStorageCallback,
-)
+from openstef_models.integrations.mlflow.mlflow_storage import MLFlowStorage
 from openstef_models.mixins.callbacks import WorkflowContext
-from openstef_models.models.base_forecasting_model import BaseForecastingModel
-from openstef_models.models.forecasting_model import ModelFitResult
+from openstef_models.models.forecasting.forecaster import Forecaster
+from openstef_models.models.forecasting_model import ForecastingModel, ModelFitResult
 from openstef_models.workflows.custom_forecasting_workflow import (
     CustomForecastingWorkflow,
     ForecastingCallback,
 )
 
 
-class MLFlowStorageCallback(BaseMLFlowStorageCallback, ForecastingCallback):
-    """MLFlow callback for logging forecasting workflow events."""
+@runtime_checkable
+class HasForecasters(Protocol):
+    """Protocol for ensemble models with multiple base forecasters."""
+
+    @property
+    def forecasters(self) -> dict[str, Forecaster]:
+        """Return a dictionary of forecasters keyed by name."""
+        ...
+
+
+@runtime_checkable
+class HasExplainableCombiner(Protocol):
+    """Protocol for ensemble models with an explainable forecast combiner."""
+
+    @property
+    def combiner(self) -> ExplainableForecaster:
+        """Return the explainable forecast combiner."""
+        ...
+
+
+class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
+    """MLFlow callback for logging forecasting workflow events.
+
+    Handles both single-model and ensemble workflows via protocol-based
+    dispatch.
+    """
+
+    storage: MLFlowStorage = Field(default_factory=MLFlowStorage)
+
+    model_reuse_enable: bool = Field(default=True)
+    model_reuse_max_age: timedelta = Field(default=timedelta(days=7))
+
+    model_selection_enable: bool = Field(default=True)
+    model_selection_metric: tuple[QuantileOrGlobal, str, MetricDirection] = Field(
+        default=(Q(0.5), "R2", "higher_is_better"),
+        description="Metric to monitor for model performance when retraining.",
+    )
+    model_selection_old_model_penalty: float = Field(
+        default=1.2,
+        description="Penalty to apply to the old model's metric to bias selection towards newer models.",
+    )
+
+    store_feature_importance_plot: bool = Field(
+        default=True,
+        description="Whether to store feature importance plots in MLflow artifacts if available.",
+    )
+
+    _logger: logging.Logger = PrivateAttr(default=logging.getLogger(__name__))
+
+    @override
+    def model_post_init(self, context: Any) -> None:
+        pass
 
     @override
     def on_fit_start(
@@ -48,7 +114,6 @@ class MLFlowStorageCallback(BaseMLFlowStorageCallback, ForecastingCallback):
         run = self._find_run(model_id=context.workflow.model_id, run_name=context.workflow.run_name)
 
         if run is not None:
-            # Check if the run is recent enough to skip re-fitting
             now = datetime.now(tz=UTC)
             end_time_millis = cast(float | None, run.info.end_time)
             run_end_datetime = (
@@ -72,17 +137,28 @@ class MLFlowStorageCallback(BaseMLFlowStorageCallback, ForecastingCallback):
         if self.model_selection_enable:
             self._run_model_selection(workflow=context.workflow, result=result)
 
-        # Create a new run
         model = context.workflow.model
+
+        # Determine primary hyperparams based on model structure
+        hyperparams = self._get_primary_hyperparams(model)
+
+        # Create a new run
         run = self.storage.create_run(
             model_id=context.workflow.model_id,
             tags=model.tags,
-            hyperparams=context.workflow.model.forecaster.hyperparams,
+            hyperparams=hyperparams,
             run_name=context.workflow.run_name,
             experiment_tags=context.workflow.experiment_tags,
         )
         run_id: str = run.info.run_id
         self._logger.info("Created MLflow run %s for model %s", run_id, context.workflow.model_id)
+
+        # Log per-forecaster hyperparams for ensemble models
+        if isinstance(model, HasForecasters):
+            for name, forecaster in model.forecasters.items():
+                prefixed_params = {f"{name}.{k}": str(v) for k, v in forecaster.hyperparams.model_dump().items()}
+                self.storage.log_hyperparams(run_id=run_id, params=prefixed_params)
+                self._logger.debug("Logged hyperparams for forecaster '%s' in run %s", name, run_id)
 
         # Store the model input
         run_path = self.storage.get_artifacts_path(model_id=context.workflow.model_id, run_id=run_id)
@@ -91,10 +167,9 @@ class MLFlowStorageCallback(BaseMLFlowStorageCallback, ForecastingCallback):
         result.input_dataset.to_parquet(path=data_path / "data.parquet")
         self._logger.info("Stored training data at %s for run %s", data_path, run_id)
 
-        # Store feature importance plots if enabled
-        if self.store_feature_importance_plot and isinstance(model.forecaster, ExplainableForecaster):
-            fig = model.forecaster.plot_feature_importances()
-            fig.write_html(data_path / "feature_importances.html")  # pyright: ignore[reportUnknownMemberType]
+        # Store feature importance plots
+        if self.store_feature_importance_plot:
+            self._store_feature_importances(model=model, data_path=data_path)
 
         # Store the trained model
         self.storage.save_run_model(
@@ -130,14 +205,12 @@ class MLFlowStorageCallback(BaseMLFlowStorageCallback, ForecastingCallback):
         if run is None:
             raise ModelNotFoundError(model_id=context.workflow.model_id)
 
-        # Load the model from the run
         run_id: str = run.info.run_id
-
         old_model = self.storage.load_run_model(run_id=run_id, model_id=context.workflow.model_id)
 
-        if not isinstance(old_model, BaseForecastingModel):
+        if not isinstance(old_model, ForecastingModel):
             self._logger.warning(
-                "Loaded model from run %s is not a BaseForecastingModel, cannot use for prediction",
+                "Loaded model from run %s is not a ForecastingModel, cannot use for prediction",
                 cast(str, run.info.run_id),
             )
             return
@@ -191,5 +264,163 @@ class MLFlowStorageCallback(BaseMLFlowStorageCallback, ForecastingCallback):
             )
             raise SkipFitting("New model did not improve monitored metric, skipping re-fit.")
 
+    @staticmethod
+    def _get_primary_hyperparams(model: ForecastingModel) -> HyperParams:
+        """Determine primary hyperparameters from the model.
 
-__all__ = ["MLFlowStorageCallback"]
+        For ensemble models: uses the combiner's hyperparameters.
+        For single models: uses the forecaster's hyperparameters.
+        """
+        if isinstance(model, HasExplainableCombiner):
+            config = getattr(model.combiner, "config", None)
+            if config is not None:
+                return getattr(config, "hyperparams", HyperParams())  # pyright: ignore[reportUnknownMemberType, reportReturnType]
+        if model.forecaster is not None:
+            return model.forecaster.hyperparams
+        return HyperParams()
+
+    def _store_feature_importances(self, model: ForecastingModel, data_path: Any) -> None:
+        """Store feature importance plots for all explainable components of the model."""
+        if isinstance(model, HasForecasters):
+            # Ensemble model: store per-forecaster feature importances
+            for name, forecaster in model.forecasters.items():
+                if isinstance(forecaster, ExplainableForecaster):
+                    fig = forecaster.plot_feature_importances()
+                    fig.write_html(data_path / f"feature_importances_{name}.html")  # pyright: ignore[reportUnknownMemberType]
+        elif model.forecaster is not None and isinstance(model.forecaster, ExplainableForecaster):
+            # Single model: store feature importance
+            fig = model.forecaster.plot_feature_importances()
+            fig.write_html(data_path / "feature_importances.html")  # pyright: ignore[reportUnknownMemberType]
+
+        # Store combiner feature importances (if model has an explainable combiner)
+        if isinstance(model, HasExplainableCombiner):
+            combiner_fi = model.combiner.feature_importances
+            if not combiner_fi.empty:
+                fig = model.combiner.plot_feature_importances()
+                fig.write_html(data_path / "feature_importances_combiner.html")  # pyright: ignore[reportUnknownMemberType]
+
+    def _find_run(self, model_id: str, run_name: str | None) -> Run | None:
+        """Find an MLflow run by model_id and optional run_name."""
+        if run_name is not None:
+            return self.storage.search_run(model_id=model_id, run_name=run_name)
+
+        runs = self.storage.search_latest_runs(model_id=model_id)
+        return next(iter(runs), None)
+
+    def _try_load_model(self, run_id: str, model_id: str) -> ForecastingModel | None:
+        """Try to load a model from MLflow, returning None on failure."""
+        try:
+            old_model = self.storage.load_run_model(run_id=run_id, model_id=model_id)
+        except ModelNotFoundError:
+            self._logger.warning(
+                "Could not load model from previous run %s for model %s, skipping model selection",
+                run_id,
+                model_id,
+            )
+            return None
+
+        if not isinstance(old_model, ForecastingModel):
+            self._logger.warning(
+                "Loaded old model from run %s is not a ForecastingModel, skipping model selection",
+                run_id,
+            )
+            return None
+
+        return old_model
+
+    def _try_evaluate_model(
+        self,
+        run_id: str,
+        old_model: ForecastingModel,
+        input_data: TimeSeriesDataset,
+    ) -> SubsetMetric | None:
+        """Try to evaluate a model, returning None on failure."""
+        try:
+            return old_model.score(input_data)
+        except (MissingColumnsError, ValueError) as e:
+            self._logger.warning(
+                "Could not evaluate old model from run %s, skipping model selection: %s",
+                run_id,
+                e,
+            )
+            return None
+
+    def _check_tags_compatible(self, run_tags: dict[str, str], new_tags: dict[str, str], run_id: str) -> bool:
+        """Check if model tags are compatible, excluding mlflow.runName."""
+        old_tags = {k: v for k, v in run_tags.items() if k != "mlflow.runName"}
+
+        if old_tags == new_tags:
+            return True
+
+        differences = {
+            k: (old_tags.get(k), new_tags.get(k))
+            for k in old_tags.keys() | new_tags.keys()
+            if old_tags.get(k) != new_tags.get(k)
+        }
+
+        self._logger.info(
+            "Model tags changed since run %s, skipping model selection. Changes: %s",
+            run_id,
+            differences,
+        )
+        return False
+
+    def _check_is_new_model_better(
+        self,
+        old_metrics: SubsetMetric,
+        new_metrics: SubsetMetric,
+    ) -> bool:
+        """Compare old and new model metrics to determine if the new model is better."""
+        quantile, metric_name, direction = self.model_selection_metric
+
+        old_metric = old_metrics.get_metric(quantile=quantile, metric_name=metric_name)
+        new_metric = new_metrics.get_metric(quantile=quantile, metric_name=metric_name)
+
+        if old_metric is None or new_metric is None:
+            self._logger.warning(
+                "Could not find %s metric for quantile %s in old or new model metrics, assuming improvement",
+                metric_name,
+                quantile,
+            )
+            return True
+
+        self._logger.info(
+            "Comparing old model %s metric %.5f to new model %s metric %.5f for quantile %s",
+            metric_name,
+            old_metric,
+            metric_name,
+            new_metric,
+            quantile,
+        )
+
+        match direction:
+            case "higher_is_better" if new_metric >= old_metric / self.model_selection_old_model_penalty:
+                return True
+            case "lower_is_better" if new_metric <= old_metric / self.model_selection_old_model_penalty:
+                return True
+            case _:
+                return False
+
+    @staticmethod
+    def metrics_to_dict(metrics: SubsetMetric, prefix: str) -> dict[str, float]:
+        """Convert SubsetMetric to a flat dictionary for MLflow logging.
+
+        Args:
+            metrics: The metrics to convert.
+            prefix: Prefix to add to each metric key (e.g. "full_", "train_").
+
+        Returns:
+            Flat dictionary mapping metric names to values.
+        """
+        return {
+            f"{prefix}{quantile}_{metric_name}": value
+            for quantile, metrics_dict in metrics.metrics.items()
+            for metric_name, value in metrics_dict.items()
+        }
+
+
+__all__ = [
+    "HasExplainableCombiner",
+    "HasForecasters",
+    "MLFlowStorageCallback",
+]

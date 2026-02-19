@@ -17,8 +17,6 @@ from typing import cast, override
 import pandas as pd
 from pydantic import Field, PrivateAttr
 
-from openstef_beam.evaluation import SubsetMetric
-from openstef_core.base_model import BaseModel
 from openstef_core.datasets import (
     ForecastDataset,
     ForecastInputDataset,
@@ -29,66 +27,23 @@ from openstef_core.datasets.validated_datasets import EnsembleForecastDataset
 from openstef_core.exceptions import NotFittedError
 from openstef_core.mixins import TransformPipeline
 from openstef_meta.models.forecast_combiners.forecast_combiner import ForecastCombiner
-from openstef_models.models.base_forecasting_model import BaseForecastingModel
 from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
-from openstef_models.models.forecasting_model import ModelFitResult
+from openstef_models.models.forecasting_model import ForecastingModel, ModelFitResult
 
 logger = logging.getLogger(__name__)
 
 
-class EnsembleModelFitResult(BaseModel):
-    """Fit result for EnsembleForecastingModel containing details for both forecasters and combiner."""
+class EnsembleModelFitResult(ModelFitResult):
+    """Fit result for EnsembleForecastingModel.
+
+    Extends ModelFitResult with per-forecaster details. The base class fields
+    (input_dataset, metrics_*, etc.) represent the combiner's fit results.
+    """
 
     forecaster_fit_results: dict[str, ModelFitResult] = Field(description="ModelFitResult for each base forecaster")
 
-    combiner_fit_result: ModelFitResult = Field(description="ModelFitResult for the ForecastCombiner")
 
-    # Make compatible with ModelFitResult interface
-    @property
-    def input_dataset(self) -> EnsembleForecastDataset:
-        """Returns the input dataset used for fitting the combiner."""
-        return cast(
-            "EnsembleForecastDataset",
-            self.combiner_fit_result.input_dataset,
-        )
-
-    @property
-    def input_data_train(self) -> ForecastInputDataset:
-        """Returns the training input data used for fitting the combiner."""
-        return self.combiner_fit_result.input_data_train
-
-    @property
-    def input_data_val(self) -> ForecastInputDataset | None:
-        """Returns the validation input data used for fitting the combiner."""
-        return self.combiner_fit_result.input_data_val
-
-    @property
-    def input_data_test(self) -> ForecastInputDataset | None:
-        """Returns the test input data used for fitting the combiner."""
-        return self.combiner_fit_result.input_data_test
-
-    @property
-    def metrics_train(self) -> SubsetMetric:
-        """Returns the full metrics calculated during combiner fitting."""
-        return self.combiner_fit_result.metrics_train
-
-    @property
-    def metrics_val(self) -> SubsetMetric | None:
-        """Returns the full metrics calculated during combiner fitting."""
-        return self.combiner_fit_result.metrics_val
-
-    @property
-    def metrics_test(self) -> SubsetMetric | None:
-        """Returns the full metrics calculated during combiner fitting."""
-        return self.combiner_fit_result.metrics_test
-
-    @property
-    def metrics_full(self) -> SubsetMetric:
-        """Returns the full metrics calculated during combiner fitting."""
-        return self.combiner_fit_result.metrics_full
-
-
-class EnsembleForecastingModel(BaseForecastingModel):
+class EnsembleForecastingModel(ForecastingModel):
     """Complete forecasting pipeline combining preprocessing, prediction, and postprocessing.
 
     Orchestrates the full forecasting workflow by managing feature engineering,
@@ -174,7 +129,7 @@ class EnsembleForecastingModel(BaseForecastingModel):
     _logger: logging.Logger = PrivateAttr(default=logging.getLogger(__name__))
 
     @property
-    def config(self) -> list[ForecasterConfig]:
+    def config(self) -> list[ForecasterConfig]:  # pyright: ignore[reportIncompatibleMethodOverride]
         """Returns the configuration of the underlying forecaster."""
         return [x.config for x in self.forecasters.values()]
 
@@ -236,7 +191,7 @@ class EnsembleForecastingModel(BaseForecastingModel):
 
         return EnsembleModelFitResult(
             forecaster_fit_results=forecaster_fit_results,
-            combiner_fit_result=combiner_fit_result,
+            **combiner_fit_result.model_dump(),
         )
 
     @staticmethod
@@ -464,7 +419,7 @@ class EnsembleForecastingModel(BaseForecastingModel):
 
         return EnsembleForecastDataset.from_forecast_datasets(predictions, target_series=data.data[self.target_column])
 
-    def prepare_input(
+    def prepare_input(  # pyright: ignore[reportIncompatibleMethodOverride]
         self,
         data: TimeSeriesDataset,
         forecaster_name: str = "",

@@ -82,20 +82,7 @@ def test_config_requires_at_least_one_horizon():
         )
 
 
-def test_forecast_combiner_methods_raise_not_implemented():
-    """ForecastCombiner base methods raise NotImplementedError."""
-    # Arrange
-    combiner = ForecastCombiner()  # type: ignore[abstract]
-
-    # Act & Assert
-    with pytest.raises(NotImplementedError):
-        combiner.fit(data=None)  # type: ignore[arg-type]
-
-    with pytest.raises(NotImplementedError):
-        combiner.predict(data=None)  # type: ignore[arg-type]
-
-    with pytest.raises(NotImplementedError):
-        _ = combiner.is_fitted
-
-    with pytest.raises(NotImplementedError):
-        combiner.predict_contributions(data=None)  # type: ignore[arg-type]
+def test_forecast_combiner_is_abstract():
+    """ForecastCombiner cannot be instantiated directly — it has abstract methods."""
+    with pytest.raises(TypeError, match="abstract"):
+        ForecastCombiner()  # type: ignore[abstract]

@@ -16,6 +16,15 @@ Note:
 """
 
 from .mlflow_storage import MLFlowStorage
-from .mlflow_storage_callback import MLFlowStorageCallback
+from .mlflow_storage_callback import (
+    HasExplainableCombiner,
+    HasForecasters,
+    MLFlowStorageCallback,
+)
 
-__all__ = ["MLFlowStorage", "MLFlowStorageCallback"]
+__all__ = [
+    "HasExplainableCombiner",
+    "HasForecasters",
+    "MLFlowStorage",
+    "MLFlowStorageCallback",
+]

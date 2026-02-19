@@ -18,6 +18,7 @@ from openstef_core.datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.datasets.validated_datasets import EnsembleForecastDataset
 from openstef_core.mixins import HyperParams, Predictor
 from openstef_core.types import LeadTime, Quantile
+from openstef_models.explainability import ExplainableForecaster
 
 
 class ForecastCombinerConfig(BaseConfig):
@@ -75,8 +76,14 @@ class ForecastCombinerConfig(BaseConfig):
         return self.model_copy(update={"horizons": [horizon]})
 
 
-class ForecastCombiner(Predictor[EnsembleForecastDataset, ForecastDataset]):
-    """Combines base Forecaster predictions for each quantile into final predictions."""
+class ForecastCombiner(Predictor[EnsembleForecastDataset, ForecastDataset], ExplainableForecaster):
+    """Combines base Forecaster predictions for each quantile into final predictions.
+
+    Inherits from ExplainableForecaster to provide feature importance and
+    visualization capabilities. The ``predict_contributions`` method uses
+    combiner-specific signatures (EnsembleForecastDataset) rather than the
+    ExplainableForecaster signature (ForecastInputDataset).
+    """
 
     config: ForecastCombinerConfig
 
@@ -120,31 +127,22 @@ class ForecastCombiner(Predictor[EnsembleForecastDataset, ForecastDataset]):
         """Indicates whether the final learner has been fitted."""
         raise NotImplementedError("Subclasses must implement the is_fitted property.")
 
-    @property
     @abstractmethod
-    def feature_importances(self) -> pd.DataFrame:
-        """Feature importances from the combiner's internal models.
-
-        Returns a DataFrame with feature names as index and quantile columns,
-        with importances for each quantile the combiner was trained on.
-        Returns an empty DataFrame if no feature importances are available.
-        """
-        raise NotImplementedError("Subclasses must implement the feature_importances property.")
-
-    @abstractmethod
-    def predict_contributions(
+    def predict_contributions(  # pyright: ignore[reportIncompatibleMethodOverride]
         self,
         data: EnsembleForecastDataset,
         additional_features: ForecastInputDataset | None = None,
     ) -> pd.DataFrame:
-        """Generate final predictions based on base Forecaster predictions.
+        """Generate contribution predictions based on base forecaster predictions.
+
+        Note: This overrides ExplainableForecaster.predict_contributions with a
+        combiner-specific signature using EnsembleForecastDataset.
 
         Args:
             data: EnsembleForecastDataset containing base Forecaster predictions.
-            data_val: Optional EnsembleForecastDataset for validation during prediction. Will be ignored
             additional_features: Optional ForecastInputDataset containing additional features for the final learner.
 
         Returns:
-            ForecastDataset containing the final contributions.
+            DataFrame containing the feature contributions.
         """
-        raise NotImplementedError("Subclasses must implement the predict method.")
+        raise NotImplementedError("Subclasses must implement the predict_contributions method.")
