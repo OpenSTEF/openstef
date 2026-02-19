@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: MPL-2.0
 
 from datetime import timedelta
-from typing import cast
 
 import numpy as np
 import pandas as pd
@@ -57,7 +56,7 @@ def create_models(
     config: EnsembleWorkflowConfig,
 ) -> tuple[EnsembleForecastingModel, dict[str, ForecastingModel]]:
 
-    ensemble_model = cast(EnsembleForecastingModel, create_ensemble_workflow(config=config).model)
+    ensemble_model = create_ensemble_workflow(config=config).model
 
     base_models: dict[str, ForecastingModel] = {}
     for forecaster_name in config.base_models:
@@ -70,7 +69,7 @@ def create_models(
             sample_weight_config=sample_weight_config,
         )
         base_model = create_forecasting_workflow(config=model_config).model
-        base_models[forecaster_name] = cast(ForecastingModel, base_model)
+        base_models[forecaster_name] = base_model
 
     return ensemble_model, base_models
 

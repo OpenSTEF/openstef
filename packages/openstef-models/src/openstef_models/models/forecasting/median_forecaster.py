@@ -339,3 +339,24 @@ class MedianForecaster(Forecaster, ExplainableForecaster):
 
         self.feature_importances_ = np.ones(len(self.feature_names_)) / (len(self.feature_names_) or 1.0)
         self.is_fitted_ = True
+
+    @override
+    def predict_contributions(self, data: ForecastInputDataset, *, scale: bool = True) -> pd.DataFrame:
+        """Get feature contributions for each prediction.
+
+        Since MedianForecaster equally weights all lag features via the median,
+        contributions are uniform across features.
+
+        Args:
+            data: Input dataset for which to compute feature contributions.
+            scale: Whether to scale contributions to sum to the prediction value.
+
+        Returns:
+            DataFrame with uniform contributions per lag feature.
+        """
+        input_data = data.input_data(start=data.forecast_start)
+        return pd.DataFrame(
+            data=1.0,
+            index=input_data.index,
+            columns=[f"{data.target_column}_{quantile.format()}" for quantile in self.config.quantiles],
+        )
