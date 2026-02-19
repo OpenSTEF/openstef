@@ -14,10 +14,10 @@ import pytest
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import ModelNotFoundError, SkipFitting
-from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
 from openstef_core.types import LeadTime, Q
 from openstef_models.integrations.mlflow import MLFlowStorage, MLFlowStorageCallback
 from openstef_models.mixins.callbacks import WorkflowContext
+from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
 from openstef_models.models.forecasting_model import ForecastingModel, ModelFitResult
 from openstef_models.workflows.custom_forecasting_workflow import CustomForecastingWorkflow
 

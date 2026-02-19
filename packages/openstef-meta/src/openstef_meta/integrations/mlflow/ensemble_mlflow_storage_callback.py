@@ -27,7 +27,7 @@ from openstef_core.exceptions import ModelNotFoundError, SkipFitting
 from openstef_meta.models.ensemble_forecasting_model import EnsembleModelFitResult
 from openstef_meta.workflows import CustomEnsembleForecastingWorkflow, EnsembleForecastingCallback
 from openstef_models.explainability import ExplainableForecaster
-from openstef_models.integrations.mlflow.mlflow_storage_callback import BaseMLFlowStorageCallback, metrics_to_dict
+from openstef_models.integrations.mlflow.base_mlflow_storage_callback import BaseMLFlowStorageCallback
 from openstef_models.mixins.callbacks import WorkflowContext
 from openstef_models.models.base_forecasting_model import BaseForecastingModel
 
@@ -131,12 +131,12 @@ class EnsembleMLFlowStorageCallback(BaseMLFlowStorageCallback, EnsembleForecasti
         self._logger.info("Stored trained model for run %s", run_id)
 
         # Format the metrics for MLflow
-        metrics = metrics_to_dict(metrics=result.metrics_full, prefix="full_")
-        metrics.update(metrics_to_dict(metrics=result.metrics_train, prefix="train_"))
+        metrics = self.metrics_to_dict(metrics=result.metrics_full, prefix="full_")
+        metrics.update(self.metrics_to_dict(metrics=result.metrics_train, prefix="train_"))
         if result.metrics_val is not None:
-            metrics.update(metrics_to_dict(metrics=result.metrics_val, prefix="val_"))
+            metrics.update(self.metrics_to_dict(metrics=result.metrics_val, prefix="val_"))
         if result.metrics_test is not None:
-            metrics.update(metrics_to_dict(metrics=result.metrics_test, prefix="test_"))
+            metrics.update(self.metrics_to_dict(metrics=result.metrics_test, prefix="test_"))
 
         # Mark the run as finished
         self.storage.finalize_run(model_id=context.workflow.model_id, run_id=run_id, metrics=metrics)
