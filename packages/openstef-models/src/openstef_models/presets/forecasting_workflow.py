@@ -213,23 +213,12 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
         default=FeatureSelection(include=None, exclude=None),
         description="Feature selection for which features to clip.",
     )
-    # TODO: Add sample weight method parameter like in EnsembleWorkflowConfig
-    sample_weight_scale_percentile: int = Field(
-        default=95,
-        description="Percentile of target values used as scaling reference. "
-        "Values are normalized relative to this percentile before weighting.",
-    )
-    sample_weight_exponent: float = Field(
-        default_factory=lambda data: 1.0
-        if data.get("model") in {"gblinear", "lgbmlinear", "lgbm", "learned_weights", "stacking", "xgboost"}
-        else 0.0,
-        description="Exponent applied to scale the sample weights. "
-        "0=uniform weights, 1=linear scaling, >1=stronger emphasis on high values. "
-        "Note: Defaults to 1.0 for gblinear congestion models.",
-    )
-    sample_weight_floor: float = Field(
-        default=0.1,
-        description="Minimum weight value to ensure all samples contribute to training.",
+    sample_weight_config: SampleWeightConfig = Field(
+        default_factory=lambda data: SampleWeightConfig(weight_exponent=1.0)
+        if data.get("model") == "gblinear"
+        else SampleWeightConfig(weight_exponent=0.0),
+        description="Sample weighting configuration. Controls how training samples are weighted. "
+        "Defaults to weight_exponent=1.0 for gblinear, 0.0 (uniform) for other models.",
     )
 
     # Data splitting strategy
@@ -357,11 +346,7 @@ def create_forecasting_workflow(
         Scaler(selection=Exclude(config.target_column), method="standard"),
         SampleWeighter(
             target_column=config.target_column,
-            config=SampleWeightConfig(
-                weight_exponent=config.sample_weight_exponent,
-                weight_floor=config.sample_weight_floor,
-                weight_scale_percentile=config.sample_weight_scale_percentile,
-            ),
+            config=config.sample_weight_config,
         ),
         EmptyFeatureRemover(),
     ]

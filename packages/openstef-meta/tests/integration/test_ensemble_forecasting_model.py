@@ -67,7 +67,7 @@ def create_models(
             model=forecaster_name,  # type: ignore
             quantiles=config.quantiles,
             horizons=config.horizons,
-            sample_weight_exponent=sample_weight_config.weight_exponent,
+            sample_weight_config=sample_weight_config,
         )
         base_model = create_forecasting_workflow(config=model_config).model
         base_models[forecaster_name] = cast(ForecastingModel, base_model)
