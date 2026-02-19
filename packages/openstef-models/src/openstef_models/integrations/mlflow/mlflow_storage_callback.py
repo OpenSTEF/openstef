@@ -11,9 +11,9 @@ metrics for each forecasting workflow execution.
 
 import logging
 from datetime import UTC, datetime, timedelta
-from pathlib import Path
 from typing import Any, cast, override
 
+from mlflow.entities import Run
 from pydantic import Field, PrivateAttr
 
 from openstef_beam.evaluation import SubsetMetric
@@ -28,12 +28,10 @@ from openstef_core.exceptions import (
     ModelNotFoundError,
     SkipFitting,
 )
-from openstef_core.mixins.predictor import HyperParams
 from openstef_core.types import Q, QuantileOrGlobal
 from openstef_models.explainability import ExplainableForecaster
 from openstef_models.integrations.mlflow.mlflow_storage import MLFlowStorage
 from openstef_models.mixins.callbacks import WorkflowContext
-from openstef_models.models import ForecastingModel
 from openstef_models.models.base_forecasting_model import BaseForecastingModel
 from openstef_models.models.forecasting_model import ModelFitResult
 from openstef_models.workflows.custom_forecasting_workflow import (
@@ -42,8 +40,13 @@ from openstef_models.workflows.custom_forecasting_workflow import (
 )
 
 
-class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
-    """MLFlow callback for logging forecasting workflow events."""
+class MLFlowStorageCallbackBase(BaseConfig):
+    """Base configuration and shared utilities for MLflow storage callbacks.
+
+    Provides common fields and helper methods used by both single-model and
+    ensemble-model MLflow callbacks. Not a callback itself — subclasses should
+    also inherit from the appropriate callback type.
+    """
 
     storage: MLFlowStorage = Field(default_factory=MLFlowStorage)
 
@@ -71,228 +74,43 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
     def model_post_init(self, context: Any) -> None:
         pass
 
-    @override
-    def on_fit_start(
-        self,
-        context: WorkflowContext[CustomForecastingWorkflow],
-        data: VersionedTimeSeriesDataset | TimeSeriesDataset,
-    ) -> None:
-        if not self.model_reuse_enable:
-            return
-
-        # If run_name is provided, load that specific run
-        if context.workflow.run_name is not None:
-            run = self.storage.search_run(
-                model_id=context.workflow.model_id,
-                run_name=context.workflow.run_name,
-            )
-        else:
-            # Find the latest successful run for this model
-            runs = self.storage.search_latest_runs(model_id=context.workflow.model_id)
-            run = next(iter(runs), None)
-
-        if run is not None:
-            # Check if the run is recent enough to skip re-fitting
-            now = datetime.now(tz=UTC)
-            end_time_millis = cast(float | None, run.info.end_time)
-            run_end_datetime = (
-                datetime.fromtimestamp(end_time_millis / 1000, tz=UTC) if end_time_millis is not None else None
-            )
-            self._logger.info(
-                "Found previous MLflow run %s for model %s ended at %s",
-                cast(str, run.info.run_id),
-                context.workflow.model_id,
-                run_end_datetime,
-            )
-            if run_end_datetime is not None and (now - run_end_datetime) <= self.model_reuse_max_age:
-                raise SkipFitting("Model is recent enough, skipping re-fit.")
-
-    @override
-    def on_fit_end(
-        self,
-        context: WorkflowContext[CustomForecastingWorkflow],
-        result: ModelFitResult,
-    ) -> None:
-        if self.model_selection_enable:
-            self._run_model_selection(workflow=context.workflow, result=result)
-
-        # Create a new run
-        model = context.workflow.model
-        run = self.storage.create_run(
-            model_id=context.workflow.model_id,
-            tags=model.tags,
-            hyperparams=self._get_hyperparams(model),
-            run_name=context.workflow.run_name,
-            experiment_tags=context.workflow.experiment_tags,
-        )
-        run_id: str = run.info.run_id
-        self._logger.info("Created MLflow run %s for model %s", run_id, context.workflow.model_id)
-
-        # Hook for subclasses to log additional hyperparameters (e.g., per-component for ensembles)
-        self._log_additional_hyperparams(model=model, run_id=run_id)
-
-        # Store the model input
-        run_path = self.storage.get_artifacts_path(model_id=context.workflow.model_id, run_id=run_id)
-        data_path = run_path / self.storage.data_path
-        data_path.mkdir(parents=True, exist_ok=True)
-        result.input_dataset.to_parquet(path=data_path / "data.parquet")
-        self._logger.info("Stored training data at %s for run %s", data_path, run_id)
-
-        # Store feature importance plots if enabled
-        if self.store_feature_importance_plot:
-            self._store_feature_importance(model=model, data_path=data_path)
-
-        # Store the trained model
-        self.storage.save_run_model(
-            model_id=context.workflow.model_id,
-            run_id=run_id,
-            model=context.workflow.model,
-        )
-        self._logger.info("Stored trained model for run %s", run_id)
-
-        # Format the metrics for MLflow
-        metrics = _metrics_to_dict(metrics=result.metrics_full, prefix="full_")
-        metrics.update(_metrics_to_dict(metrics=result.metrics_train, prefix="train_"))
-        if result.metrics_val is not None:
-            metrics.update(_metrics_to_dict(metrics=result.metrics_val, prefix="val_"))
-        if result.metrics_test is not None:
-            metrics.update(_metrics_to_dict(metrics=result.metrics_test, prefix="test_"))
-
-        # Mark the run as finished
-        self.storage.finalize_run(model_id=context.workflow.model_id, run_id=run_id, metrics=metrics)
-        self._logger.info("Stored MLflow run %s for model %s", run_id, context.workflow.model_id)
-
-    def _get_hyperparams(self, model: BaseForecastingModel) -> HyperParams | None:
-        """Extract hyperparameters from the model for MLflow logging.
-
-        Override in subclasses for models with different hyperparameter structures.
-        """
-        if isinstance(model, ForecastingModel):
-            return model.forecaster.hyperparams
-        return None
-
-    def _log_additional_hyperparams(self, model: BaseForecastingModel, run_id: str) -> None:
-        """Hook for logging additional hyperparameters. Override in subclasses."""
-
-    @staticmethod
-    def _store_feature_importance(
-        model: BaseForecastingModel,
-        data_path: Path,
-    ) -> None:
-        """Store feature importance plots for the model.
-
-        For a ForecastingModel, stores a single feature importance plot if the
-        forecaster is explainable.
+    def _find_run(self, model_id: str, run_name: str | None) -> Run | None:
+        """Find an MLflow run by model_id and optional run_name.
 
         Args:
-            model: The model to extract feature importances from.
-            data_path: Directory path where HTML plots will be saved.
+            model_id: The model identifier.
+            run_name: Optional specific run name to search for.
+
+        Returns:
+            The MLflow Run object, or None if not found.
         """
-        if isinstance(model, ForecastingModel) and isinstance(model.forecaster, ExplainableForecaster):
-            fig = model.forecaster.plot_feature_importances()
-            fig.write_html(data_path / "feature_importances.html")  # pyright: ignore[reportUnknownMemberType]
+        if run_name is not None:
+            return self.storage.search_run(model_id=model_id, run_name=run_name)
 
-    @override
-    def on_predict_start(
-        self,
-        context: WorkflowContext[CustomForecastingWorkflow],
-        data: VersionedTimeSeriesDataset | TimeSeriesDataset,
-    ):
-        if context.workflow.model.is_fitted:
-            return
-
-        # If run_name is provided, load that specific run
-        if context.workflow.run_name is not None:
-            run = self.storage.search_run(
-                model_id=context.workflow.model_id,
-                run_name=context.workflow.run_name,
-            )
-        else:
-            # Find the latest successful run for this model
-            runs = self.storage.search_latest_runs(model_id=context.workflow.model_id)
-            run = next(iter(runs), None)
-
-        if run is None:
-            raise ModelNotFoundError(model_id=context.workflow.model_id)
-
-        # Load the model from the latest run
-        run_id: str = run.info.run_id
-
-        old_model = self.storage.load_run_model(run_id=run_id, model_id=context.workflow.model_id)
-
-        if not isinstance(old_model, BaseForecastingModel):
-            self._logger.warning(
-                "Loaded model from run %s is not a BaseForecastingModel, cannot use for prediction",
-                cast(str, run.info.run_id),
-            )
-            return
-
-        context.workflow.model = old_model
-        self._logger.info(
-            "Loaded model from MLflow run %s for model %s",
-            run_id,
-            context.workflow.model_id,
-        )
-
-    def _run_model_selection(self, workflow: CustomForecastingWorkflow, result: ModelFitResult) -> None:
-        # Find the latest successful run for this model
-        runs = self.storage.search_latest_runs(model_id=workflow.model_id)
-        run = next(iter(runs), None)
-        if run is None:
-            return
-
-        run_id = cast(str, run.info.run_id)
-
-        if not self._check_tags_compatible(
-            run_tags=run.data.tags,  # pyright: ignore[reportUnknownMemberType, reportUnknownArgumentType]
-            new_tags=workflow.model.tags,
-            run_id=run_id,
-        ):
-            return
-
-        new_model = workflow.model
-        new_metrics = result.metrics_full
-
-        old_model = self._try_load_model(
-            run_id=run_id,
-            workflow=workflow,
-        )
-
-        if old_model is None:
-            return
-
-        old_metrics = self._try_evaluate_model(
-            run_id=run_id,
-            old_model=old_model,
-            input_data=result.input_dataset,
-        )
-
-        if old_metrics is None:
-            return
-
-        if self._check_is_new_model_better(old_metrics=old_metrics, new_metrics=new_metrics):
-            workflow.model = new_model
-        else:
-            workflow.model = old_model
-            self._logger.info(
-                "New model did not improve %s metric from previous run %s, reusing old model",
-                self.model_selection_metric,
-                run_id,
-            )
-            raise SkipFitting("New model did not improve monitored metric, skipping re-fit.")
+        runs = self.storage.search_latest_runs(model_id=model_id)
+        return next(iter(runs), None)
 
     def _try_load_model(
         self,
         run_id: str,
-        workflow: CustomForecastingWorkflow,
+        model_id: str,
     ) -> BaseForecastingModel | None:
+        """Try to load a model from MLflow, returning None on failure.
+
+        Args:
+            run_id: The MLflow run ID.
+            model_id: The model identifier.
+
+        Returns:
+            The loaded model, or None if loading failed.
+        """
         try:
-            old_model = self.storage.load_run_model(run_id=run_id, model_id=workflow.model_id)
+            old_model = self.storage.load_run_model(run_id=run_id, model_id=model_id)
         except ModelNotFoundError:
             self._logger.warning(
                 "Could not load model from previous run %s for model %s, skipping model selection",
                 run_id,
-                workflow.model_id,
+                model_id,
             )
             return None
 
@@ -311,6 +129,16 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
         old_model: BaseForecastingModel,
         input_data: TimeSeriesDataset,
     ) -> SubsetMetric | None:
+        """Try to evaluate a model, returning None on failure.
+
+        Args:
+            run_id: The MLflow run ID (for logging).
+            old_model: The model to evaluate.
+            input_data: The dataset to evaluate on.
+
+        Returns:
+            The evaluation metrics, or None if evaluation failed.
+        """
         try:
             return old_model.score(input_data)
         except (MissingColumnsError, ValueError) as e:
@@ -350,6 +178,11 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
         old_metrics: SubsetMetric,
         new_metrics: SubsetMetric,
     ) -> bool:
+        """Compare old and new model metrics to determine if the new model is better.
+
+        Returns:
+            True if the new model improves on the monitored metric.
+        """
         quantile, metric_name, direction = self.model_selection_metric
 
         old_metric = old_metrics.get_metric(quantile=quantile, metric_name=metric_name)
@@ -381,7 +214,166 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
                 return False
 
 
-def _metrics_to_dict(metrics: SubsetMetric, prefix: str) -> dict[str, float]:
+class MLFlowStorageCallback(MLFlowStorageCallbackBase, ForecastingCallback):
+    """MLFlow callback for logging forecasting workflow events."""
+
+    @override
+    def on_fit_start(
+        self,
+        context: WorkflowContext[CustomForecastingWorkflow],
+        data: VersionedTimeSeriesDataset | TimeSeriesDataset,
+    ) -> None:
+        if not self.model_reuse_enable:
+            return
+
+        run = self._find_run(model_id=context.workflow.model_id, run_name=context.workflow.run_name)
+
+        if run is not None:
+            # Check if the run is recent enough to skip re-fitting
+            now = datetime.now(tz=UTC)
+            end_time_millis = cast(float | None, run.info.end_time)
+            run_end_datetime = (
+                datetime.fromtimestamp(end_time_millis / 1000, tz=UTC) if end_time_millis is not None else None
+            )
+            self._logger.info(
+                "Found previous MLflow run %s for model %s ended at %s",
+                cast(str, run.info.run_id),
+                context.workflow.model_id,
+                run_end_datetime,
+            )
+            if run_end_datetime is not None and (now - run_end_datetime) <= self.model_reuse_max_age:
+                raise SkipFitting("Model is recent enough, skipping re-fit.")
+
+    @override
+    def on_fit_end(
+        self,
+        context: WorkflowContext[CustomForecastingWorkflow],
+        result: ModelFitResult,
+    ) -> None:
+        if self.model_selection_enable:
+            self._run_model_selection(workflow=context.workflow, result=result)
+
+        # Create a new run
+        model = context.workflow.model
+        run = self.storage.create_run(
+            model_id=context.workflow.model_id,
+            tags=model.tags,
+            hyperparams=context.workflow.model.forecaster.hyperparams,
+            run_name=context.workflow.run_name,
+            experiment_tags=context.workflow.experiment_tags,
+        )
+        run_id: str = run.info.run_id
+        self._logger.info("Created MLflow run %s for model %s", run_id, context.workflow.model_id)
+
+        # Store the model input
+        run_path = self.storage.get_artifacts_path(model_id=context.workflow.model_id, run_id=run_id)
+        data_path = run_path / self.storage.data_path
+        data_path.mkdir(parents=True, exist_ok=True)
+        result.input_dataset.to_parquet(path=data_path / "data.parquet")
+        self._logger.info("Stored training data at %s for run %s", data_path, run_id)
+
+        # Store feature importance plots if enabled
+        if self.store_feature_importance_plot and isinstance(model.forecaster, ExplainableForecaster):
+            fig = model.forecaster.plot_feature_importances()
+            fig.write_html(data_path / "feature_importances.html")  # pyright: ignore[reportUnknownMemberType]
+
+        # Store the trained model
+        self.storage.save_run_model(
+            model_id=context.workflow.model_id,
+            run_id=run_id,
+            model=context.workflow.model,
+        )
+        self._logger.info("Stored trained model for run %s", run_id)
+
+        # Format the metrics for MLflow
+        metrics = metrics_to_dict(metrics=result.metrics_full, prefix="full_")
+        metrics.update(metrics_to_dict(metrics=result.metrics_train, prefix="train_"))
+        if result.metrics_val is not None:
+            metrics.update(metrics_to_dict(metrics=result.metrics_val, prefix="val_"))
+        if result.metrics_test is not None:
+            metrics.update(metrics_to_dict(metrics=result.metrics_test, prefix="test_"))
+
+        # Mark the run as finished
+        self.storage.finalize_run(model_id=context.workflow.model_id, run_id=run_id, metrics=metrics)
+        self._logger.info("Stored MLflow run %s for model %s", run_id, context.workflow.model_id)
+
+    @override
+    def on_predict_start(
+        self,
+        context: WorkflowContext[CustomForecastingWorkflow],
+        data: VersionedTimeSeriesDataset | TimeSeriesDataset,
+    ):
+        if context.workflow.model.is_fitted:
+            return
+
+        run = self._find_run(model_id=context.workflow.model_id, run_name=context.workflow.run_name)
+
+        if run is None:
+            raise ModelNotFoundError(model_id=context.workflow.model_id)
+
+        # Load the model from the run
+        run_id: str = run.info.run_id
+
+        old_model = self.storage.load_run_model(run_id=run_id, model_id=context.workflow.model_id)
+
+        if not isinstance(old_model, BaseForecastingModel):
+            self._logger.warning(
+                "Loaded model from run %s is not a BaseForecastingModel, cannot use for prediction",
+                cast(str, run.info.run_id),
+            )
+            return
+
+        context.workflow.model = old_model  # pyright: ignore[reportAttributeAccessIssue]
+        self._logger.info(
+            "Loaded model from MLflow run %s for model %s",
+            run_id,
+            context.workflow.model_id,
+        )
+
+    def _run_model_selection(self, workflow: CustomForecastingWorkflow, result: ModelFitResult) -> None:
+        run = self._find_run(model_id=workflow.model_id, run_name=None)
+        if run is None:
+            return
+
+        run_id = cast(str, run.info.run_id)
+
+        if not self._check_tags_compatible(
+            run_tags=run.data.tags,  # pyright: ignore[reportUnknownMemberType, reportUnknownArgumentType]
+            new_tags=workflow.model.tags,
+            run_id=run_id,
+        ):
+            return
+
+        new_model = workflow.model
+        new_metrics = result.metrics_full
+
+        old_model = self._try_load_model(run_id=run_id, model_id=workflow.model_id)
+
+        if old_model is None:
+            return
+
+        old_metrics = self._try_evaluate_model(
+            run_id=run_id,
+            old_model=old_model,
+            input_data=result.input_dataset,
+        )
+
+        if old_metrics is None:
+            return
+
+        if self._check_is_new_model_better(old_metrics=old_metrics, new_metrics=new_metrics):
+            workflow.model = new_model  # pyright: ignore[reportAttributeAccessIssue]
+        else:
+            workflow.model = old_model  # pyright: ignore[reportAttributeAccessIssue]
+            self._logger.info(
+                "New model did not improve %s metric from previous run %s, reusing old model",
+                self.model_selection_metric,
+                run_id,
+            )
+            raise SkipFitting("New model did not improve monitored metric, skipping re-fit.")
+
+
+def metrics_to_dict(metrics: SubsetMetric, prefix: str) -> dict[str, float]:
     return {
         f"{prefix}{quantile}_{metric_name}": value
         for quantile, metrics_dict in metrics.metrics.items()
@@ -389,4 +381,4 @@ def _metrics_to_dict(metrics: SubsetMetric, prefix: str) -> dict[str, float]:
     }
 
 
-__all__ = ["MLFlowStorageCallback"]
+__all__ = ["MLFlowStorageCallback", "MLFlowStorageCallbackBase"]

@@ -19,12 +19,11 @@ from openstef_core.mixins.forecaster import Forecaster, ForecasterConfig
 from openstef_core.mixins.predictor import HyperParams
 from openstef_core.types import LeadTime, Q
 from openstef_meta.integrations.mlflow import EnsembleMLFlowStorageCallback
-from openstef_meta.models.ensemble_forecasting_model import EnsembleForecastingModel
+from openstef_meta.models.ensemble_forecasting_model import EnsembleForecastingModel, EnsembleModelFitResult
 from openstef_meta.models.forecast_combiners.forecast_combiner import ForecastCombiner, ForecastCombinerConfig
+from openstef_meta.workflows import CustomEnsembleForecastingWorkflow
 from openstef_models.integrations.mlflow import MLFlowStorage
 from openstef_models.mixins.callbacks import WorkflowContext
-from openstef_models.models.forecasting_model import ForecastingModel, ModelFitResult
-from openstef_models.workflows.custom_forecasting_workflow import CustomForecastingWorkflow
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -157,7 +156,7 @@ def sample_dataset() -> TimeSeriesDataset:
     )
 
 
-def _create_ensemble_workflow() -> CustomForecastingWorkflow:
+def _create_ensemble_workflow() -> CustomEnsembleForecastingWorkflow:
     """Create an ensemble forecasting workflow for testing."""
     horizons = [LeadTime(timedelta(hours=1))]
     quantiles = [Q(0.5)]
@@ -179,38 +178,20 @@ def _create_ensemble_workflow() -> CustomForecastingWorkflow:
         combiner=combiner,
     )
 
-    return CustomForecastingWorkflow(model_id="test_ensemble", model=ensemble_model)
+    return CustomEnsembleForecastingWorkflow(model_id="test_ensemble", model=ensemble_model)
 
 
 @pytest.fixture
-def ensemble_workflow() -> CustomForecastingWorkflow:
+def ensemble_workflow() -> CustomEnsembleForecastingWorkflow:
     return _create_ensemble_workflow()
 
 
 @pytest.fixture
 def ensemble_fit_result(
-    sample_dataset: TimeSeriesDataset, ensemble_workflow: CustomForecastingWorkflow
-) -> ModelFitResult:
-    """Create a fit result from the ensemble model, downcast to combiner's ModelFitResult."""
-    ensemble_result = ensemble_workflow.model.fit(sample_dataset)
-    return ensemble_result.combiner_fit_result
-
-
-@pytest.fixture
-def single_workflow() -> CustomForecastingWorkflow:
-    """Create a single-model forecasting workflow for testing fallback behavior."""
-    horizons = [LeadTime(timedelta(hours=1))]
-    quantiles = [Q(0.5)]
-    model = ForecastingModel(
-        forecaster=SimpleTestForecaster(config=ForecasterConfig(horizons=horizons, quantiles=quantiles)),
-    )
-    return CustomForecastingWorkflow(model_id="test_single", model=model)
-
-
-@pytest.fixture
-def single_fit_result(sample_dataset: TimeSeriesDataset, single_workflow: CustomForecastingWorkflow) -> ModelFitResult:
-    """Create a fit result from a single model."""
-    return single_workflow.model.fit(sample_dataset)
+    sample_dataset: TimeSeriesDataset, ensemble_workflow: CustomEnsembleForecastingWorkflow
+) -> EnsembleModelFitResult:
+    """Create a fit result from the ensemble model."""
+    return ensemble_workflow.model.fit(sample_dataset)
 
 
 # --- Tests ---
@@ -218,8 +199,8 @@ def single_fit_result(sample_dataset: TimeSeriesDataset, single_workflow: Custom
 
 def test_on_fit_end__stores_ensemble_model(
     callback: EnsembleMLFlowStorageCallback,
-    ensemble_workflow: CustomForecastingWorkflow,
-    ensemble_fit_result: ModelFitResult,
+    ensemble_workflow: CustomEnsembleForecastingWorkflow,
+    ensemble_fit_result: EnsembleModelFitResult,
 ):
     """Test that on_fit_end stores an EnsembleForecastingModel to MLflow."""
     context = WorkflowContext(workflow=ensemble_workflow)
@@ -238,8 +219,8 @@ def test_on_fit_end__stores_ensemble_model(
 
 def test_on_fit_end__logs_combiner_hyperparams_as_primary(
     callback: EnsembleMLFlowStorageCallback,
-    ensemble_workflow: CustomForecastingWorkflow,
-    ensemble_fit_result: ModelFitResult,
+    ensemble_workflow: CustomEnsembleForecastingWorkflow,
+    ensemble_fit_result: EnsembleModelFitResult,
 ):
     """Test that combiner hyperparams are logged as the run's primary params."""
     context = WorkflowContext(workflow=ensemble_workflow)
@@ -257,8 +238,8 @@ def test_on_fit_end__logs_combiner_hyperparams_as_primary(
 
 def test_on_fit_end__logs_per_forecaster_hyperparams(
     callback: EnsembleMLFlowStorageCallback,
-    ensemble_workflow: CustomForecastingWorkflow,
-    ensemble_fit_result: ModelFitResult,
+    ensemble_workflow: CustomEnsembleForecastingWorkflow,
+    ensemble_fit_result: EnsembleModelFitResult,
 ):
     """Test that per-forecaster hyperparams are logged with name prefixes."""
     context = WorkflowContext(workflow=ensemble_workflow)
@@ -278,29 +259,10 @@ def test_on_fit_end__logs_per_forecaster_hyperparams(
     assert "model_b.n_rounds" in params
 
 
-def test_on_fit_end__single_model_fallback(
-    callback: EnsembleMLFlowStorageCallback,
-    single_workflow: CustomForecastingWorkflow,
-    single_fit_result: ModelFitResult,
-):
-    """Test that non-ensemble models fall back to base class behavior."""
-    context = WorkflowContext(workflow=single_workflow)
-
-    callback.on_fit_end(context=context, result=single_fit_result)
-
-    runs = callback.storage.search_latest_runs(model_id=single_workflow.model_id, limit=1)
-    assert len(runs) == 1
-
-    run_id = cast(str, runs[0].info.run_id)
-    loaded_model = callback.storage.load_run_model(model_id=single_workflow.model_id, run_id=run_id)
-    assert isinstance(loaded_model, ForecastingModel)
-    assert loaded_model.is_fitted
-
-
 def test_on_predict_start__loads_ensemble_model(
     callback: EnsembleMLFlowStorageCallback,
-    ensemble_workflow: CustomForecastingWorkflow,
-    ensemble_fit_result: ModelFitResult,
+    ensemble_workflow: CustomEnsembleForecastingWorkflow,
+    ensemble_fit_result: EnsembleModelFitResult,
     sample_dataset: TimeSeriesDataset,
 ):
     """Test that on_predict_start loads an ensemble model from MLflow."""
@@ -319,8 +281,8 @@ def test_on_predict_start__loads_ensemble_model(
 
 def test_model_selection__keeps_better_ensemble_model(
     storage: MLFlowStorage,
-    ensemble_workflow: CustomForecastingWorkflow,
-    ensemble_fit_result: ModelFitResult,
+    ensemble_workflow: CustomEnsembleForecastingWorkflow,
+    ensemble_fit_result: EnsembleModelFitResult,
     sample_dataset: TimeSeriesDataset,
 ):
     """Test that model selection keeps the better performing ensemble model."""
@@ -356,36 +318,8 @@ def test_model_selection__keeps_better_ensemble_model(
         ),
     )
     worse_result = worse_ensemble.fit(sample_dataset)
-    worse_workflow = CustomForecastingWorkflow(model_id="test_ensemble", model=worse_ensemble)
+    worse_workflow = CustomEnsembleForecastingWorkflow(model_id="test_ensemble", model=worse_ensemble)
     worse_context = WorkflowContext(workflow=worse_workflow)
 
     with pytest.raises(SkipFitting, match="New model did not improve"):
-        callback.on_fit_end(context=worse_context, result=worse_result.combiner_fit_result)
-
-
-def test_get_hyperparams__returns_combiner_hyperparams_for_ensemble(
-    callback: EnsembleMLFlowStorageCallback,
-    ensemble_workflow: CustomForecastingWorkflow,
-):
-    """Test _get_hyperparams returns combiner hyperparams for ensemble models."""
-    model = ensemble_workflow.model
-    assert isinstance(model, EnsembleForecastingModel)
-
-    result = callback._get_hyperparams(model)
-
-    assert isinstance(result, SimpleCombinerHyperParams)
-    assert result.learning_rate == 0.01
-
-
-def test_get_hyperparams__falls_back_for_single_model(
-    callback: EnsembleMLFlowStorageCallback,
-    single_workflow: CustomForecastingWorkflow,
-):
-    """Test _get_hyperparams falls back to base for non-ensemble models."""
-    model = single_workflow.model
-    assert isinstance(model, ForecastingModel)
-
-    result = callback._get_hyperparams(model)
-
-    # SimpleTestForecaster returns SimpleForecasterHyperParams via .hyperparams
-    assert isinstance(result, SimpleForecasterHyperParams)
+        callback.on_fit_end(context=worse_context, result=worse_result)

@@ -33,11 +33,14 @@ from openstef_core.exceptions import FlatlinerDetectedError, NotFittedError
 from openstef_core.types import Q
 from openstef_meta.models.ensemble_forecasting_model import EnsembleForecastingModel
 from openstef_meta.presets import EnsembleWorkflowConfig, create_ensemble_workflow
+from openstef_meta.workflows import CustomEnsembleForecastingWorkflow
 from openstef_models.models.forecasting_model import ForecastingModel
 from openstef_models.presets import ForecastingWorkflowConfig
 from openstef_models.workflows.custom_forecasting_workflow import (
     CustomForecastingWorkflow,
 )
+
+ForecastingWorkflow = CustomForecastingWorkflow | CustomEnsembleForecastingWorkflow
 
 
 class WorkflowCreationContext(BaseConfig):
@@ -59,8 +62,8 @@ class OpenSTEF4BacktestForecaster(BaseModel, BacktestForecasterMixin):
     config: BacktestForecasterConfig = Field(
         description="Configuration for the backtest forecaster interface",
     )
-    workflow_factory: Callable[[WorkflowCreationContext], CustomForecastingWorkflow] = Field(
-        description="Factory function that creates a new CustomForecastingWorkflow instance",
+    workflow_factory: Callable[[WorkflowCreationContext], ForecastingWorkflow] = Field(
+        description="Factory function that creates a new forecasting workflow instance",
     )
     cache_dir: Path = Field(
         description="Directory to use for caching model artifacts during backtesting",
@@ -74,7 +77,7 @@ class OpenSTEF4BacktestForecaster(BaseModel, BacktestForecasterMixin):
         description="When True, saves base forecaster prediction contributions for ensemble models",
     )
 
-    _workflow: CustomForecastingWorkflow | None = PrivateAttr(default=None)
+    _workflow: ForecastingWorkflow | None = PrivateAttr(default=None)
     _is_flatliner_detected: bool = PrivateAttr(default=False)
 
     _logger: logging.Logger = PrivateAttr(default=logging.getLogger(__name__))
@@ -90,15 +93,12 @@ class OpenSTEF4BacktestForecaster(BaseModel, BacktestForecasterMixin):
         # Create a workflow instance if needed to get quantiles
         if self._workflow is None:
             self._workflow = self.workflow_factory(WorkflowCreationContext())
-        # Extract quantiles from the workflow's model
 
+        # Extract quantiles from the workflow's model
         if isinstance(self._workflow.model, EnsembleForecastingModel):
             name = self._workflow.model.forecaster_names[0]
             return self._workflow.model.forecasters[name].config.quantiles
-        if isinstance(self._workflow.model, ForecastingModel):
-            return self._workflow.model.forecaster.config.quantiles
-        msg = f"Unsupported model type: {type(self._workflow.model)}"
-        raise TypeError(msg)
+        return self._workflow.model.forecaster.config.quantiles
 
     @override
     def fit(self, data: RestrictedHorizonVersionedTimeSeries) -> None:
@@ -130,7 +130,7 @@ class OpenSTEF4BacktestForecaster(BaseModel, BacktestForecasterMixin):
 
         if self.debug and isinstance(self._workflow.model, ForecastingModel):
             id_str = data.horizon.strftime("%Y%m%d%H%M%S")
-            self._workflow.model.prepare_input(training_data).to_parquet(  # pyright: ignore[reportPrivateUsage]
+            self._workflow.model.prepare_input(training_data).to_parquet(
                 path=self.cache_dir / f"debug_{id_str}_prepared_training.parquet"
             )
 
@@ -190,7 +190,7 @@ def _preset_target_forecaster_factory(
     # Factory function that creates a forecaster for a given target.
     prefix = context.run_name
 
-    def _create_workflow(context: WorkflowCreationContext) -> CustomForecastingWorkflow:
+    def _create_workflow(context: WorkflowCreationContext) -> ForecastingWorkflow:
         # Create a new workflow instance with fresh model.
         location = LocationConfig(
             name=target.name,

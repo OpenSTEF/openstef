@@ -36,6 +36,7 @@ from openstef_meta.models.forecast_combiners.stacking_combiner import (
     StackingCombiner,
 )
 from openstef_meta.models.forecasting.residual_forecaster import ResidualForecaster
+from openstef_meta.workflows import CustomEnsembleForecastingWorkflow, EnsembleForecastingCallback
 from openstef_models.integrations.mlflow import MLFlowStorage
 from openstef_models.mixins.model_serializer import ModelIdentifier
 from openstef_models.models.forecasting.gblinear_forecaster import GBLinearForecaster
@@ -65,7 +66,6 @@ from openstef_models.transforms.weather_domain import (
 )
 from openstef_models.utils.data_split import DataSplitter
 from openstef_models.utils.feature_selection import Exclude, FeatureSelection, Include
-from openstef_models.workflows.custom_forecasting_workflow import CustomForecastingWorkflow, ForecastingCallback
 
 if TYPE_CHECKING:
     from openstef_core.mixins.forecaster import Forecaster
@@ -332,14 +332,14 @@ def feature_standardizers(config: EnsembleWorkflowConfig) -> list[Transform[Time
     )
 
 
-def create_ensemble_workflow(config: EnsembleWorkflowConfig) -> CustomForecastingWorkflow:  # noqa: C901, PLR0912
+def create_ensemble_workflow(config: EnsembleWorkflowConfig) -> CustomEnsembleForecastingWorkflow:  # noqa: C901, PLR0912
     """Create an ensemble forecasting workflow from configuration.
 
     Args:
         config (EnsembleWorkflowConfig): Configuration for the ensemble workflow.
 
     Returns:
-        CustomForecastingWorkflow: Configured ensemble forecasting workflow.
+        CustomEnsembleForecastingWorkflow: Configured ensemble forecasting workflow.
 
     Raises:
         ValueError: If an unsupported base model or combiner type is specified.
@@ -497,7 +497,7 @@ def create_ensemble_workflow(config: EnsembleWorkflowConfig) -> CustomForecastin
         **config.tags,
     }
 
-    callbacks: list[ForecastingCallback] = []
+    callbacks: list[EnsembleForecastingCallback] = []
     if config.mlflow_storage is not None:
         callbacks.append(
             EnsembleMLFlowStorageCallback(
@@ -510,7 +510,7 @@ def create_ensemble_workflow(config: EnsembleWorkflowConfig) -> CustomForecastin
             )
         )
 
-    return CustomForecastingWorkflow(
+    return CustomEnsembleForecastingWorkflow(
         model=EnsembleForecastingModel(
             common_preprocessing=common_preprocessing,
             model_specific_preprocessing=model_specific_preprocessing,

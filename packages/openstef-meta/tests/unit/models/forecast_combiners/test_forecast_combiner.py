@@ -63,7 +63,7 @@ def test_config_with_horizon_preserves_other_fields(config: ForecastCombinerConf
 def test_config_requires_at_least_one_quantile():
     """Config validation rejects empty quantiles list."""
     # Act & Assert
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="quantiles"):
         ForecastCombinerConfig(
             hyperparams=HyperParams(),
             quantiles=[],
@@ -74,7 +74,7 @@ def test_config_requires_at_least_one_quantile():
 def test_config_requires_at_least_one_horizon():
     """Config validation rejects empty horizons list."""
     # Act & Assert
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="horizons"):
         ForecastCombinerConfig(
             hyperparams=HyperParams(),
             quantiles=[Q(0.5)],

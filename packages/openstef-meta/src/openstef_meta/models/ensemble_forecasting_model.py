@@ -38,7 +38,8 @@ logger = logging.getLogger(__name__)
 
 class EnsembleModelFitResult(BaseModel):
     """Fit result for EnsembleForecastingModel containing details for both forecasters and combiner."""
-    forecaster_fit_results: dict[str, ModelFitResult] = Field(description="ModelFitResult for each base Forecaster")
+
+    forecaster_fit_results: dict[str, ModelFitResult] = Field(description="ModelFitResult for each base forecaster")
 
     combiner_fit_result: ModelFitResult = Field(description="ModelFitResult for the ForecastCombiner")
 
