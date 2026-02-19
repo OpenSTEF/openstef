@@ -138,15 +138,13 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
         if self.model_selection_enable:
             self._run_model_selection(workflow=context.workflow, result=result)
 
-        model = context.workflow.model
-
         # Determine primary hyperparams based on model structure
-        hyperparams = self._get_primary_hyperparams(model)
+        hyperparams = self._get_primary_hyperparams(context.workflow.model)
 
         # Create a new run
         run = self.storage.create_run(
             model_id=context.workflow.model_id,
-            tags=model.tags,
+            tags=context.workflow.model.tags,
             hyperparams=hyperparams,
             run_name=context.workflow.run_name,
             experiment_tags=context.workflow.experiment_tags,
@@ -155,8 +153,8 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
         self._logger.info("Created MLflow run %s for model %s", run_id, context.workflow.model_id)
 
         # Log per-forecaster hyperparams for ensemble models
-        if isinstance(model, HasForecasters):
-            for name, forecaster in model.forecasters.items():
+        if isinstance(context.workflow.model, HasForecasters):
+            for name, forecaster in context.workflow.model.forecasters.items():
                 prefixed_params = {f"{name}.{k}": str(v) for k, v in forecaster.hyperparams.model_dump().items()}
                 self.storage.log_hyperparams(run_id=run_id, params=prefixed_params)
                 self._logger.debug("Logged hyperparams for forecaster '%s' in run %s", name, run_id)
@@ -170,7 +168,7 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
 
         # Store feature importance plots
         if self.store_feature_importance_plot:
-            self._store_feature_importances(model, data_path)
+            self._store_feature_importances(context.workflow.model, data_path)
 
         # Store the trained model
         self.storage.save_run_model(

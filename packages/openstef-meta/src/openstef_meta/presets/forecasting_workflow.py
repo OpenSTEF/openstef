@@ -490,6 +490,7 @@ def create_ensemble_workflow(config: EnsembleWorkflowConfig) -> CustomForecastin
         **config.location.tags,
         "ensemble_type": config.ensemble_type,
         "combiner_model": config.combiner_model,
+        "base_models": ",".join(config.base_models),
         **config.tags,
     }
 
