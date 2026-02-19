@@ -27,12 +27,12 @@ from openstef_core.exceptions import ModelNotFoundError, SkipFitting
 from openstef_meta.models.ensemble_forecasting_model import EnsembleModelFitResult
 from openstef_meta.workflows import CustomEnsembleForecastingWorkflow, EnsembleForecastingCallback
 from openstef_models.explainability import ExplainableForecaster
-from openstef_models.integrations.mlflow.mlflow_storage_callback import MLFlowStorageCallbackBase, metrics_to_dict
+from openstef_models.integrations.mlflow.mlflow_storage_callback import BaseMLFlowStorageCallback, metrics_to_dict
 from openstef_models.mixins.callbacks import WorkflowContext
 from openstef_models.models.base_forecasting_model import BaseForecastingModel
 
 
-class EnsembleMLFlowStorageCallback(MLFlowStorageCallbackBase, EnsembleForecastingCallback):
+class EnsembleMLFlowStorageCallback(BaseMLFlowStorageCallback, EnsembleForecastingCallback):
     """MLFlow callback for ensemble forecasting workflows.
 
     Uses composition with MLFlowStorageCallbackBase for shared MLflow storage

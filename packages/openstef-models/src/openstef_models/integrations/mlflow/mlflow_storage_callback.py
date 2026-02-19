@@ -40,7 +40,7 @@ from openstef_models.workflows.custom_forecasting_workflow import (
 )
 
 
-class MLFlowStorageCallbackBase(BaseConfig):
+class BaseMLFlowStorageCallback(BaseConfig):
     """Base configuration and shared utilities for MLflow storage callbacks.
 
     Provides common fields and helper methods used by both single-model and
@@ -214,7 +214,7 @@ class MLFlowStorageCallbackBase(BaseConfig):
                 return False
 
 
-class MLFlowStorageCallback(MLFlowStorageCallbackBase, ForecastingCallback):
+class MLFlowStorageCallback(BaseMLFlowStorageCallback, ForecastingCallback):
     """MLFlow callback for logging forecasting workflow events."""
 
     @override
@@ -381,4 +381,4 @@ def metrics_to_dict(metrics: SubsetMetric, prefix: str) -> dict[str, float]:
     }
 
 
-__all__ = ["MLFlowStorageCallback", "MLFlowStorageCallbackBase"]
+__all__ = ["MLFlowStorageCallback", "BaseMLFlowStorageCallback"]
