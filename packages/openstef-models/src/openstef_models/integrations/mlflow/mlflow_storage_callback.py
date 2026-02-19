@@ -278,9 +278,7 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
             self.storage.log_hyperparams(run_id=run_id, params=prefixed_params)
             self._logger.debug("Logged hyperparams for forecaster '%s' in run %s", name, run_id)
 
-    def _store_forecaster_data(
-        self, forecaster_fit_results: dict[str, ModelFitResult], data_path: Path
-    ) -> None:
+    def _store_forecaster_data(self, forecaster_fit_results: dict[str, ModelFitResult], data_path: Path) -> None:
         """Store per-forecaster training data as separate parquet files."""
         for name, forecaster_result in forecaster_fit_results.items():
             forecaster_data_path = data_path / name
@@ -306,13 +304,9 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
                 metrics.update(self.metrics_to_dict(metrics=forecaster_result.metrics_full, prefix=f"{name}_full_"))
                 metrics.update(self.metrics_to_dict(metrics=forecaster_result.metrics_train, prefix=f"{name}_train_"))
                 if forecaster_result.metrics_val is not None:
-                    metrics.update(
-                        self.metrics_to_dict(metrics=forecaster_result.metrics_val, prefix=f"{name}_val_")
-                    )
+                    metrics.update(self.metrics_to_dict(metrics=forecaster_result.metrics_val, prefix=f"{name}_val_"))
                 if forecaster_result.metrics_test is not None:
-                    metrics.update(
-                        self.metrics_to_dict(metrics=forecaster_result.metrics_test, prefix=f"{name}_test_")
-                    )
+                    metrics.update(self.metrics_to_dict(metrics=forecaster_result.metrics_test, prefix=f"{name}_test_"))
 
         return metrics
 
