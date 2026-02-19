@@ -27,7 +27,7 @@ from pydantic import Field
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import ForecastDataset, ForecastInputDataset
-from openstef_core.mixins import BatchPredictor, HyperParams
+from openstef_core.mixins.predictor import BatchPredictor, HyperParams
 from openstef_core.types import LeadTime, Quantile
 
 
@@ -111,33 +111,17 @@ class ForecasterConfig(BaseConfig):
         """
         return self.model_copy(update={"horizons": [horizon]})
 
-
-class ConfigurableForecaster:
-    @property
-    @abstractmethod
-    def config(self) -> ForecasterConfig:
-        """Access the model's configuration parameters.
+    @classmethod
+    def forecaster_class(cls) -> type["Forecaster"]:
+        """Get the associated Forecaster class for this configuration.
 
         Returns:
-            Configuration object containing fundamental model parameters.
+            The Forecaster class that uses this configuration.
         """
-        raise NotImplementedError("Subclasses must implement config")
-
-    @property
-    def hyperparams(self) -> HyperParams:
-        """Access the model's hyperparameters for training and prediction.
-
-        Hyperparameters control model behavior during training and inference.
-        Default implementation returns empty hyperparameters, which is suitable
-        for models without configurable parameters.
-
-        Returns:
-            Hyperparameter configuration object.
-        """
-        return HyperParams()
+        raise NotImplementedError("Subclasses must implement forecaster_class")
 
 
-class Forecaster(BatchPredictor[ForecastInputDataset, ForecastDataset], ConfigurableForecaster):
+class Forecaster(BatchPredictor[ForecastInputDataset, ForecastDataset]):
     """Base for forecasters that handle multiple horizons simultaneously.
 
     Designed for models that train and predict across multiple prediction horizons
@@ -196,6 +180,38 @@ class Forecaster(BatchPredictor[ForecastInputDataset, ForecastDataset], Configur
         ...             forecast_start=pd.Timestamp.now()
         ...         )
     """
+
+    @abstractmethod
+    def __init__(self, config: ForecasterConfig) -> None:
+        """Initialize the forecaster with the given configuration.
+
+        Args:
+            config: Configuration object specifying quantiles, horizons, and batching support.
+        """
+        raise NotImplementedError("Subclasses must implement __init__")
+
+    @property
+    @abstractmethod
+    def config(self) -> ForecasterConfig:
+        """Access the model's configuration parameters.
+
+        Returns:
+            Configuration object containing fundamental model parameters.
+        """
+        raise NotImplementedError("Subclasses must implement config")
+
+    @property
+    def hyperparams(self) -> HyperParams:
+        """Access the model's hyperparameters for training and prediction.
+
+        Hyperparameters control model behavior during training and inference.
+        Default implementation returns empty hyperparameters, which is suitable
+        for models without configurable parameters.
+
+        Returns:
+            Hyperparameter configuration object.
+        """
+        return HyperParams()
 
 
 __all__ = [

@@ -72,7 +72,6 @@ class Selector(BaseConfig, TimeSeriesTransform):
 
     @override
     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
-
         features = self.selection.resolve(data.feature_names)
 
         transformed_data = data.data.drop(columns=[col for col in data.feature_names if col not in features])

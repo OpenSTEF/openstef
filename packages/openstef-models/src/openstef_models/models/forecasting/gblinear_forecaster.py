@@ -93,6 +93,15 @@ class GBLinearHyperParams(HyperParams):
         description="Training will stop if performance doesn't improve for this many rounds. Requires validation data.",
     )
 
+    @classmethod
+    def forecaster_class(cls) -> "type[GBLinearForecaster]":
+        """Forecaster class for these hyperparams.
+
+        Returns:
+            Forecaster class associated with this configuration.
+        """
+        return GBLinearForecaster
+
 
 class GBLinearForecasterConfig(ForecasterConfig):
     """Configuration for GBLinear forecaster."""
@@ -114,8 +123,16 @@ class GBLinearForecasterConfig(ForecasterConfig):
         default="cpu", description="Device for XGBoost computation. Options: 'cpu', 'cuda', 'cuda:<ordinal>', 'gpu'"
     )
     verbosity: Literal[0, 1, 2, 3, True] = Field(
-        default=1, description="Verbosity level. 0=silent, 1=warning, 2=info, 3=debug"
+        default=0, description="Verbosity level. 0=silent, 1=warning, 2=info, 3=debug"
     )
+
+    def forecaster_from_config(self) -> "GBLinearForecaster":
+        """Create a GBLinearForecaster instance from this configuration.
+
+        Returns:
+            Forecaster instance associated with this configuration.
+        """
+        return GBLinearForecaster(config=self)
 
 
 MODEL_CODE_VERSION = 1
@@ -255,7 +272,7 @@ class GBLinearForecaster(Forecaster, ExplainableForecaster):
             raise InputValidationError("The input data is empty after dropping NaN values.")
 
         # Fit the scalers
-        self._target_scaler.fit(data.target_series.to_frame())
+        self._target_scaler.fit(data.target_series.to_frame().to_numpy())
 
         # Prepare training data
         input_data, target, sample_weight = self._prepare_fit_input(data)
@@ -308,6 +325,47 @@ class GBLinearForecaster(Forecaster, ExplainableForecaster):
             data=predictions,
             sample_interval=data.sample_interval,
         )
+
+    def predict_contributions(self, data: ForecastInputDataset, *, scale: bool = True) -> pd.DataFrame:
+        """Get feature contributions for each prediction.
+
+        Args:
+            data: Input dataset for which to compute feature contributions.
+            scale: If True, scale contributions to sum to 1.0 per quantile.
+
+        Returns:
+            DataFrame with contributions per feature.
+        """
+        # Get input features for prediction
+        input_data: pd.DataFrame = data.input_data(start=data.forecast_start)
+        xgb_input: xgb.DMatrix = xgb.DMatrix(data=input_data)
+
+        # Generate predictions
+        booster = self._gblinear_model.get_booster()
+        predictions_array: np.ndarray = booster.predict(xgb_input, pred_contribs=True, strict_shape=True)[:, :, :-1]
+
+        # Remove last column
+        contribs = predictions_array / np.sum(predictions_array, axis=-1, keepdims=True)
+
+        # Flatten to 2D array, name columns accordingly
+        contribs = contribs.reshape(contribs.shape[0], -1)
+        df = pd.DataFrame(
+            data=contribs,
+            index=input_data.index,
+            columns=[
+                f"{feature}_{quantile.format()}" for feature in input_data.columns for quantile in self.config.quantiles
+            ],
+        )
+
+        if scale:
+            # Scale contributions so that they sum to 1.0 per quantile and are positive
+            for q in self.config.quantiles:
+                quantile_cols = [col for col in df.columns if col.endswith(f"_{q.format()}")]
+                row_sums = df[quantile_cols].abs().sum(axis=1)
+                df[quantile_cols] = df[quantile_cols].abs().div(row_sums, axis=0)
+
+        # Construct DataFrame with appropriate quantile columns
+        return df
 
     @property
     @override

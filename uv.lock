@@ -13,6 +13,7 @@ members = [
     "openstef-core",
     "openstef-docs",
     "openstef-examples",
+    "openstef-meta",
     "openstef-models",
 ]
 
@@ -2016,6 +2017,23 @@ wheels = [
 ]
 
 [[package]]
+name = "lightgbm"
+version = "4.6.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy" },
+    { name = "scipy" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/68/0b/a2e9f5c5da7ef047cc60cef37f86185088845e8433e54d2e7ed439cce8a3/lightgbm-4.6.0.tar.gz", hash = "sha256:cb1c59720eb569389c0ba74d14f52351b573af489f230032a1c9f314f8bab7fe", size = 1703705, upload-time = "2025-02-15T04:03:03.111Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/f2/75/cffc9962cca296bc5536896b7e65b4a7cdeb8db208e71b9c0133c08f8f7e/lightgbm-4.6.0-py3-none-macosx_10_15_x86_64.whl", hash = "sha256:b7a393de8a334d5c8e490df91270f0763f83f959574d504c7ccb9eee4aef70ed", size = 2010151, upload-time = "2025-02-15T04:02:50.961Z" },
+    { url = "https://files.pythonhosted.org/packages/21/1b/550ee378512b78847930f5d74228ca1fdba2a7fbdeaac9aeccc085b0e257/lightgbm-4.6.0-py3-none-macosx_12_0_arm64.whl", hash = "sha256:2dafd98d4e02b844ceb0b61450a660681076b1ea6c7adb8c566dfd66832aafad", size = 1592172, upload-time = "2025-02-15T04:02:53.937Z" },
+    { url = "https://files.pythonhosted.org/packages/64/41/4fbde2c3d29e25ee7c41d87df2f2e5eda65b431ee154d4d462c31041846c/lightgbm-4.6.0-py3-none-manylinux2014_aarch64.whl", hash = "sha256:4d68712bbd2b57a0b14390cbf9376c1d5ed773fa2e71e099cac588703b590336", size = 3454567, upload-time = "2025-02-15T04:02:56.443Z" },
+    { url = "https://files.pythonhosted.org/packages/42/86/dabda8fbcb1b00bcfb0003c3776e8ade1aa7b413dff0a2c08f457dace22f/lightgbm-4.6.0-py3-none-manylinux_2_28_x86_64.whl", hash = "sha256:cb19b5afea55b5b61cbb2131095f50538bd608a00655f23ad5d25ae3e3bf1c8d", size = 3569831, upload-time = "2025-02-15T04:02:58.925Z" },
+    { url = "https://files.pythonhosted.org/packages/5e/23/f8b28ca248bb629b9e08f877dd2965d1994e1674a03d67cd10c5246da248/lightgbm-4.6.0-py3-none-win_amd64.whl", hash = "sha256:37089ee95664b6550a7189d887dbf098e3eadab03537e411f52c63c121e3ba4b", size = 1451509, upload-time = "2025-02-15T04:03:01.515Z" },
+]
+
+[[package]]
 name = "logistro"
 version = "2.0.1"
 source = { registry = "https://pypi.org/simple" }
@@ -2680,6 +2698,7 @@ beam = [
     { name = "openstef-beam" },
 ]
 models = [
+    { name = "openstef-meta" },
     { name = "openstef-models", extra = ["xgb-cpu"] },
 ]
 
@@ -2711,6 +2730,7 @@ requires-dist = [
     { name = "openstef-beam", extras = ["all"], marker = "extra == 'all'", editable = "packages/openstef-beam" },
     { name = "openstef-core", editable = "packages/openstef-core" },
     { name = "openstef-core", marker = "extra == 'all'", editable = "packages/openstef-core" },
+    { name = "openstef-meta", marker = "extra == 'models'", editable = "packages/openstef-meta" },
     { name = "openstef-models", extras = ["xgb-cpu"], editable = "packages/openstef-models" },
     { name = "openstef-models", extras = ["xgb-cpu"], marker = "extra == 'all'", editable = "packages/openstef-models" },
     { name = "openstef-models", extras = ["xgb-cpu"], marker = "extra == 'models'", editable = "packages/openstef-models" },
@@ -2863,11 +2883,29 @@ requires-dist = [
 provides-extras = ["tutorials"]
 
 [[package]]
+name = "openstef-meta"
+version = "0.0.0"
+source = { editable = "packages/openstef-meta" }
+dependencies = [
+    { name = "openstef-beam" },
+    { name = "openstef-core" },
+    { name = "openstef-models" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "openstef-beam", editable = "packages/openstef-beam" },
+    { name = "openstef-core", editable = "packages/openstef-core" },
+    { name = "openstef-models", editable = "packages/openstef-models" },
+]
+
+[[package]]
 name = "openstef-models"
 version = "0.0.0"
 source = { editable = "packages/openstef-models" }
 dependencies = [
     { name = "holidays" },
+    { name = "lightgbm" },
     { name = "mlflow-skinny" },
     { name = "openstef-beam" },
     { name = "openstef-core" },
@@ -2889,6 +2927,7 @@ xgb-gpu = [
 [package.metadata]
 requires-dist = [
     { name = "holidays", specifier = ">=0.79" },
+    { name = "lightgbm", specifier = ">=4.6" },
     { name = "mlflow-skinny", specifier = ">=3,<4" },
     { name = "openstef-beam", editable = "packages/openstef-beam" },
     { name = "openstef-core", editable = "packages/openstef-core" },
@@ -3687,6 +3726,12 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/e9/0b/2bdac7f9f7cddcd8096af44338548f1b7d5b797e3bcee27831c3752c9168/pyproject_fmt-2.11.1-cp39-abi3-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:97b6ba9923975667fab130c23bfd8ead66c4cdea4b66ae238de860a06afbb108", size = 1539351, upload-time = "2025-11-05T12:53:37.836Z" },
     { url = "https://files.pythonhosted.org/packages/06/fc/48b4932570097a08ed6abc3a7455aacf9a15271ff0099c33d48e7f745eaa/pyproject_fmt-2.11.1-cp39-abi3-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:b16ce0874ef2aee219a2c0dacd7c0ce374562c19937bd9c767093ade91e5e452", size = 1429957, upload-time = "2025-11-05T12:53:39.382Z" },
     { url = "https://files.pythonhosted.org/packages/f7/8d/52f52e039e5e1cfb33cf0f79651edd4d8ff7f6a83d1fb5dddf19bca9993a/pyproject_fmt-2.11.1-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:2daf29e4958c310c27ce7750741ef60f79b2f4164df26b1f2bdd063f2beddf4c", size = 1375776, upload-time = "2025-11-05T12:53:40.659Z" },
+    { url = "https://files.pythonhosted.org/packages/58/7b/253e8c1d6bef9b5d041f8f104ae5ca70afc6a8bb23042b4272d30a67a2f9/pyproject_fmt-2.11.1-cp39-abi3-manylinux_2_24_aarch64.whl", hash = "sha256:e5da4b06eea58f89a93d7ae4426e31261d8c571dc5f71d8e13b9c7cdd8e8b253", size = 1317349, upload-time = "2026-01-07T23:30:20.34Z" },
+    { url = "https://files.pythonhosted.org/packages/fa/40/8b876c4244fd8cace8e85afc9c30b806f940dde713d81d15318f98179b39/pyproject_fmt-2.11.1-cp39-abi3-manylinux_2_24_armv7l.whl", hash = "sha256:a28c3425785fb28cee1316fdf860eab403274626f2cc0b6df14ec7dcce0f66d2", size = 1271918, upload-time = "2026-01-07T23:30:21.581Z" },
+    { url = "https://files.pythonhosted.org/packages/69/26/9c7ac96a390ec246892e427be7937400e9f8fe4e1f1cfa412bb919175f90/pyproject_fmt-2.11.1-cp39-abi3-manylinux_2_24_i686.whl", hash = "sha256:584e957a951330f777e632ccd12e87d6e8b2a7d113d4a2abbe1f84b8d85fce06", size = 1430842, upload-time = "2026-01-07T23:30:23.589Z" },
+    { url = "https://files.pythonhosted.org/packages/ce/cf/a619fbb8b19cafe78b471e69549e306c6f42e1a1296f12899a12403e474a/pyproject_fmt-2.11.1-cp39-abi3-manylinux_2_24_ppc64le.whl", hash = "sha256:ad8d5c0825a37ebe3414b0590336700600ee718bf6a461fbd1be01dba68e7a99", size = 1573886, upload-time = "2026-01-07T23:30:25.191Z" },
+    { url = "https://files.pythonhosted.org/packages/ab/19/da02ed5b31c71d617273459a34e9401c4303c1c2eb00487faa0b55f0c64c/pyproject_fmt-2.11.1-cp39-abi3-manylinux_2_24_s390x.whl", hash = "sha256:a5fd2882b6ae5f0b1651e9e30cb2ba1ad07d99359dc1d056999766ec20706400", size = 1447873, upload-time = "2026-01-07T23:30:27.691Z" },
+    { url = "https://files.pythonhosted.org/packages/d4/2a/7eb3f9c1848d72186a9ace63429375e30544f69795b05be0998523e31ff0/pyproject_fmt-2.11.1-cp39-abi3-manylinux_2_24_x86_64.whl", hash = "sha256:56abdaa2afafe86436302220ea90bde025dcec066e348e7f9001a7663dc398f8", size = 1416637, upload-time = "2026-01-07T23:30:29.388Z" },
     { url = "https://files.pythonhosted.org/packages/3b/24/bab927c42d88befbb063b229b44c9ce9b8a894f650ca14348969858878f5/pyproject_fmt-2.11.1-cp39-abi3-manylinux_2_5_i686.manylinux1_i686.whl", hash = "sha256:44b1edad216b33817d2651a15fb2793807fd7c9cfff1ce66d565c4885b89640e", size = 1379396, upload-time = "2025-11-05T12:53:41.857Z" },
     { url = "https://files.pythonhosted.org/packages/09/fe/b98c2156775067e079ca8f2badbe93a5de431ccc061435534b76f11abc73/pyproject_fmt-2.11.1-cp39-abi3-musllinux_1_2_i686.whl", hash = "sha256:08ccf565172179fc7f35a90f4541f68abcdbef7e7a4ea35fcead44f8cabe3e3a", size = 1506485, upload-time = "2025-11-05T12:53:43.108Z" },
     { url = "https://files.pythonhosted.org/packages/8e/2f/bf0df9df04a1376d6d1dad6fc49eb41ffafe0c3e63565b2cde8b67a49886/pyproject_fmt-2.11.1-cp39-abi3-musllinux_1_2_x86_64.whl", hash = "sha256:27a9af1fc8d2173deb7a0bbb8c368a585e7817bcbba6acf00922b73c76c8ee23", size = 1546050, upload-time = "2025-11-05T12:53:44.491Z" },

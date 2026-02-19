@@ -94,6 +94,11 @@ class RollingAggregatesAdder(BaseConfig, TimeSeriesTransform):
     @override
     def fit(self, data: TimeSeriesDataset) -> None:
         """Compute and store last valid aggregates from training data for fallback."""
+        if not self.aggregation_functions:
+            self._logger.warning("No aggregation functions specified. Skipping fit.")
+            self._is_fitted = True
+            return
+
         validate_required_columns(df=data.data, required_columns=[self.feature])
 
         rolling_df = self._compute_rolling_aggregates(data.data[self.feature])

@@ -56,13 +56,14 @@ class CustomForecastingWorkflow(BaseModel):
     """Complete forecasting workflow with model management and lifecycle hooks.
 
     Orchestrates the full forecasting process by combining a ForecastingModel
-    with callback execution and optional model persistence. Provides the main
-    interface for production forecasting systems where models need to be
-    trained, saved, loaded, and used for prediction with monitoring.
+    (either ForecastingModel or EnsembleForecastingModel) with callback execution
+    and optional model persistence. Provides the main interface for production
+    forecasting systems where models need to be trained, saved, loaded, and used
+    for prediction with monitoring.
 
     Invariants:
         - Callbacks are executed at appropriate lifecycle stages
-        - Model fitting and prediction delegate to the underlying ForecastingModel
+        - Model fitting and prediction delegate to the underlying model
         - Storage operations (if configured) maintain model persistence
 
     Example:
@@ -150,6 +151,7 @@ class CustomForecastingWorkflow(BaseModel):
             ModelFitResult containing training metrics and information,
             or None if fitting was skipped.
         """
+        result: ModelFitResult | None = None
         context: WorkflowContext[CustomForecastingWorkflow] = WorkflowContext(workflow=self)
 
         try:
@@ -198,4 +200,4 @@ class CustomForecastingWorkflow(BaseModel):
         return forecasts
 
 
-__all__ = ["CustomForecastingWorkflow"]
+__all__ = ["CustomForecastingWorkflow", "ForecastingCallback"]
