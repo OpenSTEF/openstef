@@ -120,6 +120,17 @@ class ForecastCombiner(Predictor[EnsembleForecastDataset, ForecastDataset]):
         """Indicates whether the final learner has been fitted."""
         raise NotImplementedError("Subclasses must implement the is_fitted property.")
 
+    @property
+    @abstractmethod
+    def feature_importances(self) -> pd.DataFrame:
+        """Feature importances from the combiner's internal models.
+
+        Returns a DataFrame with feature names as index and quantile columns,
+        with importances for each quantile the combiner was trained on.
+        Returns an empty DataFrame if no feature importances are available.
+        """
+        raise NotImplementedError("Subclasses must implement the feature_importances property.")
+
     @abstractmethod
     def predict_contributions(
         self,

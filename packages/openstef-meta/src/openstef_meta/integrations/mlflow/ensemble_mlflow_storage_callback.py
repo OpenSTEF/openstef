@@ -27,6 +27,7 @@ from openstef_core.exceptions import ModelNotFoundError, SkipFitting
 from openstef_meta.models.ensemble_forecasting_model import EnsembleModelFitResult
 from openstef_meta.workflows import CustomEnsembleForecastingWorkflow, EnsembleForecastingCallback
 from openstef_models.explainability import ExplainableForecaster
+from openstef_models.explainability.plotters.feature_importance_plotter import FeatureImportancePlotter
 from openstef_models.integrations.mlflow.base_mlflow_storage_callback import BaseMLFlowStorageCallback
 from openstef_models.mixins.callbacks import WorkflowContext
 from openstef_models.models.base_forecasting_model import BaseForecastingModel
@@ -121,6 +122,12 @@ class EnsembleMLFlowStorageCallback(BaseMLFlowStorageCallback, EnsembleForecasti
                 if isinstance(forecaster, ExplainableForecaster):
                     fig = forecaster.plot_feature_importances()
                     fig.write_html(data_path / f"feature_importances_{name}.html")  # pyright: ignore[reportUnknownMemberType]
+
+            # Store combiner feature importances (combiners have their own feature_importances property)
+            combiner_fi = model.combiner.feature_importances
+            if not combiner_fi.empty:
+                fig = FeatureImportancePlotter.plot(combiner_fi)
+                fig.write_html(data_path / "feature_importances_combiner.html")  # pyright: ignore[reportUnknownMemberType]
 
         # Store the trained model
         self.storage.save_run_model(

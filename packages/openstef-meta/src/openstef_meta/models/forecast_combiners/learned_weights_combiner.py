@@ -14,6 +14,7 @@ import logging
 from abc import abstractmethod
 from typing import Literal, override
 
+import numpy as np
 import pandas as pd
 from lightgbm import LGBMClassifier
 from pydantic import Field
@@ -258,6 +259,7 @@ class WeightsCombiner(ForecastCombiner):
 
         self._label_encoder.fit(data.forecaster_names)
 
+        feature_names: list[str] = []
         for i, q in enumerate(self.quantiles):
             # Data preparation
             dataset = data.get_best_forecaster_labels(quantile=q)
@@ -274,6 +276,9 @@ class WeightsCombiner(ForecastCombiner):
             weights = compute_sample_weight("balanced", labels) * combined_data.sample_weight_series
 
             self.models[i].fit(X=input_data, y=labels, sample_weight=weights)  # pyright: ignore[reportUnknownMemberType]
+            feature_names = list(input_data.columns)
+
+        self.feature_names_ = feature_names
         self._is_fitted = True
 
     @staticmethod
@@ -407,6 +412,31 @@ class WeightsCombiner(ForecastCombiner):
         weights = self._predict_model_weights_quantile(base_predictions=input_data, model_index=model_index)
         weights.columns = [f"{col}_{Quantile(self.quantiles[model_index]).format()}" for col in weights.columns]
         return weights
+
+    @property
+    @override
+    def feature_importances(self) -> pd.DataFrame:
+        """Feature importances from the internal classifiers, per quantile.
+
+        Returns a DataFrame with feature names as index and quantile columns,
+        with importances normalized to sum to 1.0 per quantile.
+        For classifiers without feature_importances_ (e.g. DummyClassifier),
+        uniform importances are used.
+        """
+        importances: dict[str, np.ndarray] = {}
+        for i, q in enumerate(self.quantiles):
+            model = self.models[i]
+            if hasattr(model, "feature_importances_"):
+                raw = np.array(model.feature_importances_, dtype=float)  # pyright: ignore[reportUnknownMemberType, reportUnknownArgumentType, reportAttributeAccessIssue]
+            elif hasattr(model, "coef_"):
+                raw = np.abs(np.array(model.coef_, dtype=float)).mean(axis=0)  # pyright: ignore[reportUnknownMemberType, reportUnknownArgumentType, reportAttributeAccessIssue]
+            else:
+                raw = np.ones(len(self.feature_names_), dtype=float)
+
+            total = raw.sum()
+            importances[Quantile(q).format()] = raw / total if total > 0 else raw
+
+        return pd.DataFrame(importances, index=self.feature_names_)
 
     @property
     @override

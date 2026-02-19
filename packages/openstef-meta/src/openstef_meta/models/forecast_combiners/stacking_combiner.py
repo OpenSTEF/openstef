@@ -237,6 +237,25 @@ class StackingCombiner(ForecastCombiner):
         return contributions
 
     @property
+    @override
+    def feature_importances(self) -> pd.DataFrame:
+        """Feature importances from the internal regression models, per quantile.
+
+        Delegates to each inner model's ``feature_importances`` property
+        (requires ``ExplainableForecaster``). Returns a DataFrame with feature
+        names as index and quantile columns.
+        """
+        frames: list[pd.DataFrame] = []
+        for model in self.models:
+            if isinstance(model, ExplainableForecaster):
+                frames.append(model.feature_importances)
+
+        if not frames:
+            return pd.DataFrame()
+
+        return pd.concat(frames, axis=1)
+
+    @property
     def is_fitted(self) -> bool:
         """Check the StackingForecastCombiner is fitted."""
         return all(x.is_fitted for x in self.models)

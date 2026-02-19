@@ -101,6 +101,17 @@ class SimpleCombiner(ForecastCombiner):
     def is_fitted(self) -> bool:
         return self._is_fitted
 
+    @property
+    def feature_importances(self) -> pd.DataFrame:
+        return pd.DataFrame()
+
+    def predict_contributions(
+        self,
+        data: EnsembleForecastDataset,
+        additional_features: ForecastInputDataset | None = None,
+    ) -> pd.DataFrame:
+        return pd.DataFrame()
+
 
 @pytest.fixture
 def sample_timeseries_dataset() -> TimeSeriesDataset:

@@ -64,7 +64,7 @@ PREDICTION_QUANTILES = [
 
 BENCHMARK_FILTER: list[Liander2024Category] | None = None
 
-USE_MLFLOW_STORAGE = False
+USE_MLFLOW_STORAGE = True
 
 if USE_MLFLOW_STORAGE:
     storage = MLFlowStorage(
@@ -116,7 +116,7 @@ if __name__ == "__main__":
     start_time = time.time()
     create_liander2024_benchmark_runner(
         storage=LocalBenchmarkStorage(base_path=OUTPUT_PATH / model),
-        data_dir=Path("../data/liander2024-energy-forecasting-benchmark"),
+        data_dir=None,  # Path("../data/liander2024-energy-forecasting-benchmark"),
         callbacks=[StrictExecutionCallback()],
     ).run(
         forecaster_factory=create_openstef4_preset_backtest_forecaster(

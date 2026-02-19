@@ -118,6 +118,11 @@ class SimpleTestCombiner(ForecastCombiner):
     def is_fitted(self) -> bool:
         return self._is_fitted
 
+    @property
+    @override
+    def feature_importances(self) -> pd.DataFrame:
+        return pd.DataFrame()
+
     @override
     def predict_contributions(
         self,
