@@ -40,7 +40,7 @@ def test_flagger__fit_transform(
     train_dataset: TimeSeriesDataset,
     test_dataset: TimeSeriesDataset,
 ):
-    """Test fit and transform flags correctly leaves other columns unchanged."""
+    """Test fit and transform flags correctly."""
     # Arrange
     flagger = Flagger(selection=FeatureSelection(include={"A", "B", "C"}))
 
@@ -49,12 +49,11 @@ def test_flagger__fit_transform(
     transformed_dataset = flagger.transform(test_dataset)
 
     # Assert
-    # Column C should remain unchanged
     expected_df = pd.DataFrame(
         {
             "A": [1, 1],
             "B": [0, 1],
-            "C": [0, 0],  # Unchanged
+            "C": [0, 0],
         },
         index=test_dataset.index,
     )
