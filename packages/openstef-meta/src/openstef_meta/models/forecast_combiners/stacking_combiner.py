@@ -245,10 +245,9 @@ class StackingCombiner(ForecastCombiner):
         (requires ``ExplainableForecaster``). Returns a DataFrame with feature
         names as index and quantile columns.
         """
-        frames: list[pd.DataFrame] = []
-        for model in self.models:
-            if isinstance(model, ExplainableForecaster):
-                frames.append(model.feature_importances)
+        frames: list[pd.DataFrame] = [
+            model.feature_importances for model in self.models if isinstance(model, ExplainableForecaster)
+        ]
 
         if not frames:
             return pd.DataFrame()

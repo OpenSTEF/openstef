@@ -105,6 +105,7 @@ class SimpleCombiner(ForecastCombiner):
     def feature_importances(self) -> pd.DataFrame:
         return pd.DataFrame()
 
+    @override
     def predict_contributions(
         self,
         data: EnsembleForecastDataset,

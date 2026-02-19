@@ -123,10 +123,10 @@ class EnsembleMLFlowStorageCallback(BaseMLFlowStorageCallback, EnsembleForecasti
                     fig = forecaster.plot_feature_importances()
                     fig.write_html(data_path / f"feature_importances_{name}.html")  # pyright: ignore[reportUnknownMemberType]
 
-            # Store combiner feature importances (combiners have their own feature_importances property)
-            combiner_fi = model.combiner.feature_importances
-            if not combiner_fi.empty:
-                fig = FeatureImportancePlotter.plot(combiner_fi)
+            # Store combiner feature importances
+            combiner_feature_importances = model.combiner.feature_importances
+            if not combiner_feature_importances.empty:
+                fig = FeatureImportancePlotter.plot(combiner_feature_importances)
                 fig.write_html(data_path / "feature_importances_combiner.html")  # pyright: ignore[reportUnknownMemberType]
 
         # Store the trained model
