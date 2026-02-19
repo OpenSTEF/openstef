@@ -154,7 +154,11 @@ class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset])
 
     @property
     def _forecaster(self) -> Forecaster:
-        """Return the forecaster, raising if not set (ensemble models override methods instead)."""
+        """Return the forecaster, raising if not set (ensemble models override methods instead).
+
+        Raises:
+            ValueError: If no forecaster is configured.
+        """
         if self.forecaster is None:
             msg = "No forecaster configured. Single-model ForecastingModel requires a forecaster."
             raise ValueError(msg)
@@ -167,10 +171,20 @@ class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset])
 
     @property
     def scoring_config(self) -> ForecasterConfig:
+        """Returns the configuration of the underlying forecaster for scoring.
+
+        Returns:
+            The forecaster configuration used for model evaluation and scoring.
+        """
         return self._forecaster.config
 
     @property
     def is_fitted(self) -> bool:
+        """Check if the underlying forecaster has been fitted.
+
+        Returns:
+            True if the forecaster has been trained, False otherwise.
+        """
         return self._forecaster.is_fitted
 
     def fit(

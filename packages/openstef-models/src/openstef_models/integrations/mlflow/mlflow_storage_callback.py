@@ -19,6 +19,7 @@ the ``HasForecasters`` and ``HasExplainableCombiner`` protocols:
 
 import logging
 from datetime import UTC, datetime, timedelta
+from pathlib import Path
 from typing import Any, Protocol, cast, override, runtime_checkable
 
 from mlflow.entities import Run
@@ -169,7 +170,7 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
 
         # Store feature importance plots
         if self.store_feature_importance_plot:
-            self._store_feature_importances(model=model, data_path=data_path)
+            self._store_feature_importances(model, data_path)
 
         # Store the trained model
         self.storage.save_run_model(
@@ -270,6 +271,9 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
 
         For ensemble models: uses the combiner's hyperparameters.
         For single models: uses the forecaster's hyperparameters.
+
+        Returns:
+            The primary hyperparameters extracted from the model.
         """
         if isinstance(model, HasExplainableCombiner):
             config = getattr(model.combiner, "config", None)
@@ -279,7 +283,8 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
             return model.forecaster.hyperparams
         return HyperParams()
 
-    def _store_feature_importances(self, model: ForecastingModel, data_path: Any) -> None:
+    @staticmethod
+    def _store_feature_importances(model: ForecastingModel, data_path: Path) -> None:
         """Store feature importance plots for all explainable components of the model."""
         if isinstance(model, HasForecasters):
             # Ensemble model: store per-forecaster feature importances
@@ -300,7 +305,11 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
                 fig.write_html(data_path / "feature_importances_combiner.html")  # pyright: ignore[reportUnknownMemberType]
 
     def _find_run(self, model_id: str, run_name: str | None) -> Run | None:
-        """Find an MLflow run by model_id and optional run_name."""
+        """Find an MLflow run by model_id and optional run_name.
+
+        Returns:
+            The matching Run, or None if no run was found.
+        """
         if run_name is not None:
             return self.storage.search_run(model_id=model_id, run_name=run_name)
 
@@ -308,7 +317,11 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
         return next(iter(runs), None)
 
     def _try_load_model(self, run_id: str, model_id: str) -> ForecastingModel | None:
-        """Try to load a model from MLflow, returning None on failure."""
+        """Try to load a model from MLflow, returning None on failure.
+
+        Returns:
+            The loaded model, or None if loading failed.
+        """
         try:
             old_model = self.storage.load_run_model(run_id=run_id, model_id=model_id)
         except ModelNotFoundError:
@@ -334,7 +347,11 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
         old_model: ForecastingModel,
         input_data: TimeSeriesDataset,
     ) -> SubsetMetric | None:
-        """Try to evaluate a model, returning None on failure."""
+        """Try to evaluate a model, returning None on failure.
+
+        Returns:
+            The evaluation metrics, or None if evaluation failed.
+        """
         try:
             return old_model.score(input_data)
         except (MissingColumnsError, ValueError) as e:
@@ -346,7 +363,11 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
             return None
 
     def _check_tags_compatible(self, run_tags: dict[str, str], new_tags: dict[str, str], run_id: str) -> bool:
-        """Check if model tags are compatible, excluding mlflow.runName."""
+        """Check if model tags are compatible, excluding mlflow.runName.
+
+        Returns:
+            True if tags are compatible, False otherwise.
+        """
         old_tags = {k: v for k, v in run_tags.items() if k != "mlflow.runName"}
 
         if old_tags == new_tags:
@@ -370,7 +391,11 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
         old_metrics: SubsetMetric,
         new_metrics: SubsetMetric,
     ) -> bool:
-        """Compare old and new model metrics to determine if the new model is better."""
+        """Compare old and new model metrics to determine if the new model is better.
+
+        Returns:
+            True if the new model is better, False otherwise.
+        """
         quantile, metric_name, direction = self.model_selection_metric
 
         old_metric = old_metrics.get_metric(quantile=quantile, metric_name=metric_name)
