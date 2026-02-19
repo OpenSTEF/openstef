@@ -35,7 +35,6 @@ from openstef_meta.models.forecast_combiners.learned_weights_combiner import (
 from openstef_meta.models.forecast_combiners.stacking_combiner import (
     StackingCombiner,
 )
-from openstef_meta.models.forecasting.residual_forecaster import ResidualForecaster
 from openstef_meta.workflows import CustomEnsembleForecastingWorkflow, EnsembleForecastingCallback
 from openstef_models.integrations.mlflow import MLFlowStorage
 from openstef_models.mixins.model_serializer import ModelIdentifier
@@ -119,11 +118,6 @@ class EnsembleWorkflowConfig(BaseConfig):
     lgbmlinear_hyperparams: LGBMLinearForecaster.HyperParams = Field(
         default=LGBMLinearForecaster.HyperParams(),
         description="Hyperparameters for LightGBM forecaster.",
-    )
-
-    residual_hyperparams: ResidualForecaster.HyperParams = Field(
-        default=ResidualForecaster.HyperParams(),
-        description="Hyperparameters for Residual forecaster.",
     )
 
     # Learned weights combiner hyperparameters

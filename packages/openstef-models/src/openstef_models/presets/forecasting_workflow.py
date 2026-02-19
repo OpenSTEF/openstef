@@ -25,7 +25,6 @@ from openstef_beam.evaluation.metric_providers import (
 from openstef_core.base_model import BaseConfig
 from openstef_core.mixins import TransformPipeline
 from openstef_core.types import LeadTime, Q, Quantile, QuantileOrGlobal
-from openstef_meta.models.forecasting.residual_forecaster import ResidualForecaster
 from openstef_models.integrations.mlflow import MLFlowStorage, MLFlowStorageCallback
 from openstef_models.mixins import ModelIdentifier
 from openstef_models.models import ForecastingModel
@@ -112,7 +111,7 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
     )
 
     # Model configuration
-    model: Literal["xgboost", "gblinear", "flatliner", "residual", "lgbm", "lgbmlinear"] = Field(
+    model: Literal["xgboost", "gblinear", "flatliner", "lgbm", "lgbmlinear"] = Field(
         description="Type of forecasting model to use."
     )  # TODO(#652): Implement median forecaster
     quantiles: list[Quantile] = Field(
@@ -146,11 +145,6 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
     lgbmlinear_hyperparams: LGBMLinearForecaster.HyperParams = Field(
         default=LGBMLinearForecaster.HyperParams(),
         description="Hyperparameters for LightGBM forecaster.",
-    )
-
-    residual_hyperparams: ResidualForecaster.HyperParams = Field(
-        default=ResidualForecaster.HyperParams(),
-        description="Hyperparameters for Residual forecaster.",
     )
 
     location: LocationConfig = Field(
@@ -226,7 +220,7 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
     )
     sample_weight_exponent: float = Field(
         default_factory=lambda data: 1.0
-        if data.get("model") in {"gblinear", "lgbmlinear", "lgbm", "learned_weights", "stacking", "residual", "xgboost"}
+        if data.get("model") in {"gblinear", "lgbmlinear", "lgbm", "learned_weights", "stacking", "xgboost"}
         else 0.0,
         description="Exponent applied to scale the sample weights. "
         "0=uniform weights, 1=linear scaling, >1=stronger emphasis on high values. "
@@ -331,10 +325,10 @@ def create_forecasting_workflow(
             history_available=config.predict_history,
             horizons=config.horizons,
             add_trivial_lags=config.model
-            not in {"gblinear", "residual", "stacking", "learned_weights"},  # GBLinear uses only 7day lag.
+            not in {"gblinear", "stacking", "learned_weights"},  # GBLinear uses only 7day lag.
             target_column=config.target_column,
             custom_lags=[timedelta(days=7)]
-            if config.model in {"gblinear", "residual", "stacking", "learned_weights"}
+            if config.model in {"gblinear", "stacking", "learned_weights"}
             else [],
         ),
         WindPowerFeatureAdder(
@@ -471,28 +465,6 @@ def create_forecasting_workflow(
             ConfidenceIntervalApplicator(quantiles=config.quantiles),
         ]
 
-    elif config.model == "residual":
-        preprocessing = [
-            *checks,
-            *feature_adders,
-            *feature_standardizers,
-            Imputer(
-                selection=Exclude(config.target_column),
-                imputation_strategy="mean",
-                fill_future_values=Include(config.energy_price_column),
-            ),
-            NaNDropper(
-                selection=Exclude(config.target_column),
-            ),
-        ]
-        forecaster = ResidualForecaster(
-            config=ResidualForecaster.Config(
-                quantiles=config.quantiles,
-                horizons=config.horizons,
-                hyperparams=config.residual_hyperparams,
-            )
-        )
-        postprocessing = [QuantileSorter()]
     else:
         msg = f"Unsupported model type: {config.model}"
         raise ValueError(msg)
