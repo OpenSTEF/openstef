@@ -13,7 +13,6 @@ from openstef_beam.metrics import (
     confusion_matrix,
     fbeta,
     mape,
-    pinball_losses,
     precision_recall,
     relative_pinball_loss,
     riqd,
@@ -412,74 +411,6 @@ def test_riqd_returns_nan_when_inputs_empty() -> None:
 
     # Assert
     assert np.isnan(result)
-
-
-def test_pinball_losses_perfect_predictions_zero_loss() -> None:
-    """When predictions match actual values exactly, pinball loss is zero everywhere."""
-    # Arrange
-    y = np.array([10.0, 20.0, 30.0, 40.0])
-
-    # Act
-    result = pinball_losses(y, y, quantile=0.5)
-
-    # Assert
-    np.testing.assert_array_equal(result, np.zeros(4))
-
-
-def test_pinball_losses_under_prediction_penalized_by_quantile() -> None:
-    """Under-prediction (y_true > y_pred) is penalized by quantile * error."""
-    # Arrange
-    y_true = np.array([10.0, 20.0, 30.0, 40.0])
-    y_pred = np.array([5.0, 15.0, 25.0, 35.0])  # all under-predict by 5
-
-    # Act
-    result = pinball_losses(y_true, y_pred, quantile=0.9)
-
-    # Assert — errors = 5, pinball = 0.9 * 5 = 4.5
-    np.testing.assert_array_almost_equal(result, np.full(4, 4.5))
-
-
-def test_pinball_losses_over_prediction_penalized_by_complement() -> None:
-    """Over-prediction (y_true < y_pred) is penalized by (1 - quantile) * |error|."""
-    # Arrange
-    y_true = np.array([10.0, 20.0, 30.0, 40.0])
-    y_pred = np.array([15.0, 25.0, 35.0, 45.0])  # all over-predict by 5
-
-    # Act
-    result = pinball_losses(y_true, y_pred, quantile=0.9)
-
-    # Assert — errors = -5, pinball = (0.9 - 1) * (-5) = 0.5
-    np.testing.assert_array_almost_equal(result, np.full(4, 0.5))
-
-
-def test_pinball_losses_median_quantile_symmetric() -> None:
-    """At quantile 0.5, under- and over-prediction penalties are symmetric."""
-    # Arrange
-    y_true = np.array([10.0, 20.0, 30.0, 40.0])
-    y_under = np.array([5.0, 15.0, 25.0, 35.0])
-    y_over = np.array([15.0, 25.0, 35.0, 45.0])
-
-    # Act
-    loss_under = pinball_losses(y_true, y_under, quantile=0.5)
-    loss_over = pinball_losses(y_true, y_over, quantile=0.5)
-
-    # Assert
-    np.testing.assert_array_almost_equal(loss_under, loss_over)
-
-
-def test_pinball_losses_is_non_negative() -> None:
-    """Pinball loss should always be >= 0 for any quantile."""
-    # Arrange
-    rng = np.random.default_rng(42)
-    y_true = np.array([10.0, 20.0, 30.0, 40.0])
-    y_pred = rng.normal(25, 15, size=len(y_true))
-
-    for q in [0.1, 0.25, 0.5, 0.75, 0.9]:
-        # Act
-        result = pinball_losses(y_true, y_pred, quantile=q)
-
-        # Assert
-        assert (result >= 0).all(), f"Negative pinball loss found at quantile {q}"
 
 
 @pytest.mark.parametrize(

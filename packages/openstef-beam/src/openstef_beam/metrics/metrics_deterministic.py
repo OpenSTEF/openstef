@@ -463,48 +463,6 @@ def r2(
     return float(r2_score(y_true, y_pred, sample_weight=sample_weights))
 
 
-def pinball_losses(
-    y_true: npt.ArrayLike,
-    y_pred: npt.ArrayLike,
-    *,
-    quantile: float,
-) -> npt.NDArray[np.floating]:
-    """Calculate the per-sample Pinball Loss (also known as Quantile Loss).
-
-    The pinball loss asymmetrically penalizes over- and under-predictions based on
-    the target quantile. For quantiles above 0.5, under-predictions are penalized more
-    heavily; for quantiles below 0.5, over-predictions receive higher penalties.
-
-    Args:
-        y_true: Ground truth values with shape (num_samples,).
-        y_pred: Predicted quantile values with shape (num_samples,).
-        quantile: The quantile level being predicted (e.g., 0.1, 0.5, 0.9).
-            Must be in [0, 1].
-
-    Returns:
-        An array of per-sample pinball losses with shape (num_samples,).
-
-    Example:
-        Basic usage for 90th percentile predictions:
-
-        >>> import numpy as np
-        >>> y_true = np.array([100.0, 120.0, 110.0])
-        >>> y_pred = np.array([95.0, 125.0, 110.0])
-        >>> losses = pinball_losses(y_true, y_pred, quantile=0.9)
-        >>> losses
-        array([4.5, 0.5, 0. ])
-    """
-    y_true = np.asarray(y_true)
-    y_pred = np.asarray(y_pred)
-
-    errors = y_true - y_pred
-    return np.where(
-        errors >= 0,
-        quantile * errors,  # Under-prediction
-        (quantile - 1) * errors,  # Over-prediction
-    )
-
-
 def relative_pinball_loss(
     y_true: npt.NDArray[np.floating],
     y_pred: npt.NDArray[np.floating],
@@ -548,16 +506,21 @@ def relative_pinball_loss(
         0.0167
     """
     # Ensure inputs are numpy arrays
-    y_true = np.asarray(y_true)
-    y_pred = np.asarray(y_pred)
+    y_true = np.array(y_true)
+    y_pred = np.array(y_pred)
     if y_true.size == 0 or y_pred.size == 0:
         return float("NaN")
 
-    # Calculate per-sample pinball losses
-    losses = pinball_losses(y_true, y_pred, quantile=quantile)
+    # Calculate pinball loss for each sample
+    errors = y_true - y_pred
+    pinball_losses = np.where(
+        errors >= 0,
+        quantile * errors,  # Under-prediction
+        (quantile - 1) * errors,  # Over-prediction
+    )
 
     # Calculate mean pinball loss (weighted if weights provided)
-    mean_pinball_loss = np.average(losses, weights=sample_weights)
+    mean_pinball_loss = np.average(pinball_losses, weights=sample_weights)
 
     # Calculate measurement range for normalization
     y_range = np.quantile(y_true, q=measurement_range_upper_q) - np.quantile(y_true, q=measurement_range_lower_q)
