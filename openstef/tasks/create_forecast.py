@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <openstef@lfenergy.org> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 """This module contains the CRON job that is periodically executed to make prognoses and save them in to the database.
@@ -82,12 +82,8 @@ def create_forecast_task(
         location=[pj["lat"], pj["lon"]],
         datetime_start=datetime_start,
         datetime_end=datetime_end,
-        market_price=pj.electricity_bidding_zone.value,
+        entsoe_bidding_zone=pj.electricity_bidding_zone.value,
     )
-
-    # Add APX price to the input data for backward compatibility,remove this line when all models are retrained
-    if pj.electricity_bidding_zone == BiddingZone.NL:
-        input_data["APX"] = input_data["day_ahead_electricity_price"]
 
     try:
         # Make forecast with the forecast pipeline

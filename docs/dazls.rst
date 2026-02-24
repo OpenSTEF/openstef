@@ -1,5 +1,5 @@
 .. comment:
-    SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com>
+    SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <openstef@lfenergy.org>
     SPDX-License-Identifier: MPL-2.0
 
 Split forecast: Domain Adaptation for Zero Shot Learning in Sequence (DAZLS)

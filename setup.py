@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <openstef@lfenergy.org> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -33,14 +33,14 @@ def read_long_description_from_readme():
 
 setup(
     name="openstef",
-    version="3.4.83",
+    version="3.4.92",
     packages=find_packages(include=["openstef", "openstef.*"]),
     description="Open short term energy forecaster",
     long_description=read_long_description_from_readme(),
     long_description_content_type="text/markdown",
     url="https://github.com/OpenSTEF/openstef",
     author="Alliander N.V",
-    author_email="korte.termijn.prognoses@alliander.com",
+    author_email="openstef@lfenergy.org",
     license="MPL-2.0",
     keywords=["energy", "forecasting", "machinelearning"],
     # See https://setuptools.readthedocs.io/en/latest/userguide/datafiles.html
@@ -64,5 +64,8 @@ setup(
             "xgboost-cpu~=2.0"
         ],  # Add xgboost-cpu to avoid install large xgboost package when not using GPU
         "gpu": ["xgboost"],  # Needed to install xgboost with GPU support in normal case
+        "mlflow-full": [
+            "mlflow>=2.0,<4.0",
+        ],
     },
 )

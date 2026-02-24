@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <openstef@lfenergy.org> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 from typing import Union
@@ -101,6 +101,7 @@ valid_model_kwargs = {
     ],
     ModelType.FLATLINER: [
         "quantiles",
+        "predict_median",
     ],
     ModelType.LINEAR_QUANTILE: [
         "alpha",

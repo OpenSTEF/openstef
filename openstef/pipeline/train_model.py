@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <openstef@lfenergy.org> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 import os
@@ -169,7 +169,7 @@ def train_model_pipeline_core(
         input_data: Input data
         old_model: Old model to compare to. Defaults to None.
         horizons: Horizons to train on in hours, relevant for feature engineering.
-        ignore_existing_models: If True, all existing models, including, hyperparameters are ignored and defsault values are used. 
+        ignore_existing_models: If True, all existing models, including, hyperparameters are ignored and defsault values are used.
 
     Raises:
         InputDataInsufficientError: when input data is insufficient.
@@ -323,7 +323,9 @@ def train_pipeline_step_load_model(
     if not ignore_existing_models:
         model_run_id = pj.get("model_run_id", None)
         try:
-            old_model, model_specs = serializer.load_model(str(pj.id), model_run_id=model_run_id)
+            old_model, model_specs = serializer.load_model(
+                str(pj.id), model_run_id=model_run_id
+            )
             old_model_age = old_model.age  # Age attribute is openstef specific
             return old_model, model_specs, old_model_age
         except (AttributeError, FileNotFoundError, LookupError):
@@ -456,11 +458,16 @@ def train_pipeline_step_train_model(
             "'load' column should be first and 'horizon' column last."
         )
 
+    # Prepare model kwargs, including predict_median for flatliner models
+    model_kwargs = dict(pj.model_kwargs or {})
+    if pj.get("predict_non_zero_flatliner", False):
+        model_kwargs["predict_median"] = True
+
     # Create relevant model
     model = ModelCreator.create_model(
         pj["model"],
         quantiles=pj["quantiles"],
-        **(pj.model_kwargs or {}),
+        **model_kwargs,
     )
 
     # split x and y data

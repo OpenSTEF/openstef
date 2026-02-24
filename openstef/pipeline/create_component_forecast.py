@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <openstef@lfenergy.org> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -103,7 +103,7 @@ def create_components_forecast_pipeline(
         dazls_input_data = create_input(pj, input_data, weather_data)
 
         # Save and load the model as .sav file (or as .z file)
-        # For the code contact: korte.termijn.prognoses@alliander.com
+        # For the code contact: openstef@lfenergy.org
         dazls_model = Dazls()
         dazls_model.model_ = joblib.load(DAZLS_STORED + "baseline_model.z")
 

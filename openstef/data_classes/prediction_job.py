@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <openstef@lfenergy.org> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 """Specifies the prediction job dataclass."""
@@ -104,6 +104,10 @@ class PredictionJobDataClass(BaseModel):
     detect_non_zero_flatliner: bool = Field(
         False,
         description="If True, flatliners are also detected on non-zero values (median of the load).",
+    )
+    predict_non_zero_flatliner: bool = Field(
+        False,
+        description="If True, the flatliner model predicts the median of the load measurements instead of zero.",
     )
     data_balancing_ratio: Optional[float] = Field(
         None,

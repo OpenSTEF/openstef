@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <openstef@lfenergy.org> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 import json
@@ -35,6 +35,13 @@ class MLflowSerializer:
             if "DATABRICKS_WORKSPACE_PATH" in os.environ
             else ""
         )
+        self._is_mlflow_v3 = self._check_mlflow_version()
+
+    def _check_mlflow_version(self) -> bool:
+        """Check if MLflow version is 3.0 or higher."""
+        mlflow_version = mlflow.__version__
+        major_version = int(mlflow_version.split(".")[0])
+        return major_version >= 3
 
     def save_model(
         self,
@@ -104,7 +111,11 @@ class MLflowSerializer:
         )  # feature names are 1+ columns
         mlflow.set_tag("target", model_specs.feature_names[0])  # target is first column
         mlflow.set_tag("feature_modules", model_specs.feature_modules)
-        mlflow.log_metrics(report.metrics)
+        # Log metrics with step parameter only for MLflow v3+
+        if self._is_mlflow_v3:
+            mlflow.log_metrics(report.metrics, step=0)
+        else:
+            mlflow.log_metrics(report.metrics)
         model_specs.hyper_params.update(model.get_params())
         # TODO: Remove this hardcoded hyper params fix with loop after fix by mlflow
         # https://github.com/mlflow/mlflow/issues/6384
@@ -126,9 +137,20 @@ class MLflowSerializer:
                 )
 
         # Log the model to the run. Signature describes model input and output scheme
-        mlflow.sklearn.log_model(
-            sk_model=model, artifact_path="model", signature=report.signature
-        )
+        # Since mlflow v3, log model also logs metrics. Step is used for a unique value to avoid collision.
+        if self._is_mlflow_v3:
+            mlflow.sklearn.log_model(
+                sk_model=model,
+                artifact_path="model",
+                signature=report.signature,
+                step=1,
+            )
+        else:
+            mlflow.sklearn.log_model(
+                sk_model=model,
+                artifact_path="model",
+                signature=report.signature,
+            )
         self.logger.info("Model saved with MLflow", experiment_name=experiment_name)
 
     def _log_figures_with_mlflow(self, report) -> None:
@@ -146,33 +168,35 @@ class MLflowSerializer:
         experiment_name: str,
         model_run_id: Optional[str] = None,
     ) -> tuple[OpenstfRegressor, ModelSpecificationDataClass]:
-        """ Load an sklearn-compatible model from MLflow.
+        """Load an sklearn-compatible model from MLflow.
 
-        This method retrieves a trained model and its specifications from MLflow 
-        based on the provided PredictionJobDataClass instance. It supports loading 
+        This method retrieves a trained model and its specifications from MLflow
+        based on the provided PredictionJobDataClass instance. It supports loading
         a specific model run if a run number is provided.
-            
+
         Args:
                 experiment_name (str): Name of the experiment, often the id of the predition job.
                 model_run_id (Optional[str]): The specific model run number that should be used for the forecast.
 
         Returns:
-            tuple[OpenstfRegressor, ModelSpecificationDataClass]: A tuple containing 
+            tuple[OpenstfRegressor, ModelSpecificationDataClass]: A tuple containing
                 the loaded model and its specifications.
 
-            LookupError: If the model is not found in MLflow or if an error occurs 
+            LookupError: If the model is not found in MLflow or if an error occurs
                 during the loading process.
 
         """
         try:
             models_df = self._find_models(
-                self.experiment_name_prefix + experiment_name, max_results=1, model_run_id=model_run_id)
-             # return the latest finished run of the model
-            if not models_df.empty:
-                latest_run = models_df.iloc[0]  # Use .iloc[0] to only get latest run
-            else:
+                self.experiment_name_prefix + experiment_name,
+                max_results=1,
+                model_run_id=model_run_id,
+            )
+            # return the latest finished run of the model
+            if models_df.empty:
                 raise LookupError("Model not found. First train a model!")
-            model_uri = self._get_model_uri(latest_run.artifact_uri)
+            latest_run = models_df.iloc[0]  # Use .iloc[0] to only get latest run
+            model_uri = f"runs:/{latest_run.run_id}/model"
             loaded_model = mlflow.sklearn.load_model(model_uri)
             loaded_model.age = self._determine_model_age_from_mlflow_run(latest_run)
             model_specs = self._get_model_specs(
@@ -183,7 +207,7 @@ class MLflowSerializer:
             )  # Path without file:///
             self.logger.info("Model successfully loaded with MLflow")
             return loaded_model, model_specs
-        except (AttributeError, MlflowException, OSError) as exception:            
+        except (AttributeError, MlflowException, OSError) as exception:
             raise LookupError("Model not found. First train a model!") from exception
 
     def get_model_age(
@@ -431,11 +455,3 @@ class MLflowSerializer:
                     experiment_name=experiment_name,
                 )
         return model_specs.feature_modules
-
-    def _get_model_uri(self, artifact_uri: str) -> str:
-        """Set model uri based on latest run.
-
-        Note: this function helps to mock during unit tests
-
-        """
-        return os.path.join(artifact_uri, "model/")

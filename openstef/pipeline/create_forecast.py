@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <korte.termijn.prognoses@alliander.com> # noqa E501>
+# SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <openstef@lfenergy.org> # noqa E501>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -55,7 +55,9 @@ def create_forecast_pipeline(
     # Load most recent model for the given pid
     model, model_specs = MLflowSerializer(
         mlflow_tracking_uri=mlflow_tracking_uri
-    ).load_model(experiment_name=str(prediction_model_pid), model_run_id=pj.get("model_run_id"))
+    ).load_model(
+        experiment_name=str(prediction_model_pid), model_run_id=pj.get("model_run_id")
+    )
     return create_forecast_pipeline_core(pj, input_data, model, model_specs)
 
 
