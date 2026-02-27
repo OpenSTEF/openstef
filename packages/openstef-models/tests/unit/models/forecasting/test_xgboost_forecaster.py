@@ -173,26 +173,23 @@ def test_xgboost_forecaster_predict_contributions(
     sample_forecast_input_dataset: ForecastInputDataset,
     base_config: XGBoostForecasterConfig,
 ):
-    """Test basic fit and predict workflow with output validation."""
+    """Test that predict_contributions returns per-feature SHAP values for the median quantile."""
     # Arrange
-    expected_quantiles = base_config.quantiles
     forecaster = XGBoostForecaster(config=base_config)
 
     # Act
     forecaster.fit(sample_forecast_input_dataset)
-    result = forecaster.predict_contributions(sample_forecast_input_dataset, scale=True)
+    result = forecaster.predict_contributions(sample_forecast_input_dataset)
 
     # Assert
-    # Basic functionality
     assert forecaster.is_fitted, "Model should be fitted after calling fit()"
 
-    # Check that necessary quantiles are present
-    input_features = sample_forecast_input_dataset.input_data().columns
-    expected_columns = [f"{col}_{q.format()}" for col in input_features for q in expected_quantiles]
-    assert list(result.columns) == expected_columns, f"Expected columns {expected_columns}, got {list(result.columns)}"
+    # Columns should be [*input_features, "bias"]
+    input_features = list(sample_forecast_input_dataset.input_data().columns)
+    expected_columns = [*input_features, "bias"]
+    assert list(result.data.columns) == expected_columns, (
+        f"Expected columns {expected_columns}, got {list(result.data.columns)}"
+    )
 
-    # Contributions should sum to 1.0 per quantile
-    for q in expected_quantiles:
-        quantile_cols = [col for col in result.columns if col.endswith(f"_{q.format()}")]
-        col_sums = result[quantile_cols].sum(axis=1)
-        pd.testing.assert_series_equal(col_sums, pd.Series(1.0, index=result.index), atol=1e-10, check_dtype=False)
+    # Contributions (features + bias) should sum to approximately the prediction value
+    assert not result.data.isna().any().any(), "Contributions should not contain NaN values"

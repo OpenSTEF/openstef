@@ -15,15 +15,15 @@ from typing import Literal, override
 
 import numpy as np
 import pandas as pd
-import xgboost as xgb
 from pydantic import Field
 from sklearn.preprocessing import StandardScaler
 
+from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.datasets.mixins import LeadTime
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import InputValidationError, MissingExtraError, NotFittedError
 from openstef_core.mixins.predictor import HyperParams
-from openstef_models.explainability.mixins import ExplainableForecaster
+from openstef_models.explainability.mixins import ContributionsMixin, ExplainableForecaster
 from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
 from openstef_models.utils.evaluation_functions import EvaluationFunctionType, get_evaluation_function
 from openstef_models.utils.loss_functions import (
@@ -138,7 +138,7 @@ class GBLinearForecasterConfig(ForecasterConfig):
 MODEL_CODE_VERSION = 1
 
 
-class GBLinearForecaster(Forecaster, ExplainableForecaster):
+class GBLinearForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
     """GBLinear-based forecaster for probabilistic energy forecasting.
 
     Implements gradient boosted linear models using XGBoost's `gblinear` booster for
@@ -326,46 +326,47 @@ class GBLinearForecaster(Forecaster, ExplainableForecaster):
             sample_interval=data.sample_interval,
         )
 
-    def predict_contributions(self, data: ForecastInputDataset, *, scale: bool = True) -> pd.DataFrame:
-        """Get feature contributions for each prediction.
+    def predict_contributions(self, data: ForecastInputDataset) -> TimeSeriesDataset:
+        """Compute SHAP feature contributions for the median quantile.
 
         Args:
             data: Input dataset for which to compute feature contributions.
-            scale: If True, scale contributions to sum to 1.0 per quantile.
 
         Returns:
-            DataFrame with contributions per feature.
+            TimeSeriesDataset with per-feature SHAP values plus a bias column.
+
+        Raises:
+            NotFittedError: If the model has not been fitted.
         """
-        # Get input features for prediction
+        if not self.is_fitted:
+            raise NotFittedError(self.__class__.__name__)
+
         input_data: pd.DataFrame = data.input_data(start=data.forecast_start)
-        xgb_input: xgb.DMatrix = xgb.DMatrix(data=input_data)
-
-        # Generate predictions
         booster = self._gblinear_model.get_booster()
-        predictions_array: np.ndarray = booster.predict(xgb_input, pred_contribs=True, strict_shape=True)[:, :, :-1]
+        dmatrix = xgb.DMatrix(input_data)
+        contribs_raw: np.ndarray = booster.predict(dmatrix, pred_contribs=True)
 
-        # Remove last column
-        contribs = predictions_array / np.sum(predictions_array, axis=-1, keepdims=True)
+        # Reshape to (n_samples, n_quantiles, n_features + 1)
+        n_samples = len(input_data)
+        n_quantiles = len(self.config.quantiles)
+        contribs_3d = contribs_raw.reshape(n_samples, n_quantiles, -1)
 
-        # Flatten to 2D array, name columns accordingly
-        contribs = contribs.reshape(contribs.shape[0], -1)
-        df = pd.DataFrame(
-            data=contribs,
-            index=input_data.index,
-            columns=[
-                f"{feature}_{quantile.format()}" for feature in input_data.columns for quantile in self.config.quantiles
-            ],
-        )
+        # Extract median quantile contributions
+        median_idx = min(range(n_quantiles), key=lambda i: abs(float(self.config.quantiles[i]) - 0.5))
+        contribs = contribs_3d[:, median_idx, :].copy()
 
-        if scale:
-            # Scale contributions so that they sum to 1.0 per quantile and are positive
-            for q in self.config.quantiles:
-                quantile_cols = [col for col in df.columns if col.endswith(f"_{q.format()}")]
-                row_sums = df[quantile_cols].abs().sum(axis=1)
-                df[quantile_cols] = df[quantile_cols].abs().div(row_sums, axis=0)
+        # Inverse transform for target scaling
+        if self._target_scaler.scale_ is None or self._target_scaler.mean_ is None:
+            msg = "Target scaler not fitted"
+            raise NotFittedError(msg)
+        scale = float(self._target_scaler.scale_[0])
+        mean = float(self._target_scaler.mean_[0])
+        contribs[:, :-1] *= scale
+        contribs[:, -1] = contribs[:, -1] * scale + mean
 
-        # Construct DataFrame with appropriate quantile columns
-        return df
+        columns = [*input_data.columns, "bias"]
+        contribs_df = pd.DataFrame(contribs, index=input_data.index, columns=columns)
+        return TimeSeriesDataset(data=contribs_df, sample_interval=data.sample_interval)
 
     @property
     @override

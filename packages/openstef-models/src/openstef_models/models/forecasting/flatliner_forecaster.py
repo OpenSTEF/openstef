@@ -13,8 +13,8 @@ from typing import override
 import pandas as pd
 from pydantic import Field
 
-from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
-from openstef_models.explainability.mixins import ExplainableForecaster
+from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset, TimeSeriesDataset
+from openstef_models.explainability.mixins import ContributionsMixin, ExplainableForecaster
 from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
 
 
@@ -30,7 +30,7 @@ class FlatlinerForecasterConfig(ForecasterConfig):
 MODEL_CODE_VERSION = 1
 
 
-class FlatlinerForecaster(Forecaster, ExplainableForecaster):
+class FlatlinerForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
     """Flatliner forecaster that predicts a flatline of zeros or median.
 
     A simple forecasting model that always predicts zero (or the median of historical
@@ -119,11 +119,8 @@ class FlatlinerForecaster(Forecaster, ExplainableForecaster):
         )
 
     @override
-    def predict_contributions(self, data: ForecastInputDataset, *, scale: bool = True) -> pd.DataFrame:
-
+    def predict_contributions(self, data: ForecastInputDataset) -> TimeSeriesDataset:
+        """Return zero contributions since flatliner has no features."""
         input_data = data.input_data(start=data.forecast_start)
-
-        return pd.DataFrame(
-            data={"load_" + quantile.format(): 0.0 for quantile in self.config.quantiles},
-            index=input_data.index,
-        )
+        contribs_df = pd.DataFrame(0.0, index=input_data.index, columns=["bias"])
+        return TimeSeriesDataset(data=contribs_df, sample_interval=data.sample_interval)

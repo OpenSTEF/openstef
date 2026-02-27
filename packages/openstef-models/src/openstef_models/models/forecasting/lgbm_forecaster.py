@@ -13,20 +13,21 @@ from typing import TYPE_CHECKING, Literal, override
 
 import numpy as np
 import pandas as pd
-from lightgbm import LGBMRegressor
 from pydantic import Field
 
-from openstef_core.datasets import ForecastDataset, ForecastInputDataset
+from openstef_core.datasets import ForecastDataset, ForecastInputDataset, TimeSeriesDataset
 from openstef_core.exceptions import (
+    MissingExtraError,
     NotFittedError,
 )
 from openstef_core.mixins import HyperParams
-from openstef_models.explainability.mixins import ExplainableForecaster
+from openstef_models.explainability.mixins import ContributionsMixin, ExplainableForecaster
 from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
 from openstef_models.utils.multi_quantile_regressor import MultiQuantileRegressor
 
 if TYPE_CHECKING:
     import numpy.typing as npt
+    from lightgbm import LGBMRegressor
 
 
 class LGBMHyperParams(HyperParams):
@@ -172,7 +173,7 @@ class LGBMForecasterConfig(ForecasterConfig):
 MODEL_CODE_VERSION = 1
 
 
-class LGBMForecaster(Forecaster, ExplainableForecaster):
+class LGBMForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
     """LightGBM-based forecaster for probabilistic energy forecasting.
 
     Implements gradient boosting trees using LightGBM for multi-quantile forecasting.
@@ -229,8 +230,16 @@ class LGBMForecaster(Forecaster, ExplainableForecaster):
         Args:
             config: Complete configuration including hyperparameters, quantiles,
                 and execution settings for the LightGBM model.
+
+        Raises:
+            MissingExtraError: If lightgbm is not installed.
         """
         self._config = config
+
+        try:
+            from lightgbm import LGBMRegressor  # noqa: PLC0415
+        except ImportError as e:
+            raise MissingExtraError("lightgbm", "openstef-models") from e
 
         lgbm_params = {
             # Core parameters
@@ -328,42 +337,34 @@ class LGBMForecaster(Forecaster, ExplainableForecaster):
             sample_interval=data.sample_interval,
         )
 
-    def predict_contributions(self, data: ForecastInputDataset, *, scale: bool) -> pd.DataFrame:
-        """Get feature contributions for each prediction.
+    def predict_contributions(self, data: ForecastInputDataset) -> TimeSeriesDataset:
+        """Compute SHAP feature contributions for the median quantile.
 
         Args:
             data: Input dataset for which to compute feature contributions.
-            scale: If True, scale contributions to sum to 1.0 per quantile.
 
         Returns:
-            DataFrame with contributions per feature.
+            TimeSeriesDataset with per-feature SHAP values plus a bias column.
+
+        Raises:
+            NotFittedError: If the model has not been fitted.
         """
-        # Get input features for prediction
+        if not self.is_fitted:
+            raise NotFittedError(self.__class__.__name__)
+
         input_data: pd.DataFrame = data.input_data(start=data.forecast_start)
+        n_quantiles = len(self.config.quantiles)
 
-        contributions: list[pd.DataFrame] = []
+        # Extract median quantile model
+        median_idx = min(range(n_quantiles), key=lambda i: abs(float(self.config.quantiles[i]) - 0.5))
+        model: LGBMRegressor = self._lgbm_model.models[median_idx]  # type: ignore
 
-        for i, quantile in enumerate(self.config.quantiles):
-            # Get model for specific quantile
-            model: LGBMRegressor = self._lgbm_model.models[i]  # type: ignore
+        # Get SHAP contributions from median quantile model (includes bias as last column)
+        contribs: np.ndarray = model.predict(input_data, pred_contrib=True)  # type: ignore
 
-            # Generate contributions using LightGBM's built-in method, and remove bias term
-            contribs_quantile: np.ndarray[float] = model.predict(input_data, pred_contrib=True)[:, :-1]  # type: ignore
-
-            if scale:
-                # Scale contributions so that they sum to 1.0 per quantile
-                contribs_quantile = np.abs(contribs_quantile) / np.sum(np.abs(contribs_quantile), axis=1, keepdims=True)
-
-            contributions.append(
-                pd.DataFrame(
-                    data=contribs_quantile,
-                    index=input_data.index,
-                    columns=[f"{feature}_{quantile.format()}" for feature in input_data.columns],
-                )
-            )
-
-        # Construct DataFrame
-        return pd.concat(contributions, axis=1)
+        columns = [*input_data.columns, "bias"]
+        contribs_df = pd.DataFrame(contribs, index=input_data.index, columns=columns)
+        return TimeSeriesDataset(data=contribs_df, sample_interval=data.sample_interval)
 
     @property
     @override

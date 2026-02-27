@@ -90,14 +90,7 @@ class OpenSTEF4BacktestForecaster(BaseModel, BacktestForecasterMixin):
         if self._workflow is None:
             self._workflow = self.workflow_factory(WorkflowCreationContext())
 
-        # Extract quantiles from the workflow's model
-        if isinstance(self._workflow.model, EnsembleForecastingModel):
-            name = self._workflow.model.forecaster_names[0]
-            return self._workflow.model.forecasters[name].config.quantiles
-        if self._workflow.model.forecaster is not None:
-            return self._workflow.model.forecaster.config.quantiles
-        msg = f"Cannot determine quantiles from model type {type(self._workflow.model)}"
-        raise TypeError(msg)
+        return self._workflow.model.quantiles
 
     @override
     def fit(self, data: RestrictedHorizonVersionedTimeSeries) -> None:

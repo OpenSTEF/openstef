@@ -14,11 +14,11 @@ from typing import ClassVar, override
 import pandas as pd
 from pydantic import Field
 
-from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
+from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset, TimeSeriesDataset
 from openstef_core.exceptions import NotFittedError
 from openstef_core.mixins.predictor import HyperParams
 from openstef_core.types import Any, LeadTime, Quantile
-from openstef_models.explainability.mixins import ExplainableForecaster
+from openstef_models.explainability.mixins import ContributionsMixin, ExplainableForecaster
 from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
 
 
@@ -49,7 +49,7 @@ class ConstantMedianForecasterConfig(ForecasterConfig):
     )
 
 
-class ConstantMedianForecaster(Forecaster, ExplainableForecaster):
+class ConstantMedianForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
     """Constant median-based forecaster for single horizon predictions.
 
     Predicts constant values based on historical quantiles from training data.
@@ -143,19 +143,8 @@ class ConstantMedianForecaster(Forecaster, ExplainableForecaster):
         )
 
     @override
-    def predict_contributions(self, data: ForecastInputDataset, *, scale: bool = True) -> pd.DataFrame:
-        """Generate feature contributions.
-
-        Args:
-            data: The forecast input dataset containing target variable history.
-            scale: Whether to scale contributions to sum to 1. Defaults to True.
-
-        Returns:
-            pd.DataFrame containing the prediction contributions.
-        """
+    def predict_contributions(self, data: ForecastInputDataset) -> TimeSeriesDataset:
+        """Return uniform contributions."""
         input_data = data.input_data(start=data.forecast_start)
-        return pd.DataFrame(
-            data=1.0,
-            index=input_data.index,
-            columns=["load_" + quantile.format() for quantile in self.config.quantiles],
-        )
+        contribs_df = pd.DataFrame(1.0, index=input_data.index, columns=["bias"])
+        return TimeSeriesDataset(data=contribs_df, sample_interval=data.sample_interval)
