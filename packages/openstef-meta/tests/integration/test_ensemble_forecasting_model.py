@@ -80,11 +80,11 @@ def test_preprocessing(
 ) -> None:
     # Arrange
     ensemble_model, base_models = create_models
-    ensemble_model.common_preprocessing.fit(data=sample_timeseries_dataset)
+    ensemble_model.preprocessing.fit(data=sample_timeseries_dataset)
 
     for name, model in base_models.items():
         # Act - Transform through ensemble pipeline
-        common_ensemble = ensemble_model.common_preprocessing.transform(
+        common_ensemble = ensemble_model.preprocessing.transform(
             data=sample_timeseries_dataset.copy_with(sample_timeseries_dataset.data)
         )
         ensemble_model.model_specific_preprocessing[name].fit(data=common_ensemble)

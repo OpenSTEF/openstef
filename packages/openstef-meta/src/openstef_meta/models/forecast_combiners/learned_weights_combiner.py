@@ -4,81 +4,49 @@
 """Learned Weights Combiner.
 
 Forecast combiner that uses a classification approach to learn weights for base forecasters.
-It is designed to efficiently combine predictions from multiple base forecasters by learning which
-forecaster is likely to perform best under different conditions. The combiner can operate in two modes:
+It learns which forecaster is likely to perform best under different conditions.
+
+The combiner can operate in two modes:
 - Hard Selection: Selects the base forecaster with the highest predicted probability for each instance.
 - Soft Selection: Uses the predicted probabilities as weights to combine base forecaster predictions.
 """
 
 import logging
-from abc import abstractmethod
-from typing import Literal, override
+from typing import override
 
 import numpy as np
 import pandas as pd
-from lightgbm import LGBMClassifier
-from pydantic import Field
+from pydantic import Field, PrivateAttr
+from sklearn.base import ClassifierMixin
 from sklearn.dummy import DummyClassifier
-from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import LabelEncoder
-from sklearn.utils.class_weight import compute_sample_weight  # type: ignore
-from xgboost import XGBClassifier
+from sklearn.utils.class_weight import compute_sample_weight  # type: ignore[import-untyped]
 
-from openstef_core.datasets import ForecastDataset, ForecastInputDataset
+from openstef_core.datasets import ForecastDataset, ForecastInputDataset, TimeSeriesDataset
 from openstef_core.datasets.validated_datasets import EnsembleForecastDataset
-from openstef_core.exceptions import (
-    NotFittedError,
-)
+from openstef_core.exceptions import NotFittedError
 from openstef_core.mixins.predictor import HyperParams
-from openstef_core.types import LeadTime, Quantile
+from openstef_core.types import Quantile
 from openstef_meta.models.forecast_combiners.forecast_combiner import (
     ForecastCombiner,
-    ForecastCombinerConfig,
 )
 from openstef_meta.utils.datasets import combine_forecast_input_datasets
 
 logger = logging.getLogger(__name__)
 
 
-Classifier = LGBMClassifier | XGBClassifier | LogisticRegression | DummyClassifier
+class LGBMCombinerHyperParams(HyperParams):
+    """Hyperparameters for the LGBM gradient-boosted classifier."""
 
+    n_estimators: int = Field(default=20, description="Number of boosting rounds.")
+    n_leaves: int = Field(default=31, description="Maximum number of leaves per tree.")
+    reg_alpha: float = Field(default=0.0, description="L1 regularization term on weights.")
+    reg_lambda: float = Field(default=0.0, description="L2 regularization term on weights.")
 
-class ClassifierParamsMixin:
-    """Hyperparameters for the Final Learner."""
+    def get_classifier(self) -> ClassifierMixin:
+        """Create an LGBM gradient-boosted classifier from these hyperparameters."""
+        from lightgbm import LGBMClassifier  # noqa: PLC0415
 
-    @abstractmethod
-    def get_classifier(self) -> Classifier:
-        """Returns the classifier instance."""
-        msg = "Subclasses must implement get_classifier method."
-        raise NotImplementedError(msg)
-
-
-class LGBMCombinerHyperParams(HyperParams, ClassifierParamsMixin):
-    """Hyperparameters for Learned Weights Final Learner with LGBM Classifier."""
-
-    n_estimators: int = Field(
-        default=20,
-        description="Number of estimators for the LGBM Classifier. Defaults to 20.",
-    )
-
-    n_leaves: int = Field(
-        default=31,
-        description="Number of leaves for the LGBM Classifier. Defaults to 31.",
-    )
-
-    reg_alpha: float = Field(
-        default=0.0,
-        description="L1 regularization term on weights. Defaults to 0.0.",
-    )
-
-    reg_lambda: float = Field(
-        default=0.0,
-        description="L2 regularization term on weights. Defaults to 0.0.",
-    )
-
-    @override
-    def get_classifier(self) -> LGBMClassifier:
-        """Returns the LGBM Classifier."""
         return LGBMClassifier(
             class_weight="balanced",
             n_estimators=self.n_estimators,
@@ -89,83 +57,53 @@ class LGBMCombinerHyperParams(HyperParams, ClassifierParamsMixin):
         )
 
 
-class RFCombinerHyperParams(HyperParams, ClassifierParamsMixin):
-    """Hyperparameters for Learned Weights Final Learner with LGBM Random Forest Classifier."""
+class RFCombinerHyperParams(HyperParams):
+    """Hyperparameters for the LGBM random-forest classifier."""
 
-    n_estimators: int = Field(
-        default=20,
-        description="Number of estimators for the LGBM Classifier. Defaults to 20.",
-    )
+    n_estimators: int = Field(default=20, description="Number of trees.")
+    n_leaves: int = Field(default=31, description="Maximum number of leaves per tree.")
+    bagging_freq: int = Field(default=1, description="Frequency for bagging.")
+    bagging_fraction: float = Field(default=0.8, description="Fraction of data per iteration.")
+    feature_fraction: float = Field(default=1, description="Fraction of features per iteration.")
 
-    n_leaves: int = Field(
-        default=31,
-        description="Number of leaves for the LGBM Classifier. Defaults to 31.",
-    )
+    def get_classifier(self) -> ClassifierMixin:
+        """Create an LGBM random-forest classifier from these hyperparameters."""
+        from lightgbm import LGBMClassifier  # noqa: PLC0415
 
-    bagging_freq: int = Field(
-        default=1,
-        description="Frequency for bagging in the Random Forest. Defaults to 1.",
-    )
-
-    bagging_fraction: float = Field(
-        default=0.8,
-        description="Fraction of data to be used for each iteration of the Random Forest. Defaults to 0.8.",
-    )
-
-    feature_fraction: float = Field(
-        default=1,
-        description="Fraction of features to be used for each iteration of the Random Forest. Defaults to 1.",
-    )
-
-    @override
-    def get_classifier(self) -> LGBMClassifier:
-        """Returns the Random Forest LGBMClassifier."""
         return LGBMClassifier(
             boosting_type="rf",
             class_weight="balanced",
             n_estimators=self.n_estimators,
+            num_leaves=self.n_leaves,
             bagging_freq=self.bagging_freq,
             bagging_fraction=self.bagging_fraction,
             feature_fraction=self.feature_fraction,
-            num_leaves=self.n_leaves,
         )
 
 
-class XGBCombinerHyperParams(HyperParams, ClassifierParamsMixin):
-    """Hyperparameters for Learned Weights Final Learner with LGBM Random Forest Classifier."""
+class XGBCombinerHyperParams(HyperParams):
+    """Hyperparameters for the XGBoost classifier."""
 
-    n_estimators: int = Field(
-        default=20,
-        description="Number of estimators for the LGBM Classifier. Defaults to 20.",
-    )
+    n_estimators: int = Field(default=20, description="Number of boosting rounds.")
 
-    @override
-    def get_classifier(self) -> XGBClassifier:
-        """Returns the XGBClassifier."""
+    def get_classifier(self) -> ClassifierMixin:
+        """Create an XGBoost classifier from these hyperparameters."""
+        from xgboost import XGBClassifier  # noqa: PLC0415
+
         return XGBClassifier(n_estimators=self.n_estimators)
 
 
-class LogisticCombinerHyperParams(HyperParams, ClassifierParamsMixin):
-    """Hyperparameters for Learned Weights Final Learner with LGBM Random Forest Classifier."""
+class LogisticCombinerHyperParams(HyperParams):
+    """Hyperparameters for the logistic regression classifier."""
 
-    fit_intercept: bool = Field(
-        default=True,
-        description="Whether to calculate the intercept for this model. Defaults to True.",
-    )
+    fit_intercept: bool = Field(default=True, description="Whether to calculate the intercept.")
+    penalty: str = Field(default="l2", description="Regularization norm (l1, l2, elasticnet).")
+    c: float = Field(default=1.0, description="Inverse of regularization strength.")
 
-    penalty: Literal["l1", "l2", "elasticnet"] = Field(
-        default="l2",
-        description="Specify the norm used in the penalization. Defaults to 'l2'.",
-    )
+    def get_classifier(self) -> ClassifierMixin:
+        """Create a logistic regression classifier from these hyperparameters."""
+        from sklearn.linear_model import LogisticRegression  # noqa: PLC0415
 
-    c: float = Field(
-        default=1.0,
-        description="Inverse of regularization strength; must be a positive float. Defaults to 1.0.",
-    )
-
-    @override
-    def get_classifier(self) -> LogisticRegression:
-        """Returns the LogisticRegression."""
         return LogisticRegression(
             class_weight="balanced",
             fit_intercept=self.fit_intercept,
@@ -174,80 +112,42 @@ class LogisticCombinerHyperParams(HyperParams, ClassifierParamsMixin):
         )
 
 
-class WeightsCombinerConfig(ForecastCombinerConfig):
-    """Configuration for WeightsCombiner."""
-
-    hyperparams: HyperParams = Field(
-        default=LGBMCombinerHyperParams(),
-        description="Hyperparameters for the Weights Combiner.",
-    )
-
-    quantiles: list[Quantile] = Field(
-        default=[Quantile(0.5)],
-        description=(
-            "Probability levels for uncertainty estimation. Each quantile represents a confidence level "
-            "(e.g., 0.1 = 10th percentile, 0.5 = median, 0.9 = 90th percentile). "
-            "Models must generate predictions for all specified quantiles."
-        ),
-        min_length=1,
-    )
-
-    horizons: list[LeadTime] = Field(
-        default=...,
-        description=(
-            "Lead times for predictions, accounting for data availability and versioning cutoffs. "
-            "Each horizon defines how far ahead the model should predict."
-        ),
-        min_length=1,
-    )
-
-    hard_selection: bool = Field(
-        default=False,
-        description=(
-            "If True, the combiner will select the base model with the highest predicted probability "
-            "for each instance (hard selection). If False, it will use the predicted probabilities as "
-            "weights to combine base model predictions (soft selection)."
-        ),
-    )
-
-    def get_classifier(self) -> Classifier:
-        """Returns the classifier instance from hyperparameters.
-
-        Returns:
-            Classifier instance.
-
-        Raises:
-            TypeError: If hyperparams do not implement ClassifierParamsMixin.
-        """
-        if not isinstance(self.hyperparams, ClassifierParamsMixin):
-            msg = "hyperparams must implement ClassifierParamsMixin to get classifier."
-            raise TypeError(msg)
-        return self.hyperparams.get_classifier()
-
-
 class WeightsCombiner(ForecastCombiner):
-    """Combines base Forecaster predictions with a classification approach.
+    """Combines base forecaster predictions with a classification approach.
 
-    The classifier is used to predict model weights for each base forecaster.
-    Depending on the `hard_selection` parameter in the configuration, the combiner can either
-    select the base forecaster with the highest predicted probability (hard selection) or use
-    the predicted probabilities as weights to combine base forecaster predictions (soft selection).
+    A classifier predicts per-timestep model weights.  Depending on ``hard_selection``,
+    the combiner either picks the best forecaster (hard) or blends using predicted
+    probabilities (soft).
     """
 
-    Config = WeightsCombinerConfig
+    hyperparams: HyperParams = Field(
+        default_factory=LGBMCombinerHyperParams,
+        description="Classifier hyperparameters. Must have a get_classifier() method.",
+    )
+    hard_selection: bool = Field(
+        default=False,
+        description="If True, select the single best forecaster per timestep; otherwise blend.",
+    )
 
-    def __init__(self, config: WeightsCombinerConfig) -> None:
-        """Initialize the WeightsCombiner."""
-        self.quantiles = config.quantiles
-        self.config = config
-        self.hyperparams = config.hyperparams
-        self._is_fitted: bool = False
+    _label_encoder: LabelEncoder = PrivateAttr(default_factory=LabelEncoder)
+    _is_fitted: bool = PrivateAttr(default=False)
+    _feature_names: list[str] = PrivateAttr(default_factory=list)
+    _models: dict[Quantile, ClassifierMixin] = PrivateAttr(default_factory=dict)
 
-        self._label_encoder = LabelEncoder()
-        self.hard_selection = config.hard_selection
+    def model_post_init(self, __context: object) -> None:
+        if not hasattr(self.hyperparams, "get_classifier"):
+            msg = f"hyperparams ({type(self.hyperparams).__name__}) must have a get_classifier() method."
+            raise TypeError(msg)
 
-        # Initialize a classifier per quantile
-        self.models: list[Classifier] = [config.get_classifier() for _ in self.quantiles]
+        self._models = {
+            q: self.hyperparams.get_classifier()  # type: ignore[union-attr]
+            for q in self.quantiles
+        }
+
+    @property
+    @override
+    def is_fitted(self) -> bool:
+        return self._is_fitted
 
     @override
     def fit(
@@ -256,12 +156,10 @@ class WeightsCombiner(ForecastCombiner):
         data_val: EnsembleForecastDataset | None = None,
         additional_features: ForecastInputDataset | None = None,
     ) -> None:
-
         self._label_encoder.fit(data.forecaster_names)
 
         feature_names: list[str] = []
-        for i, q in enumerate(self.quantiles):
-            # Data preparation
+        for q in self.quantiles:
             dataset = data.get_best_forecaster_labels(quantile=q)
             combined_data = combine_forecast_input_datasets(
                 input_data=dataset,
@@ -269,76 +167,52 @@ class WeightsCombiner(ForecastCombiner):
             )
             input_data = combined_data.input_data()
             labels = combined_data.target_series
-            self._validate_labels(labels=labels, model_index=i)
+            self._validate_labels(labels=labels, quantile=q)
             labels = self._label_encoder.transform(labels)
 
-            # Balance classes, adjust with sample weights
             weights = compute_sample_weight("balanced", labels) * combined_data.sample_weight_series
-
-            self.models[i].fit(X=input_data, y=labels, sample_weight=weights)  # pyright: ignore[reportUnknownMemberType]
+            self._models[q].fit(X=input_data, y=labels, sample_weight=weights)  # pyright: ignore[reportUnknownMemberType]
             feature_names = list(input_data.columns)
 
-        self.feature_names_ = feature_names
+        self._feature_names = feature_names
         self._is_fitted = True
+
+    def _validate_labels(self, labels: pd.Series, quantile: Quantile) -> None:
+        if len(labels.unique()) == 1:
+            logger.warning("Quantile %s has only 1 class — switching to DummyClassifier.", quantile.format())
+            self._models[quantile] = DummyClassifier(strategy="most_frequent")
+
+    def _predict_weights(self, base_predictions: pd.DataFrame, quantile: Quantile) -> pd.DataFrame:
+        model = self._models[quantile]
+        if isinstance(model, DummyClassifier):
+            weights_array = pd.DataFrame(0, index=base_predictions.index, columns=self._label_encoder.classes_)
+            weights_array[self._label_encoder.classes_[0]] = 1.0
+        else:
+            weights_array = model.predict_proba(base_predictions)  # type: ignore[union-attr]
+
+        return pd.DataFrame(weights_array, index=base_predictions.index, columns=self._label_encoder.classes_)  # type: ignore[arg-type]
 
     @staticmethod
     def _prepare_input_data(
         dataset: ForecastInputDataset, additional_features: ForecastInputDataset | None
     ) -> pd.DataFrame:
-        """Prepare input data by combining base predictions with additional features if provided.
-
-        Args:
-            dataset: ForecastInputDataset containing base predictions.
-            additional_features: Optional ForecastInputDataset containing additional features.
-
-        Returns:
-            pd.DataFrame: Combined DataFrame of base predictions and additional features if provided.
-        """
         df = dataset.input_data(start=dataset.index[0])
         if additional_features is not None:
             df_a = additional_features.input_data(start=dataset.index[0])
-            df = pd.concat(
-                [df, df_a],
-                axis=1,
-                join="inner",
-            )
+            df = pd.concat([df, df_a], axis=1, join="inner")
         return df
 
-    def _validate_labels(self, labels: pd.Series, model_index: int) -> None:
-        if len(labels.unique()) == 1:
-            msg = f"""Final learner for quantile {self.quantiles[model_index].format()} has
-                     less than 2 classes in the target.
-                    Switching to dummy classifier """
-            logger.warning(msg=msg)
-            self.models[model_index] = DummyClassifier(strategy="most_frequent")
-
-    def _predict_model_weights_quantile(self, base_predictions: pd.DataFrame, model_index: int) -> pd.DataFrame:
-        model = self.models[model_index]
-        if isinstance(model, DummyClassifier):
-            weights_array = pd.DataFrame(0, index=base_predictions.index, columns=self._label_encoder.classes_)
-            weights_array[self._label_encoder.classes_[0]] = 1.0
-        else:
-            weights_array = model.predict_proba(base_predictions)  # type: ignore
-
-        return pd.DataFrame(weights_array, index=base_predictions.index, columns=self._label_encoder.classes_)  # type: ignore
-
-    def _generate_predictions_quantile(
+    def _predict_quantile(
         self,
         dataset: ForecastInputDataset,
         additional_features: ForecastInputDataset | None,
-        model_index: int,
+        quantile: Quantile,
     ) -> pd.Series:
-
-        input_data = self._prepare_input_data(
-            dataset=dataset,
-            additional_features=additional_features,
-        )
-
-        weights = self._predict_model_weights_quantile(base_predictions=input_data, model_index=model_index)
+        input_data = self._prepare_input_data(dataset=dataset, additional_features=additional_features)
+        weights = self._predict_weights(base_predictions=input_data, quantile=quantile)
 
         if self.hard_selection:
-            # If selection mode is hard, set the max weight to 1 and others to 0
-            # Edge case if max weights are equal, distribute equally
+            # Convert soft probabilities to hard selection: max weight → 1.0, ties distributed equally
             weights = (weights == weights.max(axis=1).to_frame().to_numpy()) / weights.sum(axis=1).to_frame().to_numpy()
 
         return dataset.input_data().mul(weights).sum(axis=1)
@@ -352,14 +226,13 @@ class WeightsCombiner(ForecastCombiner):
         if not self.is_fitted:
             raise NotFittedError(self.__class__.__name__)
 
-        # Generate predictions
         predictions = pd.DataFrame({
-            Quantile(q).format(): self._generate_predictions_quantile(
-                dataset=data.get_base_predictions_for_quantile(quantile=Quantile(q)),
+            q.format(): self._predict_quantile(
+                dataset=data.get_base_predictions_for_quantile(quantile=q),
                 additional_features=additional_features,
-                model_index=i,
+                quantile=q,
             )
-            for i, q in enumerate(self.quantiles)
+            for q in self.quantiles
         })
         target_series = data.target_series
         if target_series is not None:
@@ -377,18 +250,17 @@ class WeightsCombiner(ForecastCombiner):
         self,
         data: EnsembleForecastDataset,
         additional_features: ForecastInputDataset | None = None,
-    ) -> pd.DataFrame:
+    ) -> TimeSeriesDataset:
         if not self.is_fitted:
             raise NotFittedError(self.__class__.__name__)
 
-        # Generate predictions
         contribution_list = [
-            self._generate_contributions_quantile(
-                dataset=data.get_base_predictions_for_quantile(quantile=Quantile(q)),
+            self._contributions_for_quantile(
+                dataset=data.get_base_predictions_for_quantile(quantile=q),
                 additional_features=additional_features,
-                model_index=i,
+                quantile=q,
             )
-            for i, q in enumerate(self.quantiles)
+            for q in self.quantiles
         ]
 
         contributions = pd.concat(contribution_list, axis=1)
@@ -397,51 +269,36 @@ class WeightsCombiner(ForecastCombiner):
         if target_series is not None:
             contributions[data.target_column] = target_series
 
-        return contributions
+        return TimeSeriesDataset(data=contributions, sample_interval=data.sample_interval)
 
-    def _generate_contributions_quantile(
+    def _contributions_for_quantile(
         self,
         dataset: ForecastInputDataset,
         additional_features: ForecastInputDataset | None,
-        model_index: int,
+        quantile: Quantile,
     ) -> pd.DataFrame:
-        input_data = self._prepare_input_data(
-            dataset=dataset,
-            additional_features=additional_features,
-        )
-        weights = self._predict_model_weights_quantile(base_predictions=input_data, model_index=model_index)
-        weights.columns = [f"{col}_{Quantile(self.quantiles[model_index]).format()}" for col in weights.columns]
+        input_data = self._prepare_input_data(dataset=dataset, additional_features=additional_features)
+        weights = self._predict_weights(base_predictions=input_data, quantile=quantile)
+        weights.columns = [f"{col}_{quantile.format()}" for col in weights.columns]
         return weights
 
     @property
     @override
     def feature_importances(self) -> pd.DataFrame:
-        """Feature importances from the internal classifiers, per quantile.
-
-        Returns a DataFrame with feature names as index and quantile columns,
-        with importances normalized to sum to 1.0 per quantile.
-        For classifiers without feature_importances_ (e.g. DummyClassifier),
-        uniform importances are used.
-        """
+        """Feature importances from the internal classifiers, per quantile."""
         importances: dict[str, np.ndarray] = {}
-        for i, q in enumerate(self.quantiles):
-            model = self.models[i]
+        for q, model in self._models.items():
             if hasattr(model, "feature_importances_"):
                 raw = np.array(model.feature_importances_, dtype=float)  # pyright: ignore[reportUnknownMemberType, reportUnknownArgumentType, reportAttributeAccessIssue]
             elif hasattr(model, "coef_"):
                 raw = np.abs(np.array(model.coef_, dtype=float)).mean(axis=0)  # pyright: ignore[reportUnknownMemberType, reportUnknownArgumentType, reportAttributeAccessIssue]
             else:
-                raw = np.ones(len(self.feature_names_), dtype=float)
+                raw = np.ones(len(self._feature_names), dtype=float)
 
             total = raw.sum()
-            importances[Quantile(q).format()] = raw / total if total > 0 else raw
+            importances[q.format()] = raw / total if total > 0 else raw
 
-        return pd.DataFrame(importances, index=self.feature_names_)
-
-    @property
-    @override
-    def is_fitted(self) -> bool:
-        return self._is_fitted
+        return pd.DataFrame(importances, index=self._feature_names)
 
 
 __all__ = [

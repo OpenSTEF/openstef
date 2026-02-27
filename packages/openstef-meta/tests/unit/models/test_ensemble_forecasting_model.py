@@ -14,12 +14,11 @@ from openstef_core.datasets import ForecastInputDataset
 from openstef_core.datasets.timeseries_dataset import TimeSeriesDataset
 from openstef_core.datasets.validated_datasets import EnsembleForecastDataset, ForecastDataset
 from openstef_core.exceptions import NotFittedError
-from openstef_core.mixins.predictor import HyperParams
 from openstef_core.mixins.transform import TransformPipeline
 from openstef_core.testing import assert_timeseries_equal, create_synthetic_forecasting_dataset
 from openstef_core.types import LeadTime, Q
 from openstef_meta.models.ensemble_forecasting_model import EnsembleForecastingModel
-from openstef_meta.models.forecast_combiners.forecast_combiner import ForecastCombiner, ForecastCombinerConfig
+from openstef_meta.models.forecast_combiners.forecast_combiner import ForecastCombiner
 from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
 from openstef_models.transforms.postprocessing.quantile_sorter import QuantileSorter
 from openstef_models.transforms.time_domain.lags_adder import LagsAdder
@@ -65,10 +64,7 @@ class SimpleForecaster(Forecaster):
 class SimpleCombiner(ForecastCombiner):
     """Simple combiner that averages base Forecaster predictions."""
 
-    def __init__(self, config: ForecastCombinerConfig):
-        self._config = config
-        self._is_fitted = False
-        self.quantiles = config.quantiles
+    _is_fitted: bool = False
 
     def fit(
         self,
@@ -110,8 +106,8 @@ class SimpleCombiner(ForecastCombiner):
         self,
         data: EnsembleForecastDataset,
         additional_features: ForecastInputDataset | None = None,
-    ) -> pd.DataFrame:
-        return pd.DataFrame()
+    ) -> TimeSeriesDataset:
+        return TimeSeriesDataset(pd.DataFrame(index=data.data.index), data.sample_interval)
 
 
 @pytest.fixture
@@ -143,27 +139,13 @@ def model() -> EnsembleForecastingModel:
         "forecaster_1": SimpleForecaster(config=config),
         "forecaster_2": SimpleForecaster(config=config),
     }
-    combiner_config = ForecastCombinerConfig(quantiles=quantiles, horizons=horizons, hyperparams=HyperParams())
 
-    combiner = SimpleCombiner(
-        config=combiner_config,
-    )
+    combiner = SimpleCombiner(quantiles=quantiles, horizons=horizons)
 
     # Act
     return EnsembleForecastingModel(
-        forecasters=forecasters, combiner=combiner, common_preprocessing=TransformPipeline()
+        forecasters=forecasters, combiner=combiner, preprocessing=TransformPipeline()
     )
-
-
-def test_forecasting_model__init__uses_defaults(model: EnsembleForecastingModel):
-    """Test initialization uses default preprocessing and postprocessing when not provided."""
-    # Arrange & Act - model created by fixture
-
-    # Assert
-    assert model.common_preprocessing is not None
-    assert model.postprocessing is not None
-    assert model.target_column == "load"  # Default value
-    assert model.forecaster_names == ["forecaster_1", "forecaster_2"]
 
 
 def test_forecasting_model__fit(sample_timeseries_dataset: TimeSeriesDataset, model: EnsembleForecastingModel):
@@ -239,16 +221,13 @@ def test_forecasting_model__pickle_roundtrip():
         "forecaster_1": SimpleForecaster(config=config),
         "forecaster_2": SimpleForecaster(config=config),
     }
-    combiner_config = ForecastCombinerConfig(quantiles=quantiles, horizons=horizons, hyperparams=HyperParams())
 
-    combiner = SimpleCombiner(
-        config=combiner_config,
-    )
+    combiner = SimpleCombiner(quantiles=quantiles, horizons=horizons)
 
     original_model = EnsembleForecastingModel(
         forecasters=forecasters,
         combiner=combiner,
-        common_preprocessing=TransformPipeline(
+        preprocessing=TransformPipeline(
             transforms=[
                 LagsAdder(
                     history_available=timedelta(days=14),

@@ -339,7 +339,7 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
         runs = self.storage.search_latest_runs(model_id=model_id)
         return next(iter(runs), None)
 
-    def _try_load_model(self, run_id: str, model_id: str) -> ForecastingModel | None:
+    def _try_load_model(self, run_id: str, model_id: str) -> BaseForecastingModel | None:
         """Try to load a model from MLflow, returning None on failure.
 
         Returns:
@@ -355,9 +355,9 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
             )
             return None
 
-        if not isinstance(old_model, ForecastingModel):
+        if not isinstance(old_model, BaseForecastingModel):
             self._logger.warning(
-                "Loaded old model from run %s is not a ForecastingModel, skipping model selection",
+                "Loaded old model from run %s is not a BaseForecastingModel, skipping model selection",
                 run_id,
             )
             return None
@@ -367,7 +367,7 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
     def _try_evaluate_model(
         self,
         run_id: str,
-        old_model: ForecastingModel,
+        old_model: BaseForecastingModel,
         input_data: TimeSeriesDataset,
     ) -> SubsetMetric | None:
         """Try to evaluate a model, returning None on failure.

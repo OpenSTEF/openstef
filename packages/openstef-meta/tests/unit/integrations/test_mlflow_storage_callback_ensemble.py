@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING, cast, override
 
 import pandas as pd
 import pytest
+from pydantic import Field
 
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.datasets.validated_datasets import EnsembleForecastDataset, ForecastDataset, ForecastInputDataset
@@ -18,7 +19,7 @@ from openstef_core.exceptions import SkipFitting
 from openstef_core.mixins.predictor import HyperParams
 from openstef_core.types import LeadTime, Q
 from openstef_meta.models.ensemble_forecasting_model import EnsembleForecastingModel, EnsembleModelFitResult
-from openstef_meta.models.forecast_combiners.forecast_combiner import ForecastCombiner, ForecastCombinerConfig
+from openstef_meta.models.forecast_combiners.forecast_combiner import ForecastCombiner
 from openstef_models.integrations.mlflow import MLFlowStorage, MLFlowStorageCallback
 from openstef_models.mixins.callbacks import WorkflowContext
 from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
@@ -84,10 +85,9 @@ class SimpleCombinerHyperParams(HyperParams):
 class SimpleTestCombiner(ForecastCombiner):
     """Simple combiner for testing that averages base forecaster predictions."""
 
-    def __init__(self, config: ForecastCombinerConfig):
-        self.config = config
-        self._is_fitted = False
-        self.quantiles = config.quantiles
+    hyperparams: SimpleCombinerHyperParams = Field(default_factory=SimpleCombinerHyperParams)
+
+    _is_fitted: bool = False
 
     @override
     def fit(
@@ -127,8 +127,8 @@ class SimpleTestCombiner(ForecastCombiner):
         self,
         data: EnsembleForecastDataset,
         additional_features: ForecastInputDataset | None = None,
-    ) -> pd.DataFrame:
-        return pd.DataFrame()
+    ) -> TimeSeriesDataset:
+        return TimeSeriesDataset(pd.DataFrame(index=data.data.index), data.sample_interval)
 
 
 # --- Fixtures ---
@@ -170,12 +170,10 @@ def _create_ensemble_workflow() -> CustomForecastingWorkflow:
         "model_a": SimpleTestForecaster(config=config),
         "model_b": SimpleTestForecaster(config=config),
     }
-    combiner_config = ForecastCombinerConfig(
+    combiner = SimpleTestCombiner(
         quantiles=quantiles,
         horizons=horizons,
-        hyperparams=SimpleCombinerHyperParams(),
     )
-    combiner = SimpleTestCombiner(config=combiner_config)
 
     ensemble_model = EnsembleForecastingModel(
         forecasters=forecasters,
@@ -314,11 +312,8 @@ def test_model_selection__keeps_better_ensemble_model(
     worse_ensemble = EnsembleForecastingModel(
         forecasters={"model_a": worse_a, "model_b": worse_b},
         combiner=SimpleTestCombiner(
-            config=ForecastCombinerConfig(
-                quantiles=quantiles,
-                horizons=horizons,
-                hyperparams=SimpleCombinerHyperParams(),
-            )
+            quantiles=quantiles,
+            horizons=horizons,
         ),
     )
     worse_result = worse_ensemble.fit(sample_dataset)

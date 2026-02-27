@@ -14,7 +14,6 @@ from openstef_meta.models.forecast_combiners.learned_weights_combiner import (
     LogisticCombinerHyperParams,
     RFCombinerHyperParams,
     WeightsCombiner,
-    WeightsCombinerConfig,
     XGBCombinerHyperParams,
 )
 
@@ -26,8 +25,8 @@ def classifier(request: pytest.FixtureRequest) -> str:
 
 
 @pytest.fixture
-def config(classifier: str) -> WeightsCombinerConfig:
-    """Fixture to create WeightsCombinerConfig based on the classifier type."""
+def combiner(classifier: str) -> WeightsCombiner:
+    """Fixture to create a WeightsCombiner based on the classifier type."""
     if classifier == "lgbm":
         hp = LGBMCombinerHyperParams(n_leaves=5, n_estimators=10)
     elif classifier == "xgboost":
@@ -40,61 +39,42 @@ def config(classifier: str) -> WeightsCombinerConfig:
         msg = f"Unsupported classifier type: {classifier}"
         raise ValueError(msg)
 
-    return WeightsCombiner.Config(
+    return WeightsCombiner(
         hyperparams=hp, quantiles=[Q(0.1), Q(0.5), Q(0.9)], horizons=[LeadTime(timedelta(days=1))]
     )
 
 
-def test_initialization(config: WeightsCombinerConfig):
-    # Act
-    forecaster = WeightsCombiner(config)
-
-    # Assert
-    assert forecaster.is_fitted is False
-    assert len(forecaster.models) == len(config.quantiles)
-    assert forecaster.quantiles == config.quantiles
-
-
 def test_quantile_weights_combiner__fit_predict(
     ensemble_dataset: EnsembleForecastDataset,
-    config: WeightsCombinerConfig,
+    combiner: WeightsCombiner,
 ):
     """Test basic fit and predict workflow with comprehensive output validation."""
     # Arrange
-    expected_quantiles = config.quantiles
-    forecaster = WeightsCombiner(config=config)
+    expected_quantiles = combiner.quantiles
 
     # Act
-    forecaster.fit(ensemble_dataset)
-    result = forecaster.predict(ensemble_dataset)
+    combiner.fit(ensemble_dataset)
+    result = combiner.predict(ensemble_dataset)
 
     # Assert
-    # Basic functionality
-    assert forecaster.is_fitted, "Model should be fitted after calling fit()"
+    assert combiner.is_fitted, "Model should be fitted after calling fit()"
 
-    # Check that necessary quantiles are present
     expected_columns = [q.format() for q in expected_quantiles]
     expected_columns.append("load")
     assert list(result.data.columns) == expected_columns, (
         f"Expected columns {expected_columns}, got {list(result.data.columns)}"
     )
 
-    # Forecast data quality
     assert not result.data.isna().any().any(), "Forecast should not contain NaN or None values"
 
-    # Since forecast is deterministic with fixed random seed, check value spread (vectorized)
-    # All quantiles should have some variation (not all identical values)
     stds = result.data.std()
     assert (stds > 0).all(), f"All columns should have variation, got stds: {dict(stds)}"
 
 
 def test_weights_combiner_not_fitted_error(
     ensemble_dataset: EnsembleForecastDataset,
-    config: WeightsCombinerConfig,
+    combiner: WeightsCombiner,
 ):
     """Test that NotFittedError is raised when predicting before fitting."""
-    # Arrange
-    forecaster = WeightsCombiner(config=config)
-    # Act & Assert
     with pytest.raises(NotFittedError):
-        forecaster.predict(ensemble_dataset)
+        combiner.predict(ensemble_dataset)

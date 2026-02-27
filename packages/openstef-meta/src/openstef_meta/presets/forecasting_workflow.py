@@ -427,47 +427,49 @@ def create_ensemble_workflow(config: EnsembleWorkflowConfig) -> CustomForecastin
     match (config.ensemble_type, config.combiner_model):
         case ("learned_weights", "lgbm"):
             combiner = WeightsCombiner(
-                config=WeightsCombiner.Config(
-                    hyperparams=config.combiner_lgbm_hyperparams, horizons=config.horizons, quantiles=config.quantiles
-                )
+                hyperparams=config.combiner_lgbm_hyperparams, horizons=config.horizons, quantiles=config.quantiles
             )
         case ("learned_weights", "rf"):
             combiner = WeightsCombiner(
-                config=WeightsCombiner.Config(
-                    hyperparams=config.combiner_rf_hyperparams, horizons=config.horizons, quantiles=config.quantiles
-                )
+                hyperparams=config.combiner_rf_hyperparams, horizons=config.horizons, quantiles=config.quantiles
             )
         case ("learned_weights", "xgboost"):
             combiner = WeightsCombiner(
-                config=WeightsCombiner.Config(
-                    hyperparams=config.combiner_xgboost_hyperparams,
-                    horizons=config.horizons,
-                    quantiles=config.quantiles,
-                )
+                hyperparams=config.combiner_xgboost_hyperparams,
+                horizons=config.horizons,
+                quantiles=config.quantiles,
             )
         case ("learned_weights", "logistic"):
             combiner = WeightsCombiner(
-                config=WeightsCombiner.Config(
-                    hyperparams=config.combiner_logistic_hyperparams,
-                    horizons=config.horizons,
-                    quantiles=config.quantiles,
-                )
+                hyperparams=config.combiner_logistic_hyperparams,
+                horizons=config.horizons,
+                quantiles=config.quantiles,
             )
         case ("stacking", "lgbm"):
-            combiner = StackingCombiner(
-                config=StackingCombiner.Config(
+            template = LGBMForecaster(
+                config=LGBMForecaster.Config(
                     hyperparams=config.combiner_stacking_lgbm_hyperparams,
-                    horizons=config.horizons,
-                    quantiles=config.quantiles,
-                )
+                    horizons=[max(config.horizons)],
+                    quantiles=[config.quantiles[0]],
+                ),
+            )
+            combiner = StackingCombiner(
+                meta_forecaster=template,
+                horizons=config.horizons,
+                quantiles=config.quantiles,
             )
         case ("stacking", "gblinear"):
-            combiner = StackingCombiner(
-                config=StackingCombiner.Config(
+            template = GBLinearForecaster(
+                config=GBLinearForecaster.Config(
                     hyperparams=config.combiner_stacking_gblinear_hyperparams,
-                    horizons=config.horizons,
-                    quantiles=config.quantiles,
-                )
+                    horizons=[max(config.horizons)],
+                    quantiles=[config.quantiles[0]],
+                ),
+            )
+            combiner = StackingCombiner(
+                meta_forecaster=template,
+                horizons=config.horizons,
+                quantiles=config.quantiles,
             )
         case _:
             msg = f"Unsupported ensemble and combiner combination: {config.ensemble_type}, {config.combiner_model}"
@@ -509,7 +511,7 @@ def create_ensemble_workflow(config: EnsembleWorkflowConfig) -> CustomForecastin
 
     return CustomForecastingWorkflow(
         model=EnsembleForecastingModel(
-            common_preprocessing=common_preprocessing,
+            preprocessing=common_preprocessing,
             model_specific_preprocessing=model_specific_preprocessing,
             combiner_preprocessing=combiner_preprocessing,
             postprocessing=TransformPipeline(transforms=postprocessing),
