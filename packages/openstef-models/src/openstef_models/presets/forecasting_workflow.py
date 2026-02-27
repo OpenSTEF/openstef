@@ -335,10 +335,16 @@ def create_forecasting_workflow(
         DaylightFeatureAdder(
             coordinate=config.location.coordinate,
         ),
-        RollingAggregatesAdder(
-            feature=config.target_column,
-            aggregation_functions=config.rolling_aggregate_features,
-            horizons=config.horizons,
+        *(
+            [
+                RollingAggregatesAdder(
+                    feature=config.target_column,
+                    aggregation_functions=config.rolling_aggregate_features,
+                    horizons=config.horizons,
+                ),
+            ]
+            if config.rolling_aggregate_features
+            else []
         ),
     ]
     feature_standardizers = [
