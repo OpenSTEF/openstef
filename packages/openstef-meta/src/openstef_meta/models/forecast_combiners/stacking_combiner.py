@@ -44,14 +44,13 @@ class StackingCombiner(ForecastCombiner):
     _models: dict[Quantile, Any] = PrivateAttr(default_factory=dict)
 
     def model_post_init(self, __context: object) -> None:
-        self.hyperparams = self.meta_forecaster.hyperparams
+        self.hyperparams = self.meta_forecaster.hparams
 
         models: dict[Quantile, Forecaster] = {}
         for q in self.quantiles:
-            config_clone = self.meta_forecaster.config.model_copy(
+            models[q] = self.meta_forecaster.model_copy(
                 update={"quantiles": [q], "horizons": [self.max_horizon]},
             )
-            models[q] = type(self.meta_forecaster)(config=config_clone)
         self._models = models
 
     @staticmethod
@@ -95,8 +94,7 @@ class StackingCombiner(ForecastCombiner):
             raise NotFittedError(self.__class__.__name__)
 
         predictions = [
-            self._models[q].predict(data=self._prepare_input(data, q, additional_features)).data
-            for q in self.quantiles
+            self._models[q].predict(data=self._prepare_input(data, q, additional_features)).data for q in self.quantiles
         ]
         return ForecastDataset(data=pd.concat(predictions, axis=1), sample_interval=data.sample_interval)
 

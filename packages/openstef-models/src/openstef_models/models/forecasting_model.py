@@ -32,7 +32,7 @@ from openstef_core.exceptions import InsufficientlyCompleteError, NotFittedError
 from openstef_core.mixins import HyperParams, Predictor, TransformPipeline
 from openstef_core.types import LeadTime, Quantile
 from openstef_models.explainability.mixins import ContributionsMixin
-from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
+from openstef_models.models.forecasting.forecaster import Forecaster
 from openstef_models.utils.data_split import DataSplitter
 
 
@@ -318,7 +318,7 @@ class ForecastingModel(BaseForecastingModel):
         Basic forecasting workflow:
 
         >>> from openstef_models.models.forecasting.constant_median_forecaster import (
-        ...     ConstantMedianForecaster, ConstantMedianForecasterConfig
+        ...     ConstantMedianForecaster,
         ... )
         >>> from openstef_core.types import LeadTime
         >>> from datetime import timedelta
@@ -326,7 +326,7 @@ class ForecastingModel(BaseForecastingModel):
         >>> # Note: This is a conceptual example showing the API structure
         >>> # Real usage requires implemented forecaster classes
         >>> forecaster = ConstantMedianForecaster(
-        ...     config=ConstantMedianForecasterConfig(horizons=[LeadTime.from_string("PT36H")])
+        ...     horizons=[LeadTime.from_string("PT36H")]
         ... )
         >>> # Create and train model
         >>> model = ForecastingModel(
@@ -346,24 +346,19 @@ class ForecastingModel(BaseForecastingModel):
     )
 
     @property
-    def config(self) -> ForecasterConfig:
-        """Returns the configuration of the underlying forecaster."""
-        return self.forecaster.config
-
-    @property
     @override
     def quantiles(self) -> list[Quantile]:
-        return self.forecaster.config.quantiles
+        return self.forecaster.quantiles
 
     @property
     @override
     def max_horizon(self) -> LeadTime:
-        return self.forecaster.config.max_horizon
+        return self.forecaster.max_horizon
 
     @property
     @override
     def hyperparams(self) -> HyperParams:
-        return self.forecaster.hyperparams
+        return self.forecaster.hparams
 
     @property
     @override
@@ -398,7 +393,7 @@ class ForecastingModel(BaseForecastingModel):
         Raises:
             InsufficientlyCompleteError: If no training data remains after dropping rows with NaN targets.
         """
-        validate_horizons_present(data, self.forecaster.config.horizons)
+        validate_horizons_present(data, self.forecaster.horizons)
 
         target_dropna = partial(pd.DataFrame.dropna, subset=[self.target_column])  # pyright: ignore[reportUnknownMemberType]
         if data.pipe_pandas(target_dropna).data.empty:

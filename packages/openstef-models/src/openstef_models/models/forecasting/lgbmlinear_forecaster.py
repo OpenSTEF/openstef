@@ -2,18 +2,17 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-"""LightGBM-based forecasting models for probabilistic energy forecasting.
+"""LightGBM Linear-based forecasting models for probabilistic energy forecasting.
 
-Provides gradient boosting tree models using LightGBM for multi-quantile energy
-forecasting. Optimized for time series data with specialized loss functions and
-comprehensive hyperparameter control for production forecasting workflows.
+Provides gradient boosting tree models with linear leaves using LightGBM for
+multi-quantile energy forecasting.
 """
 
-from typing import TYPE_CHECKING, Literal, override
+from typing import TYPE_CHECKING, ClassVar, Literal, override
 
 import numpy as np
 import pandas as pd
-from pydantic import Field
+from pydantic import Field, PrivateAttr
 
 from openstef_core.datasets import ForecastDataset, ForecastInputDataset, TimeSeriesDataset
 from openstef_core.exceptions import (
@@ -22,7 +21,7 @@ from openstef_core.exceptions import (
 )
 from openstef_core.mixins import HyperParams
 from openstef_models.explainability.mixins import ContributionsMixin, ExplainableForecaster
-from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
+from openstef_models.models.forecasting.forecaster import Forecaster
 from openstef_models.utils.multi_quantile_regressor import MultiQuantileRegressor
 
 if TYPE_CHECKING:
@@ -31,7 +30,7 @@ if TYPE_CHECKING:
 
 
 class LGBMLinearHyperParams(HyperParams):
-    """LgbLinear hyperparameters for gradient boosting tree models.
+    """LGBMLinear hyperparameters for gradient boosting tree models with linear leaves.
 
     Example:
         Creating custom hyperparameters for deep trees with regularization:
@@ -121,66 +120,16 @@ class LGBMLinearHyperParams(HyperParams):
         return LGBMLinearForecaster
 
 
-class LGBMLinearForecasterConfig(ForecasterConfig):
-    """Configuration for LgbLinear-based forecaster.
-    Extends HorizonForecasterConfig with LgbLinear-specific hyperparameters
-    and execution settings.
-
-    Example:
-    Creating a LgbLinear forecaster configuration with custom hyperparameters:
-    >>> from datetime import timedelta
-    >>> from openstef_core.types import LeadTime, Quantile
-    >>> config = LGBMLinearForecasterConfig(
-    ...     quantiles=[Quantile(0.1), Quantile(0.5), Quantile(0.9)],
-    ...     horizons=[LeadTime(timedelta(hours=1))],
-    ...     hyperparams=LGBMLinearHyperParams(n_estimators=100, max_depth=6)
-    ... )
-    """  # noqa: D205
-
-    hyperparams: LGBMLinearHyperParams = LGBMLinearHyperParams()
-
-    # General Parameters
-    device: str = Field(
-        default="cpu",
-        description="Device for LgbLinear computation. Options: 'cpu', 'cuda', 'cuda:<ordinal>', 'gpu'",
-    )
-    n_jobs: int = Field(
-        default=1,
-        description="Number of parallel threads for tree construction. -1 uses all available cores.",
-    )
-    verbosity: Literal[-1, 0, 1, 2, 3] = Field(
-        default=-1, description="Verbosity level. 0=silent, 1=warning, 2=info, 3=debug"
-    )
-
-    random_state: int | None = Field(
-        default=None,
-        alias="seed",
-        description="Random seed for reproducibility. Controls tree structure randomness.",
-    )
-
-    early_stopping_rounds: int | None = Field(
-        default=None,
-        description="Training will stop if performance doesn't improve for this many rounds. Requires validation data.",
-    )
-
-    def forecaster_from_config(self) -> "LGBMLinearForecaster":
-        """Create a LGBMLinearForecaster instance from this configuration.
-
-        Returns:
-            Forecaster instance associated with this configuration.
-        """
-        return LGBMLinearForecaster(config=self)
-
-
 MODEL_CODE_VERSION = 1
 
 
 class LGBMLinearForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
-    """LgbLinear-based forecaster for probabilistic energy forecasting.
+    """LGBMLinear-based forecaster for probabilistic energy forecasting.
 
-    Implements gradient boosting trees using LgbLinear for multi-quantile forecasting.
-    Optimized for time series prediction with specialized loss functions and
-    comprehensive hyperparameter control suitable for production energy forecasting.
+    Implements gradient boosting trees with linear leaves using LightGBM for
+    multi-quantile forecasting. Optimized for time series prediction with specialized
+    loss functions and comprehensive hyperparameter control suitable for production
+    energy forecasting.
 
     The forecaster uses a multi-output strategy where each quantile is predicted
     by separate trees within the same boosting ensemble. This approach provides
@@ -197,47 +146,62 @@ class LGBMLinearForecaster(Forecaster, ExplainableForecaster, ContributionsMixin
 
         >>> from datetime import timedelta
         >>> from openstef_core.types import LeadTime, Quantile
-        >>> config = LGBMLinearForecasterConfig(
+        >>> forecaster = LGBMLinearForecaster(
         ...     quantiles=[Quantile(0.1), Quantile(0.5), Quantile(0.9)],
         ...     horizons=[LeadTime(timedelta(hours=1))],
-        ...     hyperparams=LGBMLinearHyperParams(n_estimators=100, max_depth=6)
+        ...     hyperparams=LGBMLinearHyperParams(n_estimators=100, max_depth=6),
         ... )
-        >>> forecaster = LGBMLinearForecaster(config)
-        >>> # forecaster.fit(training_data)
-        >>> # predictions = forecaster.predict(test_data)
+        >>> forecaster.fit(training_data)  # doctest: +SKIP
+        >>> predictions = forecaster.predict(test_data)  # doctest: +SKIP
 
     Note:
-        LgbLinear dependency is optional and must be installed separately.
+        LightGBM dependency is optional and must be installed separately.
         The model automatically handles multi-quantile output and uses
         magnitude-weighted pinball loss by default for better forecasting performance.
 
     See Also:
         LGBMLinearHyperParams: Detailed hyperparameter configuration options.
-        HorizonForecaster: Base interface for all forecasting models.
-        GBLinearForecaster: Alternative linear model using LgbLinear.
+        Forecaster: Base interface for all forecasting models.
+        GBLinearForecaster: Alternative linear model using XGBoost.
     """
 
-    Config = LGBMLinearForecasterConfig
-    HyperParams = LGBMLinearHyperParams
+    HyperParams: ClassVar[type[LGBMLinearHyperParams]] = LGBMLinearHyperParams
 
-    _config: LGBMLinearForecasterConfig
+    hyperparams: LGBMLinearHyperParams = Field(default_factory=LGBMLinearHyperParams)
+    device: str = Field(
+        default="cpu",
+        description="Device for LGBMLinear computation. Options: 'cpu', 'cuda', 'cuda:<ordinal>', 'gpu'",
+    )
+    n_jobs: int = Field(
+        default=1,
+        description="Number of parallel threads for tree construction. -1 uses all available cores.",
+    )
+    verbosity: Literal[-1, 0, 1, 2, 3] = Field(
+        default=-1, description="Verbosity level. 0=silent, 1=warning, 2=info, 3=debug"
+    )
+    random_state: int | None = Field(
+        default=None,
+        alias="seed",
+        description="Random seed for reproducibility.",
+    )
+    early_stopping_rounds: int | None = Field(
+        default=None,
+        description="Training stops if performance doesn't improve for this many rounds.",
+    )
 
-    def __init__(self, config: LGBMLinearForecasterConfig) -> None:
-        """Initialize LgbLinear forecaster with configuration.
+    _lgbmlinear_model: MultiQuantileRegressor = PrivateAttr()
 
-        Creates an untrained LgbLinear regressor with the specified configuration.
-        The underlying LgbLinear model is configured for multi-output quantile
-        regression using the provided hyperparameters and execution settings.
+    @property
+    @override
+    def hparams(self) -> LGBMLinearHyperParams:
+        return self.hyperparams
 
-        Args:
-            config: Complete configuration including hyperparameters, quantiles,
-                and execution settings for the LgbLinear model.
+    def model_post_init(self, _context: object, /) -> None:
+        """Initialize the underlying LightGBM linear model from configuration.
 
         Raises:
             MissingExtraError: If lightgbm is not installed.
         """
-        self._config = config
-
         try:
             from lightgbm import LGBMRegressor  # noqa: PLC0415
         except ImportError as e:
@@ -247,44 +211,34 @@ class LGBMLinearForecaster(Forecaster, ExplainableForecaster, ContributionsMixin
             # Core parameters
             "linear_tree": True,
             "objective": "quantile",
-            "n_estimators": config.hyperparams.n_estimators,
-            "learning_rate": config.hyperparams.learning_rate,
-            "max_depth": config.hyperparams.max_depth,
-            "min_child_weight": config.hyperparams.min_child_weight,
+            "n_estimators": self.hyperparams.n_estimators,
+            "learning_rate": self.hyperparams.learning_rate,
+            "max_depth": self.hyperparams.max_depth,
+            "min_child_weight": self.hyperparams.min_child_weight,
             # Data binning
-            "min_data_in_leaf": config.hyperparams.min_data_in_leaf,
-            "min_data_in_bin": config.hyperparams.min_data_in_bin,
+            "min_data_in_leaf": self.hyperparams.min_data_in_leaf,
+            "min_data_in_bin": self.hyperparams.min_data_in_bin,
             # Regularization
-            "reg_alpha": config.hyperparams.reg_alpha,
-            "reg_lambda": config.hyperparams.reg_lambda,
+            "reg_alpha": self.hyperparams.reg_alpha,
+            "reg_lambda": self.hyperparams.reg_lambda,
             # Tree structure control
-            "num_leaves": config.hyperparams.num_leaves,
-            "max_bin": config.hyperparams.max_bin,
+            "num_leaves": self.hyperparams.num_leaves,
+            "max_bin": self.hyperparams.max_bin,
             # Subsampling
-            "colsample_bytree": config.hyperparams.colsample_bytree,
+            "colsample_bytree": self.hyperparams.colsample_bytree,
             # General parameters
-            "random_state": config.random_state,
-            "early_stopping_rounds": config.early_stopping_rounds,
-            "verbosity": config.verbosity,
-            "n_jobs": config.n_jobs,
+            "random_state": self.random_state,
+            "early_stopping_rounds": self.early_stopping_rounds,
+            "verbosity": self.verbosity,
+            "n_jobs": self.n_jobs,
         }
 
-        self._lgbmlinear_model: MultiQuantileRegressor = MultiQuantileRegressor(
+        self._lgbmlinear_model = MultiQuantileRegressor(
             base_learner=LGBMRegressor,  # type: ignore
             quantile_param="alpha",
             hyperparams=lgbmlinear_params,
-            quantiles=[float(q) for q in config.quantiles],
+            quantiles=[float(q) for q in self.quantiles],
         )
-
-    @property
-    @override
-    def config(self) -> ForecasterConfig:
-        return self._config
-
-    @property
-    @override
-    def hyperparams(self) -> LGBMLinearHyperParams:
-        return self._config.hyperparams
 
     @property
     @override
@@ -334,7 +288,7 @@ class LGBMLinearForecaster(Forecaster, ExplainableForecaster, ContributionsMixin
             data=pd.DataFrame(
                 data=prediction,
                 index=input_data.index,
-                columns=[quantile.format() for quantile in self.config.quantiles],
+                columns=[quantile.format() for quantile in self.quantiles],
             ),
             sample_interval=data.sample_interval,
         )
@@ -356,10 +310,10 @@ class LGBMLinearForecaster(Forecaster, ExplainableForecaster, ContributionsMixin
             raise NotFittedError(self.__class__.__name__)
 
         input_data: pd.DataFrame = data.input_data(start=data.forecast_start)
-        n_quantiles = len(self.config.quantiles)
+        n_quantiles = len(self.quantiles)
 
         # Extract median quantile model
-        median_idx = min(range(n_quantiles), key=lambda i: abs(float(self.config.quantiles[i]) - 0.5))
+        median_idx = min(range(n_quantiles), key=lambda i: abs(float(self.quantiles[i]) - 0.5))
         model: LGBMRegressor = self._lgbmlinear_model.models[median_idx]  # type: ignore
 
         # Get SHAP contributions from median quantile model (includes bias as last column)
@@ -375,7 +329,7 @@ class LGBMLinearForecaster(Forecaster, ExplainableForecaster, ContributionsMixin
         models = self._lgbmlinear_model._models  # noqa: SLF001
         weights_df = pd.DataFrame(
             [models[i].feature_importances_ for i in range(len(models))],  # type: ignore
-            index=[quantile.format() for quantile in self.config.quantiles],
+            index=[quantile.format() for quantile in self.quantiles],
             columns=self._lgbmlinear_model.model_feature_names if self._lgbmlinear_model.has_feature_names else None,
         ).transpose()
 
@@ -388,4 +342,4 @@ class LGBMLinearForecaster(Forecaster, ExplainableForecaster, ContributionsMixin
         return weights_abs / total
 
 
-__all__ = ["LGBMLinearForecaster", "LGBMLinearForecasterConfig", "LGBMLinearHyperParams"]
+__all__ = ["LGBMLinearForecaster", "LGBMLinearHyperParams"]

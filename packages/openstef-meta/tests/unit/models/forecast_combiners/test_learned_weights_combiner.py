@@ -39,9 +39,7 @@ def combiner(classifier: str) -> WeightsCombiner:
         msg = f"Unsupported classifier type: {classifier}"
         raise ValueError(msg)
 
-    return WeightsCombiner(
-        hyperparams=hp, quantiles=[Q(0.1), Q(0.5), Q(0.9)], horizons=[LeadTime(timedelta(days=1))]
-    )
+    return WeightsCombiner(hyperparams=hp, quantiles=[Q(0.1), Q(0.5), Q(0.9)], horizons=[LeadTime(timedelta(days=1))])
 
 
 def test_quantile_weights_combiner__fit_predict(

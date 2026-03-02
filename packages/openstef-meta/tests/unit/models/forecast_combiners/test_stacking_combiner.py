@@ -26,19 +26,15 @@ def _make_template(regressor: str) -> GBLinearForecaster | LGBMForecaster:
     horizon = LeadTime(timedelta(days=1))
     if regressor == "lgbm":
         return LGBMForecaster(
-            config=LGBMForecaster.Config(
-                hyperparams=LGBMForecaster.HyperParams(num_leaves=5, n_estimators=10),
-                horizons=[horizon],
-                quantiles=[Q(0.5)],
-            ),
+            hyperparams=LGBMForecaster.HyperParams(num_leaves=5, n_estimators=10),
+            horizons=[horizon],
+            quantiles=[Q(0.5)],
         )
     if regressor == "gblinear":
         return GBLinearForecaster(
-            config=GBLinearForecaster.Config(
-                hyperparams=GBLinearForecaster.HyperParams(n_steps=10),
-                horizons=[horizon],
-                quantiles=[Q(0.5)],
-            ),
+            hyperparams=GBLinearForecaster.HyperParams(n_steps=10),
+            horizons=[horizon],
+            quantiles=[Q(0.5)],
         )
     msg = f"Unsupported regressor type: {regressor}"
     raise ValueError(msg)

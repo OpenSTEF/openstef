@@ -9,17 +9,19 @@ from typing import override
 import numpy as np
 import pandas as pd
 import pytest
+from pydantic import PrivateAttr
 
 from openstef_core.datasets import ForecastInputDataset
 from openstef_core.datasets.timeseries_dataset import TimeSeriesDataset
 from openstef_core.datasets.validated_datasets import EnsembleForecastDataset, ForecastDataset
 from openstef_core.exceptions import NotFittedError
+from openstef_core.mixins.predictor import HyperParams
 from openstef_core.mixins.transform import TransformPipeline
 from openstef_core.testing import assert_timeseries_equal, create_synthetic_forecasting_dataset
 from openstef_core.types import LeadTime, Q
 from openstef_meta.models.ensemble_forecasting_model import EnsembleForecastingModel
 from openstef_meta.models.forecast_combiners.forecast_combiner import ForecastCombiner
-from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
+from openstef_models.models.forecasting.forecaster import Forecaster
 from openstef_models.transforms.postprocessing.quantile_sorter import QuantileSorter
 from openstef_models.transforms.time_domain.lags_adder import LagsAdder
 
@@ -27,13 +29,12 @@ from openstef_models.transforms.time_domain.lags_adder import LagsAdder
 class SimpleForecaster(Forecaster):
     """Simple test forecaster that returns predictable values for testing."""
 
-    def __init__(self, config: ForecasterConfig):
-        self._config = config
-        self._is_fitted = False
+    _is_fitted: bool = PrivateAttr(default=False)
 
     @property
-    def config(self) -> ForecasterConfig:
-        return self._config
+    @override
+    def hparams(self) -> HyperParams:
+        return HyperParams()
 
     @property
     @override
@@ -47,13 +48,10 @@ class SimpleForecaster(Forecaster):
     @override
     def predict(self, data: ForecastInputDataset) -> ForecastDataset:
         # Return predictable forecast values
-        forecast_values = {quantile: 100.0 + quantile * 10 for quantile in self.config.quantiles}
+        forecast_values = {quantile: 100.0 + quantile * 10 for quantile in self.quantiles}
         return ForecastDataset(
             pd.DataFrame(
-                {
-                    quantile.format(): [forecast_values[quantile]] * len(data.index)
-                    for quantile in self.config.quantiles
-                },
+                {quantile.format(): [forecast_values[quantile]] * len(data.index) for quantile in self.quantiles},
                 index=data.index,
             ),
             data.sample_interval,
@@ -134,18 +132,15 @@ def model() -> EnsembleForecastingModel:
     # Arrange
     horizons = [LeadTime(timedelta(hours=1))]
     quantiles = [Q(0.3), Q(0.5), Q(0.7)]
-    config = ForecasterConfig(quantiles=quantiles, horizons=horizons)
     forecasters: dict[str, Forecaster] = {
-        "forecaster_1": SimpleForecaster(config=config),
-        "forecaster_2": SimpleForecaster(config=config),
+        "forecaster_1": SimpleForecaster(quantiles=quantiles, horizons=horizons),
+        "forecaster_2": SimpleForecaster(quantiles=quantiles, horizons=horizons),
     }
 
     combiner = SimpleCombiner(quantiles=quantiles, horizons=horizons)
 
     # Act
-    return EnsembleForecastingModel(
-        forecasters=forecasters, combiner=combiner, preprocessing=TransformPipeline()
-    )
+    return EnsembleForecastingModel(forecasters=forecasters, combiner=combiner, preprocessing=TransformPipeline())
 
 
 def test_forecasting_model__fit(sample_timeseries_dataset: TimeSeriesDataset, model: EnsembleForecastingModel):
@@ -216,10 +211,9 @@ def test_forecasting_model__pickle_roundtrip():
 
     horizons = [LeadTime(timedelta(hours=1))]
     quantiles = [Q(0.3), Q(0.5), Q(0.7)]
-    config = ForecasterConfig(quantiles=quantiles, horizons=horizons)
     forecasters: dict[str, Forecaster] = {
-        "forecaster_1": SimpleForecaster(config=config),
-        "forecaster_2": SimpleForecaster(config=config),
+        "forecaster_1": SimpleForecaster(quantiles=quantiles, horizons=horizons),
+        "forecaster_2": SimpleForecaster(quantiles=quantiles, horizons=horizons),
     }
 
     combiner = SimpleCombiner(quantiles=quantiles, horizons=horizons)

@@ -12,7 +12,6 @@ from openstef_core.exceptions import NotFittedError
 from openstef_core.types import LeadTime, Quantile
 from openstef_models.models.forecasting.constant_median_forecaster import (
     ConstantMedianForecaster,
-    ConstantMedianForecasterConfig,
     ConstantMedianForecasterHyperParams,
 )
 
@@ -38,9 +37,9 @@ def sample_forecast_input_dataset() -> ForecastInputDataset:
 
 
 @pytest.fixture
-def sample_forecaster_config() -> ConstantMedianForecasterConfig:
+def sample_forecaster_config() -> ConstantMedianForecaster:
     """Create sample forecaster configuration with standard quantiles."""
-    return ConstantMedianForecasterConfig(
+    return ConstantMedianForecaster(
         quantiles=[Quantile(0.1), Quantile(0.5), Quantile(0.9)],
         horizons=[LeadTime(timedelta(hours=6))],
         hyperparams=ConstantMedianForecasterHyperParams(constant=5.0),
@@ -48,12 +47,12 @@ def sample_forecaster_config() -> ConstantMedianForecasterConfig:
 
 
 def test_constant_median_forecaster__fit_predict(
-    sample_forecaster_config: ConstantMedianForecasterConfig,
+    sample_forecaster_config: ConstantMedianForecaster,
     sample_forecast_input_dataset: ForecastInputDataset,
 ):
     """Test that forecaster trains on data and produces constant predictions with added hyperparameter."""
     # Arrange
-    forecaster = ConstantMedianForecaster(config=sample_forecaster_config)
+    forecaster = sample_forecaster_config.model_copy(deep=True)
 
     # Act
     forecaster.fit(sample_forecast_input_dataset)
@@ -77,11 +76,11 @@ def test_constant_median_forecaster__fit_predict(
 
 
 def test_constant_median_forecaster__predict_not_fitted_raises_error(
-    sample_forecaster_config: ConstantMedianForecasterConfig,
+    sample_forecaster_config: ConstantMedianForecaster,
 ):
     """Test that predicting without fitting raises ModelNotFittedError."""
     # Arrange
-    forecaster = ConstantMedianForecaster(config=sample_forecaster_config)
+    forecaster = sample_forecaster_config.model_copy(deep=True)
     dummy_data = pd.DataFrame(
         {"load": [100.0]}, index=pd.date_range(datetime.fromisoformat("2025-01-01T00:00:00"), periods=1, freq="1h")
     )

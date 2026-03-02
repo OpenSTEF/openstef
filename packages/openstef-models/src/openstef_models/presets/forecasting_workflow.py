@@ -29,11 +29,11 @@ from openstef_models.integrations.mlflow import MLFlowStorage, MLFlowStorageCall
 from openstef_models.mixins import ModelIdentifier
 from openstef_models.models import ForecastingModel
 from openstef_models.models.forecasting.flatliner_forecaster import FlatlinerForecaster
-from openstef_models.models.forecasting.gblinear_forecaster import GBLinearForecaster
-from openstef_models.models.forecasting.lgbm_forecaster import LGBMForecaster
-from openstef_models.models.forecasting.lgbmlinear_forecaster import LGBMLinearForecaster
+from openstef_models.models.forecasting.gblinear_forecaster import GBLinearForecaster, GBLinearHyperParams
+from openstef_models.models.forecasting.lgbm_forecaster import LGBMForecaster, LGBMHyperParams
+from openstef_models.models.forecasting.lgbmlinear_forecaster import LGBMLinearForecaster, LGBMLinearHyperParams
 from openstef_models.models.forecasting.median_forecaster import MedianForecaster
-from openstef_models.models.forecasting.xgboost_forecaster import XGBoostForecaster
+from openstef_models.models.forecasting.xgboost_forecaster import XGBoostForecaster, XGBoostHyperParams
 from openstef_models.transforms.energy_domain import WindPowerFeatureAdder
 from openstef_models.transforms.general import (
     Clipper,
@@ -129,22 +129,22 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
         description="List of forecast horizons to predict.",
     )
 
-    xgboost_hyperparams: XGBoostForecaster.HyperParams = Field(
-        default=XGBoostForecaster.HyperParams(),
+    xgboost_hyperparams: XGBoostHyperParams = Field(
+        default=XGBoostHyperParams(),
         description="Hyperparameters for XGBoost forecaster.",
     )
-    gblinear_hyperparams: GBLinearForecaster.HyperParams = Field(
-        default=GBLinearForecaster.HyperParams(),
+    gblinear_hyperparams: GBLinearHyperParams = Field(
+        default=GBLinearHyperParams(),
         description="Hyperparameters for GBLinear forecaster.",
     )
 
-    lgbm_hyperparams: LGBMForecaster.HyperParams = Field(
-        default=LGBMForecaster.HyperParams(),
+    lgbm_hyperparams: LGBMHyperParams = Field(
+        default=LGBMHyperParams(),
         description="Hyperparameters for LightGBM forecaster.",
     )
 
-    lgbmlinear_hyperparams: LGBMLinearForecaster.HyperParams = Field(
-        default=LGBMLinearForecaster.HyperParams(),
+    lgbmlinear_hyperparams: LGBMLinearHyperParams = Field(
+        default=LGBMLinearHyperParams(),
         description="Hyperparameters for LightGBM forecaster.",
     )
 
@@ -366,12 +366,10 @@ def create_forecasting_workflow(
             *feature_standardizers,
         ]
         forecaster = XGBoostForecaster(
-            config=XGBoostForecaster.Config(
-                quantiles=config.quantiles,
-                horizons=config.horizons,
-                hyperparams=config.xgboost_hyperparams,
-                verbosity=config.verbosity,
-            )
+            quantiles=config.quantiles,
+            horizons=config.horizons,
+            hyperparams=config.xgboost_hyperparams,
+            verbosity=config.verbosity,
         )
         postprocessing = [
             QuantileSorter(),
@@ -389,11 +387,9 @@ def create_forecasting_workflow(
             *feature_standardizers,
         ]
         forecaster = LGBMLinearForecaster(
-            config=LGBMLinearForecaster.Config(
-                quantiles=config.quantiles,
-                horizons=config.horizons,
-                hyperparams=config.lgbmlinear_hyperparams,
-            )
+            quantiles=config.quantiles,
+            horizons=config.horizons,
+            hyperparams=config.lgbmlinear_hyperparams,
         )
         postprocessing = [QuantileSorter()]
     elif config.model == "lgbm":
@@ -405,11 +401,9 @@ def create_forecasting_workflow(
             *feature_standardizers,
         ]
         forecaster = LGBMForecaster(
-            config=LGBMForecaster.Config(
-                quantiles=config.quantiles,
-                horizons=config.horizons,
-                hyperparams=config.lgbm_hyperparams,
-            )
+            quantiles=config.quantiles,
+            horizons=config.horizons,
+            hyperparams=config.lgbm_hyperparams,
         )
         postprocessing = [QuantileSorter()]
     elif config.model == "gblinear":
@@ -427,12 +421,10 @@ def create_forecasting_workflow(
             ),
         ]
         forecaster = GBLinearForecaster(
-            config=GBLinearForecaster.Config(
-                quantiles=config.quantiles,
-                horizons=config.horizons,
-                hyperparams=config.gblinear_hyperparams,
-                verbosity=config.verbosity,
-            ),
+            quantiles=config.quantiles,
+            horizons=config.horizons,
+            hyperparams=config.gblinear_hyperparams,
+            verbosity=config.verbosity,
         )
         postprocessing = [
             QuantileSorter(),
@@ -451,20 +443,16 @@ def create_forecasting_workflow(
             )
         ]
         forecaster = MedianForecaster(
-            config=MedianForecaster.Config(
-                quantiles=config.quantiles,
-                horizons=config.horizons,
-            ),
+            quantiles=config.quantiles,
+            horizons=config.horizons,
         )
         postprocessing = []
     elif config.model == "flatliner":
         preprocessing = []
         forecaster = FlatlinerForecaster(
-            config=FlatlinerForecaster.Config(
-                quantiles=[Q(0.5)],
-                horizons=config.horizons,
-                predict_median=config.predict_nonzero_flatliner,
-            )
+            quantiles=[Q(0.5)],
+            horizons=config.horizons,
+            predict_median=config.predict_nonzero_flatliner,
         )
         postprocessing = [
             QuantileSorter(),

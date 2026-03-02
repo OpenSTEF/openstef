@@ -28,7 +28,7 @@ from openstef_core.exceptions import NotFittedError
 from openstef_core.mixins import HyperParams, TransformPipeline
 from openstef_core.types import LeadTime, Quantile
 from openstef_meta.models.forecast_combiners.forecast_combiner import ForecastCombiner
-from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
+from openstef_models.models.forecasting.forecaster import Forecaster
 from openstef_models.models.forecasting_model import BaseForecastingModel, ModelFitResult, restore_target
 
 logger = logging.getLogger(__name__)
@@ -66,17 +66,17 @@ class EnsembleForecastingModel(BaseForecastingModel):
 
     Example:
         >>> from openstef_models.models.forecasting.constant_median_forecaster import (
-        ...     ConstantMedianForecaster, ConstantMedianForecasterConfig
+        ...     ConstantMedianForecaster,
         ... )
         >>> from openstef_meta.models.forecast_combiners.learned_weights_combiner import WeightsCombiner
         >>> from openstef_core.types import LeadTime
         >>> from datetime import timedelta
         >>>
         >>> forecaster_1 = ConstantMedianForecaster(
-        ...     config=ConstantMedianForecasterConfig(horizons=[LeadTime.from_string("PT36H")])
+        ...     horizons=[LeadTime.from_string("PT36H")]
         ... )
         >>> forecaster_2 = ConstantMedianForecaster(
-        ...     config=ConstantMedianForecasterConfig(horizons=[LeadTime.from_string("PT36H")])
+        ...     horizons=[LeadTime.from_string("PT36H")]
         ... )
         >>> combiner = WeightsCombiner(
         ...     horizons=[LeadTime.from_string("PT36H")],
@@ -117,9 +117,9 @@ class EnsembleForecastingModel(BaseForecastingModel):
     _logger: logging.Logger = PrivateAttr(default=logging.getLogger(__name__))
 
     @property
-    def forecaster_configs(self) -> dict[str, ForecasterConfig]:
+    def forecaster_configs(self) -> dict[str, Forecaster]:
         """Configuration of each base forecaster, keyed by name."""
-        return {name: f.config for name, f in self.forecasters.items()}
+        return dict(self.forecasters)
 
     @property
     @override
@@ -333,7 +333,7 @@ class EnsembleForecastingModel(BaseForecastingModel):
             ForecastDataset containing the trained forecaster's predictions.
         """
         forecaster = self.forecasters[forecaster_name]
-        validate_horizons_present(data, forecaster.config.horizons)
+        validate_horizons_present(data, forecaster.horizons)
 
         # Transform and split input data
         input_data_train = self.prepare_forecaster_input(data=data, forecaster_name=forecaster_name)
@@ -512,15 +512,11 @@ class EnsembleForecastingModel(BaseForecastingModel):
 
         return ModelFitResult(
             input_dataset=train_ensemble_dataset,
-            input_data_train=train_ensemble_dataset.get_base_predictions_for_quantile(
-                quantile=self.quantiles[0]
-            ),
+            input_data_train=train_ensemble_dataset.get_base_predictions_for_quantile(quantile=self.quantiles[0]),
             input_data_val=val_ensemble_dataset.get_base_predictions_for_quantile(quantile=self.quantiles[0])
             if val_ensemble_dataset
             else None,
-            input_data_test=test_ensemble_dataset.get_base_predictions_for_quantile(
-                quantile=self.quantiles[0]
-            )
+            input_data_test=test_ensemble_dataset.get_base_predictions_for_quantile(quantile=self.quantiles[0])
             if test_ensemble_dataset
             else None,
             metrics_train=metrics_train,

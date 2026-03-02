@@ -11,11 +11,11 @@ and can be more suitable for certain types of time series data where it is impor
 to predict values outside the range of the training data.
 """
 
-from typing import Literal, override
+from typing import ClassVar, Literal, override
 
 import numpy as np
 import pandas as pd
-from pydantic import Field
+from pydantic import Field, PrivateAttr
 from sklearn.preprocessing import StandardScaler
 
 from openstef_core.datasets import TimeSeriesDataset
@@ -24,7 +24,7 @@ from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastI
 from openstef_core.exceptions import InputValidationError, MissingExtraError, NotFittedError
 from openstef_core.mixins.predictor import HyperParams
 from openstef_models.explainability.mixins import ContributionsMixin, ExplainableForecaster
-from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
+from openstef_models.models.forecasting.forecaster import Forecaster
 from openstef_models.utils.evaluation_functions import EvaluationFunctionType, get_evaluation_function
 from openstef_models.utils.loss_functions import (
     ObjectiveFunctionType,
@@ -103,38 +103,6 @@ class GBLinearHyperParams(HyperParams):
         return GBLinearForecaster
 
 
-class GBLinearForecasterConfig(ForecasterConfig):
-    """Configuration for GBLinear forecaster."""
-
-    horizons: list[LeadTime] = Field(
-        default=...,
-        description=(
-            "Lead times for predictions, accounting for data availability and versioning cutoffs. "
-            "Each horizon defines how far ahead the model should predict."
-        ),
-        min_length=1,
-        max_length=1,
-    )
-
-    hyperparams: GBLinearHyperParams = Field(
-        default=GBLinearHyperParams(),
-    )
-    device: str = Field(
-        default="cpu", description="Device for XGBoost computation. Options: 'cpu', 'cuda', 'cuda:<ordinal>', 'gpu'"
-    )
-    verbosity: Literal[0, 1, 2, 3, True] = Field(
-        default=0, description="Verbosity level. 0=silent, 1=warning, 2=info, 3=debug"
-    )
-
-    def forecaster_from_config(self) -> "GBLinearForecaster":
-        """Create a GBLinearForecaster instance from this configuration.
-
-        Returns:
-            Forecaster instance associated with this configuration.
-        """
-        return GBLinearForecaster(config=self)
-
-
 MODEL_CODE_VERSION = 1
 
 
@@ -163,16 +131,15 @@ class GBLinearForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
 
         >>> from datetime import timedelta
         >>> from openstef_core.types import LeadTime, Quantile
-        >>> config = GBLinearForecasterConfig(
+        >>> forecaster = GBLinearForecaster(
         ...     quantiles=[Quantile(0.1), Quantile(0.5), Quantile(0.9)],
         ...     horizons=[LeadTime(timedelta(hours=1))],
         ...     hyperparams=GBLinearHyperParams(
         ...         learning_rate=0.1,
         ...         reg_alpha=0.1,
-        ...         reg_lambda=1.0
-        ...     )
+        ...         reg_lambda=1.0,
+        ...     ),
         ... )
-        >>> forecaster = GBLinearForecaster(config)
         >>> forecaster.fit(training_data)  # doctest: +SKIP
         >>> predictions = forecaster.predict(test_data)  # doctest: +SKIP
 
@@ -184,61 +151,64 @@ class GBLinearForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
 
     See Also:
         GBLinearHyperParams: Detailed hyperparameter configuration options.
-        HorizonForecaster: Base interface for all forecasting models.
+        Forecaster: Base interface for all forecasting models.
         XGBoostForecaster: Tree-based alternative for non-linear patterns.
     """
 
-    Config = GBLinearForecasterConfig
-    HyperParams = GBLinearHyperParams
+    HyperParams: ClassVar[type[GBLinearHyperParams]] = GBLinearHyperParams
 
-    _config: GBLinearForecasterConfig
-    _gblinear_model: xgb.XGBRegressor
-    _target_scaler: StandardScaler
+    horizons: list[LeadTime] = Field(
+        default=...,
+        description=(
+            "Lead times for predictions, accounting for data availability and versioning cutoffs. "
+            "Each horizon defines how far ahead the model should predict."
+        ),
+        min_length=1,
+        max_length=1,
+    )
 
-    def __init__(self, config: GBLinearForecasterConfig) -> None:
-        """Initialize GBLinear forecaster with configuration.
+    hyperparams: GBLinearHyperParams = Field(default_factory=GBLinearHyperParams)
+    device: str = Field(
+        default="cpu", description="Device for XGBoost computation. Options: 'cpu', 'cuda', 'cuda:<ordinal>', 'gpu'"
+    )
+    verbosity: Literal[0, 1, 2, 3, True] = Field(
+        default=0, description="Verbosity level. 0=silent, 1=warning, 2=info, 3=debug"
+    )
 
-        Args:
-            config: Configuration for the forecaster.
-        """
-        self._config = config or GBLinearForecasterConfig()
+    _gblinear_model: xgb.XGBRegressor = PrivateAttr()
+    _target_scaler: StandardScaler = PrivateAttr()
 
+    @property
+    @override
+    def hparams(self) -> GBLinearHyperParams:
+        return self.hyperparams
+
+    def model_post_init(self, _context: object, /) -> None:
+        """Initialize the underlying XGBoost gblinear model from configuration."""
         self._gblinear_model = xgb.XGBRegressor(
             booster="gblinear",
             # Core parameters for forecasting
-            n_estimators=self._config.hyperparams.n_steps,
-            learning_rate=self._config.hyperparams.learning_rate,
-            early_stopping_rounds=self._config.hyperparams.early_stopping_rounds,
+            n_estimators=self.hyperparams.n_steps,
+            learning_rate=self.hyperparams.learning_rate,
+            early_stopping_rounds=self.hyperparams.early_stopping_rounds,
             # Regularization parameters
-            reg_alpha=self._config.hyperparams.reg_alpha,
-            reg_lambda=self._config.hyperparams.reg_lambda,
+            reg_alpha=self.hyperparams.reg_alpha,
+            reg_lambda=self.hyperparams.reg_lambda,
             # Boosting structure control
-            feature_selector=self._config.hyperparams.feature_selector,
-            updater=self._config.hyperparams.updater,
-            quantile_alpha=[float(q) for q in self._config.quantiles],
-            top_k=self._config.hyperparams.top_k if self._config.hyperparams.feature_selector == "thrifty" else None,
+            feature_selector=self.hyperparams.feature_selector,
+            updater=self.hyperparams.updater,
+            quantile_alpha=[float(q) for q in self.quantiles],
+            top_k=self.hyperparams.top_k if self.hyperparams.feature_selector == "thrifty" else None,
             # Objective
-            objective=get_objective_function(
-                function_type=self._config.hyperparams.objective, quantiles=self._config.quantiles
-            )
-            if self._config.hyperparams.objective != "reg:quantileerror"
+            objective=get_objective_function(function_type=self.hyperparams.objective, quantiles=self.quantiles)
+            if self.hyperparams.objective != "reg:quantileerror"
             else "reg:quantileerror",
             eval_metric=get_evaluation_function(
-                function_type=self._config.hyperparams.evaluation_metric, quantiles=self._config.quantiles
+                function_type=self.hyperparams.evaluation_metric, quantiles=self.quantiles
             ),
             disable_default_eval_metric=True,
         )
         self._target_scaler = StandardScaler()
-
-    @property
-    @override
-    def config(self) -> GBLinearForecasterConfig:
-        return self._config
-
-    @property
-    @override
-    def hyperparams(self) -> GBLinearHyperParams:
-        return self._config.hyperparams
 
     @property
     @override
@@ -253,13 +223,11 @@ class GBLinearForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
         # Reshape target for multi-quantile objectives
         target = xgb_prepare_target_for_objective(
             target=target,
-            quantiles=self.config.quantiles,
-            objective=self._config.hyperparams.objective,
+            quantiles=self.quantiles,
+            objective=self.hyperparams.objective,
         )
-
         # Prepare sample weights
         sample_weight: pd.Series = data.sample_weight_series
-
         return input_data, target, sample_weight
 
     @override
@@ -267,13 +235,11 @@ class GBLinearForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
         # Data checks
         if data.data.isna().any().any():
             raise InputValidationError("There are nan values in the input data. Use imputation transform to fix them.")
-
         if len(data.data) == 0:
             raise InputValidationError("The input data is empty after dropping NaN values.")
 
         # Fit the scalers
         self._target_scaler.fit(data.target_series.to_frame().to_numpy())
-
         # Prepare training data
         input_data, target, sample_weight = self._prepare_fit_input(data)
 
@@ -292,7 +258,7 @@ class GBLinearForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
             sample_weight=sample_weight,
             eval_set=eval_set,
             sample_weight_eval_set=sample_weight_eval_set,
-            verbose=self._config.verbosity,
+            verbose=self.verbosity,
         )
 
     @override
@@ -306,9 +272,8 @@ class GBLinearForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
 
         # Get input features for prediction
         input_data: pd.DataFrame = data.input_data(start=data.forecast_start)
-
         # Generate predictions
-        predictions_array: np.ndarray = self._gblinear_model.predict(input_data).reshape(-1, len(self.config.quantiles))
+        predictions_array: np.ndarray = self._gblinear_model.predict(input_data).reshape(-1, len(self.quantiles))
 
         # Inverse transform the scaled predictions
         if len(predictions_array) > 0:
@@ -318,7 +283,7 @@ class GBLinearForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
         predictions = pd.DataFrame(
             data=predictions_array,
             index=input_data.index,
-            columns=[quantile.format() for quantile in self.config.quantiles],
+            columns=[quantile.format() for quantile in self.quantiles],
         )
 
         return ForecastDataset(
@@ -348,11 +313,11 @@ class GBLinearForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
 
         # Reshape to (n_samples, n_quantiles, n_features + 1)
         n_samples = len(input_data)
-        n_quantiles = len(self.config.quantiles)
+        n_quantiles = len(self.quantiles)
         contribs_3d = contribs_raw.reshape(n_samples, n_quantiles, -1)
 
         # Extract median quantile contributions
-        median_idx = min(range(n_quantiles), key=lambda i: abs(float(self.config.quantiles[i]) - 0.5))
+        median_idx = min(range(n_quantiles), key=lambda i: abs(float(self.quantiles[i]) - 0.5))
         contribs = contribs_3d[:, median_idx, :].copy()
 
         # Inverse transform for target scaling
@@ -374,7 +339,7 @@ class GBLinearForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
         booster = self._gblinear_model.get_booster()
         weights_df = pd.DataFrame(
             data=booster.get_score(importance_type="weight"),
-            index=[quantile.format() for quantile in self.config.quantiles],
+            index=[quantile.format() for quantile in self.quantiles],
         ).transpose()
         weights_df.index.name = "feature_name"
         weights_df.columns.name = "quantiles"

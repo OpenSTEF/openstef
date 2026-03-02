@@ -270,7 +270,7 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
     def _log_forecaster_hyperparams(self, model: EnsembleModel, run_id: str) -> None:
         """Log per-forecaster hyperparameters to the run."""
         for name, forecaster in model.forecasters.items():
-            prefixed_params = {f"{name}.{k}": str(v) for k, v in forecaster.hyperparams.model_dump().items()}
+            prefixed_params = {f"{name}.{k}": str(v) for k, v in forecaster.hparams.model_dump().items()}
             self.storage.log_hyperparams(run_id=run_id, params=prefixed_params)
             self._logger.debug("Logged hyperparams for forecaster '%s' in run %s", name, run_id)
 
