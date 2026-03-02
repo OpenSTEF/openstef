@@ -134,7 +134,7 @@ class EnsembleForecastingModel(BaseForecastingModel):
     @property
     @override
     def hyperparams(self) -> HyperParams:
-        return self.combiner.hyperparams
+        return self.combiner.hparams
 
     @property
     @override
@@ -163,13 +163,14 @@ class EnsembleForecastingModel(BaseForecastingModel):
         Returns:
             FitResult containing training details and metrics.
         """
-        # Fit forecasters
+        # Phase 1: fit each base forecaster and collect their in-sample predictions
         train_ensemble, val_ensemble, test_ensemble, forecaster_fit_results = self._fit_forecasters(
             data=data,
             data_val=data_val,
             data_test=data_test,
         )
 
+        # Phase 2: fit the combiner on base forecasters' in-sample predictions
         combiner_fit_result = self._fit_combiner(
             train_ensemble_dataset=train_ensemble,
             val_ensemble_dataset=val_ensemble,
@@ -269,6 +270,7 @@ class EnsembleForecastingModel(BaseForecastingModel):
         # Fit the feature engineering transforms
         self.preprocessing.fit(data=data)
         data_transformed = self.preprocessing.transform(data=data)
+        # Fit per-forecaster transforms on the common-preprocessed output (not raw data)
         [
             self.model_specific_preprocessing[name].fit(data=data_transformed)
             for name in self.model_specific_preprocessing
@@ -287,6 +289,7 @@ class EnsembleForecastingModel(BaseForecastingModel):
                 )
             )
 
+        # Attach original (unsplit) target so the combiner can compute loss across all timesteps
         train_ensemble = EnsembleForecastDataset.from_forecast_datasets(
             predictions_train, target_series=data.data[self.target_column]
         )
@@ -391,9 +394,9 @@ class EnsembleForecastingModel(BaseForecastingModel):
         return prediction_train, prediction_val, prediction_test, result
 
     def _predict_forecaster(self, input_data: ForecastInputDataset, forecaster_name: str) -> ForecastDataset:
-        # Predict and restore target column
         logger.debug("Predicting forecaster '%s'.", forecaster_name)
         prediction_raw = self.forecasters[forecaster_name].predict(data=input_data)
+        # Apply postprocessing per-forecaster so the combiner sees final-scale predictions
         prediction = self.postprocessing.transform(prediction_raw)
         return restore_target(dataset=prediction, original_dataset=input_data, target_column=self.target_column)
 
@@ -484,6 +487,7 @@ class EnsembleForecastingModel(BaseForecastingModel):
         test_ensemble_dataset: EnsembleForecastDataset | None = None,
     ) -> ModelFitResult:
 
+        # Prepare additional features for the combiner (e.g. sample weights) — split separately from ensemble data
         features_train, features_val, features_test = self._fit_prepare_combiner_data(
             data=data, data_val=data_val, data_test=data_test
         )
@@ -512,6 +516,7 @@ class EnsembleForecastingModel(BaseForecastingModel):
 
         return ModelFitResult(
             input_dataset=train_ensemble_dataset,
+            # ModelFitResult expects ForecastInputDataset; use first quantile as a representative slice
             input_data_train=train_ensemble_dataset.get_base_predictions_for_quantile(quantile=self.quantiles[0]),
             input_data_val=val_ensemble_dataset.get_base_predictions_for_quantile(quantile=self.quantiles[0])
             if val_ensemble_dataset

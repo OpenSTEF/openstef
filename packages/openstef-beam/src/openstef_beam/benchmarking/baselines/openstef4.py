@@ -162,7 +162,7 @@ class OpenSTEF4BacktestForecaster(BaseModel, BacktestForecasterMixin):
             except NotImplementedError:
                 pass
             else:
-                df = pd.concat([contributions, forecast.data.drop(columns=["load"])], axis=1)
+                df = pd.concat([contributions.data, forecast.data.drop(columns=["load"])], axis=1)
                 df.to_parquet(path=self.cache_dir / f"contrib_{id_str}_predict.parquet")
         return forecast
 

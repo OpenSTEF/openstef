@@ -9,7 +9,7 @@ Each quantile gets its own stacking model (e.g., GBLinear or LGBM).
 
 import logging
 from functools import partial
-from typing import Any, override
+from typing import override
 
 import pandas as pd
 from pydantic import Field, PrivateAttr
@@ -17,6 +17,7 @@ from pydantic import Field, PrivateAttr
 from openstef_core.datasets import ForecastDataset, ForecastInputDataset, TimeSeriesDataset
 from openstef_core.datasets.validated_datasets import EnsembleForecastDataset
 from openstef_core.exceptions import NotFittedError
+from openstef_core.mixins.predictor import HyperParams
 from openstef_core.types import Quantile
 from openstef_meta.models.forecast_combiners.forecast_combiner import ForecastCombiner
 from openstef_meta.utils.datasets import combine_forecast_input_datasets
@@ -41,11 +42,15 @@ class StackingCombiner(ForecastCombiner):
     )
 
     _is_fitted: bool = PrivateAttr(default=False)
-    _models: dict[Quantile, Any] = PrivateAttr(default_factory=dict)
+    _models: dict[Quantile, Forecaster] = PrivateAttr(default_factory=dict[Quantile, Forecaster])
 
-    def model_post_init(self, __context: object) -> None:
-        self.hyperparams = self.meta_forecaster.hparams
+    @property
+    @override
+    def hparams(self) -> HyperParams:
+        return self.meta_forecaster.hparams
 
+    def model_post_init(self, _context: object, /) -> None:
+        """Clone the template forecaster once per quantile."""
         models: dict[Quantile, Forecaster] = {}
         for q in self.quantiles:
             models[q] = self.meta_forecaster.model_copy(

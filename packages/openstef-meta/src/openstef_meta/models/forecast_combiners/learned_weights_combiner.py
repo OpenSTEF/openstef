@@ -12,7 +12,7 @@ The combiner can operate in two modes:
 """
 
 import logging
-from typing import override
+from typing import Literal, cast, override
 
 import numpy as np
 import pandas as pd
@@ -46,6 +46,9 @@ class LGBMCombinerHyperParams(HyperParams):
     def get_classifier(self) -> ClassifierMixin:
         """Create an LGBM gradient-boosted classifier from these hyperparameters.
 
+        Returns:
+            Configured LGBMClassifier instance.
+
         Raises:
             MissingExtraError: If lightgbm is not installed.
         """
@@ -54,13 +57,16 @@ class LGBMCombinerHyperParams(HyperParams):
         except ImportError as e:
             raise MissingExtraError("lightgbm", "openstef-models") from e
 
-        return LGBMClassifier(
-            class_weight="balanced",
-            n_estimators=self.n_estimators,
-            num_leaves=self.n_leaves,
-            reg_alpha=self.reg_alpha,
-            reg_lambda=self.reg_lambda,
-            n_jobs=1,
+        return cast(
+            ClassifierMixin,
+            LGBMClassifier(
+                class_weight="balanced",
+                n_estimators=self.n_estimators,
+                num_leaves=self.n_leaves,
+                reg_alpha=self.reg_alpha,
+                reg_lambda=self.reg_lambda,
+                n_jobs=1,
+            ),
         )
 
 
@@ -76,6 +82,9 @@ class RFCombinerHyperParams(HyperParams):
     def get_classifier(self) -> ClassifierMixin:
         """Create an LGBM random-forest classifier from these hyperparameters.
 
+        Returns:
+            Configured LGBMClassifier instance in random-forest mode.
+
         Raises:
             MissingExtraError: If lightgbm is not installed.
         """
@@ -84,14 +93,17 @@ class RFCombinerHyperParams(HyperParams):
         except ImportError as e:
             raise MissingExtraError("lightgbm", "openstef-models") from e
 
-        return LGBMClassifier(
-            boosting_type="rf",
-            class_weight="balanced",
-            n_estimators=self.n_estimators,
-            num_leaves=self.n_leaves,
-            bagging_freq=self.bagging_freq,
-            bagging_fraction=self.bagging_fraction,
-            feature_fraction=self.feature_fraction,
+        return cast(
+            ClassifierMixin,
+            LGBMClassifier(
+                boosting_type="rf",
+                class_weight="balanced",
+                n_estimators=self.n_estimators,
+                num_leaves=self.n_leaves,
+                bagging_freq=self.bagging_freq,
+                bagging_fraction=self.bagging_fraction,
+                feature_fraction=self.feature_fraction,
+            ),
         )
 
 
@@ -103,6 +115,9 @@ class XGBCombinerHyperParams(HyperParams):
     def get_classifier(self) -> ClassifierMixin:
         """Create an XGBoost classifier from these hyperparameters.
 
+        Returns:
+            Configured XGBClassifier instance.
+
         Raises:
             MissingExtraError: If xgboost is not installed.
         """
@@ -111,18 +126,22 @@ class XGBCombinerHyperParams(HyperParams):
         except ImportError as e:
             raise MissingExtraError("xgboost", "openstef-models") from e
 
-        return XGBClassifier(n_estimators=self.n_estimators)
+        return cast(ClassifierMixin, XGBClassifier(n_estimators=self.n_estimators))
 
 
 class LogisticCombinerHyperParams(HyperParams):
     """Hyperparameters for the logistic regression classifier."""
 
     fit_intercept: bool = Field(default=True, description="Whether to calculate the intercept.")
-    penalty: str = Field(default="l2", description="Regularization norm (l1, l2, elasticnet).")
+    penalty: Literal["l1", "l2", "elasticnet"] = Field(default="l2", description="Regularization norm.")
     c: float = Field(default=1.0, description="Inverse of regularization strength.")
 
     def get_classifier(self) -> ClassifierMixin:
-        """Create a logistic regression classifier from these hyperparameters."""
+        """Create a logistic regression classifier from these hyperparameters.
+
+        Returns:
+            Configured LogisticRegression instance.
+        """
         from sklearn.linear_model import LogisticRegression  # noqa: PLC0415
 
         return LogisticRegression(
@@ -145,6 +164,12 @@ class WeightsCombiner(ForecastCombiner):
         default_factory=LGBMCombinerHyperParams,
         description="Classifier hyperparameters. Must have a get_classifier() method.",
     )
+
+    @property
+    @override
+    def hparams(self) -> HyperParams:
+        return self.hyperparams
+
     hard_selection: bool = Field(
         default=False,
         description="If True, select the single best forecaster per timestep; otherwise blend.",
@@ -152,15 +177,21 @@ class WeightsCombiner(ForecastCombiner):
 
     _label_encoder: LabelEncoder = PrivateAttr(default_factory=LabelEncoder)
     _is_fitted: bool = PrivateAttr(default=False)
-    _feature_names: list[str] = PrivateAttr(default_factory=list)
-    _models: dict[Quantile, ClassifierMixin] = PrivateAttr(default_factory=dict)
+    _feature_names: list[str] = PrivateAttr(default_factory=list[str])
+    _models: dict[Quantile, ClassifierMixin] = PrivateAttr(default_factory=dict[Quantile, ClassifierMixin])
 
-    def model_post_init(self, __context: object) -> None:
+    def model_post_init(self, _context: object, /) -> None:
+        """Validate hyperparams and initialize per-quantile classifiers.
+
+        Raises:
+            TypeError: If hyperparams does not have a ``get_classifier()`` method.
+        """
         if not hasattr(self.hyperparams, "get_classifier"):
             msg = f"hyperparams ({type(self.hyperparams).__name__}) must have a get_classifier() method."
             raise TypeError(msg)
 
         self._models = {
+            # One classifier per quantile — optimal forecaster may differ across quantile levels
             q: self.hyperparams.get_classifier()  # type: ignore[union-attr]
             for q in self.quantiles
         }
@@ -192,7 +223,7 @@ class WeightsCombiner(ForecastCombiner):
             encoded_labels = self._label_encoder.transform(labels)
 
             weights = compute_sample_weight("balanced", encoded_labels) * combined_data.sample_weight_series
-            self._models[q].fit(X=input_data, y=encoded_labels, sample_weight=weights)  # pyright: ignore[reportUnknownMemberType]
+            self._models[q].fit(X=input_data, y=encoded_labels, sample_weight=weights)  # pyright: ignore[reportUnknownMemberType, reportAttributeAccessIssue]
             feature_names = list(input_data.columns)
 
         self._feature_names = feature_names
@@ -220,6 +251,7 @@ class WeightsCombiner(ForecastCombiner):
         return losses.idxmin(axis=1)
 
     def _validate_labels(self, labels: pd.Series, quantile: Quantile) -> None:
+        # Fall back to DummyClassifier when one forecaster dominates — sklearn classifiers need ≥2 classes
         if len(labels.unique()) == 1:
             logger.warning("Quantile %s has only 1 class — switching to DummyClassifier.", quantile.format())
             self._models[quantile] = DummyClassifier(strategy="most_frequent")
@@ -227,6 +259,7 @@ class WeightsCombiner(ForecastCombiner):
     def _predict_weights(self, base_predictions: pd.DataFrame, quantile: Quantile) -> pd.DataFrame:
         model = self._models[quantile]
         if isinstance(model, DummyClassifier):
+            # DummyClassifier has no predict_proba — construct one-hot weights manually
             weights_array = pd.DataFrame(0, index=base_predictions.index, columns=self._label_encoder.classes_)
             weights_array[self._label_encoder.classes_[0]] = 1.0
         else:
@@ -257,6 +290,7 @@ class WeightsCombiner(ForecastCombiner):
             # Convert soft probabilities to hard selection: max weight → 1.0, ties distributed equally
             weights = (weights == weights.max(axis=1).to_frame().to_numpy()) / weights.sum(axis=1).to_frame().to_numpy()
 
+        # Weighted average: multiply each forecaster's prediction by its weight and sum
         return dataset.input_data().mul(weights).sum(axis=1)
 
     @override

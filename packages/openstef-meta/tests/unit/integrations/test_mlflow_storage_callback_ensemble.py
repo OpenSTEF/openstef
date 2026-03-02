@@ -83,6 +83,11 @@ class SimpleTestCombiner(ForecastCombiner):
 
     hyperparams: SimpleCombinerHyperParams = Field(default_factory=SimpleCombinerHyperParams)
 
+    @property
+    @override
+    def hparams(self) -> SimpleCombinerHyperParams:
+        return self.hyperparams
+
     _is_fitted: bool = False
 
     @override

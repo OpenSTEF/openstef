@@ -62,6 +62,11 @@ class SimpleForecaster(Forecaster):
 class SimpleCombiner(ForecastCombiner):
     """Simple combiner that averages base Forecaster predictions."""
 
+    @property
+    @override
+    def hparams(self) -> HyperParams:
+        return HyperParams()
+
     _is_fitted: bool = False
 
     def fit(

@@ -370,7 +370,7 @@ def create_ensemble_workflow(config: EnsembleWorkflowConfig) -> CustomForecastin
             )
             forecaster_preprocessing[model_type] = [
                 sample_weighter,
-                # Remove lags
+                # GBLinear is a global linear model — remove most lags to avoid collinearity (keep 7-day lag only)
                 Selector(
                     selection=FeatureSelection(
                         exclude=set(
@@ -383,7 +383,7 @@ def create_ensemble_workflow(config: EnsembleWorkflowConfig) -> CustomForecastin
                         ).difference({"load_lag_P7D"})
                     )
                 ),
-                # Remove holiday features to avoid linear dependencies
+                # Remove holidays and datetime features — one-hot/cyclic columns create near-singular design matrices
                 Selector(
                     selection=FeatureSelection(
                         exclude=set(HolidayFeatureAdder(country_code=config.location.country_code).features_added())
@@ -438,6 +438,7 @@ def create_ensemble_workflow(config: EnsembleWorkflowConfig) -> CustomForecastin
                 quantiles=config.quantiles,
             )
         case ("stacking", "lgbm"):
+            # Stacking template: single quantile + max horizon — cloned per-quantile by StackingCombiner
             template = LGBMForecaster(
                 hyperparams=config.combiner_stacking_lgbm_hyperparams,
                 horizons=[max(config.horizons)],
@@ -449,6 +450,7 @@ def create_ensemble_workflow(config: EnsembleWorkflowConfig) -> CustomForecastin
                 quantiles=config.quantiles,
             )
         case ("stacking", "gblinear"):
+            # Stacking template: single quantile + max horizon — cloned per-quantile by StackingCombiner
             template = GBLinearForecaster(
                 hyperparams=config.combiner_stacking_gblinear_hyperparams,
                 horizons=[max(config.horizons)],
@@ -471,6 +473,7 @@ def create_ensemble_workflow(config: EnsembleWorkflowConfig) -> CustomForecastin
 
     combiner_transforms = [
         SampleWeighter(config=config.combiner_sample_weight, target_column=config.target_column),
+        # Combiner only sees sample weights + target — base predictions come from the ensemble dataset, not here
         Selector(selection=Include("sample_weight", config.target_column)),
     ]
 

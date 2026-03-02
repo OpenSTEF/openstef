@@ -92,7 +92,7 @@ def test_stacking_combiner_predict_contributions(
     contributions = combiner.predict_contributions(ensemble_dataset)
 
     assert isinstance(contributions, TimeSeriesDataset), "Contributions should be a TimeSeriesDataset."
-    # Expect (quantiles × forecasters) feature columns + 1 bias per quantile + target
+    # Expect (quantiles x forecasters) feature columns + 1 bias per quantile + target
     n_features = len(ensemble_dataset.forecaster_names)
     n_quantiles = len(ensemble_dataset.quantiles)
     # Each quantile model returns (features + bias) columns

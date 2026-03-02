@@ -31,11 +31,6 @@ class ForecastCombiner(BaseConfig, Predictor[EnsembleForecastDataset, ForecastDa
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    hyperparams: HyperParams = Field(
-        default_factory=HyperParams,
-        description="Combiner hyperparameters. Subclasses override with specific HyperParams types.",
-    )
-
     quantiles: list[Quantile] = Field(
         default=[Quantile(0.5)],
         description=(
@@ -71,6 +66,21 @@ class ForecastCombiner(BaseConfig, Predictor[EnsembleForecastDataset, ForecastDa
         """
         return self.model_copy(update={"horizons": [horizon]})
 
+    @property
+    @abstractmethod
+    def hparams(self) -> HyperParams:
+        """Combiner hyperparameters.
+
+        Concrete combiners implement this by returning their narrowed
+        ``hyperparams`` field, giving callers a polymorphic read-only view
+        while each subclass keeps full type safety on its own field.
+        """
+
+    @property
+    @abstractmethod
+    def is_fitted(self) -> bool:
+        """Whether the combiner has been fitted."""
+
     @abstractmethod
     def fit(
         self,
@@ -101,11 +111,6 @@ class ForecastCombiner(BaseConfig, Predictor[EnsembleForecastDataset, ForecastDa
         Returns:
             Combined forecast dataset.
         """
-
-    @property
-    @abstractmethod
-    def is_fitted(self) -> bool:
-        """Whether the combiner has been fitted."""
 
     @abstractmethod
     def predict_contributions(
