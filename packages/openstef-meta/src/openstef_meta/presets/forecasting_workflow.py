@@ -9,7 +9,7 @@ Mimics OpenSTEF-models forecasting workflow with ensemble capabilities.
 
 from collections.abc import Sequence
 from datetime import timedelta
-from typing import TYPE_CHECKING, Literal, cast
+from typing import Literal, cast
 
 from pydantic import Field
 
@@ -24,6 +24,7 @@ from openstef_core.datasets.timeseries_dataset import TimeSeriesDataset
 from openstef_core.mixins.transform import Transform, TransformPipeline
 from openstef_core.types import LeadTime, Q, Quantile, QuantileOrGlobal
 from openstef_meta.models.ensemble_forecasting_model import EnsembleForecastingModel
+from openstef_meta.models.forecast_combiners.forecast_combiner import ForecastCombiner
 from openstef_meta.models.forecast_combiners.learned_weights_combiner import (
     LGBMCombinerHyperParams,
     LogisticCombinerHyperParams,
@@ -36,6 +37,7 @@ from openstef_meta.models.forecast_combiners.stacking_combiner import (
 )
 from openstef_models.integrations.mlflow import MLFlowStorage, MLFlowStorageCallback
 from openstef_models.mixins.model_serializer import ModelIdentifier
+from openstef_models.models.forecasting.forecaster import Forecaster
 from openstef_models.models.forecasting.gblinear_forecaster import GBLinearForecaster, GBLinearHyperParams
 from openstef_models.models.forecasting.lgbm_forecaster import LGBMForecaster, LGBMHyperParams
 from openstef_models.models.forecasting.lgbmlinear_forecaster import LGBMLinearForecaster, LGBMLinearHyperParams
@@ -67,9 +69,6 @@ from openstef_models.workflows.custom_forecasting_workflow import (
     CustomForecastingWorkflow,
     ForecastingCallback,
 )
-
-if TYPE_CHECKING:
-    from openstef_models.models.forecasting.forecaster import Forecaster
 
 
 class EnsembleForecastingWorkflowConfig(BaseConfig):
@@ -271,8 +270,7 @@ class EnsembleForecastingWorkflowConfig(BaseConfig):
     )
 
 
-# Build preprocessing components
-def checks(config: EnsembleForecastingWorkflowConfig) -> list[Transform[TimeSeriesDataset, TimeSeriesDataset]]:
+def _checks(config: EnsembleForecastingWorkflowConfig) -> list[Transform[TimeSeriesDataset, TimeSeriesDataset]]:
     return [
         InputConsistencyChecker(),
         FlatlineChecker(
@@ -285,7 +283,7 @@ def checks(config: EnsembleForecastingWorkflowConfig) -> list[Transform[TimeSeri
     ]
 
 
-def feature_adders(config: EnsembleForecastingWorkflowConfig) -> list[Transform[TimeSeriesDataset, TimeSeriesDataset]]:
+def _feature_adders(config: EnsembleForecastingWorkflowConfig) -> list[Transform[TimeSeriesDataset, TimeSeriesDataset]]:
     return [
         LagsAdder(
             history_available=config.predict_history,
@@ -317,7 +315,7 @@ def feature_adders(config: EnsembleForecastingWorkflowConfig) -> list[Transform[
     ]
 
 
-def feature_standardizers(
+def _feature_standardizers(
     config: EnsembleForecastingWorkflowConfig,
 ) -> list[Transform[TimeSeriesDataset, TimeSeriesDataset]]:
     return cast(
@@ -330,30 +328,17 @@ def feature_standardizers(
     )
 
 
-def create_ensemble_forecasting_workflow(config: EnsembleForecastingWorkflowConfig) -> CustomForecastingWorkflow:  # noqa: C901, PLR0912
-    """Create an ensemble forecasting workflow from configuration.
-
-    Args:
-        config (EnsembleForecastingWorkflowConfig): Configuration for the ensemble workflow.
+def _build_forecasters(
+    config: EnsembleForecastingWorkflowConfig,
+) -> tuple[dict[str, Forecaster], dict[str, list[Transform[TimeSeriesDataset, TimeSeriesDataset]]]]:
+    """Build base forecasters and their per-model preprocessing from config.
 
     Returns:
-        CustomForecastingWorkflow: Configured ensemble forecasting workflow.
+        Tuple of (forecasters dict, per-forecaster preprocessing dict).
 
     Raises:
-        ValueError: If an unsupported base model or combiner type is specified.
+        ValueError: If an unsupported base model type is specified.
     """
-    # Common preprocessing
-    common_preprocessing = TransformPipeline(
-        transforms=[
-            *checks(config),
-            *feature_adders(config),
-            HolidayFeatureAdder(country_code=config.location.country_code),
-            DatetimeFeaturesAdder(onehot_encode=False),
-            *feature_standardizers(config),
-        ]
-    )
-
-    # Build forecasters and their processing pipelines
     forecaster_preprocessing: dict[str, list[Transform[TimeSeriesDataset, TimeSeriesDataset]]] = {}
     forecasters: dict[str, Forecaster] = {}
     for model_type in config.base_models:
@@ -417,24 +402,35 @@ def create_ensemble_forecasting_workflow(config: EnsembleForecastingWorkflowConf
             msg = f"Unsupported base model type: {model_type}"
             raise ValueError(msg)
 
-    # Build combiner
+    return forecasters, forecaster_preprocessing
+
+
+def _build_combiner(config: EnsembleForecastingWorkflowConfig) -> ForecastCombiner:
+    """Build the forecast combiner from config.
+
+    Returns:
+        Configured ForecastCombiner instance.
+
+    Raises:
+        ValueError: If an unsupported ensemble/combiner combination is specified.
+    """
     match (config.ensemble_type, config.combiner_model):
         case ("learned_weights", "lgbm"):
-            combiner = WeightsCombiner(
+            return WeightsCombiner(
                 hyperparams=config.combiner_lgbm_hyperparams, horizons=config.horizons, quantiles=config.quantiles
             )
         case ("learned_weights", "rf"):
-            combiner = WeightsCombiner(
+            return WeightsCombiner(
                 hyperparams=config.combiner_rf_hyperparams, horizons=config.horizons, quantiles=config.quantiles
             )
         case ("learned_weights", "xgboost"):
-            combiner = WeightsCombiner(
+            return WeightsCombiner(
                 hyperparams=config.combiner_xgboost_hyperparams,
                 horizons=config.horizons,
                 quantiles=config.quantiles,
             )
         case ("learned_weights", "logistic"):
-            combiner = WeightsCombiner(
+            return WeightsCombiner(
                 hyperparams=config.combiner_logistic_hyperparams,
                 horizons=config.horizons,
                 quantiles=config.quantiles,
@@ -446,7 +442,7 @@ def create_ensemble_forecasting_workflow(config: EnsembleForecastingWorkflowConf
                 horizons=[max(config.horizons)],
                 quantiles=[config.quantiles[0]],
             )
-            combiner = StackingCombiner(
+            return StackingCombiner(
                 meta_forecaster=template,
                 horizons=config.horizons,
                 quantiles=config.quantiles,
@@ -458,7 +454,7 @@ def create_ensemble_forecasting_workflow(config: EnsembleForecastingWorkflowConf
                 horizons=[max(config.horizons)],
                 quantiles=[config.quantiles[0]],
             )
-            combiner = StackingCombiner(
+            return StackingCombiner(
                 meta_forecaster=template,
                 horizons=config.horizons,
                 quantiles=config.quantiles,
@@ -466,6 +462,30 @@ def create_ensemble_forecasting_workflow(config: EnsembleForecastingWorkflowConf
         case _:
             msg = f"Unsupported ensemble and combiner combination: {config.ensemble_type}, {config.combiner_model}"
             raise ValueError(msg)
+
+
+def create_ensemble_forecasting_workflow(config: EnsembleForecastingWorkflowConfig) -> CustomForecastingWorkflow:
+    """Create an ensemble forecasting workflow from configuration.
+
+    Args:
+        config (EnsembleForecastingWorkflowConfig): Configuration for the ensemble workflow.
+
+    Returns:
+        CustomForecastingWorkflow: Configured ensemble forecasting workflow.
+    """
+    # Common preprocessing
+    common_preprocessing = TransformPipeline(
+        transforms=[
+            *_checks(config),
+            *_feature_adders(config),
+            HolidayFeatureAdder(country_code=config.location.country_code),
+            DatetimeFeaturesAdder(onehot_encode=False),
+            *_feature_standardizers(config),
+        ]
+    )
+
+    forecasters, forecaster_preprocessing = _build_forecasters(config)
+    combiner = _build_combiner(config)
 
     postprocessing = [QuantileSorter()]
 

@@ -5,9 +5,8 @@
 """Package for preset forecasting workflows."""
 
 from .forecasting_workflow import (
-    EnsembleForecastingModel,
     EnsembleForecastingWorkflowConfig,
     create_ensemble_forecasting_workflow,
 )
 
-__all__ = ["EnsembleForecastingModel", "EnsembleForecastingWorkflowConfig", "create_ensemble_forecasting_workflow"]
+__all__ = ["EnsembleForecastingWorkflowConfig", "create_ensemble_forecasting_workflow"]
