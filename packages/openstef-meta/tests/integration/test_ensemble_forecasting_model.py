@@ -11,7 +11,7 @@ import pytest
 from openstef_core.datasets.validated_datasets import TimeSeriesDataset
 from openstef_core.types import LeadTime, Q
 from openstef_meta.models.ensemble_forecasting_model import EnsembleForecastingModel
-from openstef_meta.presets import EnsembleWorkflowConfig, create_ensemble_workflow
+from openstef_meta.presets import EnsembleForecastingWorkflowConfig, create_ensemble_forecasting_workflow
 from openstef_models.models.forecasting_model import ForecastingModel
 from openstef_models.presets import ForecastingWorkflowConfig, create_forecasting_workflow
 from openstef_models.transforms.general import SampleWeightConfig
@@ -36,8 +36,8 @@ def sample_timeseries_dataset() -> TimeSeriesDataset:
 
 
 @pytest.fixture
-def config() -> EnsembleWorkflowConfig:
-    return EnsembleWorkflowConfig(
+def config() -> EnsembleForecastingWorkflowConfig:
+    return EnsembleForecastingWorkflowConfig(
         model_id="ensemble_model_",
         ensemble_type="learned_weights",
         base_models=["gblinear", "lgbm"],
@@ -53,10 +53,10 @@ def config() -> EnsembleWorkflowConfig:
 
 @pytest.fixture
 def create_models(
-    config: EnsembleWorkflowConfig,
+    config: EnsembleForecastingWorkflowConfig,
 ) -> tuple[EnsembleForecastingModel, dict[str, ForecastingModel]]:
 
-    ensemble_model = create_ensemble_workflow(config=config).model
+    ensemble_model = create_ensemble_forecasting_workflow(config=config).model
 
     base_models: dict[str, ForecastingModel] = {}
     for forecaster_name in config.base_models:

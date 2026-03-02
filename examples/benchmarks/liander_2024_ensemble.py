@@ -31,7 +31,7 @@ from openstef_beam.benchmarking.callbacks.strict_execution_callback import Stric
 from openstef_beam.benchmarking.storage.local_storage import LocalBenchmarkStorage
 from openstef_core.types import LeadTime, Q
 from openstef_meta.presets import (
-    EnsembleWorkflowConfig,
+    EnsembleForecastingWorkflowConfig,
 )
 from openstef_models.integrations.mlflow.mlflow_storage import MLFlowStorage
 from openstef_models.transforms.general import SampleWeightConfig
@@ -74,7 +74,7 @@ if USE_MLFLOW_STORAGE:
 else:
     storage = None
 
-workflow_config = EnsembleWorkflowConfig(
+workflow_config = EnsembleForecastingWorkflowConfig(
     model_id="common_model_",
     ensemble_type=ensemble_type,
     base_models=base_models,  # type: ignore

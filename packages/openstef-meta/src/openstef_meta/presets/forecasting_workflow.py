@@ -72,7 +72,7 @@ if TYPE_CHECKING:
     from openstef_models.models.forecasting.forecaster import Forecaster
 
 
-class EnsembleWorkflowConfig(BaseConfig):
+class EnsembleForecastingWorkflowConfig(BaseConfig):
     """Configuration for ensemble forecasting workflows."""
 
     model_id: ModelIdentifier
@@ -272,7 +272,7 @@ class EnsembleWorkflowConfig(BaseConfig):
 
 
 # Build preprocessing components
-def checks(config: EnsembleWorkflowConfig) -> list[Transform[TimeSeriesDataset, TimeSeriesDataset]]:
+def checks(config: EnsembleForecastingWorkflowConfig) -> list[Transform[TimeSeriesDataset, TimeSeriesDataset]]:
     return [
         InputConsistencyChecker(),
         FlatlineChecker(
@@ -285,7 +285,7 @@ def checks(config: EnsembleWorkflowConfig) -> list[Transform[TimeSeriesDataset, 
     ]
 
 
-def feature_adders(config: EnsembleWorkflowConfig) -> list[Transform[TimeSeriesDataset, TimeSeriesDataset]]:
+def feature_adders(config: EnsembleForecastingWorkflowConfig) -> list[Transform[TimeSeriesDataset, TimeSeriesDataset]]:
     return [
         LagsAdder(
             history_available=config.predict_history,
@@ -317,7 +317,9 @@ def feature_adders(config: EnsembleWorkflowConfig) -> list[Transform[TimeSeriesD
     ]
 
 
-def feature_standardizers(config: EnsembleWorkflowConfig) -> list[Transform[TimeSeriesDataset, TimeSeriesDataset]]:
+def feature_standardizers(
+    config: EnsembleForecastingWorkflowConfig,
+) -> list[Transform[TimeSeriesDataset, TimeSeriesDataset]]:
     return cast(
         list[Transform[TimeSeriesDataset, TimeSeriesDataset]],
         [
@@ -328,11 +330,11 @@ def feature_standardizers(config: EnsembleWorkflowConfig) -> list[Transform[Time
     )
 
 
-def create_ensemble_workflow(config: EnsembleWorkflowConfig) -> CustomForecastingWorkflow:  # noqa: C901, PLR0912
+def create_ensemble_forecasting_workflow(config: EnsembleForecastingWorkflowConfig) -> CustomForecastingWorkflow:  # noqa: C901, PLR0912
     """Create an ensemble forecasting workflow from configuration.
 
     Args:
-        config (EnsembleWorkflowConfig): Configuration for the ensemble workflow.
+        config (EnsembleForecastingWorkflowConfig): Configuration for the ensemble workflow.
 
     Returns:
         CustomForecastingWorkflow: Configured ensemble forecasting workflow.
@@ -521,4 +523,4 @@ def create_ensemble_workflow(config: EnsembleWorkflowConfig) -> CustomForecastin
     )
 
 
-__all__ = ["EnsembleWorkflowConfig", "create_ensemble_workflow"]
+__all__ = ["EnsembleForecastingWorkflowConfig", "create_ensemble_forecasting_workflow"]

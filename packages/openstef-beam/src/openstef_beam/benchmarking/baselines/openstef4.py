@@ -31,7 +31,7 @@ from openstef_core.base_model import BaseConfig, BaseModel
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.exceptions import FlatlinerDetectedError, NotFittedError
 from openstef_core.types import Q
-from openstef_meta.presets import EnsembleWorkflowConfig, create_ensemble_workflow
+from openstef_meta.presets import EnsembleForecastingWorkflowConfig, create_ensemble_forecasting_workflow
 from openstef_models.presets import ForecastingWorkflowConfig
 from openstef_models.workflows.custom_forecasting_workflow import (
     CustomForecastingWorkflow,
@@ -172,7 +172,7 @@ class OpenSTEF4PresetBacktestForecaster(OpenSTEF4BacktestForecaster):
 
 
 def _preset_target_forecaster_factory(
-    base_config: ForecastingWorkflowConfig | EnsembleWorkflowConfig,
+    base_config: ForecastingWorkflowConfig | EnsembleForecastingWorkflowConfig,
     backtest_config: BacktestForecasterConfig,
     cache_dir: Path,
     context: BenchmarkContext,
@@ -201,8 +201,8 @@ def _preset_target_forecaster_factory(
             "run_name": context.step_name,
         }
 
-        if isinstance(base_config, EnsembleWorkflowConfig):
-            return create_ensemble_workflow(config=base_config.model_copy(update=update))
+        if isinstance(base_config, EnsembleForecastingWorkflowConfig):
+            return create_ensemble_forecasting_workflow(config=base_config.model_copy(update=update))
 
         return create_forecasting_workflow(config=base_config.model_copy(update=update))
 
@@ -215,7 +215,7 @@ def _preset_target_forecaster_factory(
 
 
 def create_openstef4_preset_backtest_forecaster(
-    workflow_config: ForecastingWorkflowConfig | EnsembleWorkflowConfig,
+    workflow_config: ForecastingWorkflowConfig | EnsembleForecastingWorkflowConfig,
     backtest_config: BacktestForecasterConfig | None = None,
     cache_dir: Path = Path("cache"),
 ) -> ForecasterFactory[BenchmarkTarget]:
