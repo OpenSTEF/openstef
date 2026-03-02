@@ -23,8 +23,8 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.utils.class_weight import compute_sample_weight  # type: ignore[import-untyped]
 
 from openstef_core.datasets import ForecastDataset, ForecastInputDataset, TimeSeriesDataset
-from openstef_core.datasets.validated_datasets import EnsembleForecastDataset
-from openstef_core.exceptions import NotFittedError
+from openstef_core.datasets.validated_datasets import ENSEMBLE_COLUMN_SEP, EnsembleForecastDataset
+from openstef_core.exceptions import MissingExtraError, NotFittedError
 from openstef_core.mixins.predictor import HyperParams
 from openstef_core.types import Quantile
 from openstef_meta.models.forecast_combiners.forecast_combiner import (
@@ -44,8 +44,15 @@ class LGBMCombinerHyperParams(HyperParams):
     reg_lambda: float = Field(default=0.0, description="L2 regularization term on weights.")
 
     def get_classifier(self) -> ClassifierMixin:
-        """Create an LGBM gradient-boosted classifier from these hyperparameters."""
-        from lightgbm import LGBMClassifier  # noqa: PLC0415
+        """Create an LGBM gradient-boosted classifier from these hyperparameters.
+
+        Raises:
+            MissingExtraError: If lightgbm is not installed.
+        """
+        try:
+            from lightgbm import LGBMClassifier  # noqa: PLC0415
+        except ImportError as e:
+            raise MissingExtraError("lightgbm", "openstef-models") from e
 
         return LGBMClassifier(
             class_weight="balanced",
@@ -67,8 +74,15 @@ class RFCombinerHyperParams(HyperParams):
     feature_fraction: float = Field(default=1, description="Fraction of features per iteration.")
 
     def get_classifier(self) -> ClassifierMixin:
-        """Create an LGBM random-forest classifier from these hyperparameters."""
-        from lightgbm import LGBMClassifier  # noqa: PLC0415
+        """Create an LGBM random-forest classifier from these hyperparameters.
+
+        Raises:
+            MissingExtraError: If lightgbm is not installed.
+        """
+        try:
+            from lightgbm import LGBMClassifier  # noqa: PLC0415
+        except ImportError as e:
+            raise MissingExtraError("lightgbm", "openstef-models") from e
 
         return LGBMClassifier(
             boosting_type="rf",
@@ -87,8 +101,15 @@ class XGBCombinerHyperParams(HyperParams):
     n_estimators: int = Field(default=20, description="Number of boosting rounds.")
 
     def get_classifier(self) -> ClassifierMixin:
-        """Create an XGBoost classifier from these hyperparameters."""
-        from xgboost import XGBClassifier  # noqa: PLC0415
+        """Create an XGBoost classifier from these hyperparameters.
+
+        Raises:
+            MissingExtraError: If xgboost is not installed.
+        """
+        try:
+            from xgboost import XGBClassifier  # noqa: PLC0415
+        except ImportError as e:
+            raise MissingExtraError("xgboost", "openstef-models") from e
 
         return XGBClassifier(n_estimators=self.n_estimators)
 
@@ -160,22 +181,43 @@ class WeightsCombiner(ForecastCombiner):
 
         feature_names: list[str] = []
         for q in self.quantiles:
-            dataset = data.get_best_forecaster_labels(quantile=q)
+            base_data = data.get_base_predictions_for_quantile(quantile=q)
+            labels = self._classify_best_forecaster(base_data, quantile=q)
             combined_data = combine_forecast_input_datasets(
-                input_data=dataset,
+                input_data=base_data,
                 additional_features=additional_features,
             )
             input_data = combined_data.input_data()
-            labels = combined_data.target_series
             self._validate_labels(labels=labels, quantile=q)
-            labels = self._label_encoder.transform(labels)
+            encoded_labels = self._label_encoder.transform(labels)
 
-            weights = compute_sample_weight("balanced", labels) * combined_data.sample_weight_series
-            self._models[q].fit(X=input_data, y=labels, sample_weight=weights)  # pyright: ignore[reportUnknownMemberType]
+            weights = compute_sample_weight("balanced", encoded_labels) * combined_data.sample_weight_series
+            self._models[q].fit(X=input_data, y=encoded_labels, sample_weight=weights)  # pyright: ignore[reportUnknownMemberType]
             feature_names = list(input_data.columns)
 
         self._feature_names = feature_names
         self._is_fitted = True
+
+    @staticmethod
+    def _classify_best_forecaster(data: ForecastInputDataset, quantile: Quantile) -> pd.Series:
+        """Compute best-forecaster labels via pinball loss.
+
+        For each sample, returns the name of the forecaster with the lowest
+        pinball loss at the given quantile.
+
+        Returns:
+            Series with the name of the best-performing forecaster per sample.
+        """
+        predictions = data.input_data()
+        y_true = np.asarray(data.target_series)
+
+        def _pinball_loss(preds: pd.Series) -> np.ndarray:
+            y_pred = np.asarray(preds)
+            errors = y_true - y_pred
+            return np.where(errors >= 0, quantile * errors, (quantile - 1) * errors)
+
+        losses = predictions.apply(_pinball_loss)
+        return losses.idxmin(axis=1)
 
     def _validate_labels(self, labels: pd.Series, quantile: Quantile) -> None:
         if len(labels.unique()) == 1:
@@ -279,7 +321,7 @@ class WeightsCombiner(ForecastCombiner):
     ) -> pd.DataFrame:
         input_data = self._prepare_input_data(dataset=dataset, additional_features=additional_features)
         weights = self._predict_weights(base_predictions=input_data, quantile=quantile)
-        weights.columns = [f"{col}_{quantile.format()}" for col in weights.columns]
+        weights.columns = [f"{col}{ENSEMBLE_COLUMN_SEP}{quantile.format()}" for col in weights.columns]
         return weights
 
     @property

@@ -31,7 +31,6 @@ from openstef_core.base_model import BaseConfig, BaseModel
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.exceptions import FlatlinerDetectedError, NotFittedError
 from openstef_core.types import Q
-from openstef_meta.models.ensemble_forecasting_model import EnsembleForecastingModel
 from openstef_meta.presets import EnsembleWorkflowConfig, create_ensemble_workflow
 from openstef_models.presets import ForecastingWorkflowConfig
 from openstef_models.workflows.custom_forecasting_workflow import (
@@ -156,12 +155,15 @@ class OpenSTEF4BacktestForecaster(BaseModel, BacktestForecasterMixin):
             predict_data.to_parquet(path=self.cache_dir / f"debug_{id_str}_predict.parquet")
             forecast.to_parquet(path=self.cache_dir / f"debug_{id_str}_forecast.parquet")
 
-        if self.contributions and isinstance(self._workflow.model, EnsembleForecastingModel):
+        if self.contributions:
             id_str = data.horizon.strftime("%Y%m%d%H%M%S")
-            contributions = self._workflow.model.predict_contributions(predict_data, forecast_start=data.horizon)
-            df = pd.concat([contributions, forecast.data.drop(columns=["load"])], axis=1)
-
-            df.to_parquet(path=self.cache_dir / f"contrib_{id_str}_predict.parquet")
+            try:
+                contributions = self._workflow.model.predict_contributions(predict_data, forecast_start=data.horizon)
+            except NotImplementedError:
+                pass
+            else:
+                df = pd.concat([contributions, forecast.data.drop(columns=["load"])], axis=1)
+                df.to_parquet(path=self.cache_dir / f"contrib_{id_str}_predict.parquet")
         return forecast
 
 
