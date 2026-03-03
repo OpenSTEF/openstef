@@ -8,18 +8,17 @@ from datetime import datetime, timedelta
 import numpy as np
 import pandas as pd
 import pytest
+from pydantic import PrivateAttr
 
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import InsufficientlyCompleteError, NotFittedError
 from openstef_core.mixins import TransformPipeline
+from openstef_core.mixins.predictor import HyperParams
 from openstef_core.testing import assert_timeseries_equal, create_synthetic_forecasting_dataset
 from openstef_core.types import LeadTime, Quantile, override
-from openstef_models.models.forecasting.constant_median_forecaster import (
-    ConstantMedianForecaster,
-    ConstantMedianForecasterConfig,
-)
-from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
+from openstef_models.models.forecasting.constant_median_forecaster import ConstantMedianForecaster
+from openstef_models.models.forecasting.forecaster import Forecaster
 from openstef_models.models.forecasting_model import ForecastingModel
 from openstef_models.transforms.postprocessing.quantile_sorter import QuantileSorter
 from openstef_models.transforms.time_domain.lags_adder import LagsAdder
@@ -28,13 +27,12 @@ from openstef_models.transforms.time_domain.lags_adder import LagsAdder
 class SimpleForecaster(Forecaster):
     """Simple test forecaster that returns predictable values for testing."""
 
-    def __init__(self, config: ForecasterConfig):
-        self._config = config
-        self._is_fitted = False
+    _is_fitted: bool = PrivateAttr(default=False)
 
     @property
-    def config(self) -> ForecasterConfig:
-        return self._config
+    @override
+    def hparams(self) -> HyperParams:
+        return HyperParams()
 
     @property
     @override
@@ -48,13 +46,10 @@ class SimpleForecaster(Forecaster):
     @override
     def predict(self, data: ForecastInputDataset) -> ForecastDataset:
         # Return predictable forecast values
-        forecast_values = {quantile: 100.0 + quantile * 10 for quantile in self.config.quantiles}
+        forecast_values = {quantile: 100.0 + quantile * 10 for quantile in self.quantiles}
         return ForecastDataset(
             pd.DataFrame(
-                {
-                    quantile.format(): [forecast_values[quantile]] * len(data.index)
-                    for quantile in self.config.quantiles
-                },
+                {quantile.format(): [forecast_values[quantile]] * len(data.index) for quantile in self.quantiles},
                 index=data.index,
             ),
             data.sample_interval,
@@ -84,8 +79,7 @@ def test_forecasting_model__init__uses_defaults():
     """Test initialization uses default preprocessing and postprocessing when not provided."""
     # Arrange
     horizons = [LeadTime(timedelta(hours=1))]
-    config = ForecasterConfig(quantiles=[Quantile(0.5)], horizons=horizons)
-    forecaster = SimpleForecaster(config=config)
+    forecaster = SimpleForecaster(quantiles=[Quantile(0.5)], horizons=horizons)
 
     # Act
     model = ForecastingModel(forecaster=forecaster, preprocessing=TransformPipeline())
@@ -101,8 +95,7 @@ def test_forecasting_model__fit(sample_timeseries_dataset: TimeSeriesDataset):
     # Arrange
     horizons = [LeadTime(timedelta(hours=6))]
 
-    config = ForecasterConfig(quantiles=[Quantile(0.5)], horizons=horizons)
-    forecaster = SimpleForecaster(config=config)
+    forecaster = SimpleForecaster(quantiles=[Quantile(0.5)], horizons=horizons)
     model = ForecastingModel(forecaster=forecaster)
 
     # Act
@@ -126,8 +119,7 @@ def test_forecasting_model__fit_all_nan_target():
     # Arrange
     horizons = [LeadTime(timedelta(hours=6))]
 
-    config = ForecasterConfig(quantiles=[Quantile(0.5)], horizons=horizons)
-    forecaster = SimpleForecaster(config=config)
+    forecaster = SimpleForecaster(quantiles=[Quantile(0.5)], horizons=horizons)
     model = ForecastingModel(forecaster=forecaster)
     n_samples = 25
     data = TimeSeriesDataset(
@@ -154,8 +146,7 @@ def test_forecasting_model__predict(sample_timeseries_dataset: TimeSeriesDataset
     # Arrange
     horizons = [LeadTime(timedelta(hours=6))]
 
-    config = ForecasterConfig(quantiles=[Quantile(0.5)], horizons=horizons)
-    forecaster = SimpleForecaster(config=config)
+    forecaster = SimpleForecaster(quantiles=[Quantile(0.5)], horizons=horizons)
 
     model = ForecastingModel(forecaster=forecaster)
 
@@ -180,8 +171,7 @@ def test_forecasting_model__predict__raises_error_when_not_fitted(sample_timeser
     """Test predict raises NotFittedError when model is not fitted."""
     # Arrange
     horizons = [LeadTime(timedelta(hours=6))]
-    config = ForecasterConfig(quantiles=[Quantile(0.5)], horizons=horizons)
-    forecaster = SimpleForecaster(config=config)
+    forecaster = SimpleForecaster(quantiles=[Quantile(0.5)], horizons=horizons)
     model = ForecastingModel(forecaster=forecaster)
 
     # Act & Assert
@@ -193,8 +183,7 @@ def test_forecasting_model__score__returns_metrics(sample_timeseries_dataset: Ti
     """Test that score evaluates model and returns metrics."""
     # Arrange
     horizons = [LeadTime(timedelta(hours=6))]
-    config = ForecasterConfig(quantiles=[Quantile(0.5)], horizons=horizons)
-    forecaster = SimpleForecaster(config=config)
+    forecaster = SimpleForecaster(quantiles=[Quantile(0.5)], horizons=horizons)
 
     model = ForecastingModel(forecaster=forecaster)
     model.fit(data=sample_timeseries_dataset)
@@ -227,10 +216,8 @@ def test_forecasting_model__pickle_roundtrip():
 
     original_model = ForecastingModel(
         forecaster=ConstantMedianForecaster(
-            config=ConstantMedianForecasterConfig(
-                quantiles=[Quantile(0.1), Quantile(0.5), Quantile(0.9)],
-                horizons=horizons,
-            )
+            quantiles=[Quantile(0.1), Quantile(0.5), Quantile(0.9)],
+            horizons=horizons,
         ),
         preprocessing=TransformPipeline(
             transforms=[

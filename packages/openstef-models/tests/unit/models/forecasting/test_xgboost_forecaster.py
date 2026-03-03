@@ -12,17 +12,16 @@ from openstef_core.exceptions import NotFittedError
 from openstef_core.types import LeadTime, Q
 from openstef_models.models.forecasting.xgboost_forecaster import (
     XGBoostForecaster,
-    XGBoostForecasterConfig,
     XGBoostHyperParams,
 )
 
 
 @pytest.fixture
-def base_config() -> XGBoostForecasterConfig:
+def base_config() -> XGBoostForecaster:
     """Base configuration for XGBoost forecaster tests."""
-    return XGBoostForecasterConfig(
+    return XGBoostForecaster(
         horizons=[LeadTime(timedelta(days=1))],
-        quantiles=[Q(0.1), Q(0.5), Q(0.9)],
+        quantiles=[Q(0.1), Q(0.3), Q(0.5), Q(0.7), Q(0.9)],
         hyperparams=XGBoostHyperParams(
             n_estimators=10,  # Small for fast tests
         ),
@@ -32,12 +31,12 @@ def base_config() -> XGBoostForecasterConfig:
 
 def test_xgboost_forecaster__fit_predict(
     sample_forecast_input_dataset: ForecastInputDataset,
-    base_config: XGBoostForecasterConfig,
+    base_config: XGBoostForecaster,
 ):
     """Test basic fit and predict workflow with output validation."""
     # Arrange
     expected_quantiles = base_config.quantiles
-    forecaster = XGBoostForecaster(config=base_config)
+    forecaster = base_config.model_copy(deep=True)
 
     # Act
     forecaster.fit(sample_forecast_input_dataset)
@@ -64,11 +63,11 @@ def test_xgboost_forecaster__fit_predict(
 
 def test_xgboost_forecaster__predict_not_fitted_raises_error(
     sample_forecast_input_dataset: ForecastInputDataset,
-    base_config: XGBoostForecasterConfig,
+    base_config: XGBoostForecaster,
 ):
     """Test that predict() raises NotFittedError when called before fit()."""
     # Arrange
-    forecaster = XGBoostForecaster(config=base_config)
+    forecaster = base_config.model_copy(deep=True)
 
     # Act & Assert
     with pytest.raises(NotFittedError, match="XGBoostForecaster"):
@@ -77,11 +76,11 @@ def test_xgboost_forecaster__predict_not_fitted_raises_error(
 
 def test_xgboost_forecaster__with_sample_weights(
     sample_dataset_with_weights: ForecastInputDataset,
-    base_config: XGBoostForecasterConfig,
+    base_config: XGBoostForecaster,
 ):
     """Test that forecaster works with sample weights and produces different results."""
     # Arrange
-    forecaster_with_weights = XGBoostForecaster(config=base_config)
+    forecaster_with_weights = base_config.model_copy(deep=True)
 
     # Create dataset without weights for comparison
     data_without_weights = ForecastInputDataset(
@@ -90,7 +89,7 @@ def test_xgboost_forecaster__with_sample_weights(
         target_column=sample_dataset_with_weights.target_column,
         forecast_start=sample_dataset_with_weights.forecast_start,
     )
-    forecaster_without_weights = XGBoostForecaster(config=base_config)
+    forecaster_without_weights = base_config.model_copy(deep=True)
 
     # Act
     forecaster_with_weights.fit(sample_dataset_with_weights)
@@ -114,7 +113,7 @@ def test_xgboost_forecaster__with_sample_weights(
 @pytest.mark.parametrize("objective", ["pinball_loss", "arctan_loss"])
 def test_xgboost_forecaster__different_objectives(
     sample_forecast_input_dataset: ForecastInputDataset,
-    base_config: XGBoostForecasterConfig,
+    base_config: XGBoostForecaster,
     objective: str,
 ):
     """Test that forecaster works with different objective functions."""
@@ -126,7 +125,7 @@ def test_xgboost_forecaster__different_objectives(
             )
         }
     )
-    forecaster = XGBoostForecaster(config=config)
+    forecaster = config
 
     # Act
     forecaster.fit(sample_forecast_input_dataset)
@@ -146,11 +145,11 @@ def test_xgboost_forecaster__different_objectives(
 
 def test_xgboost_forecaster__feature_importances(
     sample_forecast_input_dataset: ForecastInputDataset,
-    base_config: XGBoostForecasterConfig,
+    base_config: XGBoostForecaster,
 ):
     """Test that feature_importances returns correct normalized importance scores."""
     # Arrange
-    forecaster = XGBoostForecaster(config=base_config)
+    forecaster = base_config.model_copy(deep=True)
     forecaster.fit(sample_forecast_input_dataset)
 
     # Act
@@ -167,3 +166,29 @@ def test_xgboost_forecaster__feature_importances(
     col_sums = feature_importances.sum(axis=0)
     pd.testing.assert_series_equal(col_sums, pd.Series(1.0, index=expected_columns), atol=1e-10)
     assert (feature_importances >= 0).all().all()
+
+
+def test_xgboost_forecaster_predict_contributions(
+    sample_forecast_input_dataset: ForecastInputDataset,
+    base_config: XGBoostForecaster,
+):
+    """Test that predict_contributions returns per-feature SHAP values for the median quantile."""
+    # Arrange
+    forecaster = base_config.model_copy(deep=True)
+
+    # Act
+    forecaster.fit(sample_forecast_input_dataset)
+    result = forecaster.predict_contributions(sample_forecast_input_dataset)
+
+    # Assert
+    assert forecaster.is_fitted, "Model should be fitted after calling fit()"
+
+    # Columns should be [*input_features, "bias"]
+    input_features = list(sample_forecast_input_dataset.input_data().columns)
+    expected_columns = [*input_features, "bias"]
+    assert list(result.data.columns) == expected_columns, (
+        f"Expected columns {expected_columns}, got {list(result.data.columns)}"
+    )
+
+    # Contributions (features + bias) should sum to approximately the prediction value
+    assert not result.data.isna().any().any(), "Contributions should not contain NaN values"

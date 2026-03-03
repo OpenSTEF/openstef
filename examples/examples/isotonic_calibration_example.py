@@ -27,7 +27,6 @@ from openstef_core.mixins import TransformPipeline
 from openstef_core.types import LeadTime, Q
 from openstef_models.models.forecasting.gblinear_forecaster import (
     GBLinearForecaster,
-    GBLinearForecasterConfig,
     GBLinearHyperParams,
 )
 from openstef_models.models.forecasting_model import ForecastingModel
@@ -53,12 +52,10 @@ dataset = TimeSeriesDataset(
 # Step 2: Configure model without calibration (for comparison)
 model_uncalibrated = ForecastingModel(
     forecaster=GBLinearForecaster(
-        config=GBLinearForecasterConfig(
-            horizons=[LeadTime.from_string("PT1H")],
-            quantiles=[Q(0.1), Q(0.5), Q(0.9)],
-            hyperparams=GBLinearHyperParams(n_steps=100),
-            verbosity=0,
-        )
+        horizons=[LeadTime.from_string("PT1H")],
+        quantiles=[Q(0.1), Q(0.5), Q(0.9)],
+        hyperparams=GBLinearHyperParams(n_steps=100),
+        verbosity=0,
     ),
     target_column="load",
 )
@@ -70,12 +67,10 @@ forecast_uncalibrated = pipeline_uncalibrated.predict(dataset)
 # Step 3: Configure model with windowed isotonic quantile calibration
 model_calibrated = ForecastingModel(
     forecaster=GBLinearForecaster(
-        config=GBLinearForecasterConfig(
-            horizons=[LeadTime.from_string("PT1H")],
-            quantiles=[Q(0.1), Q(0.5), Q(0.9)],
-            hyperparams=GBLinearHyperParams(n_steps=100),
-            verbosity=0,
-        )
+        horizons=[LeadTime.from_string("PT1H")],
+        quantiles=[Q(0.1), Q(0.5), Q(0.9)],
+        hyperparams=GBLinearHyperParams(n_steps=100),
+        verbosity=0,
     ),
     postprocessing=TransformPipeline(
         transforms=[

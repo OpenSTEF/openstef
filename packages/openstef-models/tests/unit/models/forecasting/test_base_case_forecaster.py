@@ -13,7 +13,6 @@ from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastI
 from openstef_core.types import LeadTime, Quantile
 from openstef_models.models.forecasting.base_case_forecaster import (
     BaseCaseForecaster,
-    BaseCaseForecasterConfig,
     BaseCaseForecasterHyperParams,
 )
 
@@ -51,10 +50,8 @@ def sample_forecast_input_dataset() -> ForecastInputDataset:
 def base_case_forecaster() -> BaseCaseForecaster:
     """Create sample forecaster configuration with standard quantiles."""
     return BaseCaseForecaster(
-        config=BaseCaseForecasterConfig(
-            horizons=[LeadTime(timedelta(days=1))],
-            hyperparams=BaseCaseForecasterHyperParams(),
-        )
+        horizons=[LeadTime(timedelta(days=1))],
+        hyperparams=BaseCaseForecasterHyperParams(),
     )
 
 
@@ -64,7 +61,6 @@ def test_base_case_forecaster__initialization_custom(base_case_forecaster: BaseC
     forecaster = base_case_forecaster
 
     # Assert
-    assert forecaster.config == base_case_forecaster.config
     assert forecaster.hyperparams.primary_lag == timedelta(days=7)
     assert forecaster.hyperparams.fallback_lag == timedelta(days=14)
 
@@ -85,10 +81,10 @@ def test_base_case_forecaster__fit_predict(
     assert isinstance(result, ForecastDataset)
 
     pd.testing.assert_index_equal(
-        result.index, sample_forecast_input_dataset.create_forecast_range(base_case_forecaster.config.max_horizon)
+        result.index, sample_forecast_input_dataset.create_forecast_range(base_case_forecaster.max_horizon)
     )
 
-    expected_columns = [q.format() for q in base_case_forecaster.config.quantiles]
+    expected_columns = [q.format() for q in base_case_forecaster.quantiles]
     assert list(result.data.columns) == expected_columns
 
     actual_values = result.data.iloc[0]
@@ -171,15 +167,6 @@ def test_base_case_forecaster__fallback_lag_usage():
 
     data = pd.DataFrame({"load": load_values}, index=dates)
 
-    config = BaseCaseForecasterConfig(
-        quantiles=[Quantile(0.5)],
-        horizons=[LeadTime(timedelta(hours=1))],
-        hyperparams=BaseCaseForecasterHyperParams(
-            primary_lag=timedelta(hours=6),
-            fallback_lag=timedelta(days=7),
-        ),
-    )
-
     input_dataset = ForecastInputDataset(
         data=data,
         sample_interval=timedelta(hours=1),
@@ -187,7 +174,14 @@ def test_base_case_forecaster__fallback_lag_usage():
         forecast_start=dates[2 * 7 * 24],
     )
 
-    forecaster = BaseCaseForecaster(config=config)
+    forecaster = BaseCaseForecaster(
+        quantiles=[Quantile(0.5)],
+        horizons=[LeadTime(timedelta(hours=1))],
+        hyperparams=BaseCaseForecasterHyperParams(
+            primary_lag=timedelta(hours=6),
+            fallback_lag=timedelta(days=7),
+        ),
+    )
 
     # Act
     result = forecaster.predict(input_dataset)
@@ -246,15 +240,6 @@ def test_base_case_forecaster__different_lag_configurations(primary_lag: timedel
 
     data = pd.DataFrame({"load": load_values}, index=dates)
 
-    config = BaseCaseForecasterConfig(
-        quantiles=[Quantile(0.5)],
-        horizons=[LeadTime(timedelta(hours=1))],
-        hyperparams=BaseCaseForecasterHyperParams(
-            primary_lag=primary_lag,
-            fallback_lag=fallback_lag,
-        ),
-    )
-
     input_dataset = ForecastInputDataset(
         data=data,
         sample_interval=timedelta(hours=1),
@@ -262,7 +247,14 @@ def test_base_case_forecaster__different_lag_configurations(primary_lag: timedel
         forecast_start=dates[2 * 7 * 24],
     )
 
-    forecaster = BaseCaseForecaster(config=config)
+    forecaster = BaseCaseForecaster(
+        quantiles=[Quantile(0.5)],
+        horizons=[LeadTime(timedelta(hours=1))],
+        hyperparams=BaseCaseForecasterHyperParams(
+            primary_lag=primary_lag,
+            fallback_lag=fallback_lag,
+        ),
+    )
 
     # Act
     result = forecaster.predict(input_dataset)

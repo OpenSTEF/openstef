@@ -13,6 +13,7 @@ import logging
 import os
 from collections.abc import Sequence
 from datetime import UTC, datetime
+from itertools import starmap
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any, cast, override
@@ -113,6 +114,23 @@ class MLFlowStorage(BaseConfig):
             )
 
         return run
+
+    def log_hyperparams(self, run_id: str, params: dict[str, str]) -> None:
+        """Log additional hyperparameters to an existing MLflow run.
+
+        Useful for logging hyperparameters from multiple components (e.g.,
+        ensemble base forecasters and combiner) with prefixed names.
+
+        Args:
+            run_id: MLflow run ID to log parameters to.
+            params: Key-value pairs of hyperparameter names and string values.
+        """
+        if not params:
+            return
+        self._client.log_batch(
+            run_id=run_id,
+            params=list(starmap(Param, params.items())),
+        )
 
     def finalize_run(
         self, model_id: ModelIdentifier, run_id: str, metrics: dict[str, float] | None = None, status: str = "FINISHED"

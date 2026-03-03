@@ -2,14 +2,16 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-"""High-level forecasting model that orchestrates the complete prediction pipeline.
+"""High-level forecasting models that orchestrate the complete prediction pipeline.
 
-Combines feature engineering, forecasting, and postprocessing into a unified interface.
-Handles both single-horizon and multi-horizon forecasters while providing consistent
-data transformation and validation.
+Provides ``BaseForecastingModel`` — the abstract base shared by single-model and
+ensemble pipelines — and ``ForecastingModel``, the concrete single-forecaster
+implementation.  Both combine preprocessing, prediction, and postprocessing into a
+unified interface while providing consistent data transformation and validation.
 """
 
 import logging
+from abc import abstractmethod
 from datetime import datetime, timedelta
 from functools import partial
 from typing import cast, override
@@ -27,9 +29,10 @@ from openstef_core.datasets import (
 )
 from openstef_core.datasets.timeseries_dataset import validate_horizons_present
 from openstef_core.exceptions import InsufficientlyCompleteError, NotFittedError
-from openstef_core.mixins import Predictor, TransformPipeline
-from openstef_models.models.forecasting import Forecaster
-from openstef_models.models.forecasting.forecaster import ForecasterConfig
+from openstef_core.mixins import HyperParams, Predictor, TransformPipeline
+from openstef_core.types import LeadTime, Quantile
+from openstef_models.explainability.mixins import ContributionsMixin
+from openstef_models.models.forecasting.forecaster import Forecaster
 from openstef_models.utils.data_split import DataSplitter
 
 
@@ -60,58 +63,24 @@ class ModelFitResult(BaseModel):
     metrics_full: SubsetMetric = Field(description="Evaluation metrics computed on the full original dataset.")
 
 
-class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset]):
-    """Complete forecasting pipeline combining preprocessing, prediction, and postprocessing.
+class BaseForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset]):
+    """Abstract base for forecasting models (single-forecaster and ensemble).
 
-    Orchestrates the full forecasting workflow by managing feature engineering,
-    model training/prediction, and result postprocessing. Automatically handles
-    the differences between single-horizon and multi-horizon forecasters while
-    ensuring data consistency and validation throughout the pipeline.
-
-    Invariants:
-        - fit() must be called before predict()
-        - Forecaster and preprocessing horizons must match during initialization
+    Provides the shared pipeline skeleton: preprocessing -> predict -> postprocessing,
+    data preparation, scoring, and evaluation.  Concrete subclasses must implement the
+    abstract hooks ``fit``, ``_predict``, ``is_fitted``, ``quantiles``, and
+    ``max_horizon``.
 
     Important:
-        The `cutoff_history` parameter is crucial when using lag-based features in
-        preprocessing. For example, a lag-14 transformation creates NaN values for
-        the first 14 days of data. Set `cutoff_history` to exclude these incomplete
-        rows from training. You must configure this manually based on your preprocessing
-        pipeline since lags cannot be automatically inferred from the transforms.
-
-    Example:
-        Basic forecasting workflow:
-
-        >>> from openstef_models.models.forecasting.constant_median_forecaster import (
-        ...     ConstantMedianForecaster, ConstantMedianForecasterConfig
-        ... )
-        >>> from openstef_core.types import LeadTime
-        >>>
-        >>> # Note: This is a conceptual example showing the API structure
-        >>> # Real usage requires implemented forecaster classes
-        >>> forecaster = ConstantMedianForecaster(
-        ...     config=ConstantMedianForecasterConfig(horizons=[LeadTime.from_string("PT36H")])
-        ... )
-        >>> # Create and train model
-        >>> model = ForecastingModel(
-        ...     forecaster=forecaster,
-        ...     cutoff_history=timedelta(days=14),  # Match your maximum lag in preprocessing
-        ... )
-        >>> model.fit(training_data)  # doctest: +SKIP
-        >>>
-        >>> # Generate forecasts
-        >>> forecasts = model.predict(new_data)  # doctest: +SKIP
+        The ``cutoff_history`` parameter is crucial when using lag-based features in
+        preprocessing.  For example, a lag-14 transformation creates NaN values for the
+        first 14 days of data.  Set ``cutoff_history`` to exclude these incomplete rows
+        from training.
     """
 
-    # Forecasting components
     preprocessing: TransformPipeline[TimeSeriesDataset] = Field(
         default_factory=TransformPipeline[TimeSeriesDataset],
         description="Feature engineering pipeline for transforming raw input data into model-ready features.",
-        exclude=True,
-    )
-    forecaster: Forecaster = Field(
-        default=...,
-        description="Underlying forecasting algorithm, either single-horizon or multi-horizon.",
         exclude=True,
     )
     postprocessing: TransformPipeline[ForecastDataset] = Field(
@@ -134,12 +103,12 @@ class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset])
         "Set this to match your maximum lag duration (e.g., timedelta(days=14)). "
         "Default of 0 assumes no invalid rows are created by preprocessing.",
     )
-    # Evaluation
+
     evaluation_metrics: list[MetricProvider] = Field(
         default_factory=lambda: [R2Provider(), ObservedProbabilityProvider()],
         description="List of metric providers for evaluating model score.",
     )
-    # Metadata
+
     tags: dict[str, str] = Field(
         default_factory=dict,
         description="Optional metadata tags for the model.",
@@ -148,9 +117,248 @@ class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset])
     _logger: logging.Logger = PrivateAttr(default=logging.getLogger(__name__))
 
     @property
-    def config(self) -> ForecasterConfig:
-        """Returns the configuration of the underlying forecaster."""
-        return self.forecaster.config
+    @abstractmethod
+    def quantiles(self) -> list[Quantile]:
+        """Quantile levels this model produces forecasts for."""
+
+    @property
+    @abstractmethod
+    def max_horizon(self) -> LeadTime:
+        """Maximum lead-time (horizon) supported by this model."""
+
+    @property
+    def hyperparams(self) -> HyperParams:
+        """Hyperparameters for this model.
+
+        Override in subclasses to expose the relevant hyperparameters.  Used by
+        integrations (e.g. MLflow) to log tuning parameters without needing
+        to know the model's internal structure.
+
+        Returns:
+            HyperParams instance (defaults to empty base HyperParams).
+        """
+        return HyperParams()
+
+    @abstractmethod
+    @override
+    def fit(
+        self,
+        data: TimeSeriesDataset,
+        data_val: TimeSeriesDataset | None = None,
+        data_test: TimeSeriesDataset | None = None,
+    ) -> ModelFitResult:
+        """Train the forecasting model on the provided dataset.
+
+        Args:
+            data: Historical time series data with features and target values.
+            data_val: Optional validation data.
+            data_test: Optional test data.
+
+        Returns:
+            Result containing training details and metrics.
+        """
+
+    @abstractmethod
+    def _predict(self, input_data: ForecastInputDataset) -> ForecastDataset:
+        """Generate raw predictions from preprocessed input data.
+
+        Subclasses implement the actual prediction logic (single-forecaster
+        delegation or ensemble aggregation).
+        """
+
+    def prepare_input(
+        self,
+        data: TimeSeriesDataset,
+        forecast_start: datetime | None = None,
+    ) -> ForecastInputDataset:
+        """Prepare input data for forecasting by applying preprocessing and filtering.
+
+        Transforms raw time series data through the preprocessing pipeline, restores
+        the target column, and filters out incomplete historical data to ensure
+        training quality.
+
+        Args:
+            data: Raw time series dataset to prepare for forecasting.
+            forecast_start: Optional start time for forecasts. If provided and earlier
+                than the cutoff time, overrides the cutoff for data filtering.
+
+        Returns:
+            Processed forecast input dataset ready for model prediction.
+        """
+        input_data = self.preprocessing.transform(data=data)
+        input_data = restore_target(dataset=input_data, original_dataset=data, target_column=self.target_column)
+
+        input_data_start = cast("pd.Series[pd.Timestamp]", input_data.index).min().to_pydatetime()
+        input_data_cutoff = input_data_start + self.cutoff_history
+        if forecast_start is not None and forecast_start < input_data_cutoff:
+            input_data_cutoff = forecast_start
+            self._logger.warning(
+                "Forecast start %s is after input data start + cutoff history %s. Using forecast start as cutoff.",
+                forecast_start,
+                input_data_cutoff,
+            )
+        input_data = input_data.filter_by_range(start=input_data_cutoff)
+
+        return ForecastInputDataset.from_timeseries(
+            dataset=input_data,
+            target_column=self.target_column,
+            forecast_start=forecast_start,
+        )
+
+    @override
+    def predict(self, data: TimeSeriesDataset, forecast_start: datetime | None = None) -> ForecastDataset:
+        """Generate forecasts using the trained model.
+
+        Transforms input data through the preprocessing pipeline, generates predictions
+        using the underlying forecaster(s), and applies postprocessing transformations.
+
+        Args:
+            data: Input time series data for generating forecasts.
+            forecast_start: Starting time for forecasts. If None, uses data end time.
+
+        Returns:
+            Processed forecast dataset with predictions and uncertainty estimates.
+
+        Raises:
+            NotFittedError: If the model hasn't been trained yet.
+        """
+        if not self.is_fitted:
+            raise NotFittedError(type(self).__name__)
+
+        input_data = self.prepare_input(data=data, forecast_start=forecast_start)
+        raw_predictions = self._predict(input_data=input_data)
+
+        return self.postprocessing.transform(data=raw_predictions)
+
+    def score(self, data: TimeSeriesDataset) -> SubsetMetric:
+        """Evaluate model performance on the provided dataset.
+
+        Generates predictions for the dataset and calculates evaluation metrics
+        by comparing against ground truth values.
+
+        Args:
+            data: Time series dataset containing both features and target values
+                for evaluation.
+
+        Returns:
+            Evaluation metrics computed at the maximum forecast horizon.
+        """
+        prediction = self.predict(data=data)
+        return self._calculate_score(prediction=prediction)
+
+    def _calculate_score(self, prediction: ForecastDataset) -> SubsetMetric:
+        if prediction.target_series is None:
+            raise ValueError("Prediction dataset must contain target series for scoring.")
+
+        prediction = prediction.pipe_pandas(pd.DataFrame.dropna, subset=[self.target_column])  # pyright: ignore[reportUnknownArgumentType, reportUnknownMemberType]
+
+        pipeline = EvaluationPipeline(
+            config=EvaluationConfig(available_ats=[], lead_times=[self.max_horizon]),
+            quantiles=self.quantiles,
+            window_metric_providers=[],
+            global_metric_providers=self.evaluation_metrics,
+        )
+
+        evaluation_result = pipeline.run_for_subset(
+            filtering=self.max_horizon,
+            predictions=prediction,
+        )
+        global_metric = evaluation_result.get_global_metric()
+        if not global_metric:
+            return SubsetMetric(
+                window="global",
+                timestamp=prediction.forecast_start,
+                metrics={},
+            )
+
+        return global_metric
+
+    def predict_contributions(
+        self,
+        data: TimeSeriesDataset,
+        forecast_start: datetime | None = None,
+    ) -> TimeSeriesDataset:
+        """Compute per-sample feature contributions for predictions.
+
+        Not all models support contributions.  The default raises
+        ``NotImplementedError``; subclasses backed by a ``ContributionsMixin``
+        forecaster override this to delegate.
+
+        Args:
+            data: Raw time series data (will be preprocessed internally).
+            forecast_start: Optional start time for forecasts.
+
+        Raises:
+            NotImplementedError: If the model does not support contributions.
+        """
+        msg = f"{type(self).__name__} does not support predict_contributions"
+        raise NotImplementedError(msg)
+
+
+class ForecastingModel(BaseForecastingModel):
+    """Single-forecaster pipeline: preprocessing -> forecaster -> postprocessing.
+
+    Orchestrates the full forecasting workflow by managing feature engineering,
+    model training/prediction, and result postprocessing. Automatically handles
+    the differences between single-horizon and multi-horizon forecasters while
+    ensuring data consistency and validation throughout the pipeline.
+
+    Invariants:
+        - fit() must be called before predict()
+        - Forecaster and preprocessing horizons must match during initialization
+
+    Important:
+        The ``cutoff_history`` parameter is crucial when using lag-based features in
+        preprocessing. For example, a lag-14 transformation creates NaN values for
+        the first 14 days of data. Set ``cutoff_history`` to exclude these incomplete
+        rows from training. You must configure this manually based on your preprocessing
+        pipeline since lags cannot be automatically inferred from the transforms.
+
+    Example:
+        Basic forecasting workflow:
+
+        >>> from openstef_models.models.forecasting.constant_median_forecaster import (
+        ...     ConstantMedianForecaster,
+        ... )
+        >>> from openstef_core.types import LeadTime
+        >>> from datetime import timedelta
+        >>>
+        >>> # Note: This is a conceptual example showing the API structure
+        >>> # Real usage requires implemented forecaster classes
+        >>> forecaster = ConstantMedianForecaster(
+        ...     horizons=[LeadTime.from_string("PT36H")]
+        ... )
+        >>> # Create and train model
+        >>> model = ForecastingModel(
+        ...     forecaster=forecaster,
+        ...     cutoff_history=timedelta(days=14),  # Match your maximum lag in preprocessing
+        ... )
+        >>> model.fit(training_data)  # doctest: +SKIP
+        >>>
+        >>> # Generate forecasts
+        >>> forecasts = model.predict(new_data)  # doctest: +SKIP
+    """
+
+    forecaster: Forecaster = Field(
+        default=...,
+        description="Underlying forecasting algorithm, either single-horizon or multi-horizon.",
+        exclude=True,
+    )
+
+    @property
+    @override
+    def quantiles(self) -> list[Quantile]:
+        return self.forecaster.quantiles
+
+    @property
+    @override
+    def max_horizon(self) -> LeadTime:
+        return self.forecaster.max_horizon
+
+    @property
+    @override
+    def hyperparams(self) -> HyperParams:
+        return self.forecaster.hparams
 
     @property
     @override
@@ -185,7 +393,7 @@ class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset])
         Raises:
             InsufficientlyCompleteError: If no training data remains after dropping rows with NaN targets.
         """
-        validate_horizons_present(data, self.forecaster.config.horizons)
+        validate_horizons_present(data, self.forecaster.horizons)
 
         target_dropna = partial(pd.DataFrame.dropna, subset=[self.target_column])  # pyright: ignore[reportUnknownMemberType]
         if data.pipe_pandas(target_dropna).data.empty:
@@ -243,131 +451,23 @@ class ForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset])
         )
 
     @override
-    def predict(self, data: TimeSeriesDataset, forecast_start: datetime | None = None) -> ForecastDataset:
-        """Generate forecasts using the trained model.
-
-        Transforms input data through the preprocessing pipeline, generates predictions
-        using the underlying forecaster, and applies postprocessing transformations.
-
-        Args:
-            data: Input time series data for generating forecasts.
-            forecast_start: Starting time for forecasts. If None, uses data end time.
-
-        Returns:
-            Processed forecast dataset with predictions and uncertainty estimates.
-
-        Raises:
-            NotFittedError: If the model hasn't been trained yet.
-        """
-        if not self.is_fitted:
-            raise NotFittedError(type(self.forecaster).__name__)
-
-        # Transform the input data to a valid forecast input
-        input_data = self.prepare_input(data=data, forecast_start=forecast_start)
-
-        # Generate predictions
-        raw_predictions = self._predict(input_data=input_data)
-
-        return self.postprocessing.transform(data=raw_predictions)
-
-    def prepare_input(
-        self,
-        data: TimeSeriesDataset,
-        forecast_start: datetime | None = None,
-    ) -> ForecastInputDataset:
-        """Prepare input data for forecasting by applying preprocessing and filtering.
-
-        Transforms raw time series data through the preprocessing pipeline, restores
-        the target column, and filters out incomplete historical data to ensure
-        training quality.
-
-        Args:
-            data: Raw time series dataset to prepare for forecasting.
-            forecast_start: Optional start time for forecasts. If provided and earlier
-                than the cutoff time, overrides the cutoff for data filtering.
-
-        Returns:
-            Processed forecast input dataset ready for model prediction.
-        """
-        # Transform and restore target column
-        input_data = self.preprocessing.transform(data=data)
-        input_data = restore_target(dataset=input_data, original_dataset=data, target_column=self.target_column)
-
-        # Cut away input history to avoid training on incomplete data
-        input_data_start = cast("pd.Series[pd.Timestamp]", input_data.index).min().to_pydatetime()
-        input_data_cutoff = input_data_start + self.cutoff_history
-        if forecast_start is not None and forecast_start < input_data_cutoff:
-            input_data_cutoff = forecast_start
-            self._logger.warning(
-                "Forecast start %s is after input data start + cutoff history %s. Using forecast start as cutoff.",
-                forecast_start,
-                input_data_cutoff,
-            )
-        input_data = input_data.filter_by_range(start=input_data_cutoff)
-
-        return ForecastInputDataset.from_timeseries(
-            dataset=input_data,
-            target_column=self.target_column,
-            forecast_start=forecast_start,
-        )
-
     def _predict(self, input_data: ForecastInputDataset) -> ForecastDataset:
-        # Predict and restore target column
         prediction = self.forecaster.predict(data=input_data)
         return restore_target(dataset=prediction, original_dataset=input_data, target_column=self.target_column)
 
-    def score(
+    @override
+    def predict_contributions(
         self,
         data: TimeSeriesDataset,
-    ) -> SubsetMetric:
-        """Evaluate model performance on the provided dataset.
-
-        Generates predictions for the dataset and calculates evaluation metrics
-        by comparing against ground truth values. Uses the configured evaluation
-        metrics to assess forecast quality at the maximum forecast horizon.
-
-        Args:
-            data: Time series dataset containing both features and target values
-                for evaluation.
-
-        Returns:
-            Evaluation metrics including configured providers (e.g., R2, observed
-            probability) computed at the maximum forecast horizon.
-        """
-        prediction = self.predict(data=data)
-
-        return self._calculate_score(prediction=prediction)
-
-    def _calculate_score(self, prediction: ForecastDataset) -> SubsetMetric:
-        if prediction.target_series is None:
-            raise ValueError("Prediction dataset must contain target series for scoring.")
-
-        # We need to make sure there are no NaNs in the target label for metric calculation
-        prediction = prediction.pipe_pandas(pd.DataFrame.dropna, subset=[self.target_column])  # pyright: ignore[reportUnknownArgumentType, reportUnknownMemberType]
-
-        pipeline = EvaluationPipeline(
-            # Needs only one horizon since we are using only a single prediction step
-            # If a more comprehensive test is needed, a backtest should be run.
-            config=EvaluationConfig(available_ats=[], lead_times=[self.forecaster.config.max_horizon]),
-            quantiles=self.forecaster.config.quantiles,
-            # Similarly windowed metrics are not relevant for single predictions.
-            window_metric_providers=[],
-            global_metric_providers=self.evaluation_metrics,
-        )
-
-        evaluation_result = pipeline.run_for_subset(
-            filtering=self.forecaster.config.max_horizon,
-            predictions=prediction,
-        )
-        global_metric = evaluation_result.get_global_metric()
-        if not global_metric:
-            return SubsetMetric(
-                window="global",
-                timestamp=prediction.forecast_start,
-                metrics={},
-            )
-
-        return global_metric
+        forecast_start: datetime | None = None,
+    ) -> TimeSeriesDataset:
+        if not self.is_fitted:
+            raise NotFittedError(type(self).__name__)
+        if not isinstance(self.forecaster, ContributionsMixin):
+            msg = f"Forecaster {type(self.forecaster).__name__} does not support predict_contributions"
+            raise NotImplementedError(msg)
+        input_data = self.prepare_input(data=data, forecast_start=forecast_start)
+        return self.forecaster.predict_contributions(data=input_data)
 
 
 def restore_target[T: TimeSeriesDataset](
@@ -396,4 +496,4 @@ def restore_target[T: TimeSeriesDataset](
     return dataset.pipe_pandas(_transform_restore_target)
 
 
-__all__ = ["ForecastingModel", "ModelFitResult", "restore_target"]
+__all__ = ["BaseForecastingModel", "ForecastingModel", "ModelFitResult", "restore_target"]
