@@ -12,10 +12,10 @@ Orchestrates parallel base forecasters whose predictions are aggregated by a
 import logging
 from datetime import datetime
 from functools import partial
-from typing import cast, override
+from typing import Self, cast, override
 
 import pandas as pd
-from pydantic import Field, PrivateAttr
+from pydantic import Field, PrivateAttr, model_validator
 
 from openstef_core.datasets import (
     ForecastDataset,
@@ -115,6 +115,26 @@ class EnsembleForecastingModel(BaseForecastingModel):
     )
 
     _logger: logging.Logger = PrivateAttr(default=logging.getLogger(__name__))
+
+    @model_validator(mode="after")
+    def _validate_horizons_consistent(self) -> Self:
+        """All forecasters and the combiner must share the same horizons list.
+
+        Returns:
+            Validated model instance.
+
+        Raises:
+            ValueError: If any forecaster's horizons differ from the combiner's.
+        """
+        expected = sorted(self.combiner.horizons)
+        for name, forecaster in self.forecasters.items():
+            if sorted(forecaster.horizons) != expected:
+                msg = (
+                    f"Forecaster '{name}' horizons {forecaster.horizons} "
+                    f"do not match combiner horizons {self.combiner.horizons}"
+                )
+                raise ValueError(msg)
+        return self
 
     @property
     def forecaster_configs(self) -> dict[str, Forecaster]:
