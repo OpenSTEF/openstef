@@ -10,14 +10,16 @@ from typing import TYPE_CHECKING, cast, override
 
 import pandas as pd
 import pytest
+from pydantic import PrivateAttr
 
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import ModelNotFoundError, SkipFitting
+from openstef_core.mixins.predictor import HyperParams
 from openstef_core.types import LeadTime, Q
 from openstef_models.integrations.mlflow import MLFlowStorage, MLFlowStorageCallback
 from openstef_models.mixins.callbacks import WorkflowContext
-from openstef_models.models.forecasting import Forecaster, ForecasterConfig
+from openstef_models.models.forecasting.forecaster import Forecaster
 from openstef_models.models.forecasting_model import ForecastingModel, ModelFitResult
 from openstef_models.workflows.custom_forecasting_workflow import CustomForecastingWorkflow
 
@@ -28,14 +30,13 @@ if TYPE_CHECKING:
 class SimpleTestForecaster(Forecaster):
     """Simple forecaster for testing that stores and restores median value."""
 
-    def __init__(self, config: ForecasterConfig):
-        self._config = config
-        self._median_value: float = 0.0
-        self._is_fitted = False
+    _median_value: float = PrivateAttr(default=0.0)
+    _is_fitted: bool = PrivateAttr(default=False)
 
     @property
-    def config(self) -> ForecasterConfig:
-        return self._config
+    @override
+    def hparams(self) -> HyperParams:
+        return HyperParams()
 
     @property
     @override
@@ -56,7 +57,7 @@ class SimpleTestForecaster(Forecaster):
             raise RuntimeError("Model not fitted")
 
         forecast_data = pd.DataFrame(
-            {quantile.format(): [self._median_value] * len(data.index) for quantile in self.config.quantiles},
+            {quantile.format(): [self._median_value] * len(data.index) for quantile in self.quantiles},
             index=data.index,
         )
         return ForecastDataset(forecast_data, data.sample_interval, data.forecast_start)
@@ -97,7 +98,7 @@ def workflow(sample_dataset: TimeSeriesDataset) -> CustomForecastingWorkflow:
     # Disable train/val/test splitting to avoid R^2 warnings with small dataset
     # (R^2 is undefined with less than 2 samples, and splitting 8 samples creates tiny sets)
     model = ForecastingModel(
-        forecaster=SimpleTestForecaster(config=ForecasterConfig(horizons=horizons, quantiles=quantiles)),
+        forecaster=SimpleTestForecaster(horizons=horizons, quantiles=quantiles),
         test_fraction=0.0,
         val_fraction=0.0,
     )
@@ -149,7 +150,7 @@ def test_mlflow_storage_callback__on_predict_start__loads_model_when_not_fitted(
     unfitted_workflow = CustomForecastingWorkflow(
         model_id="test_model",
         model=ForecastingModel(
-            forecaster=SimpleTestForecaster(config=ForecasterConfig(horizons=horizons, quantiles=[Q(0.5)])),
+            forecaster=SimpleTestForecaster(horizons=horizons, quantiles=[Q(0.5)]),
         ),
     )
     unfitted_context = WorkflowContext(workflow=unfitted_workflow)
@@ -170,7 +171,7 @@ def test_mlflow_storage_callback__on_predict_start__raises_error_when_no_model_e
     unfitted_workflow = CustomForecastingWorkflow(
         model_id="nonexistent_model",
         model=ForecastingModel(
-            forecaster=SimpleTestForecaster(config=ForecasterConfig(horizons=horizons, quantiles=[Q(0.5)])),
+            forecaster=SimpleTestForecaster(horizons=horizons, quantiles=[Q(0.5)]),
         ),
     )
     context = WorkflowContext(workflow=unfitted_workflow)
@@ -235,7 +236,7 @@ def test_mlflow_storage_callback__model_selection__keeps_better_model(
 
     # Create a new "worse" model by manually setting a bad median value
     worse_horizons = [LeadTime(timedelta(hours=1))]
-    worse_forecaster = SimpleTestForecaster(config=ForecasterConfig(horizons=worse_horizons, quantiles=[Q(0.5)]))
+    worse_forecaster = SimpleTestForecaster(horizons=worse_horizons, quantiles=[Q(0.5)])
     worse_forecaster._median_value = 50.0  # Much lower than actual values (~110)
     worse_forecaster._is_fitted = True
 
@@ -276,9 +277,7 @@ def test_mlflow_storage_callback__model_selection__skips_on_tag_change(
 
     # Create a new result by fitting with a model with a different tag
     new_model = ForecastingModel(
-        forecaster=SimpleTestForecaster(
-            config=ForecasterConfig(horizons=[LeadTime(timedelta(hours=6))], quantiles=[Q(0.5)])
-        ),
+        forecaster=SimpleTestForecaster(horizons=[LeadTime(timedelta(hours=6))], quantiles=[Q(0.5)]),
         tags={"version": "2.0"},
     )
     new_workflow = CustomForecastingWorkflow(model_id="test_model", model=new_model)

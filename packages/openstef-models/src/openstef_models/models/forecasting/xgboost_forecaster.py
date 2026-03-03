@@ -9,18 +9,18 @@ forecasting. Optimized for time series data with specialized loss functions and
 comprehensive hyperparameter control for production forecasting workflows.
 """
 
-from typing import Literal, override
+from typing import ClassVar, Literal, override
 
 import numpy as np
 import pandas as pd
-from pydantic import Field
+from pydantic import Field, PrivateAttr
 from sklearn.preprocessing import StandardScaler
 
-from openstef_core.datasets import ForecastDataset, ForecastInputDataset
+from openstef_core.datasets import ForecastDataset, ForecastInputDataset, TimeSeriesDataset
 from openstef_core.exceptions import MissingExtraError, NotFittedError
 from openstef_core.mixins import HyperParams
-from openstef_models.explainability.mixins import ExplainableForecaster
-from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
+from openstef_models.explainability.mixins import ContributionsMixin, ExplainableForecaster
+from openstef_models.models.forecasting.forecaster import Forecaster
 from openstef_models.utils.evaluation_functions import EvaluationFunctionType, get_evaluation_function
 from openstef_models.utils.loss_functions import (
     ObjectiveFunctionType,
@@ -54,7 +54,7 @@ class XGBoostHyperParams(HyperParams):
         ...     learning_rate=0.1,
         ...     reg_alpha=0.1,
         ...     reg_lambda=1.0,
-        ...     subsample=0.8
+        ...     subsample=0.8,
         ... )
 
     Note:
@@ -169,47 +169,20 @@ class XGBoostHyperParams(HyperParams):
         description="Whether to apply standard scaling to the target variable before training. Improves convergence.",
     )
 
+    @classmethod
+    def forecaster_class(cls) -> "type[XGBoostForecaster]":
+        """Get the forecaster class for these hyperparams.
 
-class XGBoostForecasterConfig(ForecasterConfig):
-    """Configuration for XGBoost-based forecasting models.
-
-    Combines hyperparameters with execution settings for XGBoost models.
-    Controls both model training behavior and computational resources for
-    efficient forecasting in production environments.
-
-    Example:
-        Creating a GPU-accelerated configuration:
-
-        >>> from datetime import timedelta
-        >>> from openstef_core.types import LeadTime, Quantile
-        >>> config = XGBoostForecasterConfig(
-        ...     quantiles=[Quantile(0.1), Quantile(0.5), Quantile(0.9)],
-        ...     horizons=[LeadTime(timedelta(hours=6))],
-        ...     hyperparams=XGBoostHyperParams(n_estimators=500, max_depth=8),
-        ...     device="cuda",
-        ...     n_jobs=-1,
-        ...     verbosity=2
-        ... )
-    """
-
-    hyperparams: XGBoostHyperParams = XGBoostHyperParams()
-
-    # General Parameters
-    device: str = Field(
-        default="cpu", description="Device for XGBoost computation. Options: 'cpu', 'cuda', 'cuda:<ordinal>', 'gpu'"
-    )
-    n_jobs: int = Field(
-        default=1, description="Number of parallel threads for tree construction. -1 uses all available cores."
-    )
-    verbosity: Literal[0, 1, 2, 3, True] = Field(
-        default=1, description="Verbosity level. 0=silent, 1=warning, 2=info, 3=debug"
-    )
+        Returns:
+            Forecaster class associated with this configuration.
+        """
+        return XGBoostForecaster
 
 
 MODEL_CODE_VERSION = 1
 
 
-class XGBoostForecaster(Forecaster, ExplainableForecaster):
+class XGBoostForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
     """XGBoost-based forecaster for probabilistic energy forecasting.
 
     Implements gradient boosting trees using XGBoost for multi-quantile forecasting.
@@ -231,14 +204,13 @@ class XGBoostForecaster(Forecaster, ExplainableForecaster):
 
         >>> from datetime import timedelta
         >>> from openstef_core.types import LeadTime, Quantile
-        >>> config = XGBoostForecasterConfig(
+        >>> forecaster = XGBoostForecaster(
         ...     quantiles=[Quantile(0.1), Quantile(0.5), Quantile(0.9)],
         ...     horizons=[LeadTime(timedelta(hours=1))],
-        ...     hyperparams=XGBoostHyperParams(n_estimators=100, max_depth=6)
+        ...     hyperparams=XGBoostHyperParams(n_estimators=100, max_depth=6),
         ... )
-        >>> forecaster = XGBoostForecaster(config)
-        >>> # forecaster.fit(training_data)
-        >>> # predictions = forecaster.predict(test_data)
+        >>> forecaster.fit(training_data)  # doctest: +SKIP
+        >>> predictions = forecaster.predict(test_data)  # doctest: +SKIP
 
     Note:
         XGBoost dependency is optional and must be installed separately.
@@ -247,82 +219,73 @@ class XGBoostForecaster(Forecaster, ExplainableForecaster):
 
     See Also:
         XGBoostHyperParams: Detailed hyperparameter configuration options.
-        HorizonForecaster: Base interface for all forecasting models.
+        Forecaster: Base interface for all forecasting models.
         GBLinearForecaster: Alternative linear model using XGBoost.
     """
 
-    Config = XGBoostForecasterConfig
-    HyperParams = XGBoostHyperParams
+    HyperParams: ClassVar[type[XGBoostHyperParams]] = XGBoostHyperParams
 
-    _config: XGBoostForecasterConfig
-    _xgboost_model: xgb.XGBRegressor
-    _target_scaler: StandardScaler | None
+    hyperparams: XGBoostHyperParams = Field(default_factory=XGBoostHyperParams)
+    device: str = Field(
+        default="cpu", description="Device for XGBoost computation. Options: 'cpu', 'cuda', 'cuda:<ordinal>', 'gpu'"
+    )
+    n_jobs: int = Field(
+        default=1, description="Number of parallel threads for tree construction. -1 uses all available cores."
+    )
+    verbosity: Literal[0, 1, 2, 3, True] = Field(
+        default=1, description="Verbosity level. 0=silent, 1=warning, 2=info, 3=debug"
+    )
 
-    def __init__(self, config: XGBoostForecasterConfig) -> None:
-        """Initialize XGBoost forecaster with configuration.
+    _xgboost_model: xgb.XGBRegressor = PrivateAttr()
+    _target_scaler: StandardScaler | None = PrivateAttr()
 
-        Creates an untrained XGBoost regressor with the specified configuration.
-        The underlying XGBoost model is configured for multi-output quantile
-        regression using the provided hyperparameters and execution settings.
+    @property
+    @override
+    def hparams(self) -> XGBoostHyperParams:
+        return self.hyperparams
 
-        Args:
-            config: Complete configuration including hyperparameters, quantiles,
-                and execution settings for the XGBoost model.
-        """
-        self._config = config
-
+    def model_post_init(self, _context: object, /) -> None:
+        """Initialize the underlying XGBoost model from configuration."""
         self._xgboost_model = xgb.XGBRegressor(
             # Multi-output configuration
             multi_strategy="one_output_per_tree",
             # Core parameters for forecasting
-            n_estimators=self._config.hyperparams.n_estimators,
-            learning_rate=self._config.hyperparams.learning_rate,
-            max_depth=self._config.hyperparams.max_depth,
-            min_child_weight=self._config.hyperparams.min_child_weight,
-            gamma=self._config.hyperparams.gamma,
+            n_estimators=self.hyperparams.n_estimators,
+            learning_rate=self.hyperparams.learning_rate,
+            max_depth=self.hyperparams.max_depth,
+            min_child_weight=self.hyperparams.min_child_weight,
+            gamma=self.hyperparams.gamma,
             # Regularization parameters
-            reg_alpha=self._config.hyperparams.reg_alpha,
-            reg_lambda=self._config.hyperparams.reg_lambda,
-            max_delta_step=self._config.hyperparams.max_delta_step,
+            reg_alpha=self.hyperparams.reg_alpha,
+            reg_lambda=self.hyperparams.reg_lambda,
+            max_delta_step=self.hyperparams.max_delta_step,
             # Tree structure control
-            max_leaves=self._config.hyperparams.max_leaves,
-            grow_policy=self._config.hyperparams.grow_policy,
-            max_bin=self._config.hyperparams.max_bin,
-            num_parallel_trees=self._config.hyperparams.num_parallel_trees,
+            max_leaves=self.hyperparams.max_leaves,
+            grow_policy=self.hyperparams.grow_policy,
+            max_bin=self.hyperparams.max_bin,
+            num_parallel_trees=self.hyperparams.num_parallel_trees,
             # Subsampling parameters
-            subsample=self._config.hyperparams.subsample,
-            colsample_bytree=self._config.hyperparams.colsample_bytree,
-            colsample_bylevel=self._config.hyperparams.colsample_bylevel,
-            colsample_bynode=self._config.hyperparams.colsample_bynode,
+            subsample=self.hyperparams.subsample,
+            colsample_bytree=self.hyperparams.colsample_bytree,
+            colsample_bylevel=self.hyperparams.colsample_bylevel,
+            colsample_bynode=self.hyperparams.colsample_bynode,
             # Tree construction method
-            tree_method=self._config.hyperparams.tree_method,
+            tree_method=self.hyperparams.tree_method,
             # General parameters
-            random_state=self._config.hyperparams.random_state,
-            device=self._config.device,
-            n_jobs=self._config.n_jobs,
-            verbosity=self._config.verbosity,
+            random_state=self.hyperparams.random_state,
+            device=self.device,
+            n_jobs=self.n_jobs,
+            verbosity=self.verbosity,
             # Early stopping handled in fit method
-            early_stopping_rounds=self._config.hyperparams.early_stopping_rounds,
+            early_stopping_rounds=self.hyperparams.early_stopping_rounds,
             # Objective
-            objective=get_objective_function(
-                function_type=self._config.hyperparams.objective, quantiles=self._config.quantiles
-            ),
+            objective=get_objective_function(function_type=self.hyperparams.objective, quantiles=self.quantiles),
             eval_metric=get_evaluation_function(
-                function_type=self._config.hyperparams.evaluation_metric, quantiles=self._config.quantiles
+                function_type=self.hyperparams.evaluation_metric, quantiles=self.quantiles
             ),
             disable_default_eval_metric=True,
         )
-        self._target_scaler = StandardScaler() if self._config.hyperparams.use_target_scaling else None
-
-    @property
-    @override
-    def config(self) -> ForecasterConfig:
-        return self._config
-
-    @property
-    @override
-    def hyperparams(self) -> XGBoostHyperParams:
-        return self._config.hyperparams
+        self._target_scaler = StandardScaler() if self.hyperparams.use_target_scaling else None
 
     @property
     @override
@@ -331,7 +294,6 @@ class XGBoostForecaster(Forecaster, ExplainableForecaster):
 
     def _prepare_fit_input(self, data: ForecastInputDataset) -> tuple[pd.DataFrame, np.ndarray, pd.Series]:
         input_data: pd.DataFrame = data.input_data()
-
         # Scale the target variable
         target: np.ndarray = np.asarray(data.target_series.values)
         if self._target_scaler is not None:
@@ -339,13 +301,11 @@ class XGBoostForecaster(Forecaster, ExplainableForecaster):
         # Reshape target for multi-quantile objectives
         target = xgb_prepare_target_for_objective(
             target=target,
-            quantiles=self.config.quantiles,
-            objective=self._config.hyperparams.objective,
+            quantiles=self.quantiles,
+            objective=self.hyperparams.objective,
         )
-
         # Prepare sample weights
         sample_weight: pd.Series = data.sample_weight_series
-
         return input_data, target, sample_weight
 
     @override
@@ -373,7 +333,7 @@ class XGBoostForecaster(Forecaster, ExplainableForecaster):
             sample_weight=sample_weight,
             eval_set=eval_set,
             sample_weight_eval_set=sample_weight_eval_set,
-            verbose=self._config.verbosity,
+            verbose=self.verbosity,
         )
 
     @override
@@ -383,9 +343,8 @@ class XGBoostForecaster(Forecaster, ExplainableForecaster):
 
         # Get input features for prediction
         input_data: pd.DataFrame = data.input_data(start=data.forecast_start)
-
         # Generate predictions
-        predictions_array: np.ndarray = self._xgboost_model.predict(input_data).reshape(-1, len(self.config.quantiles))
+        predictions_array: np.ndarray = self._xgboost_model.predict(input_data).reshape(-1, len(self.quantiles))
 
         # Inverse transform the scaled predictions
         if self._target_scaler is not None and len(predictions_array) > 0:
@@ -395,7 +354,7 @@ class XGBoostForecaster(Forecaster, ExplainableForecaster):
         predictions = pd.DataFrame(
             data=predictions_array,
             index=input_data.index,
-            columns=[quantile.format() for quantile in self.config.quantiles],
+            columns=[quantile.format() for quantile in self.quantiles],
         )
 
         return ForecastDataset(
@@ -403,13 +362,57 @@ class XGBoostForecaster(Forecaster, ExplainableForecaster):
             sample_interval=data.sample_interval,
         )
 
+    def predict_contributions(self, data: ForecastInputDataset) -> TimeSeriesDataset:
+        """Compute SHAP feature contributions for the median quantile.
+
+        Args:
+            data: Input dataset for which to compute feature contributions.
+
+        Returns:
+            TimeSeriesDataset with per-feature SHAP values plus a bias column.
+
+        Raises:
+            NotFittedError: If the model has not been fitted.
+        """
+        if not self.is_fitted:
+            raise NotFittedError(self.__class__.__name__)
+
+        input_data: pd.DataFrame = data.input_data(start=data.forecast_start)
+        booster = self._xgboost_model.get_booster()
+        dmatrix = xgb.DMatrix(input_data)
+        contribs_raw: np.ndarray = booster.predict(dmatrix, pred_contribs=True)
+
+        # Reshape to (n_samples, n_quantiles, n_features + 1)
+        n_samples = len(input_data)
+        n_quantiles = len(self.quantiles)
+        contribs_3d = contribs_raw.reshape(n_samples, n_quantiles, -1)
+
+        # Extract median quantile contributions
+        median_idx = min(range(n_quantiles), key=lambda i: abs(float(self.quantiles[i]) - 0.5))
+        contribs = contribs_3d[:, median_idx, :].copy()
+
+        # Inverse transform for target scaling
+        if (
+            self._target_scaler is not None
+            and self._target_scaler.scale_ is not None
+            and self._target_scaler.mean_ is not None
+        ):
+            scale = float(self._target_scaler.scale_[0])
+            mean = float(self._target_scaler.mean_[0])
+            contribs[:, :-1] *= scale
+            contribs[:, -1] = contribs[:, -1] * scale + mean
+
+        columns = [*input_data.columns, "bias"]
+        contribs_df = pd.DataFrame(contribs, index=input_data.index, columns=columns)
+        return TimeSeriesDataset(data=contribs_df, sample_interval=data.sample_interval)
+
     @property
     @override
     def feature_importances(self) -> pd.DataFrame:
         booster = self._xgboost_model.get_booster()
         weights_df = pd.DataFrame(
             data=booster.get_score(importance_type="gain"),
-            index=[quantile.format() for quantile in self.config.quantiles],
+            index=[quantile.format() for quantile in self.quantiles],
         ).transpose()
         weights_df.index.name = "feature_name"
         weights_df.columns.name = "quantiles"
@@ -420,4 +423,4 @@ class XGBoostForecaster(Forecaster, ExplainableForecaster):
         return weights_abs / total
 
 
-__all__ = ["XGBoostForecaster", "XGBoostForecasterConfig", "XGBoostHyperParams"]
+__all__ = ["XGBoostForecaster", "XGBoostHyperParams"]

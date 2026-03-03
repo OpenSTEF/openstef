@@ -10,6 +10,7 @@ import pytest
 
 from openstef_core.testing import create_timeseries_dataset
 from openstef_models.transforms.general.sample_weighter import (
+    SampleWeightConfig,
     SampleWeighter,
     exponential_sample_weight,
     inverse_frequency_sample_weight,
@@ -78,9 +79,11 @@ def test_sample_weighter__fit_transform():
     )
 
     transform = SampleWeighter(
-        weight_scale_percentile=95,
-        weight_exponent=1.0,
-        weight_floor=0.1,
+        config=SampleWeightConfig(
+            weight_scale_percentile=95,
+            weight_exponent=1.0,
+            weight_floor=0.1,
+        ),
         target_column="load",
         normalize_target=True,
     )
@@ -144,9 +147,11 @@ def test_sample_weighter__transform_all_nan_target():
     )
 
     transform = SampleWeighter(
-        weight_scale_percentile=95,
-        weight_exponent=1.0,
-        weight_floor=0.1,
+        config=SampleWeightConfig(
+            weight_scale_percentile=95,
+            weight_exponent=1.0,
+            weight_floor=0.1,
+        ),
         target_column="load",
         normalize_target=True,
     )
@@ -246,11 +251,13 @@ def test_sample_weighter__inverse_frequency_weighting():
     )
 
     transform = SampleWeighter(
-        method="inverse_frequency",
+        config=SampleWeightConfig(
+            method="inverse_frequency",
+            weight_floor=0,
+            n_bins=3,
+            dampening_exponent=1.0,
+        ),
         target_column="load",
-        weight_floor=0,
-        n_bins=3,
-        dampening_exponent=1.0,
     )
 
     # Act

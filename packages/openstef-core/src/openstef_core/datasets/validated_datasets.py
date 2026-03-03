@@ -19,6 +19,8 @@ from openstef_core.datasets.validation import validate_required_columns
 from openstef_core.exceptions import MissingColumnsError
 from openstef_core.types import EnergyComponentType, LeadTime, Quantile
 
+ENSEMBLE_COLUMN_SEP: str = "__"
+
 
 class ForecastInputDataset(TimeSeriesDataset):
     """Time series dataset for forecasting with validated target column.
@@ -429,8 +431,156 @@ class EnergyComponentDataset(TimeSeriesDataset):
         )
 
 
+class EnsembleForecastDataset(TimeSeriesDataset):
+    """First stage output format for ensemble forecasters."""
+
+    forecast_start: datetime
+    quantiles: list[Quantile]
+    forecaster_names: list[str]
+    target_column: str
+
+    @override
+    def __init__(
+        self,
+        data: pd.DataFrame,
+        sample_interval: timedelta = timedelta(minutes=15),
+        forecast_start: datetime | None = None,
+        target_column: str = "load",
+        *,
+        horizon_column: str = "horizon",
+        available_at_column: str = "available_at",
+    ) -> None:
+        if "forecast_start" in data.attrs:
+            self.forecast_start = datetime.fromisoformat(data.attrs["forecast_start"])
+        else:
+            self.forecast_start = forecast_start if forecast_start is not None else data.index.min().to_pydatetime()
+        self.target_column = data.attrs.get("target_column", target_column)
+
+        super().__init__(
+            data=data,
+            sample_interval=sample_interval,
+            horizon_column=horizon_column,
+            available_at_column=available_at_column,
+        )
+        quantile_feature_names = [col for col in self.feature_names if col != target_column]
+
+        self.forecaster_names, self.quantiles = self.get_learner_and_quantile(pd.Index(quantile_feature_names))
+        for name in self.forecaster_names:
+            if ENSEMBLE_COLUMN_SEP in name:
+                msg = f"Forecaster name '{name}' must not contain separator '{ENSEMBLE_COLUMN_SEP}'."
+                raise ValueError(msg)
+        n_cols = len(self.forecaster_names) * len(self.quantiles)
+        if len(data.columns) not in {n_cols + 1, n_cols}:
+            raise ValueError("Data columns do not match the expected number based on base forecasters and quantiles.")
+
+    @property
+    def target_series(self) -> pd.Series | None:
+        """Return the target series if available."""
+        if self.target_column in self.data.columns:
+            return self.data[self.target_column]
+        return None
+
+    @staticmethod
+    def get_learner_and_quantile(feature_names: pd.Index) -> tuple[list[str], list[Quantile]]:
+        """Extract base forecaster names and quantiles from feature names.
+
+        Column format is ``{learner}{ENSEMBLE_COLUMN_SEP}{quantile.format()}``,
+        e.g. ``lgbm__quantile_P50``.
+
+        Args:
+            feature_names: Index of feature names in the dataset.
+
+        Returns:
+            Tuple containing a list of base forecaster names and a list of quantiles.
+
+        Raises:
+            ValueError: If a column cannot be parsed or has an invalid quantile string.
+        """
+        forecasters: set[str] = set()
+        quantiles: set[Quantile] = set()
+
+        for feature_name in feature_names:
+            parts = feature_name.split(ENSEMBLE_COLUMN_SEP, maxsplit=1)
+            if len(parts) != 2:  # noqa: PLR2004
+                msg = f"Column missing separator '{ENSEMBLE_COLUMN_SEP}': {feature_name}"
+                raise ValueError(msg)
+            learner_part, quantile_part = parts
+            if not Quantile.is_valid_quantile_string(quantile_part):
+                msg = f"Column has no valid quantile string: {feature_name}"
+                raise ValueError(msg)
+
+            forecasters.add(learner_part)
+            quantiles.add(Quantile.parse(quantile_part))
+
+        return list(forecasters), list(quantiles)
+
+    @classmethod
+    def from_forecast_datasets(
+        cls,
+        datasets: dict[str, ForecastDataset],
+        target_series: pd.Series | None = None,
+        sample_weights: pd.Series | None = None,
+    ) -> Self:
+        """Create an EnsembleForecastDataset from multiple ForecastDatasets.
+
+        Args:
+            datasets: Dict of ForecastDatasets to combine.
+            target_series: Optional target series to include in the dataset.
+            sample_weights: Optional sample weights series to include in the dataset.
+
+        Returns:
+            EnsembleForecastDataset combining all input datasets.
+        """
+        ds1 = next(iter(datasets.values()))
+        additional_columns: dict[str, pd.Series] = {}
+        if isinstance(ds1.target_series, pd.Series):
+            additional_columns[ds1.target_column] = ds1.target_series
+        elif target_series is not None:
+            additional_columns[ds1.target_column] = target_series
+
+        sample_weight_column = "sample_weight"
+        if sample_weights is not None:
+            additional_columns[sample_weight_column] = sample_weights
+
+        combined_data = pd.DataFrame({
+            f"{learner}{ENSEMBLE_COLUMN_SEP}{q.format()}": ds.data[q.format()]
+            for learner, ds in datasets.items()
+            for q in ds.quantiles
+        }).assign(**additional_columns)
+
+        return cls(
+            data=combined_data,
+            sample_interval=ds1.sample_interval,
+            forecast_start=ds1.forecast_start,
+            target_column=ds1.target_column,
+        )
+
+    def get_base_predictions_for_quantile(self, quantile: Quantile) -> ForecastInputDataset:
+        """Get base forecaster predictions for a specific quantile.
+
+        Args:
+            quantile: Quantile to select.
+
+        Returns:
+            ForecastInputDataset containing predictions from all base forecasters at the specified quantile.
+        """
+        selected_columns = [f"{learner}{ENSEMBLE_COLUMN_SEP}{quantile.format()}" for learner in self.forecaster_names]
+        selected_columns.append(self.target_column)
+        prediction_data = self.data[selected_columns].copy()
+        prediction_data.columns = [*self.forecaster_names, self.target_column]
+
+        return ForecastInputDataset(
+            data=prediction_data,
+            sample_interval=self.sample_interval,
+            target_column=self.target_column,
+            forecast_start=self.forecast_start,
+        )
+
+
 __all__ = [
+    "ENSEMBLE_COLUMN_SEP",
     "EnergyComponentDataset",
+    "EnsembleForecastDataset",
     "ForecastDataset",
     "ForecastInputDataset",
 ]

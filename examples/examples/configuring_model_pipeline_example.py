@@ -45,7 +45,6 @@ from openstef_models.integrations.mlflow import MLFlowStorageCallback
 from openstef_models.integrations.mlflow.mlflow_storage import MLFlowStorage
 from openstef_models.models.forecasting.gblinear_forecaster import (
     GBLinearForecaster,
-    GBLinearForecasterConfig,
     GBLinearHyperParams,
 )
 from openstef_models.models.forecasting_model import ForecastingModel
@@ -88,15 +87,13 @@ model = ForecastingModel(
         ],
     ),
     forecaster=GBLinearForecaster(
-        config=GBLinearForecasterConfig(
-            horizons=[LeadTime.from_string("PT36H")],
-            quantiles=[Q(0.5), Q(0.1), Q(0.9)],
-            hyperparams=GBLinearHyperParams(
-                n_steps=1000,
-                learning_rate=0.3,
-            ),
-            verbosity=True,
-        )
+        horizons=[LeadTime.from_string("PT36H")],
+        quantiles=[Q(0.5), Q(0.1), Q(0.9)],
+        hyperparams=GBLinearHyperParams(
+            n_steps=1000,
+            learning_rate=0.3,
+        ),
+        verbosity=True,
     ),
     target_column="load",
     tags={

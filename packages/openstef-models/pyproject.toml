@@ -38,6 +38,10 @@ dependencies = [
   "scipy>=1.16.3,<2",
 ]
 
+optional-dependencies.lgbm = [
+  "lightgbm>=4.6",
+]
+
 optional-dependencies.xgb-cpu = [
   "xgboost>=3,<4; sys_platform=='darwin'",
   "xgboost-cpu>=3,<4; sys_platform=='linux' or sys_platform=='win32'",

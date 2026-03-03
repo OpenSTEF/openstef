@@ -21,6 +21,39 @@ from openstef_core.transforms.dataset_transforms import TimeSeriesTransform
 from openstef_models.transforms.general.scaler import StandardScaler
 
 
+class SampleWeightConfig(BaseConfig):
+    """Configuration for sample weighting parameters.
+
+    Groups all parameters that control how training samples are weighted.
+    Supports two methods: exponential (magnitude-based) and inverse_frequency (rarity-based).
+    """
+
+    method: Literal["exponential", "inverse_frequency"] = Field(
+        default="exponential",
+        description="Weighting method: 'exponential' scales by magnitude, 'inverse_frequency' by rarity.",
+    )
+    weight_scale_percentile: int = Field(
+        default=95,
+        description="[exponential method only] Percentile of target values used as scaling reference.",
+    )
+    weight_exponent: float = Field(
+        default=1.0,
+        description="[exponential method only] Exponent for scaling: 0=uniform, 1=linear, >1=stronger emphasis.",
+    )
+    n_bins: int = Field(
+        default=50,
+        description="[inverse_frequency method only] Number of equal-width histogram bins for frequency estimation.",
+    )
+    dampening_exponent: float = Field(
+        default=0.5,
+        description="[inverse_frequency method only] Exponent in [0,1] applied to inverse frequency to compress range.",
+    )
+    weight_floor: float = Field(
+        default=0.1,
+        description="Minimum weight value to ensure all samples contribute to training.",
+    )
+
+
 class SampleWeighter(BaseConfig, TimeSeriesTransform):
     """Transform that adds sample weights based on target variable distribution.
 
@@ -61,29 +94,9 @@ class SampleWeighter(BaseConfig, TimeSeriesTransform):
         2025-01-01 04:00:00  150.0       0.789474
     """
 
-    method: Literal["exponential", "inverse_frequency"] = Field(
-        default="exponential",
-        description="Weighting method: 'exponential' scales by magnitude, 'inverse_frequency' by rarity.",
-    )
-    weight_scale_percentile: int = Field(
-        default=95,
-        description="[exponential method only] Percentile of target values used as scaling reference.",
-    )
-    weight_exponent: float = Field(
-        default=1.0,
-        description="[exponential method only] Exponent for scaling: 0=uniform, 1=linear, >1=stronger emphasis.",
-    )
-    n_bins: int = Field(
-        default=50,
-        description="[inverse_frequency method only] Number of equal-width histogram bins for frequency estimation.",
-    )
-    dampening_exponent: float = Field(
-        default=0.5,
-        description="[inverse_frequency method only] Exponent in [0,1] applied to inverse frequency to compress range.",
-    )
-    weight_floor: float = Field(
-        default=0.1,
-        description="Minimum weight value to ensure all samples contribute to training.",
+    config: SampleWeightConfig = Field(
+        default_factory=SampleWeightConfig,
+        description="Sample weight configuration parameters.",
     )
     target_column: str = Field(
         default="load",
@@ -160,23 +173,23 @@ class SampleWeighter(BaseConfig, TimeSeriesTransform):
         Raises:
             ValueError: If an unknown weighting method is configured.
         """
-        match self.method:
+        match self.config.method:
             case "exponential":
                 return exponential_sample_weight(
                     x=target,
-                    scale_percentile=self.weight_scale_percentile,
-                    exponent=self.weight_exponent,
-                    floor=self.weight_floor,
+                    scale_percentile=self.config.weight_scale_percentile,
+                    exponent=self.config.weight_exponent,
+                    floor=self.config.weight_floor,
                 )
             case "inverse_frequency":
                 return inverse_frequency_sample_weight(
                     x=target,
-                    n_bins=self.n_bins,
-                    dampening_exponent=self.dampening_exponent,
-                    floor=self.weight_floor,
+                    n_bins=self.config.n_bins,
+                    dampening_exponent=self.config.dampening_exponent,
+                    floor=self.config.weight_floor,
                 )
             case _:
-                msg = f"Unknown weighting method: {self.method}"
+                msg = f"Unknown weighting method: {self.config.method}"
                 raise ValueError(msg)
 
     @override
@@ -185,9 +198,26 @@ class SampleWeighter(BaseConfig, TimeSeriesTransform):
 
     @override
     def __setstate__(self, state: dict[str, Any]) -> None:  # TODO(#799): delete after stable release
-        if "method" not in state["__dict__"]:
-            state["__dict__"]["method"] = "exponential"
-            cast(set[str], state["__pydantic_fields_set__"]).add("method")
+        d = state["__dict__"]
+        fields_set = cast(set[str], state["__pydantic_fields_set__"])
+
+        # Migrate flat fields into nested SampleWeightConfig
+        if "config" not in d:
+            config_fields: dict[str, Any] = {}
+            for key in (
+                "method",
+                "weight_scale_percentile",
+                "weight_exponent",
+                "n_bins",
+                "dampening_exponent",
+                "weight_floor",
+            ):
+                if key in d:
+                    config_fields[key] = d.pop(key)
+                    fields_set.discard(key)
+            d["config"] = SampleWeightConfig(**config_fields)
+            fields_set.add("config")
+
         return super().__setstate__(state)
 
 

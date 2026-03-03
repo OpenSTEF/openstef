@@ -13,6 +13,7 @@ from abc import ABC, abstractmethod
 import pandas as pd
 import plotly.graph_objects as go
 
+from openstef_core.datasets import ForecastInputDataset, TimeSeriesDataset
 from openstef_core.types import Q, Quantile
 from openstef_models.explainability.plotters.feature_importance_plotter import FeatureImportancePlotter
 
@@ -56,3 +57,34 @@ class ExplainableForecaster(ABC):
             Color intensity indicates relative importance of each feature.
         """
         return FeatureImportancePlotter().plot(scores=self.feature_importances, quantile=quantile)
+
+
+class ContributionsMixin(ABC):
+    """Mixin for forecasters that can explain per-sample feature contributions.
+
+    Unlike ``ExplainableForecaster`` which provides aggregate feature importance,
+    this mixin provides per-sample decomposition of predictions — i.e., how
+    much each feature contributed to the prediction for each individual sample.
+
+    For tree-based models (XGBoost), this corresponds to SHAP TreeExplainer values.
+    For linear models (GBLinear), this is the coefficient x feature value decomposition.
+    For ensembles, this shows each base model's contribution weight.
+    """
+
+    @abstractmethod
+    def predict_contributions(self, data: ForecastInputDataset) -> TimeSeriesDataset:
+        """Compute per-sample feature contributions for the given input data.
+
+        Returns a TimeSeriesDataset where columns are feature names (or model
+        names for ensemble contributions) and rows correspond to the same time
+        index as the input.  Values represent the additive contribution of each
+        feature to the prediction at that timestep.
+
+        Args:
+            data: Preprocessed input data (same format as ``predict()`` takes).
+
+        Returns:
+            TimeSeriesDataset with feature contributions.  Columns are features,
+            rows are timesteps.  A ``bias`` column may be included for the
+            model intercept/base value.
+        """

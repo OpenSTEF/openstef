@@ -20,42 +20,57 @@ making them suitable only for single-horizon approaches. Other models (like XGBo
 handle such data complexities and work well for multi-horizon scenarios.
 """
 
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 from typing import Self
 
-from pydantic import Field
+from pydantic import ConfigDict, Field
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import ForecastDataset, ForecastInputDataset
-from openstef_core.mixins import BatchPredictor, HyperParams
+from openstef_core.mixins.predictor import BatchPredictor, HyperParams
 from openstef_core.types import LeadTime, Quantile
 
 
-class ForecasterConfig(BaseConfig):
-    """Configuration for forecasting models with support for multiple quantiles and horizons.
+class Forecaster(BaseConfig, BatchPredictor[ForecastInputDataset, ForecastDataset], ABC):
+    """Base for forecasters that handle multiple horizons simultaneously.
 
-    Fundamental configuration parameters that determine forecasting model behavior across
-    different prediction horizons and uncertainty levels. These are operational parameters
-    rather than hyperparameters that affect training.
+    Designed for models that train and predict across multiple prediction horizons
+    in a unified manner. These models handle the complexity of different lead times
+    internally, providing a simpler interface for multi-horizon forecasting.
+
+    Ideal for models that can share parameters or features across horizons, avoiding
+    the need to train separate models for each prediction distance.
+
+    Concrete forecasters subclass this directly and declare their fields (quantiles,
+    horizons, hyperparams, etc.) as Pydantic model fields. Mutable runtime state
+    (e.g. the underlying ML model) should be stored in ``PrivateAttr`` fields and
+    initialised in ``model_post_init``.
+
+    Invariants:
+        - Predictions must include all quantiles specified in the configuration
+        - predict_batch() only called when supports_batching returns True
 
     Example:
-        Basic configuration for daily energy forecasting:
+        Creating a forecaster with multiple horizons:
 
         >>> from openstef_core.types import LeadTime, Quantile
-        >>> config = ForecasterConfig(
+        >>> from openstef_models.models.forecasting.flatliner_forecaster import FlatlinerForecaster
+        >>> forecaster = FlatlinerForecaster(
         ...     quantiles=[Quantile(0.1), Quantile(0.5), Quantile(0.9)],
-        ...     horizons=[LeadTime.from_string("PT1H"), LeadTime.from_string("PT6H"), LeadTime.from_string("PT24H")]
+        ...     horizons=[LeadTime.from_string("PT1H"), LeadTime.from_string("PT6H")],
         ... )
-        >>> len(config.horizons)
-        3
-        >>> str(config.max_horizon)
-        'P1D'
+        >>> len(forecaster.horizons)
+        2
+        >>> str(forecaster.max_horizon)
+        'PT6H'
 
     See Also:
-        HorizonForecasterConfig: Single-horizon variant of this configuration.
-        BaseForecaster: Multi-horizon forecaster that uses this configuration.
-        ForecasterHyperParams: Hyperparameter configuration used alongside this.
+        XGBoostForecaster: Tree-based forecaster using XGBoost.
+        GBLinearForecaster: Linear forecaster using XGBoost's gblinear booster.
+        LGBMForecaster: Tree-based forecaster using LightGBM.
     """
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     quantiles: list[Quantile] = Field(
         default=[Quantile(0.5)],
@@ -100,9 +115,6 @@ class ForecasterConfig(BaseConfig):
     def with_horizon(self, horizon: LeadTime) -> Self:
         """Create a new configuration with a different horizon.
 
-        Useful for creating multiple forecaster instances for different prediction
-        horizons from a single base configuration.
-
         Args:
             horizon: The new lead time to use for predictions.
 
@@ -111,94 +123,17 @@ class ForecasterConfig(BaseConfig):
         """
         return self.model_copy(update={"horizons": [horizon]})
 
-
-class ConfigurableForecaster:
     @property
     @abstractmethod
-    def config(self) -> ForecasterConfig:
-        """Access the model's configuration parameters.
+    def hparams(self) -> HyperParams:
+        """Model hyperparameters for training and prediction.
 
-        Returns:
-            Configuration object containing fundamental model parameters.
+        Concrete forecasters implement this by returning their narrowed
+        ``hyperparams`` field, giving callers a polymorphic read-only view
+        while each subclass keeps full type safety on its own field.
         """
-        raise NotImplementedError("Subclasses must implement config")
-
-    @property
-    def hyperparams(self) -> HyperParams:
-        """Access the model's hyperparameters for training and prediction.
-
-        Hyperparameters control model behavior during training and inference.
-        Default implementation returns empty hyperparameters, which is suitable
-        for models without configurable parameters.
-
-        Returns:
-            Hyperparameter configuration object.
-        """
-        return HyperParams()
-
-
-class Forecaster(BatchPredictor[ForecastInputDataset, ForecastDataset], ConfigurableForecaster):
-    """Base for forecasters that handle multiple horizons simultaneously.
-
-    Designed for models that train and predict across multiple prediction horizons
-    in a unified manner. These models handle the complexity of different lead times
-    internally, providing a simpler interface for multi-horizon forecasting.
-
-    Ideal for models that can share parameters or features across horizons, avoiding
-    the need to train separate models for each prediction distance.
-
-    Invariants:
-        - Predictions must include all quantiles specified in the configuration
-        - predict_batch() only called when supports_batching returns True
-
-    Example:
-        Implementation for a model that handles multiple horizons:
-
-        >>> from typing import override
-        >>> class CustomForecaster(Forecaster):
-        ...     def __init__(self, config: ForecasterConfig):
-        ...         self._config = config
-        ...         self._fitted = False
-        ...
-        ...     @property
-        ...     @override
-        ...     def config(self):
-        ...         return self._config
-        ...
-        ...     @property
-        ...     @override
-        ...     def is_fitted(self):
-        ...         return self._fitted
-        ...
-        ...     @override
-        ...     def get_state(self):
-        ...         return {"config": self._config, "fitted": self._fitted}
-        ...
-        ...     @override
-        ...     def from_state(self, state):
-        ...         instance = self.__class__(state["config"])
-        ...         instance._fitted = state["fitted"]
-        ...         return instance
-        ...
-        ...     @override
-        ...     def fit(self, input_data, data_val):
-        ...         # Train on data for all horizons
-        ...         self._fitted = True
-        ...
-        ...     @override
-        ...     def predict(self, input_data):
-        ...         # Generate predictions for all horizons
-        ...         from openstef_core.datasets.validated_datasets import ForecastDataset
-        ...         import pandas as pd
-        ...         return ForecastDataset(
-        ...             data=pd.DataFrame(),
-        ...             sample_interval=pd.Timedelta("15min"),
-        ...             forecast_start=pd.Timestamp.now()
-        ...         )
-    """
 
 
 __all__ = [
     "Forecaster",
-    "ForecasterConfig",
 ]

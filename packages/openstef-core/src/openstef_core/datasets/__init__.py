@@ -19,6 +19,7 @@ The module supports:
 from openstef_core.datasets.timeseries_dataset import TimeSeriesDataset, validate_horizons_present
 from openstef_core.datasets.validated_datasets import (
     EnergyComponentDataset,
+    EnsembleForecastDataset,
     ForecastDataset,
     ForecastInputDataset,
 )
@@ -26,6 +27,7 @@ from openstef_core.datasets.versioned_timeseries_dataset import VersionedTimeSer
 
 __all__ = [
     "EnergyComponentDataset",
+    "EnsembleForecastDataset",
     "ForecastDataset",
     "ForecastInputDataset",
     "TimeSeriesDataset",
