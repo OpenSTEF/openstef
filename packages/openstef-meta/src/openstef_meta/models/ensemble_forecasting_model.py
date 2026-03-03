@@ -6,7 +6,7 @@
 
 Orchestrates parallel base forecasters whose predictions are aggregated by a
 ``ForecastCombiner``.  Extends ``BaseForecastingModel`` as a sibling of
-``ForecastingModel`` (D1).
+``ForecastingModel``.
 """
 
 import logging
