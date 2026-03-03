@@ -5,8 +5,7 @@
 """Forecasting implementations for OpenSTEF models.
 
 Concrete forecaster implementations for different ML frameworks.
-The base `Forecaster` and `ForecasterConfig` interfaces live in
-``openstef_core.mixins.forecaster``.
+The base `Forecaster` interface lives in the ``forecaster`` module.
 
 Implementations:
     - constant_median_forecaster: Simple baseline forecaster using historical medians

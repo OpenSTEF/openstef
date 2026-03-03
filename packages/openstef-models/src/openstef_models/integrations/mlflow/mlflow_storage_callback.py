@@ -40,13 +40,12 @@ from openstef_core.exceptions import (
     ModelNotFoundError,
     SkipFitting,
 )
-from openstef_core.mixins import HyperParams
 from openstef_core.types import Q, QuantileOrGlobal
 from openstef_models.explainability import ExplainableForecaster
 from openstef_models.integrations.mlflow.mlflow_storage import MLFlowStorage
 from openstef_models.mixins.callbacks import WorkflowContext
 from openstef_models.models.forecasting.forecaster import Forecaster
-from openstef_models.models.forecasting_model import ForecastingModel, ModelFitResult
+from openstef_models.models.forecasting_model import BaseForecastingModel, ForecastingModel, ModelFitResult
 from openstef_models.workflows.custom_forecasting_workflow import (
     CustomForecastingWorkflow,
     ForecastingCallback,
@@ -151,14 +150,11 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
         if self.model_selection_enable:
             self._run_model_selection(workflow=context.workflow, result=result)
 
-        # Determine primary hyperparams based on model structure
-        hyperparams = self._get_primary_hyperparams(context.workflow.model)
-
         # Create a new run
         run = self.storage.create_run(
             model_id=context.workflow.model_id,
             tags=context.workflow.model.tags,
-            hyperparams=hyperparams,
+            hyperparams=context.workflow.model.hyperparams,
             run_name=context.workflow.run_name,
             experiment_tags=context.workflow.experiment_tags,
         )
@@ -215,9 +211,9 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
         run_id: str = run.info.run_id
         old_model = self.storage.load_run_model(run_id=run_id, model_id=context.workflow.model_id)
 
-        if not isinstance(old_model, ForecastingModel):
+        if not isinstance(old_model, BaseForecastingModel):
             self._logger.warning(
-                "Loaded model from run %s is not a ForecastingModel, cannot use for prediction",
+                "Loaded model from run %s is not a BaseForecastingModel, cannot use for prediction",
                 cast(str, run.info.run_id),
             )
             return
@@ -274,7 +270,7 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
     def _log_forecaster_hyperparams(self, model: EnsembleModel, run_id: str) -> None:
         """Log per-forecaster hyperparameters to the run."""
         for name, forecaster in model.forecasters.items():
-            prefixed_params = {f"{name}.{k}": str(v) for k, v in forecaster.hyperparams.model_dump().items()}
+            prefixed_params = {f"{name}.{k}": str(v) for k, v in forecaster.hparams.model_dump().items()}
             self.storage.log_hyperparams(run_id=run_id, params=prefixed_params)
             self._logger.debug("Logged hyperparams for forecaster '%s' in run %s", name, run_id)
 
@@ -311,25 +307,7 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
         return metrics
 
     @staticmethod
-    def _get_primary_hyperparams(model: ForecastingModel) -> HyperParams:
-        """Determine primary hyperparameters from the model.
-
-        For ensemble models: uses the combiner's hyperparameters.
-        For single models: uses the forecaster's hyperparameters.
-
-        Returns:
-            The primary hyperparameters extracted from the model.
-        """
-        if isinstance(model, ExplainableEnsembleModel):
-            config = getattr(model.combiner, "config", None)
-            if config is not None:
-                return getattr(config, "hyperparams", HyperParams())  # pyright: ignore[reportUnknownMemberType, reportReturnType]
-        if model.forecaster is not None:
-            return model.forecaster.hyperparams
-        return HyperParams()
-
-    @staticmethod
-    def _store_feature_importances(model: ForecastingModel, data_path: Path) -> None:
+    def _store_feature_importances(model: BaseForecastingModel, data_path: Path) -> None:
         """Store feature importance plots for all explainable components of the model."""
         if isinstance(model, EnsembleModel):
             # Ensemble model: store per-forecaster feature importances
@@ -337,7 +315,7 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
                 if isinstance(forecaster, ExplainableForecaster):
                     fig = forecaster.plot_feature_importances()
                     fig.write_html(data_path / f"feature_importances_{name}.html")  # pyright: ignore[reportUnknownMemberType]
-        elif model.forecaster is not None and isinstance(model.forecaster, ExplainableForecaster):
+        elif isinstance(model, ForecastingModel) and isinstance(model.forecaster, ExplainableForecaster):
             # Single model: store feature importance
             fig = model.forecaster.plot_feature_importances()
             fig.write_html(data_path / "feature_importances.html")  # pyright: ignore[reportUnknownMemberType]
@@ -361,7 +339,7 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
         runs = self.storage.search_latest_runs(model_id=model_id)
         return next(iter(runs), None)
 
-    def _try_load_model(self, run_id: str, model_id: str) -> ForecastingModel | None:
+    def _try_load_model(self, run_id: str, model_id: str) -> BaseForecastingModel | None:
         """Try to load a model from MLflow, returning None on failure.
 
         Returns:
@@ -377,9 +355,9 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
             )
             return None
 
-        if not isinstance(old_model, ForecastingModel):
+        if not isinstance(old_model, BaseForecastingModel):
             self._logger.warning(
-                "Loaded old model from run %s is not a ForecastingModel, skipping model selection",
+                "Loaded old model from run %s is not a BaseForecastingModel, skipping model selection",
                 run_id,
             )
             return None
@@ -389,7 +367,7 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
     def _try_evaluate_model(
         self,
         run_id: str,
-        old_model: ForecastingModel,
+        old_model: BaseForecastingModel,
         input_data: TimeSeriesDataset,
     ) -> SubsetMetric | None:
         """Try to evaluate a model, returning None on failure.

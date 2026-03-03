@@ -1,34 +1,35 @@
 # SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
 #
 # SPDX-License-Identifier: MPL-2.0
-"""Forecast combiner base classes and configurations.
+"""Forecast combiner base classes.
 
-Provides abstract base classes and configuration schemas for implementing
-forecast combiners that aggregate predictions from multiple base forecasters.
+Provides abstract base classes for implementing forecast combiners that aggregate
+predictions from multiple base forecasters.
 """
 
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 from typing import Self
 
 import pandas as pd
 from pydantic import ConfigDict, Field
 
 from openstef_core.base_model import BaseConfig
-from openstef_core.datasets import ForecastDataset, ForecastInputDataset
+from openstef_core.datasets import ForecastDataset, ForecastInputDataset, TimeSeriesDataset
 from openstef_core.datasets.validated_datasets import EnsembleForecastDataset
-from openstef_core.mixins import HyperParams, Predictor
+from openstef_core.mixins import Predictor
+from openstef_core.mixins.predictor import HyperParams
 from openstef_core.types import LeadTime, Quantile
-from openstef_models.explainability import ExplainableForecaster
 
 
-class ForecastCombinerConfig(BaseConfig):
-    """Hyperparameters for the Final Learner."""
+class ForecastCombiner(BaseConfig, Predictor[EnsembleForecastDataset, ForecastDataset], ABC):
+    """Combines base Forecaster predictions for each quantile into final predictions.
+
+    Subclasses implement specific combination strategies (stacking, learned weights,
+    etc.).  The combiner IS its own config — fields like ``quantiles`` and ``horizons``
+    are declared as pydantic fields directly.
+    """
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
-
-    hyperparams: HyperParams = Field(
-        description="Hyperparameters for the final learner.",
-    )
 
     quantiles: list[Quantile] = Field(
         default=[Quantile(0.5)],
@@ -51,41 +52,34 @@ class ForecastCombinerConfig(BaseConfig):
 
     @property
     def max_horizon(self) -> LeadTime:
-        """Returns the maximum lead time (horizon) from the configured horizons.
-
-        Useful for determining the furthest prediction distance required by the model.
-        This is commonly used for data preparation and validation logic.
-
-        Returns:
-            The maximum lead time.
-        """
+        """Returns the maximum lead time (horizon) from the configured horizons."""
         return max(self.horizons)
 
     def with_horizon(self, horizon: LeadTime) -> Self:
-        """Create a new configuration with a different horizon.
-
-        Useful for creating multiple forecaster instances for different prediction
-        horizons from a single base configuration.
+        """Create a copy with a different horizon.
 
         Args:
             horizon: The new lead time to use for predictions.
 
         Returns:
-            New configuration instance with the specified horizon.
+            New instance with the specified horizon.
         """
         return self.model_copy(update={"horizons": [horizon]})
 
+    @property
+    @abstractmethod
+    def hparams(self) -> HyperParams:
+        """Combiner hyperparameters.
 
-class ForecastCombiner(Predictor[EnsembleForecastDataset, ForecastDataset], ExplainableForecaster):
-    """Combines base Forecaster predictions for each quantile into final predictions.
+        Concrete combiners implement this by returning their narrowed
+        ``hyperparams`` field, giving callers a polymorphic read-only view
+        while each subclass keeps full type safety on its own field.
+        """
 
-    Inherits from ExplainableForecaster to provide feature importance and
-    visualization capabilities. The ``predict_contributions`` method uses
-    combiner-specific signatures (EnsembleForecastDataset) rather than the
-    ExplainableForecaster signature (ForecastInputDataset).
-    """
-
-    config: ForecastCombinerConfig
+    @property
+    @abstractmethod
+    def is_fitted(self) -> bool:
+        """Whether the combiner has been fitted."""
 
     @abstractmethod
     def fit(
@@ -94,14 +88,13 @@ class ForecastCombiner(Predictor[EnsembleForecastDataset, ForecastDataset], Expl
         data_val: EnsembleForecastDataset | None = None,
         additional_features: ForecastInputDataset | None = None,
     ) -> None:
-        """Fit the final learner using base Forecaster predictions.
+        """Fit the combiner using base forecaster predictions.
 
         Args:
-            data: EnsembleForecastDataset
-            data_val: Optional EnsembleForecastDataset for validation during fitting. Will be ignored
-            additional_features: Optional ForecastInputDataset containing additional features for the final learner.
+            data: Ensemble dataset with base forecaster predictions.
+            data_val: Optional validation data.
+            additional_features: Optional additional features for the combiner.
         """
-        raise NotImplementedError("Subclasses must implement the fit method.")
 
     @abstractmethod
     def predict(
@@ -109,40 +102,33 @@ class ForecastCombiner(Predictor[EnsembleForecastDataset, ForecastDataset], Expl
         data: EnsembleForecastDataset,
         additional_features: ForecastInputDataset | None = None,
     ) -> ForecastDataset:
-        """Generate final predictions based on base Forecaster predictions.
+        """Generate final predictions based on base forecaster predictions.
 
         Args:
-            data: EnsembleForecastDataset containing base Forecaster predictions.
-            data_val: Optional EnsembleForecastDataset for validation during prediction. Will be ignored
-            additional_features: Optional ForecastInputDataset containing additional features for the final learner.
+            data: Ensemble dataset with base forecaster predictions.
+            additional_features: Optional additional features for the combiner.
 
         Returns:
-            ForecastDataset containing the final predictions.
+            Combined forecast dataset.
         """
-        raise NotImplementedError("Subclasses must implement the predict method.")
-
-    @property
-    @abstractmethod
-    def is_fitted(self) -> bool:
-        """Indicates whether the final learner has been fitted."""
-        raise NotImplementedError("Subclasses must implement the is_fitted property.")
 
     @abstractmethod
-    def predict_contributions(  # pyright: ignore[reportIncompatibleMethodOverride]
+    def predict_contributions(
         self,
         data: EnsembleForecastDataset,
         additional_features: ForecastInputDataset | None = None,
-    ) -> pd.DataFrame:
-        """Generate contribution predictions based on base forecaster predictions.
-
-        Note: This overrides ExplainableForecaster.predict_contributions with a
-        combiner-specific signature using EnsembleForecastDataset.
+    ) -> TimeSeriesDataset:
+        """Per-sample feature/model contributions for the combined prediction.
 
         Args:
-            data: EnsembleForecastDataset containing base Forecaster predictions.
-            additional_features: Optional ForecastInputDataset containing additional features for the final learner.
+            data: Ensemble dataset with base forecaster predictions.
+            additional_features: Optional additional features for the combiner.
 
         Returns:
-            DataFrame containing the feature contributions.
+            TimeSeriesDataset where columns are features/models and rows are timesteps.
         """
-        raise NotImplementedError("Subclasses must implement the predict_contributions method.")
+
+    @property
+    @abstractmethod
+    def feature_importances(self) -> pd.DataFrame:
+        """Aggregate feature importances from the combiner's internal models."""

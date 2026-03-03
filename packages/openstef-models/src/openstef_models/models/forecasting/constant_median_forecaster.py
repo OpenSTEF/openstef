@@ -5,21 +5,20 @@
 """Simple constant median forecasting models for educational and baseline purposes.
 
 Provides basic forecasting models that predict constant values based on historical
-medians. These models serve as educational examples and performance baselines for
-more sophisticated forecasting approaches.
+medians. These models serve as educational examples and performance baselines.
 """
 
 from typing import ClassVar, override
 
 import pandas as pd
-from pydantic import Field
+from pydantic import Field, PrivateAttr
 
-from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
+from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset, TimeSeriesDataset
 from openstef_core.exceptions import NotFittedError
 from openstef_core.mixins.predictor import HyperParams
 from openstef_core.types import Any, LeadTime, Quantile
-from openstef_models.explainability.mixins import ExplainableForecaster
-from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
+from openstef_models.explainability.mixins import ContributionsMixin, ExplainableForecaster
+from openstef_models.models.forecasting.forecaster import Forecaster
 
 
 class ConstantMedianForecasterHyperParams(HyperParams):
@@ -31,25 +30,7 @@ class ConstantMedianForecasterHyperParams(HyperParams):
     )
 
 
-class ConstantMedianForecasterConfig(ForecasterConfig):
-    """Configuration for constant median forecaster."""
-
-    horizons: list[LeadTime] = Field(
-        default=...,
-        description=(
-            "Lead times for predictions, accounting for data availability and versioning cutoffs. "
-            "Each horizon defines how far ahead the model should predict."
-        ),
-        min_length=1,
-        max_length=1,
-    )
-
-    hyperparams: ConstantMedianForecasterHyperParams = Field(
-        default=ConstantMedianForecasterHyperParams(),
-    )
-
-
-class ConstantMedianForecaster(Forecaster, ExplainableForecaster):
+class ConstantMedianForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
     """Constant median-based forecaster for single horizon predictions.
 
     Predicts constant values based on historical quantiles from training data.
@@ -62,49 +43,43 @@ class ConstantMedianForecaster(Forecaster, ExplainableForecaster):
     Example:
         >>> from openstef_core.types import LeadTime, Quantile
         >>> from datetime import timedelta
-        >>> config = ConstantMedianForecasterConfig(
+        >>> forecaster = ConstantMedianForecaster(
         ...     quantiles=[Quantile(0.5), Quantile(0.1), Quantile(0.9)],
         ...     horizons=[LeadTime(timedelta(hours=1))],
-        ...     hyperparams=ConstantMedianForecasterHyperParams()
+        ...     hyperparams=ConstantMedianForecasterHyperParams(),
         ... )
-        >>> forecaster = ConstantMedianForecaster(config)
-        >>> # forecaster.fit_horizon(training_data)
-        >>> # predictions = forecaster.predict_horizon(test_data)
+        >>> forecaster.fit(training_data)  # doctest: +SKIP
+        >>> predictions = forecaster.predict(test_data)  # doctest: +SKIP
     """
 
     _VERSION: ClassVar[int] = 2
 
-    _config: ConstantMedianForecasterConfig
-    _quantile_values: dict[Quantile, float]
+    horizons: list[LeadTime] = Field(
+        default=...,
+        description=(
+            "Lead times for predictions, accounting for data availability and versioning cutoffs. "
+            "Each horizon defines how far ahead the model should predict."
+        ),
+        min_length=1,
+        max_length=1,
+    )
 
-    def __init__(
-        self,
-        config: ConstantMedianForecasterConfig | None = None,
-    ) -> None:
-        """Initialize the constant median forecaster.
+    hyperparams: ConstantMedianForecasterHyperParams = Field(
+        default_factory=ConstantMedianForecasterHyperParams,
+    )
 
-        Args:
-            config: Configuration specifying quantiles and hyperparameters.
-        """
-        self._config = config or ConstantMedianForecasterConfig()
-        self._quantile_values: dict[Quantile, float] = {}
-
-    @property
-    @override
-    def config(self) -> ConstantMedianForecasterConfig:
-        return self._config
+    _quantile_values: dict[Quantile, float] = PrivateAttr(default_factory=dict[Quantile, float])
 
     @property
     @override
-    def hyperparams(self) -> ConstantMedianForecasterHyperParams:
-        return self._config.hyperparams
+    def hparams(self) -> ConstantMedianForecasterHyperParams:
+        return self.hyperparams
 
     @override
     @classmethod
     def _migrate_state(cls, state: dict[str, Any], from_version: int, to_version: int) -> dict[str, Any]:
         if from_version <= 1:
             state["quantile_values"] = state.pop("quantile_values_v1", {})
-
         return state
 
     @property
@@ -114,19 +89,19 @@ class ConstantMedianForecaster(Forecaster, ExplainableForecaster):
 
     @override
     def fit(self, data: ForecastInputDataset, data_val: ForecastInputDataset | None = None) -> None:
-        self._quantile_values = {quantile: data.target_series.quantile(quantile) for quantile in self.config.quantiles}
+        self._quantile_values = {quantile: data.target_series.quantile(quantile) for quantile in self.quantiles}
 
     @override
     def predict(self, data: ForecastInputDataset) -> ForecastDataset:
         if not self.is_fitted:
             raise NotFittedError(self.__class__.__name__)
 
-        forecast_index = data.create_forecast_range(horizon=self.config.max_horizon)
+        forecast_index = data.create_forecast_range(horizon=self.max_horizon)
         return ForecastDataset(
             data=pd.DataFrame(
                 data={
                     quantile.format(): self._quantile_values[quantile] + self.hyperparams.constant
-                    for quantile in self.config.quantiles
+                    for quantile in self.quantiles
                 },
                 index=forecast_index,
             ),
@@ -139,23 +114,12 @@ class ConstantMedianForecaster(Forecaster, ExplainableForecaster):
         return pd.DataFrame(
             data=[1.0],
             index=["load"],
-            columns=[quantile.format() for quantile in self.config.quantiles],
+            columns=[quantile.format() for quantile in self.quantiles],
         )
 
     @override
-    def predict_contributions(self, data: ForecastInputDataset, *, scale: bool = True) -> pd.DataFrame:
-        """Generate feature contributions.
-
-        Args:
-            data: The forecast input dataset containing target variable history.
-            scale: Whether to scale contributions to sum to 1. Defaults to True.
-
-        Returns:
-            pd.DataFrame containing the prediction contributions.
-        """
+    def predict_contributions(self, data: ForecastInputDataset) -> TimeSeriesDataset:
+        """Return uniform contributions."""
         input_data = data.input_data(start=data.forecast_start)
-        return pd.DataFrame(
-            data=1.0,
-            index=input_data.index,
-            columns=["load_" + quantile.format() for quantile in self.config.quantiles],
-        )
+        contribs_df = pd.DataFrame(1.0, index=input_data.index, columns=["bias"])
+        return TimeSeriesDataset(data=contribs_df, sample_interval=data.sample_interval)

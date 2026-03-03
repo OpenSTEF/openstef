@@ -77,14 +77,3 @@ def test_get_base_predictions_for_quantile(ensemble_dataset: EnsembleForecastDat
     # Assert
     assert isinstance(dataset, ForecastInputDataset)
     assert dataset.data.shape == (3, 3)  # 3 timestamps, 2 learners * 1 quantiles + target
-
-
-def test_get_best_forecaster_labels(ensemble_dataset: EnsembleForecastDataset):
-    """Test get_best_forecaster_labels."""
-    # Act
-    dataset = ensemble_dataset.get_best_forecaster_labels(Quantile(0.5))
-
-    # Assert
-    assert isinstance(dataset, ForecastInputDataset)
-    assert dataset.data.shape == (3, 3)  # 3 timestamps, 2 learners * 1 quantiles + target
-    assert all(dataset.target_series.apply(lambda x: x in {"model_1", "model_2"}))  # type: ignore

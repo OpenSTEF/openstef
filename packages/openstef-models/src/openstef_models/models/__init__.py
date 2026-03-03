@@ -9,9 +9,10 @@ imports.
 """
 
 from .component_splitting_model import ComponentSplittingModel
-from .forecasting_model import ForecastingModel
+from .forecasting_model import BaseForecastingModel, ForecastingModel
 
 __all__ = [
+    "BaseForecastingModel",
     "ComponentSplittingModel",
     "ForecastingModel",
 ]

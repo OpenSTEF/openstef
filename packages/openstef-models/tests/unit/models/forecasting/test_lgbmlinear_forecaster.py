@@ -11,16 +11,15 @@ from openstef_core.exceptions import NotFittedError
 from openstef_core.types import LeadTime, Q
 from openstef_models.models.forecasting.lgbmlinear_forecaster import (
     LGBMLinearForecaster,
-    LGBMLinearForecasterConfig,
     LGBMLinearHyperParams,
 )
 
 
 @pytest.fixture
-def base_config() -> LGBMLinearForecasterConfig:
+def base_config() -> LGBMLinearForecaster:
     """Base configuration for LgbLinear forecaster tests."""
 
-    return LGBMLinearForecasterConfig(
+    return LGBMLinearForecaster(
         quantiles=[Q(0.1), Q(0.5), Q(0.9)],
         horizons=[LeadTime(timedelta(days=1))],
         hyperparams=LGBMLinearHyperParams(n_estimators=100, max_depth=3, min_data_in_leaf=1, min_data_in_bin=1),
@@ -30,23 +29,23 @@ def base_config() -> LGBMLinearForecasterConfig:
     )
 
 
-def test_initialization(base_config: LGBMLinearForecasterConfig):
+def test_initialization(base_config: LGBMLinearForecaster):
     # Act
-    forecaster = LGBMLinearForecaster(base_config)
+    forecaster = base_config.model_copy(deep=True)
 
     # Assert
     assert isinstance(forecaster, LGBMLinearForecaster)
-    assert forecaster.config.hyperparams.n_estimators == 100  # type: ignore
+    assert forecaster.hyperparams.n_estimators == 100  # type: ignore
 
 
 def test_quantile_lgbmlinear_forecaster__fit_predict(
     sample_forecast_input_dataset: ForecastInputDataset,
-    base_config: LGBMLinearForecasterConfig,
+    base_config: LGBMLinearForecaster,
 ):
     """Test basic fit and predict workflow with comprehensive output validation."""
     # Arrange
     expected_quantiles = base_config.quantiles
-    forecaster = LGBMLinearForecaster(config=base_config)
+    forecaster = base_config.model_copy(deep=True)
 
     # Act
     forecaster.fit(sample_forecast_input_dataset)
@@ -73,11 +72,11 @@ def test_quantile_lgbmlinear_forecaster__fit_predict(
 
 def test_lgbmlinear_forecaster__not_fitted_error(
     sample_forecast_input_dataset: ForecastInputDataset,
-    base_config: LGBMLinearForecasterConfig,
+    base_config: LGBMLinearForecaster,
 ):
     """Test that NotFittedError is raised when predicting before fitting."""
     # Arrange
-    forecaster = LGBMLinearForecaster(config=base_config)
+    forecaster = base_config.model_copy(deep=True)
 
     # Act & Assert
     with pytest.raises(NotFittedError):
@@ -86,11 +85,11 @@ def test_lgbmlinear_forecaster__not_fitted_error(
 
 def test_lgbmlinear_forecaster__with_sample_weights(
     sample_dataset_with_weights: ForecastInputDataset,
-    base_config: LGBMLinearForecasterConfig,
+    base_config: LGBMLinearForecaster,
 ):
     """Test that forecaster works with sample weights and produces different results."""
     # Arrange
-    forecaster_with_weights = LGBMLinearForecaster(config=base_config)
+    forecaster_with_weights = base_config.model_copy(deep=True)
 
     # Create dataset without weights for comparison
     data_without_weights = ForecastInputDataset(
@@ -99,7 +98,7 @@ def test_lgbmlinear_forecaster__with_sample_weights(
         target_column=sample_dataset_with_weights.target_column,
         forecast_start=sample_dataset_with_weights.forecast_start,
     )
-    forecaster_without_weights = LGBMLinearForecaster(config=base_config)
+    forecaster_without_weights = base_config.model_copy(deep=True)
 
     # Act
     forecaster_with_weights.fit(sample_dataset_with_weights)
@@ -122,11 +121,11 @@ def test_lgbmlinear_forecaster__with_sample_weights(
 
 def test_lgbmlinear_forecaster__feature_importances(
     sample_forecast_input_dataset: ForecastInputDataset,
-    base_config: LGBMLinearForecasterConfig,
+    base_config: LGBMLinearForecaster,
 ):
     """Test that feature_importances returns correct normalized importance scores."""
     # Arrange
-    forecaster = LGBMLinearForecaster(config=base_config)
+    forecaster = base_config.model_copy(deep=True)
     forecaster.fit(sample_forecast_input_dataset)
 
     # Act

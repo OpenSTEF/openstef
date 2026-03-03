@@ -12,14 +12,14 @@ validation to catch data quality issues early.
 from datetime import datetime, timedelta
 from typing import Self, override
 
-import numpy as np
-import numpy.typing as npt
 import pandas as pd
 
 from openstef_core.datasets.timeseries_dataset import TimeSeriesDataset
 from openstef_core.datasets.validation import validate_required_columns
 from openstef_core.exceptions import MissingColumnsError
 from openstef_core.types import EnergyComponentType, LeadTime, Quantile
+
+ENSEMBLE_COLUMN_SEP: str = "__"
 
 
 class ForecastInputDataset(TimeSeriesDataset):
@@ -465,6 +465,10 @@ class EnsembleForecastDataset(TimeSeriesDataset):
         quantile_feature_names = [col for col in self.feature_names if col != target_column]
 
         self.forecaster_names, self.quantiles = self.get_learner_and_quantile(pd.Index(quantile_feature_names))
+        for name in self.forecaster_names:
+            if ENSEMBLE_COLUMN_SEP in name:
+                msg = f"Forecaster name '{name}' must not contain separator '{ENSEMBLE_COLUMN_SEP}'."
+                raise ValueError(msg)
         n_cols = len(self.forecaster_names) * len(self.quantiles)
         if len(data.columns) not in {n_cols + 1, n_cols}:
             raise ValueError("Data columns do not match the expected number based on base forecasters and quantiles.")
@@ -480,6 +484,9 @@ class EnsembleForecastDataset(TimeSeriesDataset):
     def get_learner_and_quantile(feature_names: pd.Index) -> tuple[list[str], list[Quantile]]:
         """Extract base forecaster names and quantiles from feature names.
 
+        Column format is ``{learner}{ENSEMBLE_COLUMN_SEP}{quantile.format()}``,
+        e.g. ``lgbm__quantile_P50``.
+
         Args:
             feature_names: Index of feature names in the dataset.
 
@@ -487,14 +494,17 @@ class EnsembleForecastDataset(TimeSeriesDataset):
             Tuple containing a list of base forecaster names and a list of quantiles.
 
         Raises:
-            ValueError: If an invalid base forecaster name is found in a feature name.
+            ValueError: If a column cannot be parsed or has an invalid quantile string.
         """
         forecasters: set[str] = set()
         quantiles: set[Quantile] = set()
 
         for feature_name in feature_names:
-            quantile_part = "_".join(feature_name.split("_")[-2:])
-            learner_part = feature_name[: -(len(quantile_part) + 1)]
+            parts = feature_name.split(ENSEMBLE_COLUMN_SEP, maxsplit=1)
+            if len(parts) != 2:  # noqa: PLR2004
+                msg = f"Column missing separator '{ENSEMBLE_COLUMN_SEP}': {feature_name}"
+                raise ValueError(msg)
+            learner_part, quantile_part = parts
             if not Quantile.is_valid_quantile_string(quantile_part):
                 msg = f"Column has no valid quantile string: {feature_name}"
                 raise ValueError(msg)
@@ -503,19 +513,6 @@ class EnsembleForecastDataset(TimeSeriesDataset):
             quantiles.add(Quantile.parse(quantile_part))
 
         return list(forecasters), list(quantiles)
-
-    @staticmethod
-    def get_quantile_feature_name(feature_name: str) -> tuple[str, Quantile]:
-        """Generate the feature name for a given base forecaster and quantile.
-
-        Args:
-            feature_name: Feature name string in the format "model_Quantile".
-
-        Returns:
-            Tuple containing the base forecaster name and Quantile object.
-        """
-        learner_part, quantile_part = feature_name.split("_", maxsplit=1)
-        return learner_part, Quantile.parse(quantile_part)
 
     @classmethod
     def from_forecast_datasets(
@@ -546,7 +543,9 @@ class EnsembleForecastDataset(TimeSeriesDataset):
             additional_columns[sample_weight_column] = sample_weights
 
         combined_data = pd.DataFrame({
-            f"{learner}_{q.format()}": ds.data[q.format()] for learner, ds in datasets.items() for q in ds.quantiles
+            f"{learner}{ENSEMBLE_COLUMN_SEP}{q.format()}": ds.data[q.format()]
+            for learner, ds in datasets.items()
+            for q in ds.quantiles
         }).assign(**additional_columns)
 
         return cls(
@@ -554,67 +553,6 @@ class EnsembleForecastDataset(TimeSeriesDataset):
             sample_interval=ds1.sample_interval,
             forecast_start=ds1.forecast_start,
             target_column=ds1.target_column,
-        )
-
-    @staticmethod
-    def _prepare_classification(data: pd.DataFrame, target: pd.Series, quantile: Quantile) -> pd.Series:
-        """Prepare data for classification tasks by converting quantile columns to binary indicators.
-
-        Args:
-            data: DataFrame containing quantile predictions.
-            target: Series containing true target values.
-            quantile: Quantile for which to prepare classification data.
-
-        Returns:
-            Series with categorical indicators of best-performing base forecasters.
-        """
-        y_true = np.asarray(target)
-
-        def _column_losses(preds: pd.Series) -> npt.NDArray[np.floating]:
-            y_pred = np.asarray(preds)
-            errors = y_true - y_pred
-            return np.where(errors >= 0, quantile * errors, (quantile - 1) * errors)
-
-        losses_per_forecaster = data.apply(_column_losses)
-
-        return losses_per_forecaster.idxmin(axis=1)
-
-    def get_best_forecaster_labels(self, quantile: Quantile) -> ForecastInputDataset:
-        """Get labels indicating the best-performing base forecaster for each sample at a specific quantile.
-
-        Creates a dataset where each sample's target is labeled with the name of the base forecaster
-        that performed best, determined by pinball loss. Used as classification target for training
-        the final learner.
-
-        Args:
-            quantile: Quantile to select.
-
-        Returns:
-            ForecastInputDataset where the target column contains labels of the best-performing
-            base forecaster for each sample.
-
-        Raises:
-            ValueError: If the target column is not found in the dataset.
-        """
-        if self.target_column not in self.data.columns:
-            msg = f"Target column '{self.target_column}' not found in dataset."
-            raise ValueError(msg)
-
-        selected_columns = [f"{learner}_{quantile.format()}" for learner in self.forecaster_names]
-        prediction_data = self.data[selected_columns].copy()
-        prediction_data.columns = self.forecaster_names
-
-        target = self._prepare_classification(
-            data=prediction_data,
-            target=self.data[self.target_column],
-            quantile=quantile,
-        )
-        prediction_data[self.target_column] = target
-        return ForecastInputDataset(
-            data=prediction_data,
-            sample_interval=self.sample_interval,
-            target_column=self.target_column,
-            forecast_start=self.forecast_start,
         )
 
     def get_base_predictions_for_quantile(self, quantile: Quantile) -> ForecastInputDataset:
@@ -626,7 +564,7 @@ class EnsembleForecastDataset(TimeSeriesDataset):
         Returns:
             ForecastInputDataset containing predictions from all base forecasters at the specified quantile.
         """
-        selected_columns = [f"{learner}_{quantile.format()}" for learner in self.forecaster_names]
+        selected_columns = [f"{learner}{ENSEMBLE_COLUMN_SEP}{quantile.format()}" for learner in self.forecaster_names]
         selected_columns.append(self.target_column)
         prediction_data = self.data[selected_columns].copy()
         prediction_data.columns = [*self.forecaster_names, self.target_column]
@@ -640,6 +578,7 @@ class EnsembleForecastDataset(TimeSeriesDataset):
 
 
 __all__ = [
+    "ENSEMBLE_COLUMN_SEP",
     "EnergyComponentDataset",
     "EnsembleForecastDataset",
     "ForecastDataset",

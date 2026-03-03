@@ -4,16 +4,13 @@
 
 from datetime import timedelta
 
-import pandas as pd
 import pytest
 
+from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.datasets.validated_datasets import EnsembleForecastDataset
 from openstef_core.exceptions import NotFittedError
 from openstef_core.types import LeadTime, Q
-from openstef_meta.models.forecast_combiners.stacking_combiner import (
-    StackingCombiner,
-    StackingCombinerConfig,
-)
+from openstef_meta.models.forecast_combiners.stacking_combiner import StackingCombiner
 from openstef_models.models.forecasting.gblinear_forecaster import GBLinearForecaster
 from openstef_models.models.forecasting.lgbm_forecaster import LGBMForecaster
 
@@ -24,83 +21,80 @@ def regressor(request: pytest.FixtureRequest) -> str:
     return request.param
 
 
-@pytest.fixture
-def config(regressor: str) -> StackingCombinerConfig:
-    """Fixture to create StackingCombinerConfig based on the regressor type."""
+def _make_template(regressor: str) -> GBLinearForecaster | LGBMForecaster:
+    """Build a lightweight template forecaster for tests."""
+    horizon = LeadTime(timedelta(days=1))
     if regressor == "lgbm":
-        hp = LGBMForecaster.HyperParams(num_leaves=5, n_estimators=10)
-    elif regressor == "gblinear":
-        hp = GBLinearForecaster.HyperParams(n_steps=10)
-    else:
-        msg = f"Unsupported regressor type: {regressor}"
-        raise ValueError(msg)
+        return LGBMForecaster(
+            hyperparams=LGBMForecaster.HyperParams(num_leaves=5, n_estimators=10),
+            horizons=[horizon],
+            quantiles=[Q(0.5)],
+        )
+    if regressor == "gblinear":
+        return GBLinearForecaster(
+            hyperparams=GBLinearForecaster.HyperParams(n_steps=10),
+            horizons=[horizon],
+            quantiles=[Q(0.5)],
+        )
+    msg = f"Unsupported regressor type: {regressor}"
+    raise ValueError(msg)
 
-    return StackingCombiner.Config(
-        hyperparams=hp, quantiles=[Q(0.1), Q(0.5), Q(0.9)], horizons=[LeadTime(timedelta(days=1))]
+
+@pytest.fixture
+def combiner(regressor: str) -> StackingCombiner:
+    """Fixture to create a StackingCombiner based on the regressor type."""
+    return StackingCombiner(
+        meta_forecaster=_make_template(regressor),
+        quantiles=[Q(0.1), Q(0.5), Q(0.9)],
+        horizons=[LeadTime(timedelta(days=1))],
     )
 
 
-def test_initialization(config: StackingCombinerConfig):
-    # Act
-    forecaster = StackingCombiner(config)
-
-    # Assert
-    assert forecaster.is_fitted is False
-    assert len(forecaster.models) == len(config.quantiles)
-    assert forecaster.quantiles == config.quantiles
-
-
-def test_quantile_weights_combiner__fit_predict(
+def test_stacking_combiner__fit_predict(
     ensemble_dataset: EnsembleForecastDataset,
-    config: StackingCombinerConfig,
+    combiner: StackingCombiner,
 ):
     """Test basic fit and predict workflow with comprehensive output validation."""
     # Arrange
-    expected_quantiles = config.quantiles
-    forecaster = StackingCombiner(config=config)
+    expected_quantiles = combiner.quantiles
 
     # Act
-    forecaster.fit(ensemble_dataset)
-    result = forecaster.predict(ensemble_dataset)
+    combiner.fit(ensemble_dataset)
+    result = combiner.predict(ensemble_dataset)
 
     # Assert
-    # Basic functionality
-    assert forecaster.is_fitted, "Model should be fitted after calling fit()"
+    assert combiner.is_fitted, "Model should be fitted after calling fit()"
 
-    # Check that necessary quantiles are present
     expected_columns = [q.format() for q in expected_quantiles]
     assert list(result.data.columns) == expected_columns, (
         f"Expected columns {expected_columns}, got {list(result.data.columns)}"
     )
 
-    # Forecast data quality
     assert not result.data.isna().any().any(), "Forecast should not contain NaN or None values"
 
 
 def test_stacking_combiner_not_fitted_error(
     ensemble_dataset: EnsembleForecastDataset,
-    config: StackingCombinerConfig,
+    combiner: StackingCombiner,
 ):
     """Test that NotFittedError is raised when predicting before fitting."""
-    # Arrange
-    forecaster = StackingCombiner(config=config)
-    # Act & Assert
     with pytest.raises(NotFittedError):
-        forecaster.predict(ensemble_dataset)
+        combiner.predict(ensemble_dataset)
 
 
 def test_stacking_combiner_predict_contributions(
     ensemble_dataset: EnsembleForecastDataset,
-    config: StackingCombinerConfig,
+    combiner: StackingCombiner,
 ):
-    """Test that predict_contributions method returns contributions with correct shape."""
-    # Arrange
-    forecaster = StackingCombiner(config=config)
-    forecaster.fit(ensemble_dataset)
+    """Test that predict_contributions returns a TimeSeriesDataset with correct shape."""
+    combiner.fit(ensemble_dataset)
 
-    # Act
-    contributions = forecaster.predict_contributions(ensemble_dataset)
+    contributions = combiner.predict_contributions(ensemble_dataset)
 
-    # Assert
-    assert isinstance(contributions, pd.DataFrame), "Contributions should be returned as a DataFrame."
-    assert len(contributions.columns) == (len(ensemble_dataset.quantiles) * len(ensemble_dataset.forecaster_names)) + 1
+    assert isinstance(contributions, TimeSeriesDataset), "Contributions should be a TimeSeriesDataset."
+    # Expect (quantiles x forecasters) feature columns + 1 bias per quantile + target
+    n_features = len(ensemble_dataset.forecaster_names)
+    n_quantiles = len(ensemble_dataset.quantiles)
+    # Each quantile model returns (features + bias) columns
+    expected_cols = n_quantiles * (n_features + 1) + 1  # +1 for target column
+    assert len(contributions.data.columns) == expected_cols

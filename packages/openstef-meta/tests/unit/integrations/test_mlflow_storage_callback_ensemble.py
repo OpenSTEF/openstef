@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING, cast, override
 
 import pandas as pd
 import pytest
+from pydantic import Field, PrivateAttr
 
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.datasets.validated_datasets import EnsembleForecastDataset, ForecastDataset, ForecastInputDataset
@@ -18,10 +19,10 @@ from openstef_core.exceptions import SkipFitting
 from openstef_core.mixins.predictor import HyperParams
 from openstef_core.types import LeadTime, Q
 from openstef_meta.models.ensemble_forecasting_model import EnsembleForecastingModel, EnsembleModelFitResult
-from openstef_meta.models.forecast_combiners.forecast_combiner import ForecastCombiner, ForecastCombinerConfig
+from openstef_meta.models.forecast_combiners.forecast_combiner import ForecastCombiner
 from openstef_models.integrations.mlflow import MLFlowStorage, MLFlowStorageCallback
 from openstef_models.mixins.callbacks import WorkflowContext
-from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
+from openstef_models.models.forecasting.forecaster import Forecaster
 from openstef_models.workflows.custom_forecasting_workflow import CustomForecastingWorkflow
 
 if TYPE_CHECKING:
@@ -38,24 +39,20 @@ class SimpleForecasterHyperParams(HyperParams):
 class SimpleTestForecaster(Forecaster):
     """Simple forecaster for testing that stores and restores median value."""
 
-    def __init__(self, config: ForecasterConfig):
-        self._config = config
-        self._median_value: float = 0.0
-        self._is_fitted = False
+    hyperparams: SimpleForecasterHyperParams = Field(default_factory=SimpleForecasterHyperParams)
+
+    _median_value: float = PrivateAttr(default=0.0)
+    _is_fitted: bool = PrivateAttr(default=False)
 
     @property
-    def config(self) -> ForecasterConfig:
-        return self._config
+    @override
+    def hparams(self) -> SimpleForecasterHyperParams:
+        return self.hyperparams
 
     @property
     @override
     def is_fitted(self) -> bool:
         return self._is_fitted
-
-    @property
-    @override
-    def hyperparams(self) -> SimpleForecasterHyperParams:
-        return SimpleForecasterHyperParams()
 
     @override
     def fit(self, data: ForecastInputDataset, data_val: ForecastInputDataset | None = None) -> None:
@@ -69,7 +66,7 @@ class SimpleTestForecaster(Forecaster):
         if not self._is_fitted:
             raise RuntimeError("Model not fitted")
         forecast_data = pd.DataFrame(
-            {quantile.format(): [self._median_value] * len(data.index) for quantile in self.config.quantiles},
+            {quantile.format(): [self._median_value] * len(data.index) for quantile in self.quantiles},
             index=data.index,
         )
         return ForecastDataset(forecast_data, data.sample_interval, data.forecast_start)
@@ -84,10 +81,14 @@ class SimpleCombinerHyperParams(HyperParams):
 class SimpleTestCombiner(ForecastCombiner):
     """Simple combiner for testing that averages base forecaster predictions."""
 
-    def __init__(self, config: ForecastCombinerConfig):
-        self.config = config
-        self._is_fitted = False
-        self.quantiles = config.quantiles
+    hyperparams: SimpleCombinerHyperParams = Field(default_factory=SimpleCombinerHyperParams)
+
+    @property
+    @override
+    def hparams(self) -> SimpleCombinerHyperParams:
+        return self.hyperparams
+
+    _is_fitted: bool = False
 
     @override
     def fit(
@@ -127,8 +128,8 @@ class SimpleTestCombiner(ForecastCombiner):
         self,
         data: EnsembleForecastDataset,
         additional_features: ForecastInputDataset | None = None,
-    ) -> pd.DataFrame:
-        return pd.DataFrame()
+    ) -> TimeSeriesDataset:
+        return TimeSeriesDataset(pd.DataFrame(index=data.data.index), data.sample_interval)
 
 
 # --- Fixtures ---
@@ -164,18 +165,14 @@ def _create_ensemble_workflow() -> CustomForecastingWorkflow:
     """Create an ensemble forecasting workflow for testing."""
     horizons = [LeadTime(timedelta(hours=1))]
     quantiles = [Q(0.5)]
-    config = ForecasterConfig(horizons=horizons, quantiles=quantiles)
-
     forecasters: dict[str, Forecaster] = {
-        "model_a": SimpleTestForecaster(config=config),
-        "model_b": SimpleTestForecaster(config=config),
+        "model_a": SimpleTestForecaster(horizons=horizons, quantiles=quantiles),
+        "model_b": SimpleTestForecaster(horizons=horizons, quantiles=quantiles),
     }
-    combiner_config = ForecastCombinerConfig(
+    combiner = SimpleTestCombiner(
         quantiles=quantiles,
         horizons=horizons,
-        hyperparams=SimpleCombinerHyperParams(),
     )
-    combiner = SimpleTestCombiner(config=combiner_config)
 
     ensemble_model = EnsembleForecastingModel(
         forecasters=forecasters,
@@ -302,23 +299,18 @@ def test_model_selection__keeps_better_ensemble_model(
     # Create a worse ensemble
     horizons = [LeadTime(timedelta(hours=1))]
     quantiles = [Q(0.5)]
-    config = ForecasterConfig(horizons=horizons, quantiles=quantiles)
-
-    worse_a = SimpleTestForecaster(config=config)
+    worse_a = SimpleTestForecaster(horizons=horizons, quantiles=quantiles)
     worse_a._median_value = 50.0
     worse_a._is_fitted = True
-    worse_b = SimpleTestForecaster(config=config)
+    worse_b = SimpleTestForecaster(horizons=horizons, quantiles=quantiles)
     worse_b._median_value = 50.0
     worse_b._is_fitted = True
 
     worse_ensemble = EnsembleForecastingModel(
         forecasters={"model_a": worse_a, "model_b": worse_b},
         combiner=SimpleTestCombiner(
-            config=ForecastCombinerConfig(
-                quantiles=quantiles,
-                horizons=horizons,
-                hyperparams=SimpleCombinerHyperParams(),
-            )
+            quantiles=quantiles,
+            horizons=horizons,
         ),
     )
     worse_result = worse_ensemble.fit(sample_dataset)

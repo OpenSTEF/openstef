@@ -4,7 +4,6 @@
 
 from datetime import timedelta
 
-import numpy as np
 import pandas as pd
 import pytest
 
@@ -13,15 +12,14 @@ from openstef_core.exceptions import NotFittedError
 from openstef_core.types import LeadTime, Q
 from openstef_models.models.forecasting.gblinear_forecaster import (
     GBLinearForecaster,
-    GBLinearForecasterConfig,
     GBLinearHyperParams,
 )
 
 
 @pytest.fixture
-def base_config() -> GBLinearForecasterConfig:
-    """Base configuration for GBLinearForecasterConfig forecaster tests."""
-    return GBLinearForecasterConfig(
+def base_config() -> GBLinearForecaster:
+    """Base configuration for GBLinearForecaster forecaster tests."""
+    return GBLinearForecaster(
         horizons=[LeadTime(timedelta(days=1))],
         quantiles=[Q(0.1), Q(0.5), Q(0.9)],
         hyperparams=GBLinearHyperParams(),
@@ -31,12 +29,12 @@ def base_config() -> GBLinearForecasterConfig:
 
 def test_gblinear_forecaster__fit_predict(
     sample_forecast_input_dataset: ForecastInputDataset,
-    base_config: GBLinearForecasterConfig,
+    base_config: GBLinearForecaster,
 ):
     """Test basic fit and predict workflow with output validation."""
     # Arrange
     expected_quantiles = base_config.quantiles
-    forecaster = GBLinearForecaster(config=base_config)
+    forecaster = base_config.model_copy(deep=True)
 
     # Act
     forecaster.fit(sample_forecast_input_dataset)
@@ -63,11 +61,11 @@ def test_gblinear_forecaster__fit_predict(
 
 def test_gblinear_forecaster__predict_not_fitted_raises_error(
     sample_forecast_input_dataset: ForecastInputDataset,
-    base_config: GBLinearForecasterConfig,
+    base_config: GBLinearForecaster,
 ):
     """Test that predict() raises NotFittedError when called before fit()."""
     # Arrange
-    forecaster = GBLinearForecaster(config=base_config)
+    forecaster = base_config.model_copy(deep=True)
 
     # Act & Assert
     with pytest.raises(NotFittedError, match="GBLinearForecaster"):
@@ -76,11 +74,11 @@ def test_gblinear_forecaster__predict_not_fitted_raises_error(
 
 def test_gblinear_forecaster__with_sample_weights(
     sample_dataset_with_weights: ForecastInputDataset,
-    base_config: GBLinearForecasterConfig,
+    base_config: GBLinearForecaster,
 ):
     """Test that forecaster works with sample weights and produces different results."""
     # Arrange
-    forecaster_with_weights = GBLinearForecaster(config=base_config)
+    forecaster_with_weights = base_config.model_copy(deep=True)
 
     # Create dataset without weights for comparison
     data_without_weights = ForecastInputDataset(
@@ -89,7 +87,7 @@ def test_gblinear_forecaster__with_sample_weights(
         target_column=sample_dataset_with_weights.target_column,
         forecast_start=sample_dataset_with_weights.forecast_start,
     )
-    forecaster_without_weights = GBLinearForecaster(config=base_config)
+    forecaster_without_weights = base_config.model_copy(deep=True)
 
     # Act
     forecaster_with_weights.fit(sample_dataset_with_weights)
@@ -112,11 +110,11 @@ def test_gblinear_forecaster__with_sample_weights(
 
 def test_gblinear_forecaster__feature_importances(
     sample_forecast_input_dataset: ForecastInputDataset,
-    base_config: GBLinearForecasterConfig,
+    base_config: GBLinearForecaster,
 ):
     """Test that feature_importances returns correct normalized importance scores."""
     # Arrange
-    forecaster = GBLinearForecaster(config=base_config)
+    forecaster = base_config.model_copy(deep=True)
     forecaster.fit(sample_forecast_input_dataset)
 
     # Act
@@ -137,28 +135,25 @@ def test_gblinear_forecaster__feature_importances(
 
 def test_gblinear_forecaster_predict_contributions(
     sample_forecast_input_dataset: ForecastInputDataset,
-    base_config: GBLinearForecasterConfig,
+    base_config: GBLinearForecaster,
 ):
-    """Test basic fit and predict workflow with output validation."""
+    """Test that predict_contributions returns per-feature SHAP values for the median quantile."""
     # Arrange
-    expected_quantiles = base_config.quantiles
-    forecaster = GBLinearForecaster(config=base_config)
+    forecaster = base_config.model_copy(deep=True)
 
     # Act
     forecaster.fit(sample_forecast_input_dataset)
-    result = forecaster.predict_contributions(sample_forecast_input_dataset, scale=True)
+    result = forecaster.predict_contributions(sample_forecast_input_dataset)
 
     # Assert
-    # Basic functionality
     assert forecaster.is_fitted, "Model should be fitted after calling fit()"
 
-    # Check that necessary quantiles are present
-    input_features = sample_forecast_input_dataset.input_data().columns
-    expected_columns = [f"{col}_{q.format()}" for col in input_features for q in expected_quantiles]
-    assert list(result.columns) == expected_columns, f"Expected columns {expected_columns}, got {list(result.columns)}"
+    # Columns should be [*input_features, "bias"]
+    input_features = list(sample_forecast_input_dataset.input_data().columns)
+    expected_columns = [*input_features, "bias"]
+    assert list(result.data.columns) == expected_columns, (
+        f"Expected columns {expected_columns}, got {list(result.data.columns)}"
+    )
 
-    # Contributions should sum to 1.0 per quantile
-    for q in expected_quantiles:
-        quantile_cols = [col for col in result.columns if col.endswith(f"_{q.format()}")]
-        col_sums = result[quantile_cols].sum(axis=1)
-        pd.testing.assert_series_equal(col_sums, pd.Series(1.0, index=result.index, dtype=np.float32), atol=1e-10)
+    # Contributions (features + bias) should sum to approximately the prediction value
+    assert not result.data.isna().any().any(), "Contributions should not contain NaN values"

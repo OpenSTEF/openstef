@@ -2,20 +2,20 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-"""High-level forecasting model that orchestrates the complete prediction pipeline.
+"""Ensemble forecasting model combining multiple base forecasters.
 
-Combines feature engineering, forecasting, and postprocessing into a unified interface.
-Handles both single-horizon and multi-horizon forecasters while providing consistent
-data transformation and validation.
+Orchestrates parallel base forecasters whose predictions are aggregated by a
+``ForecastCombiner``.  Extends ``BaseForecastingModel`` as a sibling of
+``ForecastingModel``.
 """
 
 import logging
 from datetime import datetime
 from functools import partial
-from typing import cast, override
+from typing import Self, cast, override
 
 import pandas as pd
-from pydantic import Field, PrivateAttr
+from pydantic import Field, PrivateAttr, model_validator
 
 from openstef_core.datasets import (
     ForecastDataset,
@@ -25,10 +25,11 @@ from openstef_core.datasets import (
 from openstef_core.datasets.timeseries_dataset import validate_horizons_present
 from openstef_core.datasets.validated_datasets import EnsembleForecastDataset
 from openstef_core.exceptions import NotFittedError
-from openstef_core.mixins import TransformPipeline
+from openstef_core.mixins import HyperParams, TransformPipeline
+from openstef_core.types import LeadTime, Quantile
 from openstef_meta.models.forecast_combiners.forecast_combiner import ForecastCombiner
-from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
-from openstef_models.models.forecasting_model import ForecastingModel, ModelFitResult
+from openstef_models.models.forecasting.forecaster import Forecaster
+from openstef_models.models.forecasting_model import BaseForecastingModel, ModelFitResult, restore_target
 
 logger = logging.getLogger(__name__)
 
@@ -43,80 +44,67 @@ class EnsembleModelFitResult(ModelFitResult):
     forecaster_fit_results: dict[str, ModelFitResult] = Field(description="ModelFitResult for each base forecaster")
 
 
-class EnsembleForecastingModel(ForecastingModel):
-    """Complete forecasting pipeline combining preprocessing, prediction, and postprocessing.
+class EnsembleForecastingModel(BaseForecastingModel):
+    """Ensemble forecasting pipeline: common preprocessing -> N forecasters -> combiner.
 
-    Orchestrates the full forecasting workflow by managing feature engineering,
-    model training/prediction, and result postprocessing. Automatically handles
-    the differences between single-horizon and multi-horizon forecasters while
-    ensuring data consistency and validation throughout the pipeline.
+    Runs multiple base forecasters in parallel, aggregates their predictions via a
+    ``ForecastCombiner``, and applies shared postprocessing.  Extends
+    ``BaseForecastingModel`` as a sibling of ``ForecastingModel`` — not a subclass.
+
+    The ``preprocessing`` field (inherited from base) holds the **common preprocessing**
+    shared across all base forecasters.  ``model_specific_preprocessing`` adds
+    per-forecaster transforms on top.
 
     Invariants:
         - fit() must be called before predict()
-        - Forecaster and preprocessing horizons must match during initialization
+        - All forecaster horizons must be present in the input data
 
     Important:
-        The `cutoff_history` parameter is crucial when using lag-based features in
-        preprocessing. For example, a lag-14 transformation creates NaN values for
-        the first 14 days of data. Set `cutoff_history` to exclude these incomplete
-        rows from training. You must configure this manually based on your preprocessing
-        pipeline since lags cannot be automatically inferred from the transforms.
+        The ``cutoff_history`` parameter is crucial when using lag-based features.
+        Set it to exclude incomplete rows from training (e.g. ``timedelta(days=14)``
+        for a lag-14 transform).
 
     Example:
-        Basic forecasting workflow:
-
         >>> from openstef_models.models.forecasting.constant_median_forecaster import (
-        ...     ConstantMedianForecaster, ConstantMedianForecasterConfig
+        ...     ConstantMedianForecaster,
         ... )
         >>> from openstef_meta.models.forecast_combiners.learned_weights_combiner import WeightsCombiner
         >>> from openstef_core.types import LeadTime
         >>> from datetime import timedelta
         >>>
-        >>> # Note: This is a conceptual example showing the API structure
-        >>> # Real usage requires implemented forecaster classes
         >>> forecaster_1 = ConstantMedianForecaster(
-        ...     config=ConstantMedianForecasterConfig(horizons=[LeadTime.from_string("PT36H")])
+        ...     horizons=[LeadTime.from_string("PT36H")]
         ... )
         >>> forecaster_2 = ConstantMedianForecaster(
-        ...     config=ConstantMedianForecasterConfig(horizons=[LeadTime.from_string("PT36H")])
+        ...     horizons=[LeadTime.from_string("PT36H")]
         ... )
-        >>> combiner_config = WeightsCombiner.Config(
+        >>> combiner = WeightsCombiner(
         ...     horizons=[LeadTime.from_string("PT36H")],
         ... )
-        >>> # Create and train model
         >>> model = EnsembleForecastingModel(
         ...     forecasters={"constant_median": forecaster_1, "constant_median_2": forecaster_2},
-        ...     combiner=WeightsCombiner(config=combiner_config),
-        ...     cutoff_history=timedelta(days=14),  # Match your maximum lag in preprocessing
+        ...     combiner=combiner,
+        ...     cutoff_history=timedelta(days=14),
         ... )
         >>> model.fit(training_data)  # doctest: +SKIP
-        >>>
-        >>> # Generate forecasts
         >>> forecasts = model.predict(new_data)  # doctest: +SKIP
     """
 
-    # Forecasting components
-    common_preprocessing: TransformPipeline[TimeSeriesDataset] = Field(
-        default_factory=TransformPipeline[TimeSeriesDataset],
-        description="Feature engineering pipeline for transforming raw input data into model-ready features.",
-        exclude=True,
-    )
-
     model_specific_preprocessing: dict[str, TransformPipeline[TimeSeriesDataset]] = Field(
         default_factory=dict,
-        description="Feature engineering pipeline for transforming raw input data into model-ready features.",
+        description="Per-forecaster preprocessing pipelines applied after common preprocessing.",
         exclude=True,
     )
 
     forecasters: dict[str, Forecaster] = Field(
         default=...,
-        description="Underlying forecasting algorithm, either single-horizon or multi-horizon.",
+        description="Named base forecasters whose predictions are combined.",
         exclude=True,
     )
 
     combiner: ForecastCombiner = Field(
         default=...,
-        description="Combiner to aggregate forecasts from multiple forecasters if applicable.",
+        description="Combiner that aggregates base forecaster predictions.",
         exclude=True,
     )
 
@@ -128,15 +116,45 @@ class EnsembleForecastingModel(ForecastingModel):
 
     _logger: logging.Logger = PrivateAttr(default=logging.getLogger(__name__))
 
+    @model_validator(mode="after")
+    def _validate_horizons_consistent(self) -> Self:
+        """All forecasters and the combiner must share the same horizons list.
+
+        Returns:
+            Validated model instance.
+
+        Raises:
+            ValueError: If any forecaster's horizons differ from the combiner's.
+        """
+        expected = sorted(self.combiner.horizons)
+        for name, forecaster in self.forecasters.items():
+            if sorted(forecaster.horizons) != expected:
+                msg = (
+                    f"Forecaster '{name}' horizons {forecaster.horizons} "
+                    f"do not match combiner horizons {self.combiner.horizons}"
+                )
+                raise ValueError(msg)
+        return self
+
     @property
-    def config(self) -> list[ForecasterConfig]:  # pyright: ignore[reportIncompatibleMethodOverride]
-        """Returns the configuration of the underlying forecaster."""
-        return [x.config for x in self.forecasters.values()]
+    def forecaster_configs(self) -> dict[str, Forecaster]:
+        """Configuration of each base forecaster, keyed by name."""
+        return dict(self.forecasters)
 
     @property
     @override
-    def scoring_config(self) -> ForecasterConfig:
-        return self.config[0]
+    def quantiles(self) -> list[Quantile]:
+        return self.combiner.quantiles
+
+    @property
+    @override
+    def max_horizon(self) -> LeadTime:
+        return self.combiner.max_horizon
+
+    @property
+    @override
+    def hyperparams(self) -> HyperParams:
+        return self.combiner.hparams
 
     @property
     @override
@@ -155,15 +173,7 @@ class EnsembleForecastingModel(ForecastingModel):
         data_val: TimeSeriesDataset | None = None,
         data_test: TimeSeriesDataset | None = None,
     ) -> EnsembleModelFitResult:
-        """Train the forecasting model on the provided dataset.
-
-        Fits the preprocessing pipeline and underlying forecaster. Handles both
-        single-horizon and multi-horizon forecasters appropriately.
-
-        The data splitting follows this sequence:
-        1. Split test set from full data (using test_splitter)
-        2. Split validation from remaining train+val data (using val_splitter)
-        3. Train on the final training set
+        """Train all base forecasters and then the combiner.
 
         Args:
             data: Historical time series data with features and target values.
@@ -173,13 +183,14 @@ class EnsembleForecastingModel(ForecastingModel):
         Returns:
             FitResult containing training details and metrics.
         """
-        # Fit forecasters
+        # Phase 1: fit each base forecaster and collect their in-sample predictions
         train_ensemble, val_ensemble, test_ensemble, forecaster_fit_results = self._fit_forecasters(
             data=data,
             data_val=data_val,
             data_test=data_test,
         )
 
+        # Phase 2: fit the combiner on base forecasters' in-sample predictions
         combiner_fit_result = self._fit_combiner(
             train_ensemble_dataset=train_ensemble,
             val_ensemble_dataset=val_ensemble,
@@ -277,8 +288,9 @@ class EnsembleForecastingModel(ForecastingModel):
         results: dict[str, ModelFitResult] = {}
 
         # Fit the feature engineering transforms
-        self.common_preprocessing.fit(data=data)
-        data_transformed = self.common_preprocessing.transform(data=data)
+        self.preprocessing.fit(data=data)
+        data_transformed = self.preprocessing.transform(data=data)
+        # Fit per-forecaster transforms on the common-preprocessed output (not raw data)
         [
             self.model_specific_preprocessing[name].fit(data=data_transformed)
             for name in self.model_specific_preprocessing
@@ -297,6 +309,7 @@ class EnsembleForecastingModel(ForecastingModel):
                 )
             )
 
+        # Attach original (unsplit) target so the combiner can compute loss across all timesteps
         train_ensemble = EnsembleForecastDataset.from_forecast_datasets(
             predictions_train, target_series=data.data[self.target_column]
         )
@@ -343,12 +356,16 @@ class EnsembleForecastingModel(ForecastingModel):
             ForecastDataset containing the trained forecaster's predictions.
         """
         forecaster = self.forecasters[forecaster_name]
-        validate_horizons_present(data, forecaster.config.horizons)
+        validate_horizons_present(data, forecaster.horizons)
 
         # Transform and split input data
-        input_data_train = self.prepare_input(data=data, forecaster_name=forecaster_name)
-        input_data_val = self.prepare_input(data=data_val, forecaster_name=forecaster_name) if data_val else None
-        input_data_test = self.prepare_input(data=data_test, forecaster_name=forecaster_name) if data_test else None
+        input_data_train = self.prepare_forecaster_input(data=data, forecaster_name=forecaster_name)
+        input_data_val = (
+            self.prepare_forecaster_input(data=data_val, forecaster_name=forecaster_name) if data_val else None
+        )
+        input_data_test = (
+            self.prepare_forecaster_input(data=data_test, forecaster_name=forecaster_name) if data_test else None
+        )
 
         # Drop target column nan's from training data. One can not train on missing targets.
         target_dropna = partial(pd.DataFrame.dropna, subset=[self.target_column])  # pyright: ignore[reportUnknownMemberType]
@@ -397,9 +414,9 @@ class EnsembleForecastingModel(ForecastingModel):
         return prediction_train, prediction_val, prediction_test, result
 
     def _predict_forecaster(self, input_data: ForecastInputDataset, forecaster_name: str) -> ForecastDataset:
-        # Predict and restore target column
         logger.debug("Predicting forecaster '%s'.", forecaster_name)
         prediction_raw = self.forecasters[forecaster_name].predict(data=input_data)
+        # Apply postprocessing per-forecaster so the combiner sees final-scale predictions
         prediction = self.postprocessing.transform(prediction_raw)
         return restore_target(dataset=prediction, original_dataset=input_data, target_column=self.target_column)
 
@@ -411,7 +428,7 @@ class EnsembleForecastingModel(ForecastingModel):
         predictions: dict[str, ForecastDataset] = {}
         for name in self.forecasters:
             logger.debug("Generating predictions for forecaster '%s'.", name)
-            input_data = self.prepare_input(data=data, forecast_start=forecast_start, forecaster_name=name)
+            input_data = self.prepare_forecaster_input(data=data, forecast_start=forecast_start, forecaster_name=name)
             predictions[name] = self._predict_forecaster(
                 input_data=input_data,
                 forecaster_name=name,
@@ -419,26 +436,27 @@ class EnsembleForecastingModel(ForecastingModel):
 
         return EnsembleForecastDataset.from_forecast_datasets(predictions, target_series=data.data[self.target_column])
 
-    def prepare_input(  # pyright: ignore[reportIncompatibleMethodOverride]
+    def prepare_forecaster_input(
         self,
         data: TimeSeriesDataset,
         forecaster_name: str = "",
         forecast_start: datetime | None = None,
     ) -> ForecastInputDataset:
-        """Prepare input data for forecasting and filtering.
+        """Prepare input data for a specific base forecaster.
+
+        Applies common preprocessing, then model-specific preprocessing, restores
+        the target column, and trims history.
 
         Args:
-            data: Raw time series dataset to prepare for forecasting.
-            forecast_start: Optional start time for forecasts. If provided and earlier
-                than the cutoff time, overrides the cutoff for data filtering.
-            forecaster_name: Name of the forecaster for which to prepare input data.
+            data: Raw time series dataset.
+            forecaster_name: Which forecaster to prepare data for.
+            forecast_start: Optional forecast start time override.
 
         Returns:
-            Processed forecast input dataset ready for model prediction.
+            Processed forecast input dataset ready for the named forecaster.
         """
         logger.debug("Preparing input data for forecaster '%s'.", forecaster_name)
-        # Transform the data
-        input_data = self.common_preprocessing.transform(data=data)
+        input_data = self.preprocessing.transform(data=data)
         if forecaster_name in self.model_specific_preprocessing:
             logger.debug("Applying model-specific preprocessing for forecaster '%s'.", forecaster_name)
             input_data = self.model_specific_preprocessing[forecaster_name].transform(data=input_data)
@@ -489,6 +507,7 @@ class EnsembleForecastingModel(ForecastingModel):
         test_ensemble_dataset: EnsembleForecastDataset | None = None,
     ) -> ModelFitResult:
 
+        # Prepare additional features for the combiner (e.g. sample weights) — split separately from ensemble data
         features_train, features_val, features_test = self._fit_prepare_combiner_data(
             data=data, data_val=data_val, data_test=data_test
         )
@@ -517,15 +536,12 @@ class EnsembleForecastingModel(ForecastingModel):
 
         return ModelFitResult(
             input_dataset=train_ensemble_dataset,
-            input_data_train=train_ensemble_dataset.get_base_predictions_for_quantile(
-                quantile=self.config[0].quantiles[0]
-            ),
-            input_data_val=val_ensemble_dataset.get_base_predictions_for_quantile(quantile=self.config[0].quantiles[0])
+            # ModelFitResult expects ForecastInputDataset; use first quantile as a representative slice
+            input_data_train=train_ensemble_dataset.get_base_predictions_for_quantile(quantile=self.quantiles[0]),
+            input_data_val=val_ensemble_dataset.get_base_predictions_for_quantile(quantile=self.quantiles[0])
             if val_ensemble_dataset
             else None,
-            input_data_test=test_ensemble_dataset.get_base_predictions_for_quantile(
-                quantile=self.config[0].quantiles[0]
-            )
+            input_data_test=test_ensemble_dataset.get_base_predictions_for_quantile(quantile=self.quantiles[0])
             if test_ensemble_dataset
             else None,
             metrics_train=metrics_train,
@@ -536,13 +552,16 @@ class EnsembleForecastingModel(ForecastingModel):
 
     def _predict_contributions_combiner(
         self, ensemble_dataset: EnsembleForecastDataset, original_data: TimeSeriesDataset
-    ) -> pd.DataFrame:
-
+    ) -> TimeSeriesDataset:
         features = self._transform_combiner_data(data=original_data)
-        predictions = self.combiner.predict_contributions(ensemble_dataset, additional_features=features)
-        predictions[ensemble_dataset.target_column] = ensemble_dataset.target_series
-        return predictions
+        return self.combiner.predict_contributions(ensemble_dataset, additional_features=features)
 
+    @override
+    def _predict(self, input_data: ForecastInputDataset) -> ForecastDataset:
+        msg = "EnsembleForecastingModel does not support single-input _predict; use predict() instead."
+        raise NotImplementedError(msg)
+
+    @override
     def predict(self, data: TimeSeriesDataset, forecast_start: datetime | None = None) -> ForecastDataset:
         """Generate forecasts for the provided dataset.
 
@@ -568,15 +587,20 @@ class EnsembleForecastingModel(ForecastingModel):
             original_data=data,
         )
 
-    def predict_contributions(self, data: TimeSeriesDataset, forecast_start: datetime | None = None) -> pd.DataFrame:
-        """Generate forecasts for the provided dataset.
+    @override
+    def predict_contributions(
+        self,
+        data: TimeSeriesDataset,
+        forecast_start: datetime | None = None,
+    ) -> TimeSeriesDataset:
+        """Compute per-model contributions for the ensemble prediction.
 
         Args:
-            data: Input time series dataset for prediction.
+            data: Input time series dataset.
             forecast_start: Optional start time for forecasts.
 
         Returns:
-            ForecastDataset containing the generated forecasts.
+            TimeSeriesDataset where each column is a base model's contribution.
 
         Raises:
             NotFittedError: If the model has not been fitted yet.
@@ -592,30 +616,4 @@ class EnsembleForecastingModel(ForecastingModel):
         )
 
 
-def restore_target[T: TimeSeriesDataset](
-    dataset: T,
-    original_dataset: TimeSeriesDataset,
-    target_column: str,
-) -> T:
-    """Restore the target column from the original dataset to the given dataset.
-
-    Maps target values from the original dataset to the dataset using index alignment.
-    Ensures the target column is present in the dataset for downstream processing.
-
-    Args:
-        dataset: Dataset to modify by adding the target column.
-        original_dataset: Source dataset containing the target values.
-        target_column: Name of the target column to restore.
-
-    Returns:
-        Dataset with the target column restored from the original dataset.
-    """
-    target_series = original_dataset.select_features([target_column]).select_version().data[target_column]
-
-    def _transform_restore_target(df: pd.DataFrame) -> pd.DataFrame:
-        return df.assign(**{str(target_series.name): df.index.map(target_series)})  # type: ignore
-
-    return dataset.pipe_pandas(_transform_restore_target)
-
-
-__all__ = ["EnsembleForecastingModel", "EnsembleModelFitResult", "ModelFitResult", "restore_target"]
+__all__ = ["EnsembleForecastingModel", "EnsembleModelFitResult", "ModelFitResult"]

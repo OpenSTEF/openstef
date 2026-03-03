@@ -20,7 +20,7 @@ from openstef_core.datasets.validated_datasets import ForecastDataset
 from openstef_core.exceptions import NotFittedError, SkipFitting
 from openstef_models.mixins import ModelIdentifier, PredictorCallback
 from openstef_models.mixins.callbacks import WorkflowContext
-from openstef_models.models.forecasting_model import ForecastingModel, ModelFitResult
+from openstef_models.models.forecasting_model import BaseForecastingModel, ModelFitResult
 
 
 class ForecastingCallback(
@@ -75,7 +75,7 @@ class CustomForecastingWorkflow(BaseModel):
         >>> from openstef_core.datasets import VersionedTimeSeriesDataset
         >>> from openstef_core.types import LeadTime, Q
         >>> from openstef_models.models.forecasting.constant_median_forecaster import (
-        ...     ConstantMedianForecaster, ConstantMedianForecasterConfig
+        ...     ConstantMedianForecaster,
         ... )
         >>> from openstef_models.models.forecasting_model import ForecastingModel
         >>>
@@ -92,9 +92,7 @@ class CustomForecastingWorkflow(BaseModel):
         >>> horizons = [LeadTime.from_string("PT24H")]
         >>> model = ForecastingModel(
         ...     forecaster=ConstantMedianForecaster(
-        ...         config=ConstantMedianForecasterConfig(
-        ...             horizons=horizons, quantiles=[Q(0.5)]
-        ...         )
+        ...         horizons=horizons, quantiles=[Q(0.5)]
         ...     )
         ... )
         >>>
@@ -118,7 +116,7 @@ class CustomForecastingWorkflow(BaseModel):
         ... ) # doctest: +SKIP
     """
 
-    model: ForecastingModel = Field(description="The forecasting model to use.")
+    model: BaseForecastingModel = Field(description="The forecasting model to use.")
     callbacks: list[ForecastingCallback] = Field(
         default_factory=list[ForecastingCallback], description="List of callbacks to execute during workflow events."
     )

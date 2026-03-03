@@ -9,7 +9,7 @@ Mimics OpenSTEF-models forecasting workflow with ensemble capabilities.
 
 from collections.abc import Sequence
 from datetime import timedelta
-from typing import TYPE_CHECKING, Literal, cast
+from typing import Literal, cast
 
 from pydantic import Field
 
@@ -24,6 +24,7 @@ from openstef_core.datasets.timeseries_dataset import TimeSeriesDataset
 from openstef_core.mixins.transform import Transform, TransformPipeline
 from openstef_core.types import LeadTime, Q, Quantile, QuantileOrGlobal
 from openstef_meta.models.ensemble_forecasting_model import EnsembleForecastingModel
+from openstef_meta.models.forecast_combiners.forecast_combiner import ForecastCombiner
 from openstef_meta.models.forecast_combiners.learned_weights_combiner import (
     LGBMCombinerHyperParams,
     LogisticCombinerHyperParams,
@@ -36,10 +37,11 @@ from openstef_meta.models.forecast_combiners.stacking_combiner import (
 )
 from openstef_models.integrations.mlflow import MLFlowStorage, MLFlowStorageCallback
 from openstef_models.mixins.model_serializer import ModelIdentifier
-from openstef_models.models.forecasting.gblinear_forecaster import GBLinearForecaster
-from openstef_models.models.forecasting.lgbm_forecaster import LGBMForecaster
-from openstef_models.models.forecasting.lgbmlinear_forecaster import LGBMLinearForecaster
-from openstef_models.models.forecasting.xgboost_forecaster import XGBoostForecaster
+from openstef_models.models.forecasting.forecaster import Forecaster
+from openstef_models.models.forecasting.gblinear_forecaster import GBLinearForecaster, GBLinearHyperParams
+from openstef_models.models.forecasting.lgbm_forecaster import LGBMForecaster, LGBMHyperParams
+from openstef_models.models.forecasting.lgbmlinear_forecaster import LGBMLinearForecaster, LGBMLinearHyperParams
+from openstef_models.models.forecasting.xgboost_forecaster import XGBoostForecaster, XGBoostHyperParams
 from openstef_models.presets.forecasting_workflow import LocationConfig
 from openstef_models.transforms.energy_domain import WindPowerFeatureAdder
 from openstef_models.transforms.general import Clipper, EmptyFeatureRemover, SampleWeightConfig, SampleWeighter, Scaler
@@ -68,11 +70,8 @@ from openstef_models.workflows.custom_forecasting_workflow import (
     ForecastingCallback,
 )
 
-if TYPE_CHECKING:
-    from openstef_models.models.forecasting.forecaster import Forecaster
 
-
-class EnsembleWorkflowConfig(BaseConfig):
+class EnsembleForecastingWorkflowConfig(BaseConfig):
     """Configuration for ensemble forecasting workflows."""
 
     model_id: ModelIdentifier
@@ -103,22 +102,22 @@ class EnsembleWorkflowConfig(BaseConfig):
     )
 
     # Forecaster hyperparameters
-    xgboost_hyperparams: XGBoostForecaster.HyperParams = Field(
-        default=XGBoostForecaster.HyperParams(),
+    xgboost_hyperparams: XGBoostHyperParams = Field(
+        default=XGBoostHyperParams(),
         description="Hyperparameters for XGBoost forecaster.",
     )
-    gblinear_hyperparams: GBLinearForecaster.HyperParams = Field(
-        default=GBLinearForecaster.HyperParams(),
+    gblinear_hyperparams: GBLinearHyperParams = Field(
+        default=GBLinearHyperParams(),
         description="Hyperparameters for GBLinear forecaster.",
     )
 
-    lgbm_hyperparams: LGBMForecaster.HyperParams = Field(
-        default=LGBMForecaster.HyperParams(),
+    lgbm_hyperparams: LGBMHyperParams = Field(
+        default=LGBMHyperParams(),
         description="Hyperparameters for LightGBM forecaster.",
     )
 
-    lgbmlinear_hyperparams: LGBMLinearForecaster.HyperParams = Field(
-        default=LGBMLinearForecaster.HyperParams(),
+    lgbmlinear_hyperparams: LGBMLinearHyperParams = Field(
+        default=LGBMLinearHyperParams(),
         description="Hyperparameters for LightGBM forecaster.",
     )
 
@@ -141,12 +140,12 @@ class EnsembleWorkflowConfig(BaseConfig):
     )
 
     # Stacking combiner hyperparameters
-    combiner_stacking_lgbm_hyperparams: LGBMForecaster.HyperParams = Field(
-        default=LGBMForecaster.HyperParams(),
+    combiner_stacking_lgbm_hyperparams: LGBMHyperParams = Field(
+        default=LGBMHyperParams(),
         description="Hyperparameters for LightGBM stacking combiner.",
     )
-    combiner_stacking_gblinear_hyperparams: GBLinearForecaster.HyperParams = Field(
-        default=GBLinearForecaster.HyperParams(),
+    combiner_stacking_gblinear_hyperparams: GBLinearHyperParams = Field(
+        default=GBLinearHyperParams(),
         description="Hyperparameters for GBLinear stacking combiner.",
     )
 
@@ -271,8 +270,7 @@ class EnsembleWorkflowConfig(BaseConfig):
     )
 
 
-# Build preprocessing components
-def checks(config: EnsembleWorkflowConfig) -> list[Transform[TimeSeriesDataset, TimeSeriesDataset]]:
+def _checks(config: EnsembleForecastingWorkflowConfig) -> list[Transform[TimeSeriesDataset, TimeSeriesDataset]]:
     return [
         InputConsistencyChecker(),
         FlatlineChecker(
@@ -285,7 +283,7 @@ def checks(config: EnsembleWorkflowConfig) -> list[Transform[TimeSeriesDataset, 
     ]
 
 
-def feature_adders(config: EnsembleWorkflowConfig) -> list[Transform[TimeSeriesDataset, TimeSeriesDataset]]:
+def _feature_adders(config: EnsembleForecastingWorkflowConfig) -> list[Transform[TimeSeriesDataset, TimeSeriesDataset]]:
     return [
         LagsAdder(
             history_available=config.predict_history,
@@ -317,7 +315,9 @@ def feature_adders(config: EnsembleWorkflowConfig) -> list[Transform[TimeSeriesD
     ]
 
 
-def feature_standardizers(config: EnsembleWorkflowConfig) -> list[Transform[TimeSeriesDataset, TimeSeriesDataset]]:
+def _feature_standardizers(
+    config: EnsembleForecastingWorkflowConfig,
+) -> list[Transform[TimeSeriesDataset, TimeSeriesDataset]]:
     return cast(
         list[Transform[TimeSeriesDataset, TimeSeriesDataset]],
         [
@@ -328,30 +328,17 @@ def feature_standardizers(config: EnsembleWorkflowConfig) -> list[Transform[Time
     )
 
 
-def create_ensemble_workflow(config: EnsembleWorkflowConfig) -> CustomForecastingWorkflow:  # noqa: C901, PLR0912
-    """Create an ensemble forecasting workflow from configuration.
-
-    Args:
-        config (EnsembleWorkflowConfig): Configuration for the ensemble workflow.
+def _build_forecasters(
+    config: EnsembleForecastingWorkflowConfig,
+) -> tuple[dict[str, Forecaster], dict[str, list[Transform[TimeSeriesDataset, TimeSeriesDataset]]]]:
+    """Build base forecasters and their per-model preprocessing from config.
 
     Returns:
-        CustomForecastingWorkflow: Configured ensemble forecasting workflow.
+        Tuple of (forecasters dict, per-forecaster preprocessing dict).
 
     Raises:
-        ValueError: If an unsupported base model or combiner type is specified.
+        ValueError: If an unsupported base model type is specified.
     """
-    # Common preprocessing
-    common_preprocessing = TransformPipeline(
-        transforms=[
-            *checks(config),
-            *feature_adders(config),
-            HolidayFeatureAdder(country_code=config.location.country_code),
-            DatetimeFeaturesAdder(onehot_encode=False),
-            *feature_standardizers(config),
-        ]
-    )
-
-    # Build forecasters and their processing pipelines
     forecaster_preprocessing: dict[str, list[Transform[TimeSeriesDataset, TimeSeriesDataset]]] = {}
     forecasters: dict[str, Forecaster] = {}
     for model_type in config.base_models:
@@ -360,21 +347,17 @@ def create_ensemble_workflow(config: EnsembleWorkflowConfig) -> CustomForecastin
 
         if model_type == "lgbm":
             forecasters[model_type] = LGBMForecaster(
-                config=LGBMForecaster.Config(
-                    hyperparams=config.lgbm_hyperparams, quantiles=config.quantiles, horizons=config.horizons
-                )
+                hyperparams=config.lgbm_hyperparams, quantiles=config.quantiles, horizons=config.horizons
             )
             forecaster_preprocessing[model_type] = [sample_weighter]
 
         elif model_type == "gblinear":
             forecasters[model_type] = GBLinearForecaster(
-                config=GBLinearForecaster.Config(
-                    hyperparams=config.gblinear_hyperparams, quantiles=config.quantiles, horizons=config.horizons
-                )
+                hyperparams=config.gblinear_hyperparams, quantiles=config.quantiles, horizons=config.horizons
             )
             forecaster_preprocessing[model_type] = [
                 sample_weighter,
-                # Remove lags
+                # GBLinear is a global linear model — remove most lags to avoid collinearity (keep 7-day lag only)
                 Selector(
                     selection=FeatureSelection(
                         exclude=set(
@@ -387,7 +370,7 @@ def create_ensemble_workflow(config: EnsembleWorkflowConfig) -> CustomForecastin
                         ).difference({"load_lag_P7D"})
                     )
                 ),
-                # Remove holiday features to avoid linear dependencies
+                # Remove holidays and datetime features — one-hot/cyclic columns create near-singular design matrices
                 Selector(
                     selection=FeatureSelection(
                         exclude=set(HolidayFeatureAdder(country_code=config.location.country_code).features_added())
@@ -407,71 +390,102 @@ def create_ensemble_workflow(config: EnsembleWorkflowConfig) -> CustomForecastin
             ]
         elif model_type == "xgboost":
             forecasters[model_type] = XGBoostForecaster(
-                config=XGBoostForecaster.Config(
-                    hyperparams=config.xgboost_hyperparams, quantiles=config.quantiles, horizons=config.horizons
-                )
+                hyperparams=config.xgboost_hyperparams, quantiles=config.quantiles, horizons=config.horizons
             )
             forecaster_preprocessing[model_type] = [sample_weighter]
         elif model_type == "lgbm_linear":
             forecasters[model_type] = LGBMLinearForecaster(
-                config=LGBMLinearForecaster.Config(
-                    hyperparams=config.lgbmlinear_hyperparams, quantiles=config.quantiles, horizons=config.horizons
-                )
+                hyperparams=config.lgbmlinear_hyperparams, quantiles=config.quantiles, horizons=config.horizons
             )
             forecaster_preprocessing[model_type] = [sample_weighter]
         else:
             msg = f"Unsupported base model type: {model_type}"
             raise ValueError(msg)
 
-    # Build combiner
+    return forecasters, forecaster_preprocessing
+
+
+def _build_combiner(config: EnsembleForecastingWorkflowConfig) -> ForecastCombiner:
+    """Build the forecast combiner from config.
+
+    Returns:
+        Configured ForecastCombiner instance.
+
+    Raises:
+        ValueError: If an unsupported ensemble/combiner combination is specified.
+    """
     match (config.ensemble_type, config.combiner_model):
         case ("learned_weights", "lgbm"):
-            combiner = WeightsCombiner(
-                config=WeightsCombiner.Config(
-                    hyperparams=config.combiner_lgbm_hyperparams, horizons=config.horizons, quantiles=config.quantiles
-                )
+            return WeightsCombiner(
+                hyperparams=config.combiner_lgbm_hyperparams, horizons=config.horizons, quantiles=config.quantiles
             )
         case ("learned_weights", "rf"):
-            combiner = WeightsCombiner(
-                config=WeightsCombiner.Config(
-                    hyperparams=config.combiner_rf_hyperparams, horizons=config.horizons, quantiles=config.quantiles
-                )
+            return WeightsCombiner(
+                hyperparams=config.combiner_rf_hyperparams, horizons=config.horizons, quantiles=config.quantiles
             )
         case ("learned_weights", "xgboost"):
-            combiner = WeightsCombiner(
-                config=WeightsCombiner.Config(
-                    hyperparams=config.combiner_xgboost_hyperparams,
-                    horizons=config.horizons,
-                    quantiles=config.quantiles,
-                )
+            return WeightsCombiner(
+                hyperparams=config.combiner_xgboost_hyperparams,
+                horizons=config.horizons,
+                quantiles=config.quantiles,
             )
         case ("learned_weights", "logistic"):
-            combiner = WeightsCombiner(
-                config=WeightsCombiner.Config(
-                    hyperparams=config.combiner_logistic_hyperparams,
-                    horizons=config.horizons,
-                    quantiles=config.quantiles,
-                )
+            return WeightsCombiner(
+                hyperparams=config.combiner_logistic_hyperparams,
+                horizons=config.horizons,
+                quantiles=config.quantiles,
             )
         case ("stacking", "lgbm"):
-            combiner = StackingCombiner(
-                config=StackingCombiner.Config(
-                    hyperparams=config.combiner_stacking_lgbm_hyperparams,
-                    horizons=config.horizons,
-                    quantiles=config.quantiles,
-                )
+            # Stacking template: single quantile + max horizon — cloned per-quantile by StackingCombiner
+            template = LGBMForecaster(
+                hyperparams=config.combiner_stacking_lgbm_hyperparams,
+                horizons=[max(config.horizons)],
+                quantiles=[config.quantiles[0]],
+            )
+            return StackingCombiner(
+                meta_forecaster=template,
+                horizons=config.horizons,
+                quantiles=config.quantiles,
             )
         case ("stacking", "gblinear"):
-            combiner = StackingCombiner(
-                config=StackingCombiner.Config(
-                    hyperparams=config.combiner_stacking_gblinear_hyperparams,
-                    horizons=config.horizons,
-                    quantiles=config.quantiles,
-                )
+            # Stacking template: single quantile + max horizon — cloned per-quantile by StackingCombiner
+            template = GBLinearForecaster(
+                hyperparams=config.combiner_stacking_gblinear_hyperparams,
+                horizons=[max(config.horizons)],
+                quantiles=[config.quantiles[0]],
+            )
+            return StackingCombiner(
+                meta_forecaster=template,
+                horizons=config.horizons,
+                quantiles=config.quantiles,
             )
         case _:
             msg = f"Unsupported ensemble and combiner combination: {config.ensemble_type}, {config.combiner_model}"
             raise ValueError(msg)
+
+
+def create_ensemble_forecasting_workflow(config: EnsembleForecastingWorkflowConfig) -> CustomForecastingWorkflow:
+    """Create an ensemble forecasting workflow from configuration.
+
+    Args:
+        config (EnsembleForecastingWorkflowConfig): Configuration for the ensemble workflow.
+
+    Returns:
+        CustomForecastingWorkflow: Configured ensemble forecasting workflow.
+    """
+    # Common preprocessing
+    common_preprocessing = TransformPipeline(
+        transforms=[
+            *_checks(config),
+            *_feature_adders(config),
+            HolidayFeatureAdder(country_code=config.location.country_code),
+            DatetimeFeaturesAdder(onehot_encode=False),
+            *_feature_standardizers(config),
+        ]
+    )
+
+    forecasters, forecaster_preprocessing = _build_forecasters(config)
+    combiner = _build_combiner(config)
 
     postprocessing = [QuantileSorter()]
 
@@ -481,6 +495,7 @@ def create_ensemble_workflow(config: EnsembleWorkflowConfig) -> CustomForecastin
 
     combiner_transforms = [
         SampleWeighter(config=config.combiner_sample_weight, target_column=config.target_column),
+        # Combiner only sees sample weights + target — base predictions come from the ensemble dataset, not here
         Selector(selection=Include("sample_weight", config.target_column)),
     ]
 
@@ -509,7 +524,7 @@ def create_ensemble_workflow(config: EnsembleWorkflowConfig) -> CustomForecastin
 
     return CustomForecastingWorkflow(
         model=EnsembleForecastingModel(
-            common_preprocessing=common_preprocessing,
+            preprocessing=common_preprocessing,
             model_specific_preprocessing=model_specific_preprocessing,
             combiner_preprocessing=combiner_preprocessing,
             postprocessing=TransformPipeline(transforms=postprocessing),
@@ -528,4 +543,4 @@ def create_ensemble_workflow(config: EnsembleWorkflowConfig) -> CustomForecastin
     )
 
 
-__all__ = ["EnsembleWorkflowConfig", "create_ensemble_workflow"]
+__all__ = ["EnsembleForecastingWorkflowConfig", "create_ensemble_forecasting_workflow"]
