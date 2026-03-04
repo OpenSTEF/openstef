@@ -25,11 +25,11 @@ from datetime import timedelta
 from pathlib import Path
 
 import pandas as pd
-from openstef_beam.benchmarking.restricted_horizon_timeseries import RestrictedHorizonVersionedTimeSeries
 
 from examples.benchmarks.custom_benchmark.example_benchmark import create_custom_benchmark_runner
+from openstef_beam.backtesting.backtest_forecaster import BacktestForecasterConfig, BacktestForecasterMixin
+from openstef_beam.backtesting.restricted_horizon_timeseries import RestrictedHorizonVersionedTimeSeries
 from openstef_beam.benchmarking import BenchmarkContext, BenchmarkTarget, LocalBenchmarkStorage
-from openstef_beam.benchmarking.baselines import BacktestForecasterConfig, BacktestForecasterMixin
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.types import Q, Quantile
 
@@ -100,8 +100,11 @@ class _QuantileStub(BacktestForecasterMixin):
         self.config = BacktestForecasterConfig(
             requires_training=False,
             predict_length=timedelta(days=1),
+            predict_min_length=timedelta(minutes=15),
             predict_context_length=timedelta(minutes=15),
+            predict_context_min_coverage=0.0,
             training_context_length=timedelta(days=1),
+            training_context_min_coverage=0.0,
             predict_sample_interval=timedelta(minutes=15),
         )
 
