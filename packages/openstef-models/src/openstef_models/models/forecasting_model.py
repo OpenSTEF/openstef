@@ -31,7 +31,7 @@ from openstef_core.datasets.timeseries_dataset import validate_horizons_present
 from openstef_core.exceptions import InsufficientlyCompleteError, NotFittedError
 from openstef_core.mixins import HyperParams, Predictor, TransformPipeline
 from openstef_core.types import LeadTime, Quantile
-from openstef_models.explainability.mixins import ContributionsMixin
+from openstef_models.explainability.mixins import ContributionsMixin, ExplainableForecaster
 from openstef_models.models.forecasting.forecaster import Forecaster
 from openstef_models.utils.data_split import DataSplitter
 
@@ -62,14 +62,43 @@ class ModelFitResult(BaseModel):
     )
     metrics_full: SubsetMetric = Field(description="Evaluation metrics computed on the full original dataset.")
 
+    def metrics_to_flat_dict(self) -> dict[str, float]:
+        """Flatten all split metrics into a single dict for logging.
+
+        Keys are prefixed with ``full_``, ``train_``, ``val_``, ``test_`` respectively.
+        Subclasses with child results (e.g. per-forecaster) should override to include
+        them.
+
+        Returns:
+            Flat mapping of metric names to values.
+        """
+        result = self.metrics_full.to_flat_dict(prefix="full_")
+        result.update(self.metrics_train.to_flat_dict(prefix="train_"))
+        if self.metrics_val is not None:
+            result.update(self.metrics_val.to_flat_dict(prefix="val_"))
+        if self.metrics_test is not None:
+            result.update(self.metrics_test.to_flat_dict(prefix="test_"))
+        return result
+
+    @property
+    def component_fit_results(self) -> dict[str, "ModelFitResult"]:
+        """Per-component fit results (e.g. per-forecaster in an ensemble).
+
+        Returns:
+            Empty dict by default; ensemble subclasses override.
+        """
+        return {}
+
 
 class BaseForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDataset]):
     """Abstract base for forecasting models (single-forecaster and ensemble).
 
     Provides the shared pipeline skeleton: preprocessing -> predict -> postprocessing,
     data preparation, scoring, and evaluation.  Concrete subclasses must implement the
-    abstract hooks ``fit``, ``_predict``, ``is_fitted``, ``quantiles``, and
-    ``max_horizon``.
+    abstract hooks ``fit``, ``is_fitted``, ``quantiles``, and ``max_horizon``.
+    Subclasses following the single-input template method pattern should also override
+    ``_predict``; those with a different predict flow (e.g. ensemble) can override
+    ``predict()`` directly.
 
     Important:
         The ``cutoff_history`` parameter is crucial when using lag-based features in
@@ -139,6 +168,26 @@ class BaseForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDatas
         """
         return HyperParams()
 
+    @property
+    def component_hyperparams(self) -> dict[str, HyperParams]:
+        """Per-component hyperparameters (e.g. per-forecaster in an ensemble).
+
+        Returns:
+            Empty dict by default; ensemble subclasses override.
+        """
+        return {}
+
+    def get_explainable_components(self) -> dict[str, ExplainableForecaster]:  # noqa: PLR6301
+        """Return named components that support feature-importance plotting.
+
+        Keys are used as filename suffixes; an empty key means no suffix.
+        Override in subclasses to expose forecasters and/or combiners.
+
+        Returns:
+            Empty dict by default.
+        """
+        return {}
+
     @abstractmethod
     @override
     def fit(
@@ -158,13 +207,15 @@ class BaseForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDatas
             Result containing training details and metrics.
         """
 
-    @abstractmethod
     def _predict(self, input_data: ForecastInputDataset) -> ForecastDataset:
         """Generate raw predictions from preprocessed input data.
 
-        Subclasses implement the actual prediction logic (single-forecaster
-        delegation or ensemble aggregation).
+        Subclasses that follow the single-input template method pattern implement this.
+        Subclasses that require a different predict flow (e.g. ensemble) should override
+        ``predict()`` directly and may leave this unimplemented.
         """
+        msg = f"{type(self).__name__} does not implement _predict; override predict() instead."
+        raise NotImplementedError(msg)
 
     def prepare_input(
         self,
@@ -193,7 +244,7 @@ class BaseForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDatas
         if forecast_start is not None and forecast_start < input_data_cutoff:
             input_data_cutoff = forecast_start
             self._logger.warning(
-                "Forecast start %s is after input data start + cutoff history %s. Using forecast start as cutoff.",
+                "Forecast start %s is before input data start + cutoff history %s. Using forecast start as cutoff.",
                 forecast_start,
                 input_data_cutoff,
             )
@@ -364,6 +415,12 @@ class ForecastingModel(BaseForecastingModel):
     @override
     def is_fitted(self) -> bool:
         return self.forecaster.is_fitted
+
+    @override
+    def get_explainable_components(self) -> dict[str, ExplainableForecaster]:
+        if isinstance(self.forecaster, ExplainableForecaster):
+            return {"": self.forecaster}
+        return {}
 
     @override
     def fit(
