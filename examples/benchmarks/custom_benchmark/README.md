@@ -20,7 +20,7 @@ BEAM replays historical data day by day, trains your model, makes forecasts, and
 | `example_benchmark.py` | Defines a custom benchmark: target provider (where data lives), metrics, and pipeline assembly. Extends `SimpleTargetProvider` directly -- adapt this when you have your own data layout. |
 | `run_liander2024_benchmark.py` | Runs the example baseline + GBLinear on the built-in **Liander 2024** dataset (auto-downloaded from HuggingFace). Good starting point if you just want to try things out. |
 | `run_benchmark.py` | Same as above but uses the custom benchmark pipeline from `example_benchmark.py`. |
-| `evaluate_forecasts.py` | **Bring your own forecasts.** Injects pre-existing predictions into the pipeline and runs only evaluation + analysis (no backtesting). |
+| `evaluate_existing_forecasts.py` | **Bring your own forecasts.** Points the pipeline at pre-existing prediction parquets and runs only evaluation + analysis (no backtesting). |
 
 ## Quick Start
 
@@ -51,13 +51,56 @@ uv run python -m examples.benchmarks.custom_benchmark.run_benchmark
 
 ### Evaluate pre-existing forecasts (no backtesting)
 
-If you already have predictions from your own model or external system, you can skip backtesting entirely. Save your forecasts in the expected format and run only evaluation + analysis:
+If you already have predictions from your own model or external system, you can skip backtesting entirely. Place your forecast parquets in the expected directory layout and run only evaluation + analysis.
 
-```bash
-uv run python -m examples.benchmarks.custom_benchmark.evaluate_forecasts
+#### Required directory layout
+
+```
+benchmark_results/MyForecasts/
+└── backtest/
+    └── <group_name>/                   # e.g. "solar_park"
+        └── <target_name>/              # e.g. "Within 15 kilometers of Opmeer_normalized"
+            └── predictions.parquet
 ```
 
-See `evaluate_forecasts.py` for the required data format and the `format_predictions()` helper.
+`group_name` and `target_name` must match the values from your targets YAML. You can list them:
+
+```bash
+uv run python -c "
+from examples.benchmarks.custom_benchmark.example_benchmark import create_custom_benchmark_runner
+for t in create_custom_benchmark_runner().target_provider.get_targets(['solar_park']):
+    print(t.group_name, '/', t.name)
+"
+```
+
+#### Required parquet format
+
+Each `predictions.parquet` must have:
+
+| Column | Type | Description |
+|---|---|---|
+| *(index)* `timestamp` | `DatetimeIndex` | When each prediction is valid for. 15-min intervals, tz-naive UTC. |
+| `available_at` | `datetime64` | When the prediction was generated (enables D-1 / lead-time filtering). |
+| `quantile_P05` | `float` | 5th percentile prediction. |
+| `quantile_P50` | `float` | Median prediction (**required**). |
+| `quantile_P95` | `float` | 95th percentile prediction. |
+| ... | `float` | One column per quantile, named with `Quantile(x).format()`. |
+
+Example rows:
+
+```
+timestamp (index)      available_at          quantile_P05  quantile_P50  quantile_P95
+2023-01-15 12:00:00    2023-01-14 06:00:00   0.5           1.2           2.0
+2023-01-15 12:15:00    2023-01-14 06:00:00   0.6           1.3           2.1
+```
+
+#### Run
+
+```bash
+uv run python -m examples.benchmarks.custom_benchmark.evaluate_existing_forecasts
+```
+
+See `evaluate_existing_forecasts.py` for the full script.
 
 Results are written to `./benchmark_results/`. Each model gets its own subfolder with backtest predictions, evaluation scores, and analysis plots.
 
