@@ -20,6 +20,7 @@ BEAM replays historical data day by day, trains your model, makes forecasts, and
 | `example_benchmark.py` | Defines a custom benchmark: target provider (where data lives), metrics, and pipeline assembly. Extends `SimpleTargetProvider` directly -- adapt this when you have your own data layout. |
 | `run_liander2024_benchmark.py` | Runs the example baseline + GBLinear on the built-in **Liander 2024** dataset (auto-downloaded from HuggingFace). Good starting point if you just want to try things out. |
 | `run_benchmark.py` | Same as above but uses the custom benchmark pipeline from `example_benchmark.py`. |
+| `evaluate_forecasts.py` | **Bring your own forecasts.** Injects pre-existing predictions into the pipeline and runs only evaluation + analysis (no backtesting). |
 
 ## Quick Start
 
@@ -47,6 +48,16 @@ Uses the custom target provider from `example_benchmark.py` with your own pipeli
 ```bash
 uv run python -m examples.benchmarks.custom_benchmark.run_benchmark
 ```
+
+### Evaluate pre-existing forecasts (no backtesting)
+
+If you already have predictions from your own model or external system, you can skip backtesting entirely. Save your forecasts in the expected format and run only evaluation + analysis:
+
+```bash
+uv run python -m examples.benchmarks.custom_benchmark.evaluate_forecasts
+```
+
+See `evaluate_forecasts.py` for the required data format and the `format_predictions()` helper.
 
 Results are written to `./benchmark_results/`. Each model gets its own subfolder with backtest predictions, evaluation scores, and analysis plots.
 
