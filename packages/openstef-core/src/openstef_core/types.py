@@ -119,11 +119,12 @@ class LeadTime(PydanticStringPrimitive):
 class AvailableAt(PydanticStringPrimitive):
     """Represents a time point available relative to a reference day.
 
-    Uses a specialized string format 'DnTHH:MM' where:
+    Uses a specialized string format 'DnTHHMM' where:
     - n is the day offset (negative indicates prior days)
-    - HH:MM is the time of day
+    - HHMM is the time of day
 
-    For example, 'D-1T06:00' means "6:00 AM on the previous day".
+    For example, 'D-1T0600' means "6:00 AM on the previous day".
+    The legacy 'DnTHH:MM' format (with colon) is also accepted by from_string().
 
     Example:
         Creating and using availability times:
@@ -132,7 +133,7 @@ class AvailableAt(PydanticStringPrimitive):
         >>> # Available at 6 AM on the previous day
         >>> at = AvailableAt(timedelta(hours=18))  # 18 hours before day end
         >>> str(at)
-        'D-1T06:00'
+        'D-1T0600'
         >>> # Available at midnight of the current day
         >>> AvailableAt.from_string('D0T00:00').lag_from_day
         datetime.timedelta(0)
@@ -143,21 +144,21 @@ class AvailableAt(PydanticStringPrimitive):
         self.lag_from_day = lag_from_day
 
     def __str__(self) -> str:
-        """Converts to string in 'DnTHH:MM' format.
+        """Converts to string in 'DnTHHMM' format (Windows-safe, no colon).
 
         Returns:
-            String representation in 'DnTHH:MM' format.
+            String representation in 'DnTHHMM' format.
         """
         lag_days = -int(self.lag_from_day / timedelta(days=1)) - 1
         time = timedelta(hours=24) - (self.lag_from_day % timedelta(days=1))
-        return f"D{lag_days}T{time.seconds // 3600:02}:{(time.seconds // 60) % 60:02}"
+        return f"D{lag_days}T{time.seconds // 3600:02}{(time.seconds // 60) % 60:02}"
 
     @classmethod
     def from_string(cls, s: str) -> Self:
-        """Creates an instance from a string in 'DnTHH:MM' format.
+        """Creates an instance from a string in 'DnTHHMM' or 'DnTHH:MM' format.
 
         Args:
-            s: String in 'DnTHH:MM' format to parse.
+            s: String in 'DnTHHMM' or 'DnTHH:MM' format to parse.
 
         Returns:
             AvailableAt instance parsed from the string.
@@ -165,7 +166,7 @@ class AvailableAt(PydanticStringPrimitive):
         Raises:
             ValueError: If the string format is invalid.
         """
-        match = re.match(r"D(-?\d+)T(\d{2}):(\d{2})", s)
+        match = re.match(r"D(-?\d+)T(\d{2}):?(\d{2})", s)
         if not match:
             error_message = f"Cannot convert {s} to {cls.__name__}"
             raise ValueError(error_message)
