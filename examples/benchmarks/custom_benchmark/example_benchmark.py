@@ -37,7 +37,7 @@ from openstef_beam.benchmarking.storage.base import BenchmarkStorage
 from openstef_beam.benchmarking.target_provider import SimpleTargetProvider
 from openstef_beam.evaluation import EvaluationConfig, Window
 from openstef_beam.evaluation.metric_providers import MetricProvider, RCRPSProvider, RMAEProvider
-from openstef_core.types import AvailableAt, Quantile
+from openstef_core.types import AvailableAt, LeadTime, Quantile
 
 # Define your own target categories for filtering (must match group_name in targets.yaml)
 type MyCategory = Literal["solar_park", "wind_park"]
@@ -162,7 +162,9 @@ def create_custom_benchmark_runner(
         # Evaluation: how to slice and score the results
         evaluation_config=EvaluationConfig(
             available_ats=[AvailableAt.from_string("D-1T06:00")],  # Day-ahead forecast at 06:00
-            lead_times=[],                                         # Evaluate all lead times
+            lead_times=[
+                LeadTime.from_string("P1D"),  # 1 day ahead
+            ],                                         # Evaluate all lead times
             windows=[                                              # Rolling windows for metrics
                 Window(lag=timedelta(hours=0), size=timedelta(days=7)),
                 Window(lag=timedelta(hours=0), size=timedelta(days=30)),
