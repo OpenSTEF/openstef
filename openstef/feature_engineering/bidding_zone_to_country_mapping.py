@@ -103,5 +103,5 @@ BIDDING_ZONE_TO_COUNTRY_CODE_MAPPING = {
     "UA_IPS": "UA",
     "XK": "XK",
     "DE_AMP_LU": "DE",
-    "NZ": "NZ"
+    "NZ": "NZ",
 }
