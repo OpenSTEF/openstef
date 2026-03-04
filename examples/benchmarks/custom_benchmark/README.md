@@ -21,6 +21,8 @@ BEAM replays historical data day by day, trains your model, makes forecasts, and
 | `run_liander2024_benchmark.py` | Runs the example baseline + GBLinear on the built-in **Liander 2024** dataset (auto-downloaded from HuggingFace). Good starting point if you just want to try things out. |
 | `run_benchmark.py` | Same as above but uses the custom benchmark pipeline from `example_benchmark.py`. |
 | `evaluate_existing_forecasts.py` | **Bring your own forecasts.** Points the pipeline at pre-existing prediction parquets and runs only evaluation + analysis (no backtesting). |
+| `compare_liander2024_results.py` | Compare results from multiple runs on the **Liander 2024** dataset. Auto-detects which targets are available in all runs. |
+| `compare_custom_results.py` | Compare results from multiple runs on the **custom** benchmark. Same auto-detection as above. |
 
 ## Quick Start
 
@@ -103,6 +105,20 @@ uv run python -m examples.benchmarks.custom_benchmark.evaluate_existing_forecast
 See `evaluate_existing_forecasts.py` for the full script.
 
 Results are written to `./benchmark_results/`. Each model gets its own subfolder with backtest predictions, evaluation scores, and analysis plots.
+
+### Compare results across runs
+
+After running at least two models, generate side-by-side comparison plots (global, per-group, per-target). The scripts automatically detect which targets are available in all runs.
+
+```bash
+# Compare on the Liander 2024 dataset
+uv run python -m examples.benchmarks.custom_benchmark.compare_liander2024_results
+
+# Compare on the custom benchmark
+uv run python -m examples.benchmarks.custom_benchmark.compare_custom_results
+```
+
+Comparison output (HTML plots) is saved to `./benchmark_results_comparison/`.
 
 ## Creating Your Own
 
