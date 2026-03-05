@@ -48,8 +48,8 @@ def test_lead_time_from_string_roundtrip(input_delta: timedelta):
 @pytest.mark.parametrize(
     ("lag_from_day", "expected_string"),
     [
-        pytest.param(timedelta(hours=18), "D-1T06:00", id="D-1T06:00"),
-        pytest.param(timedelta(hours=12 + 24), "D-2T12:00", id="D-2T12:00"),
+        pytest.param(timedelta(hours=18), "D-1T0600", id="D-1T0600"),
+        pytest.param(timedelta(hours=12 + 24), "D-2T1200", id="D-2T1200"),
     ],
 )
 def test_available_at_str(lag_from_day: timedelta, expected_string: str):

@@ -11,6 +11,7 @@ entry point for production forecasting systems.
 
 import logging
 from datetime import datetime
+from typing import Self
 
 from pydantic import Field, PrivateAttr
 
@@ -128,6 +129,10 @@ class CustomForecastingWorkflow(BaseModel):
     )
 
     _logger: logging.Logger = PrivateAttr(default_factory=lambda: logging.getLogger(__name__))
+
+    def with_run_name(self, run_name: str) -> Self:
+        """Return a deep copy of this workflow with the given run name."""
+        return self.model_copy(deep=True, update={"run_name": run_name})
 
     def fit(
         self,

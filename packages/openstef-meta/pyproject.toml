@@ -2,6 +2,11 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+[build-system]
+build-backend = "hatchling.build"
+
+requires = [ "hatchling" ]
+
 [project]
 name = "openstef-meta"
 version = "0.0.0"

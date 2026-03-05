@@ -10,7 +10,6 @@ predictions from multiple base forecasters.
 from abc import ABC, abstractmethod
 from typing import Self
 
-import pandas as pd
 from pydantic import ConfigDict, Field
 
 from openstef_core.base_model import BaseConfig
@@ -19,9 +18,10 @@ from openstef_core.datasets.validated_datasets import EnsembleForecastDataset
 from openstef_core.mixins import Predictor
 from openstef_core.mixins.predictor import HyperParams
 from openstef_core.types import LeadTime, Quantile
+from openstef_models.explainability.mixins import ExplainableForecaster
 
 
-class ForecastCombiner(BaseConfig, Predictor[EnsembleForecastDataset, ForecastDataset], ABC):
+class ForecastCombiner(BaseConfig, Predictor[EnsembleForecastDataset, ForecastDataset], ExplainableForecaster, ABC):
     """Combines base Forecaster predictions for each quantile into final predictions.
 
     Subclasses implement specific combination strategies (stacking, learned weights,
@@ -127,8 +127,3 @@ class ForecastCombiner(BaseConfig, Predictor[EnsembleForecastDataset, ForecastDa
         Returns:
             TimeSeriesDataset where columns are features/models and rows are timesteps.
         """
-
-    @property
-    @abstractmethod
-    def feature_importances(self) -> pd.DataFrame:
-        """Aggregate feature importances from the combiner's internal models."""
