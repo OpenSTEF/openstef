@@ -133,7 +133,7 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
         run_id: str = run.info.run_id
         self._logger.info("Created MLflow run %s for model %s", run_id, context.workflow.model_id)
 
-        # Log per-component hyperparams (e.g. per-forecaster in an ensemble)
+        # Log per-component hyperparams
         for name, hparams in context.workflow.model.component_hyperparams.items():
             prefixed = {f"{name}.{k}": str(v) for k, v in hparams.model_dump().items()}
             self.storage.log_hyperparams(run_id=run_id, params=prefixed)
@@ -145,7 +145,7 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
         result.input_dataset.to_parquet(path=data_path / "data.parquet")
         self._logger.info("Stored training data at %s for run %s", data_path, run_id)
 
-        # Store per-component training data (e.g. per-forecaster in an ensemble)
+        # Store per-component training data
         for name, component_result in result.component_fit_results.items():
             component_path = data_path / name
             component_path.mkdir(parents=True, exist_ok=True)
@@ -163,7 +163,7 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
         )
         self._logger.info("Stored trained model for run %s", run_id)
 
-        # Format the metrics for MLflow (includes child metrics via polymorphism)
+        # Format the metrics for MLflow
         metrics = result.metrics_to_flat_dict()
 
         # Mark the run as finished

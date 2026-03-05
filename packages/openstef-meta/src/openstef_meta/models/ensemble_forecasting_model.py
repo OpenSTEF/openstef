@@ -499,7 +499,7 @@ class EnsembleForecastingModel(BaseForecastingModel):
             preprocessed = self.preprocessing.transform(data=data)
             preprocessed = self.model_specific_preprocessing[forecaster_name].transform(data=preprocessed)
             preprocessed = restore_target(dataset=preprocessed, original_dataset=data, target_column=self.target_column)
-            # Apply cutoff and create ForecastInputDataset (same logic as base prepare_input)
+            # Apply cutoff and create ForecastInputDataset
             input_data_start = cast("pd.Series[pd.Timestamp]", preprocessed.index).min().to_pydatetime()
             input_data_cutoff = input_data_start + self.cutoff_history
             if forecast_start is not None and forecast_start < input_data_cutoff:

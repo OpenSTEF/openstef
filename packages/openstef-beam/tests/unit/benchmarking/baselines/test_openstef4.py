@@ -5,14 +5,13 @@
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
-import numpy as np
-import pandas as pd
 import pytest
 
 from openstef_beam.backtesting.restricted_horizon_timeseries import RestrictedHorizonVersionedTimeSeries
 from openstef_beam.benchmarking.baselines.openstef4 import create_openstef4_preset_backtest_forecaster
 from openstef_beam.benchmarking.benchmark_pipeline import BenchmarkContext, BenchmarkTarget
-from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesDataset
+from openstef_core.datasets import VersionedTimeSeriesDataset
+from openstef_core.testing import create_synthetic_forecasting_dataset
 from openstef_core.types import LeadTime, Q
 from openstef_models.presets import ForecastingWorkflowConfig
 
@@ -45,24 +44,15 @@ def benchmark_target() -> BenchmarkTarget:
 @pytest.fixture
 def training_data() -> VersionedTimeSeriesDataset:
     """Synthetic 15-min data covering 120 days."""
-    t0 = datetime(2024, 2, 1, tzinfo=UTC)
-    n = 96 * 120
-    rng = np.random.default_rng(42)
-    index = pd.date_range(t0, periods=n, freq="15min", tz="UTC")
-    df = pd.DataFrame(
-        {
-            "load": np.sin(np.arange(n) * 2 * np.pi / 96) * 50 + 100 + rng.normal(0, 5, n),
-            "radiation": np.maximum(0, np.sin(np.arange(n) * 2 * np.pi / 96 - 1)) * 500,
-            "temperature": 15 + 5 * np.sin(np.arange(n) * 2 * np.pi / 96),
-            "windspeed": np.abs(rng.normal(5, 2, n)),
-            "pressure": 1013 + rng.normal(0, 5, n),
-            "relative_humidity": 70 + rng.normal(0, 10, n),
-            "day_ahead_electricity_price": 50 + rng.normal(0, 10, n),
-            "available_at": [t0 + timedelta(minutes=15) * (i + 1) for i in range(n)],
-        },
-        index=index,
+    ts = create_synthetic_forecasting_dataset(
+        start=datetime(2024, 2, 1, tzinfo=UTC),
+        length=timedelta(days=120),
+        sample_interval=timedelta(minutes=15),
+        include_atmosphere=True,
+        include_price=True,
+        include_available_at=True,
     )
-    return VersionedTimeSeriesDataset([TimeSeriesDataset(df, timedelta(minutes=15))])
+    return VersionedTimeSeriesDataset([ts])
 
 
 def test_fit_does_not_mutate_template(

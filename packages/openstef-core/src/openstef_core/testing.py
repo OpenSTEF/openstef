@@ -84,6 +84,10 @@ def create_synthetic_forecasting_dataset(  # noqa: PLR0913, PLR0917 - complex fu
     radiation_influence: float | None = -0.2,
     stochastic_influence: float | None = 0.1,
     other_components: dict[str, float] | None = None,
+    *,
+    include_atmosphere: bool = False,
+    include_price: bool = False,
+    include_available_at: bool = False,
 ) -> TimeSeriesDataset:
     """Create synthetic forecasting dataset for testing.
 
@@ -99,6 +103,9 @@ def create_synthetic_forecasting_dataset(  # noqa: PLR0913, PLR0917 - complex fu
         radiation_influence: Coefficient for radiation component on load.
         stochastic_influence: Coefficient for random noise component.
         other_components: Additional components with their influence coefficients.
+        include_atmosphere: Add ``pressure`` (~1013) and ``relative_humidity`` (~70%) columns.
+        include_price: Add ``day_ahead_electricity_price`` (~50) column.
+        include_available_at: Add ``available_at`` column (index + sample_interval).
 
     Returns:
         TimeSeriesDataset containing synthetic load and component data.
@@ -124,11 +131,21 @@ def create_synthetic_forecasting_dataset(  # noqa: PLR0913, PLR0917 - complex fu
         load += component * influence
         components[component_name] = component
 
+    extras: dict[str, Any] = {}
+    if include_atmosphere:
+        extras["pressure"] = 1013.0 + rng.normal(0, 5, len(timestamps))
+        extras["relative_humidity"] = 70.0 + rng.normal(0, 10, len(timestamps))
+    if include_price:
+        extras["day_ahead_electricity_price"] = 50.0 + rng.normal(0, 10, len(timestamps))
+    if include_available_at:
+        extras["available_at"] = timestamps + sample_interval
+
     return TimeSeriesDataset(
         data=pd.DataFrame(
             data={
                 "load": load,
                 **components,
+                **extras,
             },
             index=timestamps,
         ),
