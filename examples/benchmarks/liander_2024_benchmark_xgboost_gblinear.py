@@ -20,7 +20,7 @@ import logging
 import multiprocessing
 from pathlib import Path
 
-from openstef_beam.benchmarking.baselines import (
+from openstef_beam.benchmarking.baselines.openstef4 import (
     create_openstef4_preset_backtest_forecaster,
 )
 from openstef_beam.benchmarking.benchmarks.liander2024 import Liander2024Category, create_liander2024_benchmark_runner

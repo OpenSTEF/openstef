@@ -74,6 +74,7 @@ from openstef_models.workflows.custom_forecasting_workflow import (
 class EnsembleForecastingWorkflowConfig(BaseConfig):
     """Configuration for ensemble forecasting workflows."""
 
+    kind: Literal["ensemble"] = Field(default="ensemble", description="Discriminator tag for config type.")
     model_id: ModelIdentifier
 
     # Ensemble configuration

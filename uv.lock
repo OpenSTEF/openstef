@@ -2778,19 +2778,28 @@ dependencies = [
 
 [package.optional-dependencies]
 all = [
+    { name = "openstef-meta" },
+    { name = "openstef-models" },
     { name = "s3fs" },
+]
+baselines = [
+    { name = "openstef-meta" },
+    { name = "openstef-models" },
 ]
 
 [package.metadata]
 requires-dist = [
+    { name = "openstef-beam", extras = ["baselines"], marker = "extra == 'all'", editable = "packages/openstef-beam" },
     { name = "openstef-core", editable = "packages/openstef-core" },
+    { name = "openstef-meta", marker = "extra == 'baselines'", editable = "packages/openstef-meta" },
+    { name = "openstef-models", marker = "extra == 'baselines'", editable = "packages/openstef-models" },
     { name = "plotly", specifier = ">=6.3" },
     { name = "pyyaml", specifier = ">=6.0.2" },
     { name = "s3fs", marker = "extra == 'all'", specifier = ">=2025.5.1" },
     { name = "scoringrules", specifier = ">=0.8" },
     { name = "tqdm", specifier = ">=4.67.1" },
 ]
-provides-extras = ["all"]
+provides-extras = ["all", "baselines"]
 
 [[package]]
 name = "openstef-core"

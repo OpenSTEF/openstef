@@ -65,6 +65,23 @@ class SubsetMetric(BaseModel):
         """
         return self.metrics.get(quantile, {}).get(metric_name)
 
+    def to_flat_dict(self, prefix: str = "") -> dict[str, float]:
+        """Flatten metrics into a single dict suitable for logging (e.g. MLflow).
+
+        Each key is ``{prefix}{quantile}_{metric_name}``.
+
+        Args:
+            prefix: String prepended to every key.
+
+        Returns:
+            Flat mapping of metric names to values.
+        """
+        return {
+            f"{prefix}{quantile}_{metric_name}": value
+            for quantile, metrics_dict in self.metrics.items()
+            for metric_name, value in metrics_dict.items()
+        }
+
 
 def merge_quantile_metrics(metrics_list: list[QuantileMetricsDict]) -> QuantileMetricsDict:
     """Merge multiple quantile metrics dictionaries into a single one.

@@ -46,6 +46,21 @@ def unsafe_sorted_range_slice_idxs(
     return int(start_idx), int(end_idx)
 
 
+def normalize_to_unit_sum(df: pd.DataFrame) -> pd.DataFrame:
+    """Normalize each column so absolute values sum to 1.0.
+
+    Pipe-compatible: ``df.pipe(normalize_to_unit_sum)``.
+
+    Columns that sum to zero are left as zeros (no NaN).
+
+    Returns:
+        DataFrame with the same shape, each column normalized to unit sum.
+    """
+    abs_values = df.abs()
+    totals = abs_values.sum(axis=0).replace(to_replace=0, value=1.0)  # pyright: ignore[reportUnknownMemberType]
+    return abs_values / totals
+
+
 def combine_timeseries_indexes(indexes: Sequence[pd.DatetimeIndex]) -> pd.DatetimeIndex:
     """Combine multiple datetime indexes into a single sorted index.
 

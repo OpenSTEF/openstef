@@ -331,6 +331,7 @@ sequence = [
   { cmd = "uv add openstef-meta==${version} --optional meta" },
   { cmd = "uv add openstef-models==${version} --optional models" },
   { cmd = "uv add openstef-core==${version} --optional core" },
+  { cmd = "uv add openstef-meta==${version} --optional models" },
   { cmd = "uv add openstef-meta==${version} openstef-models==${version} openstef-beam==${version} openstef-core==${version} --optional all" },
   { cmd = "uv add openstef-models==${version} openstef-core==${version}" },
 ]
