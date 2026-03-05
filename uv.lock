@@ -2698,8 +2698,10 @@ beam = [
     { name = "huggingface-hub" },
     { name = "openstef-beam" },
 ]
-models = [
+meta = [
     { name = "openstef-meta" },
+]
+models = [
     { name = "openstef-models", extra = ["xgb-cpu"] },
 ]
 
@@ -2711,6 +2713,7 @@ dev = [
     { name = "openstef-beam" },
     { name = "openstef-core" },
     { name = "openstef-docs" },
+    { name = "openstef-meta" },
     { name = "openstef-models" },
     { name = "pandas-stubs" },
     { name = "poethepoet" },
@@ -2732,12 +2735,12 @@ requires-dist = [
     { name = "openstef-core", editable = "packages/openstef-core" },
     { name = "openstef-core", marker = "extra == 'all'", editable = "packages/openstef-core" },
     { name = "openstef-meta", marker = "extra == 'all'", editable = "packages/openstef-meta" },
-    { name = "openstef-meta", marker = "extra == 'models'", editable = "packages/openstef-meta" },
+    { name = "openstef-meta", marker = "extra == 'meta'", editable = "packages/openstef-meta" },
     { name = "openstef-models", extras = ["xgb-cpu"], editable = "packages/openstef-models" },
     { name = "openstef-models", extras = ["xgb-cpu"], marker = "extra == 'all'", editable = "packages/openstef-models" },
     { name = "openstef-models", extras = ["xgb-cpu"], marker = "extra == 'models'", editable = "packages/openstef-models" },
 ]
-provides-extras = ["all", "beam", "models"]
+provides-extras = ["all", "beam", "meta", "models"]
 
 [package.metadata.requires-dev]
 dev = [
@@ -2747,6 +2750,7 @@ dev = [
     { name = "openstef-beam", editable = "packages/openstef-beam" },
     { name = "openstef-core", editable = "packages/openstef-core" },
     { name = "openstef-docs", editable = "docs" },
+    { name = "openstef-meta", editable = "packages/openstef-meta" },
     { name = "openstef-models", editable = "packages/openstef-models" },
     { name = "pandas-stubs", specifier = ">=2.3.0.250703" },
     { name = "poethepoet", specifier = ">=0.36" },
