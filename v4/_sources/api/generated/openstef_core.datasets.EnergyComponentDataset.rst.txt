@@ -1,0 +1,12 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+EnergyComponentDataset
+======================
+
+.. currentmodule:: openstef_core.datasets
+
+.. autoclass:: EnergyComponentDataset
+   :show-inheritance:
+   :members:

@@ -1,0 +1,10 @@
+/*
+ * SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+ *
+ * SPDX-License-Identifier: MPL-2.0
+ */
+
+.navbar-brand.logo {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+}
