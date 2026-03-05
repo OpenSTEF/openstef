@@ -17,6 +17,7 @@ from itertools import starmap
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any, cast, override
+from urllib.parse import urlparse
 
 from mlflow import MlflowClient
 from mlflow.entities import Metric, Param, Run
@@ -28,6 +29,32 @@ from openstef_core.exceptions import ModelNotFoundError
 from openstef_core.mixins import HyperParams
 from openstef_models.integrations.joblib import JoblibModelSerializer
 from openstef_models.mixins import ModelIdentifier, ModelSerializer
+
+
+def normalize_tracking_uri(uri: str) -> str:
+    r"""Normalize a tracking URI to a file:/// URI when it refers to a local path.
+
+    MLflow's model registry rejects bare Windows paths (e.g. ``D:\mlflow``) because
+    the drive letter is not a recognized URI scheme. This function detects local file
+    paths — including relative ones like ``./mlflow`` — and converts them to proper
+    ``file:///`` URIs via ``Path.resolve().as_uri()``.
+
+    URIs with recognized multi-character schemes (http, https, sqlite, …) pass through
+    unchanged.
+
+    Args:
+        uri: Raw tracking URI string, may be a path or a proper URI.
+
+    Returns:
+        A ``file:///`` URI for local paths, or the original URI for remote schemes.
+    """
+    scheme = urlparse(uri).scheme
+    # Empty scheme → relative/absolute POSIX path.
+    # Single-letter scheme → Windows drive letter (e.g. "D" from "D:\\...").
+    # "file" scheme → already file URI but may need resolution.
+    if scheme in {"", "file"} or (len(scheme) == 1 and scheme.isalpha()):
+        return Path(uri).resolve().as_uri()
+    return uri
 
 
 class MLFlowStorage(BaseConfig):
@@ -61,6 +88,7 @@ class MLFlowStorage(BaseConfig):
             # Suppress MLflow's stdout messages (emoji URLs)
             os.environ.setdefault("MLFLOW_SUPPRESS_PRINTING_URL_TO_STDOUT", "true")
             os.environ.setdefault("MLFLOW_ENABLE_ARTIFACTS_PROGRESS_BAR", "false")
+        self.tracking_uri = normalize_tracking_uri(self.tracking_uri)
         self._client = MlflowClient(tracking_uri=self.tracking_uri)
 
     def create_run(
@@ -301,4 +329,4 @@ class MLFlowStorage(BaseConfig):
         return result
 
 
-__all__ = ["MLFlowStorage"]
+__all__ = ["MLFlowStorage", "normalize_tracking_uri"]
