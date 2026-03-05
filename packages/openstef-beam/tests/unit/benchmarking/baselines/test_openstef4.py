@@ -89,6 +89,8 @@ def test_fit_does_not_mutate_template(
     # Assert — template model object identity unchanged
     assert id(forecaster.workflow_template.model) == template_model_id_before
     assert forecaster.workflow_template.run_name is None
+
+    # The fitted workflow should be different from the template
     assert forecaster._workflow is not forecaster.workflow_template
     assert forecaster._workflow is not None
     assert forecaster._workflow.run_name == horizon.isoformat()

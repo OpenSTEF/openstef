@@ -2691,6 +2691,7 @@ dependencies = [
 all = [
     { name = "openstef-beam", extra = ["all"] },
     { name = "openstef-core" },
+    { name = "openstef-meta" },
     { name = "openstef-models", extra = ["xgb-cpu"] },
 ]
 beam = [
@@ -2730,6 +2731,7 @@ requires-dist = [
     { name = "openstef-beam", extras = ["all"], marker = "extra == 'all'", editable = "packages/openstef-beam" },
     { name = "openstef-core", editable = "packages/openstef-core" },
     { name = "openstef-core", marker = "extra == 'all'", editable = "packages/openstef-core" },
+    { name = "openstef-meta", marker = "extra == 'all'", editable = "packages/openstef-meta" },
     { name = "openstef-meta", marker = "extra == 'models'", editable = "packages/openstef-meta" },
     { name = "openstef-models", extras = ["xgb-cpu"], editable = "packages/openstef-models" },
     { name = "openstef-models", extras = ["xgb-cpu"], marker = "extra == 'all'", editable = "packages/openstef-models" },
@@ -2793,7 +2795,7 @@ requires-dist = [
     { name = "scoringrules", specifier = ">=0.8" },
     { name = "tqdm", specifier = ">=4.67.1" },
 ]
-provides-extras = ["baselines", "all"]
+provides-extras = ["all", "baselines"]
 
 [[package]]
 name = "openstef-core"
