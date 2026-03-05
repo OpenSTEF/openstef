@@ -168,7 +168,7 @@ def split_data_train_validation_test(
         data_.index.unique().sort_values()[1] - data_.index.unique().sort_values()[0]
     )  # Delta t, assumed to be constant throughout DataFrame
     delta = timedelta(
-        seconds=delta.seconds
+        seconds=delta.total_seconds()
     )  # Convert from pandas timedelta to original python timedelta
 
     # Determine which dates are in testset
