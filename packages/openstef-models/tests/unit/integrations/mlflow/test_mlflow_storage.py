@@ -10,6 +10,7 @@ import pytest
 
 from openstef_core.mixins import HyperParams, Stateful
 from openstef_models.integrations.mlflow import MLFlowStorage
+from openstef_models.integrations.mlflow.mlflow_storage import normalize_tracking_uri
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -160,3 +161,32 @@ def test_search_run__returns_matching_run(storage: MLFlowStorage, model_id: str)
     # Assert
     assert found_run is not None
     assert cast(str, found_run.info.run_id) == created_run_id
+
+
+@pytest.mark.parametrize(
+    ("uri", "expected"),
+    [
+        pytest.param("./mlflow", "file:///", id="relative-dot"),
+        pytest.param("relative/path/to/mlflow", "file:///", id="relative-bare"),
+        pytest.param("/absolute/posix/path", "file:///absolute/posix/path", id="absolute-posix"),
+        pytest.param("D:\\mlflow", "file:///", id="windows-drive"),
+        pytest.param("https://mlflow.example.com", "https://mlflow.example.com", id="https"),
+        pytest.param("https://mlflow.example.com:5000", "https://mlflow.example.com:5000", id="https-port"),
+        pytest.param("sqlite:///mlflow.db", "sqlite:///mlflow.db", id="sqlite"),
+        pytest.param("postgresql://user:pass@host/db", "postgresql://user:pass@host/db", id="postgresql"),
+    ],
+)
+def test_normalize_tracking_uri(uri: str, expected: str):
+    """Local paths become file:/// URIs; remote/database URIs pass through unchanged."""
+    # Act
+    result = normalize_tracking_uri(uri)
+
+    # Assert
+    if expected == "file:///":
+        # Relative and Windows-drive paths resolve against CWD on the current OS.
+        # On macOS "D:\mlflow" resolves as a relative path containing "D:" —
+        # the important thing is the normalization branch is entered (file:/// scheme).
+        assert result.startswith("file:///"), f"Expected file:/// URI, got: {result}"
+        assert "mlflow" in result
+    else:
+        assert result == expected
