@@ -462,6 +462,7 @@ class EnsembleForecastingModel(BaseForecastingModel):
         return prediction_train, prediction_val, prediction_test, result
 
     def _predict_forecaster(self, input_data: ForecastInputDataset, forecaster_name: str) -> ForecastDataset:
+        # Postprocessing is applied per-forecaster so the combiner sees final-scale predictions.
         logger.debug("Predicting forecaster '%s'.", forecaster_name)
         prediction_raw = self.forecasters[forecaster_name].predict(data=input_data)
         prediction = restore_target(
