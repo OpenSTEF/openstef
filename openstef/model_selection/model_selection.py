@@ -185,7 +185,9 @@ def split_data_train_validation_test(
             :start_date_val
         ]  # Empty as all data is used for training in an operational setting.
         train_val_data = data_[start_date_val:]
-        operational_score_data = data_.copy(deep=True).reset_index(
+        operational_score_data = data_.copy(
+            deep=True
+        ).reset_index(
             drop=True
         )  # Used to check wether a new operationally train model is better than the old one.
 
