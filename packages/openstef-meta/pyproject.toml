@@ -30,7 +30,7 @@ classifiers = [
 dependencies = [
   "openstef-beam>=4.0.0.dev0,<5",
   "openstef-core>=4.0.0.dev0,<5",
-  "openstef-models>=4.0.0.dev0,<5",
+  "openstef-models[lgbm]>=4.0.0.dev0,<5",
 ]
 
 urls.Documentation = "https://openstef.github.io/openstef/index.html"
