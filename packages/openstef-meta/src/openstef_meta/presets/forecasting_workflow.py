@@ -205,7 +205,7 @@ class EnsembleForecastingWorkflowConfig(BaseConfig):
     forecaster_sample_weights: dict[str, SampleWeightConfig] = Field(
         default={
             "gblinear": SampleWeightConfig(method="inverse_frequency"),
-            "lgbm": SampleWeightConfig(method="inverse_frequency"),
+            "lgbm": SampleWeightConfig(weight_exponent=0.0),
             "xgboost": SampleWeightConfig(weight_exponent=0.0),
             "lgbm_linear": SampleWeightConfig(weight_exponent=0.0),
         },
