@@ -451,13 +451,16 @@ def create_forecasting_workflow(
     elif config.model == "flatliner":
         preprocessing = []
         forecaster = FlatlinerForecaster(
-            quantiles=[Q(0.5)],
+            quantiles=config.quantiles,
             horizons=config.horizons,
             predict_median=config.predict_nonzero_flatliner,
         )
         postprocessing = [
             QuantileSorter(),
-            ConfidenceIntervalApplicator(quantiles=config.quantiles),
+            ConfidenceIntervalApplicator(
+                quantiles=config.quantiles,
+                add_quantiles_from_std=False,
+            ),
         ]
 
     else:
