@@ -1,16 +1,27 @@
 # SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <openstef@lfenergy.org> # noqa E501
 #
 # SPDX-License-Identifier: MPL-2.0
-name: Python Upload Package
+name: Release V3
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 on:
-  - release
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag to release (e.g., v3.4.19 or 3.4.19). Prefixing with v is optional.'
+        required: true
+        default: ""
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     environment: release
-    if: startsWith(github.event.release.tag_name, 'v3.')
+    if: ${{ startsWith(github.event.release.tag_name, 'v3.') || (github.event_name == 'workflow_dispatch' && (startsWith(github.event.inputs.version, '3') || startsWith(github.event.inputs.version, 'v3'))) }}
     permissions:
       # IMPORTANT: this permission is mandatory for trusted publishing
       id-token: write
@@ -23,6 +34,27 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: '3.x'
+    # Set version from release tag
+    - name: Set version
+      id: ver
+      env:
+        RELEASE_TAG: ${{ github.event.release.tag_name }}
+        INPUT_VERSION: ${{ github.event.inputs.version }}
+      run: |
+        if [ -n "$RELEASE_TAG" ]; then
+          VERSION="$RELEASE_TAG"
+        elif [ -n "$INPUT_VERSION" ]; then
+          VERSION="$INPUT_VERSION"
+        else
+          echo "No version provided, aborting"
+          exit 1
+        fi
+        VERSION="${VERSION#v}"
+        echo "Release version: $VERSION"
+        echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+    # Apply version to setup.py
+    - name: Apply version
+      run: sed -i "s/version=\"[^\"]*\"/version=\"${{ steps.ver.outputs.version }}\"/" setup.py
     # Install (packaging) dependencies
     - name: Install dependencies
       run: |
