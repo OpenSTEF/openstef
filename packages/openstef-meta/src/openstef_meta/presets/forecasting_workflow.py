@@ -48,7 +48,7 @@ from openstef_models.transforms.general import Clipper, EmptyFeatureRemover, Sam
 from openstef_models.transforms.general.imputer import Imputer
 from openstef_models.transforms.general.nan_dropper import NaNDropper
 from openstef_models.transforms.general.selector import Selector
-from openstef_models.transforms.postprocessing import QuantileSorter
+from openstef_models.transforms.postprocessing import ConfidenceIntervalApplicator, QuantileSorter
 from openstef_models.transforms.time_domain import (
     CyclicFeaturesAdder,
     DatetimeFeaturesAdder,
@@ -75,7 +75,10 @@ class EnsembleForecastingWorkflowConfig(BaseConfig):
     """Configuration for ensemble forecasting workflows."""
 
     kind: Literal["ensemble"] = Field(default="ensemble", description="Discriminator tag for config type.")
-    model_id: ModelIdentifier
+    model_id: ModelIdentifier = Field(description="Unique identifier for the forecasting model.")
+    run_name: str | None = Field(
+        default=None, description="Optional name for this workflow run, can be used for versioning."
+    )
 
     # Ensemble configuration
     ensemble_type: Literal["learned_weights", "stacking", "rules"] = Field(default="learned_weights")
@@ -201,7 +204,7 @@ class EnsembleForecastingWorkflowConfig(BaseConfig):
     )
     forecaster_sample_weights: dict[str, SampleWeightConfig] = Field(
         default={
-            "gblinear": SampleWeightConfig(method="exponential", weight_exponent=1.0),
+            "gblinear": SampleWeightConfig(method="inverse_frequency"),
             "lgbm": SampleWeightConfig(weight_exponent=0.0),
             "xgboost": SampleWeightConfig(weight_exponent=0.0),
             "lgbm_linear": SampleWeightConfig(weight_exponent=0.0),
@@ -268,6 +271,10 @@ class EnsembleForecastingWorkflowConfig(BaseConfig):
     tags: dict[str, str] = Field(
         default_factory=dict,
         description="Optional metadata tags for the model.",
+    )
+    experiment_tags: dict[str, str] = Field(
+        default_factory=dict,
+        description="Optional metadata tags for experiment tracking.",
     )
 
 
@@ -488,7 +495,10 @@ def create_ensemble_forecasting_workflow(config: EnsembleForecastingWorkflowConf
     forecasters, forecaster_preprocessing = _build_forecasters(config)
     combiner = _build_combiner(config)
 
-    postprocessing = [QuantileSorter()]
+    postprocessing = [
+        QuantileSorter(),
+        ConfidenceIntervalApplicator(quantiles=config.quantiles, add_quantiles_from_std=False),
+    ]
 
     model_specific_preprocessing: dict[str, TransformPipeline[TimeSeriesDataset]] = {
         name: TransformPipeline(transforms=transforms) for name, transforms in forecaster_preprocessing.items()
@@ -540,7 +550,9 @@ def create_ensemble_forecasting_workflow(config: EnsembleForecastingWorkflowConf
             tags=tags,
         ),
         model_id=config.model_id,
+        run_name=config.run_name,
         callbacks=callbacks,
+        experiment_tags=config.experiment_tags,
     )
 
 
