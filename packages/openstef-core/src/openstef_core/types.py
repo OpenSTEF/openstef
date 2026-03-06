@@ -10,11 +10,12 @@ key domain types like lead times, availability timestamps, and quantile values.
 """
 
 import re
-from datetime import timedelta
+from datetime import datetime, time, timedelta
 from enum import StrEnum
 from functools import total_ordering
 from typing import Any, Literal, Self, override
 
+import pytz
 from pydantic import GetCoreSchemaHandler, TypeAdapter
 from pydantic_core import CoreSchema, core_schema
 
@@ -119,52 +120,77 @@ class LeadTime(PydanticStringPrimitive):
 class AvailableAt(PydanticStringPrimitive):
     """Represents a time point available relative to a reference day.
 
-    Uses a specialized string format 'DnTHHMM' where:
-    - n is the day offset (negative indicates prior days)
-    - HHMM is the time of day
+    Uses a specialized string format ``DnTHHMM`` where:
 
-    For example, 'D-1T0600' means "6:00 AM on the previous day".
-    The legacy 'DnTHH:MM' format (with colon) is also accepted by from_string().
+    - *n* is the day offset (negative indicates prior days)
+    - *HHMM* is the time of day
+
+    For example, ``D-1T0600`` means "6:00 AM on the previous day".
+    The legacy ``DnTHH:MM`` format (with colon) is also accepted by
+    ``from_string()``.
+
+    An optional pytz timezone can be attached to make the availability time
+    timezone-aware. Only ``pytz.BaseTzInfo`` subclasses are accepted
+    (e.g. ``pytz.timezone("Europe/Amsterdam")``, ``pytz.UTC``).
 
     Example:
-        Creating and using availability times:
-
         >>> from datetime import timedelta
-        >>> # Available at 6 AM on the previous day
-        >>> at = AvailableAt(timedelta(hours=18))  # 18 hours before day end
+        >>> at = AvailableAt(timedelta(hours=18))
         >>> str(at)
         'D-1T0600'
-        >>> # Available at midnight of the current day
-        >>> AvailableAt.from_string('D0T00:00').lag_from_day
-        datetime.timedelta(0)
+        >>> at.apply(datetime(2026, 3, 6))
+        datetime.datetime(2026, 3, 5, 6, 0)
     """
 
-    def __init__(self, lag_from_day: timedelta):
-        """Initializes with a lag from the reference day start."""
-        self.lag_from_day = lag_from_day
-
-    def __str__(self) -> str:
-        """Converts to string in 'DnTHHMM' format (Windows-safe, no colon).
-
-        Returns:
-            String representation in 'DnTHHMM' format.
-        """
-        lag_days = -int(self.lag_from_day / timedelta(days=1)) - 1
-        time = timedelta(hours=24) - (self.lag_from_day % timedelta(days=1))
-        return f"D{lag_days}T{time.seconds // 3600:02}{(time.seconds // 60) % 60:02}"
-
-    @classmethod
-    def from_string(cls, s: str) -> Self:
-        """Creates an instance from a string in 'DnTHHMM' or 'DnTHH:MM' format.
+    def __init__(self, lag_from_day: timedelta, *, tzinfo: pytz.BaseTzInfo | None = None):
+        """Initializes with a lag from the reference day start.
 
         Args:
-            s: String in 'DnTHHMM' or 'DnTHH:MM' format to parse.
+            lag_from_day: Timedelta representing how far before the reference day
+                the data becomes available.
+            tzinfo: Optional pytz timezone for the availability time
+                (e.g. ``pytz.timezone("Europe/Amsterdam")``, ``pytz.UTC``).
+        """
+        self.lag_from_day = lag_from_day
+        self.tzinfo = tzinfo
+
+    @property
+    def day_offset(self) -> int:
+        """Day offset from the reference day (negative or zero)."""
+        return -int(self.lag_from_day / timedelta(days=1)) - 1
+
+    @property
+    def time_of_day(self) -> time:
+        """Time of day when data becomes available (optionally tz-aware)."""
+        offset = timedelta(hours=24) - (self.lag_from_day % timedelta(days=1))
+        return time(
+            hour=offset.seconds // 3600,
+            minute=(offset.seconds // 60) % 60,
+            tzinfo=self.tzinfo,
+        )
+
+    def __str__(self) -> str:
+        """Converts to string in ``DnTHHMM`` format (Windows-safe, no colon).
+
+        Returns:
+            String representation in ``DnTHHMM`` format.
+        """
+        t = self.time_of_day
+        return f"D{self.day_offset}T{t.hour:02}{t.minute:02}"
+
+    @classmethod
+    def from_string(cls, s: str, *, tzinfo: pytz.BaseTzInfo | None = None) -> Self:
+        """Creates an instance from a string in ``DnTHHMM`` or ``DnTHH:MM`` format.
+
+        Args:
+            s: String in ``DnTHHMM`` or ``DnTHH:MM`` format to parse.
+            tzinfo: Optional pytz timezone to attach to the parsed instance.
 
         Returns:
             AvailableAt instance parsed from the string.
 
         Raises:
-            ValueError: If the string format is invalid.
+            ValueError: If the string format is invalid or day offset is positive.
         """
         match = re.match(r"D(-?\d+)T(\d{2}):?(\d{2})", s)
         if not match:
@@ -173,12 +199,46 @@ class AvailableAt(PydanticStringPrimitive):
 
         days_part, hours_part, minutes_part = match.groups()
 
+        # Day offset must be negative or zero (available before/at the reference day)
+        if int(days_part) > 0:
+            msg = f"Day offset must be negative or zero, got {days_part}"
+            raise ValueError(msg)
+
         # Calculate lag_from_day
         lag_days = -int(days_part) - 1
-        time = timedelta(hours=int(hours_part), minutes=int(minutes_part))
-        lag_from_day = timedelta(days=lag_days) + (timedelta(hours=24) - time)
+        time_offset = timedelta(hours=int(hours_part), minutes=int(minutes_part))
+        lag_from_day = timedelta(days=lag_days) + (timedelta(hours=24) - time_offset)
 
-        return cls(lag_from_day=lag_from_day)
+        return cls(lag_from_day=lag_from_day, tzinfo=tzinfo)
+
+    def apply(self, date: datetime, *, output_tz: pytz.BaseTzInfo | None = None) -> datetime:
+        """Apply this availability offset to a reference date.
+
+        Computes the actual datetime when data becomes available, given a
+        reference date. Works with both timezone-aware and naive datetimes.
+
+        Timezone resolution: ``output_tz`` > ``self.tzinfo`` > ``date.tzinfo`` > ``None``.
+        Timezones must be pytz objects (``pytz.timezone()``, ``pytz.UTC``) —
+          ``tz.localize()`` is used for DST correctness.
+
+        Args:
+            date: The reference date to apply the availability offset to.
+            output_tz: Explicit pytz timezone for the result. When set, overrides
+                ``self.tzinfo`` and ``date.tzinfo``.
+
+        Returns:
+            The datetime when data is available.
+        """
+        result_date = (date + timedelta(days=self.day_offset)).date()
+        naive_time = self.time_of_day.replace(tzinfo=None)
+        naive_result = datetime.combine(result_date, naive_time)
+
+        tz = output_tz if output_tz is not None else (self.tzinfo if self.tzinfo is not None else date.tzinfo)
+
+        if tz is None:
+            return naive_result
+
+        return tz.localize(naive_result)  # type: ignore[union-attr]
 
     @classmethod
     @override
