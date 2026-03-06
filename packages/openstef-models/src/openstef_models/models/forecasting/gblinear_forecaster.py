@@ -23,6 +23,7 @@ from openstef_core.datasets.mixins import LeadTime
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import InputValidationError, MissingExtraError, NotFittedError
 from openstef_core.mixins.predictor import HyperParams
+from openstef_core.utils.pandas import normalize_to_unit_sum
 from openstef_models.explainability.mixins import ContributionsMixin, ExplainableForecaster
 from openstef_models.models.forecasting.forecaster import Forecaster
 from openstef_models.utils.evaluation_functions import EvaluationFunctionType, get_evaluation_function
@@ -344,7 +345,4 @@ class GBLinearForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
         weights_df.index.name = "feature_name"
         weights_df.columns.name = "quantiles"
 
-        weights_abs = weights_df.abs()
-        total = weights_abs.sum(axis=0).replace(to_replace=0, value=1.0)  # pyright: ignore[reportUnknownMemberType]
-
-        return weights_abs / total
+        return weights_df.pipe(normalize_to_unit_sum)

@@ -106,6 +106,7 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
     hyperparameters, location information, data columns, and feature engineering settings.
     """
 
+    kind: Literal["single"] = Field(default="single", description="Discriminator tag for config type.")
     model_id: ModelIdentifier = Field(description="Unique identifier for the forecasting model.")
     run_name: str | None = Field(
         default=None, description="Optional name for this workflow run, can be used for versioning."
