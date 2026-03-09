@@ -4,12 +4,13 @@
 
 """Tests for TimeSeriesDataset parquet serialization."""
 
-from datetime import datetime, timedelta
+from datetime import datetime, time, timedelta
 from pathlib import Path
 from typing import cast
 
 import pandas as pd
 import pytest
+import pytz
 
 from openstef_core.datasets.timeseries_dataset import TimeSeriesDataset
 from openstef_core.testing import create_timeseries_dataset
@@ -117,8 +118,8 @@ def test_filter_by_available_before(
 @pytest.mark.parametrize(
     ("available_at", "expected_values"),
     [
-        (AvailableAt(timedelta(hours=-13)), [10, 20, 30]),
-        (AvailableAt(timedelta(hours=-15)), [10, 20, 30, 40, 55, 50]),
+        (AvailableAt(day_offset=0, time_of_day=time(13, 0)), [10, 20, 30]),
+        (AvailableAt(day_offset=0, time_of_day=time(15, 0)), [10, 20, 30, 40, 55, 50]),
     ],
 )
 def test_filter_by_available_at(
@@ -129,6 +130,33 @@ def test_filter_by_available_at(
 
     # Assert
     assert list(filtered.data["value1"]) == expected_values
+
+
+def test_filter_by_available_at_dst_aware():
+    """Cutoff shifts by 1h across CET→CEST transition (2026-03-29)."""
+
+    available_at = AvailableAt(day_offset=-1, time_of_day=time(6, 0), tzinfo=pytz.timezone("Europe/Amsterdam"))
+
+    dataset = TimeSeriesDataset(
+        data=pd.DataFrame(
+            data={
+                "available_at": pd.to_datetime([
+                    "2026-03-28T04:30:00+00:00",  # before cutoff 05:00 UTC → kept
+                    "2026-03-29T04:30:00+00:00",  # after  cutoff 04:00 UTC → filtered
+                ]),
+                "value": [1, 2],
+            },
+            index=pd.to_datetime([
+                "2026-03-29T12:00:00+00:00",  # cutoff = Mar 28 06:00 CET = 05:00 UTC
+                "2026-03-30T12:00:00+00:00",  # cutoff = Mar 29 06:00 CEST = 04:00 UTC
+            ]),
+        ),
+        sample_interval=timedelta(hours=24),
+    )
+
+    filtered = dataset.filter_by_available_at(available_at)
+
+    assert list(filtered.data["value"]) == [1]
 
 
 @pytest.mark.parametrize(

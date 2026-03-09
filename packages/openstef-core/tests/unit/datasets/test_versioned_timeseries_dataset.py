@@ -4,7 +4,7 @@
 
 """Tests for VersionedTimeSeriesDataset parquet serialization."""
 
-from datetime import timedelta
+from datetime import time, timedelta
 from pathlib import Path
 
 import numpy as np
@@ -170,7 +170,7 @@ def test_filter_by_available_before(versioned_dataset: VersionedTimeSeriesDatase
 def test_filter_by_available_at(versioned_dataset: VersionedTimeSeriesDataset):
     """Filter dataset using relative availability definition."""
     # Arrange
-    available_at = AvailableAt(timedelta(hours=-13))
+    available_at = AvailableAt(day_offset=0, time_of_day=time(13, 0))
 
     # Act
     filtered = versioned_dataset.filter_by_available_at(available_at)

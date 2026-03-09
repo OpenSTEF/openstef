@@ -266,7 +266,7 @@ class TimeSeriesDataset(TimeSeriesMixin, DatasetMixin):  # noqa: PLR0904 - impor
         if available_at_series is None:
             return self
 
-        cutoff = self.index.floor("D") - pd.Timedelta(available_at.lag_from_day)
+        cutoff = available_at.apply_index(self.index)
         data_filtered = self.data[available_at_series <= cutoff]
         return self._copy_with_data(data=data_filtered)
 
