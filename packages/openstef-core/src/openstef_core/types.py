@@ -9,13 +9,16 @@ the forecasting pipeline. Ensures consistent serialization and validation of
 key domain types like lead times, availability timestamps, and quantile values.
 """
 
+from __future__ import annotations
+
 import re
 from datetime import datetime, time, timedelta
-from datetime import tzinfo as dt_tzinfo
+from datetime import timezone as dt_timezone
 from enum import StrEnum
 from functools import total_ordering
 from typing import Any, Literal, Self, override
 
+import pandas as pd
 import pytz
 from pydantic import GetCoreSchemaHandler, TypeAdapter
 from pydantic_core import CoreSchema, core_schema
@@ -126,25 +129,30 @@ class AvailableAt(PydanticStringPrimitive):
     - *n* is the day offset (negative or zero)
     - *HHMM* is the time of day
 
-    For example, ``D-1T0600`` means "6:00 AM on the previous day".
+    An optional timezone suffix ``[Region/City]`` (RFC 9557 bracket
+    notation) makes the availability time timezone-aware.  Both pytz
+    and stdlib ``datetime.timezone`` objects are accepted; they
+    round-trip through the IANA name via ``str(tz)`` /
+    ``pytz.timezone(name)``.
+
+    For example, ``D-1T0600[Europe/Amsterdam]`` means "6:00
+    Europe/Amsterdam on the previous day".
     The legacy ``DnTHH:MM`` format (with colon) is also accepted by
     ``from_string()``.
 
-    An optional timezone can be attached so that the time-of-day is
-    interpreted in that timezone (important for DST correctness).
-    Both pytz and stdlib ``datetime.timezone`` objects are supported.
-
     Example:
         >>> from datetime import time
+        >>> import pytz
         >>> at = AvailableAt(day_offset=-1, time_of_day=time(6, 0))
         >>> str(at)
         'D-1T0600'
-        >>> at.apply(datetime(2026, 3, 6))
-        datetime.datetime(2026, 3, 5, 6, 0)
+        >>> tz_at = AvailableAt(day_offset=-1, time_of_day=time(6, 0), tzinfo=pytz.timezone('Europe/Amsterdam'))
+        >>> str(tz_at)
+        'D-1T0600[Europe/Amsterdam]'
     """
 
-    def __init__(self, day_offset: int, time_of_day: time, *, tzinfo: dt_tzinfo | None = None):
-        """Initialise with a day offset and time of day.
+    def __init__(self, day_offset: int, time_of_day: time, *, tzinfo: pytz.BaseTzInfo | dt_timezone | None = None):
+        """Initialise with a day offset, time of day, and optional timezone.
 
         Args:
             day_offset: Day offset from the reference day (must be ≤ 0).
@@ -165,20 +173,25 @@ class AvailableAt(PydanticStringPrimitive):
         self.tzinfo = tzinfo
 
     def __str__(self) -> str:
-        """Converts to string in ``DnTHHMM`` format (Windows-safe, no colon).
+        """Converts to string in ``DnTHHMM`` or ``DnTHHMM[tz]`` format.
 
         Returns:
-            String representation in ``DnTHHMM`` format.
+            String representation, with optional ``[timezone]`` suffix.
         """
-        return f"D{self.day_offset}T{self.time_of_day.hour:02}{self.time_of_day.minute:02}"
+        base = f"D{self.day_offset}T{self.time_of_day.hour:02}{self.time_of_day.minute:02}"
+        if self.tzinfo is not None:
+            return f"{base}[{self.tzinfo}]"
+        return base
 
     @classmethod
-    def from_string(cls, s: str, *, tzinfo: dt_tzinfo | None = None) -> Self:
-        """Creates an instance from a string in ``DnTHHMM`` or ``DnTHH:MM`` format.
+    def from_string(cls, s: str) -> Self:
+        """Creates an instance from a string in ``DnTHHMM[tz]`` format.
+
+        Accepts an optional ``[Region/City]`` timezone suffix.  The
+        legacy colon format ``DnTHH:MM`` is also accepted.
 
         Args:
-            s: String in ``DnTHHMM`` or ``DnTHH:MM`` format to parse.
-            tzinfo: Optional timezone to attach to the parsed instance.
+            s: String to parse.
 
         Returns:
             AvailableAt instance parsed from the string.
@@ -186,31 +199,36 @@ class AvailableAt(PydanticStringPrimitive):
         Raises:
             ValueError: If the string format is invalid or day offset is positive.
         """
-        match = re.match(r"D(-?\d+)T(\d{2}):?(\d{2})", s)
+        match = re.match(r"D(-?\d+)T(\d{2}):?(\d{2})(?:(Z)|\[([^\]]+)\])?$", s)
         if not match:
             error_message = f"Cannot convert {s} to {cls.__name__}"
             raise ValueError(error_message)
 
-        days_part, hours_part, minutes_part = match.groups()
+        days_part, hours_part, minutes_part, z_part, tz_part = match.groups()
 
-        # Day offset must be negative or zero (available before/at the reference day)
         if int(days_part) > 0:
             msg = f"Day offset must be negative or zero, got {days_part}"
             raise ValueError(msg)
 
+        if z_part:
+            resolved_tz = pytz.UTC
+        elif tz_part:
+            resolved_tz = pytz.timezone(tz_part)
+        else:
+            resolved_tz = None
+
         return cls(
             day_offset=int(days_part),
             time_of_day=time(hour=int(hours_part), minute=int(minutes_part)),
-            tzinfo=tzinfo,
+            tzinfo=resolved_tz,
         )
 
     def apply(self, date: datetime) -> datetime:
         """Apply this availability offset to a reference date.
 
         The time-of-day is interpreted in ``self.tzinfo`` (falls back to
-        ``date.tzinfo``). The result is returned in the reference date's
+        ``date.tzinfo``).  The result is returned in the reference date's
         timezone, or naive when the reference date is naive.
-        Both pytz and stdlib ``datetime.timezone`` are supported.
 
         Args:
             date: The reference date to apply the availability offset to.
@@ -234,6 +252,35 @@ class AvailableAt(PydanticStringPrimitive):
         if date.tzinfo is not None:
             return aware.astimezone(date.tzinfo)
         return naive_result
+
+    def apply_index(self, index: pd.DatetimeIndex) -> pd.DatetimeIndex:
+        """Vectorized version of :meth:`apply` for a pandas DatetimeIndex.
+
+        Same timezone logic as :meth:`apply`: the time-of-day is
+        interpreted in ``self.tzinfo`` (falls back to ``index.tz``),
+        then converted back to the index's timezone.
+
+        Args:
+            index: DatetimeIndex of reference dates.
+
+        Returns:
+            DatetimeIndex of cutoff timestamps, in the same timezone as *index*.
+        """
+        source_tz = self.tzinfo
+        data_tz = index.tz
+
+        work_index = index.tz_convert(source_tz) if source_tz is not None and data_tz is not None else index
+
+        cutoff = work_index.floor("D") + pd.Timedelta(
+            days=self.day_offset,
+            hours=self.time_of_day.hour,
+            minutes=self.time_of_day.minute,
+        )
+
+        if source_tz is not None and data_tz is not None:
+            cutoff = cutoff.tz_convert(data_tz)
+
+        return cutoff
 
 
 class Quantile(float):
@@ -297,7 +344,7 @@ class Quantile(float):
         return f"quantile_P{value:.1f}"
 
     @staticmethod
-    def parse(quantile_str: str) -> "Quantile":
+    def parse(quantile_str: str) -> Quantile:
         """Static method to parse a quantile string back to a Quantile object.
 
         Args:

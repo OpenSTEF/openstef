@@ -49,8 +49,23 @@ def test_lead_time_from_string_roundtrip(input_delta: timedelta):
 @pytest.mark.parametrize(
     ("available_at", "expected_string"),
     [
-        pytest.param(AvailableAt(day_offset=-1, time_of_day=time(6, 0)), "D-1T0600", id="D-1T0600"),
-        pytest.param(AvailableAt(day_offset=-2, time_of_day=time(12, 0)), "D-2T1200", id="D-2T1200"),
+        pytest.param(AvailableAt(day_offset=-1, time_of_day=time(6, 0)), "D-1T0600", id="no_tz"),
+        pytest.param(AvailableAt(day_offset=-2, time_of_day=time(12, 0)), "D-2T1200", id="no_tz_D-2"),
+        pytest.param(
+            AvailableAt(day_offset=-1, time_of_day=time(6, 0), tzinfo=pytz.UTC),
+            "D-1T0600[UTC]",
+            id="pytz_utc",
+        ),
+        pytest.param(
+            AvailableAt(day_offset=-1, time_of_day=time(6, 0), tzinfo=pytz.timezone("Europe/Amsterdam")),
+            "D-1T0600[Europe/Amsterdam]",
+            id="named_tz",
+        ),
+        pytest.param(
+            AvailableAt(day_offset=-1, time_of_day=time(6, 0), tzinfo=UTC),
+            "D-1T0600[UTC]",
+            id="stdlib_utc",
+        ),
     ],
 )
 def test_available_at_str(available_at: AvailableAt, expected_string: str):
@@ -64,8 +79,16 @@ def test_available_at_str(available_at: AvailableAt, expected_string: str):
 @pytest.mark.parametrize(
     "available_at",
     [
-        pytest.param(AvailableAt(day_offset=-1, time_of_day=time(6, 0)), id="D-1T0600"),
-        pytest.param(AvailableAt(day_offset=-2, time_of_day=time(12, 0)), id="D-2T1200"),
+        pytest.param(AvailableAt(day_offset=-1, time_of_day=time(6, 0)), id="no_tz"),
+        pytest.param(AvailableAt(day_offset=-2, time_of_day=time(12, 0)), id="no_tz_D-2"),
+        pytest.param(
+            AvailableAt(day_offset=-1, time_of_day=time(6, 0), tzinfo=pytz.UTC),
+            id="pytz_utc",
+        ),
+        pytest.param(
+            AvailableAt(day_offset=-1, time_of_day=time(6, 0), tzinfo=pytz.timezone("Europe/Amsterdam")),
+            id="named_tz",
+        ),
     ],
 )
 def test_available_at_from_string_roundtrip(available_at: AvailableAt):
@@ -75,6 +98,35 @@ def test_available_at_from_string_roundtrip(available_at: AvailableAt):
     # Assert
     assert reconstructed.day_offset == available_at.day_offset
     assert reconstructed.time_of_day == available_at.time_of_day
+    if available_at.tzinfo is None:
+        assert reconstructed.tzinfo is None
+    else:
+        assert reconstructed.tzinfo is not None
+        # Both should resolve to the same zone
+        assert str(reconstructed.tzinfo) == str(available_at.tzinfo)
+
+
+def test_available_at_from_string_legacy_colon_format():
+    """The legacy DnTHH:MM format (with colon) should still be accepted."""
+    at = AvailableAt.from_string("D-1T06:00")
+    assert at.day_offset == -1
+    assert at.time_of_day == time(6, 0)
+    assert at.tzinfo is None
+
+
+@pytest.mark.parametrize(
+    "tz_str",
+    [
+        pytest.param("UTC", id="pytz_utc"),
+        pytest.param("Europe/Amsterdam", id="named_tz"),
+    ],
+)
+def test_available_at_from_string_legacy_colon_with_tz(tz_str: str):
+    """Legacy colon format combined with timezone suffix."""
+    at = AvailableAt.from_string(f"D-1T06:00[{tz_str}]")
+    assert at.day_offset == -1
+    assert at.time_of_day == time(6, 0)
+    assert str(at.tzinfo) == tz_str
 
 
 def test_available_at_from_string_rejects_positive_days_part():
@@ -85,6 +137,29 @@ def test_available_at_from_string_rejects_positive_days_part():
 def test_available_at_rejects_positive_day_offset():
     with pytest.raises(ValueError, match="Day offset must be negative or zero"):
         AvailableAt(day_offset=1, time_of_day=time(6, 0))
+
+
+def test_available_at_from_string_rejects_invalid():
+    with pytest.raises(ValueError, match="Cannot convert"):
+        AvailableAt.from_string("INVALID")
+
+
+def test_available_at_from_string_rejects_trailing_garbage():
+    with pytest.raises(ValueError, match="Cannot convert"):
+        AvailableAt.from_string("D-1T0600INVALID")
+
+
+def test_available_at_from_string_z_suffix():
+    """'Z' suffix should parse as UTC."""
+    at = AvailableAt.from_string("D-1T0600Z")
+    assert at.day_offset == -1
+    assert at.time_of_day == time(6, 0)
+    assert at.tzinfo == pytz.UTC
+
+
+def test_available_at_from_string_rejects_invalid_tz():
+    with pytest.raises(pytz.UnknownTimeZoneError):
+        AvailableAt.from_string("D-1T0600[INVALID]")
 
 
 _AMS = pytz.timezone("Europe/Amsterdam")

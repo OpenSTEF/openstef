@@ -266,27 +266,7 @@ class TimeSeriesDataset(TimeSeriesMixin, DatasetMixin):  # noqa: PLR0904 - impor
         if available_at_series is None:
             return self
 
-        source_tz = available_at.tzinfo
-
-        if source_tz is not None and self.index.tz is not None:
-            # DST-correct: interpret the date in AvailableAt's timezone
-            index_in_tz = self.index.tz_convert(source_tz)
-        else:
-            index_in_tz = self.index
-
-        # Step 1: cutoff date = reference date + day_offset (mirrors apply())
-        cutoff_day = index_in_tz.floor("D") + pd.Timedelta(days=available_at.day_offset)
-
-        # Step 2: set the time of day (mirrors datetime.combine in apply())
-        cutoff = cutoff_day + pd.Timedelta(
-            hours=available_at.time_of_day.hour,
-            minutes=available_at.time_of_day.minute,
-        )
-
-        # Convert back to the data's timezone for comparison
-        if source_tz is not None and self.index.tz is not None:
-            cutoff = cutoff.tz_convert(self.index.tz)
-
+        cutoff = available_at.apply_index(self.index)
         data_filtered = self.data[available_at_series <= cutoff]
         return self._copy_with_data(data=data_filtered)
 
