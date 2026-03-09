@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-from datetime import datetime, time, timedelta
+from datetime import UTC, datetime, time, timedelta, timezone
 
 import pytest
 import pytz
@@ -47,15 +47,15 @@ def test_lead_time_from_string_roundtrip(input_delta: timedelta):
 
 
 @pytest.mark.parametrize(
-    ("lag_from_day", "expected_string"),
+    ("available_at", "expected_string"),
     [
-        pytest.param(timedelta(hours=18), "D-1T0600", id="D-1T0600"),
-        pytest.param(timedelta(hours=12 + 24), "D-2T1200", id="D-2T1200"),
+        pytest.param(AvailableAt(day_offset=-1, time_of_day=time(6, 0)), "D-1T0600", id="D-1T0600"),
+        pytest.param(AvailableAt(day_offset=-2, time_of_day=time(12, 0)), "D-2T1200", id="D-2T1200"),
     ],
 )
-def test_available_at_str(lag_from_day: timedelta, expected_string: str):
+def test_available_at_str(available_at: AvailableAt, expected_string: str):
     # Act
-    result = str(AvailableAt(lag_from_day=lag_from_day))
+    result = str(available_at)
 
     # Assert
     assert result == expected_string
@@ -64,8 +64,8 @@ def test_available_at_str(lag_from_day: timedelta, expected_string: str):
 @pytest.mark.parametrize(
     "available_at",
     [
-        pytest.param(AvailableAt(lag_from_day=timedelta(hours=18)), id="D-1T0600"),
-        pytest.param(AvailableAt(lag_from_day=timedelta(hours=12 + 24)), id="D-2T1200"),
+        pytest.param(AvailableAt(day_offset=-1, time_of_day=time(6, 0)), id="D-1T0600"),
+        pytest.param(AvailableAt(day_offset=-2, time_of_day=time(12, 0)), id="D-2T1200"),
     ],
 )
 def test_available_at_from_string_roundtrip(available_at: AvailableAt):
@@ -73,7 +73,8 @@ def test_available_at_from_string_roundtrip(available_at: AvailableAt):
     reconstructed = AvailableAt.from_string(str(available_at))
 
     # Assert
-    assert reconstructed.lag_from_day == available_at.lag_from_day
+    assert reconstructed.day_offset == available_at.day_offset
+    assert reconstructed.time_of_day == available_at.time_of_day
 
 
 def test_available_at_from_string_rejects_positive_days_part():
@@ -81,94 +82,99 @@ def test_available_at_from_string_rejects_positive_days_part():
         AvailableAt.from_string("D1T0600")
 
 
+def test_available_at_rejects_positive_day_offset():
+    with pytest.raises(ValueError, match="Day offset must be negative or zero"):
+        AvailableAt(day_offset=1, time_of_day=time(6, 0))
+
+
 _AMS = pytz.timezone("Europe/Amsterdam")
 
 
 @pytest.mark.parametrize(
-    ("available_at", "reference_date", "output_tz", "expected", "expected_tz"),
+    ("available_at", "reference_date", "expected"),
     [
         pytest.param(
-            AvailableAt(lag_from_day=timedelta(hours=18)),
+            AvailableAt(day_offset=-1, time_of_day=time(6, 0)),
             datetime(2026, 3, 6),  # noqa: DTZ001
-            None,
             datetime(2026, 3, 5, 6, 0),  # noqa: DTZ001
-            None,
             id="naive",
         ),
         pytest.param(
-            AvailableAt(lag_from_day=timedelta(hours=36)),
-            datetime(2026, 3, 6),  # noqa: DTZ001
-            None,
+            AvailableAt(day_offset=-2, time_of_day=time(12, 0)),
+            datetime(2026, 3, 6, 13),  # noqa: DTZ001
             datetime(2026, 3, 4, 12, 0),  # noqa: DTZ001
-            None,
             id="naive_D-2",
         ),
         pytest.param(
-            AvailableAt(lag_from_day=timedelta(hours=18), tzinfo=pytz.UTC),
-            datetime(2026, 3, 6, tzinfo=pytz.UTC),
-            None,
-            datetime(2026, 3, 5, 6, 0, tzinfo=pytz.UTC),
-            "UTC",
-            id="utc",
+            AvailableAt(day_offset=-1, time_of_day=time(6, 0), tzinfo=pytz.UTC),
+            datetime(2026, 3, 6, tzinfo=UTC),
+            datetime(2026, 3, 5, 6, 0, tzinfo=UTC),
+            id="utc_to_utc",
         ),
         pytest.param(
-            AvailableAt(lag_from_day=timedelta(hours=18), tzinfo=_AMS),
+            AvailableAt(day_offset=-1, time_of_day=time(6, 0), tzinfo=_AMS),
             datetime(2026, 3, 6),  # noqa: DTZ001
-            None,
-            _AMS.localize(datetime(2026, 3, 5, 6, 0)),  # noqa: DTZ001
-            "Europe/Amsterdam",
-            id="named_tz",
+            datetime(2026, 3, 5, 6, 0),  # noqa: DTZ001
+            id="ams_tz_naive_ref_returns_naive",
         ),
         pytest.param(
-            AvailableAt(lag_from_day=timedelta(hours=18), tzinfo=_AMS),
-            datetime(2026, 3, 6, tzinfo=pytz.UTC),
-            None,
-            _AMS.localize(datetime(2026, 3, 5, 6, 0)),  # noqa: DTZ001
-            "Europe/Amsterdam",
-            id="own_tz_over_date_tz",
+            AvailableAt(day_offset=-1, time_of_day=time(6, 0), tzinfo=UTC),
+            _AMS.localize(datetime(2026, 3, 6)),  # noqa: DTZ001
+            # 06:00 UTC = 07:00 CET (March 5 is still winter time, UTC+1)
+            _AMS.localize(datetime(2026, 3, 5, 7, 0)),  # noqa: DTZ001
+            id="utc_stdlib_tz_ams_ref_returns_ams",
         ),
         pytest.param(
-            AvailableAt(lag_from_day=timedelta(hours=18)),
-            datetime(2026, 3, 6, tzinfo=pytz.UTC),
-            None,
-            datetime(2026, 3, 5, 6, 0, tzinfo=pytz.UTC),
-            "UTC",
+            AvailableAt(day_offset=-1, time_of_day=time(6, 0)),
+            datetime(2026, 3, 6, tzinfo=UTC),
+            datetime(2026, 3, 5, 6, 0, tzinfo=UTC),
             id="fallback_to_date_tz",
         ),
         pytest.param(
-            AvailableAt(lag_from_day=timedelta(hours=18), tzinfo=pytz.UTC),
-            datetime(2026, 3, 6, tzinfo=pytz.UTC),
-            _AMS,
-            _AMS.localize(datetime(2026, 3, 5, 6, 0)),  # noqa: DTZ001
-            "Europe/Amsterdam",
-            id="output_tz_overrides",
+            AvailableAt(day_offset=-1, time_of_day=time(6, 0)),
+            datetime(2026, 3, 6, tzinfo=timezone(timedelta(hours=1))),
+            datetime(2026, 3, 5, 6, 0, tzinfo=timezone(timedelta(hours=1))),
+            id="fallback_to_stdlib_fixed_offset_tz",
+        ),
+        # DST transition: clocks spring forward on 2026-03-29 in Europe/Amsterdam
+        # 06:00 CEST (UTC+2) on Mar 29 = 04:00 UTC
+        pytest.param(
+            AvailableAt(day_offset=-1, time_of_day=time(6, 0), tzinfo=_AMS),
+            datetime(2026, 3, 30, tzinfo=UTC),
+            datetime(2026, 3, 29, 4, 0, tzinfo=UTC),
+            id="ams_to_utc_after_dst_switch",
+        ),
+        # Day before DST: 06:00 CET (UTC+1) on Mar 28 = 05:00 UTC
+        pytest.param(
+            AvailableAt(day_offset=-1, time_of_day=time(6, 0), tzinfo=_AMS),
+            datetime(2026, 3, 29, tzinfo=UTC),
+            datetime(2026, 3, 28, 5, 0, tzinfo=UTC),
+            id="ams_to_utc_before_dst_switch",
         ),
     ],
 )
 def test_available_at_apply(
     available_at: AvailableAt,
     reference_date: datetime,
-    output_tz: pytz.BaseTzInfo | None,
     expected: datetime,
-    expected_tz: str | None,
 ):
     # Act
-    result = available_at.apply(reference_date, output_tz=output_tz)
+    result = available_at.apply(reference_date)
 
     # Assert
     assert result == expected
-    if expected_tz is None:
+    if reference_date.tzinfo is None:
         assert result.tzinfo is None
     else:
-        assert str(result.tzinfo) == expected_tz
+        assert result.tzinfo == reference_date.tzinfo
 
 
 def test_available_at_day_offset():
-    assert AvailableAt(lag_from_day=timedelta(hours=18)).day_offset == -1
-    assert AvailableAt(lag_from_day=timedelta(hours=36)).day_offset == -2
+    assert AvailableAt(day_offset=-1, time_of_day=time(6, 0)).day_offset == -1
+    assert AvailableAt(day_offset=-2, time_of_day=time(12, 0)).day_offset == -2
 
 
 def test_available_at_time_of_day():
-    assert AvailableAt(lag_from_day=timedelta(hours=18)).time_of_day == time(6, 0)
-    assert AvailableAt(lag_from_day=timedelta(hours=36)).time_of_day == time(12, 0)
-    assert AvailableAt(lag_from_day=timedelta(hours=18, minutes=30)).time_of_day == time(5, 30)
+    assert AvailableAt(day_offset=-1, time_of_day=time(6, 0)).time_of_day == time(6, 0)
+    assert AvailableAt(day_offset=-2, time_of_day=time(12, 0)).time_of_day == time(12, 0)
+    assert AvailableAt(day_offset=-1, time_of_day=time(5, 30)).time_of_day == time(5, 30)
