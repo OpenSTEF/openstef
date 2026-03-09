@@ -103,12 +103,6 @@ class EnsembleForecastingModel(BaseForecastingModel):
         >>> forecasts = model.predict(new_data)  # doctest: +SKIP
     """
 
-    model_specific_preprocessing: dict[str, TransformPipeline[TimeSeriesDataset]] = Field(
-        default_factory=dict,
-        description="Per-forecaster preprocessing pipelines applied after common preprocessing.",
-        exclude=True,
-    )
-
     forecasters: dict[str, Forecaster] = Field(
         default=...,
         description="Named base forecasters whose predictions are combined.",
@@ -121,9 +115,27 @@ class EnsembleForecastingModel(BaseForecastingModel):
         exclude=True,
     )
 
+    model_specific_preprocessing: dict[str, TransformPipeline[TimeSeriesDataset]] = Field(
+        default_factory=dict,
+        description="Per-forecaster preprocessing pipelines applied after common preprocessing.",
+        exclude=True,
+    )
+
     combiner_preprocessing: TransformPipeline[TimeSeriesDataset] = Field(
         default_factory=TransformPipeline[TimeSeriesDataset],
         description="Feature engineering for the forecast combiner.",
+        exclude=True,
+    )
+
+    model_specific_postprocessing: TransformPipeline[ForecastDataset] = Field(
+        default_factory=TransformPipeline[ForecastDataset],
+        description="Per-forecaster postprocessing applied before the combiner sees predictions.",
+        exclude=True,
+    )
+
+    combiner_postprocessing: TransformPipeline[ForecastDataset] = Field(
+        default_factory=TransformPipeline[ForecastDataset],
+        description="Combiner-specific postprocessing applied after shared postprocessing.",
         exclude=True,
     )
 
@@ -450,12 +462,13 @@ class EnsembleForecastingModel(BaseForecastingModel):
         return prediction_train, prediction_val, prediction_test, result
 
     def _predict_forecaster(self, input_data: ForecastInputDataset, forecaster_name: str) -> ForecastDataset:
-        # Postprocessing is applied per-forecaster so the combiner sees final-scale predictions.
         logger.debug("Predicting forecaster '%s'.", forecaster_name)
         prediction_raw = self.forecasters[forecaster_name].predict(data=input_data)
-        # Apply postprocessing per-forecaster so the combiner sees final-scale predictions
-        prediction = self.postprocessing.transform(prediction_raw)
-        return restore_target(dataset=prediction, original_dataset=input_data, target_column=self.target_column)
+        prediction = restore_target(
+            dataset=prediction_raw, original_dataset=input_data, target_column=self.target_column
+        )
+        prediction = self.model_specific_postprocessing.transform(prediction)
+        return self.postprocessing.transform(prediction)
 
     def _predict_forecasters(
         self,
@@ -529,13 +542,17 @@ class EnsembleForecastingModel(BaseForecastingModel):
         return self._predict_combiner(ensemble_dataset, features)
 
     def _predict_combiner(
-        self, ensemble_dataset: EnsembleForecastDataset, features: ForecastInputDataset | None
+        self,
+        ensemble_dataset: EnsembleForecastDataset,
+        features: ForecastInputDataset | None,
     ) -> ForecastDataset:
         logger.debug("Predicting combiner.")
         prediction_raw = self.combiner.predict(ensemble_dataset, additional_features=features)
-        prediction = self.postprocessing.transform(prediction_raw)
-
-        return restore_target(dataset=prediction, original_dataset=ensemble_dataset, target_column=self.target_column)
+        prediction = restore_target(
+            dataset=prediction_raw, original_dataset=ensemble_dataset, target_column=self.target_column
+        )
+        prediction = self.combiner_postprocessing.transform(prediction)
+        return self.postprocessing.transform(prediction)
 
     def _fit_combiner(
         self,
@@ -555,6 +572,13 @@ class EnsembleForecastingModel(BaseForecastingModel):
         self.combiner.fit(
             data=train_ensemble_dataset, data_val=val_ensemble_dataset, additional_features=features_train
         )
+
+        # Fit combiner postprocessing on training predictions
+        prediction_raw = self.combiner.predict(train_ensemble_dataset, additional_features=features_train)
+        prediction_raw = restore_target(
+            dataset=prediction_raw, original_dataset=train_ensemble_dataset, target_column=self.target_column
+        )
+        self.combiner_postprocessing.fit_transform(prediction_raw)
 
         prediction_train = self._predict_combiner(train_ensemble_dataset, features=features_train)
         metrics_train = self._calculate_score(prediction=prediction_train)
