@@ -506,12 +506,6 @@ def create_ensemble_forecasting_workflow(config: EnsembleForecastingWorkflowConf
     )
 
     forecasters, forecaster_preprocessing = _build_forecasters(config)
-    combiner = _build_combiner(config)
-
-    postprocessing = [
-        QuantileSorter(),
-        ConfidenceIntervalApplicator(quantiles=config.quantiles, add_quantiles_from_std=False),
-    ]
 
     model_specific_preprocessing: dict[str, TransformPipeline[TimeSeriesDataset]] = {
         name: TransformPipeline(transforms=transforms) for name, transforms in forecaster_preprocessing.items()
