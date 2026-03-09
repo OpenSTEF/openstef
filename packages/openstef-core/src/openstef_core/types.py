@@ -143,12 +143,12 @@ class AvailableAt(PydanticStringPrimitive):
     Example:
         >>> from datetime import time
         >>> import pytz
-        >>> at = AvailableAt(day_offset=-1, time_of_day=time(6, 0))
-        >>> str(at)
-        'D-1T0600'
         >>> tz_at = AvailableAt(day_offset=-1, time_of_day=time(6, 0), tzinfo=pytz.timezone('Europe/Amsterdam'))
         >>> str(tz_at)
         'D-1T0600[Europe/Amsterdam]'
+        >>> at = AvailableAt.from_string("D-1T0600")
+        >>> at.day_offset, at.time_of_day
+        (-1, datetime.time(6, 0))
     """
 
     def __init__(self, day_offset: int, time_of_day: time, *, tzinfo: pytz.BaseTzInfo | dt_timezone | None = None):
