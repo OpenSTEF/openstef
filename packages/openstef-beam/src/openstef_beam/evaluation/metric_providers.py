@@ -326,6 +326,11 @@ class MAEProvider(MetricProvider):
     Computes the average absolute error between predictions and true values.
     """
 
+    allow_nan: bool = Field(
+        default=True,
+        description="Whether to allow NaN values in input. If False, NaN value will result in NaN metric output.",
+    )
+
     @override
     def compute_deterministic(
         self,
@@ -333,7 +338,7 @@ class MAEProvider(MetricProvider):
         y_pred: npt.NDArray[np.floating],
         quantile: float,
     ) -> MetricsDict:
-        return {"MAE": mae(y_true=y_true, y_pred=y_pred, allow_nan=True)}
+        return {"MAE": mae(y_true=y_true, y_pred=y_pred, allow_nan=self.allow_nan)}
 
 
 class RMAEProvider(MetricProvider):
