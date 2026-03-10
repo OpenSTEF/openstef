@@ -196,9 +196,11 @@ _AMS = pytz.timezone("Europe/Amsterdam")
         pytest.param(
             AvailableAt(day_offset=-1, time_of_day=time(6, 0), tzinfo=UTC),
             _AMS.localize(datetime(2026, 3, 6)),  # noqa: DTZ001
-            # 06:00 UTC = 07:00 CET (March 5 is still winter time, UTC+1)
-            _AMS.localize(datetime(2026, 3, 5, 7, 0)),  # noqa: DTZ001
-            id="utc_stdlib_tz_ams_ref_returns_ams",
+            # Reference is Mar 6 00:00 CET = Mar 5 23:00 UTC.
+            # Day extracted in UTC (self.tzinfo) → Mar 5, D-1 → Mar 4.
+            # 06:00 UTC on Mar 4 = 07:00 CET (winter time, UTC+1)
+            _AMS.localize(datetime(2026, 3, 4, 7, 0)),  # noqa: DTZ001
+            id="utc_tz_ams_ref_extracts_day_in_utc",
         ),
         pytest.param(
             AvailableAt(day_offset=-1, time_of_day=time(6, 0)),
@@ -226,6 +228,22 @@ _AMS = pytz.timezone("Europe/Amsterdam")
             datetime(2026, 3, 29, tzinfo=UTC),
             datetime(2026, 3, 28, 5, 0, tzinfo=UTC),
             id="ams_to_utc_before_dst_switch",
+        ),
+        # UTC 23:00 ref = CET midnight next day. Day must be extracted in AMS tz.
+        # Jan 10 23:00 UTC = Jan 11 00:00 CET. D-1 → Jan 10. 14:30 CET = 13:30 UTC.
+        pytest.param(
+            AvailableAt(day_offset=-1, time_of_day=time(14, 30), tzinfo=_AMS),
+            datetime(2026, 1, 10, 23, 0, tzinfo=UTC),
+            datetime(2026, 1, 10, 13, 30, tzinfo=UTC),
+            id="ams_d1_ref_utc_23h_cross_day_boundary",
+        ),
+        # D0 with UTC 23:00 ref. Jan 10 23:00 UTC = Jan 11 00:00 CET.
+        # D0 → Jan 11. 23:59 CET = 22:59 UTC.
+        pytest.param(
+            AvailableAt(day_offset=0, time_of_day=time(23, 59), tzinfo=_AMS),
+            datetime(2026, 1, 10, 23, 0, tzinfo=UTC),
+            datetime(2026, 1, 11, 22, 59, tzinfo=UTC),
+            id="ams_d0_ref_utc_23h_cross_day_boundary",
         ),
     ],
 )
@@ -290,14 +308,18 @@ def test_available_at_apply_index_cross_tz_dst():
     """apply_index with AMS tzinfo on UTC index shifts correctly across DST."""
     # Index in UTC, AvailableAt in Europe/Amsterdam
     index = pd.to_datetime([
+        "2026-03-28T23:00:00+00:00",  # cutoff = Mar 28 06:00 CET = 05:00 UTC
+        "2026-03-29T00:00:00+00:00",  # cutoff = Mar 28 06:00 CET = 05:00 UTC
         "2026-03-29T12:00:00+00:00",  # cutoff = Mar 28 06:00 CET = 05:00 UTC
-        "2026-03-30T12:00:00+00:00",  # cutoff = Mar 29 06:00 CEST = 04:00 UTC
+        "2026-03-30T00:00:00+00:00",  # cutoff = Mar 29 06:00 CEST = 04:00 UTC
     ])
     at = AvailableAt(day_offset=-1, time_of_day=time(6, 0), tzinfo=_AMS)
 
     result = at.apply_index(index)
 
     expected = pd.to_datetime([
+        "2026-03-28T05:00:00+00:00",
+        "2026-03-28T05:00:00+00:00",
         "2026-03-28T05:00:00+00:00",
         "2026-03-29T04:00:00+00:00",
     ])
@@ -308,6 +330,8 @@ def test_available_at_apply_index_cross_tz_dst():
 def test_available_at_apply_index_matches_apply():
     """apply_index results should match element-wise apply() calls."""
     index = pd.to_datetime([
+        "2026-03-27T23:00:00+00:00",
+        "2026-03-28T00:00:00+00:00",
         "2026-03-28T12:00:00+00:00",
         "2026-03-29T12:00:00+00:00",
         "2026-03-30T12:00:00+00:00",
