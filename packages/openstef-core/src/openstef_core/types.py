@@ -226,9 +226,14 @@ class AvailableAt(PydanticStringPrimitive):
     def apply(self, date: datetime) -> datetime:
         """Apply this availability offset to a reference date.
 
-        The time-of-day is interpreted in ``self.tzinfo`` (falls back to
-        ``date.tzinfo``).  The result is returned in the reference date's
-        timezone, or naive when the reference date is naive.
+        The day offset is interpreted in ``self.tzinfo`` (falls back to
+        ``date.tzinfo``), so "D-1" means "the previous calendar day in
+        that timezone".  The time-of-day is also placed in that timezone.
+        The result is returned in the reference date's timezone, or naive
+        when the reference date is naive.
+
+        This matches the vectorised :meth:`apply_index` semantics, which
+        converts to ``self.tzinfo`` before extracting the calendar day.
 
         Args:
             date: The reference date to apply the availability offset to.
@@ -237,10 +242,16 @@ class AvailableAt(PydanticStringPrimitive):
             The datetime when data is available, in the reference date's
             timezone (or naive when the reference date is naive).
         """
-        result_date = (date + timedelta(days=self.day_offset)).date()
+        source_tz = self.tzinfo or date.tzinfo
+
+        # Convert reference date to source timezone before extracting the
+        # calendar day.  This ensures "D-1" means "previous day in the
+        # AvailableAt's timezone", consistent with apply_index().
+        working_date = date.astimezone(source_tz) if source_tz is not None and date.tzinfo is not None else date
+
+        result_date = (working_date + timedelta(days=self.day_offset)).date()
         naive_result = datetime.combine(result_date, self.time_of_day)
 
-        source_tz = self.tzinfo or date.tzinfo
         if source_tz is None:
             return naive_result
 
