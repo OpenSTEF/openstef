@@ -21,6 +21,82 @@ import numpy.typing as npt
 from sklearn.metrics import r2_score
 
 
+def completeness(
+    y: npt.NDArray[np.floating],
+) -> float:
+    """Calculate the completeness of data.
+
+    Completeness measures the proportion of non-missing data, providing insight
+    into data availability and potential gaps in the data.
+
+    Args:
+        y: Values with shape (num_samples,). May contain NaN for missing data.
+
+    Returns:
+        The completeness as a float in range [0, 1], where 1.0 means no missing data.
+
+    Example:
+        Basic usage with energy load data:
+        >>> import numpy as np
+        >>> y = np.array([100, 120, np.nan, 130, 105])
+        >>> completeness(y)
+        0.8
+    """
+    # Ensure inputs are numpy arrays
+    y = np.array(y)
+    if y.size == 0:
+        return 0.0
+    non_missing_count = np.sum(~np.isnan(y))
+    return float(non_missing_count / y.size)
+
+
+def mae(
+    y_true: npt.NDArray[np.floating],
+    y_pred: npt.NDArray[np.floating],
+    *,
+    sample_weights: npt.NDArray[np.floating] | None = None,
+    allow_nan: bool = False,
+) -> float:
+    """Calculate the Mean Absolute Error (MAE).
+
+    MAE measures the average magnitude of errors in a set of predictions, without
+    considering their direction. It provides a straightforward interpretation of
+    forecast accuracy in the same units as the data.
+
+    Args:
+        y_true: Ground truth values with shape (num_samples,).
+        y_pred: Predicted values with shape (num_samples,).
+        sample_weights: Optional weights for each sample with shape (num_samples,).
+            If None, all samples are weighted equally.
+        allow_nan: If True, allows NaN values in y_true and y_pred, which will be
+            ignored in the MAE calculation. If False, any NaN values will result in a NaN MAE.
+
+    Returns:
+        The Mean Absolute Error as a float.
+
+    Example:
+        Basic usage with energy load data:
+        >>> import numpy as np
+        >>> y_true = np.array([100, 120, 110, 130, 105])
+        >>> y_pred = np.array([98, 122, 108, 135, 107])
+        >>> mae(y_true, y_pred)
+        4.0
+    """
+    # Ensure inputs are numpy arrays
+    y_true = np.array(y_true)
+    y_pred = np.array(y_pred)
+    if y_true.size == 0 or y_pred.size == 0:
+        return float("NaN")
+
+    # Calculate absolute errors
+    ae = np.abs(y_true - y_pred)
+
+    # Create a mask to ignore NaN values if allow_nan is True
+    mask = ~np.isnan(ae) if allow_nan else np.ones_like(ae, dtype=bool)
+
+    return float(np.average(ae[mask], weights=sample_weights))
+
+
 def rmae(
     y_true: npt.NDArray[np.floating],
     y_pred: npt.NDArray[np.floating],
@@ -73,7 +149,7 @@ def rmae(
         return float("NaN")
 
     # Calculate MAE
-    mae = np.average(np.abs(y_true - y_pred), weights=sample_weights)
+    mae_value = mae(y_true, y_pred, sample_weights=sample_weights, allow_nan=False)
 
     # Calculate range using quantile
     y_range = np.quantile(y_true, q=upper_quantile) - np.quantile(y_true, q=lower_quantile)
@@ -83,9 +159,71 @@ def rmae(
         return float("NaN")
 
     # Calculate rMAE
-    rmae = mae / y_range
+    rmae = mae_value / y_range
 
     return float(rmae)
+
+
+def nmae(
+    y_true: npt.NDArray[np.floating],
+    y_pred: npt.NDArray[np.floating],
+    y_true_norm: npt.NDArray[np.floating],
+    *,
+    norm_quantile: float,
+    sample_weights: npt.NDArray[np.floating] | None = None,
+) -> float:
+    """Calculate the normalized Mean Absolute Error (NMAE) using a quantile for normalization.
+
+    The NMAE normalizes the Mean Absolute Error by a specific quantile of the true values,
+    providing a scale-invariant error metric that is robust to outliers.
+
+    Note: The calculation ignores NaN values in y_true and y_pred when computing the MAE.
+
+    Args:
+        y_true: Ground truth values with shape (num_samples,).
+        y_pred: Predicted values with shape (num_samples,).
+        y_true_norm: Full historical true values for normalization with shape (num_samples,).
+        norm_quantile: Quantile for normalization. Must be in [0, 1].
+        sample_weights: Optional weights for each sample with shape (num_samples,).
+            If None, all samples are weighted equally.
+
+    Returns:
+        The normalized Mean Absolute Error as a float. Returns NaN if the normalization
+        quantile is zero.
+
+    Example:
+        Basic usage with energy load data:
+
+        >>> import numpy as np
+        >>> y_true = np.array([100, 120, 110, 130, 105])
+        >>> y_pred = np.array([98, 122, 108, 135, 107])
+        >>> y_true_norm = np.array([90, 100, 110, 120, 130])  # Historical data for normalization
+        >>> error = nmae(y_true, y_pred, y_true_norm=y_true_norm, norm_quantile=0.9)
+        >>> round(error, 3)
+        0.021
+    """
+    # Ensure inputs are numpy arrays
+    y_true = np.array(y_true)
+    y_pred = np.array(y_pred)
+    y_true_norm = np.array(y_true_norm)
+
+    if y_true.size == 0 or y_pred.size == 0 or y_true_norm.size == 0:
+        return float("NaN")
+
+    # Calculate MAE
+    mae_value = mae(y_true, y_pred, sample_weights=sample_weights, allow_nan=True)
+
+    # Calculate normalization factor using quantile
+    norm_factor = np.quantile(abs(y_true_norm), q=norm_quantile)
+
+    # Avoid division by zero if norm_factor is zero
+    if norm_factor == 0:
+        return float("NaN")
+
+    # Calculate NMAE
+    nmae_value = mae_value / norm_factor
+
+    return float(nmae_value)
 
 
 def mape(

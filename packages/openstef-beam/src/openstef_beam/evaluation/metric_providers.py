@@ -18,10 +18,12 @@ from pydantic import Field
 
 from openstef_beam.evaluation.models.subset import MetricsDict, QuantileMetricsDict
 from openstef_beam.metrics import (
+    completeness,
     confusion_matrix,
     fbeta,
     mape,
     mean_absolute_calibration_error,
+    nmae,
     observed_probability,
     precision_recall,
     r2,
@@ -143,6 +145,22 @@ class MetricProvider(BaseConfig):
         """
         msg = "Subclasses should implement this method."
         raise NotImplementedError(msg)
+
+
+class CompletenessProvider(MetricProvider):
+    """Provides completeness metric.
+
+    Measures the proportion of non-missing values in the predictions.
+    """
+
+    @override
+    def compute_deterministic(
+        self,
+        y_true: npt.NDArray[np.floating],
+        y_pred: npt.NDArray[np.floating],
+        quantile: float,
+    ) -> MetricsDict:
+        return {"completeness": completeness(y_pred)}
 
 
 class PeakMetricProvider(MetricProvider):
@@ -396,6 +414,38 @@ class RMAEPeakHoursProvider(MetricProvider):
                 y_pred=y_pred,
                 lower_quantile=self.lower_quantile,
                 upper_quantile=self.upper_quantile,
+            )
+        }
+
+
+class NMAEProvider(MetricProvider):
+    """Provides Normalized Mean Absolute Error metrics.
+
+    Normalizes MAE by a specified quantile of the absolute true values
+    of a normalization dataset to make errors comparable across different scales.
+    """
+
+    norm_quantile: float = Field(
+        default=0.99,
+        description="Quantile bound for NMAE normalization.",
+    )
+    y_true_norm: list[float] = Field(
+        description="Full historical true values for normalization.",
+    )
+
+    @override
+    def compute_deterministic(
+        self,
+        y_true: npt.NDArray[np.floating],
+        y_pred: npt.NDArray[np.floating],
+        quantile: float,
+    ) -> MetricsDict:
+        return {
+            "NMAE": nmae(
+                y_true=y_true,
+                y_pred=y_pred,
+                y_true_norm=np.array(self.y_true_norm),
+                norm_quantile=self.norm_quantile,
             )
         }
 

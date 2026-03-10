@@ -13,6 +13,7 @@ from openstef_beam.metrics import (
     confusion_matrix,
     fbeta,
     mape,
+    nmae,
     precision_recall,
     relative_pinball_loss,
     riqd,
@@ -139,6 +140,145 @@ def test_rmae_returns_nan_when_inputs_empty() -> None:
 
     # Assert
     assert np.isnan(result)
+
+
+@pytest.mark.parametrize(
+    ("y_true", "y_pred", "y_true_norm", "norm_quantile", "sample_weights", "expected", "tol"),
+    [
+        pytest.param(
+            [100, 120, 110, 130, 105],
+            [98, 122, 108, 135, 107],
+            [90, 100, 110, 120, 130],
+            0.9,
+            None,
+            # MAE = mean(|2, 2, 2, 5, 2|) = 2.6
+            # norm = quantile(abs([90,100,110,120,130]), 0.9) = 126.0
+            # NMAE = 2.6 / 126.0 ≈ 0.02063
+            0.02063,
+            1e-4,
+            id="docstring_example",
+        ),
+        pytest.param(
+            [1, 2, 3],
+            [1, 2, 3],
+            [1, 2, 3],
+            0.99,
+            None,
+            0.0,
+            1e-8,
+            id="perfect_predictions",
+        ),
+        pytest.param(
+            [10, 20, 30],
+            [15, 25, 35],
+            [10, 20, 30],
+            1.0,
+            None,
+            # MAE = 5, norm = quantile(abs([10,20,30]), 1.0) = 30 → 5/30
+            5.0 / 30.0,
+            1e-8,
+            id="uniform_error_q1",
+        ),
+        pytest.param(
+            [-50, -100, -150],
+            [-55, -95, -145],
+            [-50, -100, -150],
+            0.99,
+            None,
+            # MAE = 5, norm = quantile(abs([-50,-100,-150]), 0.99) ≈ 149.0
+            5.0 / 149.0,
+            1e-2,
+            id="negative_y_true_norm_uses_abs",
+        ),
+        pytest.param(
+            [10, 20, 30],
+            [15, 25, 35],
+            [10, 20, 30],
+            1.0,
+            [1.0, 0.0, 0.0],
+            # Weighted MAE: only first sample counts → |10-15|=5
+            # norm = 30 → 5/30
+            5.0 / 30.0,
+            1e-8,
+            id="sample_weights_first_only",
+        ),
+    ],
+)
+def test_nmae_various(
+    y_true: Sequence[float],
+    y_pred: Sequence[float],
+    y_true_norm: Sequence[float],
+    norm_quantile: float,
+    sample_weights: Sequence[float] | None,
+    expected: float,
+    tol: float,
+) -> None:
+    # Arrange
+    y_true_arr = np.array(y_true)
+    y_pred_arr = np.array(y_pred)
+    y_true_norm_arr = np.array(y_true_norm)
+    weights_arg = np.array(sample_weights) if sample_weights is not None else None
+
+    # Act
+    result = nmae(y_true_arr, y_pred_arr, y_true_norm_arr, norm_quantile=norm_quantile, sample_weights=weights_arg)
+
+    # Assert
+    assert abs(result - expected) < tol, f"Expected {expected} but got {result}"
+
+
+@pytest.mark.parametrize(
+    ("y_true", "y_pred", "y_true_norm"),
+    [
+        pytest.param([], [1, 2], [1, 2], id="y_true_empty"),
+        pytest.param([1, 2], [], [1, 2], id="y_pred_empty"),
+        pytest.param([1, 2], [1, 2], [], id="y_true_norm_empty"),
+    ],
+)
+def test_nmae_returns_nan_when_any_input_empty(
+    y_true: Sequence[float],
+    y_pred: Sequence[float],
+    y_true_norm: Sequence[float],
+) -> None:
+    # Arrange
+    y_true_arr = np.array(y_true)
+    y_pred_arr = np.array(y_pred)
+    y_true_norm_arr = np.array(y_true_norm)
+
+    # Act
+    result = nmae(y_true_arr, y_pred_arr, y_true_norm_arr, norm_quantile=0.99)
+
+    # Assert
+    assert np.isnan(result), f"Expected NaN but got {result}"
+
+
+def test_nmae_returns_nan_when_norm_factor_zero() -> None:
+    """When y_true_norm is all zeros, the normalization quantile is 0 → returns NaN."""
+    # Arrange
+    y_true_arr = np.array([1, 2, 3])
+    y_pred_arr = np.array([2, 3, 4])
+    y_true_norm_arr = np.array([0, 0, 0])
+
+    # Act
+    result = nmae(y_true_arr, y_pred_arr, y_true_norm_arr, norm_quantile=0.99)
+
+    # Assert
+    assert np.isnan(result), f"Expected NaN but got {result}"
+
+
+def test_nmae_ignores_nan_in_predictions() -> None:
+    """NMAE uses allow_nan=True for MAE, so NaN pairs are skipped."""
+    # Arrange
+    y_true_arr = np.array([10, np.nan, 30])
+    y_pred_arr = np.array([12, np.nan, 28])
+    y_true_norm_arr = np.array([10, 20, 30])
+
+    # Act
+    result = nmae(y_true_arr, y_pred_arr, y_true_norm_arr, norm_quantile=1.0)
+
+    # Assert — MAE of non-NaN pairs: mean(|2, 2|) = 2, norm = 30 → 2/30
+    expected = 2.0 / 30.0
+    assert abs(result - expected) < 1e-8, f"Expected {expected} but got {result}"
+
 
 
 @pytest.mark.parametrize(
