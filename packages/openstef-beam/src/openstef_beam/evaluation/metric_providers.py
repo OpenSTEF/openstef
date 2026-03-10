@@ -21,6 +21,7 @@ from openstef_beam.metrics import (
     completeness,
     confusion_matrix,
     fbeta,
+    mae,
     mape,
     mean_absolute_calibration_error,
     nmae,
@@ -317,6 +318,22 @@ class RCRPSSampleWeightedProvider(MetricProvider):
                 )
             }
         }
+
+
+class MAEProvider(MetricProvider):
+    """Provides Mean Absolute Error metrics.
+
+    Computes the average absolute error between predictions and true values.
+    """
+
+    @override
+    def compute_deterministic(
+        self,
+        y_true: npt.NDArray[np.floating],
+        y_pred: npt.NDArray[np.floating],
+        quantile: float,
+    ) -> MetricsDict:
+        return {"MAE": mae(y_true=y_true, y_pred=y_pred, allow_nan=True)}
 
 
 class RMAEProvider(MetricProvider):
