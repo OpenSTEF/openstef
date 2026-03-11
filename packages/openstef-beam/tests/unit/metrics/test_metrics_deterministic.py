@@ -145,7 +145,7 @@ def test_rmae_sample_weights_behavior(
         pytest.param([], [1, 2, 3], 1.0, id="empty_y_true"),
         pytest.param([1, 2, 3], [], 1.0, id="empty_y_pred"),
         pytest.param([], [], 1.0, id="both_empty"),
-    ]
+    ],
 )
 def test_rmae_returns_nan_when_inputs_empty(
     y_true: Sequence[float],

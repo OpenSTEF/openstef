@@ -78,9 +78,9 @@ def mae(
         Basic usage with energy load data:
         >>> import numpy as np
         >>> y_true = np.array([100, 120, 110, 130, 105])
-        >>> y_pred = np.array([98, 122, 108, 135, 107])
+        >>> y_pred = np.array([98, 122, 108, 132, 107])
         >>> mae(y_true, y_pred)
-        4.0
+        2.0
     """
     # Ensure inputs are numpy arrays
     y_true = np.array(y_true)
