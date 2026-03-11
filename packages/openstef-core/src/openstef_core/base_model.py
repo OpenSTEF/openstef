@@ -150,6 +150,21 @@ class PydanticStringPrimitive:
             function=cls.validate, serialization=core_schema.plain_serializer_function_ser_schema(cls.__str__)
         )
 
+    @classmethod
+    def __get_pydantic_json_schema__(  # noqa: PLW3201
+        cls,
+        _schema: core_schema.CoreSchema,
+        handler: Any,  # noqa: ANN401
+    ) -> dict[str, Any]:
+        """Generate JSON schema for OpenAPI / FastAPI compatibility.
+
+        All string-primitive types serialise as plain strings.
+
+        Returns:
+            JSON schema describing the type as a string.
+        """
+        return {"type": "string"}
+
     def __eq__(self, other: object) -> bool:
         """Check equality based on string representation.
 

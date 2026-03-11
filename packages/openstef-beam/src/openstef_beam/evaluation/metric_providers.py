@@ -24,7 +24,6 @@ from openstef_beam.metrics import (
     mae,
     mape,
     mean_absolute_calibration_error,
-    nmae,
     observed_probability,
     precision_recall,
     r2,
@@ -356,6 +355,11 @@ class RMAEProvider(MetricProvider):
         default=0.99,
         description="Upper quantile bound for rMAE normalization.",
     )
+    norm_value: float | None = Field(
+        default=None,
+        description="Optional pre-calculated normalization value. If provided, it will be used directly instead "
+        "of calculating the range from quantiles.",
+    )
 
     @override
     def compute_deterministic(
@@ -370,6 +374,7 @@ class RMAEProvider(MetricProvider):
                 y_pred=y_pred,
                 lower_quantile=self.lower_quantile,
                 upper_quantile=self.upper_quantile,
+                norm_value=self.norm_value,
             )
         }
 
@@ -436,38 +441,6 @@ class RMAEPeakHoursProvider(MetricProvider):
                 y_pred=y_pred,
                 lower_quantile=self.lower_quantile,
                 upper_quantile=self.upper_quantile,
-            )
-        }
-
-
-class NMAEProvider(MetricProvider):
-    """Provides Normalized Mean Absolute Error metrics.
-
-    Normalizes MAE by a specified quantile of the absolute true values
-    of a normalization dataset to make errors comparable across different scales.
-    """
-
-    norm_quantile: float = Field(
-        default=0.99,
-        description="Quantile bound for NMAE normalization.",
-    )
-    y_true_norm: list[float] = Field(
-        description="Full historical true values for normalization.",
-    )
-
-    @override
-    def compute_deterministic(
-        self,
-        y_true: npt.NDArray[np.floating],
-        y_pred: npt.NDArray[np.floating],
-        quantile: float,
-    ) -> MetricsDict:
-        return {
-            "NMAE": nmae(
-                y_true=y_true,
-                y_pred=y_pred,
-                y_true_norm=np.array(self.y_true_norm),
-                norm_quantile=self.norm_quantile,
             )
         }
 
