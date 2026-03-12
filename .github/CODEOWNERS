@@ -1,0 +1,7 @@
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+#
+# SPDX-License-Identifier: MPL-2.0
+
+# Require review from maintainers for CI/CD workflow changes
+.github/workflows/ @OpenSTEF/openstef-maintainers
+.github/CODEOWNERS @OpenSTEF/openstef-maintainers
