@@ -6,7 +6,8 @@ name: Quality Check
 on:
   workflow_call:
     inputs:
-      # _SKIP*: sometimes you want to quickly test something, without having the whole suite kicking in.
+      # _SKIP*: sometimes you want to quickly test something, without having the
+      # whole suite kicking in.
       # This is a lazy way to switch on and off steps. But never set it to true in main.
       _SKIP_QUALITY:
         type: boolean
@@ -20,11 +21,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout # Must be done before using composite actions
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           show-progress: false # very verbose for not much
       - name: Install uv
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
         # uv is needed for qa and deploy, so is kinda always needed. No need to skip it.
         with:
           activate-environment: true
