@@ -27,9 +27,11 @@ Functions
    :toctree: .
    :template: custom_function.rst
 
+   completeness
    confusion_matrix
    crps
    fbeta
+   mae
    mape
    mean_absolute_calibration_error
    observed_probability

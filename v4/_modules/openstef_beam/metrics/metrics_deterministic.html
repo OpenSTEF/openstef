@@ -462,6 +462,88 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">r2_score</span>
 
 
+<div class="viewcode-block" id="completeness">
+<a class="viewcode-back" href="../../../api/generated/openstef_beam.metrics.completeness.html#openstef_beam.metrics.completeness">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">completeness</span><span class="p">(</span>
+    <span class="n">y</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate the completeness of data.</span>
+
+<span class="sd">    Completeness measures the proportion of non-missing data, providing insight</span>
+<span class="sd">    into data availability and potential gaps in the data.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        y: Values with shape (num_samples,). May contain NaN for missing data.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The completeness as a float in range [0, 1], where 1.0 means no missing data.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        Basic usage with energy load data:</span>
+<span class="sd">        &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">        &gt;&gt;&gt; y = np.array([100, 120, np.nan, 130, 105])</span>
+<span class="sd">        &gt;&gt;&gt; completeness(y)</span>
+<span class="sd">        0.8</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Ensure inputs are numpy arrays</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">y</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">0.0</span>
+    <span class="n">non_missing_count</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">non_missing_count</span> <span class="o">/</span> <span class="n">y</span><span class="o">.</span><span class="n">size</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="mae">
+<a class="viewcode-back" href="../../../api/generated/openstef_beam.metrics.mae.html#openstef_beam.metrics.mae">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">mae</span><span class="p">(</span>
+    <span class="n">y_true</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
+    <span class="n">y_pred</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">sample_weights</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">allow_nan</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate the Mean Absolute Error (MAE).</span>
+
+<span class="sd">    MAE measures the average magnitude of errors in a set of predictions, without</span>
+<span class="sd">    considering their direction. It provides a straightforward interpretation of</span>
+<span class="sd">    forecast accuracy in the same units as the data.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        y_true: Ground truth values with shape (num_samples,).</span>
+<span class="sd">        y_pred: Predicted values with shape (num_samples,).</span>
+<span class="sd">        sample_weights: Optional weights for each sample with shape (num_samples,).</span>
+<span class="sd">            If None, all samples are weighted equally.</span>
+<span class="sd">        allow_nan: If True, allows NaN values in y_true and y_pred, which will be</span>
+<span class="sd">            ignored in the MAE calculation. If False, any NaN values will result in a NaN MAE.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The Mean Absolute Error as a float.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        Basic usage with energy load data:</span>
+<span class="sd">        &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">        &gt;&gt;&gt; y_true = np.array([100, 120, 110, 130, 105])</span>
+<span class="sd">        &gt;&gt;&gt; y_pred = np.array([98, 122, 108, 132, 107])</span>
+<span class="sd">        &gt;&gt;&gt; mae(y_true, y_pred)</span>
+<span class="sd">        2.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Ensure inputs are numpy arrays</span>
+    <span class="n">y_true</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y_true</span><span class="p">)</span>
+    <span class="n">y_pred</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y_pred</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">y_true</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">y_pred</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;NaN&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Calculate absolute errors</span>
+    <span class="n">ae</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">y_true</span> <span class="o">-</span> <span class="n">y_pred</span><span class="p">)</span>
+
+    <span class="c1"># Create a mask to ignore NaN values if allow_nan is True</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">ae</span><span class="p">)</span> <span class="k">if</span> <span class="n">allow_nan</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">ae</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">ae</span><span class="p">[</span><span class="n">mask</span><span class="p">],</span> <span class="n">weights</span><span class="o">=</span><span class="n">sample_weights</span><span class="p">))</span></div>
+
+
+
 <div class="viewcode-block" id="rmae">
 <a class="viewcode-back" href="../../../api/generated/openstef_beam.metrics.rmae.html#openstef_beam.metrics.rmae">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">rmae</span><span class="p">(</span>
@@ -470,13 +552,17 @@
     <span class="o">*</span><span class="p">,</span>
     <span class="n">lower_quantile</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span>
     <span class="n">upper_quantile</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.95</span><span class="p">,</span>
+    <span class="n">norm_value</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">allow_nan</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">sample_weights</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate the relative Mean Absolute Error (rMAE) using percentiles for range calculation.</span>
 
-<span class="sd">    The rMAE normalizes the Mean Absolute Error by the range of true values,</span>
+<span class="sd">    The rMAE normalizes the Mean Absolute Error by default by the range of true values,</span>
 <span class="sd">    making it scale-invariant and suitable for comparing errors across different</span>
-<span class="sd">    datasets or time periods.</span>
+<span class="sd">    datasets or time periods. If norm_value is provided, it will be used directly for normalization</span>
+<span class="sd">    instead of calculating the range from quantiles. This can be useful for</span>
+<span class="sd">    consistent normalization across multiple evaluations.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        y_true: Ground truth values with shape (num_samples,).</span>
@@ -484,6 +570,10 @@
 <span class="sd">        lower_quantile: Lower quantile for range calculation. Must be in [0, 1].</span>
 <span class="sd">        upper_quantile: Upper quantile for range calculation. Must be in [0, 1]</span>
 <span class="sd">            and greater than lower_quantile.</span>
+<span class="sd">        norm_value: Optional pre-calculated normalization value. If provided, it will be used</span>
+<span class="sd">            directly instead of calculating the range from quantiles.</span>
+<span class="sd">        allow_nan: If True, allows NaN values in y_true and y_pred, which will be</span>
+<span class="sd">            ignored in the rMAE calculation. If False, any NaN values will result in a NaN rMAE.</span>
 <span class="sd">        sample_weights: Optional weights for each sample with shape (num_samples,).</span>
 <span class="sd">            If None, all samples are weighted equally.</span>
 
@@ -516,17 +606,20 @@
         <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;NaN&quot;</span><span class="p">)</span>
 
     <span class="c1"># Calculate MAE</span>
-    <span class="n">mae</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">y_true</span> <span class="o">-</span> <span class="n">y_pred</span><span class="p">),</span> <span class="n">weights</span><span class="o">=</span><span class="n">sample_weights</span><span class="p">)</span>
+    <span class="n">mae_value</span> <span class="o">=</span> <span class="n">mae</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span> <span class="n">sample_weights</span><span class="o">=</span><span class="n">sample_weights</span><span class="p">,</span> <span class="n">allow_nan</span><span class="o">=</span><span class="n">allow_nan</span><span class="p">)</span>
 
     <span class="c1"># Calculate range using quantile</span>
-    <span class="n">y_range</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="n">upper_quantile</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="n">lower_quantile</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">norm_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">y_range</span> <span class="o">=</span> <span class="n">norm_value</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">y_range</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="n">upper_quantile</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="n">lower_quantile</span><span class="p">)</span>
 
     <span class="c1"># Avoid division by zero if range is zero</span>
     <span class="k">if</span> <span class="n">y_range</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;NaN&quot;</span><span class="p">)</span>
 
     <span class="c1"># Calculate rMAE</span>
-    <span class="n">rmae</span> <span class="o">=</span> <span class="n">mae</span> <span class="o">/</span> <span class="n">y_range</span>
+    <span class="n">rmae</span> <span class="o">=</span> <span class="n">mae_value</span> <span class="o">/</span> <span class="n">y_range</span>
 
     <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">rmae</span><span class="p">)</span></div>
 

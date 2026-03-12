@@ -623,6 +623,24 @@
         <span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="PydanticStringPrimitive.__get_pydantic_json_schema__">
+<a class="viewcode-back" href="../../api/generated/openstef_core.base_model.PydanticStringPrimitive.html#openstef_core.base_model.PydanticStringPrimitive.__get_pydantic_json_schema__">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__get_pydantic_json_schema__</span><span class="p">(</span>  <span class="c1"># noqa: PLW3201</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">_schema</span><span class="p">:</span> <span class="n">core_schema</span><span class="o">.</span><span class="n">CoreSchema</span><span class="p">,</span>
+        <span class="n">handler</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>  <span class="c1"># noqa: ANN401</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate JSON schema for OpenAPI / FastAPI compatibility.</span>
+
+<span class="sd">        All string-primitive types serialise as plain strings.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            JSON schema describing the type as a string.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;string&quot;</span><span class="p">}</span></div>
+
+
 <div class="viewcode-block" id="PydanticStringPrimitive.__eq__">
 <a class="viewcode-back" href="../../api/generated/openstef_core.base_model.PydanticStringPrimitive.html#openstef_core.base_model.PydanticStringPrimitive.__eq__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
