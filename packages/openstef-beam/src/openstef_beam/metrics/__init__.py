@@ -19,8 +19,10 @@ What you can measure:
 from openstef_beam.metrics.metrics_deterministic import (
     ConfusionMatrix,
     PrecisionRecall,
+    completeness,
     confusion_matrix,
     fbeta,
+    mae,
     mape,
     precision_recall,
     r2,
@@ -38,9 +40,11 @@ from openstef_beam.metrics.metrics_probabilistic import (
 __all__ = [
     "ConfusionMatrix",
     "PrecisionRecall",
+    "completeness",
     "confusion_matrix",
     "crps",
     "fbeta",
+    "mae",
     "mape",
     "mean_absolute_calibration_error",
     "observed_probability",
