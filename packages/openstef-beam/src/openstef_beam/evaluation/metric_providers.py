@@ -360,6 +360,10 @@ class RMAEProvider(MetricProvider):
         description="Optional pre-calculated normalization value. If provided, it will be used directly instead "
         "of calculating the range from quantiles.",
     )
+    allow_nan: bool = Field(
+        default=False,
+        description="Whether to allow NaN values in input. If False, NaN value will result in NaN metric output.",
+    )
 
     @override
     def compute_deterministic(
@@ -375,6 +379,7 @@ class RMAEProvider(MetricProvider):
                 lower_quantile=self.lower_quantile,
                 upper_quantile=self.upper_quantile,
                 norm_value=self.norm_value,
+                allow_nan=self.allow_nan,
             )
         }
 

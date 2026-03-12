@@ -104,6 +104,7 @@ def rmae(
     lower_quantile: float = 0.05,
     upper_quantile: float = 0.95,
     norm_value: float | None = None,
+    allow_nan: bool = False,
     sample_weights: npt.NDArray[np.floating] | None = None,
 ) -> float:
     """Calculate the relative Mean Absolute Error (rMAE) using percentiles for range calculation.
@@ -122,6 +123,8 @@ def rmae(
             and greater than lower_quantile.
         norm_value: Optional pre-calculated normalization value. If provided, it will be used
             directly instead of calculating the range from quantiles.
+        allow_nan: If True, allows NaN values in y_true and y_pred, which will be
+            ignored in the rMAE calculation. If False, any NaN values will result in a NaN rMAE.
         sample_weights: Optional weights for each sample with shape (num_samples,).
             If None, all samples are weighted equally.
 
@@ -154,7 +157,7 @@ def rmae(
         return float("NaN")
 
     # Calculate MAE
-    mae_value = mae(y_true, y_pred, sample_weights=sample_weights, allow_nan=False)
+    mae_value = mae(y_true, y_pred, sample_weights=sample_weights, allow_nan=allow_nan)
 
     # Calculate range using quantile
     if norm_value is not None:
