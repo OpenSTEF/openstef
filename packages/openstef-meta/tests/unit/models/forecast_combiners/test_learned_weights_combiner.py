@@ -4,9 +4,11 @@
 
 from datetime import timedelta
 
+import numpy as np
+import pandas as pd
 import pytest
 
-from openstef_core.datasets.validated_datasets import EnsembleForecastDataset
+from openstef_core.datasets.validated_datasets import EnsembleForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import NotFittedError
 from openstef_core.types import LeadTime, Q
 from openstef_meta.models.forecast_combiners.learned_weights_combiner import (
@@ -76,3 +78,39 @@ def test_weights_combiner_not_fitted_error(
     """Test that NotFittedError is raised when predicting before fitting."""
     with pytest.raises(NotFittedError):
         combiner.predict(ensemble_dataset)
+
+
+def test_quantile_weights_combiner__fit_with_additional_features_shorter_index(
+    ensemble_dataset: EnsembleForecastDataset,
+) -> None:
+    """Fit should succeed when additional_features has fewer rows than the ensemble dataset.
+
+    Regression test: combine_forecast_input_datasets performs an inner join, which drops
+    rows not present in additional_features. Labels must be reindexed to match the
+    combined dataset to avoid a shape mismatch in sample_weight computation.
+    """
+    # Arrange — additional_features covers only a subset of ensemble timestamps
+    full_index = ensemble_dataset.data.index
+    subset_index = full_index[1:]  # drop the first timestamp
+
+    rng = np.random.default_rng(42)
+    additional_features = ForecastInputDataset(
+        data=pd.DataFrame(
+            {"extra_feature": rng.normal(size=len(subset_index)), "load": rng.normal(size=len(subset_index))},
+            index=subset_index,
+        ),
+        sample_interval=ensemble_dataset.sample_interval,
+        target_column="load",
+    )
+
+    combiner = WeightsCombiner(
+        hyperparams=LGBMCombinerHyperParams(n_leaves=5, n_estimators=10),
+        quantiles=[Q(0.1), Q(0.5), Q(0.9)],
+        horizons=[LeadTime(timedelta(days=1))],
+    )
+
+    # Act — should not raise ValueError about broadcast shapes
+    combiner.fit(ensemble_dataset, additional_features=additional_features)
+
+    # Assert
+    assert combiner.is_fitted
