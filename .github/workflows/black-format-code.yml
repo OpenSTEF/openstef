@@ -15,6 +15,8 @@ name: Black Format Code
 
 on: [pull_request]
 
+permissions: {}
+
 jobs:
   build:
 
@@ -30,14 +32,14 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
       - name: Check formatting using black
-        uses: rickstaa/action-black@v1
+        uses: rickstaa/action-black@d86849e16a3c498947d70be55198feb86d5d4f53 # v1
         id: action_black
         with:
           black_args: "."
       - name: Annotate diff changes using reviewdog
         if: steps.action_black.outputs.is_formatted == 'true'
-        uses: reviewdog/action-suggester@v1
+        uses: reviewdog/action-suggester@aa38384ceb608d00f84b4690cacc83a5aba307ff # v1
         with:
           tool_name: blackfmt

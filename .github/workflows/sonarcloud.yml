@@ -47,22 +47,21 @@ jobs:
   Analysis:
     runs-on: ubuntu-latest
     steps:
-      # Checkout main to get access to the SONAR_TOKEN. PR from forked repo does not have access to it.
-      - uses: actions/checkout@v4
+      # SECURITY NOTE: This checks out code from the PR author's fork in a
+      # privileged workflow_run context (which has access to SONAR_TOKEN).
+      # Only the SonarScanner (a read-only static analyzer) runs on this code.
+      # Do NOT add build/install/script steps that execute checked-out code here.
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           repository: ${{ github.event.workflow_run.head_repository.full_name }}
           ref: ${{ github.event.workflow_run.head_branch }}
           fetch-depth: 0
-      - name: Analyze with SonarCloud
+      - name: Analyze with SonarQube Cloud
         if: ${{ github.actor != 'dependabot[bot]' }}
-        # You can pin the exact commit or the version.
-        # uses: SonarSource/sonarcloud-github-action@v2.2.0
-        uses: SonarSource/sonarcloud-github-action@master
+        uses: SonarSource/sonarqube-scan-action@a31c9398be7ace6bbfaf30c0bd5d415f843d45e9 # v7.0.0
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}   # Generate a token on Sonarcloud.io, add it to the secrets of this repo with the name SONAR_TOKEN (Settings > Secrets > Actions > add new repository secret)
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
-          # Additional arguments for the SonarScanner CLI
           args: >
             -Dsonar.projectKey=OpenSTEF_openstef
             -Dsonar.organization=openstef
