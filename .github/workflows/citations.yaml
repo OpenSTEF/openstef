@@ -25,14 +25,17 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-citations
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   validate-citations:
     runs-on: ubuntu-24.04
     steps:
     - name: checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
     - name: Install R
       run: |
         sudo apt-get update && sudo apt-get install -y r-base
     - name: Validate CITATION.cff
-      uses: dieghernan/cff-validator@v4
+      uses: dieghernan/cff-validator@114aae53e1850c3757733beb60036941900e3dc3 # v4
