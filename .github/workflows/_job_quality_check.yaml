@@ -6,8 +6,7 @@ name: Quality Check
 on:
   workflow_call:
     inputs:
-      # _SKIP*: sometimes you want to quickly test something, without having the
-      # whole suite kicking in.
+      # _SKIP*: sometimes you want to quickly test something, without having the whole suite kicking in.
       # This is a lazy way to switch on and off steps. But never set it to true in main.
       _SKIP_QUALITY:
         type: boolean
