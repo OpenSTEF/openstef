@@ -30,7 +30,12 @@ from openstef_beam.benchmarking.benchmark_pipeline import (
 )
 from openstef_core.base_model import BaseModel
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.exceptions import FlatlinerDetectedError, MissingExtraError, NotFittedError
+from openstef_core.exceptions import (
+    FlatlinerDetectedError,
+    InsufficientlyCompleteError,
+    MissingExtraError,
+    NotFittedError,
+)
 from openstef_core.types import Q
 from openstef_models.presets import ForecastingWorkflowConfig, create_forecasting_workflow
 from openstef_models.presets.forecasting_workflow import LocationConfig
@@ -118,6 +123,9 @@ class OpenSTEF4BacktestForecaster(BaseModel, BacktestForecasterMixin):
             self._logger.warning("Flatliner detected during training")
             self._is_flatliner_detected = True
             return  # Skip setting the workflow on flatliner detection
+        except InsufficientlyCompleteError:
+            self._logger.warning("Insufficient training data at %s, retaining previous model", data.horizon)
+            return  # Retain previous model state; predictions will use the last successful fit
 
         self._workflow = workflow
 

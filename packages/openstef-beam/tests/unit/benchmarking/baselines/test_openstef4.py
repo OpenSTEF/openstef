@@ -4,6 +4,7 @@
 
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
 
@@ -11,6 +12,7 @@ from openstef_beam.backtesting.restricted_horizon_timeseries import RestrictedHo
 from openstef_beam.benchmarking.baselines.openstef4 import create_openstef4_preset_backtest_forecaster
 from openstef_beam.benchmarking.benchmark_pipeline import BenchmarkContext, BenchmarkTarget
 from openstef_core.datasets import VersionedTimeSeriesDataset
+from openstef_core.exceptions import InsufficientlyCompleteError
 from openstef_core.testing import create_synthetic_forecasting_dataset
 from openstef_core.types import LeadTime, Q
 from openstef_models.presets import ForecastingWorkflowConfig
@@ -109,3 +111,35 @@ def test_fit_then_predict_returns_forecast(
     # Assert
     assert result is not None
     assert len(result.data) > 0
+
+
+def test_fit_retains_previous_model_on_insufficient_data(
+    xgboost_config: ForecastingWorkflowConfig,
+    benchmark_target: BenchmarkTarget,
+    training_data: VersionedTimeSeriesDataset,
+    tmp_path: Path,
+):
+    """fit() should skip training and retain the previous model when data has all-NaN targets."""
+    # Arrange
+    factory = create_openstef4_preset_backtest_forecaster(
+        workflow_config=xgboost_config,
+        cache_dir=tmp_path / "test_insufficient",
+    )
+    forecaster = factory(BenchmarkContext(run_name="insufficient"), benchmark_target)
+    horizon = datetime(2024, 5, 25, tzinfo=UTC)
+    rhvts = RestrictedHorizonVersionedTimeSeries(dataset=training_data, horizon=horizon)
+
+    # First fit succeeds — establishes a baseline model
+    forecaster.fit(rhvts)
+    assert forecaster._workflow is not None
+    previous_workflow = forecaster._workflow
+
+    # Act — patch workflow.fit to raise InsufficientlyCompleteError
+    with patch(
+        "openstef_models.workflows.custom_forecasting_workflow.CustomForecastingWorkflow.fit",
+        side_effect=InsufficientlyCompleteError("No training data available after dropping NaN targets"),
+    ):
+        forecaster.fit(rhvts)
+
+    # Assert — previous model is retained
+    assert forecaster._workflow is previous_workflow
