@@ -5,6 +5,7 @@
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
+import numpy as np
 import pytest
 
 from openstef_beam.backtesting.restricted_horizon_timeseries import RestrictedHorizonVersionedTimeSeries
@@ -109,3 +110,73 @@ def test_fit_then_predict_returns_forecast(
     # Assert
     assert result is not None
     assert len(result.data) > 0
+
+
+def test_fit_retains_previous_model_on_insufficient_data(
+    benchmark_target: BenchmarkTarget,
+    training_data: VersionedTimeSeriesDataset,
+    tmp_path: Path,
+):
+    """fit() should skip training and retain the previous model when data has all-NaN targets."""
+    # Arrange — disable model reuse to avoid caching side-effects
+    config = ForecastingWorkflowConfig(
+        model_id="test_insufficient",
+        model="xgboost",
+        horizons=[LeadTime.from_string("PT24H")],
+        quantiles=[Q(0.5)],
+        model_reuse_enable=False,
+    )
+    factory = create_openstef4_preset_backtest_forecaster(
+        workflow_config=config,
+        cache_dir=tmp_path / "test_insufficient",
+    )
+    forecaster = factory(BenchmarkContext(run_name="insufficient"), benchmark_target)
+
+    # First fit succeeds — establishes a baseline model
+    horizon_good = datetime(2024, 5, 25, tzinfo=UTC)
+    rhvts_good = RestrictedHorizonVersionedTimeSeries(dataset=training_data, horizon=horizon_good)
+    forecaster.fit(rhvts_good)
+    assert forecaster._workflow is not None
+    previous_workflow = forecaster._workflow
+
+    # Build a dataset with all-NaN load to trigger InsufficientlyCompleteError naturally
+    nan_ts = create_synthetic_forecasting_dataset(
+        start=datetime(2024, 2, 1, tzinfo=UTC),
+        length=timedelta(days=120),
+        sample_interval=timedelta(minutes=15),
+        include_atmosphere=True,
+        include_price=True,
+        include_available_at=True,
+    )
+    nan_ts.data["load"] = np.nan
+    nan_dataset = VersionedTimeSeriesDataset([nan_ts])
+    rhvts_nan = RestrictedHorizonVersionedTimeSeries(dataset=nan_dataset, horizon=datetime(2024, 5, 26, tzinfo=UTC))
+
+    # Act — fit with data that has no valid targets
+    forecaster.fit(rhvts_nan)
+
+    # Assert — previous model is retained (fit returned early without updating _workflow)
+    assert forecaster._workflow is previous_workflow
+
+
+def test_predict_returns_none_when_never_fitted(
+    xgboost_config: ForecastingWorkflowConfig,
+    benchmark_target: BenchmarkTarget,
+    training_data: VersionedTimeSeriesDataset,
+    tmp_path: Path,
+):
+    """predict() should return None when no model has been fitted yet."""
+    # Arrange
+    factory = create_openstef4_preset_backtest_forecaster(
+        workflow_config=xgboost_config,
+        cache_dir=tmp_path / "test_no_fit",
+    )
+    forecaster = factory(BenchmarkContext(run_name="no_fit"), benchmark_target)
+    horizon = datetime(2024, 5, 25, tzinfo=UTC)
+    rhvts = RestrictedHorizonVersionedTimeSeries(dataset=training_data, horizon=horizon)
+
+    # Act
+    result = forecaster.predict(rhvts)
+
+    # Assert
+    assert result is None
