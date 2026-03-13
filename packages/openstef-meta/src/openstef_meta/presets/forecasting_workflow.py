@@ -9,7 +9,7 @@ Mimics OpenSTEF-models forecasting workflow with ensemble capabilities.
 
 from collections.abc import Sequence
 from datetime import timedelta
-from typing import Literal, cast
+from typing import TYPE_CHECKING, Literal, cast
 
 from pydantic import Field
 
@@ -48,7 +48,7 @@ from openstef_models.transforms.general import Clipper, EmptyFeatureRemover, Sam
 from openstef_models.transforms.general.imputer import Imputer
 from openstef_models.transforms.general.nan_dropper import NaNDropper
 from openstef_models.transforms.general.selector import Selector
-from openstef_models.transforms.postprocessing import QuantileSorter
+from openstef_models.transforms.postprocessing import ConfidenceIntervalApplicator, QuantileSorter
 from openstef_models.transforms.time_domain import (
     CyclicFeaturesAdder,
     DatetimeFeaturesAdder,
@@ -70,12 +70,18 @@ from openstef_models.workflows.custom_forecasting_workflow import (
     ForecastingCallback,
 )
 
+if TYPE_CHECKING:
+    from openstef_core.datasets import ForecastDataset
+
 
 class EnsembleForecastingWorkflowConfig(BaseConfig):
     """Configuration for ensemble forecasting workflows."""
 
     kind: Literal["ensemble"] = Field(default="ensemble", description="Discriminator tag for config type.")
-    model_id: ModelIdentifier
+    model_id: ModelIdentifier = Field(description="Unique identifier for the forecasting model.")
+    run_name: str | None = Field(
+        default=None, description="Optional name for this workflow run, can be used for versioning."
+    )
 
     # Ensemble configuration
     ensemble_type: Literal["learned_weights", "stacking", "rules"] = Field(default="learned_weights")
@@ -201,7 +207,7 @@ class EnsembleForecastingWorkflowConfig(BaseConfig):
     )
     forecaster_sample_weights: dict[str, SampleWeightConfig] = Field(
         default={
-            "gblinear": SampleWeightConfig(method="exponential", weight_exponent=1.0),
+            "gblinear": SampleWeightConfig(method="inverse_frequency"),
             "lgbm": SampleWeightConfig(weight_exponent=0.0),
             "xgboost": SampleWeightConfig(weight_exponent=0.0),
             "lgbm_linear": SampleWeightConfig(weight_exponent=0.0),
@@ -268,6 +274,10 @@ class EnsembleForecastingWorkflowConfig(BaseConfig):
     tags: dict[str, str] = Field(
         default_factory=dict,
         description="Optional metadata tags for the model.",
+    )
+    experiment_tags: dict[str, str] = Field(
+        default_factory=dict,
+        description="Optional metadata tags for experiment tracking.",
     )
 
 
@@ -474,7 +484,7 @@ def create_ensemble_forecasting_workflow(config: EnsembleForecastingWorkflowConf
     Returns:
         CustomForecastingWorkflow: Configured ensemble forecasting workflow.
     """
-    # Common preprocessing
+    # Preprocessing
     common_preprocessing = TransformPipeline(
         transforms=[
             *_checks(config),
@@ -486,21 +496,35 @@ def create_ensemble_forecasting_workflow(config: EnsembleForecastingWorkflowConf
     )
 
     forecasters, forecaster_preprocessing = _build_forecasters(config)
-    combiner = _build_combiner(config)
-
-    postprocessing = [QuantileSorter()]
 
     model_specific_preprocessing: dict[str, TransformPipeline[TimeSeriesDataset]] = {
         name: TransformPipeline(transforms=transforms) for name, transforms in forecaster_preprocessing.items()
     }
 
-    combiner_transforms = [
-        SampleWeighter(config=config.combiner_sample_weight, target_column=config.target_column),
-        # Combiner only sees sample weights + target — base predictions come from the ensemble dataset, not here
-        Selector(selection=Include("sample_weight", config.target_column)),
-    ]
+    combiner = _build_combiner(config)
 
-    combiner_preprocessing: TransformPipeline[TimeSeriesDataset] = TransformPipeline(transforms=combiner_transforms)
+    combiner_preprocessing: TransformPipeline[TimeSeriesDataset] = TransformPipeline(
+        transforms=[
+            SampleWeighter(config=config.combiner_sample_weight, target_column=config.target_column),
+            # Combiner only sees sample weights + target — base predictions come from the ensemble dataset, not here
+            Selector(selection=Include("sample_weight", config.target_column)),
+        ]
+    )
+
+    # Postprocessing
+    common_postprocessing: TransformPipeline[ForecastDataset] = TransformPipeline(
+        transforms=[
+            QuantileSorter(),
+        ]
+    )
+
+    model_specific_postprocessing: TransformPipeline[ForecastDataset] = TransformPipeline(transforms=[])
+
+    combiner_postprocessing: TransformPipeline[ForecastDataset] = TransformPipeline(
+        transforms=[
+            ConfidenceIntervalApplicator(quantiles=config.quantiles, add_quantiles_from_std=False),
+        ]
+    )
 
     tags = {
         **config.location.tags,
@@ -528,7 +552,9 @@ def create_ensemble_forecasting_workflow(config: EnsembleForecastingWorkflowConf
             preprocessing=common_preprocessing,
             model_specific_preprocessing=model_specific_preprocessing,
             combiner_preprocessing=combiner_preprocessing,
-            postprocessing=TransformPipeline(transforms=postprocessing),
+            postprocessing=common_postprocessing,
+            model_specific_postprocessing=model_specific_postprocessing,
+            combiner_postprocessing=combiner_postprocessing,
             forecasters=forecasters,
             combiner=combiner,
             target_column=config.target_column,
@@ -540,7 +566,9 @@ def create_ensemble_forecasting_workflow(config: EnsembleForecastingWorkflowConf
             tags=tags,
         ),
         model_id=config.model_id,
+        run_name=config.run_name,
         callbacks=callbacks,
+        experiment_tags=config.experiment_tags,
     )
 
 

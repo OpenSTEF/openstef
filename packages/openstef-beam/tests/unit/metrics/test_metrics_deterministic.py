@@ -21,22 +21,28 @@ from openstef_beam.metrics import (
 
 
 @pytest.mark.parametrize(
-    ("y_true", "y_pred", "lower_quantile", "upper_quantile", "sample_weights", "expected", "tol"),
+    ("y_true", "y_pred", "lower_quantile", "upper_quantile", "norm_value", "sample_weights", "expected"),
     [
-        pytest.param([1, 2, 3], [1, 2, 3], 0.05, 0.95, None, 0.0, 1e-8, id="identical_arrays"),
-        pytest.param([1, 2, 3], [1, 2, 5.7], 0.05, 0.95, None, 0.5, 1e-8, id="rmae_exact_half"),
-        pytest.param([1, 1, 1], [1, 1, 1], 0.05, 0.95, None, np.nan, 0, id="constant_array_nan"),
-        pytest.param([1, 2, 3], [2, 3, 4], 0.0, 1.0, None, 0.5, 1e-8, id="custom_quantiles"),
+        pytest.param([1, 2, 3], [1, 2, 3], 0.05, 0.95, None, None, 0.0, id="identical_arrays"),
+        pytest.param([1, 2, 3], [1, 2, 5.7], 0.05, 0.95, None, None, 0.5, id="rmae_exact_half"),
+        pytest.param([1, 1, 1], [1, 1, 1], 0.05, 0.95, None, None, np.nan, id="constant_array_nan"),
+        pytest.param([1, 2, 3], [2, 3, 4], 0.0, 1.0, None, None, 0.5, id="custom_quantiles"),
         pytest.param(
             [1, 2, 3],
             [1, 2, 3],
             0.05,
             0.95,
+            None,
             [1.0, 1.0, 1.0],
             0.0,
-            1e-8,
             id="identical_arrays_sample_weighted",
         ),
+        # norm_value overrides the quantile range: MAE=1.0, norm_value=4 → rmae=0.25
+        pytest.param([1, 2, 3], [2, 3, 4], 0.0, 1.0, 4.0, None, 0.25, id="norm_value_overrides_range"),
+        # norm_value still works when y_true is constant (would give NaN without it): MAE=1.0, norm_value=1 → rmae=1.0
+        pytest.param([1, 1, 1], [2, 2, 2], 0.05, 0.95, 1.0, None, 1.0, id="norm_value_bypasses_constant_nan"),
+        # norm_value=0 must return NaN regardless of inputs
+        pytest.param([1, 2, 3], [2, 3, 4], 0.0, 1.0, 0.0, None, np.nan, id="norm_value_zero_returns_nan"),
     ],
 )
 def test_rmae_various(
@@ -44,9 +50,9 @@ def test_rmae_various(
     y_pred: Sequence[float],
     lower_quantile: float,
     upper_quantile: float,
+    norm_value: float | None,
     sample_weights: Sequence[float] | None,
     expected: float,
-    tol: float,
 ) -> None:
     # Arrange
     y_true_arr = np.array(y_true)
@@ -61,6 +67,7 @@ def test_rmae_various(
         y_pred_arr,
         lower_quantile=lower_quantile,
         upper_quantile=upper_quantile,
+        norm_value=norm_value,
         sample_weights=weights_arg,
     )
 
@@ -68,7 +75,7 @@ def test_rmae_various(
     if np.isnan(expected):
         assert np.isnan(result), f"Expected NaN but got {result}"
     else:
-        assert abs(result - expected) < tol, f"Expected {expected} but got {result}"
+        assert abs(result - expected) < 1e-8, f"Expected {expected} but got {result}"
 
 
 @pytest.mark.parametrize(
@@ -129,13 +136,48 @@ def test_rmae_sample_weights_behavior(
     assert abs(result - expected) < tol, f"Expected {expected} but got {result} for weights={sample_weights}"
 
 
-def test_rmae_returns_nan_when_inputs_empty() -> None:
+@pytest.mark.parametrize(
+    ("y_true", "y_pred"),
+    [
+        pytest.param([1, 2, np.nan], [1, np.nan, 2], id="both_contain_nan"),
+        pytest.param([1, 2, 3], [1, 3, np.nan], id="y_pred_contains_nan"),
+        pytest.param([1, 3, np.nan], [1, 2, 3], id="y_true_contains_nan"),
+    ],
+)
+def test_rmae_allow_nan(y_true: Sequence[float], y_pred: Sequence[float]) -> None:
     # Arrange
-    y_true_arr = np.array([])
-    y_pred_arr = np.array([])
+    y_true_arr = np.array(y_true)
+    y_pred_arr = np.array(y_pred)
 
     # Act
-    result = rmae(y_true_arr, y_pred_arr)
+    result_allow_nan = rmae(y_true_arr, y_pred_arr, norm_value=1.0, allow_nan=True)
+    result_disallow_nan = rmae(y_true_arr, y_pred_arr, norm_value=1.0, allow_nan=False)
+
+    # Assert
+    assert not np.isnan(result_allow_nan), "Expected a valid number when allow_nan=True but got NaN"
+    assert np.isnan(result_disallow_nan), f"Expected NaN when allow_nan=False but got {result_disallow_nan}"
+
+
+@pytest.mark.parametrize(
+    ("y_true", "y_pred", "norm_value"),
+    [
+        pytest.param([1, 2, 3], [2, 3, 4], 0.0, id="norm_value_zero"),
+        pytest.param([], [1, 2, 3], 1.0, id="empty_y_true"),
+        pytest.param([1, 2, 3], [], 1.0, id="empty_y_pred"),
+        pytest.param([], [], 1.0, id="both_empty"),
+    ],
+)
+def test_rmae_returns_nan_when_inputs_empty(
+    y_true: Sequence[float],
+    y_pred: Sequence[float],
+    norm_value: float,
+) -> None:
+    # Arrange
+    y_true_arr = np.array(y_true)
+    y_pred_arr = np.array(y_pred)
+
+    # Act
+    result = rmae(y_true_arr, y_pred_arr, norm_value=norm_value)
 
     # Assert
     assert np.isnan(result)

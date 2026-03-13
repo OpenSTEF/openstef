@@ -2904,14 +2904,14 @@ source = { editable = "packages/openstef-meta" }
 dependencies = [
     { name = "openstef-beam" },
     { name = "openstef-core" },
-    { name = "openstef-models" },
+    { name = "openstef-models", extra = ["lgbm"] },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "openstef-beam", editable = "packages/openstef-beam" },
     { name = "openstef-core", editable = "packages/openstef-core" },
-    { name = "openstef-models", editable = "packages/openstef-models" },
+    { name = "openstef-models", extras = ["lgbm"], editable = "packages/openstef-models" },
 ]
 
 [[package]]

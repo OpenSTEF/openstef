@@ -18,8 +18,10 @@ from pydantic import Field
 
 from openstef_beam.evaluation.models.subset import MetricsDict, QuantileMetricsDict
 from openstef_beam.metrics import (
+    completeness,
     confusion_matrix,
     fbeta,
+    mae,
     mape,
     mean_absolute_calibration_error,
     observed_probability,
@@ -143,6 +145,22 @@ class MetricProvider(BaseConfig):
         """
         msg = "Subclasses should implement this method."
         raise NotImplementedError(msg)
+
+
+class CompletenessProvider(MetricProvider):
+    """Provides completeness metric.
+
+    Measures the proportion of non-missing values in the predictions.
+    """
+
+    @override
+    def compute_deterministic(
+        self,
+        y_true: npt.NDArray[np.floating],
+        y_pred: npt.NDArray[np.floating],
+        quantile: float,
+    ) -> MetricsDict:
+        return {"completeness": completeness(y_pred)}
 
 
 class PeakMetricProvider(MetricProvider):
@@ -301,6 +319,27 @@ class RCRPSSampleWeightedProvider(MetricProvider):
         }
 
 
+class MAEProvider(MetricProvider):
+    """Provides Mean Absolute Error metrics.
+
+    Computes the average absolute error between predictions and true values.
+    """
+
+    allow_nan: bool = Field(
+        default=True,
+        description="Whether to allow NaN values in input. If False, NaN value will result in NaN metric output.",
+    )
+
+    @override
+    def compute_deterministic(
+        self,
+        y_true: npt.NDArray[np.floating],
+        y_pred: npt.NDArray[np.floating],
+        quantile: float,
+    ) -> MetricsDict:
+        return {"MAE": mae(y_true=y_true, y_pred=y_pred, allow_nan=self.allow_nan)}
+
+
 class RMAEProvider(MetricProvider):
     """Provides Relative Mean Absolute Error metrics.
 
@@ -316,6 +355,15 @@ class RMAEProvider(MetricProvider):
         default=0.99,
         description="Upper quantile bound for rMAE normalization.",
     )
+    norm_value: float | None = Field(
+        default=None,
+        description="Optional pre-calculated normalization value. If provided, it will be used directly instead "
+        "of calculating the range from quantiles.",
+    )
+    allow_nan: bool = Field(
+        default=False,
+        description="Whether to allow NaN values in input. If False, NaN value will result in NaN metric output.",
+    )
 
     @override
     def compute_deterministic(
@@ -330,6 +378,8 @@ class RMAEProvider(MetricProvider):
                 y_pred=y_pred,
                 lower_quantile=self.lower_quantile,
                 upper_quantile=self.upper_quantile,
+                norm_value=self.norm_value,
+                allow_nan=self.allow_nan,
             )
         }
 
