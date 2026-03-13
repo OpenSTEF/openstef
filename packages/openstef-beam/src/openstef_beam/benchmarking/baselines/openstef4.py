@@ -34,7 +34,6 @@ from openstef_core.exceptions import (
     FlatlinerDetectedError,
     InsufficientlyCompleteError,
     MissingExtraError,
-    NotFittedError,
 )
 from openstef_core.types import Q
 from openstef_models.presets import ForecastingWorkflowConfig, create_forecasting_workflow
@@ -136,7 +135,8 @@ class OpenSTEF4BacktestForecaster(BaseModel, BacktestForecasterMixin):
             return None
 
         if self._workflow is None:
-            raise NotFittedError("Must call fit() before predict()")
+            self._logger.info("No fitted model available, skipping prediction")
+            return None
 
         # Extract the dataset including both historical context and forecast period
         predict_data = data.get_window(

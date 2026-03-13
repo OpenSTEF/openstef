@@ -157,3 +157,26 @@ def test_fit_retains_previous_model_on_insufficient_data(
 
     # Assert — previous model is retained (fit returned early without updating _workflow)
     assert forecaster._workflow is previous_workflow
+
+
+def test_predict_returns_none_when_never_fitted(
+    xgboost_config: ForecastingWorkflowConfig,
+    benchmark_target: BenchmarkTarget,
+    training_data: VersionedTimeSeriesDataset,
+    tmp_path: Path,
+):
+    """predict() should return None when no model has been fitted yet."""
+    # Arrange
+    factory = create_openstef4_preset_backtest_forecaster(
+        workflow_config=xgboost_config,
+        cache_dir=tmp_path / "test_no_fit",
+    )
+    forecaster = factory(BenchmarkContext(run_name="no_fit"), benchmark_target)
+    horizon = datetime(2024, 5, 25, tzinfo=UTC)
+    rhvts = RestrictedHorizonVersionedTimeSeries(dataset=training_data, horizon=horizon)
+
+    # Act
+    result = forecaster.predict(rhvts)
+
+    # Assert
+    assert result is None
