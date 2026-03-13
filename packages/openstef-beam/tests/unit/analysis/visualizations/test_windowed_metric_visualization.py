@@ -147,14 +147,17 @@ def test_create_by_none_creates_time_series_visualization(
     assert result.figure == mock_plotly_figure
 
 
-def test_create_by_none_raises_error_when_no_windowed_data(
+def test_create_by_none_returns_empty_output_when_no_windowed_data(
     empty_evaluation_report: EvaluationSubsetReport, simple_target_metadata: TargetMetadata, sample_window: Window
 ):
-    """Test that create_by_none raises appropriate error when no windowed metrics are found."""
+    """Test that create_by_none returns an HTML placeholder when no windowed metrics are found."""
     viz = WindowedMetricVisualization(name="test_viz", metric="mae", window=sample_window)
 
-    with pytest.raises(ValueError, match="No windowed metrics found for the specified window and metric"):
-        viz.create_by_none(empty_evaluation_report, simple_target_metadata)
+    result = viz.create_by_none(empty_evaluation_report, simple_target_metadata)
+
+    assert result.figure is None
+    assert result.html is not None
+    assert "No windowed metrics" in result.html
 
 
 def test_create_by_target_adds_time_series_per_target(

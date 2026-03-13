@@ -103,10 +103,7 @@ class AnalysisPipeline:
             no providers support the requested aggregation level.
         """
         return [
-            provider.create(
-                reports=reports,
-                aggregation=aggregation,
-            )
+            provider.create(reports=reports, aggregation=aggregation)
             for provider in self.config.visualization_providers
             if aggregation in provider.supported_aggregations
         ]

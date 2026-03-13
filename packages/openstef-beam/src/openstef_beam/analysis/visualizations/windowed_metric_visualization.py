@@ -8,6 +8,7 @@ This module provides visualization for windowed metrics over time, showing
 how performance metrics evolve across different time windows.
 """
 
+import logging
 import operator
 from collections import defaultdict
 from datetime import datetime
@@ -22,6 +23,8 @@ from openstef_beam.analysis.plots import (
 from openstef_beam.analysis.visualizations.base import MetricIdentifier, ReportTuple, VisualizationProvider
 from openstef_beam.evaluation import EvaluationSubsetReport, Window
 from openstef_core.types import Quantile
+
+_logger = logging.getLogger(__name__)
 
 
 class WindowedMetricVisualization(VisualizationProvider):
@@ -180,7 +183,8 @@ class WindowedMetricVisualization(VisualizationProvider):
         time_value_pairs = self._extract_windowed_metric_values(report, metric_name, quantile_or_global)
 
         if not time_value_pairs:
-            raise ValueError("No windowed metrics found for the specified window and metric.")
+            _logger.warning("No windowed metrics for %s (%s) — skipping visualization.", metadata.name, self.name)
+            return self._empty_output(f"No windowed metrics available for {metadata.name}")
 
         # Unpack the sorted pairs
         timestamps = [pair[0] for pair in time_value_pairs]
@@ -198,19 +202,23 @@ class WindowedMetricVisualization(VisualizationProvider):
 
         return VisualizationOutput(name=self.name, figure=figure)
 
+    def _empty_output(self, message: str) -> VisualizationOutput:
+        return VisualizationOutput(name=self.name, html=f"<p>{message}</p>")
+
     @override
     def create_by_run_and_none(self, reports: dict[RunName, list[ReportTuple]]) -> VisualizationOutput:
         metric_name, quantile_or_global = self._get_metric_info()
         plotter = WindowedMetricPlotter()
+        has_data = False
 
         # Collect data for each run
         for run_name, report_pairs in reports.items():
             for _metadata, report in report_pairs:
                 time_value_pairs = self._extract_windowed_metric_values(report, metric_name, quantile_or_global)
 
-                # Skip if no data points found for this run
                 if not time_value_pairs:
-                    raise ValueError("No windowed metrics found for the specified window, metric and run.")
+                    _logger.warning("No windowed metrics for run '%s' (%s) — skipping.", run_name, self.name)
+                    continue
 
                 # Unpack the sorted pairs
                 timestamps = [pair[0] for pair in time_value_pairs]
@@ -221,6 +229,10 @@ class WindowedMetricVisualization(VisualizationProvider):
                     timestamps=timestamps,
                     metric_values=metric_values,
                 )
+                has_data = True
+
+        if not has_data:
+            return self._empty_output("No windowed metrics available for any run")
 
         title = self._create_plot_title(metric_name, quantile_or_global, "by Run")
         figure = plotter.plot(title=title)
@@ -238,13 +250,14 @@ class WindowedMetricVisualization(VisualizationProvider):
         # Get the run name from the first target metadata for the title
         run_name = reports[0][0].run_name if reports else ""
 
+        has_data = False
         # Process each target's report
         for metadata, report in reports:
             time_value_pairs = self._extract_windowed_metric_values(report, metric_name, quantile_or_global)
 
-            # Skip if no data points found for this target
             if not time_value_pairs:
-                raise ValueError("No windowed metrics found for the specified window, metric and target.")
+                _logger.warning("No windowed metrics for target '%s' (%s) — skipping.", metadata.name, self.name)
+                continue
 
             # Unpack the sorted pairs
             timestamps = [pair[0] for pair in time_value_pairs]
@@ -256,6 +269,10 @@ class WindowedMetricVisualization(VisualizationProvider):
                 timestamps=timestamps,
                 metric_values=metric_values,
             )
+            has_data = True
+
+        if not has_data:
+            return self._empty_output("No windowed metrics available for any target")
 
         title_suffix = "by Target"
         if run_name:
@@ -274,11 +291,13 @@ class WindowedMetricVisualization(VisualizationProvider):
     ) -> VisualizationOutput:
         metric_name, quantile_or_global = self._get_metric_info()
         plotter = WindowedMetricPlotter()
+        has_data = False
 
         # Process each run and calculate averaged metrics across its targets
         for run_name, target_reports in reports.items():
             if not target_reports:
-                raise ValueError("No windowed metrics found for the specified window, metric and run.")
+                _logger.warning("No reports for run '%s' (%s) — skipping.", run_name, self.name)
+                continue
 
             # Average windowed metrics across all targets for this run
             averaged_pairs = self._average_time_series_across_targets(
@@ -287,9 +306,9 @@ class WindowedMetricVisualization(VisualizationProvider):
                 quantile_or_global=quantile_or_global,
             )
 
-            # Skip if no averaged data points found for this run
             if not averaged_pairs:
-                raise ValueError("No windowed averaged metrics found for the specified window, metric and run.")
+                _logger.warning("No windowed averaged metrics for run '%s' (%s) — skipping.", run_name, self.name)
+                continue
 
             # Unpack the averaged pairs
             timestamps = [pair[0] for pair in averaged_pairs]
@@ -301,6 +320,10 @@ class WindowedMetricVisualization(VisualizationProvider):
                 timestamps=timestamps,
                 metric_values=metric_values,
             )
+            has_data = True
+
+        if not has_data:
+            return self._empty_output("No windowed metrics available for any run")
 
         title = self._create_plot_title(metric_name, quantile_or_global, "by run (averaged over targets in group)")
         figure = plotter.plot(title=title, metric_name=metric_name)
@@ -321,10 +344,12 @@ class WindowedMetricVisualization(VisualizationProvider):
         for (run_name, _group_name), target_reports in reports.items():
             run_to_targets.setdefault(run_name, []).extend(target_reports)
 
+        has_data = False
         # Average metrics over all targets for each run
         for run_name, all_target_reports in run_to_targets.items():
             if not all_target_reports:
-                raise ValueError("No windowed metrics found for the specified window, metric and run.")
+                _logger.warning("No reports for run '%s' (%s) — skipping.", run_name, self.name)
+                continue
 
             # Average windowed metrics across all targets for this run
             averaged_pairs = self._average_time_series_across_targets(
@@ -334,7 +359,8 @@ class WindowedMetricVisualization(VisualizationProvider):
             )
 
             if not averaged_pairs:
-                raise ValueError("No windowed averaged metrics found for the specified window, metric and run.")
+                _logger.warning("No windowed averaged metrics for run '%s' (%s) — skipping.", run_name, self.name)
+                continue
 
             timestamps = [pair[0] for pair in averaged_pairs]
             metric_values = [pair[1] for pair in averaged_pairs]
@@ -345,6 +371,10 @@ class WindowedMetricVisualization(VisualizationProvider):
                 timestamps=timestamps,
                 metric_values=metric_values,
             )
+            has_data = True
+
+        if not has_data:
+            return self._empty_output("No windowed metrics available for any run")
 
         title = self._create_plot_title(metric_name, quantile_or_global, "by run (averaged over all targets)")
         figure = plotter.plot(title=title, metric_name=metric_name)
@@ -373,9 +403,7 @@ class WindowedMetricVisualization(VisualizationProvider):
         )
 
         if not averaged_pairs:
-            raise ValueError(
-                "No windowed averaged metrics found for the specified window, metric and run across all groups."
-            )
+            return self._empty_output("No windowed metrics available across all groups")
 
         timestamps = [pair[0] for pair in averaged_pairs]
         metric_values = [pair[1] for pair in averaged_pairs]
