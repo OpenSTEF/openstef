@@ -11,18 +11,16 @@ and can be more suitable for certain types of time series data where it is impor
 to predict values outside the range of the training data.
 """
 
-from typing import Literal, override
+from typing import Annotated, Literal, override
 
 import numpy as np
 import pandas as pd
-import xgboost as xgb
 from pydantic import Field
 from sklearn.preprocessing import StandardScaler
 
 from openstef_core.datasets.mixins import LeadTime
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import InputValidationError, MissingExtraError, NotFittedError
-from openstef_core.mixins.predictor import HyperParams
 from openstef_models.explainability.mixins import ExplainableForecaster
 from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
 from openstef_models.utils.evaluation_functions import EvaluationFunctionType, get_evaluation_function
@@ -31,6 +29,7 @@ from openstef_models.utils.loss_functions import (
     get_objective_function,
     xgb_prepare_target_for_objective,
 )
+from openstef_models.utils.tuning import CategoricalRange, FloatRange, IntRange, TunableHyperParams
 
 try:
     import xgboost as xgb
@@ -38,19 +37,19 @@ except ImportError as e:
     raise MissingExtraError("xgboost", "openstef-models") from e
 
 
-class GBLinearHyperParams(HyperParams):
+class GBLinearHyperParams(TunableHyperParams):
     """Hyperparameter configuration for GBLinear forecaster."""
 
     # Learning Parameters
-    n_steps: int = Field(
+    n_steps: Annotated[int, IntRange(50, 1000)] = Field(
         default=500,
         description="Number for steps (boosting rounds) to train the GBLinear model.",
     )
-    updater: str = Field(
+    updater: Annotated[str, CategoricalRange(("shotgun", "coord_descent"))] = Field(
         default="shotgun",
         description="The updater to use for the GBLinear booster.",
     )
-    learning_rate: float = Field(
+    learning_rate: Annotated[float, FloatRange(0.01, 0.5, log=True)] = Field(
         default=0.15,
         description="Step size shrinkage used to prevent overfitting. Range: [0,1]. Lower values require more boosting "
         "rounds.",
@@ -67,15 +66,15 @@ class GBLinearHyperParams(HyperParams):
     )
 
     # Regularization
-    reg_alpha: float = Field(
+    reg_alpha: Annotated[float, FloatRange(1e-8, 1.0, log=True)] = Field(
         default=0.0001, description="L1 regularization on weights. Higher values increase regularization. Range: [0,∞]"
     )
-    reg_lambda: float = Field(
+    reg_lambda: Annotated[float, FloatRange(1e-8, 1.0, log=True)] = Field(
         default=0.1, description="L2 regularization on weights. Higher values increase regularization. Range: [0,∞]"
     )
 
     # Feature selection
-    feature_selector: str = Field(
+    feature_selector: Annotated[str, CategoricalRange(("cyclic", "shuffle", "random", "greedy", "thrifty"))] = Field(
         default="shuffle",
         description="Feature selection method.",
     )

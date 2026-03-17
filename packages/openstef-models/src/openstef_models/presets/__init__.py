@@ -7,9 +7,18 @@
 Provides configurations and utilities for setting up forecasting workflows.
 """
 
-from .forecasting_workflow import ForecastingWorkflowConfig, create_forecasting_workflow
+from .forecasting_workflow import (
+    ForecastingWorkflowConfig,
+    TuningResult,
+    create_forecasting_workflow,
+    fit_with_tuning,
+    tune,
+)
 
 __all__ = [
     "ForecastingWorkflowConfig",
+    "TuningResult",
     "create_forecasting_workflow",
+    "fit_with_tuning",
+    "tune",
 ]

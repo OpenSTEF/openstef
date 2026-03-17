@@ -9,7 +9,7 @@ forecasting. Optimized for time series data with specialized loss functions and
 comprehensive hyperparameter control for production forecasting workflows.
 """
 
-from typing import Literal, override
+from typing import Annotated, Literal, override
 
 import numpy as np
 import pandas as pd
@@ -18,7 +18,6 @@ from sklearn.preprocessing import StandardScaler
 
 from openstef_core.datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import MissingExtraError, NotFittedError
-from openstef_core.mixins import HyperParams
 from openstef_models.explainability.mixins import ExplainableForecaster
 from openstef_models.models.forecasting.forecaster import Forecaster, ForecasterConfig
 from openstef_models.utils.evaluation_functions import EvaluationFunctionType, get_evaluation_function
@@ -27,6 +26,7 @@ from openstef_models.utils.loss_functions import (
     get_objective_function,
     xgb_prepare_target_for_objective,
 )
+from openstef_models.utils.tuning import CategoricalRange, FloatRange, IntRange, TunableHyperParams
 
 try:
     import xgboost as xgb
@@ -34,7 +34,7 @@ except ImportError as e:
     raise MissingExtraError("xgboost", "openstef-models") from e
 
 
-class XGBoostHyperParams(HyperParams):
+class XGBoostHyperParams(TunableHyperParams):
     """XGBoost hyperparameters for gradient boosting tree models.
 
     Configures tree-specific parameters for XGBoost gbtree booster. Provides
@@ -64,28 +64,28 @@ class XGBoostHyperParams(HyperParams):
     """
 
     # Core Tree Boosting Parameters
-    n_estimators: int = Field(
+    n_estimators: Annotated[int, IntRange(50, 500)] = Field(
         default=100,
         description="Number of boosting rounds/trees to fit. Higher values may improve performance but "
         "increase training time and risk overfitting.",
     )
-    learning_rate: float = Field(
+    learning_rate: Annotated[float, FloatRange(0.01, 0.5, log=True)] = Field(
         default=0.3,
         alias="eta",
         description="Step size shrinkage used to prevent overfitting. Range: [0,1]. Lower values require "
         "more boosting rounds.",
     )
-    max_depth: int = Field(
+    max_depth: Annotated[int, IntRange(1, 15)] = Field(
         default=6,
         description="Maximum depth of trees. Higher values capture more complex patterns but risk "
         "overfitting. Range: [1,∞]",
     )
-    min_child_weight: float = Field(
+    min_child_weight: Annotated[float, FloatRange(1.0, 10.0)] = Field(
         default=1,
         description="Minimum sum of instance weight (hessian) needed in a child. Higher values prevent "
         "overfitting. Range: [0,∞]",
     )
-    gamma: float = Field(
+    gamma: Annotated[float, FloatRange(0.0, 5.0)] = Field(
         default=0,
         alias="min_split_loss",
         description="Minimum loss reduction required to make a split. Higher values make algorithm more "
@@ -102,10 +102,10 @@ class XGBoostHyperParams(HyperParams):
     )
 
     # Regularization
-    reg_alpha: float = Field(
+    reg_alpha: Annotated[float, FloatRange(1e-8, 10.0, log=True)] = Field(
         default=0, description="L1 regularization on leaf weights. Higher values increase regularization. Range: [0,∞]"
     )
-    reg_lambda: float = Field(
+    reg_lambda: Annotated[float, FloatRange(1e-8, 10.0, log=True)] = Field(
         default=1, description="L2 regularization on leaf weights. Higher values increase regularization. Range: [0,∞]"
     )
     max_delta_step: float = Field(
@@ -118,7 +118,7 @@ class XGBoostHyperParams(HyperParams):
     max_leaves: int = Field(
         default=0, description="Maximum number of leaves. 0 means no limit. Only relevant when grow_policy='lossguide'."
     )
-    grow_policy: Literal["depthwise", "lossguide"] = Field(
+    grow_policy: Annotated[Literal["depthwise", "lossguide"], CategoricalRange(("depthwise", "lossguide"))] = Field(
         default="depthwise",
         description="Controls how new nodes are added. 'depthwise' grows level by level, 'lossguide' adds leaves "
         "with highest loss reduction.",
@@ -135,11 +135,11 @@ class XGBoostHyperParams(HyperParams):
     )
 
     # Subsampling Parameters
-    subsample: float = Field(
+    subsample: Annotated[float, FloatRange(0.5, 1.0)] = Field(
         default=1.0,
         description="Fraction of training samples used for each tree. Lower values prevent overfitting. Range: (0,1]",
     )
-    colsample_bytree: float = Field(
+    colsample_bytree: Annotated[float, FloatRange(0.5, 1.0)] = Field(
         default=1.0, description="Fraction of features used when constructing each tree. Range: (0,1]"
     )
     colsample_bylevel: float = Field(
@@ -150,7 +150,10 @@ class XGBoostHyperParams(HyperParams):
     )
 
     # Tree Construction Method
-    tree_method: Literal["auto", "exact", "hist", "approx", "gpu_hist"] = Field(
+    tree_method: Annotated[
+        Literal["auto", "exact", "hist", "approx", "gpu_hist"],
+        CategoricalRange(("auto", "hist", "approx")),
+    ] = Field(
         default="auto",
         description="Tree construction algorithm. 'hist' is fastest for large datasets, 'exact' for small "
         "datasets, 'approx' is deprecated.",

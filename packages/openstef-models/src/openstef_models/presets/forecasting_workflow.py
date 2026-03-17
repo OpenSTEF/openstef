@@ -10,8 +10,9 @@ including XGBoost, GBLinear, and Flatliner models with appropriate preprocessing
 
 from datetime import timedelta
 from decimal import Decimal
-from typing import Literal
+from typing import Any, Literal
 
+import optuna
 from pydantic import Field
 from pydantic_extra_types.coordinate import Coordinate, Latitude, Longitude
 from pydantic_extra_types.country import CountryAlpha2
@@ -23,6 +24,7 @@ from openstef_beam.evaluation.metric_providers import (
     R2Provider,
 )
 from openstef_core.base_model import BaseConfig
+from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.mixins import TransformPipeline
 from openstef_core.types import LeadTime, Q, Quantile, QuantileOrGlobal
 from openstef_models.integrations.mlflow import MLFlowStorage, MLFlowStorageCallback
@@ -31,6 +33,7 @@ from openstef_models.models import ForecastingModel
 from openstef_models.models.forecasting.flatliner_forecaster import FlatlinerForecaster
 from openstef_models.models.forecasting.gblinear_forecaster import GBLinearForecaster
 from openstef_models.models.forecasting.xgboost_forecaster import XGBoostForecaster
+from openstef_models.models.forecasting_model import ModelFitResult
 from openstef_models.transforms.energy_domain import WindPowerFeatureAdder
 from openstef_models.transforms.general import (
     Clipper,
@@ -58,6 +61,7 @@ from openstef_models.transforms.weather_domain import (
 )
 from openstef_models.utils.data_split import DataSplitter
 from openstef_models.utils.feature_selection import Exclude, FeatureSelection, Include
+from openstef_models.utils.tuning import get_search_space, run_optuna_study, suggest_hyperparams
 from openstef_models.workflows.custom_forecasting_workflow import CustomForecastingWorkflow, ForecastingCallback
 
 
@@ -241,6 +245,16 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
 
     verbosity: Literal[0, 1, 2, 3, True] = Field(
         default=1, description="Verbosity level. 0=silent, 1=warning, 2=info, 3=debug"
+    )
+
+    # Hyperparameter tuning (Optuna)
+    optuna_n_trials: int = Field(
+        default=20,
+        description="Number of Optuna trials to run when any search-space field has tune=True.",
+    )
+    optuna_seed: int | None = Field(
+        default=42,
+        description="Random seed for the Optuna TPE sampler.  Set to None to disable seeding.",
     )
 
     # Metadata
@@ -432,3 +446,179 @@ def create_forecasting_workflow(config: ForecastingWorkflowConfig) -> CustomFore
         callbacks=callbacks,
         experiment_tags=config.experiment_tags,
     )
+
+
+class TuningResult:
+    """Result of a :func:`fit_with_tuning` call.
+
+    Attributes:
+        workflow: The fitted :class:`CustomForecastingWorkflow`.
+        fit_result: The :class:`ModelFitResult` from the final training run, or
+            ``None`` if fitting was skipped (e.g. by an MLflow callback).
+        study: The completed :class:`optuna.Study`.
+        best_params: Flat dict of the best hyperparameter values found by Optuna,
+            or an empty dict when tuning was not performed.
+    """
+
+    def __init__(
+        self,
+        workflow: CustomForecastingWorkflow,
+        fit_result: ModelFitResult | None,
+        study: optuna.Study | None,
+        best_params: dict[str, Any],
+    ) -> None:
+        """Initialize a TuningResult with workflow and tuning outcomes.
+
+        Args:
+            workflow: The fitted forecasting workflow.
+            fit_result: The result from the final training run, or None if fitting was skipped.
+            study: The completed Optuna study, or None if no tuning was performed.
+            best_params: Dictionary of best hyperparameter values found, or empty if no tuning.
+        """
+        self.workflow = workflow
+        self.fit_result = fit_result
+        self.study = study
+        self.best_params = best_params
+
+    def __repr__(self) -> str:
+        """Return a string representation of the TuningResult."""
+        tuned = f"{len(self.best_params)} params tuned" if self.best_params else "no tuning"
+        return f"TuningResult({tuned})"
+
+
+def tune(
+    config: ForecastingWorkflowConfig,
+    train_dataset: TimeSeriesDataset,
+) -> tuple[ForecastingWorkflowConfig, optuna.Study, dict[str, Any]]:
+    """Run hyperparameter tuning for a forecasting workflow configuration.
+
+    Inspects the ``xgboost_hyperparams`` / ``gblinear_hyperparams`` instance of
+    *config* to determine which hyperparameters are marked for tuning
+    (by passing a ``TuningRange(tune=True)`` as the field value).
+
+    The metric maximised during the study is determined by
+    :attr:`ForecastingWorkflowConfig.model_selection_metric`.
+
+    Args:
+        config: Workflow configuration.  Pass ``TuningRange(tune=True)`` objects as
+            field values on ``xgboost_hyperparams`` / ``gblinear_hyperparams`` to mark
+            fields for tuning.  ``optuna_n_trials`` and ``optuna_seed`` control the study.
+        train_dataset: Dataset used for all trial fit calls.
+
+    Returns:
+        A tuple of:
+
+        - The config updated with the best hyperparameters found.
+        - The completed :class:`optuna.Study`.
+        - A flat dict of the best hyperparameter values.
+
+    Raises:
+        ValueError: If the model type does not support tuning (e.g. ``flatliner``),
+            or if the model supports tuning but no field has ``tune=True``
+            in the hyperparams instance.
+    """
+    if config.model not in {"xgboost", "gblinear"}:
+        msg = (
+            f"Model type '{config.model}' does not support hyperparameter tuning. "
+            "Use 'xgboost' or 'gblinear' and pass TuningRange(tune=True) as field values."
+        )
+        raise ValueError(msg)
+
+    if config.model == "xgboost":
+        current_hp = config.xgboost_hyperparams
+        hp_field = "xgboost_hyperparams"
+    else:  # gblinear
+        current_hp = config.gblinear_hyperparams
+        hp_field = "gblinear_hyperparams"
+
+    # Build the effective search space
+    space = get_search_space(current_hp)
+
+    if not space:
+        msg = (
+            f"No tunable hyperparameters found on `{hp_field}`. "
+            "Pass TuningRange(tune=True) objects as field values when constructing it, "
+            "e.g. `n_estimators=IntRange(100, 800, tune=True)`."
+        )
+        raise ValueError(msg)
+
+    # Build the Optuna objective
+    target_quantile, metric_name, _ = config.model_selection_metric
+
+    def _objective(trial: optuna.Trial) -> float:
+        tuned_hp = suggest_hyperparams(trial, space, current_hp)
+        tuned_config = config.model_copy(update={hp_field: tuned_hp})
+        trial_workflow = create_forecasting_workflow(tuned_config)
+        trial_result = trial_workflow.fit(train_dataset)
+        if trial_result is None:
+            return float("-inf")
+        metrics = trial_result.metrics_val if trial_result.metrics_val is not None else trial_result.metrics_train
+        score = metrics.get_metric(quantile=target_quantile, metric_name=metric_name)
+        return float(score) if score is not None else float("-inf")
+
+    # Run the study
+    study = run_optuna_study(
+        objective=_objective,
+        n_trials=config.optuna_n_trials,
+        seed=config.optuna_seed,
+        study_name=f"tuning_{config.model_id}",
+    )
+
+    best_hp = current_hp.model_copy(update=study.best_params)
+    best_config = config.model_copy(update={hp_field: best_hp})
+    return best_config, study, study.best_params
+
+
+def fit_with_tuning(
+    config: ForecastingWorkflowConfig,
+    train_dataset: TimeSeriesDataset,
+) -> TuningResult:
+    """Create, optionally tune, and fit a forecasting workflow in one call.
+
+    Inspects the ``xgboost_hyperparams`` / ``gblinear_hyperparams`` instance of
+    *config* to determine whether any hyperparameter is marked for tuning
+    (by passing a ``TuningRange(tune=True)`` as the field value).
+
+    * **One or more tunable fields** runs an Optuna Bayesian search for
+      :attr:`ForecastingWorkflowConfig.optuna_n_trials` trials via :func:`tune`,
+      then trains the final model with the best hyperparameters found.
+
+    The metric maximised during the study is determined by
+    :attr:`ForecastingWorkflowConfig.model_selection_metric`.
+
+    Args:
+        config: Workflow configuration.  Pass ``TuningRange(tune=True)`` objects as
+            field values on ``xgboost_hyperparams`` / ``gblinear_hyperparams`` to mark
+            fields for tuning.  ``optuna_n_trials`` and ``optuna_seed`` control the study.
+        train_dataset: Dataset used for **all** workflow fit calls (both tuning
+            trials and the final fit).
+
+    Returns:
+        :class:`TuningResult` with the fitted workflow, fit result, optional study,
+        and the best hyperparameter values.
+
+    Example::
+
+        from openstef_models.presets import ForecastingWorkflowConfig, fit_with_tuning
+        from openstef_models.utils.tuning import FloatRange, IntRange
+        from openstef_core.types import LeadTime, Q
+
+        config = ForecastingWorkflowConfig(
+            model_id="demo",
+            model="xgboost",
+            quantiles=[Q(0.5), Q(0.1), Q(0.9)],
+            horizons=[LeadTime.from_string("PT36H")],
+            xgboost_hyperparams=XGBoostForecaster.HyperParams(
+                n_estimators=IntRange(100, 500, tune=True),
+                learning_rate=FloatRange(None, None, log=True, tune=True),
+            ),
+            optuna_n_trials=20,
+            mlflow_storage=None,
+        )
+        result = fit_with_tuning(config, train_dataset)  # doctest: +SKIP
+        print(result.best_params)  # doctest: +SKIP
+    """
+    tuned_config, study, best_params = tune(config, train_dataset)
+    workflow = create_forecasting_workflow(tuned_config)
+    result = workflow.fit(train_dataset)
+    return TuningResult(workflow=workflow, fit_result=result, study=study, best_params=best_params)
