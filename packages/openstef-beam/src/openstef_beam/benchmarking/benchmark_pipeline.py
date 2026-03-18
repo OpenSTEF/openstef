@@ -157,6 +157,8 @@ class BenchmarkPipeline[T: BenchmarkTarget, F]:
         run_name: str = "default",
         filter_args: F | None = None,
         n_processes: int | None = None,
+        *,
+        skip_analysis: bool = False,
     ) -> None:
         """Runs the benchmark for all targets, optionally filtered and in parallel.
 
@@ -174,6 +176,8 @@ class BenchmarkPipeline[T: BenchmarkTarget, F]:
                         matching these criteria will be processed.
             n_processes: Number of processes to use for parallel execution. If None or 1,
                         targets are processed sequentially.
+            skip_analysis: When True, skips per-target and global analysis steps.
+                          Useful when analysis will be run separately later.
         """
         context = BenchmarkContext(run_name=run_name)
 
@@ -184,13 +188,13 @@ class BenchmarkPipeline[T: BenchmarkTarget, F]:
 
         _logger.info("Running benchmark in parallel with %d processes", n_processes)
         run_parallel(
-            process_fn=partial(self._run_for_target, context, forecaster_factory),
+            process_fn=partial(self._run_for_target, context, forecaster_factory, skip_analysis=skip_analysis),
             items=targets,
             n_processes=n_processes,
             mode="loky",
         )
 
-        if not self.storage.has_analysis_output(
+        if not skip_analysis and not self.storage.has_analysis_output(
             AnalysisScope(
                 aggregation=AnalysisAggregation.GROUP,
                 run_name=context.run_name,
@@ -203,7 +207,14 @@ class BenchmarkPipeline[T: BenchmarkTarget, F]:
 
         self.callback_manager.on_benchmark_complete(runner=self, targets=cast(list[BenchmarkTarget], targets))
 
-    def _run_for_target(self, context: BenchmarkContext, model_factory: ForecasterFactory[T], target: T) -> None:
+    def _run_for_target(
+        self,
+        context: BenchmarkContext,
+        model_factory: ForecasterFactory[T],
+        target: T,
+        *,
+        skip_analysis: bool = False,
+    ) -> None:
         """Run benchmark for a single target."""
         if not self.callback_manager.on_target_start(runner=self, target=target):
             _logger.info("Skipping target")
@@ -221,7 +232,7 @@ class BenchmarkPipeline[T: BenchmarkTarget, F]:
                 predictions = self.storage.load_backtest_output(target)
                 self.run_evaluation_for_target(target=target, predictions=predictions, quantiles=forecaster.quantiles)
 
-            if not self.storage.has_analysis_output(
+            if not skip_analysis and not self.storage.has_analysis_output(
                 scope=AnalysisScope(
                     aggregation=AnalysisAggregation.TARGET,
                     target_name=target.name,
