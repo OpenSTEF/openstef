@@ -120,6 +120,7 @@ class BenchmarkComparisonPipeline[T: BenchmarkTarget, F]:
         self,
         run_data: dict[RunName, BenchmarkStorage],
         filter_args: F | None = None,
+        strict: bool = True,
     ):
         """Execute comparison analysis across multiple benchmark runs.
 
@@ -132,6 +133,8 @@ class BenchmarkComparisonPipeline[T: BenchmarkTarget, F]:
                      Each storage backend should contain evaluation results for the run.
             filter_args: Optional criteria for filtering targets. Only targets
                         matching these criteria will be included in the comparison.
+            strict: If True, raise an error when evaluation is missing for a target.
+                   If False, skip missing targets.
         """
         targets = self.target_provider.get_targets(filter_args)
 
@@ -142,7 +145,7 @@ class BenchmarkComparisonPipeline[T: BenchmarkTarget, F]:
                 targets=targets,
                 storage=run_storage,
                 run_name=run_name,
-                strict=True,
+                strict=strict,
             )
             reports.extend(run_reports)
 
