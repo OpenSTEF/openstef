@@ -149,7 +149,7 @@ class LocalBenchmarkStorage(BenchmarkStorage):
         elif scope.aggregation == AnalysisAggregation.RUN_AND_NONE:
             output_dir = base_dir / str(scope.group_name) / str(scope.target_name)
         elif scope.aggregation == AnalysisAggregation.RUN_AND_GROUP:
-            output_dir = base_dir
+            output_dir = base_dir / "global"
         elif scope.aggregation == AnalysisAggregation.RUN_AND_TARGET:
             output_dir = base_dir / str(scope.group_name) / "global"
         else:
