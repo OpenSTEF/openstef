@@ -19,6 +19,7 @@ from openstef_models.transforms.general.nan_dropper import NaNDropper
 from openstef_models.transforms.general.sample_weighter import SampleWeightConfig, SampleWeighter
 from openstef_models.transforms.general.scaler import Scaler
 from openstef_models.transforms.general.selector import Selector
+from openstef_models.transforms.general.shifter import Shifter
 
 __all__ = [
     "Clipper",
@@ -31,4 +32,5 @@ __all__ = [
     "SampleWeighter",
     "Scaler",
     "Selector",
+    "Shifter",
 ]
