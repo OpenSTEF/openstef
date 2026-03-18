@@ -27,6 +27,7 @@ from openstef_core.datasets.validated_datasets import ENSEMBLE_COLUMN_SEP, Ensem
 from openstef_core.exceptions import InsufficientlyCompleteError, MissingExtraError, NotFittedError
 from openstef_core.mixins.predictor import HyperParams
 from openstef_core.types import Quantile
+from openstef_core.utils.pandas import nan_aware_weighted_mean
 from openstef_meta.models.forecast_combiners.forecast_combiner import (
     ForecastCombiner,
 )
@@ -293,22 +294,14 @@ class WeightsCombiner(ForecastCombiner):
 
         if self.hard_selection:
             # Convert soft probabilities to hard selection: max weight → 1.0, ties distributed equally
-            weights = pd.DataFrame(
-                (weights.to_numpy() == weights.max(axis=1).to_numpy()[:, None])  # type: ignore[reportUnknownMemberType]
-                / weights.sum(axis=1).to_numpy()[:, None],  # type: ignore[reportUnknownMemberType]
-                index=weights.index,
-                columns=weights.columns,
-            )
+            is_max = weights.eq(weights.max(axis=1), axis=0)
+            weights = cast("pd.DataFrame", is_max.div(weights.sum(axis=1), axis=0))
 
-        # Weighted average: renormalize weights so NaN base-model predictions don't shrink the sum.
-        # When a base model has no prediction (NaN), its weight is redistributed proportionally
-        # to the remaining models.  Reindex weights to predictions so that rows without
-        # additional_features (dropped by _prepare_input_data's inner join) get zero weight.
+        # Reindex weights to predictions so that rows without additional_features
+        # (dropped by _prepare_input_data's inner join) get zero weight.
         predictions = dataset.input_data()
-        weights = weights.reindex(predictions.index, fill_value=0)
-        available_weight = weights.where(predictions.notna(), 0).sum(axis=1)
-        weighted_sum = predictions.fillna(0).mul(weights).sum(axis=1)  # type: ignore[reportUnknownMemberType]
-        return weighted_sum / available_weight.replace(0, 1)  # type: ignore[reportUnknownMemberType]
+        weights = weights.reindex(predictions.index, fill_value=0.0)
+        return nan_aware_weighted_mean(predictions, weights)
 
     @override
     def predict(
