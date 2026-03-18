@@ -219,7 +219,8 @@ class WeightsCombiner(ForecastCombiner):
                 additional_features=additional_features,
             )
             input_data = combined_data.input_data()
-            labels = labels.loc[combined_data.data.index]
+            # Filter labels to match combined_data index (inner join may drop rows)
+            labels = labels.loc[input_data.index]
             self._validate_labels(labels=labels, quantile=q)
             encoded_labels = self._label_encoder.transform(labels)
 
