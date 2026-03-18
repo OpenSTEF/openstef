@@ -114,3 +114,55 @@ def test_quantile_weights_combiner__fit_with_additional_features_shorter_index(
 
     # Assert
     assert combiner.is_fitted
+
+
+def test_predict_renormalizes_weights_when_base_model_predictions_are_nan() -> None:
+    """Predict should renormalize weights when a base model has NaN predictions.
+
+    Regression test: when one base model cannot predict certain timestamps (e.g.
+    gblinear limited to 2-day horizon while lgbm predicts 7 days), the combiner
+    must redistribute the missing model's weight to the remaining models. Without
+    renormalization, sum(axis=1, skipna=True) drops the NaN contribution, causing
+    predictions to be systematically scaled down.
+    """
+    rng = np.random.default_rng(42)
+    index = pd.date_range("2023-01-01", periods=100, freq="15min")
+
+    # Two forecasters: lgbm has all values, gblinear is NaN for the last 50 rows
+    lgbm_vals = rng.normal(1000, 100, 100)
+    gblinear_vals = rng.normal(1000, 100, 100).copy()
+    gblinear_vals[50:] = np.nan
+
+    data = pd.DataFrame(
+        {
+            "LGBMForecaster__quantile_P10": lgbm_vals * 0.8,
+            "LGBMForecaster__quantile_P50": lgbm_vals,
+            "LGBMForecaster__quantile_P90": lgbm_vals * 1.2,
+            "GBLinearForecaster__quantile_P10": gblinear_vals * 0.8,
+            "GBLinearForecaster__quantile_P50": gblinear_vals,
+            "GBLinearForecaster__quantile_P90": gblinear_vals * 1.2,
+            "load": rng.normal(1000, 100, 100),
+        },
+        index=index,
+    )
+    dataset = EnsembleForecastDataset(data=data, sample_interval=timedelta(minutes=15))
+
+    combiner = WeightsCombiner(
+        hyperparams=LGBMCombinerHyperParams(n_leaves=5, n_estimators=10),
+        quantiles=[Q(0.1), Q(0.5), Q(0.9)],
+        horizons=[LeadTime(timedelta(days=1))],
+    )
+    combiner.fit(dataset)
+
+    # Act
+    result = combiner.predict(dataset)
+
+    # Assert — rows where gblinear is NaN should still produce valid (non-NaN) predictions
+    nan_rows = result.data[["quantile_P10", "quantile_P50", "quantile_P90"]].iloc[50:]
+    assert not nan_rows.isna().any().any(), (
+        "Predictions should not be NaN when at least one base model has valid predictions"
+    )
+    # And the predictions should be in the ballpark of the lgbm values (not scaled down)
+    assert nan_rows["quantile_P50"].mean() > 500, (
+        "Predictions in the NaN region should not be systematically scaled down"
+    )

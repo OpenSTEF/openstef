@@ -293,10 +293,22 @@ class WeightsCombiner(ForecastCombiner):
 
         if self.hard_selection:
             # Convert soft probabilities to hard selection: max weight → 1.0, ties distributed equally
-            weights = (weights == weights.max(axis=1).to_frame().to_numpy()) / weights.sum(axis=1).to_frame().to_numpy()
+            weights = pd.DataFrame(
+                (weights.to_numpy() == weights.max(axis=1).to_numpy()[:, None])  # type: ignore[reportUnknownMemberType]
+                / weights.sum(axis=1).to_numpy()[:, None],  # type: ignore[reportUnknownMemberType]
+                index=weights.index,
+                columns=weights.columns,
+            )
 
-        # Weighted average: multiply each forecaster's prediction by its weight and sum
-        return dataset.input_data().mul(weights).sum(axis=1)
+        # Weighted average: renormalize weights so NaN base-model predictions don't shrink the sum.
+        # When a base model has no prediction (NaN), its weight is redistributed proportionally
+        # to the remaining models.  Reindex weights to predictions so that rows without
+        # additional_features (dropped by _prepare_input_data's inner join) get zero weight.
+        predictions = dataset.input_data()
+        weights = weights.reindex(predictions.index, fill_value=0)
+        available_weight = weights.where(predictions.notna(), 0).sum(axis=1)
+        weighted_sum = predictions.fillna(0).mul(weights).sum(axis=1)  # type: ignore[reportUnknownMemberType]
+        return weighted_sum / available_weight.replace(0, 1)  # type: ignore[reportUnknownMemberType]
 
     @override
     def predict(
