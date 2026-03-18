@@ -24,7 +24,7 @@ from sklearn.utils.class_weight import compute_sample_weight  # type: ignore[imp
 
 from openstef_core.datasets import ForecastDataset, ForecastInputDataset, TimeSeriesDataset
 from openstef_core.datasets.validated_datasets import ENSEMBLE_COLUMN_SEP, EnsembleForecastDataset
-from openstef_core.exceptions import MissingExtraError, NotFittedError
+from openstef_core.exceptions import InsufficientlyCompleteError, MissingExtraError, NotFittedError
 from openstef_core.mixins.predictor import HyperParams
 from openstef_core.types import Quantile
 from openstef_meta.models.forecast_combiners.forecast_combiner import (
@@ -277,6 +277,9 @@ class WeightsCombiner(ForecastCombiner):
         if additional_features is not None:
             df_a = additional_features.input_data(start=dataset.index[0])
             df = pd.concat([df, df_a], axis=1, join="inner")
+        if df.empty:
+            msg = "No overlapping timestamps between base predictions and additional features after inner join."
+            raise InsufficientlyCompleteError(msg)
         return df
 
     def _predict_quantile(
