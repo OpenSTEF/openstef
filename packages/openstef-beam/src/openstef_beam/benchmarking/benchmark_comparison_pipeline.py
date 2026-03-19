@@ -120,6 +120,7 @@ class BenchmarkComparisonPipeline[T: BenchmarkTarget, F]:
         self,
         run_data: dict[RunName, BenchmarkStorage],
         filter_args: F | None = None,
+        *,
         strict: bool = True,
     ):
         """Execute comparison analysis across multiple benchmark runs.
