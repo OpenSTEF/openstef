@@ -24,9 +24,10 @@ from sklearn.utils.class_weight import compute_sample_weight  # type: ignore[imp
 
 from openstef_core.datasets import ForecastDataset, ForecastInputDataset, TimeSeriesDataset
 from openstef_core.datasets.validated_datasets import ENSEMBLE_COLUMN_SEP, EnsembleForecastDataset
-from openstef_core.exceptions import MissingExtraError, NotFittedError
+from openstef_core.exceptions import InsufficientlyCompleteError, MissingExtraError, NotFittedError
 from openstef_core.mixins.predictor import HyperParams
 from openstef_core.types import Quantile
+from openstef_core.utils.pandas import nan_aware_weighted_mean
 from openstef_meta.models.forecast_combiners.forecast_combiner import (
     ForecastCombiner,
 )
@@ -219,7 +220,8 @@ class WeightsCombiner(ForecastCombiner):
                 additional_features=additional_features,
             )
             input_data = combined_data.input_data()
-            labels = labels.loc[combined_data.data.index]
+            # Filter labels to match combined_data index (inner join may drop rows)
+            labels = labels.loc[input_data.index]
             self._validate_labels(labels=labels, quantile=q)
             encoded_labels = self._label_encoder.transform(labels)
 
@@ -276,6 +278,9 @@ class WeightsCombiner(ForecastCombiner):
         if additional_features is not None:
             df_a = additional_features.input_data(start=dataset.index[0])
             df = pd.concat([df, df_a], axis=1, join="inner")
+        if df.empty:
+            msg = "No overlapping timestamps between base predictions and additional features after inner join."
+            raise InsufficientlyCompleteError(msg)
         return df
 
     def _predict_quantile(
@@ -289,10 +294,14 @@ class WeightsCombiner(ForecastCombiner):
 
         if self.hard_selection:
             # Convert soft probabilities to hard selection: max weight → 1.0, ties distributed equally
-            weights = (weights == weights.max(axis=1).to_frame().to_numpy()) / weights.sum(axis=1).to_frame().to_numpy()
+            is_max: pd.DataFrame = weights.eq(weights.max(axis=1), axis=0)  # pyright: ignore[reportUnknownMemberType]
+            weights = is_max.div(weights.sum(axis=1), axis=0)
 
-        # Weighted average: multiply each forecaster's prediction by its weight and sum
-        return dataset.input_data().mul(weights).sum(axis=1)
+        # Reindex weights to predictions so that rows without additional_features
+        # (dropped by _prepare_input_data's inner join) get zero weight.
+        predictions = dataset.input_data()
+        weights = weights.reindex(predictions.index, fill_value=0.0)
+        return nan_aware_weighted_mean(predictions, weights)
 
     @override
     def predict(
