@@ -22,6 +22,7 @@ from pydantic import Field
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
+from openstef_core.exceptions import InsufficientlyCompleteError
 
 
 def split_by_dates[T: TimeSeriesDataset](
@@ -84,6 +85,7 @@ def chronological_train_test_split[T: TimeSeriesDataset](
 
     Raises:
         ValueError: If test_fraction is not between 0 and 1.
+        InsufficientlyCompleteError: If dataset has fewer than 2 unique timestamps.
     """
     if not 0.0 <= test_fraction <= 1.0:
         raise ValueError("test_fraction must be between 0 and 1.")
@@ -95,6 +97,10 @@ def chronological_train_test_split[T: TimeSeriesDataset](
     index_unique = dataset.index.unique()
 
     n_total = len(index_unique)
+    min_timestamps = 2
+    if n_total < min_timestamps:
+        msg = f"Dataset has {n_total} unique timestamps, need at least {min_timestamps} to split into train/test."
+        raise InsufficientlyCompleteError(msg)
     n_test = int(n_total * test_fraction)
     n_test = min(n_test, n_total - 1)  # Ensure at least one for train if possible
     if n_total > 1 and n_test == 0:

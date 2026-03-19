@@ -338,7 +338,11 @@ class Quantile(float):
         Returns:
             Core schema for Pydantic validation.
         """
-        return core_schema.no_info_after_validator_function(cls, handler(float))
+        return core_schema.no_info_after_validator_function(
+            cls,
+            handler(float),
+            serialization=core_schema.plain_serializer_function_ser_schema(float),
+        )
 
     def format(self) -> str:
         """Instance method to format the quantile as a string.
