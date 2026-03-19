@@ -100,6 +100,6 @@ def nan_aware_weighted_mean(values: pd.DataFrame, weights: pd.DataFrame) -> "pd.
         Series with the weighted mean for each row.
     """
     valid_weights = weights.where(values.notna(), 0)
-    available = cast("pd.Series[float]", valid_weights.sum(axis=1).replace(0, 1))
-    weighted_sum = cast("pd.Series[float]", values.fillna(0).mul(valid_weights).sum(axis=1))
+    available = cast("pd.Series[float]", valid_weights.sum(axis=1).replace(0, 1))  # pyright: ignore[reportUnknownMemberType]
+    weighted_sum = cast("pd.Series[float]", values.fillna(0).mul(valid_weights).sum(axis=1))  # pyright: ignore[reportUnknownMemberType]
     return weighted_sum / available

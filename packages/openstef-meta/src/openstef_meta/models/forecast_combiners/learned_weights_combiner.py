@@ -294,8 +294,8 @@ class WeightsCombiner(ForecastCombiner):
 
         if self.hard_selection:
             # Convert soft probabilities to hard selection: max weight → 1.0, ties distributed equally
-            is_max = weights.eq(weights.max(axis=1), axis=0)
-            weights = cast("pd.DataFrame", is_max.div(weights.sum(axis=1), axis=0))
+            is_max: pd.DataFrame = weights.eq(weights.max(axis=1), axis=0)  # pyright: ignore[reportUnknownMemberType]
+            weights = is_max.div(weights.sum(axis=1), axis=0)
 
         # Reindex weights to predictions so that rows without additional_features
         # (dropped by _prepare_input_data's inner join) get zero weight.
