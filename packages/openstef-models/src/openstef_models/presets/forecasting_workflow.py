@@ -207,10 +207,10 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
     )
 
     # Feature engineering
-    shifter: Shifter = Field(
-        default=Shifter(),
-        description="Optional transform to shift features to align aggregation intervals. "
-        "Select which features to shift via the selection parameter.",
+    shifters: list[Shifter] = Field(
+        default=[],
+        description="List of feature shifts to align aggregation intervals. "
+        "Each Shifter can target different features with different aggregation periods.",
     )
     rolling_aggregate_features: list[AggregationFunction] = Field(
         default=[],
@@ -317,7 +317,7 @@ def create_forecasting_workflow(
         ),
         CompletenessChecker(completeness_threshold=config.completeness_threshold),
     ]
-    feature_aligners = [config.shifter] if config.shifter.selection != FeatureSelection.NONE else []
+    feature_aligners = list(config.shifters)
     feature_adders = [
         LagsAdder(
             history_available=config.predict_history,
