@@ -35,6 +35,11 @@ class AnalysisConfig(BaseConfig):
     visualization_providers: list[VisualizationProvider] = Field(
         default=[], description="List of visualization providers to use for generating analysis outputs"
     )
+    filterings: list[Filtering] | None = Field(
+        default=None,
+        description="When set, only include these filterings (e.g. LeadTime, AvailableAt) in analysis. "
+        "None means use all filterings found in the evaluation data.",
+    )
 
 
 class AnalysisPipeline:
@@ -61,8 +66,8 @@ class AnalysisPipeline:
         super().__init__()
         self.config = config
 
-    @staticmethod
     def _group_by_filtering(
+        self,
         reports: Sequence[tuple[TargetMetadata, EvaluationReport]],
     ) -> dict[Filtering, list[ReportTuple]]:
         """Group reports by their lead time filtering conditions.
@@ -71,13 +76,17 @@ class AnalysisPipeline:
         1-hour ahead vs 24-hour ahead forecasts), enabling comparison of model
         performance across different forecasting horizons.
 
+        When ``config.filterings`` is set, only subsets matching those filterings are included.
+
         Returns:
             Dictionary mapping lead time filtering conditions to lists of report tuples.
         """
+        allowed = set(self.config.filterings) if self.config.filterings is not None else None
         return groupby(
             (subset.filtering, (base_metadata.with_filtering(subset.filtering), subset))
             for base_metadata, report in reports
             for subset in report.subset_reports
+            if allowed is None or subset.filtering in allowed
         )
 
     def run_for_subsets(
@@ -103,10 +112,7 @@ class AnalysisPipeline:
             no providers support the requested aggregation level.
         """
         return [
-            provider.create(
-                reports=reports,
-                aggregation=aggregation,
-            )
+            provider.create(reports=reports, aggregation=aggregation)
             for provider in self.config.visualization_providers
             if aggregation in provider.supported_aggregations
         ]

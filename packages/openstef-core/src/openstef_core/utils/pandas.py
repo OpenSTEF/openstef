@@ -83,3 +83,23 @@ def combine_timeseries_indexes(indexes: Sequence[pd.DatetimeIndex]) -> pd.Dateti
     )
     index_raw = functools.reduce(union_fn, indexes)
     return index_raw.unique().sort_values(ascending=True)  # pyright: ignore[reportUnknownVariableType, reportUnknownMemberType]
+
+
+def nan_aware_weighted_mean(values: pd.DataFrame, weights: pd.DataFrame) -> "pd.Series[float]":
+    """Weighted mean that redistributes NaN values' weights proportionally.
+
+    For each row, weights corresponding to NaN values are zeroed out and the
+    remaining weights are used to compute the weighted sum, normalized by their
+    total.  If all values in a row are NaN, the result is 0.
+
+    Args:
+        values: DataFrame of values (may contain NaN).
+        weights: DataFrame of non-negative weights, aligned with values.
+
+    Returns:
+        Series with the weighted mean for each row.
+    """
+    valid_weights = weights.where(values.notna(), 0)
+    available = cast("pd.Series[float]", valid_weights.sum(axis=1).replace(0, 1))  # pyright: ignore[reportUnknownMemberType]
+    weighted_sum = cast("pd.Series[float]", values.fillna(0).mul(valid_weights).sum(axis=1))  # pyright: ignore[reportUnknownMemberType]
+    return weighted_sum / available
