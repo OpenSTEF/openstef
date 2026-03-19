@@ -317,7 +317,7 @@ def create_forecasting_workflow(
         ),
         CompletenessChecker(completeness_threshold=config.completeness_threshold),
     ]
-    feature_aligners = list(config.shifters)
+    feature_aligners = config.shifters
     feature_adders = [
         LagsAdder(
             history_available=config.predict_history,
