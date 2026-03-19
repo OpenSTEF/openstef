@@ -2,18 +2,17 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-"""Transform for shifting features to align averaging intervals.
+"""Transform for shifting features to align aggregation intervals.
 
-This module provides functionality to shift time series features that are averaged
+This module provides functionality to shift time series features that are aggregated
 over a different interval than the target variable, correcting the phase misalignment
 by shifting and linearly interpolating back onto the original time grid.
 """
 
 from datetime import timedelta
-from typing import Any, cast, override
+from typing import Any, override
 
 import numpy as np
-import pandas as pd
 from pydantic import Field, PrivateAttr
 
 from openstef_core.base_model import BaseConfig
@@ -23,25 +22,25 @@ from openstef_models.utils.feature_selection import FeatureSelection
 
 
 class Shifter(BaseConfig, TimeSeriesTransform):
-    """Transform that shifts features to align their averaging interval with the target.
+    """Transform that shifts features to align their aggregation interval with the target.
 
-    When source features are averaged over a different interval than the target variable,
+    When source features are aggregated over a different interval than the target variable,
     their timestamps represent a different center point in time. This transform corrects
     the phase misalignment by shifting the source features and linearly interpolating
     back onto the original time grid.
 
     The shift is computed as::
 
-        shift = source_averaging_period / 2 - target_averaging_period / 2
+        shift = source_aggregation_period / 2 - target_aggregation_period / 2
 
-    Timestamps are assumed to be at the end of the averaging interval.
-    For example, a timestamp of 12:00 with a 60-minute averaging period represents
+    Timestamps are assumed to be at the end of the aggregation interval.
+    For example, a timestamp of 12:00 with a 60-minute aggregation period represents
     the average over [11:00, 12:00], centered at 11:30. For instantaneous features
-    or target, use an averaging period of zero.
+    or target, use an aggregation period of zero.
 
     Example: Aligning hourly radiation with 15-minute load
-        Hourly radiation (source_averaging_period=60 min) has its center 30 min
-        before the timestamp, while 15-minute load (target_averaging_period=15 min)
+        Hourly radiation (source_aggregation_period=60 min) has its center 30 min
+        before the timestamp, while 15-minute load (target_aggregation_period=15 min)
         has its center 7.5 min before the timestamp. The required backward shift
         for radiation is 22.5 minutes.
 
@@ -61,8 +60,8 @@ class Shifter(BaseConfig, TimeSeriesTransform):
         >>>
         >>> shifter = Shifter(
         ...     selection=FeatureSelection(include=['radiation']),
-        ...     source_averaging_period=timedelta(minutes=60),
-        ...     target_averaging_period=timedelta(minutes=15),
+        ...     source_aggregation_period=timedelta(minutes=60),
+        ...     target_aggregation_period=timedelta(minutes=15),
         ...     fill_edges=True,
         ... )
         >>> result = shifter.transform(dataset)
@@ -74,13 +73,13 @@ class Shifter(BaseConfig, TimeSeriesTransform):
         default=FeatureSelection.NONE,
         description="Features to shift.",
     )
-    source_averaging_period: timedelta = Field(
+    source_aggregation_period: timedelta = Field(
         default=timedelta(minutes=60),
-        description="Averaging period of the source features.",
+        description="Aggregation period of the source features.",
     )
-    target_averaging_period: timedelta = Field(
+    target_aggregation_period: timedelta = Field(
         default=timedelta(minutes=15),
-        description="Averaging period of the target variable.",
+        description="Aggregation period of the target variable.",
     )
     fill_edges: bool = Field(
         default=False,
@@ -94,7 +93,7 @@ class Shifter(BaseConfig, TimeSeriesTransform):
 
     @override
     def model_post_init(self, context: Any) -> None:
-        self._shift = self.source_averaging_period / 2 - self.target_averaging_period / 2
+        self._shift = self.source_aggregation_period / 2 - self.target_aggregation_period / 2
 
     @override
     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
@@ -104,27 +103,23 @@ class Shifter(BaseConfig, TimeSeriesTransform):
         features = self.selection.resolve(data.feature_names)
         transformed_data = data.data.copy()
 
-        original_index = cast(pd.DatetimeIndex, data.data.index)
+        original_index = data.index
         shifted_index = original_index - self._shift
-        combined_index = cast(pd.DatetimeIndex, original_index.union(shifted_index))
+        combined_index = original_index.union(shifted_index)
 
         feature_data = transformed_data[features]
 
         # Place values on the shifted time axis, interpolate back onto the original grid
         shifted_df = feature_data.set_axis(shifted_index)  # pyright: ignore[reportUnknownMemberType]
-        realigned = shifted_df.reindex(combined_index).interpolate(method="time").reindex(original_index)
+        combined_df = shifted_df.reindex(combined_index)
+
+        limit_area = None if self.fill_edges else "inside"
+        realigned = combined_df.interpolate(method="time", limit_direction="both", limit_area=limit_area)
+        realigned = realigned.reindex(original_index)
 
         # Restore pre-existing NaN at their shifted positions (nearest-neighbor mapping)
         nan_mask_shifted = feature_data.isna().set_axis(shifted_index)  # pyright: ignore[reportUnknownMemberType]
         realigned[nan_mask_shifted.reindex(original_index, method="nearest")] = np.nan
-
-        # Handle timestamps outside the range covered by the shifted data
-        outside_mask = (original_index < shifted_index.min()) | (original_index > shifted_index.max())  # pyright: ignore[reportUnknownMemberType]
-        if self.fill_edges:
-            edge = feature_data.iloc[[-1]] if self._shift > timedelta(0) else feature_data.iloc[[0]]
-            realigned.loc[outside_mask] = edge.to_numpy()
-        else:
-            realigned.loc[outside_mask] = np.nan
 
         transformed_data[features] = realigned
 

@@ -29,7 +29,7 @@ def sample_dataset() -> TimeSeriesDataset:
 
 
 @pytest.mark.parametrize(
-    ("source_averaging_period", "target_averaging_period", "expected_radiation"),
+    ("source_aggregation_period", "target_aggregation_period", "expected_radiation"),
     [
         pytest.param(
             timedelta(minutes=60),
@@ -53,16 +53,16 @@ def sample_dataset() -> TimeSeriesDataset:
 )
 def test_shifter__shift_and_interpolate(
     sample_dataset: TimeSeriesDataset,
-    source_averaging_period: timedelta,
-    target_averaging_period: timedelta,
+    source_aggregation_period: timedelta,
+    target_aggregation_period: timedelta,
     expected_radiation: list[float],
 ):
     """Test that features are shifted and interpolated correctly for different intervals."""
     # Arrange
     shifter = Shifter(
         selection=FeatureSelection(include={"radiation"}),
-        source_averaging_period=source_averaging_period,
-        target_averaging_period=target_averaging_period,
+        source_aggregation_period=source_aggregation_period,
+        target_aggregation_period=target_aggregation_period,
     )
 
     # Act
@@ -80,8 +80,8 @@ def test_shifter__no_shift_when_intervals_equal(sample_dataset: TimeSeriesDatase
     # Arrange
     shifter = Shifter(
         selection=FeatureSelection(include={"radiation"}),
-        source_averaging_period=timedelta(minutes=15),
-        target_averaging_period=timedelta(minutes=15),
+        source_aggregation_period=timedelta(minutes=15),
+        target_aggregation_period=timedelta(minutes=15),
     )
 
     # Act
@@ -125,8 +125,8 @@ def test_shifter__fill_edges_leading_nan(sample_dataset: TimeSeriesDataset):
     # Arrange — negative shift (source < target) produces leading NaN
     shifter = Shifter(
         selection=FeatureSelection(include={"radiation"}),
-        source_averaging_period=timedelta(minutes=15),
-        target_averaging_period=timedelta(minutes=60),
+        source_aggregation_period=timedelta(minutes=15),
+        target_aggregation_period=timedelta(minutes=60),
         fill_edges=True,
     )
 
@@ -155,8 +155,8 @@ def test_shifter__preserves_preexisting_nan():
     dataset = TimeSeriesDataset(data, timedelta(minutes=15))
     shifter = Shifter(
         selection=FeatureSelection(include={"radiation"}),
-        source_averaging_period=timedelta(minutes=60),
-        target_averaging_period=timedelta(minutes=15),
+        source_aggregation_period=timedelta(minutes=60),
+        target_aggregation_period=timedelta(minutes=15),
         fill_edges=True,
     )
 

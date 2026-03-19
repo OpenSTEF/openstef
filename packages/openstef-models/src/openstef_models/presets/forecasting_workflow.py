@@ -209,7 +209,7 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
     # Feature engineering
     shifter: Shifter = Field(
         default=Shifter(),
-        description="Optional transform to shift features to align averaging intervals. "
+        description="Optional transform to shift features to align aggregation intervals. "
         "Select which features to shift via the selection parameter.",
     )
     rolling_aggregate_features: list[AggregationFunction] = Field(
