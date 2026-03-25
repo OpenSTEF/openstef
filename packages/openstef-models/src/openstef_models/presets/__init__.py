@@ -7,12 +7,11 @@
 Provides configurations and utilities for setting up forecasting workflows.
 """
 
+from openstef_models.utils.tuning import TuningResult, fit_with_tuning, tune
+
 from .forecasting_workflow import (
     ForecastingWorkflowConfig,
-    TuningResult,
     create_forecasting_workflow,
-    fit_with_tuning,
-    tune,
 )
 
 __all__ = [

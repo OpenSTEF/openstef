@@ -65,6 +65,7 @@ from openstef_models.transforms.weather_domain import (
 )
 from openstef_models.utils.data_split import DataSplitter
 from openstef_models.utils.feature_selection import Exclude, FeatureSelection, Include
+from openstef_models.utils.tuning import TuningConfigMixin
 from openstef_models.workflows.custom_forecasting_workflow import (
     CustomForecastingWorkflow,
     ForecastingCallback,
@@ -74,7 +75,7 @@ if TYPE_CHECKING:
     from openstef_core.datasets import ForecastDataset
 
 
-class EnsembleForecastingWorkflowConfig(BaseConfig):
+class EnsembleForecastingWorkflowConfig(TuningConfigMixin, BaseConfig):
     """Configuration for ensemble forecasting workflows."""
 
     kind: Literal["ensemble"] = Field(default="ensemble", description="Discriminator tag for config type.")
@@ -278,6 +279,16 @@ class EnsembleForecastingWorkflowConfig(BaseConfig):
     experiment_tags: dict[str, str] = Field(
         default_factory=dict,
         description="Optional metadata tags for experiment tracking.",
+    )
+
+    # Hyperparameter tuning (Optuna)
+    optuna_n_trials: int = Field(
+        default=50,
+        description="Number of Optuna trials to run during hyperparameter tuning.",
+    )
+    optuna_seed: int | None = Field(
+        default=None,
+        description="Random seed for Optuna sampler reproducibility. None disables seeding.",
     )
 
 

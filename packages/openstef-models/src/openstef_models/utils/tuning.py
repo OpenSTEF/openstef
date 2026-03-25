@@ -11,17 +11,23 @@ around Optuna for running Bayesian hyperparameter optimisation studies.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, Literal, NamedTuple, Protocol, Self, cast, runtime_checkable
 
 import optuna
 from pydantic import BaseModel, PrivateAttr, model_validator
+
+from openstef_core.mixins import HyperParams
 
 if TYPE_CHECKING:
     from collections.abc import Callable
 
     from pydantic.fields import FieldInfo
 
-from openstef_core.mixins import HyperParams
+    from openstef_core.datasets import TimeSeriesDataset
+    from openstef_core.types import QuantileOrGlobal
+    from openstef_models.mixins.model_serializer import ModelIdentifier
+    from openstef_models.models.forecasting_model import ModelFitResult
+    from openstef_models.workflows.custom_forecasting_workflow import CustomForecastingWorkflow
 
 
 @dataclass(frozen=True)
@@ -148,8 +154,70 @@ class TunableHyperParams(HyperParams):
             data = cleaned
         result: TunableHyperParams = handler(data)
         if instance_ranges and result.__pydantic_private__ is not None:
-            result.__pydantic_private__["_instance_ranges"] = instance_ranges
+            result._instance_ranges = instance_ranges
         return result
+
+
+@dataclass(frozen=True)
+class ModelTuningInfo:
+    """Dataclass for model specific hyperparameter info.
+
+    Ensures that search_space cannot be empty.
+
+    Attributes:
+        model_hyperparams_field_name: Name of the field on the config object
+            (e.g. ``"xgboost_hyperparams"``).
+        tunable_hyperparams: The ``TunableHyperParams`` instance to update with
+            trial suggestions.
+        search_space: Pre-computed, non-empty mapping of
+            parameter name → :class:`TuningRange`.
+    """
+
+    model_hyperparams_field_name: str
+    tunable_hyperparams: TunableHyperParams
+    search_space: dict[str, TuningRange]
+
+    def __post_init__(self) -> None:
+        """Validate that search_space is non-empty.
+
+        Raises:
+            ValueError: If ``search_space`` is empty.
+        """
+        if not self.search_space:
+            msg = (
+                f"search_space for '{self.model_hyperparams_field_name}' must not be empty. "
+                "Pass TuningRange(tune=True) objects in the HyperParams constructor."
+            )
+            raise ValueError(msg)
+
+
+@runtime_checkable
+class TunableWorkflowConfig(Protocol):
+    """Structural requirements for workflow configs for tuning.
+
+    This protocol is used for type checking of different configs cross-package, for example
+    ForecastingWorkflowConfig and EnsembleForecastingWorkflowConfig.
+    """
+
+    model_id: ModelIdentifier
+    optuna_n_trials: int
+    optuna_seed: int | None
+
+    @property
+    def model_selection_metric(self) -> tuple[QuantileOrGlobal, str, Any]:
+        """Metric used to select the best trial: (quantile, metric_name, direction)."""
+        ...
+
+    def get_tunable_hyperparams(self) -> list[ModelTuningInfo]:
+        """Return TunableField with model_hyperparams_field_name, hyperparams_instance and search_space for tuning.
+
+        Can be inherited from TuningConfigMixin.
+        """
+        ...
+
+    def model_copy(self, *, update: dict[str, Any]) -> Self:
+        """Return a copy of the config with the given fields updated."""
+        ...
 
 
 def _get_class_range(field_info: FieldInfo) -> TuningRange | None:
@@ -212,7 +280,7 @@ def get_search_space(
             ``tune=True`` annotation (catches typos early).
 
     Returns:
-        Mapping of field-name → effective :class:`TuningRange` for all tunable fields.
+        Mapping of hyperparam field-name → effective :class:`TuningRange` for all tunable fields.
 
     Raises:
         KeyError: If ``include`` is specified and any requested field name is not
@@ -233,16 +301,16 @@ def get_search_space(
         instance_ranges = hyperparams.instance_ranges
 
     result: dict[str, TuningRange] = {}
-    for field_name, field_info in type(hyperparams).model_fields.items():
+    for hyperparam_name, field_info in type(hyperparams).model_fields.items():
         class_range = _get_class_range(field_info)
-        override = instance_ranges.get(field_name)
+        override = instance_ranges.get(hyperparam_name)
 
         if override is not None:
             if not override.tune:
                 continue
-            result[field_name] = _merge_range(override, class_range)
+            result[hyperparam_name] = _merge_range(override, class_range)
         elif class_range is not None and class_range.tune:
-            result[field_name] = class_range
+            result[hyperparam_name] = class_range
 
     if include is not None:
         missing = include - result.keys()
@@ -274,15 +342,19 @@ def suggest_hyperparams[HP: BaseModel](
         A new ``HyperParams`` instance with the suggested values applied.
     """
     updates: dict[str, Any] = {}
-    for field_name, param in space.items():
-        if isinstance(param, FloatRange):
-            if param.low is not None and param.high is not None:
-                updates[field_name] = trial.suggest_float(field_name, param.low, param.high, log=param.log)
-        elif isinstance(param, IntRange):
-            if param.low is not None and param.high is not None:
-                updates[field_name] = trial.suggest_int(field_name, param.low, param.high, log=param.log)
-        elif param.choices is not None:
-            updates[field_name] = trial.suggest_categorical(field_name, list(param.choices))
+    for hyperparam_name, tuning_range in space.items():
+        if isinstance(tuning_range, FloatRange):
+            if tuning_range.low is not None and tuning_range.high is not None:
+                updates[hyperparam_name] = trial.suggest_float(
+                    hyperparam_name, tuning_range.low, tuning_range.high, log=tuning_range.log
+                )
+        elif isinstance(tuning_range, IntRange):
+            if tuning_range.low is not None and tuning_range.high is not None:
+                updates[hyperparam_name] = trial.suggest_int(
+                    hyperparam_name, tuning_range.low, tuning_range.high, log=tuning_range.log
+                )
+        elif tuning_range.choices is not None:
+            updates[hyperparam_name] = trial.suggest_categorical(hyperparam_name, list(tuning_range.choices))
     return current.model_copy(update=updates)
 
 
@@ -290,7 +362,7 @@ def run_optuna_study(
     objective: Callable[[optuna.Trial], float],
     n_trials: int,
     seed: int | None = 42,
-    direction: str = "maximize",
+    direction: Literal["maximize", "minimize"] = "maximize",
     study_name: str = "hyperparameter_tuning",
 ) -> optuna.Study:
     """Run a Bayesian hyperparameter optimisation study using Optuna.
@@ -316,13 +388,273 @@ def run_optuna_study(
     return study
 
 
+class TuningConfigMixin:
+    """Mixin for get_tunable_hyperparams for workflow configs.
+
+    Discovers tunable fields by reflecting over model_fields and returning a TunableField for every field whose value
+    is a TunableHyperParams instance with a non-empty search space.
+    """
+
+    def get_tunable_hyperparams(self) -> list[ModelTuningInfo]:
+        """Return one ModelTuningInfo per active tunable hyperparameter group for a model."""
+        result: list[ModelTuningInfo] = []
+        model_fields: dict[str, Any] = cast(dict[str, Any], getattr(type(self), "model_fields", {}))
+        for field_name in model_fields:
+            value = getattr(self, field_name)
+            if isinstance(value, TunableHyperParams):  # checks if the config field contains tunable hyperparams
+                space = get_search_space(value)
+                if space:
+                    result.append(
+                        ModelTuningInfo(
+                            model_hyperparams_field_name=field_name,
+                            tunable_hyperparams=value,
+                            search_space=space,
+                        )
+                    )
+        return result
+
+
+@dataclass(repr=False)
+class TuningResult:
+    """Result of a :func:`fit_with_tuning` call.
+
+    Attributes:
+        workflow: The fitted :class:`CustomForecastingWorkflow`.
+        fit_result: The :class:`ModelFitResult` from the final training run, or
+            ``None`` if fitting was skipped (e.g. by an MLflow callback).
+        study: The completed :class:`optuna.Study`.  Raw best parameter values
+            are available via ``study.best_params``.
+        best_config: The workflow config updated with the best hyperparameters
+            found during tuning.
+    """
+
+    workflow: CustomForecastingWorkflow
+    fit_result: ModelFitResult | None
+    study: optuna.Study
+    best_config: TunableWorkflowConfig
+
+    def __repr__(self) -> str:
+        """Return a string representation of the TuningResult."""
+        n = len(self.study.best_params)
+        return f"TuningResult({n} params tuned)" if n else "TuningResult(no tuning)"
+
+
+class _TrialEntry(NamedTuple):
+    """One entry in the combined search space, keyed by Optuna trial-key.
+
+    Attributes:
+        model_hyperparams_field_name: Field on the config holding the hyperparams
+            group for a specific model, e.g. ``"xgboost_hyperparams"``.
+        hyperparam_name: Individual parameter within that group, e.g. ``"n_estimators"``.
+        tuning_range: Defines the search space for this parameter.
+    """
+
+    model_hyperparams_field_name: str
+    hyperparam_name: str
+    tuning_range: TuningRange
+
+
+def _suggest_param(
+    trial: optuna.Trial,
+    trial_key: str,
+    tuning_range: TuningRange,
+) -> bool | int | float | str | None:
+    """Suggest a value for *trial_key* using the appropriate Optuna API.
+
+    Returns ``None`` when the range is incomplete (missing bounds or choices)
+    so the caller can skip updating that parameter.
+
+    Returns:
+        The suggested value, or ``None`` if the range has no usable bounds.
+    """
+    if isinstance(tuning_range, FloatRange) and tuning_range.low is not None and tuning_range.high is not None:
+        return trial.suggest_float(trial_key, tuning_range.low, tuning_range.high, log=tuning_range.log)
+    if isinstance(tuning_range, IntRange) and tuning_range.low is not None and tuning_range.high is not None:
+        return trial.suggest_int(trial_key, tuning_range.low, tuning_range.high, log=tuning_range.log)
+    if isinstance(tuning_range, CategoricalRange) and tuning_range.choices is not None:
+        return trial.suggest_categorical(trial_key, list(tuning_range.choices))
+    return None
+
+
+class _TuningObjective:
+    """Callable Optuna objective that encapsulates the context for a tuning run."""
+
+    def __init__(
+        self,
+        combined_space: dict[str, _TrialEntry],
+        model_tuning_info: list[ModelTuningInfo],
+        config: TunableWorkflowConfig,
+        train_dataset: TimeSeriesDataset,
+        create_workflow: Callable[..., CustomForecastingWorkflow],
+        target_quantile: QuantileOrGlobal,
+        metric_name: str,
+    ) -> None:
+        """Store the tuning context."""
+        self._combined_space = combined_space
+        self._model_tuning_info = model_tuning_info
+        self._config = config
+        self._train_dataset = train_dataset
+        self._create_workflow = create_workflow
+        self._target_quantile: QuantileOrGlobal = target_quantile
+        self._metric_name = metric_name
+
+    def __call__(self, trial: optuna.Trial) -> float:
+        """Evaluate a single Optuna trial.
+
+        Returns:
+            Score to maximise, or ``-inf`` on failure.
+        """
+        per_field: dict[str, dict[str, Any]] = {}
+        for trial_key, trial_entry in self._combined_space.items():
+            value = _suggest_param(trial, trial_key, trial_entry.tuning_range)
+            if value is not None:
+                per_field.setdefault(trial_entry.model_hyperparams_field_name, {})[trial_entry.hyperparam_name] = value
+
+        updates: dict[str, Any] = {}
+        for tf in self._model_tuning_info:
+            if tf.model_hyperparams_field_name in per_field:
+                updates[tf.model_hyperparams_field_name] = tf.tunable_hyperparams.model_copy(
+                    update=per_field[tf.model_hyperparams_field_name]
+                )
+        tuned_config = self._config.model_copy(update=updates)
+
+        trial_workflow = self._create_workflow(tuned_config)
+        trial_result = trial_workflow.fit(self._train_dataset)
+        if trial_result is None:
+            return float("-inf")
+        metrics = trial_result.metrics_val if trial_result.metrics_val is not None else trial_result.metrics_train
+        score = metrics.get_metric(quantile=self._target_quantile, metric_name=self._metric_name)
+        return float(score) if score is not None else float("-inf")
+
+
+def tune[ConfigT: TunableWorkflowConfig](
+    config: ConfigT,
+    train_dataset: TimeSeriesDataset,
+    create_workflow: Callable[[ConfigT], CustomForecastingWorkflow],
+) -> tuple[ConfigT, optuna.Study, dict[str, Any]]:
+    """Generic hyperparameter tuning for any TunableWorkflowConfig.
+
+    Args:
+        config: Any config implementing TunableWorkflowConfig.
+        train_dataset: Dataset used for all trial fit calls.
+        create_workflow: Factory that builds a CustomForecastingWorkflow from config.
+
+    Returns:
+        (best_config, study, best_params)
+
+    Raises:
+        ValueError: If no hyperparameter field has tune=True ranges.
+    """
+    model_tuning_info = config.get_tunable_hyperparams()
+    if not model_tuning_info:
+        msg = (
+            f"No tunable hyperparameters found on config '{config.model_id}'. "
+            "Pass TuningRange(tune=True) objects as field values in the hyperparams constructor."
+        )
+        raise ValueError(msg)
+
+    target_quantile, metric_name, _ = config.model_selection_metric
+
+    # Aggregate search spaces across tunable hyperparam fields.
+    # Use prefixes to avoid collisions.
+    multi = len(model_tuning_info) > 1
+    combined_space: dict[
+        str, _TrialEntry
+    ] = {}  # trial_key -> (model_hyperparams_field_name, hyperparam_name, tuning_range)
+    for tf in model_tuning_info:
+        for hyperparam_name, tuning_range in tf.search_space.items():
+            trial_key = f"{tf.model_hyperparams_field_name}.{hyperparam_name}" if multi else hyperparam_name
+            combined_space[trial_key] = _TrialEntry(tf.model_hyperparams_field_name, hyperparam_name, tuning_range)
+
+    # Build and run the Optuna study
+    objective = _TuningObjective(
+        combined_space=combined_space,
+        model_tuning_info=model_tuning_info,
+        config=config,
+        train_dataset=train_dataset,
+        create_workflow=create_workflow,
+        target_quantile=target_quantile,
+        metric_name=metric_name,
+    )
+    study = run_optuna_study(
+        objective=objective,
+        n_trials=config.optuna_n_trials,
+        seed=config.optuna_seed,
+        study_name=f"tuning_{config.model_id}",
+    )
+
+    # Reconstruct the best config by applying the best parameters per field
+    best_config = _reconstruct_best_config(config, model_tuning_info, study)
+    return best_config, study, study.best_params
+
+
+def _reconstruct_best_config[ConfigT: TunableWorkflowConfig](
+    config: ConfigT,
+    model_tuning_info_list: list[ModelTuningInfo],
+    study: optuna.Study,
+) -> ConfigT:
+    """Returns the best config using the optuna study results for all tunable fields.
+
+    Args:
+        config: Any config implementing TunableWorkflowConfig.
+        model_tuning_info_list: list of :class: ModelTuningInfo per model,
+        study: :class:`optuna.Study` completed with trial results
+
+    Returns:
+        :class:`TunableWorkflowConfig` with the best best hyperparameter values.
+    """
+    multi = len(model_tuning_info_list) > 1
+    per_field_best: dict[str, dict[str, Any]] = {}
+    for trial_key, value in study.best_params.items():
+        if multi and "." in trial_key:
+            model_hyperparams_field_name, hyperparam_name = trial_key.split(".", 1)
+        else:
+            model_hyperparams_field_name = model_tuning_info_list[0].model_hyperparams_field_name
+            hyperparam_name = trial_key
+        per_field_best.setdefault(model_hyperparams_field_name, {})[hyperparam_name] = value
+
+    best_updates: dict[str, Any] = {}
+    for tf in model_tuning_info_list:
+        if tf.model_hyperparams_field_name in per_field_best:
+            best_updates[tf.model_hyperparams_field_name] = tf.tunable_hyperparams.model_copy(
+                update=per_field_best[tf.model_hyperparams_field_name]
+            )
+
+    return config.model_copy(update=best_updates)
+
+
+def fit_with_tuning[ConfigT: TunableWorkflowConfig](
+    config: ConfigT, train_dataset: TimeSeriesDataset, create_workflow: Callable[[ConfigT], CustomForecastingWorkflow]
+) -> TuningResult:
+    """Create, tune and fit.
+
+    Args:
+        config: Any config implementing TunableWorkflowConfig.
+        train_dataset: Dataset used for fit.
+        create_workflow: Factory that builds a CustomForecastingWorkflow from config.
+
+    Returns:
+        :class:`TuningResult` with the fitted workflow, completed study, and best config.
+    """
+    best_config, study, _ = tune(config, train_dataset, create_workflow)
+    workflow = create_workflow(best_config)
+    result = workflow.fit(train_dataset)
+    return TuningResult(workflow=workflow, fit_result=result, study=study, best_config=best_config)
+
+
 __all__ = [
     "CategoricalRange",
     "FloatRange",
     "IntRange",
+    "ModelTuningInfo",
     "TunableHyperParams",
+    "TunableWorkflowConfig",
+    "TuningConfigMixin",
     "TuningRange",
+    "TuningResult",
+    "fit_with_tuning",
     "get_search_space",
     "run_optuna_study",
     "suggest_hyperparams",
+    "tune",
 ]
