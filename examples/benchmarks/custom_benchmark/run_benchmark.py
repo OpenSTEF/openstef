@@ -22,7 +22,7 @@ from pathlib import Path
 from examples.benchmarks.custom_benchmark.example_baseline import ExampleBenchmarkForecaster
 from examples.benchmarks.custom_benchmark.example_benchmark import MyCategory, create_custom_benchmark_runner
 from openstef_beam.benchmarking import BenchmarkContext, BenchmarkTarget, LocalBenchmarkStorage
-from openstef_beam.benchmarking.baselines import create_openstef4_preset_backtest_forecaster
+from openstef_beam.benchmarking.baselines.openstef4 import create_openstef4_preset_backtest_forecaster
 from openstef_core.types import LeadTime, Q
 from openstef_models.presets import ForecastingWorkflowConfig
 

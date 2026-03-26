@@ -21,7 +21,7 @@ from pathlib import Path
 
 from examples.benchmarks.custom_benchmark.example_baseline import ExampleBenchmarkForecaster
 from openstef_beam.benchmarking import BenchmarkContext, BenchmarkTarget, LocalBenchmarkStorage
-from openstef_beam.benchmarking.baselines import create_openstef4_preset_backtest_forecaster
+from openstef_beam.benchmarking.baselines.openstef4 import create_openstef4_preset_backtest_forecaster
 from openstef_beam.benchmarking.benchmarks.liander2024 import Liander2024Category, create_liander2024_benchmark_runner
 from openstef_beam.benchmarking.callbacks.strict_execution_callback import StrictExecutionCallback
 from openstef_core.types import LeadTime, Q
