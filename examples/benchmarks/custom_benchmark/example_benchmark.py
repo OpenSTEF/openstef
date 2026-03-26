@@ -22,7 +22,7 @@ from datetime import timedelta
 from pathlib import Path
 from typing import Literal, override
 
-from huggingface_hub import snapshot_download
+from huggingface_hub import snapshot_download  # pyright: ignore[reportUnknownVariableType]
 from pydantic import Field
 
 from openstef_beam.analysis import AnalysisConfig
@@ -156,16 +156,16 @@ def create_custom_benchmark_runner(
         # Backtest: how to replay history
         backtest_config=BacktestConfig(
             prediction_sample_interval=timedelta(minutes=15),  # Data resolution
-            predict_interval=timedelta(hours=6),               # New forecast every 6 hours
-            train_interval=timedelta(days=7),                  # Retrain model every 7 days
+            predict_interval=timedelta(hours=6),  # New forecast every 6 hours
+            train_interval=timedelta(days=7),  # Retrain model every 7 days
         ),
         # Evaluation: how to slice and score the results
         evaluation_config=EvaluationConfig(
             available_ats=[AvailableAt.from_string("D-1T06:00")],  # Day-ahead forecast at 06:00
             lead_times=[
                 LeadTime.from_string("P1D"),  # 1 day ahead
-            ],                                         # Evaluate all lead times
-            windows=[                                              # Rolling windows for metrics
+            ],  # Evaluate all lead times
+            windows=[  # Rolling windows for metrics
                 Window(lag=timedelta(hours=0), size=timedelta(days=7)),
                 Window(lag=timedelta(hours=0), size=timedelta(days=30)),
             ],

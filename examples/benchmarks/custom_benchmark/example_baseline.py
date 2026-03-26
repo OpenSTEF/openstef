@@ -33,13 +33,13 @@ class ExampleBenchmarkForecaster(BacktestForecasterMixin):
 
         # BacktestForecasterConfig tells BEAM how to schedule training and prediction
         self.config = BacktestForecasterConfig(
-            requires_training=True,               # Call fit() before predict()
-            predict_length=timedelta(days=7),      # How far ahead to forecast
+            requires_training=True,  # Call fit() before predict()
+            predict_length=timedelta(days=7),  # How far ahead to forecast
             predict_min_length=timedelta(minutes=15),
             predict_context_length=timedelta(minutes=15),  # Data needed before forecast start (>0)
             predict_context_min_coverage=0.0,
-            training_context_length=timedelta(days=30),     # How much history fit() sees
-            training_context_min_coverage=0.3,              # Min 30% non-NaN data required
+            training_context_length=timedelta(days=30),  # How much history fit() sees
+            training_context_min_coverage=0.3,  # Min 30% non-NaN data required
             predict_sample_interval=timedelta(minutes=15),  # Output resolution (15-min intervals)
         )
 
