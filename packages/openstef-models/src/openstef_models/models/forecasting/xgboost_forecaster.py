@@ -18,7 +18,6 @@ from sklearn.preprocessing import StandardScaler
 
 from openstef_core.datasets import ForecastDataset, ForecastInputDataset, TimeSeriesDataset
 from openstef_core.exceptions import MissingExtraError, NotFittedError
-from openstef_core.mixins import HyperParams
 from openstef_core.utils.pandas import normalize_to_unit_sum
 from openstef_models.explainability.mixins import ContributionsMixin, ExplainableForecaster
 from openstef_models.models.forecasting.forecaster import Forecaster

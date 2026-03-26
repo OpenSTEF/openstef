@@ -22,7 +22,6 @@ from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.datasets.mixins import LeadTime
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import InputValidationError, MissingExtraError, NotFittedError
-from openstef_core.mixins.predictor import HyperParams
 from openstef_core.utils.pandas import normalize_to_unit_sum
 from openstef_models.explainability.mixins import ContributionsMixin, ExplainableForecaster
 from openstef_models.models.forecasting.forecaster import Forecaster
