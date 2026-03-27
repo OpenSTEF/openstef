@@ -14,7 +14,7 @@ actual type.  Plain dataclasses are treated as opaque metadata.
 """
 
 from dataclasses import dataclass, replace
-from typing import Any
+from typing import Any, Self
 
 from pydantic import ConfigDict, Field, model_validator
 
@@ -35,7 +35,7 @@ class FloatRange:
             msg = f"low ({self.low}) must be <= high ({self.high})"
             raise ValueError(msg)
 
-    def resolve(self, class_default: "FloatRange | None") -> "FloatRange":
+    def resolve(self, class_default: Self | None) -> Self:
         """Fill ``None`` bounds from *class_default*.
 
         Returns:
@@ -64,7 +64,7 @@ class IntRange:
             msg = f"low ({self.low}) must be <= high ({self.high})"
             raise ValueError(msg)
 
-    def resolve(self, class_default: "IntRange | None") -> "IntRange":
+    def resolve(self, class_default: Self | None) -> Self:
         """Fill ``None`` bounds from *class_default*.
 
         Returns:
@@ -91,7 +91,7 @@ class CategoricalRange:
             msg = "choices must not be empty"
             raise ValueError(msg)
 
-    def resolve(self, class_default: "CategoricalRange | None") -> "CategoricalRange":
+    def resolve(self, class_default: Self | None) -> Self:
         """Fill ``None`` choices from *class_default*.
 
         Returns:
@@ -118,7 +118,7 @@ class ModelTuningInfo(BaseModel):
     search_space: dict[str, TuningRange] = Field(description="Resolved tuning ranges keyed by parameter name.")
 
     @model_validator(mode="after")
-    def _validate_search_space(self) -> "ModelTuningInfo":
+    def _validate_search_space(self) -> Self:
         if not self.search_space:
             msg = f"search_space for '{self.field_name}' must not be empty"
             raise ValueError(msg)

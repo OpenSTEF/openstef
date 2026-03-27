@@ -10,7 +10,7 @@ with separate fit and predict phases, and support serialization through the
 Stateful interface.
 """
 
-from typing import Any, cast
+from typing import Any, Self, cast
 
 from pydantic import PrivateAttr, model_validator
 
@@ -215,7 +215,7 @@ class HyperParams(BaseConfig):
         cls,
         data: dict[str, object] | object,
         handler: Any,  # noqa: ANN401
-    ) -> "HyperParams":
+    ) -> Self:
         """Strip TuningRange values from kwargs and store as instance metadata.
 
         Returns:
@@ -234,7 +234,7 @@ class HyperParams(BaseConfig):
         result: HyperParams = handler(data)
         if instance_ranges and result.__pydantic_private__ is not None:
             result._instance_ranges = instance_ranges
-        return result
+        return result  # type: ignore[return-value]
 
     def get_search_space(self, include: set[str] | None = None) -> dict[str, TuningRange]:
         """Merge instance and class-level ranges, returning only ``tune=True`` fields.
