@@ -312,9 +312,9 @@ def test_hyperparameter_tuner__tune_returns_best_config() -> None:
     create_workflow = MagicMock(return_value=_make_mock_workflow())
 
     tuner = HyperparameterTuner(
-        config,
-        MagicMock(),
-        create_workflow,
+        config=config,
+        train_dataset=MagicMock(),
+        create_workflow=create_workflow,
         target_quantile="global",
         metric_name="R2",
         n_trials=2,

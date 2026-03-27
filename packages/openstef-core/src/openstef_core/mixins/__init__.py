@@ -17,7 +17,7 @@ from openstef_core.param_ranges import (
     TuningRange,
 )
 
-from .predictor import BatchPredictor, BatchResult, HyperParams, Predictor
+from .predictor import BatchPredictor, BatchResult, HyperParams, Predictor, get_model_tuning_info
 from .stateful import Stateful
 from .transform import Transform, TransformPipeline
 
@@ -34,4 +34,5 @@ __all__ = [
     "Transform",
     "TransformPipeline",
     "TuningRange",
+    "get_model_tuning_info",
 ]

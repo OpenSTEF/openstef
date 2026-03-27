@@ -4,11 +4,10 @@
 """Hyperparameter tuning via Optuna.
 
 Requires ``optuna`` (available via ``pip install openstef-models[tuning]``).
-Import this module only when tuning is needed; the ``openstef_models.presets``
-package re-exports tuning symbols lazily so non-tuning users are not affected.
+Import this module only when tuning is needed.
 
 Key public API:
-- ``HyperparameterTuner`` — class that orchestrates Bayesian tuning.
+- ``HyperparameterTuner`` — Pydantic model that orchestrates Bayesian tuning.
 - ``tune`` / ``fit_with_tuning`` — convenience functions.
 - ``run_optuna_study`` — standalone utility for custom objectives.
 - ``TuningResult`` — result container for tuned config + study.
@@ -18,10 +17,18 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any, Literal, NamedTuple
 
-import optuna
+from pydantic import ConfigDict, Field, SkipValidation
+
+try:
+    import optuna
+except ImportError as _err:
+    from openstef_core.exceptions import MissingExtraError
+
+    raise MissingExtraError("optuna", "openstef-models[tuning]") from _err
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
+from openstef_core.mixins.predictor import get_model_tuning_info
 from openstef_core.param_ranges import (
     CategoricalRange,
     FloatRange,
@@ -117,26 +124,22 @@ def _build_hp_updates(
     }
 
 
-class _TuningObjective:
+class _TuningObjective(BaseConfig):
     """Callable Optuna objective encapsulating the tuning context."""
 
-    def __init__(
-        self,
-        combined_space: dict[str, _TrialEntry],
-        model_tuning_info: list[ModelTuningInfo],
-        config: BaseConfig,
-        train_dataset: TimeSeriesDataset,
-        create_workflow: Callable[..., CustomForecastingWorkflow],
-        target_quantile: QuantileOrGlobal,
-        metric_name: str,
-    ) -> None:
-        self._combined_space = combined_space
-        self._model_tuning_info = model_tuning_info
-        self._config = config
-        self._train_dataset = train_dataset
-        self._create_workflow = create_workflow
-        self._target_quantile: QuantileOrGlobal = target_quantile
-        self._metric_name = metric_name
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    combined_space: SkipValidation[dict[str, _TrialEntry]] = Field(
+        description="Combined search space keyed by Optuna trial-key."
+    )
+    model_tuning_info: list[ModelTuningInfo] = Field(description="Tuning metadata per HyperParams field.")
+    config: SkipValidation[BaseConfig] = Field(description="Base configuration to permute per trial.")
+    train_dataset: SkipValidation[TimeSeriesDataset] = Field(description="Training data for each trial.")
+    create_workflow: SkipValidation[Callable[..., CustomForecastingWorkflow]] = Field(
+        description="Factory that builds a workflow from a config."
+    )
+    target_quantile: QuantileOrGlobal = Field(description="Quantile (or 'global') for metric evaluation.")
+    metric_name: str = Field(description="Name of the metric to optimise.")
 
     def __call__(self, trial: optuna.Trial) -> float:
         """Evaluate a single Optuna trial.
@@ -145,18 +148,18 @@ class _TuningObjective:
             Score to optimise, or ``-inf`` on failure.
         """
         per_field: dict[str, dict[str, Any]] = {}
-        for trial_key, trial_entry in self._combined_space.items():
+        for trial_key, trial_entry in self.combined_space.items():
             value = _suggest_hyperparam_value(trial, trial_key, trial_entry.tuning_range)
             if value is not None:
                 per_field.setdefault(trial_entry.model_hyperparams_field_name, {})[trial_entry.hyperparam_name] = value
 
-        tuned_config = self._config.model_copy(update=_build_hp_updates(self._model_tuning_info, per_field))
-        trial_workflow = self._create_workflow(tuned_config)
-        trial_result = trial_workflow.fit(self._train_dataset)
+        tuned_config = self.config.model_copy(update=_build_hp_updates(self.model_tuning_info, per_field))
+        trial_workflow = self.create_workflow(tuned_config)
+        trial_result = trial_workflow.fit(self.train_dataset)
         if trial_result is None:
             return float("-inf")
         metrics = trial_result.metrics_val if trial_result.metrics_val is not None else trial_result.metrics_train
-        score = metrics.get_metric(quantile=self._target_quantile, metric_name=self._metric_name)
+        score = metrics.get_metric(quantile=self.target_quantile, metric_name=self.metric_name)
         return float(score) if score is not None else float("-inf")
 
 
@@ -196,37 +199,28 @@ def _reconstruct_best_config[ConfigT: BaseConfig](
     return config.model_copy(update=_build_hp_updates(model_tuning_info_list, per_field_best))
 
 
-class HyperparameterTuner[ConfigT: BaseConfig]:
+class HyperparameterTuner[ConfigT: BaseConfig](BaseConfig):
     """Bayesian hyperparameter tuner powered by Optuna.
 
     Orchestrates an Optuna study over the tunable search spaces declared on
-    ``HyperParams`` fields of the provided *config*.  Optuna is lazy-imported
-    so this class can be instantiated safely even without the ``optuna``
-    package installed.
+    ``HyperParams`` fields of the provided *config*.
     """
 
-    def __init__(  # noqa: D107, PLR0913
-        self,
-        config: ConfigT,
-        train_dataset: TimeSeriesDataset,
-        create_workflow: Callable[[ConfigT], CustomForecastingWorkflow],
-        *,
-        target_quantile: QuantileOrGlobal,
-        metric_name: str,
-        direction: Literal["maximize", "minimize"] = "maximize",
-        n_trials: int = 20,
-        seed: int | None = 42,
-        study_name: str = "hyperparameter_tuning",
-    ) -> None:
-        self._config = config
-        self._train_dataset = train_dataset
-        self._create_workflow = create_workflow
-        self._target_quantile: QuantileOrGlobal = target_quantile
-        self._metric_name = metric_name
-        self._direction: Literal["maximize", "minimize"] = direction
-        self._n_trials = n_trials
-        self._seed = seed
-        self._study_name = study_name
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    config: SkipValidation[ConfigT] = Field(description="Configuration with tunable HyperParams fields.")
+    train_dataset: SkipValidation[TimeSeriesDataset] = Field(description="Training data for each trial.")
+    create_workflow: SkipValidation[Callable[[ConfigT], CustomForecastingWorkflow]] = Field(
+        description="Factory that builds a workflow from a config."
+    )
+    target_quantile: QuantileOrGlobal = Field(description="Quantile (or 'global') for metric evaluation.")
+    metric_name: str = Field(description="Name of the metric to optimise.")
+    direction: Literal["maximize", "minimize"] = Field(
+        default="maximize", description="Optimisation direction for the metric."
+    )
+    n_trials: int = Field(default=20, description="Number of Optuna trials.")
+    seed: int | None = Field(default=42, description="Random seed for reproducibility.")
+    study_name: str = Field(default="hyperparameter_tuning", description="Optuna study name.")
 
     def tune(self) -> tuple[ConfigT, optuna.Study, dict[str, Any]]:
         """Run the Optuna study and return the best config.
@@ -237,7 +231,7 @@ class HyperparameterTuner[ConfigT: BaseConfig]:
         Raises:
             ValueError: If no tunable fields are found.
         """
-        model_tuning_info = self._config.get_model_tuning_info()
+        model_tuning_info = get_model_tuning_info(self.config)
         if not model_tuning_info:
             msg = "No tunable hyperparameters found. Pass TuningRange(tune=True) in the HyperParams constructor."
             raise ValueError(msg)
@@ -252,20 +246,20 @@ class HyperparameterTuner[ConfigT: BaseConfig]:
         objective = _TuningObjective(
             combined_space=combined_space,
             model_tuning_info=model_tuning_info,
-            config=self._config,
-            train_dataset=self._train_dataset,
-            create_workflow=self._create_workflow,
-            target_quantile=self._target_quantile,
-            metric_name=self._metric_name,
+            config=self.config,
+            train_dataset=self.train_dataset,
+            create_workflow=self.create_workflow,
+            target_quantile=self.target_quantile,
+            metric_name=self.metric_name,
         )
         study = run_optuna_study(
             objective=objective,
-            n_trials=self._n_trials,
-            seed=self._seed,
-            direction=self._direction,
-            study_name=self._study_name,
+            n_trials=self.n_trials,
+            seed=self.seed,
+            direction=self.direction,
+            study_name=self.study_name,
         )
-        best_config = _reconstruct_best_config(self._config, model_tuning_info, study)
+        best_config = _reconstruct_best_config(self.config, model_tuning_info, study)
         return best_config, study, study.best_params
 
     def fit_with_tuning(self) -> TuningResult:
@@ -275,8 +269,8 @@ class HyperparameterTuner[ConfigT: BaseConfig]:
             ``TuningResult`` containing the fitted workflow, study, and best config.
         """
         best_config, study, _ = self.tune()
-        workflow = self._create_workflow(best_config)
-        result = workflow.fit(self._train_dataset)
+        workflow = self.create_workflow(best_config)
+        result = workflow.fit(self.train_dataset)
         return TuningResult(workflow=workflow, fit_result=result, study=study, best_config=best_config)
 
 
@@ -298,9 +292,9 @@ def tune[ConfigT: BaseConfig](  # noqa: PLR0913
         ``(best_config, study, best_params)`` tuple.
     """
     return HyperparameterTuner(
-        config,
-        train_dataset,
-        create_workflow,
+        config=config,
+        train_dataset=train_dataset,
+        create_workflow=create_workflow,
         target_quantile=target_quantile,
         metric_name=metric_name,
         direction=direction,
@@ -328,9 +322,9 @@ def fit_with_tuning[ConfigT: BaseConfig](  # noqa: PLR0913
         ``TuningResult`` with the fitted workflow, study, and best config.
     """
     return HyperparameterTuner(
-        config,
-        train_dataset,
-        create_workflow,
+        config=config,
+        train_dataset=train_dataset,
+        create_workflow=create_workflow,
         target_quantile=target_quantile,
         metric_name=metric_name,
         direction=direction,
