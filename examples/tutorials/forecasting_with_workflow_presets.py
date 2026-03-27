@@ -65,7 +65,6 @@ logging.getLogger("kaleido").disabled = True
 
 # %%
 # Download and combine the Liander benchmark dataset into a single TimeSeriesDataset.
-# See data.py for the reusable helper that handles download + loading + combining.
 from openstef_core.testing import load_liander_dataset
 
 dataset = load_liander_dataset()

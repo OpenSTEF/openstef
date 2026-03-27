@@ -122,7 +122,7 @@ def test_tuning_result__repr_reflects_param_count(best_params: dict[str, Any], e
     study = MagicMock(spec=optuna.Study)
     study.best_params = best_params
 
-    result = TuningResult(study=study, best_config=MagicMock())
+    result = TuningResult(study=study, best_config=MagicMock(), workflow=MagicMock())
 
     # Act / Assert
     assert repr(result) == expected_repr
@@ -221,8 +221,9 @@ def test_hyperparameter_tuner__fit_with_tuning_returns_tuning_result() -> None:
     # Assert
     assert isinstance(result, TuningResult)
     assert isinstance(result.study, optuna.Study)
-    # 2 trial fits during tuning
-    assert create_workflow.call_count == 2
+    assert isinstance(result.workflow, MagicMock)
+    # 2 trial fits during tuning + 1 final fit with the best config
+    assert create_workflow.call_count == 3
 
 
 def test_hyperparameter_tuner__create_study_returns_configured_study() -> None:
