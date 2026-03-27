@@ -123,8 +123,6 @@ class HyperparameterTuner[ConfigT: BaseConfig](BaseConfig):
     seed: int | None = Field(default=42, description="Random seed for reproducibility.")
     study_name: str = Field(default="hyperparameter_tuning", description="Optuna study name.")
 
-    # -- Discoverable tuning API ---------------------------------------------------
-
     def _discover_search_spaces(self) -> list[ModelTuningInfo]:
         """Scan *config* for ``HyperParams`` fields with non-empty search spaces.
 
@@ -155,8 +153,6 @@ class HyperparameterTuner[ConfigT: BaseConfig](BaseConfig):
                 trial_key = f"{info.field_name}.{param_name}" if multi else param_name
                 combined[trial_key] = _SearchSpaceEntry(info.field_name, param_name, tuning_range)
         return combined
-
-    # -- Study lifecycle -----------------------------------------------------------
 
     def _create_study(self) -> optuna.Study:
         """Create and configure the Optuna study.
@@ -200,6 +196,9 @@ class HyperparameterTuner[ConfigT: BaseConfig](BaseConfig):
 
         Returns:
             Metric score for the trial (lower / higher is better depending on *direction*).
+
+        Raises:
+            ValueError: If ``metric_name`` is not found in the evaluation metrics.
         """
         per_field: dict[str, dict[str, Any]] = {}
         for trial_key, entry in combined_space.items():
@@ -207,32 +206,27 @@ class HyperparameterTuner[ConfigT: BaseConfig](BaseConfig):
             if value is not None:
                 per_field.setdefault(entry.config_field, {})[entry.param_name] = value
 
-        tuned_config = self.config.model_copy(update=self._build_hp_updates(model_tuning_info, per_field))
+        tuned_config = self.config.model_copy(
+            update={
+                info.field_name: info.hyperparams.model_copy(update=per_field[info.field_name])
+                for info in model_tuning_info
+                if info.field_name in per_field
+            }
+        )
         workflow = self.create_workflow(tuned_config)
         fit_result = workflow.fit(self.train_dataset)
         if fit_result is None:
             return float("-inf")
         metrics = fit_result.metrics_val if fit_result.metrics_val is not None else fit_result.metrics_train
         score = metrics.get_metric(quantile=self.target_quantile, metric_name=self.metric_name)
-        return float(score) if score is not None else float("-inf")
-
-    # -- Result reconstruction -----------------------------------------------------
-
-    def _build_hp_updates(  # noqa: PLR6301
-        self,
-        model_tuning_info: list[ModelTuningInfo],
-        per_field: dict[str, dict[str, Any]],
-    ) -> dict[str, Any]:
-        """Build a config-level update dict from per-field suggested values.
-
-        Returns:
-            Dict mapping field names to updated ``HyperParams`` instances.
-        """
-        return {
-            info.field_name: info.hyperparams.model_copy(update=per_field[info.field_name])
-            for info in model_tuning_info
-            if info.field_name in per_field
-        }
+        if score is None:
+            available = metrics.to_flat_dict()
+            msg = (
+                f"Metric {self.metric_name!r} (quantile={self.target_quantile!r}) not found. "
+                f"Available metrics: {sorted(available)}"
+            )
+            raise ValueError(msg)
+        return float(score)
 
     def _reconstruct_best_config(
         self,
@@ -253,9 +247,13 @@ class HyperparameterTuner[ConfigT: BaseConfig](BaseConfig):
                 field_name = model_tuning_info[0].field_name
                 param_name = trial_key
             per_field_best.setdefault(field_name, {})[param_name] = value
-        return self.config.model_copy(update=self._build_hp_updates(model_tuning_info, per_field_best))
-
-    # -- Public entry points -------------------------------------------------------
+        return self.config.model_copy(
+            update={
+                info.field_name: info.hyperparams.model_copy(update=per_field_best[info.field_name])
+                for info in model_tuning_info
+                if info.field_name in per_field_best
+            }
+        )
 
     def tune(self) -> tuple[ConfigT, optuna.Study, dict[str, Any]]:
         """Run the Optuna study and return the best config.

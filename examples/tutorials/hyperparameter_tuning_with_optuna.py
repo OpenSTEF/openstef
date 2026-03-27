@@ -18,7 +18,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-# pyright: basic, reportUndefinedVariable=false, reportAttributeAccessIssue=false, reportOptionalMemberAccess=false
+# pyright: basic
 
 # %%
 # --- Setup: Logging and Display Configuration ---
@@ -39,52 +39,12 @@ logging.getLogger("choreographer").disabled = True
 logging.getLogger("kaleido").disabled = True
 
 # %%
-# Download dataset from HuggingFace Hub
-# The dataset is stored as parquet files for efficient loading
-from huggingface_hub import hf_hub_download  # pyright: ignore[reportUnknownVariableType]
+# Download and combine the Liander benchmark dataset into a single TimeSeriesDataset.
+# See _data.py for the reusable helper that handles download + loading + combining.
+from _data import load_liander_dataset
 
-from openstef_core.base_model import Path
+dataset = load_liander_dataset()
 
-repo_id = "OpenSTEF/liander2024-energy-forecasting-benchmark"  # Public benchmark dataset
-local_dir = Path("./liander_dataset")
-target = "mv_feeder/OS Gorredijk"  # Specific installation to focus on
-
-# Download required files: load measurements, weather, prices, and profiles
-files_to_download = [
-    f"load_measurements/{target}.parquet",  # Energy consumption data
-    f"weather_forecasts_versioned/{target}.parquet",  # Weather features
-    "EPEX.parquet",  # Electricity prices (optional feature)
-    "profiles.parquet",  # Standard load profiles (optional feature)
-]
-
-for filename in files_to_download:
-    print(f"Downloading {filename}...")
-    hf_hub_download(
-        repo_id=repo_id, filename=filename, repo_type="dataset", local_dir=local_dir, local_dir_use_symlinks=False
-    )  # pyright: ignore[reportCallIssue]
-    print(f"✓ {filename} downloaded")
-
-print("\n✅ All files downloaded successfully!")
-
-# %%
-# Load datasets using OpenSTEF's VersionedTimeSeriesDataset
-# This class handles versioned data where each value has an "available_at" timestamp
-from openstef_core.datasets import VersionedTimeSeriesDataset
-
-# Load each data source from parquet files
-load_dataset = VersionedTimeSeriesDataset.read_parquet(local_dir / f"load_measurements/{target}.parquet")
-weather_dataset = VersionedTimeSeriesDataset.read_parquet(local_dir / f"weather_forecasts_versioned/{target}.parquet")
-epex_dataset = VersionedTimeSeriesDataset.read_parquet(local_dir / "EPEX.parquet")
-profiles_dataset = VersionedTimeSeriesDataset.read_parquet(local_dir / "profiles.parquet")
-
-# Combine all datasets using left join (keep all load timestamps, match features where available)
-# select_version() materializes the lazy dataset into a concrete TimeSeriesDataset
-dataset = VersionedTimeSeriesDataset.concat(
-    [load_dataset, weather_dataset, epex_dataset, profiles_dataset],
-    mode="left",  # Left join keeps all timestamps from the first dataset
-).select_version()
-
-# Preview the combined dataset
 print(f"Dataset shape: {dataset.data.shape}")
 print(f"Date range: {dataset.data.index.min()} to {dataset.data.index.max()}")
 dataset.data.head()
@@ -112,18 +72,33 @@ print(f"🔮 Forecast period: {forecast_start.date()} to {forecast_end.date()} (
 # Visualize the training data
 # The plot shows the 'load' column (energy consumption in MW) over time
 fig = train_dataset.data[["load"]].plot(title="Training Data: Energy Load over Time")
-fig.update_layout(yaxis_title="Load (MW)", xaxis_title="Time")
-fig.show()
+fig.update_layout(yaxis_title="Load (MW)", xaxis_title="Time")  # type: ignore[union-attr]  # plotly Figure
+fig.show()  # type: ignore[union-attr]
 
 # %% [markdown]
 # ## Define a base config with inline search space
 #
-#
+# Override default hyperparameters with `TuningRange(tune=True)` to mark them for tuning.
+# Any parameter left as a plain value keeps its default during tuning.
 
 # %%
 from openstef_core.param_ranges import FloatRange, IntRange
 from openstef_core.types import Q
 from openstef_models.integrations.optuna import HyperparameterTuner
+from openstef_models.models.forecasting.xgboost_forecaster import XGBoostHyperParams
+from openstef_models.presets import ForecastingWorkflowConfig, create_forecasting_workflow
+
+config = ForecastingWorkflowConfig(
+    model_id="tuning_demo",
+    model="xgboost",
+    xgboost_hyperparams=XGBoostHyperParams(
+        learning_rate=FloatRange(0.01, 0.3, log=True, tune=True),  # pyright: ignore[reportCallIssue]  # ranges accepted at runtime via Annotated
+        n_estimators=IntRange(50, 500, tune=True),
+        max_depth=IntRange(3, 10, tune=True),
+        subsample=FloatRange(0.5, 1.0, tune=True),
+        colsample_bytree=FloatRange(0.5, 1.0, tune=True),
+    ),
+)
 
 # %% [markdown]
 # ## Inspect the resolved search space
@@ -170,7 +145,8 @@ print(f"Best params: {tuning_result.study.best_params}")
 # The best config is already applied inside fit_with_tuning.
 # Here we inspect which hyperparameters were tuned vs kept at their default.
 print("Final XGBoost hyperparameters (tuned values marked):")
-final_hp = tuning_result.workflow.model.forecaster.hyperparams
+forecaster = tuning_result.workflow.model.forecaster  # type: ignore[union-attr]  # known to be set after fit
+final_hp = forecaster.hyperparams
 baseline_hp = config.xgboost_hyperparams
 best_params = tuning_result.study.best_params
 
@@ -191,6 +167,8 @@ for field in type(final_hp).model_fields:
 # %%
 print("Final model already trained by fit_with_tuning!")
 print("Full-set metrics (tuned model):")
+assert tuning_result.fit_result is not None
+assert tuning_result.fit_result.metrics_full is not None
 print(tuning_result.fit_result.metrics_full.to_dataframe())
 
 
