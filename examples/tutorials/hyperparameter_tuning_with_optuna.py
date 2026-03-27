@@ -24,6 +24,7 @@
 # --- Setup: Logging and Display Configuration ---
 # Configure logging to see training progress and plotly to render as PNG for VS Code compatibility
 import logging
+from typing import Literal
 
 import pandas as pd
 import plotly.io as pio
@@ -152,26 +153,19 @@ best_params = tuning_result.study.best_params
 for field in type(final_hp).model_fields:
     value = getattr(final_hp, field)
     baseline = getattr(baseline_hp, field)
-    marker = " <- tuned" if field in best_params else ""
+    marker: Literal[' <- tuned'] | Literal[''] = " <- tuned" if field in best_params else ""
     print(f"  {field:25s}: {value}{marker}")
 
 
 # %% [markdown]
-# ## Train the final model with best hyperparameters
+# ## The fitted workflow
 #
-# `fit_with_tuning()` returns the best config. Now we create a workflow with it
-# and train the final model on the full training set.
+# `fit_with_tuning()` already trains a final workflow on the full training set using the best
+# hyperparameters — no separate fit step is needed. The result is in `tuning_result.workflow`.
 #
 
 # %%
-workflow = create_forecasting_workflow(best_config)
-fit_result = workflow.fit(train_dataset)
-
-print("Full-set metrics (tuned model):")
-assert fit_result is not None
-assert fit_result.metrics_full is not None
-print(fit_result.metrics_full.to_dataframe())
-
+workflow = tuning_result.workflow
 
 # %% [markdown]
 # ## Inspect the study and forecast
