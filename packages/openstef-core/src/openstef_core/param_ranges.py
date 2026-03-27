@@ -3,14 +3,19 @@
 # SPDX-License-Identifier: MPL-2.0
 """Tuning range types and metadata for hyperparameter search spaces.
 
-Provides frozen Pydantic models for annotating ``HyperParams`` fields as tunable,
-plus ``ModelTuningInfo`` for grouping a hyperparameter set with its search space.
-None of these types depend on Optuna — they live in ``openstef-core`` so that
-anything can import them without pulling in optional dependencies.
+Range types (``FloatRange``, ``IntRange``, ``CategoricalRange``) are frozen
+dataclasses — NOT Pydantic models — because they're used as ``Annotated``
+metadata on ``HyperParams`` fields.  Pydantic ``BaseModel`` instances in
+``Annotated`` are interpreted as type annotations, breaking the field's
+actual type.  Plain dataclasses are treated as opaque metadata.
+
+``ModelTuningInfo`` is a frozen Pydantic model since it's not used in
+``Annotated`` context.
 """
 
 from __future__ import annotations
 
+from dataclasses import dataclass, replace
 from typing import TYPE_CHECKING, Any
 
 from pydantic import ConfigDict, model_validator
@@ -21,91 +26,75 @@ if TYPE_CHECKING:
     from openstef_core.mixins.predictor import HyperParams
 
 
-class FloatRange(BaseModel):
-    """Annotate a ``HyperParams`` float field as tunable within ``[low, high]``.
-
-    Pass ``None`` for ``low`` / ``high`` to inherit bounds from the class-level
-    ``Annotated`` metadata when the search space is resolved.
-    """
-
-    model_config = ConfigDict(frozen=True)
+@dataclass(frozen=True)
+class FloatRange:
+    """Annotate a ``HyperParams`` float field as tunable within ``[low, high]``."""
 
     low: float | None = None
     high: float | None = None
     log: bool = False
     tune: bool = False
 
-    @model_validator(mode="after")
-    def _validate_bounds(self) -> FloatRange:
+    def __post_init__(self) -> None:
         if self.low is not None and self.high is not None and self.low > self.high:
             msg = f"low ({self.low}) must be <= high ({self.high})"
             raise ValueError(msg)
-        return self
 
     def resolve(self, class_default: FloatRange | None) -> FloatRange:
         """Fill ``None`` bounds from a class-level default range."""
         if class_default is None:
             return self
-        return self.model_copy(
-            update={
-                "low": self.low if self.low is not None else class_default.low,
-                "high": self.high if self.high is not None else class_default.high,
-            }
+        return replace(
+            self,
+            low=self.low if self.low is not None else class_default.low,
+            high=self.high if self.high is not None else class_default.high,
         )
 
 
-class IntRange(BaseModel):
+@dataclass(frozen=True)
+class IntRange:
     """Annotate a ``HyperParams`` int field as tunable within ``[low, high]``."""
-
-    model_config = ConfigDict(frozen=True)
 
     low: int | None = None
     high: int | None = None
     log: bool = False
     tune: bool = False
 
-    @model_validator(mode="after")
-    def _validate_bounds(self) -> IntRange:
+    def __post_init__(self) -> None:
         if self.low is not None and self.high is not None and self.low > self.high:
             msg = f"low ({self.low}) must be <= high ({self.high})"
             raise ValueError(msg)
-        return self
 
     def resolve(self, class_default: IntRange | None) -> IntRange:
         """Fill ``None`` bounds from a class-level default range."""
         if class_default is None:
             return self
-        return self.model_copy(
-            update={
-                "low": self.low if self.low is not None else class_default.low,
-                "high": self.high if self.high is not None else class_default.high,
-            }
+        return replace(
+            self,
+            low=self.low if self.low is not None else class_default.low,
+            high=self.high if self.high is not None else class_default.high,
         )
 
 
-class CategoricalRange(BaseModel):
+@dataclass(frozen=True)
+class CategoricalRange:
     """Annotate a ``HyperParams`` field as tunable over discrete ``choices``."""
-
-    model_config = ConfigDict(frozen=True)
 
     choices: tuple[Any, ...] | None = None
     tune: bool = False
 
-    @model_validator(mode="after")
-    def _validate_choices(self) -> CategoricalRange:
+    def __post_init__(self) -> None:
         if self.choices is not None and len(self.choices) == 0:
             msg = "choices must not be empty"
             raise ValueError(msg)
-        return self
 
     def resolve(self, class_default: CategoricalRange | None) -> CategoricalRange:
         """Fill ``None`` choices from a class-level default range."""
         if class_default is None:
             return self
-        return self.model_copy(
-            update={
-                "choices": self.choices if self.choices is not None else class_default.choices,
-            }
+        return replace(
+            self,
+            choices=self.choices if self.choices is not None else class_default.choices,
         )
 
 
