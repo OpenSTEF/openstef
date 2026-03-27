@@ -190,8 +190,8 @@ def test_get_search_space__merges_none_bounds_from_class_annotation() -> None:
 
     result = space["learning_rate"]
     assert isinstance(result, FloatRange)
-    assert result.low == 0.01
-    assert result.high == 0.5
+    assert result.low == pytest.approx(0.01)
+    assert result.high == pytest.approx(0.5)
     assert result.log is True
 
 

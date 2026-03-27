@@ -10,7 +10,7 @@ around Optuna for running Bayesian hyperparameter optimisation studies.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import TYPE_CHECKING, Any, Literal, NamedTuple, Protocol, Self, cast, runtime_checkable
 
 import optuna
@@ -228,6 +228,31 @@ def _get_class_range(field_info: FieldInfo) -> TuningRange | None:
     return None
 
 
+def _merge_numerical_range[T: (FloatRange, IntRange)](override: T, class_range: TuningRange | None) -> T:
+    """Merge a FloatRange or IntRange override with the class-level default.
+
+    Returns:
+        A new instance of the same type as *override* with ``None`` bounds filled
+        from *class_range*.
+    """
+    cr = class_range if isinstance(class_range, type(override)) else None
+    low = override.low if override.low is not None else (cr.low if cr is not None else None)
+    high = override.high if override.high is not None else (cr.high if cr is not None else None)
+    return replace(override, low=low, high=high)
+
+
+def _merge_categorical_range(override: CategoricalRange, class_range: TuningRange | None) -> CategoricalRange:
+    """Merge a CategoricalRange override with the class-level CategoricalRange default.
+
+    Returns:
+        A new :class:`CategoricalRange` with ``None`` choices filled from *class_range*.
+    """
+    cr = class_range if isinstance(class_range, CategoricalRange) else None
+    cr_choices = cr.choices if cr is not None else None
+    choices = override.choices if override.choices is not None else cr_choices
+    return CategoricalRange(choices=choices, tune=override.tune)
+
+
 def _merge_range(override: TuningRange, class_range: TuningRange | None) -> TuningRange:
     """Merge *override* with *class_range*, filling ``None`` from the class defaults.
 
@@ -239,26 +264,10 @@ def _merge_range(override: TuningRange, class_range: TuningRange | None) -> Tuni
         A new :class:`TuningRange` with ``None`` bounds merged from *class_range*.
     """
     if isinstance(override, FloatRange):
-        cr = class_range if isinstance(class_range, FloatRange) else None
-        return FloatRange(
-            low=override.low if override.low is not None else (cr.low if cr else None),
-            high=override.high if override.high is not None else (cr.high if cr else None),
-            log=override.log,
-            tune=override.tune,
-        )
+        return _merge_numerical_range(override, class_range)
     if isinstance(override, IntRange):
-        cr = class_range if isinstance(class_range, IntRange) else None
-        return IntRange(
-            low=override.low if override.low is not None else (cr.low if cr else None),
-            high=override.high if override.high is not None else (cr.high if cr else None),
-            log=override.log,
-            tune=override.tune,
-        )
-    cr = class_range if isinstance(class_range, CategoricalRange) else None
-    return CategoricalRange(
-        choices=override.choices if override.choices is not None else (cr.choices if cr else None),
-        tune=override.tune,
-    )
+        return _merge_numerical_range(override, class_range)
+    return _merge_categorical_range(override, class_range)
 
 
 def get_search_space(
