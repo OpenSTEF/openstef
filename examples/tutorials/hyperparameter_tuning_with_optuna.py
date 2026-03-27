@@ -98,6 +98,7 @@ config = ForecastingWorkflowConfig(
         subsample=FloatRange(0.5, 1.0, tune=True),
         colsample_bytree=FloatRange(0.5, 1.0, tune=True),
     ),
+    mlflow_storage=None,  # Disable MLFlow tune to avoid reusing models between trials.
 )
 
 # %% [markdown]
