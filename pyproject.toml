@@ -282,6 +282,13 @@ cmd = "pytest --numprocesses=auto --doctest-modules packages/*/src --maxfail=1"
 help = "Sync jupytext .py percent sources → .ipynb notebooks (and vice versa)"
 cmd = "jupytext --sync examples/tutorials/*.py"
 
+[tool.poe.tasks.notebooks-check]
+help = "Check that .ipynb notebooks are in sync with their jupytext .py sources"
+sequence = [
+  { cmd = "jupytext --sync examples/tutorials/*.py" },
+  { cmd = "git diff --exit-code -- examples/tutorials/" },
+]
+
 [tool.poe.tasks.report]
 help = "Generate coverage report. Will use data from a previous cover command."
 sequence = [
@@ -323,6 +330,7 @@ switch = [
     "type",
     "tests",
     "doctests",
+    "notebooks-check",
   ], ignore_fail = "return_non_zero" },
   { sequence = [
     "licensecheck --check",
@@ -334,6 +342,7 @@ switch = [
     "type",
     "tests",
     "doctests",
+    "notebooks-check",
   ], ignore_fail = "return_non_zero" },
 ]
 
