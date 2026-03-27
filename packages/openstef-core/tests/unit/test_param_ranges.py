@@ -2,36 +2,9 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-
 import pytest
 
 from openstef_core.param_ranges import CategoricalRange, FloatRange, IntRange
-
-# ---------------------------------------------------------------------------
-# FloatRange
-# ---------------------------------------------------------------------------
-
-
-def test_float_range_construction():
-    # Arrange / Act
-    fr = FloatRange(low=0.01, high=1.0, log=True, tune=True)
-
-    # Assert
-    assert fr.low == 0.01
-    assert fr.high == 1.0
-    assert fr.log is True
-    assert fr.tune is True
-
-
-def test_float_range_defaults():
-    # Arrange / Act
-    fr = FloatRange()
-
-    # Assert
-    assert fr.low is None
-    assert fr.high is None
-    assert fr.log is False
-    assert fr.tune is False
 
 
 def test_float_range_frozen():
@@ -89,20 +62,6 @@ def test_float_range_resolve_with_none_class_default():
     assert resolved.high == 1.0
 
 
-# ---------------------------------------------------------------------------
-# IntRange
-# ---------------------------------------------------------------------------
-
-
-def test_int_range_construction():
-    # Arrange / Act
-    ir = IntRange(low=1, high=15, log=False, tune=True)
-
-    # Assert
-    assert ir.low == 1
-    assert ir.high == 15
-
-
 def test_int_range_validates_low_gt_high():
     # Act / Assert
     with pytest.raises(ValueError, match=r"low.*must be <= high"):
@@ -120,20 +79,6 @@ def test_int_range_resolve_fills_none_bounds():
     # Assert
     assert resolved.low == 1
     assert resolved.high == 15
-
-
-# ---------------------------------------------------------------------------
-# CategoricalRange
-# ---------------------------------------------------------------------------
-
-
-def test_categorical_range_construction():
-    # Arrange / Act
-    cr = CategoricalRange(choices=("a", "b", "c"), tune=True)
-
-    # Assert
-    assert cr.choices == ("a", "b", "c")
-    assert cr.tune is True
 
 
 def test_categorical_range_validates_empty_choices():

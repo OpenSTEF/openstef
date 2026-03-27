@@ -13,17 +13,12 @@ actual type.  Plain dataclasses are treated as opaque metadata.
 ``Annotated`` context.
 """
 
-from __future__ import annotations
-
 from dataclasses import dataclass, replace
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
-from pydantic import ConfigDict, model_validator
+from pydantic import ConfigDict, Field, model_validator
 
-from openstef_core.base_model import BaseModel
-
-if TYPE_CHECKING:
-    from openstef_core.mixins.predictor import HyperParams
+from openstef_core.base_model import BaseConfig, BaseModel
 
 
 @dataclass(frozen=True)
@@ -35,21 +30,16 @@ class FloatRange:
     log: bool = False
     tune: bool = False
 
-    def __post_init__(self) -> None:
-        """Validate low <= high.
-
-        Raises:
-            ValueError: If *low* is greater than *high*.
-        """
+    def __post_init__(self) -> None:  # noqa: D105  # low must be <= high
         if self.low is not None and self.high is not None and self.low > self.high:
             msg = f"low ({self.low}) must be <= high ({self.high})"
             raise ValueError(msg)
 
-    def resolve(self, class_default: FloatRange | None) -> FloatRange:
-        """Fill ``None`` bounds from a class-level default range.
+    def resolve(self, class_default: "FloatRange | None") -> "FloatRange":
+        """Fill ``None`` bounds from *class_default*.
 
         Returns:
-            Resolved range with bounds filled from *class_default*.
+            Resolved range.
         """
         if class_default is None:
             return self
@@ -69,21 +59,16 @@ class IntRange:
     log: bool = False
     tune: bool = False
 
-    def __post_init__(self) -> None:
-        """Validate low <= high.
-
-        Raises:
-            ValueError: If *low* is greater than *high*.
-        """
+    def __post_init__(self) -> None:  # noqa: D105  # low must be <= high
         if self.low is not None and self.high is not None and self.low > self.high:
             msg = f"low ({self.low}) must be <= high ({self.high})"
             raise ValueError(msg)
 
-    def resolve(self, class_default: IntRange | None) -> IntRange:
-        """Fill ``None`` bounds from a class-level default range.
+    def resolve(self, class_default: "IntRange | None") -> "IntRange":
+        """Fill ``None`` bounds from *class_default*.
 
         Returns:
-            Resolved range with bounds filled from *class_default*.
+            Resolved range.
         """
         if class_default is None:
             return self
@@ -101,21 +86,16 @@ class CategoricalRange:
     choices: tuple[Any, ...] | None = None
     tune: bool = False
 
-    def __post_init__(self) -> None:
-        """Validate choices is non-empty when provided.
-
-        Raises:
-            ValueError: If *choices* is an empty tuple.
-        """
+    def __post_init__(self) -> None:  # noqa: D105  # choices must be non-empty when provided
         if self.choices is not None and len(self.choices) == 0:
             msg = "choices must not be empty"
             raise ValueError(msg)
 
-    def resolve(self, class_default: CategoricalRange | None) -> CategoricalRange:
-        """Fill ``None`` choices from a class-level default range.
+    def resolve(self, class_default: "CategoricalRange | None") -> "CategoricalRange":
+        """Fill ``None`` choices from *class_default*.
 
         Returns:
-            Resolved range with choices filled from *class_default*.
+            Resolved range.
         """
         if class_default is None:
             return self
@@ -129,19 +109,16 @@ type TuningRange = FloatRange | IntRange | CategoricalRange
 
 
 class ModelTuningInfo(BaseModel):
-    """Groups a hyperparameter config with its resolved search space.
-
-    Ensures ``search_space`` is non-empty at construction time.
-    """
+    """Groups a hyperparameter config with its resolved search space."""
 
     model_config = ConfigDict(frozen=True, arbitrary_types_allowed=True)
 
-    field_name: str
-    hyperparams: HyperParams
-    search_space: dict[str, TuningRange]
+    field_name: str = Field(description="Name of the HyperParams field on the parent config.")
+    hyperparams: BaseConfig = Field(description="The HyperParams instance that owns the search space.")
+    search_space: dict[str, TuningRange] = Field(description="Resolved tuning ranges keyed by parameter name.")
 
     @model_validator(mode="after")
-    def _validate_search_space(self) -> ModelTuningInfo:
+    def _validate_search_space(self) -> "ModelTuningInfo":
         if not self.search_space:
             msg = f"search_space for '{self.field_name}' must not be empty"
             raise ValueError(msg)

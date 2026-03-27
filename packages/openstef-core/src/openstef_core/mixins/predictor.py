@@ -10,9 +10,7 @@ with separate fit and predict phases, and support serialization through the
 Stateful interface.
 """
 
-from __future__ import annotations
-
-from typing import Any
+from typing import Any, cast
 
 from pydantic import PrivateAttr, model_validator
 
@@ -209,7 +207,7 @@ class HyperParams(BaseConfig):
         {'lr': FloatRange(low=0.001, high=0.5, log=False, tune=True)}
     """
 
-    _instance_ranges: dict[str, TuningRange] = PrivateAttr(default_factory=dict)  # pyright: ignore[reportUnknownVariableType]
+    _instance_ranges: dict[str, TuningRange] = PrivateAttr(default_factory=dict[str, TuningRange])
 
     @model_validator(mode="wrap")
     @classmethod
@@ -217,16 +215,17 @@ class HyperParams(BaseConfig):
         cls,
         data: dict[str, object] | object,
         handler: Any,  # noqa: ANN401
-    ) -> HyperParams:
+    ) -> "HyperParams":
         """Strip TuningRange values from kwargs and store as instance metadata.
 
         Returns:
-            Validated ``HyperParams`` instance with tuning ranges stripped.
+            Validated ``HyperParams`` with tuning ranges stored separately.
         """
         instance_ranges: dict[str, TuningRange] = {}
         if isinstance(data, dict):
+            raw = cast(dict[str, object], data)
             cleaned: dict[str, Any] = {}
-            for key, value in data.items():  # pyright: ignore[reportUnknownVariableType]
+            for key, value in raw.items():
                 if isinstance(value, (FloatRange, IntRange, CategoricalRange)):
                     instance_ranges[key] = value
                 else:
@@ -238,10 +237,7 @@ class HyperParams(BaseConfig):
         return result
 
     def get_search_space(self, include: set[str] | None = None) -> dict[str, TuningRange]:
-        """Extract the effective tunable search space from this instance.
-
-        Merges per-instance ranges (from constructor) with class-level
-        ``Annotated`` metadata. Only fields with ``tune=True`` are included.
+        """Merge instance and class-level ranges, returning only ``tune=True`` fields.
 
         Args:
             include: If given, restrict output to these field names.
@@ -250,7 +246,7 @@ class HyperParams(BaseConfig):
             Mapping of field name to resolved ``TuningRange``.
 
         Raises:
-            KeyError: If ``include`` contains names not in the tunable space.
+            KeyError: If *include* contains names not in the tunable space.
         """
         result: dict[str, TuningRange] = {}
         for field_name, field_info in type(self).model_fields.items():
@@ -279,11 +275,7 @@ class HyperParams(BaseConfig):
 
 
 def _get_class_range(field_info: Any) -> TuningRange | None:  # noqa: ANN401
-    """Return the first TuningRange found in a Pydantic FieldInfo's metadata.
-
-    Returns:
-        The first ``TuningRange`` in the metadata, or ``None``.
-    """
+    """Return the first TuningRange found in a Pydantic FieldInfo's metadata."""
     for meta in field_info.metadata:
         if isinstance(meta, (FloatRange, IntRange, CategoricalRange)):
             return meta

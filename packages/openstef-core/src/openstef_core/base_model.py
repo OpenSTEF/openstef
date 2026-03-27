@@ -10,17 +10,13 @@ exposes two helper functions `write_yaml_config` and `read_yaml_config` that
 operate on arbitrary config instances or Pydantic models / adapters.
 """
 
-from __future__ import annotations
-
-from typing import TYPE_CHECKING, Annotated, Any, Self
+from pathlib import Path
+from typing import Annotated, Any, Self
 
 import yaml
 from pydantic import BaseModel as PydanticBaseModel
 from pydantic import BeforeValidator, ConfigDict, GetCoreSchemaHandler, TypeAdapter
 from pydantic_core import core_schema
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 
 class BaseModel(PydanticBaseModel):

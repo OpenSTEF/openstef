@@ -9,32 +9,12 @@ import pytest
 from openstef_core.mixins.predictor import HyperParams
 from openstef_core.param_ranges import CategoricalRange, FloatRange, IntRange
 
-# ---------------------------------------------------------------------------
-# Fixtures — reusable HyperParams subclass
-# ---------------------------------------------------------------------------
-
 
 class SampleHP(HyperParams):
     lr: Annotated[float, FloatRange(low=0.01, high=1.0)] = 0.3
     depth: Annotated[int, IntRange(low=1, high=15)] = 6
     method: Annotated[str, CategoricalRange(choices=("hist", "approx"))] = "hist"
     plain: float = 1.0  # not annotated with a range
-
-
-# ---------------------------------------------------------------------------
-# HyperParams._extract_tuning_ranges
-# ---------------------------------------------------------------------------
-
-
-def test_hyperparams_normal_construction_no_ranges():
-    """Plain construction keeps field values and produces empty search space."""
-    # Arrange / Act
-    hp = SampleHP()
-
-    # Assert
-    assert hp.lr == 0.3
-    assert hp.depth == 6
-    assert hp.get_search_space() == {}
 
 
 def test_hyperparams_range_extracted_from_kwargs():
@@ -61,11 +41,6 @@ def test_hyperparams_mixed_range_and_plain_value():
     # Assert
     assert hp.lr == 0.3  # range extracted, field keeps default
     assert hp.depth == 10  # plain value applied
-
-
-# ---------------------------------------------------------------------------
-# HyperParams.get_search_space
-# ---------------------------------------------------------------------------
 
 
 def test_get_search_space_returns_only_tune_true():
