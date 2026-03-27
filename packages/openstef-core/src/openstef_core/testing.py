@@ -15,9 +15,8 @@ from typing import Any, override
 import numpy as np
 import pandas as pd
 
+from openstef_core.constants import LIANDER_DATASET_REPO_ID
 from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesDataset
-
-LIANDER_DATASET_REPO_ID = "OpenSTEF/liander2024-energy-forecasting-benchmark"
 
 
 class IsSamePandas:
