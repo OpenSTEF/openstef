@@ -10,12 +10,17 @@ with separate fit and predict phases, and support serialization through the
 Stateful interface.
 """
 
+from __future__ import annotations
+
 from typing import Any
+
+from pydantic import PrivateAttr, model_validator
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets.mixins import abstractmethod
 from openstef_core.exceptions import PredictError
 from openstef_core.mixins.stateful import Stateful
+from openstef_core.param_ranges import CategoricalRange, FloatRange, IntRange, TuningRange
 
 
 class Predictor[I, O](Stateful):
@@ -187,17 +192,91 @@ class HyperParams(BaseConfig):
     """Base configuration for model hyperparameters.
 
     Serves as the foundation for model-specific hyperparameter configurations.
-    Inheriting classes should add their specific parameters as Pydantic fields
-    with appropriate validation and documentation.
+    Supports tuning ranges: pass a ``FloatRange``, ``IntRange``, or
+    ``CategoricalRange`` as a field value at construction time and it will be
+    extracted into ``_instance_ranges`` while the field keeps its declared default.
 
     Example:
-        Creating custom hyperparameters for a specific model:
-
-        >>> from pydantic import Field
-        >>> class MyModelHyperParams(HyperParams):
-        ...     learning_rate: float = Field(default=0.01, gt=0, description="Learning rate for training")
-        ...     max_epochs: int = Field(default=100, gt=0, description="Maximum training epochs")
+        >>> from typing import Annotated
+        >>> from openstef_core.param_ranges import FloatRange, IntRange
+        >>> class MyHP(HyperParams):
+        ...     lr: Annotated[float, FloatRange(low=0.01, high=1.0)] = 0.3
+        ...     depth: Annotated[int, IntRange(low=1, high=15)] = 6
+        >>> hp = MyHP(lr=FloatRange(low=0.001, high=0.5, tune=True))
+        >>> hp.lr  # field keeps its default
+        0.3
+        >>> hp.get_search_space()  # extracted range
+        {'lr': FloatRange(low=0.001, high=0.5, ...)}
     """
+
+    _instance_ranges: dict[str, TuningRange] = PrivateAttr(default_factory=dict)
+
+    @model_validator(mode="wrap")
+    @classmethod
+    def _extract_tuning_ranges(
+        cls,
+        data: dict[str, object] | object,
+        handler: Any,  # noqa: ANN401
+    ) -> HyperParams:
+        """Strip TuningRange values from kwargs and store as instance metadata."""
+        instance_ranges: dict[str, TuningRange] = {}
+        if isinstance(data, dict):
+            cleaned: dict[str, Any] = {}
+            for key, value in data.items():
+                if isinstance(value, (FloatRange, IntRange, CategoricalRange)):
+                    instance_ranges[key] = value
+                else:
+                    cleaned[key] = value
+            data = cleaned
+        result: HyperParams = handler(data)
+        if instance_ranges and result.__pydantic_private__ is not None:
+            result._instance_ranges = instance_ranges
+        return result
+
+    def get_search_space(self, include: set[str] | None = None) -> dict[str, TuningRange]:
+        """Extract the effective tunable search space from this instance.
+
+        Merges per-instance ranges (from constructor) with class-level
+        ``Annotated`` metadata. Only fields with ``tune=True`` are included.
+
+        Args:
+            include: If given, restrict output to these field names.
+
+        Raises:
+            KeyError: If ``include`` contains names not in the tunable space.
+        """
+        result: dict[str, TuningRange] = {}
+        for field_name, field_info in type(self).model_fields.items():
+            class_range = _get_class_range(field_info)
+            override = self._instance_ranges.get(field_name)
+
+            if override is not None:
+                if not override.tune:
+                    continue
+                result[field_name] = override.resolve(class_range)  # type: ignore[arg-type]
+            elif class_range is not None and class_range.tune:
+                result[field_name] = class_range
+
+        if include is not None:
+            missing = include - result.keys()
+            if missing:
+                msg = (
+                    f"Fields {sorted(missing)!r} not found in the tunable search space. "
+                    "Check that they exist on the HyperParams class and were passed as "
+                    "TuningRange(tune=True) in the constructor."
+                )
+                raise KeyError(msg)
+            result = {k: result[k] for k in include}
+
+        return result
+
+
+def _get_class_range(field_info: Any) -> TuningRange | None:  # noqa: ANN401
+    """Return the first TuningRange found in a Pydantic FieldInfo's metadata."""
+    for meta in field_info.metadata:
+        if isinstance(meta, (FloatRange, IntRange, CategoricalRange)):
+            return meta
+    return None
 
 
 __all__ = [
