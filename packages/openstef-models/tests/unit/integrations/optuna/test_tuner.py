@@ -15,9 +15,7 @@ from openstef_core.mixins.param_ranges import CategoricalRange, FloatRange, IntR
 from openstef_models.integrations.optuna import (
     HyperparameterTuner,
     TuningResult,
-    apply_trial_suggestions,
 )
-from openstef_models.integrations.optuna.tuner import _suggest_value  # noqa: PLC2701
 from openstef_models.models.forecasting.xgboost_forecaster import XGBoostHyperParams
 from openstef_models.presets.forecasting_workflow import ForecastingWorkflowConfig
 
@@ -82,7 +80,7 @@ def test_suggest_value__calls_correct_optuna_api(
     getattr(trial, suggest_method).return_value = 0.5
 
     # Act
-    _suggest_value(trial, "param", tuning_range)
+    HyperparameterTuner.suggest_value(trial, "param", tuning_range)
 
     # Assert
     getattr(trial, suggest_method).assert_called_once_with(*call_args, **call_kwargs)
@@ -105,46 +103,7 @@ def test_suggest_value__returns_none_for_incomplete_range(
     trial = MagicMock(spec=optuna.Trial)
 
     # Act / Assert
-    assert _suggest_value(trial, "param", incomplete_range) is None
-
-
-# apply_trial_suggestions
-
-
-def test_apply_trial_suggestions__updates_all_fields_from_trial() -> None:
-    """apply_trial_suggestions applies all trial suggestions and returns an updated HyperParams."""
-    # Arrange
-    hp = XGBoostHyperParams()
-    trial = MagicMock(spec=optuna.Trial)
-    trial.suggest_float.return_value = 0.1
-    trial.suggest_int.return_value = 200
-    trial.suggest_categorical.return_value = "lossguide"
-    space: dict[str, FloatRange | IntRange | CategoricalRange] = {
-        "learning_rate": FloatRange(0.01, 0.5, log=True),
-        "n_estimators": IntRange(50, 500),
-        "grow_policy": CategoricalRange(("depthwise", "lossguide")),
-    }
-
-    # Act
-    result = apply_trial_suggestions(trial, space, hp)
-
-    # Assert
-    assert result.learning_rate == pytest.approx(0.1)
-    assert result.n_estimators == 200
-    assert result.grow_policy == "lossguide"
-
-
-def test_apply_trial_suggestions__skips_fields_with_none_bounds() -> None:
-    """apply_trial_suggestions leaves fields unchanged when their range has None bounds."""
-    # Arrange
-    hp = XGBoostHyperParams()
-    trial = MagicMock(spec=optuna.Trial)
-
-    # Act
-    result = apply_trial_suggestions(trial, {"n_estimators": IntRange(None, None)}, hp)
-
-    # Assert
-    assert result.n_estimators == hp.n_estimators
+    assert HyperparameterTuner.suggest_value(trial, "param", incomplete_range) is None
 
 
 # TuningResult

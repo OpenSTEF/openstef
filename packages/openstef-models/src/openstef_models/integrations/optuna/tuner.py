@@ -40,45 +40,6 @@ class _SearchSpaceEntry(NamedTuple):
     range: TuningRange
 
 
-def _suggest_value(
-    trial: optuna.Trial,
-    trial_key: str,
-    tuning_range: TuningRange,
-) -> bool | int | float | str | None:
-    """Suggest a value for *trial_key* using the appropriate Optuna API.
-
-    Returns:
-        Suggested value, or ``None`` when the range is incomplete.
-    """
-    if isinstance(tuning_range, FloatRange) and tuning_range.low is not None and tuning_range.high is not None:
-        return trial.suggest_float(trial_key, tuning_range.low, tuning_range.high, log=tuning_range.log)
-    if isinstance(tuning_range, IntRange) and tuning_range.low is not None and tuning_range.high is not None:
-        return trial.suggest_int(trial_key, tuning_range.low, tuning_range.high, log=tuning_range.log)
-    if isinstance(tuning_range, CategoricalRange) and tuning_range.choices is not None:
-        return trial.suggest_categorical(trial_key, list(tuning_range.choices))
-    return None
-
-
-def apply_trial_suggestions[HP: BaseConfig](
-    trial: optuna.Trial,
-    space: dict[str, TuningRange],
-    current: HP,
-) -> HP:
-    """Create an updated config by applying Optuna trial suggestions.
-
-    Useful for custom objectives outside of ``HyperparameterTuner``.
-
-    Returns:
-        Copy of *current* with trial-suggested values applied.
-    """
-    updates = {
-        param_name: value
-        for param_name, tuning_range in space.items()
-        if (value := _suggest_value(trial, param_name, tuning_range)) is not None
-    }
-    return current.model_copy(update=updates)
-
-
 def _collect_available_metric_names(config: BaseConfig) -> set[str] | None:
     """Extract declared metric names from *config* if it has ``evaluation_metrics``.
 
@@ -185,7 +146,7 @@ class HyperparameterTuner[ConfigT: BaseConfig](BaseConfig):
         )
 
     @staticmethod
-    def _suggest_value(
+    def suggest_value(
         trial: optuna.Trial,
         trial_key: str,
         tuning_range: TuningRange,
@@ -197,7 +158,13 @@ class HyperparameterTuner[ConfigT: BaseConfig](BaseConfig):
         Returns:
             Suggested value, or ``None`` when the range is incomplete.
         """
-        return _suggest_value(trial, trial_key, tuning_range)
+        if isinstance(tuning_range, FloatRange) and tuning_range.low is not None and tuning_range.high is not None:
+            return trial.suggest_float(trial_key, tuning_range.low, tuning_range.high, log=tuning_range.log)
+        if isinstance(tuning_range, IntRange) and tuning_range.low is not None and tuning_range.high is not None:
+            return trial.suggest_int(trial_key, tuning_range.low, tuning_range.high, log=tuning_range.log)
+        if isinstance(tuning_range, CategoricalRange) and tuning_range.choices is not None:
+            return trial.suggest_categorical(trial_key, list(tuning_range.choices))
+        return None
 
     def _evaluate_trial(
         self,
@@ -220,7 +187,7 @@ class HyperparameterTuner[ConfigT: BaseConfig](BaseConfig):
         # Group suggested values by their owning HyperParams field
         per_field: dict[str, dict[str, Any]] = defaultdict(dict)
         for trial_key, entry in combined_space.items():
-            value = self._suggest_value(trial, trial_key, entry.range)
+            value = self.suggest_value(trial, trial_key, entry.range)
             if value is not None:
                 per_field[entry.config_field][entry.param_name] = value
 
@@ -233,6 +200,7 @@ class HyperparameterTuner[ConfigT: BaseConfig](BaseConfig):
             }
         )
 
+        # Create a workflow and train from the trial config
         workflow = self.create_workflow(tuned_config)
         fit_result = workflow.fit(self.train_dataset)
         if fit_result is None:
@@ -337,5 +305,4 @@ class HyperparameterTuner[ConfigT: BaseConfig](BaseConfig):
 __all__ = [
     "HyperparameterTuner",
     "TuningResult",
-    "apply_trial_suggestions",
 ]
