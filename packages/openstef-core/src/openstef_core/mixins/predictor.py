@@ -17,7 +17,7 @@ from pydantic import PrivateAttr, ValidatorFunctionWrapHandler, model_validator
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets.mixins import abstractmethod
 from openstef_core.exceptions import PredictError
-from openstef_core.mixins.param_ranges import CategoricalRange, FloatRange, IntRange, TuningRange, get_class_range
+from openstef_core.mixins.param_ranges import CategoricalRange, FloatRange, IntRange, TuningRange, get_tuning_range
 from openstef_core.mixins.stateful import Stateful
 
 
@@ -250,15 +250,15 @@ class HyperParams(BaseConfig):
         """
         result: dict[str, TuningRange] = {}
         for field_name, field_info in type(self).model_fields.items():
-            class_range = get_class_range(field_info)
+            tuning_range = get_tuning_range(field_info)
             override = self._instance_ranges.get(field_name)
 
             if override is not None:
                 if not override.tune:
                     continue
-                result[field_name] = override.resolve(class_range)  # type: ignore[arg-type]
-            elif class_range is not None and class_range.tune:
-                result[field_name] = class_range
+                result[field_name] = override.resolve(tuning_range)  # type: ignore[arg-type]
+            elif tuning_range is not None and tuning_range.tune:
+                result[field_name] = tuning_range
 
         if include is not None:
             missing = include - result.keys()
