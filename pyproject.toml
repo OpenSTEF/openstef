@@ -78,6 +78,11 @@ dev = [
 [tool.hatch.build.targets.wheel]
 bypass-selection = true
 
+[[tool.uv.index]]
+name = "pypi"
+url = "https://pypi.org/simple"
+default = true
+
 [tool.uv.sources]
 openstef-beam = { workspace = true }
 openstef-models = { workspace = true }
@@ -272,6 +277,10 @@ args = [
 [tool.poe.tasks.doctests]
 help = "Run all docstring examples via pytest’s doctest plugin"
 cmd = "pytest --numprocesses=auto --doctest-modules packages/*/src --maxfail=1"
+
+[tool.poe.tasks.notebooks]
+help = "Sync jupytext .py percent sources → .ipynb notebooks (and vice versa)"
+cmd = "jupytext --sync examples/tutorials/*.py"
 
 [tool.poe.tasks.report]
 help = "Generate coverage report. Will use data from a previous cover command."

@@ -130,6 +130,23 @@ class HyperparameterTuner[ConfigT: BaseConfig](BaseConfig):
             for param_name, tuning_range in info.search_space.items()
         }
 
+    @property
+    def _trial_base(self) -> ConfigT:
+        """Config with tracking disabled so each trial trains from scratch.
+
+        Strips ``mlflow_storage`` when present — without this, the MLflow callback
+        can reuse a previously stored model and short-circuit training, making trials
+        non-comparable and invalidating the optimisation.
+
+        Override to disable additional callbacks or change trial-specific settings.
+
+        Returns:
+            Config copy suitable for use inside ``_evaluate_trial``.
+        """
+        if hasattr(self.config, "mlflow_storage"):
+            return self.config.model_copy(update={"mlflow_storage": None})  # type: ignore[return-value]
+        return self.config
+
     def _create_study(self) -> optuna.Study:
         """Create and configure the Optuna study.
 
@@ -192,7 +209,7 @@ class HyperparameterTuner[ConfigT: BaseConfig](BaseConfig):
                 per_field[entry.config_field][entry.param_name] = value
 
         # Replace each HyperParams instance with a copy containing the trial's suggestions
-        tuned_config = self.config.model_copy(
+        tuned_config = self._trial_base.model_copy(
             update={
                 info.field_name: info.hyperparams.model_copy(update=per_field[info.field_name])
                 for info in model_tuning_info
@@ -204,7 +221,7 @@ class HyperparameterTuner[ConfigT: BaseConfig](BaseConfig):
         workflow = self.create_workflow(tuned_config)
         fit_result = workflow.fit(self.train_dataset)
         if fit_result is None:
-            return float("-inf")
+            return float("-inf") if self.direction == "maximize" else float("inf")
 
         # Prefer validation metrics; fall back to training metrics
         metrics = fit_result.metrics_val if fit_result.metrics_val is not None else fit_result.metrics_train
@@ -266,7 +283,9 @@ class HyperparameterTuner[ConfigT: BaseConfig](BaseConfig):
             )
             raise ValueError(msg)
 
-    def tune(self) -> tuple[ConfigT, optuna.Study]:
+    def tune(
+            self,
+        ) -> tuple[ConfigT, optuna.Study]:
         """Run the Optuna study and return the best config.
 
         Returns:
