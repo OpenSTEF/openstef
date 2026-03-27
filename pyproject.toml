@@ -224,9 +224,7 @@ include = [
   "packages/*/examples/**/*.py",
   "packages/*/tests/**/*.py",
 ]
-exclude = [
-  "examples/tutorials/**", # Jupytext notebooks — cell-scoped, not module-level code
-]
+
 typeCheckingMode = "strict"
 reportPrivateImportUsage = false
 reportMissingTypeStubs = false

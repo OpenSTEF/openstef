@@ -18,6 +18,8 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+# pyright: basic, reportUndefinedVariable=false, reportAttributeAccessIssue=false, reportOptionalMemberAccess=false
+
 # %%
 # --- Setup: Logging and Display Configuration ---
 # Configure logging to see training progress and plotly to render as PNG for VS Code compatibility
@@ -121,7 +123,7 @@ fig.show()
 # %%
 from openstef_core.param_ranges import FloatRange, IntRange
 from openstef_core.types import Q
-from openstef_models.utils.tuning import HyperparameterTuner
+from openstef_models.integrations.optuna import HyperparameterTuner
 
 # %% [markdown]
 # ## Inspect the resolved search space

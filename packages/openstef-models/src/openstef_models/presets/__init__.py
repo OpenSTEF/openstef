@@ -5,7 +5,7 @@
 """Forecasting workflow presets package.
 
 Provides configurations and utilities for setting up forecasting workflows.
-Tuning symbols live in ``openstef_models.utils.tuning``.
+Tuning symbols live in ``openstef_models.integrations.optuna``.
 """
 
 from .forecasting_workflow import (
