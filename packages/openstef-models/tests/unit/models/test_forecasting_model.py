@@ -14,6 +14,7 @@ from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import InsufficientlyCompleteError, NotFittedError
 from openstef_core.mixins import TransformPipeline
+from openstef_core.mixins.param_ranges import IntRange
 from openstef_core.mixins.predictor import HyperParams
 from openstef_core.testing import assert_timeseries_equal, create_synthetic_forecasting_dataset
 from openstef_core.types import LeadTime, Quantile, override
@@ -55,6 +56,27 @@ class SimpleForecaster(Forecaster):
             data.sample_interval,
             data.forecast_start,
         )
+
+
+class TunableTestHyperParams(HyperParams):
+    """Test hyperparameters that can carry a tuning override."""
+
+    depth: int = 3
+
+
+class TunableSimpleForecaster(SimpleForecaster):
+    """Simple forecaster exposing unresolved tuning ranges for validation tests."""
+
+    _hparams: TunableTestHyperParams = PrivateAttr(default_factory=TunableTestHyperParams)
+
+    def __init__(self, *, quantiles: list[Quantile], horizons: list[LeadTime], supports_batching: bool = False) -> None:
+        super().__init__(quantiles=quantiles, horizons=horizons, supports_batching=supports_batching)
+        self._hparams = TunableTestHyperParams(depth=IntRange(1, 5, tune=True))  # pyright: ignore[reportArgumentType]
+
+    @property
+    @override
+    def hparams(self) -> HyperParams:
+        return self._hparams
 
 
 @pytest.fixture
@@ -139,6 +161,16 @@ def test_forecasting_model__fit_all_nan_target():
         model.fit(data=data)
 
     assert not model.is_fitted
+
+
+def test_forecasting_model__init_raises_for_unresolved_tuning_ranges() -> None:
+    """Model construction fails fast when unresolved tuning ranges are still attached."""
+    # Arrange
+    horizons = [LeadTime(timedelta(hours=6))]
+
+    # Act / Assert
+    with pytest.raises(ValueError, match="unresolved tuning ranges"):
+        ForecastingModel(forecaster=TunableSimpleForecaster(quantiles=[Quantile(0.5)], horizons=horizons))
 
 
 def test_forecasting_model__predict(sample_timeseries_dataset: TimeSeriesDataset):

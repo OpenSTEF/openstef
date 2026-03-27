@@ -273,6 +273,31 @@ class HyperParams(BaseConfig):
 
         return result
 
+    def get_tuning_overrides(self) -> dict[str, TuningRange]:
+        """Return the unresolved range overrides that were passed at construction time."""
+        return dict(self._instance_ranges)
+
+    def clear_tuning_ranges(self) -> Self:
+        """Clear any stored tuning range overrides from this hyperparameter config.
+
+        Returns:
+            ``self`` with ``_instance_ranges`` cleared.
+        """
+        self._instance_ranges = {}
+        return self
+
+    def materialize(self, update: dict[str, Any] | None = None) -> Self:
+        """Return a copy with concrete values only and no stored tuning ranges.
+
+        Args:
+            update: Optional field updates to apply before clearing tuning metadata.
+
+        Returns:
+            Copy of ``self`` with ``_instance_ranges`` cleared.
+        """
+        result = self.model_copy(update=update or {})
+        return result.clear_tuning_ranges()
+
 
 __all__ = [
     "BatchPredictor",

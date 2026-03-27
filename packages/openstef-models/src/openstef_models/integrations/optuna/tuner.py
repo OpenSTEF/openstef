@@ -7,7 +7,7 @@
 from collections import defaultdict
 from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any, Literal, NamedTuple
+from typing import Any, Literal, NamedTuple, cast
 
 from pydantic import ConfigDict, Field, SkipValidation
 
@@ -164,6 +164,21 @@ class HyperparameterTuner[ConfigT: BaseConfig](BaseConfig):
         )
 
     @staticmethod
+    def _build_default_trial_params(
+        config: BaseConfig,
+        combined_space: dict[str, _SearchSpaceEntry],
+    ) -> dict[str, bool | int | float | str | None]:
+        """Build a trial parameter dict from the config's current concrete defaults.
+
+        Returns:
+            Mapping of trial keys to the concrete parameter values currently set on *config*.
+        """
+        return {
+            trial_key: getattr(cast(HyperParams, getattr(config, entry.config_field)), entry.param_name)
+            for trial_key, entry in combined_space.items()
+        }
+
+    @staticmethod
     def suggest_value(
         trial: optuna.Trial,
         trial_key: str,
@@ -212,7 +227,8 @@ class HyperparameterTuner[ConfigT: BaseConfig](BaseConfig):
         # Replace each HyperParams instance with a copy containing the trial's suggestions
         tuned_config = self._trial_base.model_copy(
             update={
-                info.field_name: info.hyperparams.model_copy(update=per_field[info.field_name])
+                # Materialize copied HyperParams so workflows only ever see concrete values during fit.
+                info.field_name: cast(HyperParams, info.hyperparams).materialize(update=per_field[info.field_name])
                 for info in model_tuning_info
                 if info.field_name in per_field
             }
@@ -260,7 +276,7 @@ class HyperparameterTuner[ConfigT: BaseConfig](BaseConfig):
 
         return config.model_copy(
             update={
-                info.field_name: info.hyperparams.model_copy(update=per_field[info.field_name])
+                info.field_name: cast(HyperParams, info.hyperparams).materialize(update=per_field[info.field_name])
                 for info in model_tuning_info
                 if info.field_name in per_field
             }
@@ -302,6 +318,8 @@ class HyperparameterTuner[ConfigT: BaseConfig](BaseConfig):
 
         combined_space = self._build_combined_space(model_tuning_info)
         study = self._create_study()
+        # Evaluate the current OpenSTEF defaults first, then let Optuna explore alternatives.
+        study.enqueue_trial(self._build_default_trial_params(self.config, combined_space))
 
         def objective(trial: optuna.Trial) -> float:
             return self._evaluate_trial(trial, combined_space, model_tuning_info)

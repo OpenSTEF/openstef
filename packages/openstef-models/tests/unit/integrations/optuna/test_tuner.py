@@ -226,6 +226,19 @@ def test_hyperparameter_tuner__fit_with_tuning_returns_tuning_result() -> None:
     assert create_workflow.call_count == 3
 
 
+def test_hyperparameter_tuner__tune_enqueues_openstef_defaults_as_first_trial() -> None:
+    """tune() enqueues the config defaults before Optuna samples additional trials."""
+    # Arrange
+    config = _config(xgboost_hyperparams=XGBoostHyperParams(n_estimators=IntRange(50, 500, tune=True)))
+    tuner = _make_tuner(config=config)
+
+    # Act
+    _, study = tuner.tune()
+
+    # Assert
+    assert study.trials[0].params == {"n_estimators": config.xgboost_hyperparams.n_estimators}
+
+
 def test_hyperparameter_tuner__create_study_returns_configured_study() -> None:
     """_create_study creates a study with the configured direction and study name."""
     # Arrange
