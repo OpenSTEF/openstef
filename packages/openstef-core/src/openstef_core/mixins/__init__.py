@@ -13,12 +13,25 @@ from .predictor import BatchPredictor, BatchResult, HyperParams, Predictor
 from .stateful import Stateful
 from .transform import Transform, TransformPipeline
 
+from openstef_core.param_ranges import (
+    CategoricalRange,
+    FloatRange,
+    IntRange,
+    ModelTuningInfo,
+    TuningRange,
+)
+
 __all__ = [
     "BatchPredictor",
     "BatchResult",
+    "CategoricalRange",
+    "FloatRange",
     "HyperParams",
+    "IntRange",
+    "ModelTuningInfo",
     "Predictor",
     "Stateful",
     "Transform",
     "TransformPipeline",
+    "TuningRange",
 ]
