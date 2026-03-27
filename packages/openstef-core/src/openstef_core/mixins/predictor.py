@@ -18,7 +18,7 @@ from openstef_core.base_model import BaseConfig
 from openstef_core.datasets.mixins import abstractmethod
 from openstef_core.exceptions import PredictError
 from openstef_core.mixins.stateful import Stateful
-from openstef_core.param_ranges import CategoricalRange, FloatRange, IntRange, ModelTuningInfo, TuningRange
+from openstef_core.param_ranges import CategoricalRange, FloatRange, IntRange, TuningRange, _get_class_range
 
 
 class Predictor[I, O](Stateful):
@@ -274,34 +274,9 @@ class HyperParams(BaseConfig):
         return result
 
 
-def _get_class_range(field_info: Any) -> TuningRange | None:  # noqa: ANN401
-    """Return the first TuningRange found in a Pydantic FieldInfo's metadata."""
-    for meta in field_info.metadata:
-        if isinstance(meta, (FloatRange, IntRange, CategoricalRange)):
-            return meta
-    return None
-
-
-def get_model_tuning_info(config: BaseConfig) -> list[ModelTuningInfo]:
-    """Return one ``ModelTuningInfo`` per ``HyperParams`` field with a non-empty search space.
-
-    Args:
-        config: Configuration to introspect for tunable hyperparameter fields.
-    """
-    result: list[ModelTuningInfo] = []
-    for field_name in type(config).model_fields:
-        value = getattr(config, field_name)
-        if isinstance(value, HyperParams):
-            space = value.get_search_space()
-            if space:
-                result.append(ModelTuningInfo(field_name=field_name, hyperparams=value, search_space=space))
-    return result
-
-
 __all__ = [
     "BatchPredictor",
     "BatchResult",
     "HyperParams",
     "Predictor",
-    "get_model_tuning_info",
 ]

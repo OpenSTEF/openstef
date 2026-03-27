@@ -28,7 +28,7 @@ except ImportError as _err:
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.mixins.predictor import get_model_tuning_info
+from openstef_core.mixins.predictor import HyperParams
 from openstef_core.param_ranges import (
     CategoricalRange,
     FloatRange,
@@ -39,6 +39,22 @@ from openstef_core.param_ranges import (
 from openstef_core.types import QuantileOrGlobal
 from openstef_models.models.forecasting_model import ModelFitResult
 from openstef_models.workflows.custom_forecasting_workflow import CustomForecastingWorkflow
+
+
+def _get_model_tuning_info(config: BaseConfig) -> list[ModelTuningInfo]:
+    """Return one ``ModelTuningInfo`` per ``HyperParams`` field with a non-empty search space.
+
+    Args:
+        config: Configuration to introspect for tunable hyperparameter fields.
+    """
+    result: list[ModelTuningInfo] = []
+    for field_name in type(config).model_fields:
+        value = getattr(config, field_name)
+        if isinstance(value, HyperParams):
+            space = value.get_search_space()
+            if space:
+                result.append(ModelTuningInfo(field_name=field_name, hyperparams=value, search_space=space))
+    return result
 
 
 class _TrialEntry(NamedTuple):
@@ -172,7 +188,12 @@ class TuningResult:
     study: optuna.Study
     best_config: BaseConfig
 
-    def __repr__(self) -> str:  # noqa: D105
+    def __repr__(self) -> str:
+        """Show tuned parameter count for quick inspection.
+
+        Returns:
+            Human-readable summary like ``TuningResult(3 params tuned)``.
+        """
         n = len(self.study.best_params)
         return f"TuningResult({n} params tuned)" if n else "TuningResult(no tuning)"
 
@@ -231,7 +252,7 @@ class HyperparameterTuner[ConfigT: BaseConfig](BaseConfig):
         Raises:
             ValueError: If no tunable fields are found.
         """
-        model_tuning_info = get_model_tuning_info(self.config)
+        model_tuning_info = _get_model_tuning_info(self.config)
         if not model_tuning_info:
             msg = "No tunable hyperparameters found. Pass TuningRange(tune=True) in the HyperParams constructor."
             raise ValueError(msg)

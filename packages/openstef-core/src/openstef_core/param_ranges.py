@@ -125,6 +125,14 @@ class ModelTuningInfo(BaseModel):
         return self
 
 
+def _get_class_range(field_info: Any) -> TuningRange | None:  # noqa: ANN401  # pyright: ignore[reportUnusedFunction]
+    """Return the first TuningRange found in a Pydantic FieldInfo's metadata."""
+    for meta in field_info.metadata:
+        if isinstance(meta, (FloatRange, IntRange, CategoricalRange)):
+            return meta
+    return None
+
+
 __all__ = [
     "CategoricalRange",
     "FloatRange",
