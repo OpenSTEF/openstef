@@ -63,6 +63,7 @@ class TuningResult[ConfigT: BaseConfig]:
 
     best_config: ConfigT
     study: optuna.Study
+    workflow: CustomForecastingWorkflow
 
     def __repr__(self) -> str:  # noqa: D105  # self-explanatory
         n = len(self.study.best_params)
@@ -283,9 +284,7 @@ class HyperparameterTuner[ConfigT: BaseConfig](BaseConfig):
             )
             raise ValueError(msg)
 
-    def tune(
-            self,
-        ) -> tuple[ConfigT, optuna.Study]:
+    def tune(self, *, show_progress_bar: bool = True) -> tuple[ConfigT, optuna.Study]:
         """Run the Optuna study and return the best config.
 
         Returns:
@@ -307,18 +306,22 @@ class HyperparameterTuner[ConfigT: BaseConfig](BaseConfig):
         def objective(trial: optuna.Trial) -> float:
             return self._evaluate_trial(trial, combined_space, model_tuning_info)
 
-        study.optimize(objective, n_trials=self.n_trials, n_jobs=self.n_jobs, show_progress_bar=True)
-        best_config = self._reconstruct_best_config(self.config, model_tuning_info, study)
+        study.optimize(objective, n_trials=self.n_trials, n_jobs=self.n_jobs, show_progress_bar=show_progress_bar)
+        best_config = self._reconstruct_best_config(
+            config=self.config, model_tuning_info=model_tuning_info, study=study
+        )
         return best_config, study  # type: ignore[return-value]  # ConfigT narrowing not expressible
 
-    def fit_with_tuning(self) -> TuningResult[ConfigT]:
+    def fit_with_tuning(self, *, show_progress_bar: bool = True) -> TuningResult[ConfigT]:
         """Tune, then fit a final workflow with the best config.
 
         Returns:
             ``TuningResult`` with the best config and Optuna study.
         """
-        best_config, study = self.tune()
-        return TuningResult(best_config=best_config, study=study)
+        best_config, study = self.tune(show_progress_bar=show_progress_bar)
+        workflow = self.create_workflow(best_config)
+        workflow.fit(self.train_dataset)
+        return TuningResult(best_config=best_config, study=study, workflow=workflow)
 
 
 __all__ = [
