@@ -4,7 +4,7 @@
 
 import pytest
 
-from openstef_core.param_ranges import CategoricalRange, FloatRange, IntRange
+from openstef_core.mixins.param_ranges import CategoricalRange, FloatRange, IntRange
 
 
 def test_float_range_frozen():

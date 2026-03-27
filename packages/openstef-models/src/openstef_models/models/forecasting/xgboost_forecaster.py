@@ -18,8 +18,8 @@ from sklearn.preprocessing import StandardScaler
 
 from openstef_core.datasets import ForecastDataset, ForecastInputDataset, TimeSeriesDataset
 from openstef_core.exceptions import MissingExtraError, NotFittedError
+from openstef_core.mixins.param_ranges import CategoricalRange, FloatRange, IntRange
 from openstef_core.mixins.predictor import HyperParams
-from openstef_core.param_ranges import CategoricalRange, FloatRange, IntRange
 from openstef_core.utils.pandas import normalize_to_unit_sum
 from openstef_models.explainability.mixins import ContributionsMixin, ExplainableForecaster
 from openstef_models.models.forecasting.forecaster import Forecaster

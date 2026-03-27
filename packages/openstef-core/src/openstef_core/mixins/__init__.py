@@ -9,7 +9,7 @@ across the OpenSTEF codebase, including prediction interfaces, state management,
 and data transformation pipelines.
 """
 
-from openstef_core.param_ranges import (
+from openstef_core.mixins.param_ranges import (
     CategoricalRange,
     FloatRange,
     IntRange,

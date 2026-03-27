@@ -9,12 +9,13 @@ DataFrames and Series with equality semantics.
 """
 
 from datetime import datetime, timedelta
+from pathlib import Path
 from typing import Any, override
 
 import numpy as np
 import pandas as pd
 
-from openstef_core.datasets import TimeSeriesDataset
+from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesDataset
 
 
 class IsSamePandas:
@@ -151,3 +152,63 @@ def create_synthetic_forecasting_dataset(  # noqa: PLR0913, PLR0917 - complex fu
         ),
         sample_interval=sample_interval,
     )
+
+
+def load_liander_dataset(
+    *,
+    target: str = "mv_feeder/OS Gorredijk",
+    repo_id: str = "OpenSTEF/liander2024-energy-forecasting-benchmark",
+    local_dir: Path = Path("./liander_dataset"),
+    extra_files: list[str] | None = None,
+) -> TimeSeriesDataset:
+    """Download and combine the Liander benchmark dataset into a single TimeSeriesDataset.
+
+    Downloads load measurements, weather forecasts, electricity prices, and standard load
+    profiles from HuggingFace Hub, then combines them via left join.
+
+    Raises:
+        ImportError: When ``huggingface-hub`` is not installed.
+
+    Args:
+        target: Sub-path within the repo identifying the installation (e.g. ``"mv_feeder/OS Gorredijk"``).
+        repo_id: HuggingFace dataset repository ID.
+        local_dir: Local directory for caching downloaded files.
+        extra_files: Additional parquet files to download and include (paths relative to repo root).
+
+    Returns:
+        Combined dataset with all features aligned by timestamp.
+    """
+    try:
+        from huggingface_hub import hf_hub_download  # pyright: ignore[reportUnknownVariableType]  # noqa: PLC0415
+    except ImportError:
+        msg = "huggingface-hub is required for benchmark datasets: pip install openstef-core[benchmark]"
+        raise ImportError(msg) from None
+
+    files_to_download = [
+        f"load_measurements/{target}.parquet",
+        f"weather_forecasts_versioned/{target}.parquet",
+        "EPEX.parquet",
+        "profiles.parquet",
+        *(extra_files or []),
+    ]
+
+    for filename in files_to_download:
+        hf_hub_download(  # pyright: ignore[reportCallIssue]
+            repo_id=repo_id,
+            filename=filename,
+            repo_type="dataset",
+            local_dir=local_dir,
+            local_dir_use_symlinks=False,
+        )
+
+    datasets = [VersionedTimeSeriesDataset.read_parquet(local_dir / f) for f in files_to_download]
+    return VersionedTimeSeriesDataset.concat(datasets, mode="left").select_version()
+
+
+__all__ = [
+    "IsSamePandas",
+    "assert_timeseries_equal",
+    "create_synthetic_forecasting_dataset",
+    "create_timeseries_dataset",
+    "load_liander_dataset",
+]

@@ -41,7 +41,7 @@ logging.getLogger("kaleido").disabled = True
 # %%
 # Download and combine the Liander benchmark dataset into a single TimeSeriesDataset.
 # See data.py for the reusable helper that handles download + loading + combining.
-from data import load_liander_dataset
+from openstef_core.testing import load_liander_dataset
 
 dataset = load_liander_dataset()
 
@@ -82,7 +82,7 @@ fig.show()  # type: ignore[union-attr]
 # Any parameter left as a plain value keeps its default during tuning.
 
 # %%
-from openstef_core.param_ranges import FloatRange, IntRange
+from openstef_core.mixins.param_ranges import FloatRange, IntRange
 from openstef_core.types import Q
 from openstef_models.integrations.optuna import HyperparameterTuner
 from openstef_models.models.forecasting.xgboost_forecaster import XGBoostHyperParams

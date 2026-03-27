@@ -20,14 +20,14 @@ except ImportError as _err:
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.mixins.predictor import HyperParams
-from openstef_core.param_ranges import (
+from openstef_core.mixins.param_ranges import (
     CategoricalRange,
     FloatRange,
     IntRange,
     ModelTuningInfo,
     TuningRange,
 )
+from openstef_core.mixins.predictor import HyperParams
 from openstef_core.types import QuantileOrGlobal
 from openstef_models.workflows.custom_forecasting_workflow import CustomForecastingWorkflow
 

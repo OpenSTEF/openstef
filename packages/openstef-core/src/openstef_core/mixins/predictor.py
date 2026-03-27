@@ -17,8 +17,8 @@ from pydantic import PrivateAttr, ValidatorFunctionWrapHandler, model_validator
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets.mixins import abstractmethod
 from openstef_core.exceptions import PredictError
+from openstef_core.mixins.param_ranges import CategoricalRange, FloatRange, IntRange, TuningRange, _get_class_range
 from openstef_core.mixins.stateful import Stateful
-from openstef_core.param_ranges import CategoricalRange, FloatRange, IntRange, TuningRange, _get_class_range
 
 
 class Predictor[I, O](Stateful):
@@ -196,7 +196,7 @@ class HyperParams(BaseConfig):
 
     Example:
         >>> from typing import Annotated
-        >>> from openstef_core.param_ranges import FloatRange, IntRange
+        >>> from openstef_core.mixins.param_ranges import FloatRange, IntRange
         >>> class MyHP(HyperParams):
         ...     lr: Annotated[float, FloatRange(low=0.01, high=1.0)] = 0.3
         ...     depth: Annotated[int, IntRange(low=1, high=15)] = 6

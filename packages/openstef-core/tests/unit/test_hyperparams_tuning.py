@@ -6,8 +6,8 @@ from typing import Annotated
 
 import pytest
 
+from openstef_core.mixins.param_ranges import CategoricalRange, FloatRange, IntRange
 from openstef_core.mixins.predictor import HyperParams
-from openstef_core.param_ranges import CategoricalRange, FloatRange, IntRange
 
 
 class SampleHP(HyperParams):
