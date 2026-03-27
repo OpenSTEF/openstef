@@ -4,13 +4,10 @@
 """Tuning range types and metadata for hyperparameter search spaces.
 
 Range types (``FloatRange``, ``IntRange``, ``CategoricalRange``) are frozen
-dataclasses — NOT Pydantic models — because they're used as ``Annotated``
-metadata on ``HyperParams`` fields.  Pydantic ``BaseModel`` instances in
-``Annotated`` are interpreted as type annotations, breaking the field's
-actual type.  Plain dataclasses are treated as opaque metadata.
+dataclasses used as ``Annotated`` metadata on ``HyperParams`` fields, where
+Pydantic treats plain dataclasses as opaque field metadata.
 
-``ModelTuningInfo`` is a frozen Pydantic model since it's not used in
-``Annotated`` context.
+``ModelTuningInfo`` is a Pydantic model used outside ``Annotated`` context.
 """
 
 from dataclasses import dataclass, replace
@@ -31,7 +28,7 @@ class FloatRange:
     log: bool = False
     tune: bool = False
 
-    def __post_init__(self) -> None:  # noqa: D105  # low must be <= high
+    def __post_init__(self) -> None:  # noqa: D105
         if self.low is not None and self.high is not None and self.low > self.high:
             msg = f"low ({self.low}) must be <= high ({self.high})"
             raise ValueError(msg)
@@ -60,7 +57,7 @@ class IntRange:
     log: bool = False
     tune: bool = False
 
-    def __post_init__(self) -> None:  # noqa: D105  # low must be <= high
+    def __post_init__(self) -> None:  # noqa: D105
         if self.low is not None and self.high is not None and self.low > self.high:
             msg = f"low ({self.low}) must be <= high ({self.high})"
             raise ValueError(msg)
@@ -87,7 +84,7 @@ class CategoricalRange:
     choices: tuple[Any, ...] | None = None
     tune: bool = False
 
-    def __post_init__(self) -> None:  # noqa: D105  # choices must be non-empty when provided
+    def __post_init__(self) -> None:  # noqa: D105
         if self.choices is not None and len(self.choices) == 0:
             msg = "choices must not be empty"
             raise ValueError(msg)

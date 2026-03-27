@@ -17,6 +17,8 @@ import pandas as pd
 
 from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesDataset
 
+LIANDER_DATASET_REPO_ID = "OpenSTEF/liander2024-energy-forecasting-benchmark"
+
 
 class IsSamePandas:
     """Utility class to allow comparison of pandas DataFrames in assertion / calls."""
@@ -157,7 +159,7 @@ def create_synthetic_forecasting_dataset(  # noqa: PLR0913, PLR0917 - complex fu
 def load_liander_dataset(
     *,
     target: str = "mv_feeder/OS Gorredijk",
-    repo_id: str = "OpenSTEF/liander2024-energy-forecasting-benchmark",
+    repo_id: str = LIANDER_DATASET_REPO_ID,
     local_dir: Path = Path("./liander_dataset"),
     extra_files: list[str] | None = None,
 ) -> TimeSeriesDataset:
@@ -207,6 +209,7 @@ def load_liander_dataset(
 
 __all__ = [
     "IsSamePandas",
+    "LIANDER_DATASET_REPO_ID",
     "assert_timeseries_equal",
     "create_synthetic_forecasting_dataset",
     "create_timeseries_dataset",
