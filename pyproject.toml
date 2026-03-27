@@ -123,14 +123,13 @@ lint.ignore = [
   "TRY003", # simplify exception messages
 ]
 lint.per-file-ignores."./examples/tutorials/*" = [
-  "D100",    # Notebooks don't need module docstrings
-  "E402",    # Imports not at top — notebook cells have natural ordering
-  "ERA001",  # Jupytext YAML frontmatter looks like commented-out code
-  "F821",    # Cell-scoped names appear undefined to Ruff's module-level analysis
-  "INP001",  # Not a namespace package — notebooks don't need __init__.py
-  "PLC2701", # Allow importing private helper modules (_data)
-  "S101",    # Tutorials may use assert for runtime checks
-  "T201",    # Tutorials may use print for demonstration
+  "D100",   # Notebooks don't need module docstrings
+  "E402",   # Imports not at top — notebook cells have natural ordering
+  "ERA001", # Jupytext YAML frontmatter looks like commented-out code
+  "F821",   # Cell-scoped names appear undefined to Ruff's module-level analysis
+  "INP001", # Not a namespace package — notebooks don't need __init__.py
+  "S101",   # Tutorials may use assert for runtime checks
+  "T201",   # Tutorials may use print for demonstration
 ]
 lint.per-file-ignores."./packages/*/tests/*" = [
   "ARG",     # Unused function args -> fixtures nevertheless are functionally relevant...

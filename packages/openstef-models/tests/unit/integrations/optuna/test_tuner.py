@@ -10,6 +10,7 @@ from unittest.mock import MagicMock
 import optuna
 import pytest
 
+from openstef_core.base_model import BaseConfig
 from openstef_core.param_ranges import CategoricalRange, FloatRange, IntRange, ModelTuningInfo
 from openstef_models.integrations.optuna import (
     HyperparameterTuner,
@@ -162,7 +163,7 @@ def test_tuning_result__repr_reflects_param_count(best_params: dict[str, Any], e
     study = MagicMock(spec=optuna.Study)
     study.best_params = best_params
 
-    result = TuningResult(workflow=MagicMock(), fit_result=None, study=study, best_config=MagicMock())
+    result = TuningResult(study=study, best_config=MagicMock())
 
     # Act / Assert
     assert repr(result) == expected_repr
@@ -185,7 +186,7 @@ def test_reconstruct_best_config__single_model_applies_best_params() -> None:
     study.best_params = {"n_estimators": 300}
 
     # Act
-    best_config = tuner._reconstruct_best_config([info], study)
+    best_config = tuner._reconstruct_best_config(config, [info], study)
 
     # Assert
     assert best_config.xgboost_hyperparams.n_estimators == 300
@@ -211,7 +212,7 @@ def test_reconstruct_best_config__multi_model_parses_dotted_trial_keys() -> None
     study.best_params = {"xgboost_hyperparams.n_estimators": 300, "gblinear_hyperparams.n_estimators": 150}
 
     # Act
-    best_config = tuner._reconstruct_best_config([info_xgb, info_gblinear], study)
+    best_config = tuner._reconstruct_best_config(config, [info_xgb, info_gblinear], study)
 
     # Assert
     assert best_config.xgboost_hyperparams.n_estimators == 300
@@ -231,25 +232,25 @@ def test_hyperparameter_tuner__tune_raises_when_no_tunable_hyperparams() -> None
         tuner.tune()
 
 
-def test_hyperparameter_tuner__tune_returns_best_config_study_and_params() -> None:
-    """HyperparameterTuner.tune() returns a best_config, completed study, and best_params dict."""
+def test_hyperparameter_tuner__tune_returns_best_config_and_study() -> None:
+    """HyperparameterTuner.tune() returns a best_config and completed study."""
     # Arrange
     config = _config(xgboost_hyperparams=XGBoostHyperParams(n_estimators=IntRange(50, 500, tune=True)))
     tuner = _make_tuner(config=config)
 
     # Act
-    best_config, study, best_params = tuner.tune()
+    best_config, study = tuner.tune()
 
     # Assert
     assert isinstance(best_config, ForecastingWorkflowConfig)
     assert isinstance(study, optuna.Study)
     assert len(study.trials) == 2
-    assert "n_estimators" in best_params
-    assert 50 <= best_params["n_estimators"] <= 500
+    assert "n_estimators" in study.best_params
+    assert 50 <= study.best_params["n_estimators"] <= 500
 
 
 def test_hyperparameter_tuner__fit_with_tuning_returns_tuning_result() -> None:
-    """HyperparameterTuner.fit_with_tuning() returns a TuningResult with best config and fitted workflow."""
+    """HyperparameterTuner.fit_with_tuning() returns a TuningResult with best config and study."""
     # Arrange
     config = _config(xgboost_hyperparams=XGBoostHyperParams(n_estimators=IntRange(50, 500, tune=True)))
     create_workflow = MagicMock(return_value=_make_mock_workflow())
@@ -261,8 +262,8 @@ def test_hyperparameter_tuner__fit_with_tuning_returns_tuning_result() -> None:
     # Assert
     assert isinstance(result, TuningResult)
     assert isinstance(result.study, optuna.Study)
-    # 2 trial fits during tuning + 1 final fit with the best config
-    assert create_workflow.call_count == 2 + 1
+    # 2 trial fits during tuning
+    assert create_workflow.call_count == 2
 
 
 def test_hyperparameter_tuner__create_study_returns_configured_study() -> None:
@@ -276,3 +277,55 @@ def test_hyperparameter_tuner__create_study_returns_configured_study() -> None:
     # Assert
     assert study.direction.name == "MINIMIZE"
     assert study.study_name == "custom_study"
+
+
+# Metric name validation
+
+
+def test_hyperparameter_tuner__tune_raises_for_invalid_metric_name_with_providers() -> None:
+    """tune() raises ValueError when metric_name doesn't match any provider metric_names."""
+    # Arrange — config with evaluation_metrics whose providers declare metric_names
+    mock_provider = MagicMock()
+    mock_provider.metric_names = frozenset({"R2", "MAE"})
+    config = _config()
+    config = config.model_copy(update={"evaluation_metrics": [mock_provider]})
+    tuner = _make_tuner(
+        config=config,
+        metric_name="nonexistent_metric",
+        # Need at least one tunable field so tune() doesn't exit early
+    )
+
+    # Act / Assert
+    with pytest.raises(ValueError, match=r"nonexistent_metric.*not provided"):
+        tuner.tune()
+
+
+def test_hyperparameter_tuner__tune_skips_validation_when_no_providers() -> None:
+    """tune() skips metric_name validation when config lacks evaluation_metrics."""
+    # Arrange — use a bare BaseConfig without evaluation_metrics field
+    bare_config = BaseConfig()
+    tuner = HyperparameterTuner(
+        config=bare_config,
+        train_dataset=MagicMock(),
+        create_workflow=MagicMock(),
+        target_quantile="global",
+        metric_name="anything",
+        n_trials=2,
+        seed=0,
+    )
+
+    # Act / Assert — raises for missing tunable params, NOT for invalid metric
+    with pytest.raises(ValueError, match="No tunable hyperparameters"):
+        tuner.tune()
+
+
+# n_jobs parallelism
+
+
+def test_hyperparameter_tuner__n_jobs_defaults_to_one() -> None:
+    """HyperparameterTuner.n_jobs defaults to 1."""
+    # Arrange / Act
+    tuner = _make_tuner()
+
+    # Assert
+    assert tuner.n_jobs == 1

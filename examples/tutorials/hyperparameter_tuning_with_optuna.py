@@ -40,8 +40,8 @@ logging.getLogger("kaleido").disabled = True
 
 # %%
 # Download and combine the Liander benchmark dataset into a single TimeSeriesDataset.
-# See _data.py for the reusable helper that handles download + loading + combining.
-from _data import load_liander_dataset
+# See data.py for the reusable helper that handles download + loading + combining.
+from data import load_liander_dataset
 
 dataset = load_liander_dataset()
 
@@ -142,11 +142,10 @@ print(f"Best params: {tuning_result.study.best_params}")
 
 
 # %%
-# The best config is already applied inside fit_with_tuning.
-# Here we inspect which hyperparameters were tuned vs kept at their default.
+# Inspect which hyperparameters were tuned vs kept at their default.
+best_config = tuning_result.best_config  # type: ignore[union-attr]  # known to be ForecastingWorkflowConfig
 print("Final XGBoost hyperparameters (tuned values marked):")
-forecaster = tuning_result.workflow.model.forecaster  # type: ignore[union-attr]  # known to be set after fit
-final_hp = forecaster.hyperparams
+final_hp = best_config.xgboost_hyperparams
 baseline_hp = config.xgboost_hyperparams
 best_params = tuning_result.study.best_params
 
@@ -158,18 +157,20 @@ for field in type(final_hp).model_fields:
 
 
 # %% [markdown]
-# ## Full-set training metrics
+# ## Train the final model with best hyperparameters
 #
-# `fit_with_tuning()` trains the final model on the full training set with the best
-# hyperparameters.  The fit result is available as `tuning_result.fit_result`.
+# `fit_with_tuning()` returns the best config. Now we create a workflow with it
+# and train the final model on the full training set.
 #
 
 # %%
-print("Final model already trained by fit_with_tuning!")
+workflow = create_forecasting_workflow(best_config)
+fit_result = workflow.fit(train_dataset)
+
 print("Full-set metrics (tuned model):")
-assert tuning_result.fit_result is not None
-assert tuning_result.fit_result.metrics_full is not None
-print(tuning_result.fit_result.metrics_full.to_dataframe())
+assert fit_result is not None
+assert fit_result.metrics_full is not None
+print(fit_result.metrics_full.to_dataframe())
 
 
 # %% [markdown]
@@ -199,7 +200,7 @@ fig2.show()
 # %%
 from openstef_beam.analysis.plots import ForecastTimeSeriesPlotter
 
-forecast = tuning_result.workflow.predict(forecast_dataset)
+forecast = workflow.predict(forecast_dataset)
 
 fig = (
     ForecastTimeSeriesPlotter()

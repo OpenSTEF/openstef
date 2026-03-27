@@ -4,6 +4,7 @@
 
 """Hyperparameter tuner and supporting types."""
 
+from collections import defaultdict
 from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any, Literal, NamedTuple
@@ -28,7 +29,6 @@ from openstef_core.param_ranges import (
     TuningRange,
 )
 from openstef_core.types import QuantileOrGlobal
-from openstef_models.models.forecasting_model import ModelFitResult
 from openstef_models.workflows.custom_forecasting_workflow import CustomForecastingWorkflow
 
 
@@ -71,29 +71,39 @@ def apply_trial_suggestions[HP: BaseConfig](
     Returns:
         Copy of *current* with trial-suggested values applied.
     """
-    updates: dict[str, Any] = {}
-    for param_name, tuning_range in space.items():
-        value = _suggest_value(trial, param_name, tuning_range)
-        if value is not None:
-            updates[param_name] = value
+    updates = {
+        param_name: value
+        for param_name, tuning_range in space.items()
+        if (value := _suggest_value(trial, param_name, tuning_range)) is not None
+    }
     return current.model_copy(update=updates)
 
 
+def _collect_available_metric_names(config: BaseConfig) -> set[str] | None:
+    """Extract declared metric names from *config* if it has ``evaluation_metrics``.
+
+    Returns:
+        Metric name set, or ``None`` when the config doesn't expose metric providers.
+    """
+    providers = getattr(config, "evaluation_metrics", None)
+    if providers is None:
+        return None
+
+    names: set[str] = set()
+    for provider in providers:
+        if hasattr(provider, "metric_names"):
+            names.update(provider.metric_names)
+    return names or None
+
+
 @dataclass(repr=False)
-class TuningResult:
+class TuningResult[ConfigT: BaseConfig]:
     """Result container for ``HyperparameterTuner.fit_with_tuning``."""
 
-    workflow: CustomForecastingWorkflow
-    fit_result: ModelFitResult | None
+    best_config: ConfigT
     study: optuna.Study
-    best_config: BaseConfig
 
-    def __repr__(self) -> str:
-        """Show tuned parameter count for quick inspection.
-
-        Returns:
-            Human-readable summary like ``TuningResult(3 params tuned)``.
-        """
+    def __repr__(self) -> str:  # noqa: D105  # self-explanatory
         n = len(self.study.best_params)
         return f"TuningResult({n} params tuned)" if n else "TuningResult(no tuning)"
 
@@ -120,6 +130,10 @@ class HyperparameterTuner[ConfigT: BaseConfig](BaseConfig):
         default="maximize", description="Optimisation direction for the metric."
     )
     n_trials: int = Field(default=20, description="Number of Optuna trials.")
+    n_jobs: int = Field(
+        default=1,
+        description="Number of parallel trial workers. Set >1 when the underlying model is single-threaded.",
+    )
     seed: int | None = Field(default=42, description="Random seed for reproducibility.")
     study_name: str = Field(default="hyperparameter_tuning", description="Optuna study name.")
 
@@ -129,30 +143,31 @@ class HyperparameterTuner[ConfigT: BaseConfig](BaseConfig):
         Returns:
             One ``ModelTuningInfo`` per tunable ``HyperParams`` field.
         """
-        result: list[ModelTuningInfo] = []
-        for field_name in type(self.config).model_fields:
-            value = getattr(self.config, field_name)
-            if isinstance(value, HyperParams):
-                space = value.get_search_space()
-                if space:
-                    result.append(ModelTuningInfo(field_name=field_name, hyperparams=value, search_space=space))
-        return result
+        return [
+            ModelTuningInfo(field_name=field_name, hyperparams=value, search_space=space)
+            for field_name in type(self.config).model_fields
+            if isinstance(value := getattr(self.config, field_name), HyperParams)
+            and (space := value.get_search_space())
+        ]
 
-    def _build_combined_space(  # noqa: PLR6301
-        self, model_tuning_info: list[ModelTuningInfo]
-    ) -> dict[str, _SearchSpaceEntry]:
+    @staticmethod
+    def _build_combined_space(model_tuning_info: list[ModelTuningInfo]) -> dict[str, _SearchSpaceEntry]:
         """Merge per-field search spaces into a single dict keyed by Optuna trial key.
+
+        When multiple HyperParams groups are tuned, trial keys are prefixed with the
+        field name (e.g. ``"xgboost_hyperparams.learning_rate"``) to avoid collisions.
 
         Returns:
             Combined search space mapping trial keys to ``_SearchSpaceEntry``.
         """
         multi = len(model_tuning_info) > 1
-        combined: dict[str, _SearchSpaceEntry] = {}
-        for info in model_tuning_info:
-            for param_name, tuning_range in info.search_space.items():
-                trial_key = f"{info.field_name}.{param_name}" if multi else param_name
-                combined[trial_key] = _SearchSpaceEntry(info.field_name, param_name, tuning_range)
-        return combined
+        return {
+            (f"{info.field_name}.{param_name}" if multi else param_name): _SearchSpaceEntry(
+                info.field_name, param_name, tuning_range
+            )
+            for info in model_tuning_info
+            for param_name, tuning_range in info.search_space.items()
+        }
 
     def _create_study(self) -> optuna.Study:
         """Create and configure the Optuna study.
@@ -169,8 +184,8 @@ class HyperparameterTuner[ConfigT: BaseConfig](BaseConfig):
             study_name=self.study_name,
         )
 
-    def _suggest_value(  # noqa: PLR6301
-        self,
+    @staticmethod
+    def _suggest_value(
         trial: optuna.Trial,
         trial_key: str,
         tuning_range: TuningRange,
@@ -192,7 +207,9 @@ class HyperparameterTuner[ConfigT: BaseConfig](BaseConfig):
     ) -> float:
         """Score a single Optuna trial.
 
-        Override to change how trials are evaluated (e.g. cross-validation).
+        Suggests HP values, builds a config copy, fits a workflow, and extracts the
+        configured metric.  Override to change how trials are evaluated (e.g.
+        cross-validation).
 
         Returns:
             Metric score for the trial (lower / higher is better depending on *direction*).
@@ -200,12 +217,14 @@ class HyperparameterTuner[ConfigT: BaseConfig](BaseConfig):
         Raises:
             ValueError: If ``metric_name`` is not found in the evaluation metrics.
         """
-        per_field: dict[str, dict[str, Any]] = {}
+        # Group suggested values by their owning HyperParams field
+        per_field: dict[str, dict[str, Any]] = defaultdict(dict)
         for trial_key, entry in combined_space.items():
             value = self._suggest_value(trial, trial_key, entry.range)
             if value is not None:
-                per_field.setdefault(entry.config_field, {})[entry.param_name] = value
+                per_field[entry.config_field][entry.param_name] = value
 
+        # Replace each HyperParams instance with a copy containing the trial's suggestions
         tuned_config = self.config.model_copy(
             update={
                 info.field_name: info.hyperparams.model_copy(update=per_field[info.field_name])
@@ -213,57 +232,83 @@ class HyperparameterTuner[ConfigT: BaseConfig](BaseConfig):
                 if info.field_name in per_field
             }
         )
+
         workflow = self.create_workflow(tuned_config)
         fit_result = workflow.fit(self.train_dataset)
         if fit_result is None:
             return float("-inf")
+
+        # Prefer validation metrics; fall back to training metrics
         metrics = fit_result.metrics_val if fit_result.metrics_val is not None else fit_result.metrics_train
         score = metrics.get_metric(quantile=self.target_quantile, metric_name=self.metric_name)
         if score is None:
-            available = metrics.to_flat_dict()
+            available = sorted(metrics.to_flat_dict())
             msg = (
                 f"Metric {self.metric_name!r} (quantile={self.target_quantile!r}) not found. "
-                f"Available metrics: {sorted(available)}"
+                f"Available metrics: {available}"
             )
             raise ValueError(msg)
         return float(score)
 
+    @staticmethod
     def _reconstruct_best_config(
-        self,
+        config: BaseConfig,
         model_tuning_info: list[ModelTuningInfo],
         study: optuna.Study,
-    ) -> ConfigT:
+    ) -> BaseConfig:
         """Apply the best trial params back to the original config.
 
         Returns:
             Config copy with the best trial's parameters applied.
         """
         multi = len(model_tuning_info) > 1
-        per_field_best: dict[str, dict[str, Any]] = {}
+        per_field: dict[str, dict[str, Any]] = defaultdict(dict)
         for trial_key, value in study.best_params.items():
             if multi and "." in trial_key:
                 field_name, param_name = trial_key.split(".", 1)
             else:
+                # Single-model shortcut — params aren't prefixed
                 field_name = model_tuning_info[0].field_name
                 param_name = trial_key
-            per_field_best.setdefault(field_name, {})[param_name] = value
-        return self.config.model_copy(
+            per_field[field_name][param_name] = value
+
+        return config.model_copy(
             update={
-                info.field_name: info.hyperparams.model_copy(update=per_field_best[info.field_name])
+                info.field_name: info.hyperparams.model_copy(update=per_field[info.field_name])
                 for info in model_tuning_info
-                if info.field_name in per_field_best
+                if info.field_name in per_field
             }
         )
 
-    def tune(self) -> tuple[ConfigT, optuna.Study, dict[str, Any]]:
+    def _validate_metric_name(self) -> None:
+        """Eagerly check that ``metric_name`` is valid for the configured evaluation metrics.
+
+        Only performs the check when the *config* exposes ``evaluation_metrics``
+        with providers that declare ``metric_names``.  Silently skips otherwise
+        (validation will still occur at trial time).
+
+        Raises:
+            ValueError: If *metric_name* is not among the declared provider metric names.
+        """
+        known = _collect_available_metric_names(self.config)
+        if known is not None and self.metric_name not in known:
+            msg = (
+                f"Metric {self.metric_name!r} is not provided by the configured evaluation_metrics. "
+                f"Available: {sorted(known)}"
+            )
+            raise ValueError(msg)
+
+    def tune(self) -> tuple[ConfigT, optuna.Study]:
         """Run the Optuna study and return the best config.
 
         Returns:
-            ``(best_config, study, best_params)`` tuple.
+            ``(best_config, study)`` tuple.
 
         Raises:
-            ValueError: If no tunable fields are found.
+            ValueError: If no tunable fields are found or *metric_name* is invalid.
         """
+        self._validate_metric_name()
+
         model_tuning_info = self._discover_search_spaces()
         if not model_tuning_info:
             msg = "No tunable hyperparameters found. Pass TuningRange(tune=True) in the HyperParams constructor."
@@ -275,20 +320,18 @@ class HyperparameterTuner[ConfigT: BaseConfig](BaseConfig):
         def objective(trial: optuna.Trial) -> float:
             return self._evaluate_trial(trial, combined_space, model_tuning_info)
 
-        study.optimize(objective, n_trials=self.n_trials, show_progress_bar=True)
-        best_config = self._reconstruct_best_config(model_tuning_info, study)
-        return best_config, study, study.best_params
+        study.optimize(objective, n_trials=self.n_trials, n_jobs=self.n_jobs, show_progress_bar=True)
+        best_config = self._reconstruct_best_config(self.config, model_tuning_info, study)
+        return best_config, study  # type: ignore[return-value]  # ConfigT narrowing not expressible
 
-    def fit_with_tuning(self) -> TuningResult:
+    def fit_with_tuning(self) -> TuningResult[ConfigT]:
         """Tune, then fit a final workflow with the best config.
 
         Returns:
-            ``TuningResult`` with the fitted workflow, study, and best config.
+            ``TuningResult`` with the best config and Optuna study.
         """
-        best_config, study, _ = self.tune()
-        workflow = self.create_workflow(best_config)
-        result = workflow.fit(self.train_dataset)
-        return TuningResult(workflow=workflow, fit_result=result, study=study, best_config=best_config)
+        best_config, study = self.tune()
+        return TuningResult(best_config=best_config, study=study)
 
 
 __all__ = [

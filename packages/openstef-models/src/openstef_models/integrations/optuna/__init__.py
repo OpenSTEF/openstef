@@ -9,7 +9,7 @@ Requires ``optuna`` (install via ``pip install openstef-models[tuning]``).
 Public API
 ----------
 - `HyperparameterTuner` — orchestrates Bayesian tuning over HyperParams search spaces.
-- `TuningResult` — result container with fitted workflow, study, and best config.
+- `TuningResult` — result container with best config and Optuna study.
 - `apply_trial_suggestions` — standalone utility for applying Optuna suggestions to a config.
 """
 
