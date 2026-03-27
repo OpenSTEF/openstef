@@ -63,7 +63,6 @@ from openstef_models.transforms.weather_domain import (
 )
 from openstef_models.utils.data_split import DataSplitter
 from openstef_models.utils.feature_selection import Exclude, FeatureSelection, Include
-from openstef_models.utils.tuning import TuningConfigMixin
 from openstef_models.workflows.custom_forecasting_workflow import (
     CustomForecastingWorkflow,
     ForecastingCallback,
@@ -101,7 +100,7 @@ class LocationConfig(BaseConfig):
         }
 
 
-class ForecastingWorkflowConfig(TuningConfigMixin, BaseConfig):  # PredictionJob
+class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
     """Configuration for forecasting workflows.
 
     Defines all parameters needed to set up a forecasting model, including model type,
@@ -277,16 +276,6 @@ class ForecastingWorkflowConfig(TuningConfigMixin, BaseConfig):  # PredictionJob
 
     verbosity: Literal[0, 1, 2, 3, True] = Field(
         default=0, description="Verbosity level. 0=silent, 1=warning, 2=info, 3=debug"
-    )
-
-    # Hyperparameter tuning (Optuna)
-    optuna_n_trials: int = Field(
-        default=20,
-        description="Number of Optuna trials to run when any search-space field has tune=True.",
-    )
-    optuna_seed: int | None = Field(
-        default=42,
-        description="Random seed for the Optuna TPE sampler.  Set to None to disable seeding.",
     )
 
     # Metadata

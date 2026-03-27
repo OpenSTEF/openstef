@@ -18,6 +18,8 @@ from sklearn.preprocessing import StandardScaler
 
 from openstef_core.datasets import ForecastDataset, ForecastInputDataset, TimeSeriesDataset
 from openstef_core.exceptions import MissingExtraError, NotFittedError
+from openstef_core.mixins.predictor import HyperParams
+from openstef_core.param_ranges import CategoricalRange, FloatRange, IntRange
 from openstef_core.utils.pandas import normalize_to_unit_sum
 from openstef_models.explainability.mixins import ContributionsMixin, ExplainableForecaster
 from openstef_models.models.forecasting.forecaster import Forecaster
@@ -27,7 +29,6 @@ from openstef_models.utils.loss_functions import (
     get_objective_function,
     xgb_prepare_target_for_objective,
 )
-from openstef_models.utils.tuning import CategoricalRange, FloatRange, IntRange, TunableHyperParams
 
 try:
     import xgboost as xgb
@@ -35,7 +36,7 @@ except ImportError as e:
     raise MissingExtraError("xgboost", "openstef-models") from e
 
 
-class XGBoostHyperParams(TunableHyperParams):
+class XGBoostHyperParams(HyperParams):
     """XGBoost hyperparameters for gradient boosting tree models.
 
     Configures tree-specific parameters for XGBoost gbtree booster. Provides
