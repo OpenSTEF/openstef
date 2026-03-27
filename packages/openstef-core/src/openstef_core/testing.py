@@ -208,8 +208,8 @@ def load_liander_dataset(
 
 
 __all__ = [
-    "IsSamePandas",
     "LIANDER_DATASET_REPO_ID",
+    "IsSamePandas",
     "assert_timeseries_equal",
     "create_synthetic_forecasting_dataset",
     "create_timeseries_dataset",

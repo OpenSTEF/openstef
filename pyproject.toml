@@ -342,7 +342,7 @@ switch = [
     "type",
     "tests",
     "doctests",
-    "notebooks-check",
+    "notebooks",
   ], ignore_fail = "return_non_zero" },
 ]
 

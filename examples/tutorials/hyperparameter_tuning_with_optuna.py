@@ -153,7 +153,7 @@ best_params = tuning_result.study.best_params
 for field in type(final_hp).model_fields:
     value = getattr(final_hp, field)
     baseline = getattr(baseline_hp, field)
-    marker: Literal[' <- tuned'] | Literal[''] = " <- tuned" if field in best_params else ""
+    marker: Literal[" <- tuned", ""] = " <- tuned" if field in best_params else ""
     print(f"  {field:25s}: {value}{marker}")
 
 
