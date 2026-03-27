@@ -82,6 +82,7 @@ fig.show()  # type: ignore[union-attr]
 # Any parameter left as a plain value keeps its default during tuning.
 
 # %%
+from openstef_beam.evaluation.metric_providers import ObservedProbabilityProvider, RMAEProvider
 from openstef_core.mixins.param_ranges import FloatRange, IntRange
 from openstef_core.types import Q
 from openstef_models.integrations.optuna import HyperparameterTuner
@@ -98,6 +99,7 @@ config = ForecastingWorkflowConfig(
         subsample=FloatRange(0.5, 1.0, tune=True),
         colsample_bytree=FloatRange(0.5, 1.0, tune=True),
     ),
+    evaluation_metrics=[RMAEProvider(), ObservedProbabilityProvider()],
     mlflow_storage=None,  # Disable MLFlow tune to avoid reusing models between trials.
 )
 
@@ -131,7 +133,8 @@ tuner = HyperparameterTuner(
     train_dataset=train_dataset,
     create_workflow=create_forecasting_workflow,
     target_quantile=Q(0.5),
-    metric_name="R2",
+    metric_name="rMAE",
+    direction="minimize",
     n_trials=20,
     seed=42,
 )
@@ -170,7 +173,7 @@ workflow = tuning_result.workflow
 # %% [markdown]
 # ## Inspect the study and forecast
 #
-# 1. How did $R^2$ improved over trials?
+# 1. How did $rMAE$ improve over trials?
 # 2. Which parameters had the most impact?
 # 3. Final tuned model predictions on the held-out forecast window.
 #
@@ -182,7 +185,7 @@ study = tuning_result.study
 
 # How the best score evolved over trials
 fig = plot_optimization_history(study)
-fig.update_layout(title="Optimization History: R² over Trials")
+fig.update_layout(title="Optimization History: rMAE over Trials")
 fig.show()
 
 # Which hyperparameters mattered most (requires ≥ ~20 trials for reliable ranking)
