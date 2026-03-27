@@ -12,7 +12,7 @@ Stateful interface.
 
 from typing import Any, Self, cast
 
-from pydantic import PrivateAttr, model_validator
+from pydantic import PrivateAttr, ValidatorFunctionWrapHandler, model_validator
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets.mixins import abstractmethod
@@ -214,7 +214,7 @@ class HyperParams(BaseConfig):
     def _extract_tuning_ranges(
         cls,
         data: dict[str, object] | object,
-        handler: Any,  # noqa: ANN401
+        handler: ValidatorFunctionWrapHandler,
     ) -> Self:
         """Strip TuningRange values from kwargs and store as instance metadata.
 

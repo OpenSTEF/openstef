@@ -17,6 +17,7 @@ from dataclasses import dataclass, replace
 from typing import Any, Self
 
 from pydantic import ConfigDict, Field, model_validator
+from pydantic.fields import FieldInfo
 
 from openstef_core.base_model import BaseConfig, BaseModel
 
@@ -125,7 +126,7 @@ class ModelTuningInfo(BaseModel):
         return self
 
 
-def _get_class_range(field_info: Any) -> TuningRange | None:  # noqa: ANN401  # pyright: ignore[reportUnusedFunction]
+def _get_class_range(field_info: FieldInfo) -> TuningRange | None:  # pyright: ignore[reportUnusedFunction]
     """Return the first TuningRange found in a Pydantic FieldInfo's metadata."""
     for meta in field_info.metadata:
         if isinstance(meta, (FloatRange, IntRange, CategoricalRange)):

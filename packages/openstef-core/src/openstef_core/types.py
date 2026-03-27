@@ -20,7 +20,7 @@ from typing import Any, Literal, Self, override
 
 import pandas as pd
 import pytz
-from pydantic import GetCoreSchemaHandler, TypeAdapter
+from pydantic import GetCoreSchemaHandler, TypeAdapter, ValidationInfo
 from pydantic_core import CoreSchema, core_schema
 
 from openstef_core.base_model import PydanticStringPrimitive
@@ -84,7 +84,7 @@ class LeadTime(PydanticStringPrimitive):
 
     @classmethod
     @override
-    def validate(cls, v: Self | str | timedelta, _info: Any = None) -> Self:
+    def validate(cls, v: Self | str | timedelta, _info: ValidationInfo | None = None) -> Self:
         """Validates and converts various input types to LeadTime.
 
         Accepts LeadTime objects, ISO 8601 duration strings, or timedelta objects.

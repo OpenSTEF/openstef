@@ -19,9 +19,7 @@ from openstef_models.utils.tuning import (
     _reconstruct_best_config,  # noqa: PLC2701
     _suggest_hyperparam_value,  # noqa: PLC2701
     apply_trial_suggestions,
-    fit_with_tuning,
     run_optuna_study,
-    tune,
 )
 
 # Suppress Optuna progress output during tests
@@ -235,82 +233,30 @@ def test_reconstruct_best_config__multi_model_parses_dotted_trial_keys() -> None
     assert best_config.gblinear_hyperparams.n_estimators == 150
 
 
-# tune
-
-
-def test_tune__raises_when_no_tunable_hyperparams() -> None:
-    """tune raises ValueError when the config exposes no tune=True hyperparameter ranges."""
-    with pytest.raises(ValueError, match="No tunable hyperparameters"):
-        tune(
-            _config(),
-            MagicMock(),
-            MagicMock(),
-            target_quantile="global",
-            metric_name="R2",
-        )
-
-
-def test_tune__returns_best_config_study_and_params() -> None:
-    """tune returns a best_config, completed study, and best_params dict after n_trials trials."""
-    # Arrange
-    config = _config(xgboost_hyperparams=XGBoostHyperParams(n_estimators=IntRange(50, 500, tune=True)))
-    create_workflow = MagicMock(return_value=_make_mock_workflow())
-
-    # Act
-    best_config, study, best_params = tune(
-        config,
-        MagicMock(),
-        create_workflow,
-        target_quantile="global",
-        metric_name="R2",
-        n_trials=2,
-        seed=0,
-    )
-
-    # Assert
-    assert isinstance(best_config, ForecastingWorkflowConfig)
-    assert isinstance(study, optuna.Study)
-    assert len(study.trials) == 2
-    assert "n_estimators" in best_params
-    assert 50 <= best_params["n_estimators"] <= 500
-
-
-# fit_with_tuning
-
-
-def test_fit_with_tuning__returns_tuning_result_with_best_config_and_study() -> None:
-    """fit_with_tuning returns a TuningResult holding the best config, study, and fitted workflow."""
-    # Arrange
-    config = _config(xgboost_hyperparams=XGBoostHyperParams(n_estimators=IntRange(50, 500, tune=True)))
-    create_workflow = MagicMock(return_value=_make_mock_workflow())
-
-    # Act
-    result = fit_with_tuning(
-        config,
-        MagicMock(),
-        create_workflow,
-        target_quantile="global",
-        metric_name="R2",
-        n_trials=2,
-        seed=0,
-    )
-
-    # Assert
-    assert isinstance(result, TuningResult)
-    assert isinstance(result.study, optuna.Study)
-    # 2 trial fits during tuning + 1 final fit with the best config
-    assert create_workflow.call_count == 2 + 1
-
-
 # HyperparameterTuner
 
 
-def test_hyperparameter_tuner__tune_returns_best_config() -> None:
-    """HyperparameterTuner.tune() runs the study and returns a valid best config."""
+def test_hyperparameter_tuner__tune_raises_when_no_tunable_hyperparams() -> None:
+    """HyperparameterTuner.tune() raises ValueError when no tune=True ranges exist."""
+    # Arrange
+    tuner = HyperparameterTuner(
+        config=_config(),
+        train_dataset=MagicMock(),
+        create_workflow=MagicMock(),
+        target_quantile="global",
+        metric_name="R2",
+    )
+
+    # Act / Assert
+    with pytest.raises(ValueError, match="No tunable hyperparameters"):
+        tuner.tune()
+
+
+def test_hyperparameter_tuner__tune_returns_best_config_study_and_params() -> None:
+    """HyperparameterTuner.tune() returns a best_config, completed study, and best_params dict."""
     # Arrange
     config = _config(xgboost_hyperparams=XGBoostHyperParams(n_estimators=IntRange(50, 500, tune=True)))
     create_workflow = MagicMock(return_value=_make_mock_workflow())
-
     tuner = HyperparameterTuner(
         config=config,
         train_dataset=MagicMock(),
@@ -326,5 +272,32 @@ def test_hyperparameter_tuner__tune_returns_best_config() -> None:
 
     # Assert
     assert isinstance(best_config, ForecastingWorkflowConfig)
+    assert isinstance(study, optuna.Study)
     assert len(study.trials) == 2
+    assert "n_estimators" in best_params
     assert 50 <= best_params["n_estimators"] <= 500
+
+
+def test_hyperparameter_tuner__fit_with_tuning_returns_tuning_result() -> None:
+    """HyperparameterTuner.fit_with_tuning() returns a TuningResult with best config and fitted workflow."""
+    # Arrange
+    config = _config(xgboost_hyperparams=XGBoostHyperParams(n_estimators=IntRange(50, 500, tune=True)))
+    create_workflow = MagicMock(return_value=_make_mock_workflow())
+    tuner = HyperparameterTuner(
+        config=config,
+        train_dataset=MagicMock(),
+        create_workflow=create_workflow,
+        target_quantile="global",
+        metric_name="R2",
+        n_trials=2,
+        seed=0,
+    )
+
+    # Act
+    result = tuner.fit_with_tuning()
+
+    # Assert
+    assert isinstance(result, TuningResult)
+    assert isinstance(result.study, optuna.Study)
+    # 2 trial fits during tuning + 1 final fit with the best config
+    assert create_workflow.call_count == 2 + 1

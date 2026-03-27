@@ -8,7 +8,6 @@ Import this module only when tuning is needed.
 
 Key public API:
 - ``HyperparameterTuner`` — Pydantic model that orchestrates Bayesian tuning.
-- ``tune`` / ``fit_with_tuning`` — convenience functions.
 - ``run_optuna_study`` — standalone utility for custom objectives.
 - ``TuningResult`` — result container for tuned config + study.
 """
@@ -295,71 +294,9 @@ class HyperparameterTuner[ConfigT: BaseConfig](BaseConfig):
         return TuningResult(workflow=workflow, fit_result=result, study=study, best_config=best_config)
 
 
-def tune[ConfigT: BaseConfig](  # noqa: PLR0913
-    config: ConfigT,
-    train_dataset: TimeSeriesDataset,
-    create_workflow: Callable[[ConfigT], CustomForecastingWorkflow],
-    *,
-    target_quantile: QuantileOrGlobal,
-    metric_name: str,
-    direction: Literal["maximize", "minimize"] = "maximize",
-    n_trials: int = 20,
-    seed: int | None = 42,
-    study_name: str = "hyperparameter_tuning",
-) -> tuple[ConfigT, optuna.Study, dict[str, Any]]:
-    """Convenience wrapper around ``HyperparameterTuner.tune``.
-
-    Returns:
-        ``(best_config, study, best_params)`` tuple.
-    """
-    return HyperparameterTuner(
-        config=config,
-        train_dataset=train_dataset,
-        create_workflow=create_workflow,
-        target_quantile=target_quantile,
-        metric_name=metric_name,
-        direction=direction,
-        n_trials=n_trials,
-        seed=seed,
-        study_name=study_name,
-    ).tune()
-
-
-def fit_with_tuning[ConfigT: BaseConfig](  # noqa: PLR0913
-    config: ConfigT,
-    train_dataset: TimeSeriesDataset,
-    create_workflow: Callable[[ConfigT], CustomForecastingWorkflow],
-    *,
-    target_quantile: QuantileOrGlobal,
-    metric_name: str,
-    direction: Literal["maximize", "minimize"] = "maximize",
-    n_trials: int = 20,
-    seed: int | None = 42,
-    study_name: str = "hyperparameter_tuning",
-) -> TuningResult:
-    """Convenience wrapper around ``HyperparameterTuner.fit_with_tuning``.
-
-    Returns:
-        ``TuningResult`` with the fitted workflow, study, and best config.
-    """
-    return HyperparameterTuner(
-        config=config,
-        train_dataset=train_dataset,
-        create_workflow=create_workflow,
-        target_quantile=target_quantile,
-        metric_name=metric_name,
-        direction=direction,
-        n_trials=n_trials,
-        seed=seed,
-        study_name=study_name,
-    ).fit_with_tuning()
-
-
 __all__ = [
     "HyperparameterTuner",
     "TuningResult",
     "apply_trial_suggestions",
-    "fit_with_tuning",
     "run_optuna_study",
-    "tune",
 ]
