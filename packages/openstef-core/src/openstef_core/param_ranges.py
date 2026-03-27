@@ -36,12 +36,21 @@ class FloatRange:
     tune: bool = False
 
     def __post_init__(self) -> None:
+        """Validate low <= high.
+
+        Raises:
+            ValueError: If *low* is greater than *high*.
+        """
         if self.low is not None and self.high is not None and self.low > self.high:
             msg = f"low ({self.low}) must be <= high ({self.high})"
             raise ValueError(msg)
 
     def resolve(self, class_default: FloatRange | None) -> FloatRange:
-        """Fill ``None`` bounds from a class-level default range."""
+        """Fill ``None`` bounds from a class-level default range.
+
+        Returns:
+            Resolved range with bounds filled from *class_default*.
+        """
         if class_default is None:
             return self
         return replace(
@@ -61,12 +70,21 @@ class IntRange:
     tune: bool = False
 
     def __post_init__(self) -> None:
+        """Validate low <= high.
+
+        Raises:
+            ValueError: If *low* is greater than *high*.
+        """
         if self.low is not None and self.high is not None and self.low > self.high:
             msg = f"low ({self.low}) must be <= high ({self.high})"
             raise ValueError(msg)
 
     def resolve(self, class_default: IntRange | None) -> IntRange:
-        """Fill ``None`` bounds from a class-level default range."""
+        """Fill ``None`` bounds from a class-level default range.
+
+        Returns:
+            Resolved range with bounds filled from *class_default*.
+        """
         if class_default is None:
             return self
         return replace(
@@ -84,12 +102,21 @@ class CategoricalRange:
     tune: bool = False
 
     def __post_init__(self) -> None:
+        """Validate choices is non-empty when provided.
+
+        Raises:
+            ValueError: If *choices* is an empty tuple.
+        """
         if self.choices is not None and len(self.choices) == 0:
             msg = "choices must not be empty"
             raise ValueError(msg)
 
     def resolve(self, class_default: CategoricalRange | None) -> CategoricalRange:
-        """Fill ``None`` choices from a class-level default range."""
+        """Fill ``None`` choices from a class-level default range.
+
+        Returns:
+            Resolved range with choices filled from *class_default*.
+        """
         if class_default is None:
             return self
         return replace(

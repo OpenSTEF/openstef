@@ -120,7 +120,7 @@ class TunableHyperParams(HyperParams):
         # get_search_space(hp) → {'n_estimators': IntRange(100, 800), 'learning_rate': FloatRange(0.01, 0.5)}
     """
 
-    _instance_ranges: dict[str, TuningRange] = PrivateAttr(  # pyright: ignore[reportUnknownVariableType]
+    _instance_ranges: dict[str, TuningRange] = PrivateAttr(  # pyright: ignore[reportUnknownVariableType,reportIncompatibleVariableOverride]
         default_factory=dict
     )
 
@@ -641,7 +641,7 @@ def fit_with_tuning[ConfigT: TunableWorkflowConfig](
     Returns:
         :class:`TuningResult` with the fitted workflow, completed study, and best config.
     """
-    best_config, study, _ = tune(config, train_dataset, create_workflow)
+    best_config, study, _ = tune(config=config, train_dataset=train_dataset, create_workflow=create_workflow)
     workflow = create_workflow(best_config)
     result = workflow.fit(train_dataset)
     return TuningResult(workflow=workflow, fit_result=result, study=study, best_config=best_config)

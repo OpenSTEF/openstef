@@ -2,16 +2,15 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-from typing import Annotated
 
 import pytest
 
 from openstef_core.param_ranges import CategoricalRange, FloatRange, IntRange
 
-
 # ---------------------------------------------------------------------------
 # FloatRange
 # ---------------------------------------------------------------------------
+
 
 def test_float_range_construction():
     # Arrange / Act
@@ -40,13 +39,13 @@ def test_float_range_frozen():
     fr = FloatRange(low=0.01, high=1.0)
 
     # Act / Assert
-    with pytest.raises(Exception):  # noqa: B017
+    with pytest.raises(AttributeError):
         fr.low = 5.0  # type: ignore[misc]
 
 
 def test_float_range_validates_low_gt_high():
     # Act / Assert
-    with pytest.raises(ValueError, match="low.*must be <= high"):
+    with pytest.raises(ValueError, match=r"low.*must be <= high"):
         FloatRange(low=10.0, high=1.0)
 
 
@@ -94,6 +93,7 @@ def test_float_range_resolve_with_none_class_default():
 # IntRange
 # ---------------------------------------------------------------------------
 
+
 def test_int_range_construction():
     # Arrange / Act
     ir = IntRange(low=1, high=15, log=False, tune=True)
@@ -105,7 +105,7 @@ def test_int_range_construction():
 
 def test_int_range_validates_low_gt_high():
     # Act / Assert
-    with pytest.raises(ValueError, match="low.*must be <= high"):
+    with pytest.raises(ValueError, match=r"low.*must be <= high"):
         IntRange(low=20, high=5)
 
 
@@ -125,6 +125,7 @@ def test_int_range_resolve_fills_none_bounds():
 # ---------------------------------------------------------------------------
 # CategoricalRange
 # ---------------------------------------------------------------------------
+
 
 def test_categorical_range_construction():
     # Arrange / Act

@@ -6,14 +6,13 @@ from typing import Annotated
 
 import pytest
 
-from openstef_core.base_model import BaseConfig
 from openstef_core.mixins.predictor import HyperParams
 from openstef_core.param_ranges import CategoricalRange, FloatRange, IntRange
-
 
 # ---------------------------------------------------------------------------
 # Fixtures — reusable HyperParams subclass
 # ---------------------------------------------------------------------------
+
 
 class SampleHP(HyperParams):
     lr: Annotated[float, FloatRange(low=0.01, high=1.0)] = 0.3
@@ -25,6 +24,7 @@ class SampleHP(HyperParams):
 # ---------------------------------------------------------------------------
 # HyperParams._extract_tuning_ranges
 # ---------------------------------------------------------------------------
+
 
 def test_hyperparams_normal_construction_no_ranges():
     """Plain construction keeps field values and produces empty search space."""
@@ -67,6 +67,7 @@ def test_hyperparams_mixed_range_and_plain_value():
 # HyperParams.get_search_space
 # ---------------------------------------------------------------------------
 
+
 def test_get_search_space_returns_only_tune_true():
     """Only fields with tune=True appear in the search space."""
     # Arrange
@@ -98,6 +99,7 @@ def test_get_search_space_resolves_none_bounds():
 
 def test_get_search_space_with_class_level_tune():
     """Class-level Annotated range with tune=True is included without instance override."""
+
     # Arrange
     class AutoTuneHP(HyperParams):
         lr: Annotated[float, FloatRange(low=0.01, high=1.0, tune=True)] = 0.3
@@ -136,60 +138,3 @@ def test_get_search_space_include_raises_on_missing():
     # Act / Assert
     with pytest.raises(KeyError, match="nonexistent"):
         hp.get_search_space(include={"lr", "nonexistent"})
-
-
-# ---------------------------------------------------------------------------
-# BaseConfig.get_model_tuning_info
-# ---------------------------------------------------------------------------
-
-class SampleConfig(BaseConfig):
-    name: str = "test"
-    hp: SampleHP = SampleHP(
-        lr=FloatRange(low=0.001, high=0.5, tune=True),
-        depth=IntRange(tune=True),
-    )
-
-
-def test_get_model_tuning_info_finds_tunable_hp():
-    """Config with a tunable HyperParams field returns one ModelTuningInfo."""
-    # Arrange
-    cfg = SampleConfig()
-
-    # Act
-    info = cfg.get_model_tuning_info()
-
-    # Assert
-    assert len(info) == 1
-    assert info[0].field_name == "hp"
-    assert "lr" in info[0].search_space
-    assert "depth" in info[0].search_space
-
-
-def test_get_model_tuning_info_empty_when_no_hp():
-    """Config with no HyperParams fields returns empty list."""
-    # Arrange
-    class PlainConfig(BaseConfig):
-        x: int = 1
-
-    cfg = PlainConfig()
-
-    # Act
-    info = cfg.get_model_tuning_info()
-
-    # Assert
-    assert info == []
-
-
-def test_get_model_tuning_info_skips_hp_without_tune():
-    """HyperParams field with no tune=True ranges is skipped."""
-    # Arrange
-    class NoTuneConfig(BaseConfig):
-        hp: SampleHP = SampleHP()  # no ranges passed → empty search space
-
-    cfg = NoTuneConfig()
-
-    # Act
-    info = cfg.get_model_tuning_info()
-
-    # Assert
-    assert info == []

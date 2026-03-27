@@ -12,7 +12,6 @@ operate on arbitrary config instances or Pydantic models / adapters.
 
 from __future__ import annotations
 
-from pathlib import Path
 from typing import TYPE_CHECKING, Annotated, Any, Self
 
 import yaml
@@ -21,7 +20,7 @@ from pydantic import BeforeValidator, ConfigDict, GetCoreSchemaHandler, TypeAdap
 from pydantic_core import core_schema
 
 if TYPE_CHECKING:
-    from openstef_core.param_ranges import ModelTuningInfo
+    from pathlib import Path
 
 
 class BaseModel(PydanticBaseModel):
@@ -61,24 +60,6 @@ class BaseConfig(PydanticBaseModel):
             path: Destination path for the YAML file (will be overwritten).
         """
         write_yaml_config(self, path)
-
-    def get_model_tuning_info(self) -> list[ModelTuningInfo]:
-        """Return one ``ModelTuningInfo`` per tunable hyperparameter field.
-
-        Introspects fields for ``HyperParams`` instances with a non-empty
-        search space. Returns ``[]`` when nothing is tunable.
-        """
-        from openstef_core.mixins.predictor import HyperParams  # noqa: PLC0415
-        from openstef_core.param_ranges import ModelTuningInfo  # noqa: PLC0415
-
-        result: list[ModelTuningInfo] = []
-        for field_name in type(self).model_fields:
-            value = getattr(self, field_name)
-            if isinstance(value, HyperParams):
-                space = value.get_search_space()
-                if space:
-                    result.append(ModelTuningInfo(field_name=field_name, hyperparams=value, search_space=space))
-        return result
 
 
 def write_yaml_config(config: BaseConfig, path: Path) -> None:

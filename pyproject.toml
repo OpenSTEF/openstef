@@ -29,7 +29,6 @@ classifiers = [
 dependencies = [
   "openstef-core",
   "openstef-models[xgb-cpu]",
-  "optuna>=4.7",
 ]
 
 optional-dependencies.all = [

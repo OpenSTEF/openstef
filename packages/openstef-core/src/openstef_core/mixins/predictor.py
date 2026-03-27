@@ -206,10 +206,10 @@ class HyperParams(BaseConfig):
         >>> hp.lr  # field keeps its default
         0.3
         >>> hp.get_search_space()  # extracted range
-        {'lr': FloatRange(low=0.001, high=0.5, ...)}
+        {'lr': FloatRange(low=0.001, high=0.5, log=False, tune=True)}
     """
 
-    _instance_ranges: dict[str, TuningRange] = PrivateAttr(default_factory=dict)
+    _instance_ranges: dict[str, TuningRange] = PrivateAttr(default_factory=dict)  # pyright: ignore[reportUnknownVariableType]
 
     @model_validator(mode="wrap")
     @classmethod
@@ -218,11 +218,15 @@ class HyperParams(BaseConfig):
         data: dict[str, object] | object,
         handler: Any,  # noqa: ANN401
     ) -> HyperParams:
-        """Strip TuningRange values from kwargs and store as instance metadata."""
+        """Strip TuningRange values from kwargs and store as instance metadata.
+
+        Returns:
+            Validated ``HyperParams`` instance with tuning ranges stripped.
+        """
         instance_ranges: dict[str, TuningRange] = {}
         if isinstance(data, dict):
             cleaned: dict[str, Any] = {}
-            for key, value in data.items():
+            for key, value in data.items():  # pyright: ignore[reportUnknownVariableType]
                 if isinstance(value, (FloatRange, IntRange, CategoricalRange)):
                     instance_ranges[key] = value
                 else:
@@ -241,6 +245,9 @@ class HyperParams(BaseConfig):
 
         Args:
             include: If given, restrict output to these field names.
+
+        Returns:
+            Mapping of field name to resolved ``TuningRange``.
 
         Raises:
             KeyError: If ``include`` contains names not in the tunable space.
@@ -272,7 +279,11 @@ class HyperParams(BaseConfig):
 
 
 def _get_class_range(field_info: Any) -> TuningRange | None:  # noqa: ANN401
-    """Return the first TuningRange found in a Pydantic FieldInfo's metadata."""
+    """Return the first TuningRange found in a Pydantic FieldInfo's metadata.
+
+    Returns:
+        The first ``TuningRange`` in the metadata, or ``None``.
+    """
     for meta in field_info.metadata:
         if isinstance(meta, (FloatRange, IntRange, CategoricalRange)):
             return meta

@@ -9,10 +9,6 @@ across the OpenSTEF codebase, including prediction interfaces, state management,
 and data transformation pipelines.
 """
 
-from .predictor import BatchPredictor, BatchResult, HyperParams, Predictor
-from .stateful import Stateful
-from .transform import Transform, TransformPipeline
-
 from openstef_core.param_ranges import (
     CategoricalRange,
     FloatRange,
@@ -20,6 +16,10 @@ from openstef_core.param_ranges import (
     ModelTuningInfo,
     TuningRange,
 )
+
+from .predictor import BatchPredictor, BatchResult, HyperParams, Predictor
+from .stateful import Stateful
+from .transform import Transform, TransformPipeline
 
 __all__ = [
     "BatchPredictor",
