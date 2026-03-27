@@ -126,7 +126,7 @@ class ModelTuningInfo(BaseModel):
         return self
 
 
-def _get_class_range(field_info: FieldInfo) -> TuningRange | None:
+def get_class_range(field_info: FieldInfo) -> TuningRange | None:
     """Return the first TuningRange found in a Pydantic FieldInfo's metadata."""
     for meta in field_info.metadata:
         if isinstance(meta, (FloatRange, IntRange, CategoricalRange)):
@@ -140,4 +140,5 @@ __all__ = [
     "IntRange",
     "ModelTuningInfo",
     "TuningRange",
+    "get_class_range",
 ]
