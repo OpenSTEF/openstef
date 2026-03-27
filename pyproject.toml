@@ -54,6 +54,7 @@ urls.Repository = "https://github.com/OpenSTEF/openstef"
 
 [dependency-groups]
 dev = [
+  "jupytext>=1.19.1",
   "licensecheck>=2025.1",
   "microsoft-python-type-stubs",
   "moto[s3,server]>=5.1.11",
@@ -120,6 +121,14 @@ lint.ignore = [
   "PGH003", # Allow generic type ignores, since sometimes there are multiple unresolvable issues
   "TC006",  # Let's not force quoting the first param of typing.cast
   "TRY003", # simplify exception messages
+]
+lint.per-file-ignores."./examples/tutorials/*" = [
+  "D100",   # Notebooks don't need module docstrings
+  "E402",   # Imports not at top — notebook cells have natural ordering
+  "ERA001", # Jupytext YAML frontmatter looks like commented-out code
+  "F821",   # Cell-scoped names appear undefined to Ruff's module-level analysis
+  "INP001", # Not a namespace package — notebooks don't need __init__.py
+  "T201",   # Tutorials may use print for demonstration
 ]
 lint.per-file-ignores."./packages/*/tests/*" = [
   "ARG",     # Unused function args -> fixtures nevertheless are functionally relevant...
@@ -214,6 +223,9 @@ include = [
   "packages/*/src/**/*.py",
   "packages/*/examples/**/*.py",
   "packages/*/tests/**/*.py",
+]
+exclude = [
+  "examples/tutorials/**", # Jupytext notebooks — cell-scoped, not module-level code
 ]
 typeCheckingMode = "strict"
 reportPrivateImportUsage = false

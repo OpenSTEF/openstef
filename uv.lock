@@ -1922,6 +1922,22 @@ wheels = [
 ]
 
 [[package]]
+name = "jupytext"
+version = "1.19.1"
+source = { registry = "https://alliander.jfrog.io/artifactory/api/pypi/pypi-all/simple" }
+dependencies = [
+    { name = "markdown-it-py" },
+    { name = "mdit-py-plugins" },
+    { name = "nbformat" },
+    { name = "packaging" },
+    { name = "pyyaml" },
+]
+sdist = { url = "https://alliander.jfrog.io/artifactory/api/pypi/pypi-all/packages/packages/13/a5/80c02f307c8ce863cb33e27daf049315e9d96979e14eead700923b5ec9cc/jupytext-1.19.1.tar.gz", hash = "sha256:82587c07e299173c70ed5e8ec7e75183edf1be289ed518bab49ad0d4e3d5f433" }
+wheels = [
+    { url = "https://alliander.jfrog.io/artifactory/api/pypi/pypi-all/packages/packages/16/5a/736dd2f4535dbf3bf26523f9158c011389ef88dd06ec2eef67fd744f1c7b/jupytext-1.19.1-py3-none-any.whl", hash = "sha256:d8975035155d034bdfde5c0c37891425314b7ea8d3a6c4b5d18c294348714cd9" },
+]
+
+[[package]]
 name = "kaleido"
 version = "1.2.0"
 source = { registry = "https://alliander.jfrog.io/artifactory/api/pypi/pypi-all/simple" }
@@ -2788,6 +2804,7 @@ models = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "jupytext" },
     { name = "licensecheck" },
     { name = "microsoft-python-type-stubs" },
     { name = "moto", extra = ["s3", "server"] },
@@ -2825,6 +2842,7 @@ provides-extras = ["all", "beam", "meta", "models"]
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "jupytext", specifier = ">=1.19.1" },
     { name = "licensecheck", specifier = ">=2025.1" },
     { name = "microsoft-python-type-stubs", git = "https://github.com/microsoft/python-type-stubs.git" },
     { name = "moto", extras = ["s3", "server"], specifier = ">=5.1.11" },
@@ -3041,7 +3059,7 @@ requires-dist = [
     { name = "xgboost", marker = "extra == 'xgb-gpu'", specifier = ">=3,<4" },
     { name = "xgboost-cpu", marker = "(sys_platform == 'linux' and extra == 'xgb-cpu') or (sys_platform == 'win32' and extra == 'xgb-cpu')", specifier = ">=3,<4" },
 ]
-provides-extras = ["lgbm", "xgb-cpu", "xgb-gpu", "tuning"]
+provides-extras = ["lgbm", "tuning", "xgb-cpu", "xgb-gpu"]
 
 [[package]]
 name = "opentelemetry-api"
