@@ -142,7 +142,7 @@ class OutlierHandler(BaseConfig, TimeSeriesTransform):
             raise NotFittedError(self.__class__.__name__)
 
         features = self.selection.resolve(data.feature_names)
-        transformed_data = data.data.copy()
+        transformed_data = data.data.copy(deep=False)
         lower_bound, upper_bound = self._get_bounds(features)
 
         if self.outlier_action == "clip":
