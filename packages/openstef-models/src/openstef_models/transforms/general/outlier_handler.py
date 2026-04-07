@@ -153,11 +153,11 @@ class OutlierHandler(BaseConfig, TimeSeriesTransform):
         else:  # outlier_action == "nan"
             feature_data = data.data[features].copy()
 
-            below_lower = feature_data.lt(lower_bound, axis=1)
-            above_upper = feature_data.gt(upper_bound, axis=1)
+            below_lower = feature_data < lower_bound.values
+            above_upper = feature_data > upper_bound.values
             out_of_range_mask = below_lower | above_upper
 
-            transformed_data[features] = feature_data.mask(out_of_range_mask)
+            transformed_data[features] = feature_data.where(~out_of_range_mask)
 
         return TimeSeriesDataset(data=transformed_data, sample_interval=data.sample_interval)
 
