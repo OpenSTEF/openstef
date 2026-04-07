@@ -16,6 +16,7 @@ from openstef_models.utils.feature_selection import FeatureSelection
 
 @pytest.fixture
 def train_dataset() -> TimeSeriesDataset:
+    """Training dataset with three features A, B, C."""
     return TimeSeriesDataset(
         data=pd.DataFrame(
             {"A": [1.0, 2.0, 3.0], "B": [10.0, 20.0, 30.0], "C": [100.0, 200.0, 300.0]},
@@ -27,6 +28,7 @@ def train_dataset() -> TimeSeriesDataset:
 
 @pytest.fixture
 def test_dataset() -> TimeSeriesDataset:
+    """Test dataset with values outside training ranges."""
     return TimeSeriesDataset(
         data=pd.DataFrame(
             {"A": [0.5, 4.0], "B": [5.0, 35.0], "C": [150.0, 350.0]},
@@ -151,6 +153,7 @@ def test_clipper__handles_missing_features():
 # ---------------------------
 
 def test_clipper__transform_without_fit(test_dataset: TimeSeriesDataset):
+    """Test that transform raises error when called without fitting."""
     clipper = Clipper(selection=FeatureSelection(include={"A", "B"}))
 
     with pytest.raises(NotFittedError):
