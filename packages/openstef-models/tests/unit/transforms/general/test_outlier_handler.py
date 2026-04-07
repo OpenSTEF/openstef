@@ -10,7 +10,7 @@ import pytest
 
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.exceptions import NotFittedError
-from openstef_models.transforms.general import Clipper  # alias still works
+from openstef_models.transforms.general import OutlierHandler
 from openstef_models.utils.feature_selection import FeatureSelection
 
 
@@ -42,6 +42,7 @@ def test_dataset() -> TimeSeriesDataset:
 # CLIP BEHAVIOR (DEFAULT)
 # ---------------------------
 
+
 @pytest.mark.parametrize(
     ("mode", "expected_a", "expected_b"),
     [
@@ -49,23 +50,26 @@ def test_dataset() -> TimeSeriesDataset:
         pytest.param("standard", [0.5, 4.0], [5.0, 35.0], id="standard_clip"),
     ],
 )
-def test_clipper__clip_behavior(
+def test_outlier_handler__clip_behavior(
     train_dataset: TimeSeriesDataset,
     test_dataset: TimeSeriesDataset,
     mode: str,
     expected_a: list[float],
     expected_b: list[float],
 ):
-    clipper = Clipper(
+    # Arrange: initialize handler with clipping behavior
+    outlier_handler = OutlierHandler(
         selection=FeatureSelection(include={"A", "B"}),
         mode=mode,
         n_std=2.0,
         outlier_action="clip",
     )
 
-    clipper.fit(train_dataset)
-    transformed = clipper.transform(test_dataset)
+    # Act: fit on training data and transform test data
+    outlier_handler.fit(train_dataset)
+    transformed_dataset = outlier_handler.transform(test_dataset)
 
+    # Assert: selected features are clipped, others remain unchanged
     expected_df = pd.DataFrame(
         {
             "A": expected_a,
@@ -75,12 +79,13 @@ def test_clipper__clip_behavior(
         index=test_dataset.index,
     )
 
-    pd.testing.assert_frame_equal(transformed.data, expected_df)
+    pd.testing.assert_frame_equal(transformed_dataset.data, expected_df)
 
 
 # ---------------------------
 # NAN BEHAVIOR (NEW FEATURE)
 # ---------------------------
+
 
 @pytest.mark.parametrize(
     ("mode", "expected_a", "expected_b"),
@@ -89,23 +94,26 @@ def test_clipper__clip_behavior(
         pytest.param("standard", [0.5, 4.0], [5.0, 35.0], id="standard_nan_no_clip"),
     ],
 )
-def test_clipper__nan_behavior(
+def test_outlier_handler__nan_behavior(
     train_dataset: TimeSeriesDataset,
     test_dataset: TimeSeriesDataset,
     mode: str,
     expected_a: list[float],
     expected_b: list[float],
 ):
-    clipper = Clipper(
+    # Arrange: initialize handler with NaN outlier handling
+    outlier_handler = OutlierHandler(
         selection=FeatureSelection(include={"A", "B"}),
         mode=mode,
         n_std=2.0,
         outlier_action="nan",
     )
 
-    clipper.fit(train_dataset)
-    transformed = clipper.transform(test_dataset)
+    # Act: fit and transform
+    outlier_handler.fit(train_dataset)
+    transformed_dataset = outlier_handler.transform(test_dataset)
 
+    # Assert: out-of-range values are replaced with NaN where applicable
     expected_df = pd.DataFrame(
         {
             "A": expected_a,
@@ -115,46 +123,51 @@ def test_clipper__nan_behavior(
         index=test_dataset.index,
     )
 
-    pd.testing.assert_frame_equal(transformed.data, expected_df)
+    pd.testing.assert_frame_equal(transformed_dataset.data, expected_df)
 
 
 # ---------------------------
 # MISSING FEATURES
 # ---------------------------
 
-def test_clipper__handles_missing_features():
-    train_data = pd.DataFrame(
-        {"A": [1.0, 2.0, 3.0], "B": [10.0, 20.0, 30.0], "C": [100.0, 200.0, 300.0]},
-        index=pd.date_range("2025-01-01", periods=3, freq="1h"),
-    )
-    train_dataset = TimeSeriesDataset(train_data, timedelta(hours=1))
 
+def test_outlier_handler__handles_missing_features(
+    train_dataset: TimeSeriesDataset,
+):
+
+    # Arrange: test dataset missing feature B
     test_data = pd.DataFrame(
         {"A": [0.5, 4.0], "C": [150.0, 350.0]},
         index=pd.date_range("2025-01-06", periods=2, freq="1h"),
     )
     test_dataset = TimeSeriesDataset(test_data, timedelta(hours=1))
 
-    clipper = Clipper(selection=FeatureSelection(include={"A", "B"}), mode="minmax")
+    outlier_handler = OutlierHandler(selection=FeatureSelection(include={"A", "B"}), mode="minmax")
 
-    clipper.fit(train_dataset)
-    transformed = clipper.transform(test_dataset)
+    # Act: fit and transform with partially missing features
+    outlier_handler.fit(train_dataset)
+    transformed_dataset = outlier_handler.transform(test_dataset)
 
+    # Assert: A is clipped, C unchanged, missing B is ignored
     expected_df = pd.DataFrame(
-        {"A": [1.0, 3.0], "C": [150.0, 350.0]},
+        {"A": [1.0, 3.0], "C": [150.0, 350.0]},  # A clipped, C unchanged
         index=test_dataset.index,
     )
 
-    pd.testing.assert_frame_equal(transformed.data, expected_df)
+    pd.testing.assert_frame_equal(transformed_dataset.data, expected_df)
 
 
 # ---------------------------
 # NOT FITTED ERROR
 # ---------------------------
 
-def test_clipper__transform_without_fit(test_dataset: TimeSeriesDataset):
-    """Test that transform raises error when called without fitting."""
-    clipper = Clipper(selection=FeatureSelection(include={"A", "B"}))
 
+def test_outlier_handler__transform_without_fit(test_dataset: TimeSeriesDataset):
+    """Test that transform raises error when called without fitting."""
+
+    # Arrange: handler not fitted
+    outlier_handler = OutlierHandler(selection=FeatureSelection(include={"A", "B"}))
+
+    # Act & Assert: calling transform should raise NotFittedError
     with pytest.raises(NotFittedError):
-        clipper.transform(test_dataset)
+        outlier_handler.transform(test_dataset)

@@ -36,10 +36,10 @@ from openstef_models.models.forecasting.median_forecaster import MedianForecaste
 from openstef_models.models.forecasting.xgboost_forecaster import XGBoostForecaster, XGBoostHyperParams
 from openstef_models.transforms.energy_domain import WindPowerFeatureAdder
 from openstef_models.transforms.general import (
-    Clipper,
     EmptyFeatureRemover,
     Imputer,
     NaNDropper,
+    OutlierHandler,
     SampleWeightConfig,
     SampleWeighter,
     Scaler,
@@ -356,7 +356,7 @@ def create_forecasting_workflow(
         ),
     ]
     feature_standardizers = [
-        Clipper(selection=Include(config.energy_price_column).combine(config.clip_features), mode="standard"),
+        OutlierHandler(selection=Include(config.energy_price_column).combine(config.clip_features), mode="standard"),
         Scaler(selection=Exclude(config.target_column), method="standard"),
         SampleWeighter(
             target_column=config.target_column,

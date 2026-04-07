@@ -42,7 +42,7 @@ class OutlierHandler(BaseConfig, TimeSeriesTransform):
         >>> import pandas as pd
         >>> from datetime import timedelta
         >>> from openstef_core.datasets import TimeSeriesDataset
-        >>> from openstef_models.transforms.general.clipper import OutlierHandler
+        >>> from openstef_models.transforms.general.outlier_handler import OutlierHandler
         >>> from openstef_models.utils.feature_selection import FeatureSelection
         >>>
         >>> training_data = pd.DataFrame({
@@ -164,7 +164,3 @@ class OutlierHandler(BaseConfig, TimeSeriesTransform):
     @override
     def features_added(self) -> list[str]:
         return []
-
-
-# Backward compatibility alias
-Clipper = OutlierHandler

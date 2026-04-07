@@ -8,7 +8,6 @@ data cleaning, normalization, and feature engineering utilities that can be appl
 across various domains.
 """
 
-from openstef_models.transforms.general.clipper import Clipper
 from openstef_models.transforms.general.dimensionality_reducer import DimensionalityReducer
 from openstef_models.transforms.general.empty_feature_remover import (
     EmptyFeatureRemover,
@@ -16,18 +15,19 @@ from openstef_models.transforms.general.empty_feature_remover import (
 from openstef_models.transforms.general.flagger import Flagger
 from openstef_models.transforms.general.imputer import Imputer
 from openstef_models.transforms.general.nan_dropper import NaNDropper
+from openstef_models.transforms.general.outlier_handler import OutlierHandler
 from openstef_models.transforms.general.sample_weighter import SampleWeightConfig, SampleWeighter
 from openstef_models.transforms.general.scaler import Scaler
 from openstef_models.transforms.general.selector import Selector
 from openstef_models.transforms.general.shifter import Shifter
 
 __all__ = [
-    "Clipper",
     "DimensionalityReducer",
     "EmptyFeatureRemover",
     "Flagger",
     "Imputer",
     "NaNDropper",
+    "OutlierHandler",
     "SampleWeightConfig",
     "SampleWeighter",
     "Scaler",

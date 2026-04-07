@@ -129,9 +129,3 @@ benchmark_results*/
 # Mlflow
 /mlflow
 /mlflow_artifacts_local
-
-# ----------------------------------------
-# Local developer files (not part of repo)
-# Personal experiments, debug scripts, plots
-# ----------------------------------------
-local/

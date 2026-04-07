@@ -44,7 +44,13 @@ from openstef_models.models.forecasting.lgbmlinear_forecaster import LGBMLinearF
 from openstef_models.models.forecasting.xgboost_forecaster import XGBoostForecaster, XGBoostHyperParams
 from openstef_models.presets.forecasting_workflow import LocationConfig
 from openstef_models.transforms.energy_domain import WindPowerFeatureAdder
-from openstef_models.transforms.general import Clipper, EmptyFeatureRemover, SampleWeightConfig, SampleWeighter, Scaler
+from openstef_models.transforms.general import (
+    EmptyFeatureRemover,
+    OutlierHandler,
+    SampleWeightConfig,
+    SampleWeighter,
+    Scaler,
+)
 from openstef_models.transforms.general.imputer import Imputer
 from openstef_models.transforms.general.nan_dropper import NaNDropper
 from openstef_models.transforms.general.selector import Selector
@@ -332,7 +338,9 @@ def _feature_standardizers(
     return cast(
         list[Transform[TimeSeriesDataset, TimeSeriesDataset]],
         [
-            Clipper(selection=Include(config.energy_price_column).combine(config.clip_features), mode="standard"),
+            OutlierHandler(
+                selection=Include(config.energy_price_column).combine(config.clip_features), mode="standard"
+            ),
             Scaler(selection=Exclude(config.target_column), method="standard"),
             EmptyFeatureRemover(),
         ],
