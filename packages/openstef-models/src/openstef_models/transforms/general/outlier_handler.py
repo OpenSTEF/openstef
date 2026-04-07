@@ -11,6 +11,7 @@ learned bounds or replacing them with NaN.
 
 from typing import Literal, override
 
+import numpy as np
 import pandas as pd
 from pydantic import Field, PrivateAttr
 
@@ -153,8 +154,8 @@ class OutlierHandler(BaseConfig, TimeSeriesTransform):
         else:  # outlier_action == "nan"
             feature_data = data.data[features].copy()
 
-            below_lower = feature_data < lower_bound.values
-            above_upper = feature_data > upper_bound.values
+            below_lower = feature_data < np.asarray(lower_bound)
+            above_upper = feature_data > np.asarray(upper_bound)
             out_of_range_mask = below_lower | above_upper
 
             transformed_data[features] = feature_data.where(~out_of_range_mask)
