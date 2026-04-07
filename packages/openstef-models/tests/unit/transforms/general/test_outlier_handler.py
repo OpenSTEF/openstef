@@ -38,10 +38,6 @@ def test_dataset() -> TimeSeriesDataset:
     )
 
 
-# ---------------------------
-# CLIP BEHAVIOR (DEFAULT)
-# ---------------------------
-
 
 @pytest.mark.parametrize(
     ("mode", "expected_a", "expected_b"),
@@ -81,10 +77,6 @@ def test_outlier_handler__clip_behavior(
 
     pd.testing.assert_frame_equal(transformed_dataset.data, expected_df)
 
-
-# ---------------------------
-# NAN BEHAVIOR (NEW FEATURE)
-# ---------------------------
 
 
 @pytest.mark.parametrize(
@@ -126,10 +118,6 @@ def test_outlier_handler__nan_behavior(
     pd.testing.assert_frame_equal(transformed_dataset.data, expected_df)
 
 
-# ---------------------------
-# MISSING FEATURES
-# ---------------------------
-
 
 def test_outlier_handler__handles_missing_features(
     train_dataset: TimeSeriesDataset,
@@ -156,10 +144,6 @@ def test_outlier_handler__handles_missing_features(
 
     pd.testing.assert_frame_equal(transformed_dataset.data, expected_df)
 
-
-# ---------------------------
-# NOT FITTED ERROR
-# ---------------------------
 
 
 def test_outlier_handler__transform_without_fit(test_dataset: TimeSeriesDataset):
