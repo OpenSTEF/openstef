@@ -91,7 +91,10 @@ class OutlierHandler(BaseConfig, TimeSeriesTransform):
     )
     outlier_action: OutlierAction = Field(
         default="clip",
-        description="How to handle out-of-range values: 'clip' keeps current behavior, 'nan' replaces them with NaN.",
+        description=(
+            "How to handle out-of-range values: 'clip' clips the values to bounds, "
+            "'nan' replaces them with NaN."
+        ),
     )
     n_std: float = Field(
         default=2.0,
