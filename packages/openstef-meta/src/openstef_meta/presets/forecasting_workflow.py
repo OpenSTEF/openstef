@@ -50,6 +50,7 @@ from openstef_models.transforms.general import (
     SampleWeightConfig,
     SampleWeighter,
     Scaler,
+    Shifter,
 )
 from openstef_models.transforms.general.imputer import Imputer
 from openstef_models.transforms.general.nan_dropper import NaNDropper
@@ -176,6 +177,11 @@ class EnsembleForecastingWorkflowConfig(BaseConfig):
         default="relative_humidity",
         description="Name of the relative humidity column in datasets.",
     )
+    selected_features: FeatureSelection = Field(
+        default=FeatureSelection.ALL,
+        description="Feature selection for which features to include/exclude.",
+    )
+
     predict_history: timedelta = Field(
         default=timedelta(days=14),
         description="Amount of historical data available at prediction time.",
@@ -202,6 +208,13 @@ class EnsembleForecastingWorkflowConfig(BaseConfig):
     detect_non_zero_flatliner: bool = Field(
         default=False,
         description="If True, flatliners are also detected on non-zero values (median of the load).",
+    )
+
+    # Feature engineering
+    shifters: list[Shifter] = Field(
+        default=[],
+        description="List of feature shifts to align aggregation intervals. "
+        "Each Shifter can target different features with different aggregation periods.",
     )
     rolling_aggregate_features: list[AggregationFunction] = Field(
         default=[],
@@ -289,6 +302,7 @@ class EnsembleForecastingWorkflowConfig(BaseConfig):
 
 def _checks(config: EnsembleForecastingWorkflowConfig) -> list[Transform[TimeSeriesDataset, TimeSeriesDataset]]:
     return [
+        Selector(selection=config.selected_features),
         InputConsistencyChecker(),
         FlatlineChecker(
             load_column=config.target_column,
@@ -496,6 +510,7 @@ def create_ensemble_forecasting_workflow(config: EnsembleForecastingWorkflowConf
     common_preprocessing = TransformPipeline(
         transforms=[
             *_checks(config),
+            *config.shifters,
             *_feature_adders(config),
             HolidayFeatureAdder(country_code=config.location.country_code),
             DatetimeFeaturesAdder(onehot_encode=False),
