@@ -209,6 +209,8 @@ class EnsembleForecastingWorkflowConfig(BaseConfig):
         default=False,
         description="If True, flatliners are also detected on non-zero values (median of the load).",
     )
+
+    # Feature engineering
     shifters: list[Shifter] = Field(
         default=[],
         description="List of feature shifts to align aggregation intervals. "
