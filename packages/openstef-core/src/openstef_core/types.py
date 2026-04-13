@@ -317,8 +317,8 @@ class Quantile(float):
         >>> # Non-integer quantiles
         >>> Quantile(0.025).format()
         'quantile_P2.5'
-        >>> # High-precision quantiles
-        >>> Quantile(0.999).format()
+        >>> # Percentile conversion
+        >>> Quantile.from_percentile(99.9).format()
         'quantile_P99.9'
     """
 
