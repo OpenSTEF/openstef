@@ -452,5 +452,5 @@ def test_quantile_is_valid_quantile_string(quantile_str: str, expected: bool):
         pytest.param(0.999, 0.001, id="q99.9"),
     ],
 )
-def test_quantile_inverse(quantile_value: float, expected_complement: float):
+def test_quantile_complementary(quantile_value: float, expected_complement: float):
     assert Quantile(quantile_value).complementary() == Quantile(expected_complement)
