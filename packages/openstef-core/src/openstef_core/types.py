@@ -14,6 +14,7 @@ from __future__ import annotations
 import re
 from datetime import datetime, time, timedelta
 from datetime import timezone as dt_timezone
+from decimal import Decimal
 from enum import StrEnum
 from functools import total_ordering
 from typing import Any, Literal, Self, override
@@ -297,6 +298,10 @@ class AvailableAt(PydanticStringPrimitive):
 class Quantile(float):
     """A float subclass representing a quantile value between 0 and 1.
 
+    Uses ``Decimal`` arithmetic internally for all conversions
+    so that values like ``Quantile(0.999)`` round-trip exactly through
+    ``format()`` / ``parse()`` and ``to_percentile()`` / ``from_percentile()``.
+
     Example:
         Creating and using quantiles:
 
@@ -312,6 +317,12 @@ class Quantile(float):
         >>> # Non-integer quantiles
         >>> Quantile(0.025).format()
         'quantile_P2.5'
+        >>> # Percentile conversion
+        >>> Quantile.from_percentile(99.9).format()
+        'quantile_P99.9'
+        >>> # Complementary quantiles
+        >>> Quantile(0.1).complementary()
+        0.9
     """
 
     def __new__(cls, value: float) -> Self:
@@ -344,23 +355,31 @@ class Quantile(float):
             serialization=core_schema.plain_serializer_function_ser_schema(float),
         )
 
+    def _percentile_decimal(self) -> Decimal:
+        """Return the percentile as an exact ``Decimal``.
+
+        Uses ``Decimal(str(...))`` to avoid IEEE-754 rounding artefacts
+        that occur with plain ``float * 100``.
+        """
+        return Decimal(str(float(self))) * 100
+
     def format(self) -> str:
         """Instance method to format the quantile as a string.
 
         Returns:
             Formatted quantile string in 'quantile_PXX' format.
         """
-        value = self * 100
+        value = self._percentile_decimal()
+        normalized = value.normalize()
 
         # Check if the value is a whole number
-        if value.is_integer():
-            return f"quantile_P{int(value):02d}"
-        # Format with one decimal place for non-integer values
-        return f"quantile_P{value:.1f}"
+        if normalized == int(normalized):
+            return f"quantile_P{int(normalized):02d}"
+        return f"quantile_P{normalized}"
 
-    @staticmethod
-    def parse(quantile_str: str) -> Quantile:
-        """Static method to parse a quantile string back to a Quantile object.
+    @classmethod
+    def parse(cls, quantile_str: str) -> Self:
+        """Parse a quantile string back to a Quantile object.
 
         Args:
             quantile_str: String in 'quantile_PXX' format.
@@ -374,8 +393,8 @@ class Quantile(float):
         if not quantile_str.startswith("quantile_P"):
             msg = f"Invalid quantile string: {quantile_str}"
             raise ValueError(msg)
-        value = float(quantile_str.split("_P")[1]) / 100
-        return Quantile(value)
+        value = Decimal(quantile_str.split("_P")[1]) / 100
+        return cls(float(value))
 
     @staticmethod
     def is_valid_quantile_string(quantile_str: str) -> bool:
@@ -387,8 +406,39 @@ class Quantile(float):
         Returns:
             True if the string is a valid quantile representation, False otherwise.
         """
-        pattern = r"^quantile_P(\d{1,2}(\.\d)?|100)$"
+        pattern = r"^quantile_P(\d{1,3}(\.\d+)?|100)$"
         return re.match(pattern, quantile_str) is not None
+
+    @classmethod
+    def from_percentile(cls, percentile: float) -> Self:
+        """Create a Quantile from a percentile value.
+
+        Args:
+            percentile: Percentile value between 0 and 100.
+
+        Returns:
+            Quantile corresponding to the given percentile.
+
+        Raises:
+            ValueError: If the percentile is not between 0 and 100.
+        """
+        min_percentile, max_percentile = 0, 100
+        if not (min_percentile <= percentile <= max_percentile):
+            msg = f"Percentile must be between 0 and 100, got {percentile}"
+            raise ValueError(msg)
+        return cls(float(Decimal(str(percentile)) / 100))
+
+    def to_percentile(self) -> float:
+        """Convert this Quantile to a percentile value.
+
+        Returns:
+            Percentile value corresponding to this Quantile.
+        """
+        return float(self._percentile_decimal())
+
+    def complementary(self) -> Self:
+        """Return the complementary quantile (``1 - self``)."""
+        return self.__class__(float(Decimal(1) - Decimal(str(self))))
 
 
 Q = Quantile  # Alias for easier imports
