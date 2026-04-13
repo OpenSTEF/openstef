@@ -443,7 +443,14 @@ def test_quantile_is_valid_quantile_string(quantile_str: str, expected: bool):
     assert Quantile.is_valid_quantile_string(quantile_str) == expected
 
 
-def test_quantile_inverse():
-    assert Quantile(0.1).inverse() == Quantile(0.9)
-    assert Quantile(0.025).inverse() == Quantile(0.975)
-    assert Quantile(0.5).inverse() == Quantile(0.5)
+@pytest.mark.parametrize(
+    ("quantile_value", "expected_complement"),
+    [
+        pytest.param(0.1, 0.9, id="q10"),
+        pytest.param(0.025, 0.975, id="q2.5"),
+        pytest.param(0.5, 0.5, id="q50"),
+        pytest.param(0.999, 0.001, id="q99.9"),
+    ],
+)
+def test_quantile_inverse(quantile_value: float, expected_complement: float):
+    assert Quantile(quantile_value).complementary() == Quantile(expected_complement)

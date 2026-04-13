@@ -320,6 +320,9 @@ class Quantile(float):
         >>> # Percentile conversion
         >>> Quantile.from_percentile(99.9).format()
         'quantile_P99.9'
+        >>> # Complementary quantiles
+        >>> Quantile(0.1).complementary()
+        0.9
     """
 
     def __new__(cls, value: float) -> Self:
@@ -433,7 +436,7 @@ class Quantile(float):
         """
         return float(self._percentile_decimal())
 
-    def inverse(self) -> Self:
+    def complementary(self) -> Self:
         """Return the complementary quantile (``1 - self``)."""
         return self.__class__(float(Decimal(1) - Decimal(str(self))))
 
