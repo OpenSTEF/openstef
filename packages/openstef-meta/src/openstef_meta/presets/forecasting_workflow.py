@@ -224,6 +224,10 @@ class EnsembleForecastingWorkflowConfig(BaseConfig):
         default=FeatureSelection(include=None, exclude=None),
         description="Feature selection for which features to clip.",
     )
+    nan_features: FeatureSelection = Field(
+        default_factory=lambda: FeatureSelection.NONE,
+        description="Feature selection for which out-of-range values are replaced with NaN instead of clipped.",
+    )
     forecaster_sample_weights: dict[str, SampleWeightConfig] = Field(
         default={
             "gblinear": SampleWeightConfig(method="inverse_frequency"),
@@ -355,6 +359,7 @@ def _feature_standardizers(
             OutlierHandler(
                 selection=Include(config.energy_price_column).combine(config.clip_features), mode="standard"
             ),
+            OutlierHandler(selection=config.nan_features, mode="standard", outlier_action="nan"),
             Scaler(selection=Exclude(config.target_column), method="standard"),
             EmptyFeatureRemover(),
         ],

@@ -220,6 +220,10 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
         default=FeatureSelection(include=None, exclude=None),
         description="Feature selection for which features to clip.",
     )
+    nan_features: FeatureSelection = Field(
+        default_factory=lambda: FeatureSelection.NONE,
+        description="Feature selection for which out-of-range values are replaced with NaN instead of clipped.",
+    )
     sample_weight_config: SampleWeightConfig = Field(
         default_factory=lambda data: SampleWeightConfig(weight_exponent=1.0)
         if data.get("model") == "gblinear"
@@ -357,6 +361,7 @@ def create_forecasting_workflow(
     ]
     feature_standardizers = [
         OutlierHandler(selection=Include(config.energy_price_column).combine(config.clip_features), mode="standard"),
+        OutlierHandler(selection=config.nan_features, mode="standard", outlier_action="nan"),
         Scaler(selection=Exclude(config.target_column), method="standard"),
         SampleWeighter(
             target_column=config.target_column,
