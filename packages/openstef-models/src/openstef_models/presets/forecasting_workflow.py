@@ -217,12 +217,13 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
         description="If not None, rolling aggregate(s) of load will be used as features in the model.",
     )
     clip_features: FeatureSelection = Field(
-        default=FeatureSelection(include=None, exclude=None),
-        description="Feature selection for which features to clip.",
+        default_factory=lambda: FeatureSelection.ALL,
+        description="Feature selection for which features to clip to their learned range.",
     )
     nan_features: FeatureSelection = Field(
         default_factory=lambda: FeatureSelection.NONE,
-        description="Feature selection for which out-of-range values are replaced with NaN instead of clipped.",
+        description="Feature selection for which features to replace out-of-range values with NaN. "
+        "Defaults to no features (disabled).",
     )
     sample_weight_config: SampleWeightConfig = Field(
         default_factory=lambda data: SampleWeightConfig(weight_exponent=1.0)
@@ -360,8 +361,11 @@ def create_forecasting_workflow(
         ),
     ]
     feature_standardizers = [
-        OutlierHandler(selection=Include(config.energy_price_column).combine(config.clip_features), mode="standard"),
-        OutlierHandler(selection=config.nan_features, mode="standard", outlier_action="nan"),
+        OutlierHandler(
+            selection=Include(config.energy_price_column).combine(config.clip_features),
+            mode="standard",
+            outlier_action="clip",
+        ),
         Scaler(selection=Exclude(config.target_column), method="standard"),
         SampleWeighter(
             target_column=config.target_column,
@@ -371,12 +375,20 @@ def create_forecasting_workflow(
     ]
 
     if config.model == "xgboost":
+        nan_outlier_handlers = [
+            *(
+                [OutlierHandler(mode="standard", selection=config.nan_features, outlier_action="nan")]
+                if config.nan_features != FeatureSelection.NONE
+                else []
+            ),
+        ]
         preprocessing = [
             *checks,
             *feature_aligners,
             *feature_adders,
             HolidayFeatureAdder(country_code=config.location.country_code),
             DatetimeFeaturesAdder(onehot_encode=False),
+            *nan_outlier_handlers,
             *feature_standardizers,
         ]
         forecaster = XGBoostForecaster(
