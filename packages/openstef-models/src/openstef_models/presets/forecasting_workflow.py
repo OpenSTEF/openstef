@@ -220,7 +220,7 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
         default=FeatureSelection.ALL,
         description="Feature selection for which features to clip to their learned range.",
     )
-    nan_features: FeatureSelection = Field(
+    nan_on_outlier_features: FeatureSelection = Field(
         default=FeatureSelection.NONE,
         description="Feature selection for which features to replace out-of-range values with NaN. "
         "Defaults to no features (disabled).",
@@ -377,8 +377,8 @@ def create_forecasting_workflow(
     if config.model == "xgboost":
         nan_outlier_handlers = [
             *(
-                [OutlierHandler(mode="standard", selection=config.nan_features, outlier_action="nan")]
-                if config.nan_features != FeatureSelection.NONE
+                [OutlierHandler(mode="standard", selection=config.nan_on_outlier_features, outlier_action="nan")]
+                if config.nan_on_outlier_features != FeatureSelection.NONE
                 else []
             ),
         ]
