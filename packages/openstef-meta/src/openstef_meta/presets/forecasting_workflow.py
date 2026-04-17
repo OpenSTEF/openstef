@@ -221,8 +221,13 @@ class EnsembleForecastingWorkflowConfig(BaseConfig):
         description="If not None, rolling aggregate(s) of load will be used as features in the model.",
     )
     clip_features: FeatureSelection = Field(
-        default=FeatureSelection(include=None, exclude=None),
-        description="Feature selection for which features to clip.",
+        default=FeatureSelection.ALL,
+        description="Feature selection for which features to clip to their learned range.",
+    )
+    nan_on_outlier_features: FeatureSelection = Field(
+        default=FeatureSelection.NONE,
+        description="Feature selection for which features to replace out-of-range values with NaN. "
+        "Defaults to no features (disabled).",
     )
     forecaster_sample_weights: dict[str, SampleWeightConfig] = Field(
         default={
@@ -352,8 +357,14 @@ def _feature_standardizers(
     return cast(
         list[Transform[TimeSeriesDataset, TimeSeriesDataset]],
         [
+            *(
+                [OutlierHandler(mode="standard", selection=config.nan_on_outlier_features, outlier_action="nan")]
+                if config.nan_on_outlier_features != FeatureSelection.NONE
+                else []
+            ),
             OutlierHandler(
-                selection=Include(config.energy_price_column).combine(config.clip_features), mode="standard"
+                selection=Include(config.energy_price_column).combine(config.clip_features),
+                mode="standard",
             ),
             Scaler(selection=Exclude(config.target_column), method="standard"),
             EmptyFeatureRemover(),
