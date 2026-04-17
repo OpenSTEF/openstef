@@ -221,11 +221,11 @@ class EnsembleForecastingWorkflowConfig(BaseConfig):
         description="If not None, rolling aggregate(s) of load will be used as features in the model.",
     )
     clip_features: FeatureSelection = Field(
-        default_factory=lambda: FeatureSelection.ALL,
+        default=FeatureSelection.ALL,
         description="Feature selection for which features to clip to their learned range.",
     )
     nan_features: FeatureSelection = Field(
-        default_factory=lambda: FeatureSelection.NONE,
+        default=FeatureSelection.NONE,
         description="Feature selection for which features to replace out-of-range values with NaN. "
         "Defaults to no features (disabled).",
     )
