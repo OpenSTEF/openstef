@@ -209,6 +209,10 @@ class EnsembleForecastingWorkflowConfig(BaseConfig):
         default=False,
         description="If True, flatliners are also detected on non-zero values (median of the load).",
     )
+    predict_nonzero_flatliner: bool = Field(
+        default=False,
+        description="If True, predict the median of load measurements instead of zero (only for flatliner model).",
+    )
 
     # Feature engineering
     shifters: list[Shifter] = Field(
@@ -313,7 +317,7 @@ def _checks(config: EnsembleForecastingWorkflowConfig) -> list[Transform[TimeSer
             load_column=config.target_column,
             flatliner_threshold=config.flatliner_threshold,
             detect_non_zero_flatliner=config.detect_non_zero_flatliner,
-            error_on_flatliner=False,
+            error_on_flatliner=True,
         ),
         CompletenessChecker(completeness_threshold=config.completeness_threshold),
     ]

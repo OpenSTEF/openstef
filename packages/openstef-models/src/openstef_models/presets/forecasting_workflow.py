@@ -318,7 +318,7 @@ def create_forecasting_workflow(
             load_column=config.target_column,
             flatliner_threshold=config.flatliner_threshold,
             detect_non_zero_flatliner=config.detect_non_zero_flatliner,
-            error_on_flatliner=False,
+            error_on_flatliner=True,
         ),
         CompletenessChecker(completeness_threshold=config.completeness_threshold),
     ]
