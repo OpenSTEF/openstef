@@ -23,7 +23,9 @@ from openstef_beam.evaluation.metric_providers import (
     R2Provider,
 )
 from openstef_core.base_model import BaseConfig
+from openstef_core.datasets.timeseries_dataset import TimeSeriesDataset
 from openstef_core.mixins import TransformPipeline
+from openstef_core.mixins.transform import Transform
 from openstef_core.types import LeadTime, Q, Quantile, QuantileOrGlobal
 from openstef_models.integrations.mlflow import MLFlowStorage, MLFlowStorageCallback
 from openstef_models.mixins import ModelIdentifier
@@ -294,6 +296,20 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
     )
 
 
+def _checks(config: ForecastingWorkflowConfig) -> list[Transform[TimeSeriesDataset, TimeSeriesDataset]]:
+    return [
+        Selector(selection=config.selected_features),
+        InputConsistencyChecker(),
+        FlatlineChecker(
+            load_column=config.target_column,
+            flatliner_threshold=config.flatliner_threshold,
+            detect_non_zero_flatliner=config.detect_non_zero_flatliner,
+            error_on_flatliner=True,
+        ),
+        CompletenessChecker(completeness_threshold=config.completeness_threshold),
+    ]
+
+
 def create_forecasting_workflow(
     config: ForecastingWorkflowConfig,
 ) -> CustomForecastingWorkflow:
@@ -311,17 +327,7 @@ def create_forecasting_workflow(
     Raises:
         ValueError: If an unsupported model type is specified.
     """
-    checks = [
-        Selector(selection=config.selected_features),
-        InputConsistencyChecker(),
-        FlatlineChecker(
-            load_column=config.target_column,
-            flatliner_threshold=config.flatliner_threshold,
-            detect_non_zero_flatliner=config.detect_non_zero_flatliner,
-            error_on_flatliner=True,
-        ),
-        CompletenessChecker(completeness_threshold=config.completeness_threshold),
-    ]
+    checks = _checks(config)
     feature_aligners = config.shifters
     feature_adders = [
         LagsAdder(
