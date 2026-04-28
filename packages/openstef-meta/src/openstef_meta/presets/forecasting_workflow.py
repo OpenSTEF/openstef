@@ -397,7 +397,22 @@ def _build_forecasters(
             forecasters[model_type] = LGBMForecaster(
                 hyperparams=config.lgbm_hyperparams, quantiles=config.quantiles, horizons=config.horizons
             )
-            forecaster_preprocessing[model_type] = [sample_weighter]
+            forecaster_preprocessing[model_type] = [
+                sample_weighter,
+                # Keep only 7-day lag to reduce dimensionality
+                Selector(
+                    selection=FeatureSelection(
+                        exclude=set(
+                            LagsAdder(
+                                history_available=config.predict_history,
+                                horizons=config.horizons,
+                                add_trivial_lags=True,
+                                target_column=config.target_column,
+                            ).features_added()
+                        ).difference({"load_lag_P7D"})
+                    )
+                ),
+            ]
 
         elif model_type == "gblinear":
             forecasters[model_type] = GBLinearForecaster(
