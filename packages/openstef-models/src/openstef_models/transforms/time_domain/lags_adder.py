@@ -70,6 +70,13 @@ class LagsAdder(BaseConfig, TimeSeriesTransform):
         default=False,
         description="Whether to add autocorrelation-based lag features.",
     )
+    lag_fallback_offset: timedelta | None = Field(
+        default=None,
+        description="Offset added to a lag to source the fallback value. "
+        "When set, NaN values in a lag column are filled with values from "
+        "an older lag shifted by this offset (e.g., 7 days). "
+        "None disables fallback. Useful for robustness against measurement delays.",
+    )
 
     _lags: list[timedelta] = PrivateAttr(default_factory=list[timedelta])
     _horizon_lags: dict[LeadTime, list[timedelta]] = PrivateAttr(default_factory=dict[LeadTime, list[timedelta]])
@@ -143,36 +150,98 @@ class LagsAdder(BaseConfig, TimeSeriesTransform):
     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
         validate_horizons_present(data, self.horizons)
 
-        # Copy the input data to add lag features to
         df = data.data.copy(deep=False)
 
         if len(self.horizons) == 1:
-            # For non-versioned data: use single horizon's valid lags
-            horizon = self.horizons[0]
-            valid_lags = self._horizon_lags.get(horizon, [])
+            df = self._transform_single_horizon(df)
+        else:
+            df = self._transform_versioned(df, horizon_column=data.horizon_column)
+
+        return data.copy_with(data=df, is_sorted=True)
+
+    def _transform_single_horizon(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Add lag features for a single-horizon dataset.
+
+        Returns:
+            DataFrame with lag feature columns added.
+        """
+        horizon = self.horizons[0]
+        valid_lags = self._horizon_lags.get(horizon, [])
+
+        for lag in valid_lags:
+            df[self._lag_feature(lag)] = df[self.target_column].shift(freq=lag)
+
+        if self.lag_fallback_offset is not None:
+            df = self._apply_fallback(df, valid_lags)
+
+        return df
+
+    def _transform_versioned(self, df: pd.DataFrame, *, horizon_column: str) -> pd.DataFrame:
+        """Add lag features for a multi-horizon (versioned) dataset.
+
+        Returns:
+            DataFrame with lag feature columns added per horizon.
+        """
+        # Pre-create all feature columns with NaN
+        all_possible_lags = sorted({lag for lags in self._horizon_lags.values() for lag in lags})
+        for lag in all_possible_lags:
+            df[self._lag_feature(lag)] = np.nan
+
+        # Fill in values where they're valid for each horizon
+        for horizon, valid_lags in self._horizon_lags.items():
+            horizon_mask = df[horizon_column] == horizon.value
 
             for lag in valid_lags:
                 feature_name = self._lag_feature(lag)
-                df[feature_name] = df[self.target_column].shift(freq=lag)
-        else:
-            # For versioned data: add lags based on each point's horizon
-            # Pre-create all feature columns with NaN
-            all_possible_lags = sorted({lag for lags in self._horizon_lags.values() for lag in lags})
-            for lag in all_possible_lags:
-                feature_name = self._lag_feature(lag)
-                df[feature_name] = np.nan
+                df.loc[horizon_mask, feature_name] = df.loc[horizon_mask, self.target_column].shift(freq=lag)
 
-            # Fill in values where they're valid for each horizon
+        # Apply fallback per horizon
+        if self.lag_fallback_offset is not None:
             for horizon, valid_lags in self._horizon_lags.items():
-                # Get rows with this horizon
-                horizon_mask = df[data.horizon_column] == horizon.value
+                horizon_mask = df[horizon_column] == horizon.value
+                df = self._apply_fallback(df, valid_lags, mask=horizon_mask)
 
-                for lag in valid_lags:
-                    feature_name = self._lag_feature(lag)
-                    # Shift the target column for rows matching this horizon
-                    df.loc[horizon_mask, feature_name] = df.loc[horizon_mask, self.target_column].shift(freq=lag)
+        return df
 
-        return data.copy_with(data=df, is_sorted=True)
+    def _apply_fallback(
+        self,
+        df: pd.DataFrame,
+        valid_lags: list[timedelta],
+        mask: pd.Series | None = None,
+    ) -> pd.DataFrame:
+        """Fill NaN lag values using a single-step fallback shift.
+
+        For each lag L, fills NaN cells with the target shifted by L + lag_fallback_offset,
+        but only if L + lag_fallback_offset <= history_available (window guard).
+
+        Returns:
+            DataFrame with NaN lag values filled where fallback was available.
+        """
+        if self.lag_fallback_offset is None:
+            return df
+
+        target = df[self.target_column]
+
+        for lag in valid_lags:
+            fallback_lag = lag + self.lag_fallback_offset
+            # Window guard: skip if the fallback lag exceeds available history
+            if fallback_lag > self.history_available:
+                continue
+
+            feature_name = self._lag_feature(lag)
+            fallback_values = target.shift(freq=fallback_lag)
+            original = df[feature_name].copy()
+
+            if mask is not None:
+                df.loc[mask, feature_name] = df.loc[mask, feature_name].combine_first(fallback_values)
+            else:
+                df[feature_name] = df[feature_name].combine_first(fallback_values)
+
+            filled_count = int(original.isna().sum() - df[feature_name].isna().sum())
+            if filled_count > 0:
+                logger.info("lag fallback applied", extra={"feature": feature_name, "filled_cells": filled_count})
+
+        return df
 
     def _lag_feature(self, lag: timedelta) -> str:
         return f"{self.target_column}_lag_{timedelta_to_isoformat(lag)}"

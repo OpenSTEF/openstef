@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
+from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.testing import create_timeseries_dataset
 from openstef_core.types import LeadTime
 from openstef_models.transforms.time_domain.lags_adder import (
@@ -362,3 +363,114 @@ def test_lags_adder__transform_versioned():
         index=index,
     )
     pd.testing.assert_frame_equal(horizon_2d.data[expected_2d.columns], expected_2d, check_freq=False)
+
+
+def _fallback_dataset(nan_indices: list[int] | None = None) -> TimeSeriesDataset:
+    """Create a 21-day daily dataset with optional NaN gaps for fallback tests."""
+    index = pd.date_range("2025-01-01", periods=21, freq="1D")
+    load: list[float] = list(range(1, 22))
+    for i in nan_indices or []:
+        load[i] = np.nan
+    return create_timeseries_dataset(index=index, load=load, sample_interval=timedelta(days=1))
+
+
+def test_lags_adder__fallback_fills_nan_from_older_shift():
+    """When lag_fallback_offset is set, NaN values in a lag column are filled from target shifted by lag + offset."""
+    # Arrange — NaN at day 13 (T-7D for day 20)
+    dataset = _fallback_dataset(nan_indices=[13])
+
+    adder = LagsAdder(
+        history_available=timedelta(days=14),
+        horizons=[LeadTime(value=timedelta(days=7))],
+        add_trivial_lags=False,
+        custom_lags=[timedelta(days=7)],
+        lag_fallback_offset=timedelta(days=7),
+    )
+
+    # Act
+    transformed = adder.transform(dataset)
+
+    # Assert — day 20's load_lag_P7D filled from T-14D = load[6] = 7; day 19 unchanged
+    lag_col = transformed.data["load_lag_P7D"]
+    assert lag_col.iloc[20] == pytest.approx(7.0)
+    assert lag_col.iloc[19] == pytest.approx(13.0)
+
+
+def test_lags_adder__fallback_both_nan_stays_nan():
+    """When both the primary and fallback shifts are NaN, the value stays NaN."""
+    # Arrange — NaN at both day 6 (T-14D) and day 13 (T-7D) for day 20
+    dataset = _fallback_dataset(nan_indices=[6, 13])
+
+    adder = LagsAdder(
+        history_available=timedelta(days=14),
+        horizons=[LeadTime(value=timedelta(days=7))],
+        add_trivial_lags=False,
+        custom_lags=[timedelta(days=7)],
+        lag_fallback_offset=timedelta(days=7),
+    )
+
+    # Act
+    transformed = adder.transform(dataset)
+
+    # Assert
+    assert pd.isna(transformed.data["load_lag_P7D"].iloc[20])
+
+
+def test_lags_adder__fallback_window_guard():
+    """Fallback is not applied when lag + offset exceeds history_available."""
+    # Arrange — history_available=10d, lag=7d, offset=7d → 14d > 10d → no fallback
+    dataset = _fallback_dataset(nan_indices=[13])
+
+    adder = LagsAdder(
+        history_available=timedelta(days=10),
+        horizons=[LeadTime(value=timedelta(days=7))],
+        add_trivial_lags=False,
+        custom_lags=[timedelta(days=7)],
+        lag_fallback_offset=timedelta(days=7),
+    )
+
+    # Act
+    transformed = adder.transform(dataset)
+
+    # Assert — window guard prevents fallback
+    assert pd.isna(transformed.data["load_lag_P7D"].iloc[20])
+
+
+def test_lags_adder__fallback_disabled_no_change():
+    """With lag_fallback_offset=None (default), NaN values in lag columns are not filled."""
+    # Arrange
+    dataset = _fallback_dataset(nan_indices=[13])
+
+    adder = LagsAdder(
+        history_available=timedelta(days=14),
+        horizons=[LeadTime(value=timedelta(days=7))],
+        add_trivial_lags=False,
+        custom_lags=[timedelta(days=7)],
+    )
+
+    # Act
+    transformed = adder.transform(dataset)
+
+    # Assert
+    assert pd.isna(transformed.data["load_lag_P7D"].iloc[20])
+
+
+def test_lags_adder__fallback_multiple_lags():
+    """Fallback applies independently to each lag column within the window."""
+    # Arrange — NaN at day 12 (T-1D for day 13, T-2D for day 14)
+    dataset = _fallback_dataset(nan_indices=[12])
+
+    adder = LagsAdder(
+        history_available=timedelta(days=14),
+        horizons=[LeadTime(value=timedelta(days=1))],
+        add_trivial_lags=False,
+        custom_lags=[timedelta(days=1), timedelta(days=2)],
+        lag_fallback_offset=timedelta(days=7),
+    )
+
+    # Act
+    transformed = adder.transform(dataset)
+
+    # Assert — both lag columns filled from load[5] = 6
+    assert transformed.data["load_lag_P1D"].iloc[13] == pytest.approx(6.0)
+    assert transformed.data["load_lag_P2D"].iloc[14] == pytest.approx(6.0)
