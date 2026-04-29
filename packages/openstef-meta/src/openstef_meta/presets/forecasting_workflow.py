@@ -328,7 +328,8 @@ def _feature_adders(config: EnsembleForecastingWorkflowConfig) -> list[Transform
         LagsAdder(
             history_available=config.predict_history,
             horizons=config.horizons,
-            add_trivial_lags=True,
+            add_trivial_lags=False,
+            custom_lags=[timedelta(days=7)],
             target_column=config.target_column,
             lag_fallback_offset=timedelta(days=7),
         ),
@@ -406,19 +407,6 @@ def _build_forecasters(
             )
             forecaster_preprocessing[model_type] = [
                 sample_weighter,
-                # GBLinear is a global linear model — remove most lags to avoid collinearity (keep 7-day lag only)
-                Selector(
-                    selection=FeatureSelection(
-                        exclude=set(
-                            LagsAdder(
-                                history_available=config.predict_history,
-                                horizons=config.horizons,
-                                add_trivial_lags=True,
-                                target_column=config.target_column,
-                            ).features_added()
-                        ).difference({"load_lag_P7D"})
-                    )
-                ),
                 # Remove holidays and datetime features — one-hot/cyclic columns create near-singular design matrices
                 Selector(
                     selection=FeatureSelection(
