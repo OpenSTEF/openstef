@@ -44,6 +44,7 @@ def test_feature_importances_shape_matches_quantiles():
     assert list(importances.index) == ["load"]
     assert (importances == 0.0).all().all()  # NOSONAR python:S1244 - flatliner returns exact 0.0
 
+
 def test_predict_returns_median_when_predict_median_is_true(sample_forecast_input_dataset: ForecastInputDataset):
     """Test that the forecaster predicts the median of load measurements when predict_median is True."""
     # Arrange
