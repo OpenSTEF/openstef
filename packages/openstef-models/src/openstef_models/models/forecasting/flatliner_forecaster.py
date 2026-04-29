@@ -95,10 +95,11 @@ class FlatlinerForecaster(Forecaster, ExplainableForecaster, ContributionsMixin)
     @property
     @override
     def feature_importances(self) -> pd.DataFrame:
+        columns = [quantile.format() for quantile in self.quantiles]
         return pd.DataFrame(
-            data=[0.0],
+            data=[[0.0] * len(columns)],
             index=["load"],
-            columns=[quantile.format() for quantile in self.quantiles],
+            columns=columns,
         )
 
     @override

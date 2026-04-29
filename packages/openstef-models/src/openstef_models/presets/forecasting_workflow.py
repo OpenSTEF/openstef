@@ -337,6 +337,9 @@ def create_forecasting_workflow(
             not in {"gblinear", "stacking", "learned_weights"},  # GBLinear uses only 7day lag.
             target_column=config.target_column,
             custom_lags=[timedelta(days=7)] if config.model in {"gblinear", "stacking", "learned_weights"} else [],
+            lag_fallback_offset=timedelta(days=7)
+            if config.model in {"gblinear", "stacking", "learned_weights"}
+            else None,
         ),
         WindPowerFeatureAdder(
             windspeed_reference_column=config.wind_speed_column,
