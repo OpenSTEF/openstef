@@ -382,7 +382,6 @@ def test_lags_adder__fallback_fills_nan_from_older_shift():
         horizons=[LeadTime(value=timedelta(days=7))],
         add_trivial_lags=False,
         custom_lags=[timedelta(days=7)],
-        lag_fallback=True,
         lag_fallback_offset=timedelta(days=7),
     )
 
@@ -417,7 +416,6 @@ def test_lags_adder__fallback_both_nan_stays_nan():
         horizons=[LeadTime(value=timedelta(days=7))],
         add_trivial_lags=False,
         custom_lags=[timedelta(days=7)],
-        lag_fallback=True,
         lag_fallback_offset=timedelta(days=7),
     )
 
@@ -446,7 +444,6 @@ def test_lags_adder__fallback_window_guard():
         horizons=[LeadTime(value=timedelta(days=7))],
         add_trivial_lags=False,
         custom_lags=[timedelta(days=7)],
-        lag_fallback=True,
         lag_fallback_offset=timedelta(days=7),
     )
 
@@ -458,7 +455,7 @@ def test_lags_adder__fallback_window_guard():
 
 
 def test_lags_adder__fallback_disabled_no_change():
-    """With lag_fallback=False, NaN values in lag columns are not filled."""
+    """With lag_fallback_offset=None, NaN values in lag columns are not filled."""
     # Arrange
     index = pd.date_range("2025-01-01", periods=21, freq="1D")
     load = list(range(1, 22))
@@ -475,7 +472,6 @@ def test_lags_adder__fallback_disabled_no_change():
         horizons=[LeadTime(value=timedelta(days=7))],
         add_trivial_lags=False,
         custom_lags=[timedelta(days=7)],
-        lag_fallback=False,
     )
 
     # Act
@@ -503,7 +499,6 @@ def test_lags_adder__fallback_multiple_lags():
         horizons=[LeadTime(value=timedelta(days=1))],
         add_trivial_lags=False,
         custom_lags=[timedelta(days=1), timedelta(days=2)],
-        lag_fallback=True,
         lag_fallback_offset=timedelta(days=7),
     )
 

@@ -330,7 +330,6 @@ def _feature_adders(config: EnsembleForecastingWorkflowConfig) -> list[Transform
             horizons=config.horizons,
             add_trivial_lags=True,
             target_column=config.target_column,
-            lag_fallback=True,
             lag_fallback_offset=timedelta(days=7),
         ),
         WindPowerFeatureAdder(
