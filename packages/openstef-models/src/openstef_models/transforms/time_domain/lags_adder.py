@@ -153,14 +153,18 @@ class LagsAdder(BaseConfig, TimeSeriesTransform):
         df = data.data.copy(deep=False)
 
         if len(self.horizons) == 1:
-            self._transform_single_horizon(df)
+            df = self._transform_single_horizon(df)
         else:
-            self._transform_versioned(df, horizon_column=data.horizon_column)
+            df = self._transform_versioned(df, horizon_column=data.horizon_column)
 
         return data.copy_with(data=df, is_sorted=True)
 
-    def _transform_single_horizon(self, df: pd.DataFrame) -> None:
-        """Add lag features for a single-horizon dataset."""
+    def _transform_single_horizon(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Add lag features for a single-horizon dataset.
+
+        Returns:
+            DataFrame with lag feature columns added.
+        """
         horizon = self.horizons[0]
         valid_lags = self._horizon_lags.get(horizon, [])
 
@@ -168,10 +172,16 @@ class LagsAdder(BaseConfig, TimeSeriesTransform):
             df[self._lag_feature(lag)] = df[self.target_column].shift(freq=lag)
 
         if self.lag_fallback_offset is not None:
-            self._apply_fallback(df, valid_lags)
+            df = self._apply_fallback(df, valid_lags)
 
-    def _transform_versioned(self, df: pd.DataFrame, *, horizon_column: str) -> None:
-        """Add lag features for a multi-horizon (versioned) dataset."""
+        return df
+
+    def _transform_versioned(self, df: pd.DataFrame, *, horizon_column: str) -> pd.DataFrame:
+        """Add lag features for a multi-horizon (versioned) dataset.
+
+        Returns:
+            DataFrame with lag feature columns added per horizon.
+        """
         # Pre-create all feature columns with NaN
         all_possible_lags = sorted({lag for lags in self._horizon_lags.values() for lag in lags})
         for lag in all_possible_lags:
@@ -189,21 +199,26 @@ class LagsAdder(BaseConfig, TimeSeriesTransform):
         if self.lag_fallback_offset is not None:
             for horizon, valid_lags in self._horizon_lags.items():
                 horizon_mask = df[horizon_column] == horizon.value
-                self._apply_fallback(df, valid_lags, mask=horizon_mask)
+                df = self._apply_fallback(df, valid_lags, mask=horizon_mask)
+
+        return df
 
     def _apply_fallback(
         self,
         df: pd.DataFrame,
         valid_lags: list[timedelta],
         mask: pd.Series | None = None,
-    ) -> None:
+    ) -> pd.DataFrame:
         """Fill NaN lag values using a single-step fallback shift.
 
         For each lag L, fills NaN cells with the target shifted by L + lag_fallback_offset,
         but only if L + lag_fallback_offset <= history_available (window guard).
+
+        Returns:
+            DataFrame with NaN lag values filled where fallback was available.
         """
         if self.lag_fallback_offset is None:
-            return
+            return df
 
         target = df[self.target_column]
 
@@ -225,6 +240,8 @@ class LagsAdder(BaseConfig, TimeSeriesTransform):
             filled_count = int(original.isna().sum() - df[feature_name].isna().sum())
             if filled_count > 0:
                 logger.info("lag fallback applied", extra={"feature": feature_name, "filled_cells": filled_count})
+
+        return df
 
     def _lag_feature(self, lag: timedelta) -> str:
         return f"{self.target_column}_lag_{timedelta_to_isoformat(lag)}"
