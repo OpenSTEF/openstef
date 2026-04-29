@@ -150,46 +150,46 @@ class LagsAdder(BaseConfig, TimeSeriesTransform):
     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
         validate_horizons_present(data, self.horizons)
 
-        # Copy the input data to add lag features to
         df = data.data.copy(deep=False)
 
         if len(self.horizons) == 1:
-            # For non-versioned data: use single horizon's valid lags
-            horizon = self.horizons[0]
-            valid_lags = self._horizon_lags.get(horizon, [])
+            self._transform_single_horizon(df)
+        else:
+            self._transform_versioned(df, horizon_column=data.horizon_column)
+
+        return data.copy_with(data=df, is_sorted=True)
+
+    def _transform_single_horizon(self, df: pd.DataFrame) -> None:
+        """Add lag features for a single-horizon dataset."""
+        horizon = self.horizons[0]
+        valid_lags = self._horizon_lags.get(horizon, [])
+
+        for lag in valid_lags:
+            df[self._lag_feature(lag)] = df[self.target_column].shift(freq=lag)
+
+        if self.lag_fallback_offset is not None:
+            self._apply_fallback(df, valid_lags)
+
+    def _transform_versioned(self, df: pd.DataFrame, *, horizon_column: str) -> None:
+        """Add lag features for a multi-horizon (versioned) dataset."""
+        # Pre-create all feature columns with NaN
+        all_possible_lags = sorted({lag for lags in self._horizon_lags.values() for lag in lags})
+        for lag in all_possible_lags:
+            df[self._lag_feature(lag)] = np.nan
+
+        # Fill in values where they're valid for each horizon
+        for horizon, valid_lags in self._horizon_lags.items():
+            horizon_mask = df[horizon_column] == horizon.value
 
             for lag in valid_lags:
                 feature_name = self._lag_feature(lag)
-                df[feature_name] = df[self.target_column].shift(freq=lag)
+                df.loc[horizon_mask, feature_name] = df.loc[horizon_mask, self.target_column].shift(freq=lag)
 
-            # Apply fallback: fill NaN lag values from an older shift
-            if self.lag_fallback_offset is not None:
-                self._apply_fallback(df, valid_lags)
-        else:
-            # For versioned data: add lags based on each point's horizon
-            # Pre-create all feature columns with NaN
-            all_possible_lags = sorted({lag for lags in self._horizon_lags.values() for lag in lags})
-            for lag in all_possible_lags:
-                feature_name = self._lag_feature(lag)
-                df[feature_name] = np.nan
-
-            # Fill in values where they're valid for each horizon
+        # Apply fallback per horizon
+        if self.lag_fallback_offset is not None:
             for horizon, valid_lags in self._horizon_lags.items():
-                # Get rows with this horizon
-                horizon_mask = df[data.horizon_column] == horizon.value
-
-                for lag in valid_lags:
-                    feature_name = self._lag_feature(lag)
-                    # Shift the target column for rows matching this horizon
-                    df.loc[horizon_mask, feature_name] = df.loc[horizon_mask, self.target_column].shift(freq=lag)
-
-            # Apply fallback per horizon
-            if self.lag_fallback_offset is not None:
-                for horizon, valid_lags in self._horizon_lags.items():
-                    horizon_mask = df[data.horizon_column] == horizon.value
-                    self._apply_fallback(df, valid_lags, mask=horizon_mask)
-
-        return data.copy_with(data=df, is_sorted=True)
+                horizon_mask = df[horizon_column] == horizon.value
+                self._apply_fallback(df, valid_lags, mask=horizon_mask)
 
     def _apply_fallback(
         self,
@@ -202,7 +202,9 @@ class LagsAdder(BaseConfig, TimeSeriesTransform):
         For each lag L, fills NaN cells with the target shifted by L + lag_fallback_offset,
         but only if L + lag_fallback_offset <= history_available (window guard).
         """
-        assert self.lag_fallback_offset is not None  # noqa: S101
+        if self.lag_fallback_offset is None:
+            return
+
         target = df[self.target_column]
 
         for lag in valid_lags:
