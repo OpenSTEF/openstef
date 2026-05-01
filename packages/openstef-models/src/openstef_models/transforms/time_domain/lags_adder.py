@@ -250,6 +250,16 @@ class LagsAdder(BaseConfig, TimeSeriesTransform):
     def features_added(self) -> list[str]:
         # Return all possible feature names from all lags
         return [self._lag_feature(lag) for lag in self._lags]
+    
+    @override
+    def __setstate__(self, state: dict[str, Any]) -> None:  # TODO(#799): delete after stable release
+        d = state["__dict__"]
+        
+        # Models trained before lag_fallback_offset was added don't have it — default to None (disabled)
+        if "lag_fallback_offset" not in d:
+            d["lag_fallback_offset"] = None
+
+        return super().__setstate__(state)
 
 
 def generate_minute_lags(max_horizon: timedelta) -> list[timedelta]:
