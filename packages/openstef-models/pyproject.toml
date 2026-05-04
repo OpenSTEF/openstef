@@ -43,11 +43,11 @@ optional-dependencies.lgbm = [
 ]
 
 optional-dependencies.xgb-cpu = [
-  "xgboost>=3,<4; sys_platform=='darwin'",
-  "xgboost-cpu>=3,<4; sys_platform=='linux' or sys_platform=='win32'",
+  "xgboost>=3,<3.2; sys_platform=='darwin'",
+  "xgboost-cpu>=3,<3.2; sys_platform=='linux' or sys_platform=='win32'",
 ]
 
-optional-dependencies.xgb-gpu = [ "xgboost>=3,<4" ]
+optional-dependencies.xgb-gpu = [ "xgboost>=3,<3.2" ]
 
 urls.Documentation = "https://openstef.github.io/openstef/index.html"
 urls.Homepage = "https://lfenergy.org/projects/openstef/"

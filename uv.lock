@@ -2952,9 +2952,9 @@ requires-dist = [
     { name = "pycountry", specifier = ">=24.6.1" },
     { name = "scikit-learn", specifier = ">=1.7.1,<1.8" },
     { name = "scipy", specifier = ">=1.16.3,<2" },
-    { name = "xgboost", marker = "sys_platform == 'darwin' and extra == 'xgb-cpu'", specifier = ">=3,<4" },
-    { name = "xgboost", marker = "extra == 'xgb-gpu'", specifier = ">=3,<4" },
-    { name = "xgboost-cpu", marker = "(sys_platform == 'linux' and extra == 'xgb-cpu') or (sys_platform == 'win32' and extra == 'xgb-cpu')", specifier = ">=3,<4" },
+    { name = "xgboost", marker = "sys_platform == 'darwin' and extra == 'xgb-cpu'", specifier = ">=3,<3.2" },
+    { name = "xgboost", marker = "extra == 'xgb-gpu'", specifier = ">=3,<3.2" },
+    { name = "xgboost-cpu", marker = "(sys_platform == 'linux' and extra == 'xgb-cpu') or (sys_platform == 'win32' and extra == 'xgb-cpu')", specifier = ">=3,<3.2" },
 ]
 provides-extras = ["lgbm", "xgb-cpu", "xgb-gpu"]
 
