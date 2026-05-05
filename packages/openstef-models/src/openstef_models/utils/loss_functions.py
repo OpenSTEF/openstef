@@ -85,12 +85,10 @@ def arctan_loss_multi_objective(
         - Implementation: https://github.com/LaurensSluyterman/XGBoost_quantile_regression
     """
     # Resize the predictions and targets.
-    n_items = len(y_true)
     n_quantiles = len(quantiles)
-    n_rows = n_items // n_quantiles
-    y_pred = np.reshape(y_pred, (n_rows, n_quantiles))
-    y_true = np.reshape(y_true, (n_rows, n_quantiles))
-    sample_weight = np.reshape(sample_weight, (n_rows, -1)) if sample_weight is not None else None
+    y_pred = np.reshape(y_pred, (-1, n_quantiles))
+    y_true = np.reshape(y_true, (-1, n_quantiles))
+    sample_weight = sample_weight[:, np.newaxis] if sample_weight is not None else None
 
     # Calculate the differences
     u = y_true - y_pred
@@ -181,12 +179,10 @@ def pinball_loss_multi_objective(
         - Implementation reference: https://gist.github.com/Nikolay-Lysenko/06769d701c1d9c9acb9a66f2f9d7a6c7
     """
     # Resize the predictions and targets.
-    n_items = len(y_true)
     n_quantiles = len(quantiles)
-    n_rows = n_items // n_quantiles
-    y_pred = np.reshape(y_pred, (n_rows, n_quantiles))
-    y_true = np.reshape(y_true, (n_rows, n_quantiles))
-    sample_weight = np.reshape(sample_weight, (n_rows, -1)) if sample_weight is not None else None
+    y_pred = np.reshape(y_pred, (-1, n_quantiles))
+    y_true = np.reshape(y_true, (-1, n_quantiles))
+    sample_weight = sample_weight[:, np.newaxis] if sample_weight is not None else None
 
     # Extract quantile values into array for vectorized operations
     quantile_values = np.array(quantiles)  # shape: (n_quantiles,)
