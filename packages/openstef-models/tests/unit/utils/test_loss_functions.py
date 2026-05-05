@@ -391,7 +391,9 @@ def test_loss_fn__2d_input_matches_1d_input(loss_fn: Callable[..., tuple[np.ndar
         pytest.param(arctan_loss_multi_objective, id="arctan"),
     ],
 )
-def test_loss_fn__2d_input_with_sample_weights_matches_1d(loss_fn: Callable[..., tuple[np.ndarray, np.ndarray]]) -> None:
+def test_loss_fn__2d_input_with_sample_weights_matches_1d(
+    loss_fn: Callable[..., tuple[np.ndarray, np.ndarray]],
+) -> None:
     """Regression: 2D input with sample_weight produces the same result as 1D input."""
     # Arrange
     quantiles = [Quantile(0.1), Quantile(0.9)]
