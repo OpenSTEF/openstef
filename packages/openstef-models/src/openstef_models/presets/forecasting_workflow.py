@@ -344,6 +344,9 @@ def create_forecasting_workflow(
             target_column=config.target_column,
             max_day_lags=config.max_day_lags,
             custom_lags=[timedelta(days=7)] if config.model in {"gblinear", "stacking", "learned_weights"} else [],
+            lag_fallback_offset=timedelta(days=7)
+            if config.model in {"gblinear", "stacking", "learned_weights"}
+            else None,
         ),
         WindPowerFeatureAdder(
             windspeed_reference_column=config.wind_speed_column,
