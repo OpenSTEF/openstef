@@ -227,6 +227,12 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
         description="Feature selection for which features to replace out-of-range values with NaN. "
         "Defaults to no features (disabled).",
     )
+    max_day_lags: int = Field(
+        default=14,
+        description="Maximum number of days to look back for day-based lags. "
+        "Default is 14 days (two weekly cycles). Set to 7 for a single weekly cycle.",
+        ge=1,
+    )
     sample_weight_config: SampleWeightConfig = Field(
         default_factory=lambda data: SampleWeightConfig(weight_exponent=1.0)
         if data.get("model") == "gblinear"
@@ -336,6 +342,7 @@ def create_forecasting_workflow(
             add_trivial_lags=config.model
             not in {"gblinear", "stacking", "learned_weights"},  # GBLinear uses only 7day lag.
             target_column=config.target_column,
+            max_day_lags=config.max_day_lags,
             custom_lags=[timedelta(days=7)] if config.model in {"gblinear", "stacking", "learned_weights"} else [],
             lag_fallback_offset=timedelta(days=7)
             if config.model in {"gblinear", "stacking", "learned_weights"}

@@ -233,6 +233,12 @@ class EnsembleForecastingWorkflowConfig(BaseConfig):
         description="Feature selection for which features to replace out-of-range values with NaN. "
         "Defaults to no features (disabled).",
     )
+    max_day_lags: int = Field(
+        default=14,
+        description="Maximum number of days to look back for day-based lags. "
+        "Default is 14 days (two weekly cycles). Set to 7 for a single weekly cycle.",
+        ge=1,
+    )
     forecaster_sample_weights: dict[str, SampleWeightConfig] = Field(
         default={
             "gblinear": SampleWeightConfig(method="inverse_frequency"),
@@ -330,6 +336,7 @@ def _feature_adders(config: EnsembleForecastingWorkflowConfig) -> list[Transform
             horizons=config.horizons,
             add_trivial_lags=True,
             target_column=config.target_column,
+            max_day_lags=config.max_day_lags,
             lag_fallback_offset=timedelta(days=7),
         ),
         WindPowerFeatureAdder(
@@ -415,6 +422,7 @@ def _build_forecasters(
                                 horizons=config.horizons,
                                 add_trivial_lags=True,
                                 target_column=config.target_column,
+                                max_day_lags=config.max_day_lags,
                             ).features_added()
                         ).difference({"load_lag_P7D"})
                     )
