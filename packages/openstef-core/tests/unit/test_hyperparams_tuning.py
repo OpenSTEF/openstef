@@ -26,7 +26,7 @@ def test_hyperparams_range_extracted_from_kwargs():
     )
 
     # Assert — field values are the class defaults
-    assert hp.lr == 0.3
+    assert hp.lr == pytest.approx(0.3)
     assert hp.depth == 6
 
 
@@ -39,7 +39,7 @@ def test_hyperparams_mixed_range_and_plain_value():
     )
 
     # Assert
-    assert hp.lr == 0.3  # range extracted, field keeps default
+    assert hp.lr == pytest.approx(0.3)  # range extracted, field keeps default
     assert hp.depth == 10  # plain value applied
 
 
@@ -86,7 +86,7 @@ def test_get_search_space_with_class_level_tune():
 
     # Assert
     assert "lr" in space
-    assert space["lr"].low == 0.01
+    assert space["lr"].low == pytest.approx(0.01)
 
 
 def test_get_search_space_include_filter():

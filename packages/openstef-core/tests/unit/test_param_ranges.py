@@ -31,8 +31,8 @@ def test_float_range_resolve_fills_none_bounds():
     resolved = override.resolve(class_default)
 
     # Assert
-    assert resolved.low == 0.01
-    assert resolved.high == 1.0
+    assert resolved.low == pytest.approx(0.01)
+    assert resolved.high == pytest.approx(1.0)
     assert resolved.log is True  # kept from override
     assert resolved.tune is True
 
@@ -46,8 +46,8 @@ def test_float_range_resolve_keeps_explicit_bounds():
     resolved = override.resolve(class_default)
 
     # Assert — explicit bounds not overwritten
-    assert resolved.low == 0.001
-    assert resolved.high == 0.5
+    assert resolved.low == pytest.approx(0.001)
+    assert resolved.high == pytest.approx(0.5)
 
 
 def test_float_range_resolve_with_none_class_default():
@@ -58,8 +58,8 @@ def test_float_range_resolve_with_none_class_default():
     resolved = override.resolve(None)
 
     # Assert — unchanged
-    assert resolved.low == 0.01
-    assert resolved.high == 1.0
+    assert resolved.low == pytest.approx(0.01)
+    assert resolved.high == pytest.approx(1.0)
 
 
 def test_int_range_validates_low_gt_high():
