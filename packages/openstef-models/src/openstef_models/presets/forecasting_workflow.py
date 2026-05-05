@@ -23,7 +23,9 @@ from openstef_beam.evaluation.metric_providers import (
     R2Provider,
 )
 from openstef_core.base_model import BaseConfig
+from openstef_core.datasets.timeseries_dataset import TimeSeriesDataset
 from openstef_core.mixins import TransformPipeline
+from openstef_core.mixins.transform import Transform
 from openstef_core.types import LeadTime, Q, Quantile, QuantileOrGlobal
 from openstef_models.integrations.mlflow import MLFlowStorage, MLFlowStorageCallback
 from openstef_models.mixins import ModelIdentifier
@@ -36,10 +38,10 @@ from openstef_models.models.forecasting.median_forecaster import MedianForecaste
 from openstef_models.models.forecasting.xgboost_forecaster import XGBoostForecaster, XGBoostHyperParams
 from openstef_models.transforms.energy_domain import WindPowerFeatureAdder
 from openstef_models.transforms.general import (
-    Clipper,
     EmptyFeatureRemover,
     Imputer,
     NaNDropper,
+    OutlierHandler,
     SampleWeightConfig,
     SampleWeighter,
     Scaler,
@@ -217,8 +219,19 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
         description="If not None, rolling aggregate(s) of load will be used as features in the model.",
     )
     clip_features: FeatureSelection = Field(
-        default=FeatureSelection(include=None, exclude=None),
-        description="Feature selection for which features to clip.",
+        default=FeatureSelection.ALL,
+        description="Feature selection for which features to clip to their learned range.",
+    )
+    nan_on_outlier_features: FeatureSelection = Field(
+        default=FeatureSelection.NONE,
+        description="Feature selection for which features to replace out-of-range values with NaN. "
+        "Defaults to no features (disabled).",
+    )
+    max_day_lags: int = Field(
+        default=14,
+        description="Maximum number of days to look back for day-based lags. "
+        "Default is 14 days (two weekly cycles). Set to 7 for a single weekly cycle.",
+        ge=1,
     )
     sample_weight_config: SampleWeightConfig = Field(
         default_factory=lambda data: SampleWeightConfig(weight_exponent=1.0)
@@ -289,6 +302,20 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
     )
 
 
+def _checks(config: ForecastingWorkflowConfig) -> list[Transform[TimeSeriesDataset, TimeSeriesDataset]]:
+    return [
+        Selector(selection=config.selected_features),
+        InputConsistencyChecker(),
+        FlatlineChecker(
+            load_column=config.target_column,
+            flatliner_threshold=config.flatliner_threshold,
+            detect_non_zero_flatliner=config.detect_non_zero_flatliner,
+            error_on_flatliner=True,
+        ),
+        CompletenessChecker(completeness_threshold=config.completeness_threshold),
+    ]
+
+
 def create_forecasting_workflow(
     config: ForecastingWorkflowConfig,
 ) -> CustomForecastingWorkflow:
@@ -306,17 +333,7 @@ def create_forecasting_workflow(
     Raises:
         ValueError: If an unsupported model type is specified.
     """
-    checks = [
-        Selector(selection=config.selected_features),
-        InputConsistencyChecker(),
-        FlatlineChecker(
-            load_column=config.target_column,
-            flatliner_threshold=config.flatliner_threshold,
-            detect_non_zero_flatliner=config.detect_non_zero_flatliner,
-            error_on_flatliner=False,
-        ),
-        CompletenessChecker(completeness_threshold=config.completeness_threshold),
-    ]
+    checks = _checks(config)
     feature_aligners = config.shifters
     feature_adders = [
         LagsAdder(
@@ -325,7 +342,11 @@ def create_forecasting_workflow(
             add_trivial_lags=config.model
             not in {"gblinear", "stacking", "learned_weights"},  # GBLinear uses only 7day lag.
             target_column=config.target_column,
+            max_day_lags=config.max_day_lags,
             custom_lags=[timedelta(days=7)] if config.model in {"gblinear", "stacking", "learned_weights"} else [],
+            lag_fallback_offset=timedelta(days=7)
+            if config.model in {"gblinear", "stacking", "learned_weights"}
+            else None,
         ),
         WindPowerFeatureAdder(
             windspeed_reference_column=config.wind_speed_column,
@@ -356,7 +377,11 @@ def create_forecasting_workflow(
         ),
     ]
     feature_standardizers = [
-        Clipper(selection=Include(config.energy_price_column).combine(config.clip_features), mode="standard"),
+        OutlierHandler(
+            selection=Include(config.energy_price_column).combine(config.clip_features),
+            mode="standard",
+            outlier_action="clip",
+        ),
         Scaler(selection=Exclude(config.target_column), method="standard"),
         SampleWeighter(
             target_column=config.target_column,
@@ -366,12 +391,20 @@ def create_forecasting_workflow(
     ]
 
     if config.model == "xgboost":
+        nan_outlier_handlers = [
+            *(
+                [OutlierHandler(mode="standard", selection=config.nan_on_outlier_features, outlier_action="nan")]
+                if config.nan_on_outlier_features != FeatureSelection.NONE
+                else []
+            ),
+        ]
         preprocessing = [
             *checks,
             *feature_aligners,
             *feature_adders,
             HolidayFeatureAdder(country_code=config.location.country_code),
             DatetimeFeaturesAdder(onehot_encode=False),
+            *nan_outlier_handlers,
             *feature_standardizers,
         ]
         forecaster = XGBoostForecaster(
