@@ -335,10 +335,16 @@ class HyperparameterTuner[ConfigT: BaseConfig](BaseConfig):
 
         Returns:
             ``TuningResult`` with the best config and Optuna study.
+
+        Raises:
+            RuntimeError: If the final workflow fit fails after tuning.
         """
         best_config, study = self.tune(show_progress_bar=show_progress_bar)
         workflow = self.create_workflow(best_config)
-        workflow.fit(self.train_dataset)
+        fit_result = workflow.fit(self.train_dataset)
+        if fit_result is None:
+            msg = "Final workflow fit failed after hyperparameter tuning."
+            raise RuntimeError(msg)
         return TuningResult(best_config=best_config, study=study, workflow=workflow)
 
 

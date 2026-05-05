@@ -33,6 +33,7 @@ from openstef_models.utils.loss_functions import (
     get_objective_function,
     xgb_prepare_target_for_objective,
 )
+from openstef_models.utils.xgboost import get_median_shap_contribs
 
 try:
     import xgboost as xgb
@@ -281,16 +282,8 @@ class GBLinearForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
         if len(predictions_array) > 0:
             predictions_array = self._target_scaler.inverse_transform(predictions_array)
 
-        # Construct DataFrame with appropriate quantile columns
-        predictions = pd.DataFrame(
-            data=predictions_array,
-            index=input_data.index,
-            columns=[quantile.format() for quantile in self.quantiles],
-        )
-
-        return ForecastDataset(
-            data=predictions,
-            sample_interval=data.sample_interval,
+        return ForecastDataset.from_quantile_predictions(
+            predictions_array, input_data.index, self.quantiles, data.sample_interval
         )
 
     def predict_contributions(self, data: ForecastInputDataset) -> TimeSeriesDataset:
@@ -309,18 +302,7 @@ class GBLinearForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
             raise NotFittedError(self.__class__.__name__)
 
         input_data: pd.DataFrame = data.input_data(start=data.forecast_start)
-        booster = self._gblinear_model.get_booster()
-        dmatrix = xgb.DMatrix(input_data)
-        contribs_raw: np.ndarray = booster.predict(dmatrix, pred_contribs=True)
-
-        # Reshape to (n_samples, n_quantiles, n_features + 1)
-        n_samples = len(input_data)
-        n_quantiles = len(self.quantiles)
-        contribs_3d = contribs_raw.reshape(n_samples, n_quantiles, -1)
-
-        # Extract median quantile contributions
-        median_idx = min(range(n_quantiles), key=lambda i: abs(float(self.quantiles[i]) - 0.5))
-        contribs = contribs_3d[:, median_idx, :].copy()
+        contribs = get_median_shap_contribs(self._gblinear_model.get_booster(), input_data, self.quantiles)
 
         # Inverse transform for target scaling
         if self._target_scaler.scale_ is None or self._target_scaler.mean_ is None:

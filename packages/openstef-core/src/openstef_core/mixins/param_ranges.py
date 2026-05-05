@@ -20,15 +20,18 @@ from openstef_core.base_model import BaseConfig, BaseModel
 
 
 @dataclass(frozen=True)
-class FloatRange:
-    """Annotate a ``HyperParams`` float field as tunable within ``[low, high]``."""
+class _BoundedRange:
+    """Shared validation and resolution logic for numeric range types.
 
-    low: float | None = None
-    high: float | None = None
+    Not part of the public API — use ``FloatRange`` or ``IntRange`` instead.
+    """
+
+    low: Any = None
+    high: Any = None
     log: bool = False
     tune: bool = False
 
-    def __post_init__(self) -> None:  # noqa: D105
+    def __post_init__(self) -> None:
         if self.low is not None and self.high is not None and self.low > self.high:
             msg = f"low ({self.low}) must be <= high ({self.high})"
             raise ValueError(msg)
@@ -49,32 +52,19 @@ class FloatRange:
 
 
 @dataclass(frozen=True)
-class IntRange:
+class FloatRange(_BoundedRange):
+    """Annotate a ``HyperParams`` float field as tunable within ``[low, high]``."""
+
+    low: float | None = None
+    high: float | None = None
+
+
+@dataclass(frozen=True)
+class IntRange(_BoundedRange):
     """Annotate a ``HyperParams`` int field as tunable within ``[low, high]``."""
 
     low: int | None = None
     high: int | None = None
-    log: bool = False
-    tune: bool = False
-
-    def __post_init__(self) -> None:  # noqa: D105
-        if self.low is not None and self.high is not None and self.low > self.high:
-            msg = f"low ({self.low}) must be <= high ({self.high})"
-            raise ValueError(msg)
-
-    def resolve(self, class_default: Self | None) -> Self:
-        """Fill ``None`` bounds from *class_default*.
-
-        Returns:
-            Resolved range.
-        """
-        if class_default is None:
-            return self
-        return replace(
-            self,
-            low=self.low if self.low is not None else class_default.low,
-            high=self.high if self.high is not None else class_default.high,
-        )
 
 
 @dataclass(frozen=True)
