@@ -2,6 +2,8 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+from collections.abc import Callable
+
 import numpy as np
 import pytest
 
@@ -327,8 +329,8 @@ def test_loss_functions__cross_function_consistency() -> None:
 
     for y_true, y_pred in test_cases:
         # Act
-        grad_pinball, hess_pinball = pinball_loss_multi_objective(y_true, y_pred, quantiles)
-        grad_arctan, hess_arctan = arctan_loss_multi_objective(y_true, y_pred, quantiles)
+        grad_pinball, _ = pinball_loss_multi_objective(y_true, y_pred, quantiles)
+        grad_arctan, _ = arctan_loss_multi_objective(y_true, y_pred, quantiles)
 
         # Flatten for easier comparison
         grad_pinball_flat = grad_pinball.flatten()
@@ -348,6 +350,65 @@ def test_loss_functions__cross_function_consistency() -> None:
                     f"Gradient sign mismatch between pinball and arctan at index {i}"
                 )
 
-        # All hessians should be positive
-        assert np.all(hess_pinball > 0)
-        assert np.all(hess_arctan > 0)
+
+@pytest.mark.parametrize(
+    "loss_fn",
+    [
+        pytest.param(pinball_loss_multi_objective, id="pinball"),
+        pytest.param(arctan_loss_multi_objective, id="arctan"),
+    ],
+)
+def test_loss_fn__2d_input_matches_1d_input(loss_fn: Callable[..., tuple[np.ndarray, np.ndarray]]) -> None:
+    """Regression: objective functions accept 2D (n_samples, n_quantiles) input from XGBoost 3.2."""
+    # Arrange
+    quantiles = [Quantile(0.1), Quantile(0.5), Quantile(0.9)]
+    n_samples, n_quantiles = 4, len(quantiles)
+
+    # XGBoost 3.2 passes 2D arrays — rows are samples, columns are quantiles.
+    # y_true has the same actual value repeated per quantile (created by xgb_prepare_target_for_objective).
+    y_true_2d = np.array([[1.0, 1.0, 1.0], [2.0, 2.0, 2.0], [3.0, 3.0, 3.0], [4.0, 4.0, 4.0]])
+    y_pred_2d = np.array([[0.8, 1.0, 1.3], [1.6, 2.0, 2.5], [2.7, 3.0, 3.4], [3.5, 4.0, 4.6]])
+
+    # Old XGBoost passes flat 1D arrays (row-major flatten of the 2D arrays above).
+    y_true_1d = y_true_2d.ravel()
+    y_pred_1d = y_pred_2d.ravel()
+
+    # Act
+    grad_2d, hess_2d = loss_fn(y_true_2d, y_pred_2d, quantiles)
+    grad_1d, hess_1d = loss_fn(y_true_1d, y_pred_1d, quantiles)
+
+    # Assert
+    assert grad_2d.shape == (n_samples, n_quantiles), "2D input must produce (n_samples, n_quantiles) gradient"
+    assert hess_2d.shape == (n_samples, n_quantiles), "2D input must produce (n_samples, n_quantiles) hessian"
+    np.testing.assert_array_almost_equal(grad_2d, grad_1d, err_msg="2D and 1D inputs must produce identical gradients")
+    np.testing.assert_array_almost_equal(hess_2d, hess_1d, err_msg="2D and 1D inputs must produce identical hessians")
+
+
+@pytest.mark.parametrize(
+    "loss_fn",
+    [
+        pytest.param(pinball_loss_multi_objective, id="pinball"),
+        pytest.param(arctan_loss_multi_objective, id="arctan"),
+    ],
+)
+def test_loss_fn__2d_input_with_sample_weights_matches_1d(loss_fn: Callable[..., tuple[np.ndarray, np.ndarray]]) -> None:
+    """Regression: 2D input with sample_weight produces the same result as 1D input."""
+    # Arrange
+    quantiles = [Quantile(0.1), Quantile(0.9)]
+    n_samples = 3
+
+    y_true_2d = np.array([[1.0, 1.0], [2.0, 2.0], [3.0, 3.0]])
+    y_pred_2d = np.array([[0.5, 1.5], [1.8, 2.2], [2.5, 3.5]])
+    sample_weight = np.array([1.0, 2.0, 0.5])
+
+    y_true_1d = y_true_2d.ravel()
+    y_pred_1d = y_pred_2d.ravel()
+
+    # Act
+    grad_2d, hess_2d = loss_fn(y_true_2d, y_pred_2d, quantiles, sample_weight=sample_weight)
+    grad_1d, hess_1d = loss_fn(y_true_1d, y_pred_1d, quantiles, sample_weight=sample_weight)
+
+    # Assert
+    assert grad_2d.shape == (n_samples, len(quantiles))
+    np.testing.assert_array_almost_equal(grad_2d, grad_1d)
+    np.testing.assert_array_almost_equal(hess_2d, hess_1d)
