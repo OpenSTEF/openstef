@@ -2,10 +2,10 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-"""Simple constant median forecasting models for educational and baseline purposes.
+"""Simple constant quantile forecasting models for educational and baseline purposes.
 
 Provides basic forecasting models that predict constant values based on historical
-medians. These models serve as educational examples and performance baselines.
+quantiles. These models serve as educational examples and performance baselines.
 """
 
 from typing import ClassVar, override
@@ -21,17 +21,17 @@ from openstef_models.explainability.mixins import ContributionsMixin, Explainabl
 from openstef_models.models.forecasting.forecaster import Forecaster
 
 
-class ConstantMedianForecasterHyperParams(HyperParams):
-    """Hyperparameter configuration for constant median forecaster."""
+class ConstantQuantileForecasterHyperParams(HyperParams):
+    """Hyperparameter configuration for constant quantile forecaster."""
 
     constant: float = Field(
-        default=0.01,
+        default=0.0,
         description="Constant to add to the forecasts.",
     )
 
 
-class ConstantMedianForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
-    """Constant median-based forecaster for single horizon predictions.
+class ConstantQuantileForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
+    """Constant quantile-based forecaster for single horizon predictions.
 
     Predicts constant values based on historical quantiles from training data.
     Useful as a baseline model and for educational purposes.
@@ -43,10 +43,10 @@ class ConstantMedianForecaster(Forecaster, ExplainableForecaster, ContributionsM
     Example:
         >>> from openstef_core.types import LeadTime, Quantile
         >>> from datetime import timedelta
-        >>> forecaster = ConstantMedianForecaster(
+        >>> forecaster = ConstantQuantileForecaster(
         ...     quantiles=[Quantile(0.5), Quantile(0.1), Quantile(0.9)],
         ...     horizons=[LeadTime(timedelta(hours=1))],
-        ...     hyperparams=ConstantMedianForecasterHyperParams(),
+        ...     hyperparams=ConstantQuantileForecasterHyperParams(),
         ... )
         >>> forecaster.fit(training_data)  # doctest: +SKIP
         >>> predictions = forecaster.predict(test_data)  # doctest: +SKIP
@@ -64,15 +64,15 @@ class ConstantMedianForecaster(Forecaster, ExplainableForecaster, ContributionsM
         max_length=1,
     )
 
-    hyperparams: ConstantMedianForecasterHyperParams = Field(
-        default_factory=ConstantMedianForecasterHyperParams,
+    hyperparams: ConstantQuantileForecasterHyperParams = Field(
+        default_factory=ConstantQuantileForecasterHyperParams,
     )
 
     _quantile_values: dict[Quantile, float] = PrivateAttr(default_factory=dict[Quantile, float])
 
     @property
     @override
-    def hparams(self) -> ConstantMedianForecasterHyperParams:
+    def hparams(self) -> ConstantQuantileForecasterHyperParams:
         return self.hyperparams
 
     @override

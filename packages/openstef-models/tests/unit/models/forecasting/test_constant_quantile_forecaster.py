@@ -10,9 +10,9 @@ import pytest
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import NotFittedError
 from openstef_core.types import LeadTime, Quantile
-from openstef_models.models.forecasting.constant_median_forecaster import (
-    ConstantMedianForecaster,
-    ConstantMedianForecasterHyperParams,
+from openstef_models.models.forecasting.constant_quantile_forecaster import (
+    ConstantQuantileForecaster,
+    ConstantQuantileForecasterHyperParams,
 )
 
 
@@ -22,7 +22,7 @@ def sample_forecast_input_dataset() -> ForecastInputDataset:
 
     Returns:
         ForecastInputDataset with load values [90, 100, 110, 120, 130] spanning 5 hours,
-        designed for predictable median calculation.
+        designed for predictable quantile calculation.
     """
     data = pd.DataFrame(
         {"load": [90.0, 100.0, 110.0, 120.0, 130.0]},
@@ -37,17 +37,17 @@ def sample_forecast_input_dataset() -> ForecastInputDataset:
 
 
 @pytest.fixture
-def sample_forecaster() -> ConstantMedianForecaster:
+def sample_forecaster() -> ConstantQuantileForecaster:
     """Create sample forecaster configuration with standard quantiles."""
-    return ConstantMedianForecaster(
+    return ConstantQuantileForecaster(
         quantiles=[Quantile(0.1), Quantile(0.5), Quantile(0.9)],
         horizons=[LeadTime(timedelta(hours=6))],
-        hyperparams=ConstantMedianForecasterHyperParams(constant=5.0),
+        hyperparams=ConstantQuantileForecasterHyperParams(constant=5.0),
     )
 
 
 def test_constant_median_forecaster__fit_predict(
-    sample_forecaster: ConstantMedianForecaster,
+    sample_forecaster: ConstantQuantileForecaster,
     sample_forecast_input_dataset: ForecastInputDataset,
 ):
     """Test that forecaster trains on data and produces constant predictions with added hyperparameter."""
@@ -76,7 +76,7 @@ def test_constant_median_forecaster__fit_predict(
 
 
 def test_constant_median_forecaster__predict_not_fitted_raises_error(
-    sample_forecaster: ConstantMedianForecaster,
+    sample_forecaster: ConstantQuantileForecaster,
 ):
     """Test that predicting without fitting raises ModelNotFittedError."""
     # Arrange
@@ -87,5 +87,5 @@ def test_constant_median_forecaster__predict_not_fitted_raises_error(
     input_dataset = ForecastInputDataset(data=dummy_data, sample_interval=timedelta(hours=1), target_column="load")
 
     # Act & Assert
-    with pytest.raises(NotFittedError, match="ConstantMedianForecaster"):
+    with pytest.raises(NotFittedError, match="ConstantQuantileForecaster"):
         forecaster.predict(input_dataset)
