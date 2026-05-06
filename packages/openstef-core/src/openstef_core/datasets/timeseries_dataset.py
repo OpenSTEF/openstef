@@ -46,6 +46,11 @@ class TimeSeriesDataset(TimeSeriesMixin, DatasetMixin):  # noqa: PLR0904 - impor
     - If an available_at column exists, data is versioned by availability time
     - Otherwise, data is treated as a regular time series
 
+    Columns whose names start with a double underscore (``__``) are treated as
+    internal/system columns: they are kept in ``data`` so transforms can pass
+    them along, but are excluded from ``feature_names`` so feature-aware
+    transforms (e.g. scalers) ignore them.
+
     The dataset guarantees:
         - Data is sorted by timestamp in ascending order
         - Consistent sampling interval across all data points
@@ -133,7 +138,7 @@ class TimeSeriesDataset(TimeSeriesMixin, DatasetMixin):  # noqa: PLR0904 - impor
         self.horizon_column = horizon_column
         self.available_at_column = available_at_column
         self._sample_interval = sample_interval
-        self._internal_columns = set()
+        self._internal_columns = {col for col in data.columns if col.startswith("__")}
         data.index.name = self.index_name
 
         # Check input data frequency matches sample_interval, only if there are enough data points to infer frequency
@@ -156,7 +161,7 @@ class TimeSeriesDataset(TimeSeriesMixin, DatasetMixin):  # noqa: PLR0904 - impor
             self._horizons = None
         else:
             self._version_column = None
-            self._feature_names = data.columns.to_list()
+            self._feature_names = [col for col in data.columns if col not in self._internal_columns]
             self._horizons = None
 
         # Ensure invariants: data is sorted by timestamp
