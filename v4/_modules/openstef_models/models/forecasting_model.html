@@ -457,6 +457,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">cast</span><span class="p">,</span> <span class="n">override</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">Field</span><span class="p">,</span> <span class="n">PrivateAttr</span>
 
@@ -474,7 +475,10 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">LeadTime</span><span class="p">,</span> <span class="n">Quantile</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.explainability.mixins</span><span class="w"> </span><span class="kn">import</span> <span class="n">ContributionsMixin</span><span class="p">,</span> <span class="n">ExplainableForecaster</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.models.forecasting.forecaster</span><span class="w"> </span><span class="kn">import</span> <span class="n">Forecaster</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.transforms.general.outlier_handler</span><span class="w"> </span><span class="kn">import</span> <span class="n">OUTLIER_NAN_MASK_PREFIX</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.utils.data_split</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataSplitter</span>
+
+<span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">ModelFitResult</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
@@ -1009,7 +1013,8 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Restore the target column from the original dataset to the given dataset.</span>
 
 <span class="sd">    Maps target values from the original dataset to the dataset using index alignment.</span>
-<span class="sd">    Ensures the target column is present in the dataset for downstream processing.</span>
+<span class="sd">    Preserves NaN values that were introduced by the OutlierHandler (identified via</span>
+<span class="sd">    sentinel columns) so that outlier rows can be excluded from training.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        dataset: Dataset to modify by adding the target column.</span>
@@ -1017,12 +1022,34 @@
 <span class="sd">        target_column: Name of the target column to restore.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        Dataset with the target column restored from the original dataset.</span>
+<span class="sd">        Dataset with the target column restored from the original dataset,</span>
+<span class="sd">        except where the OutlierHandler introduced NaN.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">target_series</span> <span class="o">=</span> <span class="n">original_dataset</span><span class="o">.</span><span class="n">select_features</span><span class="p">([</span><span class="n">target_column</span><span class="p">])</span><span class="o">.</span><span class="n">select_version</span><span class="p">()</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">target_column</span><span class="p">]</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_transform_restore_target</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="o">**</span><span class="p">{</span><span class="nb">str</span><span class="p">(</span><span class="n">target_series</span><span class="o">.</span><span class="n">name</span><span class="p">):</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">target_series</span><span class="p">)})</span>  <span class="c1"># pyright: ignore[reportUnknownMemberType]</span>
+        <span class="n">original_values</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">target_series</span><span class="p">)</span>  <span class="c1"># pyright: ignore[reportUnknownMemberType]</span>
+        <span class="n">restored</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">original_values</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">target_column</span><span class="p">)</span>
+
+        <span class="c1"># Preserve NaN values introduced by the OutlierHandler for the target column.</span>
+        <span class="n">sentinel_col</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">OUTLIER_NAN_MASK_PREFIX</span><span class="si">}{</span><span class="n">target_column</span><span class="si">}</span><span class="s2">__&quot;</span>
+        <span class="k">if</span> <span class="n">sentinel_col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">outlier_mask</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">sentinel_col</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">outlier_mask</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+                <span class="n">n_preserved</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">outlier_mask</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+                <span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="s2">&quot;Preserving </span><span class="si">%d</span><span class="s2"> NaN values in target column &#39;</span><span class="si">%s</span><span class="s2">&#39; introduced by outlier handling.&quot;</span><span class="p">,</span>
+                    <span class="n">n_preserved</span><span class="p">,</span>
+                    <span class="n">target_column</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">restored</span><span class="p">[</span><span class="n">outlier_mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+        <span class="c1"># Remove all outlier sentinel columns — they are not model features.</span>
+        <span class="n">sentinel_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">OUTLIER_NAN_MASK_PREFIX</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="n">sentinel_cols</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">sentinel_cols</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="o">**</span><span class="p">{</span><span class="n">target_column</span><span class="p">:</span> <span class="n">restored</span><span class="p">})</span>
 
     <span class="k">return</span> <span class="n">dataset</span><span class="o">.</span><span class="n">pipe_pandas</span><span class="p">(</span><span class="n">_transform_restore_target</span><span class="p">)</span>
 
