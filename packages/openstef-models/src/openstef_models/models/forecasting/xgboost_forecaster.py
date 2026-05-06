@@ -361,6 +361,7 @@ class XGBoostForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
         return ForecastDataset(
             data=predictions,
             sample_interval=data.sample_interval,
+            target_column=data.target_column,
         )
 
     def predict_contributions(self, data: ForecastInputDataset) -> TimeSeriesDataset:
