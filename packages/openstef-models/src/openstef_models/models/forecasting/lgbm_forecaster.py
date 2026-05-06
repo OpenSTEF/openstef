@@ -291,6 +291,7 @@ class LGBMForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
                 columns=[quantile.format() for quantile in self.quantiles],
             ),
             sample_interval=data.sample_interval,
+            target_column=data.target_column,
         )
 
     def predict_contributions(self, data: ForecastInputDataset) -> TimeSeriesDataset:
