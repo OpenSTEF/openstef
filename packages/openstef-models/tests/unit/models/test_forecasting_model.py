@@ -260,15 +260,15 @@ def test_forecasting_model__pickle_roundtrip():
 def test_restore_target__preserves_outlier_nans_via_sentinel():
     """Verify that restore_target preserves NaN marked by OutlierHandler sentinel columns."""
     # Arrange
-    index = pd.date_range("2025-01-01", periods=6, freq="1h")
-    # Row 4 is originally NaN (missing data)
-    original_data = pd.DataFrame({"load": [100.0, 200.0, 300.0, 400.0, np.nan, 600.0]}, index=index)
+    index = pd.date_range("2025-01-01", periods=7, freq="1h")
+    # Row 5 is originally NaN (missing data)
+    original_data = pd.DataFrame({"load": [100.0, 200.0, 300.0, 400.0, 500.0, np.nan, 700.0]}, index=index)
     original_dataset = TimeSeriesDataset(original_data, timedelta(hours=1))
 
     preprocessed_data = pd.DataFrame(
         {
-            "load": [100.0, np.nan, 300.0, np.nan, np.nan, 600.0],
-            f"{OUTLIER_NAN_MASK_PREFIX}load__": [False, True, False, True, False, False],
+            "load": [100.0, np.nan, 300.0, np.nan, np.nan, np.nan, 700.0],
+            f"{OUTLIER_NAN_MASK_PREFIX}load__": [False, True, False, True, False, False, False],
         },
         index=index,
     )
@@ -277,8 +277,11 @@ def test_restore_target__preserves_outlier_nans_via_sentinel():
     # Act
     result = restore_target(dataset=preprocessed_dataset, original_dataset=original_dataset, target_column="load")
 
-    # Assert - Only rows with sentinel=True should preserve NaN; original NaN (row 4) should be restored
-    expected = pd.Series([100.0, np.nan, 300.0, np.nan, np.nan, 600.0], index=index, name="load")
+    # Assert
+    # - Rows 1, 3: remain NaN (outlier, sentinel=True)
+    # - Row 4: restored to 500.0 (sentinel=False, so original value is used)
+    # - Row 5: remains NaN (original is NaN)
+    expected = pd.Series([100.0, np.nan, 300.0, np.nan, 500.0, np.nan, 700.0], index=index, name="load")
     pd.testing.assert_series_equal(result.data["load"], expected)
     # Sentinel column should be removed
     assert f"{OUTLIER_NAN_MASK_PREFIX}load__" not in result.data.columns
