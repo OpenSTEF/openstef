@@ -24,6 +24,8 @@ from openstef_models.utils.feature_selection import FeatureSelection
 type ClipMode = Literal["minmax", "standard"]
 type OutlierAction = Literal["clip", "nan"]
 
+OUTLIER_NAN_MASK_PREFIX = "__outlier_nan_"
+
 
 class OutlierHandler(BaseConfig, TimeSeriesTransform):
     """Transform that handles out-of-range values for selected features.
@@ -161,6 +163,13 @@ class OutlierHandler(BaseConfig, TimeSeriesTransform):
             out_of_range_mask = below_lower | above_upper
 
             transformed_data[features] = feature_data.where(~out_of_range_mask)
+
+            # Add sentinel columns so downstream transforms can identify which
+            # NaN values were introduced by outlier handling.
+            for col in features:
+                col_mask = out_of_range_mask[col]
+                if col_mask.any():
+                    transformed_data[f"{OUTLIER_NAN_MASK_PREFIX}{col}__"] = col_mask
 
         return TimeSeriesDataset(data=transformed_data, sample_interval=data.sample_interval)
 

@@ -19,7 +19,8 @@ from openstef_core.testing import assert_timeseries_equal, create_synthetic_fore
 from openstef_core.types import LeadTime, Quantile, override
 from openstef_models.models.forecasting.constant_median_forecaster import ConstantMedianForecaster
 from openstef_models.models.forecasting.forecaster import Forecaster
-from openstef_models.models.forecasting_model import ForecastingModel
+from openstef_models.models.forecasting_model import ForecastingModel, restore_target
+from openstef_models.transforms.general.outlier_handler import OUTLIER_NAN_MASK_PREFIX
 from openstef_models.transforms.postprocessing.quantile_sorter import QuantileSorter
 from openstef_models.transforms.time_domain.lags_adder import LagsAdder
 
@@ -254,3 +255,71 @@ def test_forecasting_model__pickle_roundtrip():
     # Verify predictions match using pandas testing utilities
     actual_predictions = restored_model.predict(data=dataset)
     assert_timeseries_equal(actual_predictions, expected_predictions)
+
+
+def test_restore_target__preserves_outlier_nans_via_sentinel():
+    """Verify that restore_target preserves NaN marked by OutlierHandler sentinel columns."""
+    # Arrange
+    index = pd.date_range("2025-01-01", periods=7, freq="1h")
+    # Row 5 is originally NaN (missing data)
+    original_data = pd.DataFrame({"load": [100.0, 200.0, 300.0, 400.0, 500.0, np.nan, 700.0]}, index=index)
+    original_dataset = TimeSeriesDataset(original_data, timedelta(hours=1))
+
+    preprocessed_data = pd.DataFrame(
+        {
+            "load": [100.0, np.nan, 300.0, np.nan, np.nan, np.nan, 700.0],
+            f"{OUTLIER_NAN_MASK_PREFIX}load__": [False, True, False, True, False, False, False],
+        },
+        index=index,
+    )
+    preprocessed_dataset = TimeSeriesDataset(preprocessed_data, timedelta(hours=1))
+
+    # Act
+    result = restore_target(dataset=preprocessed_dataset, original_dataset=original_dataset, target_column="load")
+
+    # Assert
+    # - Rows 1, 3: remain NaN (outlier, sentinel=True)
+    # - Row 4: restored to 500.0 (sentinel=False, so original value is used)
+    # - Row 5: remains NaN (original is NaN)
+    expected = pd.Series([100.0, np.nan, 300.0, np.nan, 500.0, np.nan, 700.0], index=index, name="load")
+    pd.testing.assert_series_equal(result.data["load"], expected)
+    # Sentinel column should be removed
+    assert f"{OUTLIER_NAN_MASK_PREFIX}load__" not in result.data.columns
+
+
+def test_restore_target__does_not_preserve_nan_without_sentinel():
+    """Verify that restore_target restores target values when no sentinel column exists."""
+    # Arrange
+    index = pd.date_range("2025-01-01", periods=5, freq="1h")
+    original_data = pd.DataFrame({"load": [100.0, 200.0, 300.0, 400.0, 500.0]}, index=index)
+    original_dataset = TimeSeriesDataset(original_data, timedelta(hours=1))
+
+    # Preprocessed data with NaN but NO sentinel column (e.g., from some other source)
+    preprocessed_data = pd.DataFrame({"load": [100.0, np.nan, 300.0, np.nan, 500.0]}, index=index)
+    preprocessed_dataset = TimeSeriesDataset(preprocessed_data, timedelta(hours=1))
+
+    # Act
+    result = restore_target(dataset=preprocessed_dataset, original_dataset=original_dataset, target_column="load")
+
+    # Assert - ALL values should be restored from original (NaN NOT preserved without sentinel)
+    expected = pd.Series([100.0, 200.0, 300.0, 400.0, 500.0], index=index, name="load")
+    pd.testing.assert_series_equal(result.data["load"], expected)
+
+
+def test_restore_target__adds_target_when_not_present():
+    """Verify that restore_target works when target column is missing (prediction output)."""
+    # Arrange
+    index = pd.date_range("2025-01-01", periods=3, freq="1h")
+    original_data = pd.DataFrame({"load": [100.0, 200.0, 300.0]}, index=index)
+    original_dataset = TimeSeriesDataset(original_data, timedelta(hours=1))
+
+    # Prediction output without target column
+    prediction_data = pd.DataFrame({"quantile_P50": [105.0, 195.0, 310.0]}, index=index)
+    prediction_dataset = TimeSeriesDataset(prediction_data, timedelta(hours=1))
+
+    # Act
+    result = restore_target(dataset=prediction_dataset, original_dataset=original_dataset, target_column="load")
+
+    # Assert - target column should be added with original values
+    expected = pd.Series([100.0, 200.0, 300.0], index=index, name="load")
+    pd.testing.assert_series_equal(result.data["load"], expected)
