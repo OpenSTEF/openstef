@@ -8,6 +8,7 @@ Provides matcher classes for use in test assertions when comparing pandas
 DataFrames and Series with equality semantics.
 """
 
+from collections.abc import Sequence
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, override
@@ -222,29 +223,48 @@ __all__ = [
 ]
 
 
-def configure_notebook_display() -> None:
-    """Configure pandas plotting backend and plotly renderer for notebook output."""
+def configure_notebook_display(renderer: str = "png") -> None:
+    """Configure pandas plotting backend and plotly renderer for notebook output.
+
+    Args:
+        renderer: Plotly renderer to use.  ``"png"`` (default) renders static
+            images suitable for VS Code and CI.  ``"auto"`` lets Plotly pick the
+            best interactive renderer for the current environment.  Any valid
+            plotly renderer string is accepted (e.g. ``"browser"``, ``"jupyterlab"``).
+    """
     import plotly.io as pio  # noqa: PLC0415
 
     pd.options.plotting.backend = "plotly"
-    pio.renderers.default = "png"
+    pio.renderers.default = renderer
 
 
-def setup_notebook_logging(name: str | None = None) -> "logging.Logger":
-    """Configure logging suppressions for tutorial notebooks and return a named logger.
+_DEFAULT_NOISY_LOGGERS: tuple[str, ...] = ("choreographer", "kaleido")
+
+
+def setup_notebook_logging(
+    name: str | None = None,
+    suppress: Sequence[str] | None = None,
+) -> "logging.Logger":
+    """Configure logging for tutorial notebooks and return a named logger.
+
+    Sets the root logger to INFO level and silences the loggers in *suppress*
+    by raising their level to ERROR and disabling them entirely.
 
     Args:
         name: Logger name, typically ``__name__`` of the calling module.
+        suppress: Sequence of logger names to silence.  Defaults to
+            ``("choreographer", "kaleido")``.
 
     Returns:
         Configured Logger instance.
     """
     import logging  # noqa: PLC0415
 
+    noisy = suppress if suppress is not None else _DEFAULT_NOISY_LOGGERS
     logging.basicConfig(level=logging.INFO, format="[%(asctime)s][%(levelname)s] %(message)s")
-    for noisy in ("choreographer", "kaleido"):
-        logging.getLogger(noisy).setLevel(logging.ERROR)
-        logging.getLogger(noisy).disabled = True
+    for logger_name in noisy:
+        logging.getLogger(logger_name).setLevel(logging.ERROR)
+        logging.getLogger(logger_name).disabled = True
     return logging.getLogger(name)
 
 
