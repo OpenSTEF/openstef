@@ -18,6 +18,7 @@ from typing import cast, override
 
 import numpy as np
 import pandas as pd
+
 from pydantic import Field, PrivateAttr
 
 from openstef_beam.evaluation import EvaluationConfig, EvaluationPipeline, SubsetMetric
@@ -34,8 +35,10 @@ from openstef_core.mixins import HyperParams, Predictor, TransformPipeline
 from openstef_core.types import LeadTime, Quantile
 from openstef_models.explainability.mixins import ContributionsMixin, ExplainableForecaster
 from openstef_models.models.forecasting.forecaster import Forecaster
+from openstef_models.transforms.general.outlier_handler import OUTLIER_NAN_MASK_PREFIX
 from openstef_models.utils.data_split import DataSplitter
 
+_logger = logging.getLogger(__name__)
 
 class ModelFitResult(BaseModel):
     """Result of fitting a forecasting model.
@@ -536,8 +539,8 @@ def restore_target[T: TimeSeriesDataset](
     """Restore the target column from the original dataset to the given dataset.
 
     Maps target values from the original dataset to the dataset using index alignment.
-    Preserves NaN values that were introduced by preprocessing (e.g., the OutlierHandler)
-    so that outlier rows can be excluded from training via ``dropna``.
+    Preserves NaN values that were introduced by the OutlierHandler (identified via
+    sentinel columns) so that outlier rows can be excluded from training.
 
     Args:
         dataset: Dataset to modify by adding the target column.
@@ -546,20 +549,32 @@ def restore_target[T: TimeSeriesDataset](
 
     Returns:
         Dataset with the target column restored from the original dataset,
-        except where preprocessing intentionally introduced NaN.
+        except where the OutlierHandler introduced NaN.
     """
     target_series = original_dataset.select_features([target_column]).select_version().data[target_column]
 
     def _transform_restore_target(df: pd.DataFrame) -> pd.DataFrame:
-        original_values = df.index.map(target_series)
+        original_values = df.index.map(target_series)  # pyright: ignore[reportUnknownMemberType]
         restored = pd.Series(original_values, index=df.index, name=target_column)
-        # Preserve NaNs introduced by preprocessing (e.g., the OutlierHandler):
-        # only when the target column already exists (not the case for prediction output).
-        if target_column in df.columns:
-            preprocessed_nan = df[target_column].isna()
-            original_nan = restored.isna()
-            introduced_nan = preprocessed_nan & ~original_nan
-            restored[introduced_nan] = np.nan
+
+        # Preserve NaN values introduced by the OutlierHandler for the target column.
+        sentinel_col = f"{OUTLIER_NAN_MASK_PREFIX}{target_column}__"
+        if sentinel_col in df.columns:
+            outlier_mask = df[sentinel_col].astype(bool)
+            if outlier_mask.any():
+                n_preserved = int(outlier_mask.sum())
+                _logger.warning(
+                    "Preserving %d NaN values in target column '%s' introduced by outlier handling.",
+                    n_preserved,
+                    target_column,
+                )
+                restored[outlier_mask] = np.nan
+
+        # Remove all outlier sentinel columns — they are not model features.
+        sentinel_cols = [c for c in df.columns if c.startswith(OUTLIER_NAN_MASK_PREFIX)]
+        if sentinel_cols:
+            df = df.drop(columns=sentinel_cols)
+
         return df.assign(**{target_column: restored})
 
     return dataset.pipe_pandas(_transform_restore_target)
