@@ -254,3 +254,41 @@ def test_forecasting_model__pickle_roundtrip():
     # Verify predictions match using pandas testing utilities
     actual_predictions = restored_model.predict(data=dataset)
     assert_timeseries_equal(actual_predictions, expected_predictions)
+
+
+def test_restore_target__preserves_preprocessing_nans():
+    """Verify that restore_target preserves NaN introduced by preprocessing."""
+    from openstef_models.models.forecasting_model import restore_target
+
+    index = pd.date_range("2025-01-01", periods=5, freq="1h")
+    original_data = pd.DataFrame({"load": [100.0, 200.0, 300.0, 400.0, 500.0]}, index=index)
+    original_dataset = TimeSeriesDataset(original_data, timedelta(hours=1))
+
+    # Simulate preprocessed data where the outlier handler NaN'd rows 1 and 3
+    preprocessed_data = pd.DataFrame({"load": [100.0, np.nan, 300.0, np.nan, 500.0]}, index=index)
+    preprocessed_dataset = TimeSeriesDataset(preprocessed_data, timedelta(hours=1))
+
+    result = restore_target(dataset=preprocessed_dataset, original_dataset=original_dataset, target_column="load")
+
+    # Rows 0, 2, 4 should have original values; rows 1, 3 should remain NaN
+    expected = pd.Series([100.0, np.nan, 300.0, np.nan, 500.0], index=index, name="load")
+    pd.testing.assert_series_equal(result.data["load"], expected)
+
+
+def test_restore_target__adds_target_when_not_present():
+    """Verify that restore_target works when target column is missing (prediction output)."""
+    from openstef_models.models.forecasting_model import restore_target
+
+    index = pd.date_range("2025-01-01", periods=3, freq="1h")
+    original_data = pd.DataFrame({"load": [100.0, 200.0, 300.0]}, index=index)
+    original_dataset = TimeSeriesDataset(original_data, timedelta(hours=1))
+
+    # Prediction output without target column
+    prediction_data = pd.DataFrame({"quantile_P50": [105.0, 195.0, 310.0]}, index=index)
+    prediction_dataset = TimeSeriesDataset(prediction_data, timedelta(hours=1))
+
+    result = restore_target(dataset=prediction_dataset, original_dataset=original_dataset, target_column="load")
+
+    # Target should be added from original
+    expected = pd.Series([100.0, 200.0, 300.0], index=index, name="load")
+    pd.testing.assert_series_equal(result.data["load"], expected)

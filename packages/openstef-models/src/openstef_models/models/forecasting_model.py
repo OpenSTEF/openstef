@@ -16,6 +16,7 @@ from datetime import datetime, timedelta
 from functools import partial
 from typing import cast, override
 
+import numpy as np
 import pandas as pd
 from pydantic import Field, PrivateAttr
 
@@ -535,7 +536,8 @@ def restore_target[T: TimeSeriesDataset](
     """Restore the target column from the original dataset to the given dataset.
 
     Maps target values from the original dataset to the dataset using index alignment.
-    Ensures the target column is present in the dataset for downstream processing.
+    Preserves NaN values that were introduced by preprocessing (e.g., the OutlierHandler)
+    so that outlier rows can be excluded from training via ``dropna``.
 
     Args:
         dataset: Dataset to modify by adding the target column.
@@ -543,12 +545,22 @@ def restore_target[T: TimeSeriesDataset](
         target_column: Name of the target column to restore.
 
     Returns:
-        Dataset with the target column restored from the original dataset.
+        Dataset with the target column restored from the original dataset,
+        except where preprocessing intentionally introduced NaN.
     """
     target_series = original_dataset.select_features([target_column]).select_version().data[target_column]
 
     def _transform_restore_target(df: pd.DataFrame) -> pd.DataFrame:
-        return df.assign(**{str(target_series.name): df.index.map(target_series)})  # pyright: ignore[reportUnknownMemberType]
+        original_values = df.index.map(target_series)
+        restored = pd.Series(original_values, index=df.index, name=target_column)
+        # Preserve NaNs introduced by preprocessing (e.g., the OutlierHandler):
+        # only when the target column already exists (not the case for prediction output).
+        if target_column in df.columns:
+            preprocessed_nan = df[target_column].isna()
+            original_nan = restored.isna()
+            introduced_nan = preprocessed_nan & ~original_nan
+            restored[introduced_nan] = np.nan
+        return df.assign(**{target_column: restored})
 
     return dataset.pipe_pandas(_transform_restore_target)
 
