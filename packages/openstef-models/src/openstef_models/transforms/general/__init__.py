@@ -22,12 +22,12 @@ from openstef_models.transforms.general.selector import Selector
 from openstef_models.transforms.general.shifter import Shifter
 
 __all__ = [
+    "OUTLIER_NAN_MASK_PREFIX",
     "DimensionalityReducer",
     "EmptyFeatureRemover",
     "Flagger",
     "Imputer",
     "NaNDropper",
-    "OUTLIER_NAN_MASK_PREFIX",
     "OutlierHandler",
     "SampleWeightConfig",
     "SampleWeighter",

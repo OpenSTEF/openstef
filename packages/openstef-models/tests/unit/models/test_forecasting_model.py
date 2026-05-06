@@ -260,16 +260,15 @@ def test_forecasting_model__pickle_roundtrip():
 def test_restore_target__preserves_outlier_nans_via_sentinel():
     """Verify that restore_target preserves NaN marked by OutlierHandler sentinel columns."""
     # Arrange
-    index = pd.date_range("2025-01-01", periods=5, freq="1h")
-    original_data = pd.DataFrame({"load": [100.0, 200.0, 300.0, 400.0, 500.0]}, index=index)
+    index = pd.date_range("2025-01-01", periods=6, freq="1h")
+    # Row 4 is originally NaN (missing data)
+    original_data = pd.DataFrame({"load": [100.0, 200.0, 300.0, 400.0, np.nan, 600.0]}, index=index)
     original_dataset = TimeSeriesDataset(original_data, timedelta(hours=1))
 
-    # Simulate preprocessed data where the OutlierHandler NaN'd rows 1 and 3
-    # and added sentinel columns to mark them
     preprocessed_data = pd.DataFrame(
         {
-            "load": [100.0, np.nan, 300.0, np.nan, 500.0],
-            f"{OUTLIER_NAN_MASK_PREFIX}load__": [False, True, False, True, False],
+            "load": [100.0, np.nan, 300.0, np.nan, np.nan, 600.0],
+            f"{OUTLIER_NAN_MASK_PREFIX}load__": [False, True, False, True, False, False],
         },
         index=index,
     )
@@ -278,8 +277,8 @@ def test_restore_target__preserves_outlier_nans_via_sentinel():
     # Act
     result = restore_target(dataset=preprocessed_dataset, original_dataset=original_dataset, target_column="load")
 
-    # Assert - rows 0, 2, 4 should have original values; rows 1, 3 should remain NaN
-    expected = pd.Series([100.0, np.nan, 300.0, np.nan, 500.0], index=index, name="load")
+    # Assert - Only rows with sentinel=True should preserve NaN; original NaN (row 4) should be restored
+    expected = pd.Series([100.0, np.nan, 300.0, np.nan, np.nan, 600.0], index=index, name="load")
     pd.testing.assert_series_equal(result.data["load"], expected)
     # Sentinel column should be removed
     assert f"{OUTLIER_NAN_MASK_PREFIX}load__" not in result.data.columns

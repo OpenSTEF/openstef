@@ -18,7 +18,6 @@ from typing import cast, override
 
 import numpy as np
 import pandas as pd
-
 from pydantic import Field, PrivateAttr
 
 from openstef_beam.evaluation import EvaluationConfig, EvaluationPipeline, SubsetMetric
@@ -39,6 +38,7 @@ from openstef_models.transforms.general.outlier_handler import OUTLIER_NAN_MASK_
 from openstef_models.utils.data_split import DataSplitter
 
 _logger = logging.getLogger(__name__)
+
 
 class ModelFitResult(BaseModel):
     """Result of fitting a forecasting model.

@@ -164,7 +164,7 @@ class OutlierHandler(BaseConfig, TimeSeriesTransform):
 
             transformed_data[features] = feature_data.where(~out_of_range_mask)
 
-            # Add sentinel columns so downstream transforms can identify which 
+            # Add sentinel columns so downstream transforms can identify which
             # NaN values were introduced by outlier handling.
             for col in features:
                 col_mask = out_of_range_mask[col]
