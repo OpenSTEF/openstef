@@ -10,13 +10,16 @@ DataFrames and Series with equality semantics.
 
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, override
+from typing import TYPE_CHECKING, Any, override
 
 import numpy as np
 import pandas as pd
 
 from openstef_core.constants import LIANDER_DATASET_REPO_ID
 from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesDataset
+
+if TYPE_CHECKING:
+    import logging
 
 
 class IsSamePandas:
@@ -210,7 +213,61 @@ __all__ = [
     "LIANDER_DATASET_REPO_ID",
     "IsSamePandas",
     "assert_timeseries_equal",
+    "configure_notebook_display",
     "create_synthetic_forecasting_dataset",
     "create_timeseries_dataset",
     "load_liander_dataset",
+    "prepare_tutorial_datasets",
+    "setup_notebook_logging",
 ]
+
+
+def configure_notebook_display() -> None:
+    """Configure pandas plotting backend and plotly renderer for notebook output."""
+    import plotly.io as pio  # noqa: PLC0415
+
+    pd.options.plotting.backend = "plotly"
+    pio.renderers.default = "png"
+
+
+def setup_notebook_logging(name: str | None = None) -> "logging.Logger":
+    """Configure logging suppressions for tutorial notebooks and return a named logger.
+
+    Args:
+        name: Logger name, typically ``__name__`` of the calling module.
+
+    Returns:
+        Configured Logger instance.
+    """
+    import logging  # noqa: PLC0415
+
+    logging.basicConfig(level=logging.INFO, format="[%(asctime)s][%(levelname)s] %(message)s")
+    for noisy in ("choreographer", "kaleido"):
+        logging.getLogger(noisy).setLevel(logging.ERROR)
+        logging.getLogger(noisy).disabled = True
+    return logging.getLogger(name)
+
+
+def prepare_tutorial_datasets(
+    *,
+    train_start_iso: str = "2024-03-01T00:00:00Z",
+    train_days: int = 90,
+    forecast_days: int = 14,
+) -> tuple[TimeSeriesDataset, TimeSeriesDataset]:
+    """Load the Liander benchmark dataset and split into training and forecast periods.
+
+    Args:
+        train_start_iso: ISO-format start date for the training period.
+        train_days: Number of days in the training window.
+        forecast_days: Number of days in the forecast window (starts immediately after training).
+
+    Returns:
+        Tuple of ``(train_dataset, forecast_dataset)``.
+    """
+    train_start = datetime.fromisoformat(train_start_iso)
+    train_end = train_start + timedelta(days=train_days)
+    dataset = load_liander_dataset()
+    return (
+        dataset.filter_by_range(start=train_start, end=train_end),
+        dataset.filter_by_range(start=train_end, end=train_end + timedelta(days=forecast_days)),
+    )

@@ -22,26 +22,17 @@
 
 # %%
 # --- Setup: Logging and Display Configuration ---
-# Configure logging to see training progress and plotly to render as PNG for VS Code compatibility
-import logging
+# Configure logging and display settings for the notebook
 from typing import Literal
 
-import pandas as pd
-import plotly.io as pio
+from openstef_core.testing import configure_notebook_display, setup_notebook_logging
 
-pd.options.plotting.backend = "plotly"
-pio.renderers.default = "png"  # Use PNG for VS Code notebook compatibility
-
-logging.basicConfig(level=logging.INFO, format="[%(asctime)s][%(levelname)s] %(message)s")
-logger = logging.getLogger(__name__)
-logging.getLogger("choreographer").setLevel(logging.ERROR)
-logging.getLogger("kaleido").setLevel(logging.ERROR)
-logging.getLogger("choreographer").disabled = True
-logging.getLogger("kaleido").disabled = True
+configure_notebook_display()
+logger = setup_notebook_logging(__name__)
 
 # %%
 # Download and combine the Liander benchmark dataset into a single TimeSeriesDataset.
-from openstef_core.testing import load_liander_dataset
+from openstef_core.testing import load_liander_dataset, prepare_tutorial_datasets
 
 dataset = load_liander_dataset()
 
@@ -50,23 +41,8 @@ print(f"Date range: {dataset.data.index.min()} to {dataset.data.index.max()}")
 dataset.data.head()
 
 # %%
-# Define training and forecast time periods
-from datetime import datetime, timedelta
-
-# Training period: 90 days of historical data
-train_start = datetime.fromisoformat("2024-03-01T00:00:00Z")
-train_end = train_start + timedelta(days=90)
-
-# Forecast period: 14 days after training (this is where we'll predict)
-forecast_start = train_end
-forecast_end = forecast_start + timedelta(days=14)
-
-# Split the dataset using time-based filtering
-train_dataset = dataset.filter_by_range(start=train_start, end=train_end)
-forecast_dataset = dataset.filter_by_range(start=forecast_start, end=forecast_end)
-
-print(f"📈 Training period: {train_start.date()} to {train_end.date()} ({len(train_dataset.data)} samples)")
-print(f"🔮 Forecast period: {forecast_start.date()} to {forecast_end.date()} ({len(forecast_dataset.data)} samples)")
+# Split the dataset into training (90 days) and forecast (14 days) periods.
+train_dataset, forecast_dataset = prepare_tutorial_datasets()
 
 # %%
 # Visualize the training data
