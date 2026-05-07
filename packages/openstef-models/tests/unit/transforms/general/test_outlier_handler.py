@@ -198,6 +198,10 @@ def test_outlier_handler__nan_action_adds_sentinel_columns():
     # Sentinel column for temp should NOT exist (no outliers in temp)
     assert f"{OUTLIER_NAN_MASK_PREFIX}temp__" not in result.data.columns
 
+    # Sentinel columns are excluded from feature_names (internal columns convention)
+    assert f"{OUTLIER_NAN_MASK_PREFIX}load__" not in result.feature_names
+    assert set(result.feature_names) == {"load", "temp"}
+
 
 def test_outlier_handler__clip_action_does_not_add_sentinel_columns():
     """Test that clip action does not add sentinel columns."""
