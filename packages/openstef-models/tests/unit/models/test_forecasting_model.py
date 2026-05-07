@@ -19,7 +19,6 @@ from openstef_core.mixins.predictor import HyperParams
 from openstef_core.testing import assert_timeseries_equal, create_synthetic_forecasting_dataset
 from openstef_core.types import LeadTime, Quantile, override
 from openstef_models.models.forecasting.constant_quantile_forecaster import ConstantQuantileForecaster
-from openstef_models.models.forecasting.forecaster import Forecaster
 from openstef_models.models.forecasting_model import ForecastingModel, restore_target
 from openstef_models.testing import SimpleForecaster, create_sample_timeseries_dataset, create_standard_preprocessing
 from openstef_models.transforms.general.outlier_handler import OUTLIER_NAN_MASK_PREFIX
