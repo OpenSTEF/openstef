@@ -75,8 +75,8 @@ class CustomForecastingWorkflow(BaseModel):
         >>> from datetime import timedelta
         >>> from openstef_core.datasets import VersionedTimeSeriesDataset
         >>> from openstef_core.types import LeadTime, Q
-        >>> from openstef_models.models.forecasting.constant_median_forecaster import (
-        ...     ConstantMedianForecaster,
+        >>> from openstef_models.models.forecasting.constant_quantile_forecaster import (
+        ...     ConstantQuantileForecaster,
         ... )
         >>> from openstef_models.models.forecasting_model import ForecastingModel
         >>>
@@ -92,7 +92,7 @@ class CustomForecastingWorkflow(BaseModel):
         >>> # Create model and workflow
         >>> horizons = [LeadTime.from_string("PT24H")]
         >>> model = ForecastingModel(
-        ...     forecaster=ConstantMedianForecaster(
+        ...     forecaster=ConstantQuantileForecaster(
         ...         horizons=horizons, quantiles=[Q(0.5)]
         ...     )
         ... )

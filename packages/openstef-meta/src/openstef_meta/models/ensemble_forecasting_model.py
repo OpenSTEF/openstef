@@ -78,17 +78,17 @@ class EnsembleForecastingModel(BaseForecastingModel):
         for a lag-14 transform).
 
     Example:
-        >>> from openstef_models.models.forecasting.constant_median_forecaster import (
-        ...     ConstantMedianForecaster,
+        >>> from openstef_models.models.forecasting.constant_quantile_forecaster import (
+        ...     ConstantQuantileForecaster,
         ... )
         >>> from openstef_meta.models.forecast_combiners.learned_weights_combiner import WeightsCombiner
         >>> from openstef_core.types import LeadTime
         >>> from datetime import timedelta
         >>>
-        >>> forecaster_1 = ConstantMedianForecaster(
+        >>> forecaster_1 = ConstantQuantileForecaster(
         ...     horizons=[LeadTime.from_string("PT36H")]
         ... )
-        >>> forecaster_2 = ConstantMedianForecaster(
+        >>> forecaster_2 = ConstantQuantileForecaster(
         ...     horizons=[LeadTime.from_string("PT36H")]
         ... )
         >>> combiner = WeightsCombiner(

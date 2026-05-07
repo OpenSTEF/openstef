@@ -17,7 +17,7 @@ from openstef_core.mixins import TransformPipeline
 from openstef_core.mixins.predictor import HyperParams
 from openstef_core.testing import assert_timeseries_equal, create_synthetic_forecasting_dataset
 from openstef_core.types import LeadTime, Quantile, override
-from openstef_models.models.forecasting.constant_median_forecaster import ConstantMedianForecaster
+from openstef_models.models.forecasting.constant_quantile_forecaster import ConstantQuantileForecaster
 from openstef_models.models.forecasting.forecaster import Forecaster
 from openstef_models.models.forecasting_model import ForecastingModel, restore_target
 from openstef_models.transforms.general.outlier_handler import OUTLIER_NAN_MASK_PREFIX
@@ -216,7 +216,7 @@ def test_forecasting_model__pickle_roundtrip():
     horizons = [LeadTime(timedelta(hours=6))]
 
     original_model = ForecastingModel(
-        forecaster=ConstantMedianForecaster(
+        forecaster=ConstantQuantileForecaster(
             quantiles=[Quantile(0.1), Quantile(0.5), Quantile(0.9)],
             horizons=horizons,
         ),
