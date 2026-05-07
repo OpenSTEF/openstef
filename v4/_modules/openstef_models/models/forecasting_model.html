@@ -836,15 +836,15 @@
 <span class="sd">    Example:</span>
 <span class="sd">        Basic forecasting workflow:</span>
 
-<span class="sd">        &gt;&gt;&gt; from openstef_models.models.forecasting.constant_median_forecaster import (</span>
-<span class="sd">        ...     ConstantMedianForecaster,</span>
+<span class="sd">        &gt;&gt;&gt; from openstef_models.models.forecasting.constant_quantile_forecaster import (</span>
+<span class="sd">        ...     ConstantQuantileForecaster,</span>
 <span class="sd">        ... )</span>
 <span class="sd">        &gt;&gt;&gt; from openstef_core.types import LeadTime</span>
 <span class="sd">        &gt;&gt;&gt; from datetime import timedelta</span>
 <span class="sd">        &gt;&gt;&gt;</span>
 <span class="sd">        &gt;&gt;&gt; # Note: This is a conceptual example showing the API structure</span>
 <span class="sd">        &gt;&gt;&gt; # Real usage requires implemented forecaster classes</span>
-<span class="sd">        &gt;&gt;&gt; forecaster = ConstantMedianForecaster(</span>
+<span class="sd">        &gt;&gt;&gt; forecaster = ConstantQuantileForecaster(</span>
 <span class="sd">        ...     horizons=[LeadTime.from_string(&quot;PT36H&quot;)]</span>
 <span class="sd">        ... )</span>
 <span class="sd">        &gt;&gt;&gt; # Create and train model</span>
