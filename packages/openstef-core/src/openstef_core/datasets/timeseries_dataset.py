@@ -49,7 +49,7 @@ class TimeSeriesDataset(TimeSeriesMixin, DatasetMixin):  # noqa: PLR0904 - impor
     Columns whose names start with a double underscore (``__``) are treated as
     internal/system columns: they are kept in ``data`` so transforms can pass
     them along, but are excluded from ``feature_names`` so feature-aware
-    transforms (e.g. scalers) ignore them.
+    transforms ignore them.
 
     The dataset guarantees:
         - Data is sorted by timestamp in ascending order
