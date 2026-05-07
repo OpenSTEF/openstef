@@ -292,6 +292,7 @@ class LGBMLinearForecaster(Forecaster, ExplainableForecaster, ContributionsMixin
                 columns=[quantile.format() for quantile in self.quantiles],
             ),
             sample_interval=data.sample_interval,
+            target_column=data.target_column,
         )
 
     @override

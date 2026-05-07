@@ -157,6 +157,7 @@ class BaseCaseForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
                 index=forecast_index,
             ),
             sample_interval=data.sample_interval,
+            target_column=data.target_column,
         )
 
     @override

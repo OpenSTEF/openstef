@@ -285,6 +285,8 @@ class ForecastDataset(TimeSeriesDataset):
         index: pd.Index,
         quantiles: list[Quantile],
         sample_interval: timedelta,
+        *,
+        target_column: str = "load",
     ) -> "ForecastDataset":
         """Build a ``ForecastDataset`` from a raw predictions array.
 
@@ -293,6 +295,7 @@ class ForecastDataset(TimeSeriesDataset):
             index: Time index for the predictions.
             quantiles: Quantiles the model was trained on, in the same order as columns in *predictions*.
             sample_interval: Temporal resolution of the dataset.
+            target_column: Name of the target column to attach to the dataset.
 
         Returns:
             ``ForecastDataset`` with quantile columns and the provided time index.
@@ -302,7 +305,7 @@ class ForecastDataset(TimeSeriesDataset):
             index=index,
             columns=[q.format() for q in quantiles],
         )
-        return cls(data=df, sample_interval=sample_interval)
+        return cls(data=df, sample_interval=sample_interval, target_column=target_column)
 
     @property
     def target_series(self) -> pd.Series | None:

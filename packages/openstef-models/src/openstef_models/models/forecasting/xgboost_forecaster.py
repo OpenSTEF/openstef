@@ -357,7 +357,11 @@ class XGBoostForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
             predictions_array = self._target_scaler.inverse_transform(predictions_array)
 
         return ForecastDataset.from_quantile_predictions(
-            predictions_array, input_data.index, self.quantiles, data.sample_interval
+            predictions_array,
+            input_data.index,
+            self.quantiles,
+            data.sample_interval,
+            target_column=data.target_column,
         )
 
     def predict_contributions(self, data: ForecastInputDataset) -> TimeSeriesDataset:
