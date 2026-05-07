@@ -106,6 +106,7 @@ class ConstantMedianForecaster(Forecaster, ExplainableForecaster, ContributionsM
                 index=forecast_index,
             ),
             sample_interval=data.sample_interval,
+            target_column=data.target_column,
         )
 
     @property
