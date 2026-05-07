@@ -455,11 +455,11 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">abstractmethod</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">cast</span><span class="p">,</span> <span class="n">override</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Self</span><span class="p">,</span> <span class="n">cast</span><span class="p">,</span> <span class="n">override</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">Field</span><span class="p">,</span> <span class="n">PrivateAttr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">Field</span><span class="p">,</span> <span class="n">PrivateAttr</span><span class="p">,</span> <span class="n">model_validator</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.evaluation</span><span class="w"> </span><span class="kn">import</span> <span class="n">EvaluationConfig</span><span class="p">,</span> <span class="n">EvaluationPipeline</span><span class="p">,</span> <span class="n">SubsetMetric</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.evaluation.metric_providers</span><span class="w"> </span><span class="kn">import</span> <span class="n">MetricProvider</span><span class="p">,</span> <span class="n">ObservedProbabilityProvider</span><span class="p">,</span> <span class="n">R2Provider</span>
@@ -623,6 +623,31 @@
 <span class="sd">            Empty dict by default; ensemble subclasses override.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{}</span>
+
+    <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validate_tuning_ready</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reject models that are constructed with unresolved tuning ranges.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Validated model instance.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If any hyperparameter config still carries unresolved tuning ranges.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">unresolved</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;hyperparams.</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">hyperparams</span><span class="o">.</span><span class="n">get_tuning_overrides</span><span class="p">()]</span>
+        <span class="n">unresolved</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;components.</span><span class="si">{</span><span class="n">component_name</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">param_name</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">for</span> <span class="n">component_name</span><span class="p">,</span> <span class="n">hyperparams</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">component_hyperparams</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">param_name</span> <span class="ow">in</span> <span class="n">hyperparams</span><span class="o">.</span><span class="n">get_tuning_overrides</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">unresolved</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot;Model contains unresolved tuning ranges: &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">unresolved</span><span class="p">)</span><span class="si">}</span><span class="s2">. &quot;</span>
+                <span class="s2">&quot;Use HyperparameterTuner.tune()/fit_with_tuning() first or replace the ranges with concrete values.&quot;</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
 
 <div class="viewcode-block" id="BaseForecastingModel.get_explainable_components">
 <a class="viewcode-back" href="../../../api/generated/openstef_models.models.BaseForecastingModel.html#openstef_models.models.BaseForecastingModel.get_explainable_components">[docs]</a>
