@@ -242,6 +242,7 @@ class MedianForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
             data=prediction_df.dropna().rename(columns={"median": self.quantiles[0].format()}),  # type: ignore
             sample_interval=data.sample_interval,
             forecast_start=data.forecast_start,
+            target_column=data.target_column,
         )
 
     @override
