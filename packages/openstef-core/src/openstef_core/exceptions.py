@@ -88,6 +88,24 @@ class FlatlinerDetectedError(Exception):
         super().__init__(message)
 
 
+class ModelUnderperfomingError(Exception):
+    """Exception raised when a model is underperforming based on defined criteria."""
+
+    def __init__(self, metric_name: str, metric_value: float, threshold: float):
+        """Initialize the exception with a descriptive error message.
+
+        Args:
+            metric_name: Name of the performance metric that is underperforming.
+            metric_value: The actual value of the performance metric.
+            threshold: The defined threshold for acceptable performance.
+        """
+        message = (
+            f"Model is underperforming: {metric_name} = {metric_value:.4f}"
+            f"does not meet the threshold of {threshold:.4f}."
+        )
+        super().__init__(message)
+
+
 class InsufficientlyCompleteError(Exception):
     """Exception raised when a dataset is not sufficiently complete."""
 
