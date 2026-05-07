@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 
 from datetime import datetime, timedelta
+import math
 
 import pandas as pd
 import pytest
@@ -70,9 +71,9 @@ def test_constant_median_forecaster__fit_predict(
     expected_p90 = 131.0  # 126 + 5
 
     actual_values = result.data.iloc[0]  # First forecast row
-    assert actual_values["quantile_P10"] == expected_p10
-    assert actual_values["quantile_P50"] == expected_median
-    assert actual_values["quantile_P90"] == expected_p90
+    assert math.isclose(actual_values["quantile_P10"], expected_p10)
+    assert math.isclose(actual_values["quantile_P50"], expected_median)
+    assert math.isclose(actual_values["quantile_P90"], expected_p90)
 
 
 def test_constant_median_forecaster__predict_not_fitted_raises_error(

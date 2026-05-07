@@ -2,10 +2,10 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-"""Simple constant quantile forecasting models for educational and baseline purposes.
+"""Simple constant quantile forecasting model.
 
 Provides basic forecasting models that predict constant values based on historical
-quantiles. These models serve as educational examples and performance baselines.
+quantiles. These models can be used as a simple baseline or naive fallback model.
 """
 
 from typing import ClassVar, override
@@ -34,7 +34,6 @@ class ConstantQuantileForecaster(Forecaster, ExplainableForecaster, Contribution
     """Constant quantile-based forecaster for single horizon predictions.
 
     Predicts constant values based on historical quantiles from training data.
-    Useful as a baseline model and for educational purposes.
 
     The forecaster computes quantile values during training and returns these
     constant values for all future predictions. Performance is typically poor
