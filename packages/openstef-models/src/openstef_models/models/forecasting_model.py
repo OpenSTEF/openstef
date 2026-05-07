@@ -14,11 +14,11 @@ import logging
 from abc import abstractmethod
 from datetime import datetime, timedelta
 from functools import partial
-from typing import cast, override
+from typing import Self, cast, override
 
 import numpy as np
 import pandas as pd
-from pydantic import Field, PrivateAttr
+from pydantic import Field, PrivateAttr, model_validator
 
 from openstef_beam.evaluation import EvaluationConfig, EvaluationPipeline, SubsetMetric
 from openstef_beam.evaluation.metric_providers import MetricProvider, ObservedProbabilityProvider, R2Provider
@@ -180,6 +180,31 @@ class BaseForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDatas
             Empty dict by default; ensemble subclasses override.
         """
         return {}
+
+    @model_validator(mode="after")
+    def _validate_tuning_ready(self) -> Self:
+        """Reject models that are constructed with unresolved tuning ranges.
+
+        Returns:
+            Validated model instance.
+
+        Raises:
+            ValueError: If any hyperparameter config still carries unresolved tuning ranges.
+        """
+        unresolved = [f"hyperparams.{name}" for name in self.hyperparams.get_tuning_overrides()]
+        unresolved.extend(
+            f"components.{component_name}.{param_name}"
+            for component_name, hyperparams in self.component_hyperparams.items()
+            for param_name in hyperparams.get_tuning_overrides()
+        )
+        if unresolved:
+            msg = (
+                "Model contains unresolved tuning ranges: "
+                f"{sorted(unresolved)}. "
+                "Use HyperparameterTuner.tune()/fit_with_tuning() first or replace the ranges with concrete values."
+            )
+            raise ValueError(msg)
+        return self
 
     def get_explainable_components(self) -> dict[str, ExplainableForecaster]:  # noqa: PLR6301
         """Return named components that support feature-importance plotting.
@@ -372,15 +397,15 @@ class ForecastingModel(BaseForecastingModel):
     Example:
         Basic forecasting workflow:
 
-        >>> from openstef_models.models.forecasting.constant_median_forecaster import (
-        ...     ConstantMedianForecaster,
+        >>> from openstef_models.models.forecasting.constant_quantile_forecaster import (
+        ...     ConstantQuantileForecaster,
         ... )
         >>> from openstef_core.types import LeadTime
         >>> from datetime import timedelta
         >>>
         >>> # Note: This is a conceptual example showing the API structure
         >>> # Real usage requires implemented forecaster classes
-        >>> forecaster = ConstantMedianForecaster(
+        >>> forecaster = ConstantQuantileForecaster(
         ...     horizons=[LeadTime.from_string("PT36H")]
         ... )
         >>> # Create and train model

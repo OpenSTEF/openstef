@@ -54,6 +54,7 @@ urls.Repository = "https://github.com/OpenSTEF/openstef"
 
 [dependency-groups]
 dev = [
+  "jupytext>=1.19.1",
   "licensecheck>=2025.1",
   "microsoft-python-type-stubs",
   "moto[s3,server]>=5.1.11",
@@ -76,6 +77,11 @@ dev = [
 
 [tool.hatch.build.targets.wheel]
 bypass-selection = true
+
+[[tool.uv.index]]
+name = "pypi"
+url = "https://pypi.org/simple"
+default = true
 
 [tool.uv.sources]
 openstef-beam = { workspace = true }
@@ -120,6 +126,15 @@ lint.ignore = [
   "PGH003", # Allow generic type ignores, since sometimes there are multiple unresolvable issues
   "TC006",  # Let's not force quoting the first param of typing.cast
   "TRY003", # simplify exception messages
+]
+lint.per-file-ignores."./examples/tutorials/*" = [
+  "D100",   # Notebooks don't need module docstrings
+  "E402",   # Imports not at top — notebook cells have natural ordering
+  "ERA001", # Jupytext YAML frontmatter looks like commented-out code
+  "F821",   # Cell-scoped names appear undefined to Ruff's module-level analysis
+  "INP001", # Not a namespace package — notebooks don't need __init__.py
+  "S101",   # Tutorials may use assert for runtime checks
+  "T201",   # Tutorials may use print for demonstration
 ]
 lint.per-file-ignores."./packages/*/tests/*" = [
   "ARG",     # Unused function args -> fixtures nevertheless are functionally relevant...
@@ -215,6 +230,7 @@ include = [
   "packages/*/examples/**/*.py",
   "packages/*/tests/**/*.py",
 ]
+
 typeCheckingMode = "strict"
 reportPrivateImportUsage = false
 reportMissingTypeStubs = false
@@ -262,6 +278,17 @@ args = [
 help = "Run all docstring examples via pytest’s doctest plugin"
 cmd = "pytest --numprocesses=auto --doctest-modules packages/*/src --maxfail=1"
 
+[tool.poe.tasks.notebooks]
+help = "Sync jupytext .py percent sources → .ipynb notebooks (and vice versa)"
+cmd = "jupytext --sync examples/tutorials/*.py"
+
+[tool.poe.tasks.notebooks-check]
+help = "Check that .ipynb notebooks are in sync with their jupytext .py sources"
+sequence = [
+  { cmd = "jupytext --sync examples/tutorials/*.py" },
+  { cmd = "git diff --exit-code -- examples/tutorials/" },
+]
+
 [tool.poe.tasks.report]
 help = "Generate coverage report. Will use data from a previous cover command."
 sequence = [
@@ -303,6 +330,7 @@ switch = [
     "type",
     "tests",
     "doctests",
+    "notebooks-check",
   ], ignore_fail = "return_non_zero" },
   { sequence = [
     "licensecheck --check",
@@ -314,6 +342,7 @@ switch = [
     "type",
     "tests",
     "doctests",
+    "notebooks",
   ], ignore_fail = "return_non_zero" },
 ]
 

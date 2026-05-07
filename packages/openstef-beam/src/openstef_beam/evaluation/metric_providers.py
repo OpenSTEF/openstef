@@ -128,6 +128,15 @@ class MetricProvider(BaseConfig):
 
         return metrics
 
+    @property
+    def metric_names(self) -> frozenset[str]:
+        """Declared metric names that this provider produces.
+
+        Override in subclasses to enable eager metric-name validation
+        (e.g. in the hyperparameter tuner).
+        """
+        return frozenset()
+
     def compute_deterministic(
         self,
         y_true: npt.NDArray[np.floating],
@@ -153,6 +162,11 @@ class CompletenessProvider(MetricProvider):
     Measures the proportion of non-missing values in the predictions.
     """
 
+    @property
+    @override
+    def metric_names(self) -> frozenset[str]:
+        return frozenset({"completeness"})
+
     @override
     def compute_deterministic(
         self,
@@ -169,6 +183,20 @@ class PeakMetricProvider(MetricProvider):
     Computes precision, recall, and F-beta score for both standard and
     effective cases. Uses confusion matrix based on specified thresholds.
     """
+
+    @property
+    @override
+    def metric_names(self) -> frozenset[str]:
+        return frozenset({
+            "num_predicted_peaks",
+            "num_true_peaks",
+            "precision",
+            "recall",
+            "effective_precision",
+            "effective_recall",
+            f"F{self.beta}",
+            f"effective_F{self.beta}",
+        })
 
     limit_pos: float = Field(
         default=0.5,
@@ -217,6 +245,11 @@ class RCRPSProvider(MetricProvider):
     processing individual quantiles.
     """
 
+    @property
+    @override
+    def metric_names(self) -> frozenset[str]:
+        return frozenset({"rCRPS"})
+
     lower_quantile: float = Field(
         default=0.01,
         description="Lower quantile bound for rCRPS normalization.",
@@ -261,6 +294,11 @@ class RCRPSSampleWeightedProvider(MetricProvider):
     Computes rCRPS directly from the full probabilistic forecast without
     processing individual quantiles.
     """
+
+    @property
+    @override
+    def metric_names(self) -> frozenset[str]:
+        return frozenset({"rCRPS_sample_weighted"})
 
     lower_quantile: float = Field(
         default=0.01,
@@ -325,6 +363,11 @@ class MAEProvider(MetricProvider):
     Computes the average absolute error between predictions and true values.
     """
 
+    @property
+    @override
+    def metric_names(self) -> frozenset[str]:
+        return frozenset({"MAE"})
+
     allow_nan: bool = Field(
         default=True,
         description="Whether to allow NaN values in input. If False, NaN value will result in NaN metric output.",
@@ -346,6 +389,11 @@ class RMAEProvider(MetricProvider):
     Normalizes MAE using specified quantile bounds to make errors
     comparable across different scales.
     """
+
+    @property
+    @override
+    def metric_names(self) -> frozenset[str]:
+        return frozenset({"rMAE"})
 
     lower_quantile: float = Field(
         default=0.01,
@@ -390,6 +438,11 @@ class RMAEPeakHoursProvider(MetricProvider):
     Normalizes MAE using specified quantile bounds but only considers
     data points between 8:00 and 20:00 hours.
     """
+
+    @property
+    @override
+    def metric_names(self) -> frozenset[str]:
+        return frozenset({"rMAE_peak_hours"})
 
     lower_quantile: float = Field(
         default=0.01,
@@ -457,6 +510,11 @@ class MAPEProvider(MetricProvider):
     errors across different scales.
     """
 
+    @property
+    @override
+    def metric_names(self) -> frozenset[str]:
+        return frozenset({"MAPE"})
+
     @override
     def compute_deterministic(
         self,
@@ -474,6 +532,11 @@ class R2Provider(MetricProvider):
     in the dependent variable that is predictable from the predictions.
     Values range from -∞ to 1.0, where 1.0 is perfect prediction.
     """
+
+    @property
+    @override
+    def metric_names(self) -> frozenset[str]:
+        return frozenset({"R2"})
 
     @override
     def compute_deterministic(
@@ -494,6 +557,11 @@ class ObservedProbabilityProvider(MetricProvider):
     This metric is only useful as a global metric and not windowed.
     """
 
+    @property
+    @override
+    def metric_names(self) -> frozenset[str]:
+        return frozenset({"observed_probability"})
+
     @override
     def compute_deterministic(
         self,
@@ -512,6 +580,11 @@ class MeanAbsoluteCalibrationErrorProvider(MetricProvider):
     quantifies this by computing the mean absolute error between
     observed probabilities and predicted quantiles across all samples.
     """
+
+    @property
+    @override
+    def metric_names(self) -> frozenset[str]:
+        return frozenset({"mean_absolute_calibration_error"})
 
     @override
     def compute_probabilistic(
@@ -548,6 +621,11 @@ class RIQDProvider(MetricProvider):
     normalized by the measurement range. For each quantile, finds
     its symmetric counterpart and computes rIQD between them.
     """
+
+    @property
+    @override
+    def metric_names(self) -> frozenset[str]:
+        return frozenset({"rIQD"})
 
     median_quantile: float = 0.5
 
@@ -626,6 +704,11 @@ class RelativePinballLossProvider(MetricProvider):
     for each quantile, normalized by the measurement range to make it scale-invariant
     and suitable for comparing quantile prediction errors across different datasets.
     """
+
+    @property
+    @override
+    def metric_names(self) -> frozenset[str]:
+        return frozenset({"relative_pinball_loss"})
 
     measurement_range_lower_q: float = Field(
         default=0.01,

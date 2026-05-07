@@ -11,69 +11,45 @@ import pytest
 from pydantic import PrivateAttr
 
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
+from openstef_core.datasets.validated_datasets import ForecastDataset
 from openstef_core.exceptions import InsufficientlyCompleteError, NotFittedError
 from openstef_core.mixins import TransformPipeline
+from openstef_core.mixins.param_ranges import IntRange
 from openstef_core.mixins.predictor import HyperParams
 from openstef_core.testing import assert_timeseries_equal, create_synthetic_forecasting_dataset
 from openstef_core.types import LeadTime, Quantile, override
-from openstef_models.models.forecasting.constant_median_forecaster import ConstantMedianForecaster
-from openstef_models.models.forecasting.forecaster import Forecaster
+from openstef_models.models.forecasting.constant_quantile_forecaster import ConstantQuantileForecaster
 from openstef_models.models.forecasting_model import ForecastingModel, restore_target
+from openstef_models.testing import SimpleForecaster, create_sample_timeseries_dataset, create_standard_preprocessing
 from openstef_models.transforms.general.outlier_handler import OUTLIER_NAN_MASK_PREFIX
 from openstef_models.transforms.postprocessing.quantile_sorter import QuantileSorter
-from openstef_models.transforms.time_domain.lags_adder import LagsAdder
 
 
-class SimpleForecaster(Forecaster):
-    """Simple test forecaster that returns predictable values for testing."""
+class TunableTestHyperParams(HyperParams):
+    """Test hyperparameters that can carry a tuning override."""
 
-    _is_fitted: bool = PrivateAttr(default=False)
+    depth: int = 3
+
+
+class TunableSimpleForecaster(SimpleForecaster):
+    """Simple forecaster exposing unresolved tuning ranges for validation tests."""
+
+    _hparams: TunableTestHyperParams = PrivateAttr(default_factory=TunableTestHyperParams)
+
+    def __init__(self, *, quantiles: list[Quantile], horizons: list[LeadTime], supports_batching: bool = False) -> None:
+        super().__init__(quantiles=quantiles, horizons=horizons, supports_batching=supports_batching)
+        self._hparams = TunableTestHyperParams(depth=IntRange(1, 5, tune=True))  # pyright: ignore[reportArgumentType]
 
     @property
     @override
     def hparams(self) -> HyperParams:
-        return HyperParams()
-
-    @property
-    @override
-    def is_fitted(self) -> bool:
-        return self._is_fitted
-
-    @override
-    def fit(self, data: ForecastInputDataset, data_val: ForecastInputDataset | None = None) -> None:
-        self._is_fitted = True
-
-    @override
-    def predict(self, data: ForecastInputDataset) -> ForecastDataset:
-        # Return predictable forecast values
-        forecast_values = {quantile: 100.0 + quantile * 10 for quantile in self.quantiles}
-        return ForecastDataset(
-            pd.DataFrame(
-                {quantile.format(): [forecast_values[quantile]] * len(data.index) for quantile in self.quantiles},
-                index=data.index,
-            ),
-            data.sample_interval,
-            data.forecast_start,
-        )
+        return self._hparams
 
 
 @pytest.fixture
 def sample_timeseries_dataset() -> TimeSeriesDataset:
     """Create sample time series data with typical energy forecasting features."""
-    n_samples = 25
-    rng = np.random.default_rng(seed=42)
-
-    data = pd.DataFrame(
-        {
-            "load": 100.0 + rng.normal(10.0, 5.0, n_samples),
-            "temperature": 20.0 + rng.normal(1.0, 0.5, n_samples),
-            "radiation": rng.uniform(0.0, 500.0, n_samples),
-        },
-        index=pd.date_range("2025-01-01 10:00", periods=n_samples, freq="h"),
-    )
-
-    return TimeSeriesDataset(data, timedelta(hours=1))
+    return create_sample_timeseries_dataset()
 
 
 def test_forecasting_model__init__uses_defaults():
@@ -140,6 +116,16 @@ def test_forecasting_model__fit_all_nan_target():
         model.fit(data=data)
 
     assert not model.is_fitted
+
+
+def test_forecasting_model__init_raises_for_unresolved_tuning_ranges() -> None:
+    """Model construction fails fast when unresolved tuning ranges are still attached."""
+    # Arrange
+    horizons = [LeadTime(timedelta(hours=6))]
+
+    # Act / Assert
+    with pytest.raises(ValueError, match="unresolved tuning ranges"):
+        ForecastingModel(forecaster=TunableSimpleForecaster(quantiles=[Quantile(0.5)], horizons=horizons))
 
 
 def test_forecasting_model__predict(sample_timeseries_dataset: TimeSeriesDataset):
@@ -216,21 +202,11 @@ def test_forecasting_model__pickle_roundtrip():
     horizons = [LeadTime(timedelta(hours=6))]
 
     original_model = ForecastingModel(
-        forecaster=ConstantMedianForecaster(
+        forecaster=ConstantQuantileForecaster(
             quantiles=[Quantile(0.1), Quantile(0.5), Quantile(0.9)],
             horizons=horizons,
         ),
-        preprocessing=TransformPipeline(
-            transforms=[
-                LagsAdder(
-                    history_available=timedelta(days=14),
-                    horizons=horizons,
-                    max_day_lags=7,
-                    add_trivial_lags=True,
-                    add_autocorr_lags=False,
-                ),
-            ]
-        ),
+        preprocessing=create_standard_preprocessing(horizons),
         postprocessing=TransformPipeline(transforms=[QuantileSorter()]),
         cutoff_history=timedelta(days=7),
         target_column="load",

@@ -8,13 +8,19 @@ Provides matcher classes for use in test assertions when comparing pandas
 DataFrames and Series with equality semantics.
 """
 
+from collections.abc import Sequence
 from datetime import datetime, timedelta
-from typing import Any, override
+from pathlib import Path
+from typing import TYPE_CHECKING, Any, override
 
 import numpy as np
 import pandas as pd
 
-from openstef_core.datasets import TimeSeriesDataset
+from openstef_core.constants import LIANDER_DATASET_REPO_ID
+from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesDataset
+
+if TYPE_CHECKING:
+    import logging
 
 
 class IsSamePandas:
@@ -150,4 +156,138 @@ def create_synthetic_forecasting_dataset(  # noqa: PLR0913, PLR0917 - complex fu
             index=timestamps,
         ),
         sample_interval=sample_interval,
+    )
+
+
+def load_liander_dataset(
+    *,
+    target: str = "mv_feeder/OS Gorredijk",
+    repo_id: str = LIANDER_DATASET_REPO_ID,
+    local_dir: Path = Path("./liander_dataset"),
+    extra_files: list[str] | None = None,
+) -> TimeSeriesDataset:
+    """Download and combine the Liander benchmark dataset into a single TimeSeriesDataset.
+
+    Downloads load measurements, weather forecasts, electricity prices, and standard load
+    profiles from HuggingFace Hub, then combines them via left join.
+
+    Raises:
+        ImportError: When ``huggingface-hub`` is not installed.
+
+    Args:
+        target: Sub-path within the repo identifying the installation (e.g. ``"mv_feeder/OS Gorredijk"``).
+        repo_id: HuggingFace dataset repository ID.
+        local_dir: Local directory for caching downloaded files.
+        extra_files: Additional parquet files to download and include (paths relative to repo root).
+
+    Returns:
+        Combined dataset with all features aligned by timestamp.
+    """
+    try:
+        from huggingface_hub import hf_hub_download  # pyright: ignore[reportUnknownVariableType]  # noqa: PLC0415
+    except ImportError:
+        msg = "huggingface-hub is required for benchmark datasets: pip install openstef-core[benchmark]"
+        raise ImportError(msg) from None
+
+    files_to_download = [
+        f"load_measurements/{target}.parquet",
+        f"weather_forecasts_versioned/{target}.parquet",
+        "EPEX.parquet",
+        "profiles.parquet",
+        *(extra_files or []),
+    ]
+
+    for filename in files_to_download:
+        hf_hub_download(  # pyright: ignore[reportCallIssue]
+            repo_id=repo_id,
+            filename=filename,
+            repo_type="dataset",
+            local_dir=local_dir,
+            local_dir_use_symlinks=False,
+        )
+
+    datasets = [VersionedTimeSeriesDataset.read_parquet(local_dir / f) for f in files_to_download]
+    return VersionedTimeSeriesDataset.concat(datasets, mode="left").select_version()
+
+
+__all__ = [
+    "LIANDER_DATASET_REPO_ID",
+    "IsSamePandas",
+    "assert_timeseries_equal",
+    "configure_notebook_display",
+    "create_synthetic_forecasting_dataset",
+    "create_timeseries_dataset",
+    "load_liander_dataset",
+    "prepare_tutorial_datasets",
+    "setup_notebook_logging",
+]
+
+
+def configure_notebook_display(renderer: str = "png") -> None:
+    """Configure pandas plotting backend and plotly renderer for notebook output.
+
+    Args:
+        renderer: Plotly renderer to use.  ``"png"`` (default) renders static
+            images suitable for VS Code and CI.  ``"auto"`` lets Plotly pick the
+            best interactive renderer for the current environment.  Any valid
+            plotly renderer string is accepted (e.g. ``"browser"``, ``"jupyterlab"``).
+    """
+    import plotly.io as pio  # noqa: PLC0415
+
+    pd.options.plotting.backend = "plotly"
+    pio.renderers.default = renderer
+
+
+_DEFAULT_NOISY_LOGGERS: tuple[str, ...] = ("choreographer", "kaleido")
+
+
+def setup_notebook_logging(
+    name: str | None = None,
+    suppress: Sequence[str] | None = None,
+) -> "logging.Logger":
+    """Configure logging for tutorial notebooks and return a named logger.
+
+    Sets the root logger to INFO level and silences the loggers in *suppress*
+    by raising their level to ERROR and disabling them entirely.
+
+    Args:
+        name: Logger name, typically ``__name__`` of the calling module.
+        suppress: Sequence of logger names to silence.  Defaults to
+            ``("choreographer", "kaleido")``.
+
+    Returns:
+        Configured Logger instance.
+    """
+    import logging  # noqa: PLC0415
+
+    noisy = suppress if suppress is not None else _DEFAULT_NOISY_LOGGERS
+    logging.basicConfig(level=logging.INFO, format="[%(asctime)s][%(levelname)s] %(message)s")
+    for logger_name in noisy:
+        logging.getLogger(logger_name).setLevel(logging.ERROR)
+        logging.getLogger(logger_name).disabled = True
+    return logging.getLogger(name)
+
+
+def prepare_tutorial_datasets(
+    *,
+    train_start_iso: str = "2024-03-01T00:00:00Z",
+    train_days: int = 90,
+    forecast_days: int = 14,
+) -> tuple[TimeSeriesDataset, TimeSeriesDataset]:
+    """Load the Liander benchmark dataset and split into training and forecast periods.
+
+    Args:
+        train_start_iso: ISO-format start date for the training period.
+        train_days: Number of days in the training window.
+        forecast_days: Number of days in the forecast window (starts immediately after training).
+
+    Returns:
+        Tuple of ``(train_dataset, forecast_dataset)``.
+    """
+    train_start = datetime.fromisoformat(train_start_iso)
+    train_end = train_start + timedelta(days=train_days)
+    dataset = load_liander_dataset()
+    return (
+        dataset.filter_by_range(start=train_start, end=train_end),
+        dataset.filter_by_range(start=train_end, end=train_end + timedelta(days=forecast_days)),
     )
