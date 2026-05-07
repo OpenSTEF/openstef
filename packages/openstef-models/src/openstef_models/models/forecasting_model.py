@@ -397,15 +397,15 @@ class ForecastingModel(BaseForecastingModel):
     Example:
         Basic forecasting workflow:
 
-        >>> from openstef_models.models.forecasting.constant_median_forecaster import (
-        ...     ConstantMedianForecaster,
+        >>> from openstef_models.models.forecasting.constant_quantile_forecaster import (
+        ...     ConstantQuantileForecaster,
         ... )
         >>> from openstef_core.types import LeadTime
         >>> from datetime import timedelta
         >>>
         >>> # Note: This is a conceptual example showing the API structure
         >>> # Real usage requires implemented forecaster classes
-        >>> forecaster = ConstantMedianForecaster(
+        >>> forecaster = ConstantQuantileForecaster(
         ...     horizons=[LeadTime.from_string("PT36H")]
         ... )
         >>> # Create and train model

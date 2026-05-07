@@ -6,8 +6,4 @@
 
 Concrete forecaster implementations for different ML frameworks.
 The base `Forecaster` interface lives in the ``forecaster`` module.
-
-Implementations:
-    - constant_median_forecaster: Simple baseline forecaster using historical medians
-    - multi_horizon_adapter: Adapter pattern for converting single to multi-horizon forecasters
 """
