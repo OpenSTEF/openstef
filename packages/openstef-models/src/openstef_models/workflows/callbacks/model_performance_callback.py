@@ -8,6 +8,7 @@ Evaluates model performance against a specified metric and threshold at the end 
 If the model's performance does not meet the defined criteria, a ModelUnderperfomingError is raised.
 This allows for early stopping of workflows or using a fallback model when performance is insufficient.
 """
+
 import logging
 from typing import override
 
@@ -35,9 +36,7 @@ class ModelPerformanceCallback(BaseConfig, ForecastingCallback):
         "below or above this threshold (depending on `metric_direction`), it will be considered underperforming."
     )
     metric_direction: MetricDirection = Field(
-        description=(
-            "Direction of the performance metric. Either 'higher_is_better' or 'lower_is_better'."
-        )
+        description=("Direction of the performance metric. Either 'higher_is_better' or 'lower_is_better'.")
     )
     quantile: QuantileOrGlobal = Field(
         default="global",

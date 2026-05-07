@@ -100,7 +100,8 @@ class ModelUnderperfomingError(Exception):
             threshold: The defined threshold for acceptable performance.
         """
         message = (
-            f"Model is underperforming: {metric_name} = {metric_value:.4f}  does not meet the threshold of {threshold:.4f}."
+            f"Model is underperforming: {metric_name} = {metric_value:.4f}"
+            f"does not meet the threshold of {threshold:.4f}."
         )
         super().__init__(message)
 
