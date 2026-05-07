@@ -15,7 +15,14 @@ from typing import Annotated, Any, Self
 
 import yaml
 from pydantic import BaseModel as PydanticBaseModel
-from pydantic import BeforeValidator, ConfigDict, GetCoreSchemaHandler, TypeAdapter
+from pydantic import (
+    BeforeValidator,
+    ConfigDict,
+    GetCoreSchemaHandler,
+    GetJsonSchemaHandler,
+    TypeAdapter,
+    ValidationInfo,
+)
 from pydantic_core import core_schema
 
 
@@ -115,7 +122,7 @@ class PydanticStringPrimitive:
         raise NotImplementedError("Subclasses must implement from_string")
 
     @classmethod
-    def validate(cls, v: Any, _info: Any = None) -> Self:  # noqa: ANN401
+    def validate(cls, v: Any, _info: ValidationInfo | None = None) -> Self:  # noqa: ANN401
         """Validate and convert input to this type.
 
         Args:
@@ -154,7 +161,7 @@ class PydanticStringPrimitive:
     def __get_pydantic_json_schema__(  # noqa: PLW3201
         cls,
         _schema: core_schema.CoreSchema,
-        handler: Any,  # noqa: ANN401
+        handler: GetJsonSchemaHandler,
     ) -> dict[str, Any]:
         """Generate JSON schema for OpenAPI / FastAPI compatibility.
 

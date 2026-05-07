@@ -12,6 +12,7 @@ validation to catch data quality issues early.
 from datetime import datetime, timedelta
 from typing import Self, override
 
+import numpy as np
 import pandas as pd
 
 from openstef_core.datasets.timeseries_dataset import TimeSeriesDataset
@@ -276,6 +277,35 @@ class ForecastDataset(TimeSeriesDataset):
             raise ValueError("All feature names must be valid quantile strings.")
 
         self.quantiles = [Quantile.parse(col) for col in quantile_feature_names]
+
+    @classmethod
+    def from_quantile_predictions(
+        cls,
+        predictions: np.ndarray,
+        index: pd.Index,
+        quantiles: list[Quantile],
+        sample_interval: timedelta,
+        *,
+        target_column: str = "load",
+    ) -> "ForecastDataset":
+        """Build a ``ForecastDataset`` from a raw predictions array.
+
+        Args:
+            predictions: Shape ``(n_samples, n_quantiles)``.
+            index: Time index for the predictions.
+            quantiles: Quantiles the model was trained on, in the same order as columns in *predictions*.
+            sample_interval: Temporal resolution of the dataset.
+            target_column: Name of the target column to attach to the dataset.
+
+        Returns:
+            ``ForecastDataset`` with quantile columns and the provided time index.
+        """
+        df = pd.DataFrame(
+            data=predictions,
+            index=index,
+            columns=[q.format() for q in quantiles],
+        )
+        return cls(data=df, sample_interval=sample_interval, target_column=target_column)
 
     @property
     def target_series(self) -> pd.Series | None:

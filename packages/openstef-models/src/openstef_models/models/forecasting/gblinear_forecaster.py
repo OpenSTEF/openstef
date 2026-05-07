@@ -11,7 +11,7 @@ and can be more suitable for certain types of time series data where it is impor
 to predict values outside the range of the training data.
 """
 
-from typing import ClassVar, Literal, override
+from typing import Annotated, ClassVar, Literal, override
 
 import numpy as np
 import pandas as pd
@@ -22,6 +22,7 @@ from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.datasets.mixins import LeadTime
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import InputValidationError, MissingExtraError, NotFittedError
+from openstef_core.mixins.param_ranges import CategoricalRange, FloatRange, IntRange
 from openstef_core.mixins.predictor import HyperParams
 from openstef_core.utils.pandas import normalize_to_unit_sum
 from openstef_models.explainability.mixins import ContributionsMixin, ExplainableForecaster
@@ -32,6 +33,7 @@ from openstef_models.utils.loss_functions import (
     get_objective_function,
     xgb_prepare_target_for_objective,
 )
+from openstef_models.utils.xgboost import get_median_shap_contribs
 
 try:
     import xgboost as xgb
@@ -43,15 +45,15 @@ class GBLinearHyperParams(HyperParams):
     """Hyperparameter configuration for GBLinear forecaster."""
 
     # Learning Parameters
-    n_steps: int = Field(
+    n_steps: Annotated[int, IntRange(50, 1000)] = Field(
         default=500,
         description="Number for steps (boosting rounds) to train the GBLinear model.",
     )
-    updater: str = Field(
+    updater: Annotated[str, CategoricalRange(("shotgun", "coord_descent"))] = Field(
         default="shotgun",
         description="The updater to use for the GBLinear booster.",
     )
-    learning_rate: float = Field(
+    learning_rate: Annotated[float, FloatRange(0.01, 0.5, log=True)] = Field(
         default=0.15,
         description="Step size shrinkage used to prevent overfitting. Range: [0,1]. Lower values require more boosting "
         "rounds.",
@@ -68,15 +70,15 @@ class GBLinearHyperParams(HyperParams):
     )
 
     # Regularization
-    reg_alpha: float = Field(
+    reg_alpha: Annotated[float, FloatRange(1e-8, 1.0, log=True)] = Field(
         default=0.0001, description="L1 regularization on weights. Higher values increase regularization. Range: [0,∞]"
     )
-    reg_lambda: float = Field(
+    reg_lambda: Annotated[float, FloatRange(1e-8, 1.0, log=True)] = Field(
         default=0.1, description="L2 regularization on weights. Higher values increase regularization. Range: [0,∞]"
     )
 
     # Feature selection
-    feature_selector: str = Field(
+    feature_selector: Annotated[str, CategoricalRange(("cyclic", "shuffle", "random", "greedy", "thrifty"))] = Field(
         default="shuffle",
         description="Feature selection method.",
     )
@@ -280,16 +282,11 @@ class GBLinearForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
         if len(predictions_array) > 0:
             predictions_array = self._target_scaler.inverse_transform(predictions_array)
 
-        # Construct DataFrame with appropriate quantile columns
-        predictions = pd.DataFrame(
-            data=predictions_array,
-            index=input_data.index,
-            columns=[quantile.format() for quantile in self.quantiles],
-        )
-
-        return ForecastDataset(
-            data=predictions,
-            sample_interval=data.sample_interval,
+        return ForecastDataset.from_quantile_predictions(
+            predictions_array,
+            input_data.index,
+            self.quantiles,
+            data.sample_interval,
             target_column=data.target_column,
         )
 
@@ -309,18 +306,7 @@ class GBLinearForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
             raise NotFittedError(self.__class__.__name__)
 
         input_data: pd.DataFrame = data.input_data(start=data.forecast_start)
-        booster = self._gblinear_model.get_booster()
-        dmatrix = xgb.DMatrix(input_data)
-        contribs_raw: np.ndarray = booster.predict(dmatrix, pred_contribs=True)
-
-        # Reshape to (n_samples, n_quantiles, n_features + 1)
-        n_samples = len(input_data)
-        n_quantiles = len(self.quantiles)
-        contribs_3d = contribs_raw.reshape(n_samples, n_quantiles, -1)
-
-        # Extract median quantile contributions
-        median_idx = min(range(n_quantiles), key=lambda i: abs(float(self.quantiles[i]) - 0.5))
-        contribs = contribs_3d[:, median_idx, :].copy()
+        contribs = get_median_shap_contribs(self._gblinear_model.get_booster(), input_data, self.quantiles)
 
         # Inverse transform for target scaling
         if self._target_scaler.scale_ is None or self._target_scaler.mean_ is None:

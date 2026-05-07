@@ -58,6 +58,9 @@ jobs:
       - name: doctests
         if: ${{ ! inputs._SKIP_QUALITY && always() }}
         run: poe doctests
+      - name: notebooks-check
+        if: ${{ ! inputs._SKIP_QUALITY && always() }}
+        run: poe notebooks-check
 
       - name: Stop if any quality step failed
         # All tests are run with always() not to stop on the first error. This step makes the workflow fail if any quality step failed.

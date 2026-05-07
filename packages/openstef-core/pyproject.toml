@@ -36,6 +36,10 @@ dependencies = [
   "pydantic-extra-types>=2.10.5,<3",
 ]
 
+optional-dependencies.benchmark = [
+  "huggingface-hub>=1.2.2",
+]
+
 urls.Documentation = "https://openstef.github.io/openstef/index.html"
 urls.Homepage = "https://lfenergy.org/projects/openstef/"
 urls.Issues = "https://github.com/OpenSTEF/openstef/issues"

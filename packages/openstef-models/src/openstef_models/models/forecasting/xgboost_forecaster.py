@@ -9,7 +9,7 @@ forecasting. Optimized for time series data with specialized loss functions and
 comprehensive hyperparameter control for production forecasting workflows.
 """
 
-from typing import ClassVar, Literal, override
+from typing import Annotated, ClassVar, Literal, override
 
 import numpy as np
 import pandas as pd
@@ -18,7 +18,8 @@ from sklearn.preprocessing import StandardScaler
 
 from openstef_core.datasets import ForecastDataset, ForecastInputDataset, TimeSeriesDataset
 from openstef_core.exceptions import MissingExtraError, NotFittedError
-from openstef_core.mixins import HyperParams
+from openstef_core.mixins.param_ranges import CategoricalRange, FloatRange, IntRange
+from openstef_core.mixins.predictor import HyperParams
 from openstef_core.utils.pandas import normalize_to_unit_sum
 from openstef_models.explainability.mixins import ContributionsMixin, ExplainableForecaster
 from openstef_models.models.forecasting.forecaster import Forecaster
@@ -28,6 +29,7 @@ from openstef_models.utils.loss_functions import (
     get_objective_function,
     xgb_prepare_target_for_objective,
 )
+from openstef_models.utils.xgboost import get_median_shap_contribs
 
 try:
     import xgboost as xgb
@@ -65,28 +67,28 @@ class XGBoostHyperParams(HyperParams):
     """
 
     # Core Tree Boosting Parameters
-    n_estimators: int = Field(
+    n_estimators: Annotated[int, IntRange(50, 500)] = Field(
         default=100,
         description="Number of boosting rounds/trees to fit. Higher values may improve performance but "
         "increase training time and risk overfitting.",
     )
-    learning_rate: float = Field(
+    learning_rate: Annotated[float, FloatRange(0.01, 0.5, log=True)] = Field(
         default=0.3,
         alias="eta",
         description="Step size shrinkage used to prevent overfitting. Range: [0,1]. Lower values require "
         "more boosting rounds.",
     )
-    max_depth: int = Field(
+    max_depth: Annotated[int, IntRange(1, 15)] = Field(
         default=6,
         description="Maximum depth of trees. Higher values capture more complex patterns but risk "
         "overfitting. Range: [1,∞]",
     )
-    min_child_weight: float = Field(
+    min_child_weight: Annotated[float, FloatRange(1.0, 10.0)] = Field(
         default=1,
         description="Minimum sum of instance weight (hessian) needed in a child. Higher values prevent "
         "overfitting. Range: [0,∞]",
     )
-    gamma: float = Field(
+    gamma: Annotated[float, FloatRange(0.0, 5.0)] = Field(
         default=0,
         alias="min_split_loss",
         description="Minimum loss reduction required to make a split. Higher values make algorithm more "
@@ -103,10 +105,10 @@ class XGBoostHyperParams(HyperParams):
     )
 
     # Regularization
-    reg_alpha: float = Field(
+    reg_alpha: Annotated[float, FloatRange(1e-8, 10.0, log=True)] = Field(
         default=0, description="L1 regularization on leaf weights. Higher values increase regularization. Range: [0,∞]"
     )
-    reg_lambda: float = Field(
+    reg_lambda: Annotated[float, FloatRange(1e-8, 10.0, log=True)] = Field(
         default=1, description="L2 regularization on leaf weights. Higher values increase regularization. Range: [0,∞]"
     )
     max_delta_step: float = Field(
@@ -119,7 +121,7 @@ class XGBoostHyperParams(HyperParams):
     max_leaves: int = Field(
         default=0, description="Maximum number of leaves. 0 means no limit. Only relevant when grow_policy='lossguide'."
     )
-    grow_policy: Literal["depthwise", "lossguide"] = Field(
+    grow_policy: Annotated[Literal["depthwise", "lossguide"], CategoricalRange(("depthwise", "lossguide"))] = Field(
         default="depthwise",
         description="Controls how new nodes are added. 'depthwise' grows level by level, 'lossguide' adds leaves "
         "with highest loss reduction.",
@@ -136,11 +138,11 @@ class XGBoostHyperParams(HyperParams):
     )
 
     # Subsampling Parameters
-    subsample: float = Field(
+    subsample: Annotated[float, FloatRange(0.5, 1.0)] = Field(
         default=1.0,
         description="Fraction of training samples used for each tree. Lower values prevent overfitting. Range: (0,1]",
     )
-    colsample_bytree: float = Field(
+    colsample_bytree: Annotated[float, FloatRange(0.5, 1.0)] = Field(
         default=1.0, description="Fraction of features used when constructing each tree. Range: (0,1]"
     )
     colsample_bylevel: float = Field(
@@ -151,7 +153,10 @@ class XGBoostHyperParams(HyperParams):
     )
 
     # Tree Construction Method
-    tree_method: Literal["auto", "exact", "hist", "approx", "gpu_hist"] = Field(
+    tree_method: Annotated[
+        Literal["auto", "exact", "hist", "approx", "gpu_hist"],
+        CategoricalRange(("auto", "hist", "approx")),
+    ] = Field(
         default="auto",
         description="Tree construction algorithm. 'hist' is fastest for large datasets, 'exact' for small "
         "datasets, 'approx' is deprecated.",
@@ -351,16 +356,11 @@ class XGBoostForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
         if self._target_scaler is not None and len(predictions_array) > 0:
             predictions_array = self._target_scaler.inverse_transform(predictions_array)
 
-        # Construct DataFrame with appropriate quantile columns
-        predictions = pd.DataFrame(
-            data=predictions_array,
-            index=input_data.index,
-            columns=[quantile.format() for quantile in self.quantiles],
-        )
-
-        return ForecastDataset(
-            data=predictions,
-            sample_interval=data.sample_interval,
+        return ForecastDataset.from_quantile_predictions(
+            predictions_array,
+            input_data.index,
+            self.quantiles,
+            data.sample_interval,
             target_column=data.target_column,
         )
 
@@ -380,18 +380,7 @@ class XGBoostForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
             raise NotFittedError(self.__class__.__name__)
 
         input_data: pd.DataFrame = data.input_data(start=data.forecast_start)
-        booster = self._xgboost_model.get_booster()
-        dmatrix = xgb.DMatrix(input_data)
-        contribs_raw: np.ndarray = booster.predict(dmatrix, pred_contribs=True)
-
-        # Reshape to (n_samples, n_quantiles, n_features + 1)
-        n_samples = len(input_data)
-        n_quantiles = len(self.quantiles)
-        contribs_3d = contribs_raw.reshape(n_samples, n_quantiles, -1)
-
-        # Extract median quantile contributions
-        median_idx = min(range(n_quantiles), key=lambda i: abs(float(self.quantiles[i]) - 0.5))
-        contribs = contribs_3d[:, median_idx, :].copy()
+        contribs = get_median_shap_contribs(self._xgboost_model.get_booster(), input_data, self.quantiles)
 
         # Inverse transform for target scaling
         if (
