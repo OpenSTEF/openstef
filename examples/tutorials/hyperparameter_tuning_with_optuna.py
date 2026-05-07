@@ -60,7 +60,7 @@ fig.show()  # type: ignore[union-attr]
 # %%
 from openstef_beam.evaluation.metric_providers import ObservedProbabilityProvider, RMAEProvider
 from openstef_core.mixins.param_ranges import FloatRange, IntRange
-from openstef_core.types import Q
+from openstef_core.types import LeadTime, Q
 from openstef_models.integrations.optuna import HyperparameterTuner
 from openstef_models.models.forecasting.xgboost_forecaster import XGBoostHyperParams
 from openstef_models.presets import ForecastingWorkflowConfig, create_forecasting_workflow
@@ -68,6 +68,18 @@ from openstef_models.presets import ForecastingWorkflowConfig, create_forecastin
 config = ForecastingWorkflowConfig(
     model_id="tuning_demo",
     model="xgboost",
+    # Forecast settings
+    horizons=[LeadTime.from_string("PT36H")],  # Predict up to 36 hours ahead
+    quantiles=[Q(0.5), Q(0.1), Q(0.9)],  # Median + 80% prediction interval
+    # Target column (what we're predicting)
+    target_column="load",
+    # Weather feature columns (from the dataset)
+    temperature_column="temperature_2m",
+    relative_humidity_column="relative_humidity_2m",
+    wind_speed_column="wind_speed_10m",
+    radiation_column="shortwave_radiation",  # Solar radiation
+    pressure_column="surface_pressure",
+    # Hyperparameters to tune
     xgboost_hyperparams=XGBoostHyperParams(
         learning_rate=FloatRange(0.01, 0.3, log=True, tune=True),  # pyright: ignore[reportCallIssue]  # ranges accepted at runtime via Annotated
         n_estimators=IntRange(50, 500, tune=True),
