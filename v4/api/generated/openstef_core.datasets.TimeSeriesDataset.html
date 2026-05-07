@@ -595,6 +595,10 @@ over time through either a horizon column or an available_at column.</p>
 - If a horizon column exists, data is versioned by forecast horizon
 - If an available_at column exists, data is versioned by availability time
 - Otherwise, data is treated as a regular time series</p>
+<p>Columns whose names start with a double underscore (<code class="docutils literal notranslate"><span class="pre">__</span></code>) are treated as
+internal/system columns: they are kept in <code class="docutils literal notranslate"><span class="pre">data</span></code> so transforms can pass
+them along, but are excluded from <code class="docutils literal notranslate"><span class="pre">feature_names</span></code> so feature-aware
+transforms ignore them.</p>
 <dl class="simple">
 <dt>The dataset guarantees:</dt><dd><ul class="simple">
 <li><p>Data is sorted by timestamp in ascending order</p></li>

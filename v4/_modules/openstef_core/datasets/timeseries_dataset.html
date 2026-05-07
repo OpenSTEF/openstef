@@ -489,6 +489,11 @@
 <span class="sd">    - If an available_at column exists, data is versioned by availability time</span>
 <span class="sd">    - Otherwise, data is treated as a regular time series</span>
 
+<span class="sd">    Columns whose names start with a double underscore (``__``) are treated as</span>
+<span class="sd">    internal/system columns: they are kept in ``data`` so transforms can pass</span>
+<span class="sd">    them along, but are excluded from ``feature_names`` so feature-aware</span>
+<span class="sd">    transforms ignore them.</span>
+
 <span class="sd">    The dataset guarantees:</span>
 <span class="sd">        - Data is sorted by timestamp in ascending order</span>
 <span class="sd">        - Consistent sampling interval across all data points</span>
@@ -578,7 +583,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">horizon_column</span> <span class="o">=</span> <span class="n">horizon_column</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">available_at_column</span> <span class="o">=</span> <span class="n">available_at_column</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_sample_interval</span> <span class="o">=</span> <span class="n">sample_interval</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_internal_columns</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_internal_columns</span> <span class="o">=</span> <span class="p">{</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;__&quot;</span><span class="p">)}</span>
         <span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">index_name</span>
 
         <span class="c1"># Check input data frequency matches sample_interval, only if there are enough data points to infer frequency</span>
@@ -601,7 +606,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_horizons</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_version_column</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_feature_names</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">to_list</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_feature_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_internal_columns</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_horizons</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="c1"># Ensure invariants: data is sorted by timestamp</span>
