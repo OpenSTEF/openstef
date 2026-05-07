@@ -2,8 +2,8 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-from datetime import datetime, timedelta
 import math
+from datetime import datetime, timedelta
 
 import pandas as pd
 import pytest
