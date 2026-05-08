@@ -5,7 +5,7 @@
 """Model performance callback for forecasting workflows.
 
 Evaluates model performance against a specified metric and threshold at the end of fitting.
-If the model's performance does not meet the defined criteria, a ModelUnderperfomingError is raised.
+If the model's performance does not meet the defined criteria, a ModelUnderperformingError is raised.
 This allows for early stopping of workflows or using a fallback model when performance is insufficient.
 """
 
@@ -16,7 +16,7 @@ from pydantic import Field, PrivateAttr
 
 from openstef_beam.evaluation.metric_providers import MetricDirection
 from openstef_core.base_model import BaseConfig
-from openstef_core.exceptions import ModelUnderperfomingError
+from openstef_core.exceptions import ModelUnderperformingError
 from openstef_core.types import QuantileOrGlobal
 from openstef_models.mixins.callbacks import WorkflowContext
 from openstef_models.models.forecasting_model import ModelFitResult
@@ -27,7 +27,7 @@ class ModelPerformanceCallback(BaseConfig, ForecastingCallback):
     """Callback for comparing model performance against a treshold during the fit process.
 
     This callback evaluates the model's performance using a specified metric after fitting.
-    If the performance metric does not meet the defined threshold, a ModelUnderperfomingError is raised.
+    If the performance metric does not meet the defined threshold, a ModelUnderperformingError is raised.
     """
 
     metric_name: str = Field(description="The name of the performance metric to evaluate.")
@@ -60,7 +60,7 @@ class ModelPerformanceCallback(BaseConfig, ForecastingCallback):
             result: Result of the fitting process containing performance metrics.
 
         Raises:
-            ModelUnderperfomingError: If the model's performance metric is below the defined threshold.
+            ModelUnderperformingError: If the model's performance metric is below the defined threshold.
         """
         if result.metrics_val is None:
             self._logger.warning("No validation metrics found in fit results. Skipping performance evaluation.")
@@ -77,13 +77,13 @@ class ModelPerformanceCallback(BaseConfig, ForecastingCallback):
 
         match self.metric_direction:
             case "higher_is_better" if metric_value < self.threshold:
-                raise ModelUnderperfomingError(
+                raise ModelUnderperformingError(
                     metric_name=self.metric_name,
                     metric_value=metric_value,
                     threshold=self.threshold,
                 )
             case "lower_is_better" if metric_value > self.threshold:
-                raise ModelUnderperfomingError(
+                raise ModelUnderperformingError(
                     metric_name=self.metric_name,
                     metric_value=metric_value,
                     threshold=self.threshold,
