@@ -7,7 +7,7 @@ from unittest.mock import MagicMock
 import pytest
 
 from openstef_beam.evaluation.metric_providers import MetricDirection
-from openstef_core.exceptions import ModelUnderperfomingError
+from openstef_core.exceptions import ModelUnderperformingError
 from openstef_models.mixins.callbacks import WorkflowContext
 from openstef_models.workflows.callbacks.model_performance_callback import ModelPerformanceCallback
 
@@ -54,7 +54,7 @@ def test_on_fit_end__lower_is_better__metric_above_threshold__raises() -> None:
     context = WorkflowContext(workflow=MagicMock())
     result = _make_result(metric_value=15.0)
 
-    with pytest.raises(ModelUnderperfomingError):
+    with pytest.raises(ModelUnderperformingError):
         callback.on_fit_end(context=context, result=result)
 
 
@@ -71,7 +71,7 @@ def test_on_fit_end__higher_is_better__metric_below_threshold__raises() -> None:
     context = WorkflowContext(workflow=MagicMock())
     result = _make_result(metric_value=0.5)
 
-    with pytest.raises(ModelUnderperfomingError):
+    with pytest.raises(ModelUnderperformingError):
         callback.on_fit_end(context=context, result=result)
 
 

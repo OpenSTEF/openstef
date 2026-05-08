@@ -88,7 +88,7 @@ class FlatlinerDetectedError(Exception):
         super().__init__(message)
 
 
-class ModelUnderperfomingError(Exception):
+class ModelUnderperformingError(Exception):
     """Exception raised when a model is underperforming based on defined criteria."""
 
     def __init__(self, metric_name: str, metric_value: float, threshold: float):
