@@ -93,9 +93,9 @@ class LagsAdder(BaseConfig, TimeSeriesTransform):
         return self._lags
 
     @property
-    def max_horizon(self) -> timedelta:
-        """Longest forecast horizon to determine minimum lag requirements."""
-        return max(horizon.value for horizon in self.horizons)
+    def min_horizon(self) -> timedelta:
+        """Shortest forecast horizon to determine minimum lag requirements."""
+        return min(horizon.value for horizon in self.horizons)
 
     def _add_lags(self, new_lags: list[timedelta]) -> None:
         self._lags = sorted(set(self._lags + new_lags), reverse=True)
@@ -111,8 +111,8 @@ class LagsAdder(BaseConfig, TimeSeriesTransform):
 
         # Add trivial lags (minute-based and day-based) if enabled
         if self.add_trivial_lags:
-            lags.extend(generate_minute_lags(max_horizon=self.max_horizon))
-            lags.extend(generate_day_lags(max_horizon=self.max_horizon, max_day_lags=self.max_day_lags))
+            lags.extend(generate_minute_lags(min_horizon=self.min_horizon))
+            lags.extend(generate_day_lags(min_horizon=self.min_horizon, max_day_lags=self.max_day_lags))
 
         # Add explicit lags if provided
         if self.custom_lags is not None:
@@ -138,7 +138,7 @@ class LagsAdder(BaseConfig, TimeSeriesTransform):
         # Generate autocorrelation-based lags
         autocorr_lags = generate_autocorr_lags(
             signal=target_series,
-            max_horizon=self.max_horizon,
+            min_horizon=self.min_horizon,
         )
 
         # Update lags with autocorr lags
@@ -262,14 +262,14 @@ class LagsAdder(BaseConfig, TimeSeriesTransform):
         return super().__setstate__(state)
 
 
-def generate_minute_lags(max_horizon: timedelta) -> list[timedelta]:
+def generate_minute_lags(min_horizon: timedelta) -> list[timedelta]:
     """Generate minute-based lag features for short-term forecasting.
 
     Creates hourly lags (1-23 hours) and sub-hourly lags (15, 30, 45 minutes)
     that are valid for the given forecast horizon.
 
     Args:
-        max_horizon: Maximum forecast horizon - only lags >= this will be included.
+        min_horizon: Minimum forecast horizon - only lags >= this will be included.
 
     Returns:
         List of timedeltas representing valid minute-based lags, sorted descending.
@@ -280,20 +280,20 @@ def generate_minute_lags(max_horizon: timedelta) -> list[timedelta]:
     base_lags = pd.Index(hourly_lags).union(pd.Index(subhourly_lags))
 
     # Filter: only lags that are far enough in the past (>= forecast horizon)
-    valid_lags = cast(pd.TimedeltaIndex, base_lags[base_lags >= max_horizon])
+    valid_lags = cast(pd.TimedeltaIndex, base_lags[base_lags >= min_horizon])
 
     # Convert to Python timedelta list (no duplicates possible)
     return list(valid_lags.to_pytimedelta())
 
 
-def generate_day_lags(max_horizon: timedelta, max_day_lags: int) -> list[timedelta]:
+def generate_day_lags(min_horizon: timedelta, max_day_lags: int) -> list[timedelta]:
     """Generate day-based lag features for capturing daily and weekly patterns.
 
     Creates daily lags from the minimum required days up to the maximum allowed,
     useful for capturing day-of-week and weekly seasonality.
 
     Args:
-        max_horizon: Maximum forecast horizon - only lags >= this will be included.
+        min_horizon: Minimum forecast horizon - only lags >= this will be included.
         max_day_lags: Maximum number of days to look back (typically 14 for two weekly cycles).
 
     Returns:
@@ -301,7 +301,7 @@ def generate_day_lags(max_horizon: timedelta, max_day_lags: int) -> list[timedel
         Empty list if minimum required days exceeds max_day_lags.
     """
     # Calculate minimum days needed to exceed the horizon (timedelta division returns float)
-    min_days = math.ceil(max_horizon / timedelta(days=1))
+    min_days = math.ceil(min_horizon / timedelta(days=1))
 
     # If min_days exceeds the configured maximum, no day lags are possible
     if min_days > max_day_lags:
@@ -316,7 +316,7 @@ def generate_day_lags(max_horizon: timedelta, max_day_lags: int) -> list[timedel
 
 def generate_autocorr_lags(
     signal: pd.Series,
-    max_horizon: timedelta,
+    min_horizon: timedelta,
     height_threshold: float = 0.1,
     max_lag_hours: int = 4,
 ) -> list[timedelta]:
@@ -328,13 +328,13 @@ def generate_autocorr_lags(
 
     Args:
         signal: Time series data to analyze (typically the target variable).
-        max_horizon: Maximum forecast horizon - only lags >= this will be included.
+        min_horizon: Minimum forecast horizon - only lags >= this will be included.
         height_threshold: Minimum autocorrelation value to recognize as a peak.
             Higher values = fewer, more significant peaks. Default 0.1.
         max_lag_hours: Maximum lag time in hours to search for peaks. Default 4 hours.
 
     Returns:
-        List of lag timedeltas corresponding to autocorrelation peaks, filtered by max_horizon.
+        List of lag timedeltas corresponding to autocorrelation peaks, filtered by min_horizon.
         Returns empty list if scipy is not available, data is insufficient, or has no variance.
 
     """
@@ -382,7 +382,7 @@ def generate_autocorr_lags(
     lag_minutes_array = peaks * 15
 
     # Convert to timedelta and filter by horizon
-    lags = [timedelta(minutes=int(m)) for m in lag_minutes_array if timedelta(minutes=int(m)) >= max_horizon]
+    lags = [timedelta(minutes=int(m)) for m in lag_minutes_array if timedelta(minutes=int(m)) >= min_horizon]
 
-    logger.debug("Found %d autocorrelation-based lags for max_horizon=%s", len(lags), max_horizon)
+    logger.debug("Found %d autocorrelation-based lags for min_horizon=%s", len(lags), min_horizon)
     return sorted(lags, reverse=True)

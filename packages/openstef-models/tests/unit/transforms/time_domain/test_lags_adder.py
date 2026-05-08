@@ -20,7 +20,7 @@ from openstef_models.transforms.time_domain.lags_adder import (
 
 
 @pytest.mark.parametrize(
-    ("max_horizon", "expected_lags"),
+    ("min_horizon", "expected_lags"),
     [
         pytest.param(
             timedelta(minutes=15),
@@ -44,21 +44,21 @@ from openstef_models.transforms.time_domain.lags_adder import (
         ),
     ],
 )
-def test_generate_minute_lags_filters_by_horizon(max_horizon: timedelta, expected_lags: int):
+def test_generate_minute_lags_filters_by_horizon(min_horizon: timedelta, expected_lags: int):
     # Arrange
     # (parameters provided)
 
     # Act
-    result = generate_minute_lags(max_horizon)
+    result = generate_minute_lags(min_horizon)
 
     # Assert
     assert len(result) == expected_lags
-    # All lags must meet the horizon requirement (>= max_horizon)
-    assert all(lag >= max_horizon for lag in result)
+    # All lags must meet the horizon requirement (>= min_horizon)
+    assert all(lag >= min_horizon for lag in result)
 
 
 @pytest.mark.parametrize(
-    ("max_horizon", "max_day_lags", "expected_lags"),
+    ("min_horizon", "max_day_lags", "expected_lags"),
     [
         pytest.param(
             timedelta(hours=24),
@@ -93,13 +93,13 @@ def test_generate_minute_lags_filters_by_horizon(max_horizon: timedelta, expecte
     ],
 )
 def test_generate_day_lags_respects_horizon_and_max(
-    max_horizon: timedelta, max_day_lags: int, expected_lags: list[timedelta]
+    min_horizon: timedelta, max_day_lags: int, expected_lags: list[timedelta]
 ):
     # Arrange
     # (parameters provided)
 
     # Act
-    result = generate_day_lags(max_horizon, max_day_lags)
+    result = generate_day_lags(min_horizon, max_day_lags)
 
     # Assert
     assert result == expected_lags
@@ -115,7 +115,7 @@ def _create_periodic_signal(num_samples: int = 600) -> pd.Series:
 
 
 @pytest.mark.parametrize(
-    ("max_horizon", "expected_lags"),
+    ("min_horizon", "expected_lags"),
     [
         pytest.param(
             timedelta(minutes=15),
@@ -135,7 +135,7 @@ def _create_periodic_signal(num_samples: int = 600) -> pd.Series:
         ),
     ],
 )
-def test_generate_autocorr_lags_finds_expected_peaks(max_horizon: timedelta, expected_lags: list[timedelta]):
+def test_generate_autocorr_lags_finds_expected_peaks(min_horizon: timedelta, expected_lags: list[timedelta]):
     """Test autocorrelation with known periodic signal produces expected lags.
 
     Signal combines 1h and 2h periods. Autocorrelation detects peaks at these periods
@@ -146,14 +146,14 @@ def test_generate_autocorr_lags_finds_expected_peaks(max_horizon: timedelta, exp
     signal = _create_periodic_signal(num_samples=600)
 
     # Act
-    result = generate_autocorr_lags(signal=signal, max_horizon=max_horizon)
+    result = generate_autocorr_lags(signal=signal, min_horizon=min_horizon)
 
     # Assert - should find expected lags based on signal periodicity
     assert result == expected_lags
 
 
 @pytest.mark.parametrize(
-    ("signal", "max_horizon"),
+    ("signal", "min_horizon"),
     [
         pytest.param(
             pd.Series(np.random.default_rng(42).standard_normal(50)),
@@ -167,12 +167,12 @@ def test_generate_autocorr_lags_finds_expected_peaks(max_horizon: timedelta, exp
         ),
     ],
 )
-def test_generate_autocorr_lags_returns_empty_for_edge_cases(signal: pd.Series, max_horizon: timedelta):
+def test_generate_autocorr_lags_returns_empty_for_edge_cases(signal: pd.Series, min_horizon: timedelta):
     # Arrange
     # (parameters provided)
 
     # Act
-    result = generate_autocorr_lags(signal, max_horizon)
+    result = generate_autocorr_lags(signal, min_horizon)
 
     # Assert - should return empty list for edge cases
     assert result == []
@@ -474,3 +474,61 @@ def test_lags_adder__fallback_multiple_lags():
     # Assert — both lag columns filled from load[5] = 6
     assert transformed.data["load_lag_P1D"].iloc[13] == pytest.approx(6.0)
     assert transformed.data["load_lag_P2D"].iloc[14] == pytest.approx(6.0)
+
+
+def test_add_lags_for_multiple_horizons():
+    """Test that lags are calculated correctly for multiple horizons."""
+    # Arrange (time series dataset with four different horizons)
+    sample_interval = timedelta(minutes=15)
+    num_samples = 96  # 1 day of 15-min data
+    horizons = [
+        LeadTime(timedelta(hours=1)),
+        LeadTime(timedelta(hours=2)),
+        LeadTime(timedelta(hours=3)),
+        LeadTime(timedelta(hours=4)),
+    ]
+    dataset = create_timeseries_dataset(
+        index=pd.date_range("2025-01-01", periods=num_samples, freq=sample_interval).repeat(len(horizons)),
+        load=np.repeat(np.arange(num_samples, dtype=float), len(horizons)).tolist(),
+        sample_interval=sample_interval,
+        horizons=np.tile([lt.value for lt in horizons], num_samples).tolist(),
+    )
+    lags_adder = LagsAdder(
+        history_available=timedelta(hours=4),
+        horizons=dataset.horizons if dataset.horizons is not None else [LeadTime(value=sample_interval)],
+    )
+
+    # Act
+    transformed = lags_adder.transform(dataset)
+
+    # Assert - check each horizon has correct lags based on its lead time and `history_available`.
+    # `transformed` must exactly contain all lag columns >= 1 hour (smallest lag) and <= 4 hours
+    # (available history).
+    expected_lags = {
+        "load_lag_PT1H": timedelta(hours=1),
+        "load_lag_PT2H": timedelta(hours=2),
+        "load_lag_PT3H": timedelta(hours=3),
+        "load_lag_PT4H": timedelta(hours=4),
+    }
+    expected_features = ["load", *expected_lags.keys()]
+    assert transformed.feature_names == expected_features
+    for horizon in horizons:
+        transformed_for_horizon = transformed.select_horizon(horizon)
+        for lag_col, lag_duration in expected_lags.items():
+            if lag_duration >= horizon.value:
+                num_expected_shifts = int(lag_duration / sample_interval)
+                shifted_original_column = transformed_for_horizon.data["load"].shift(num_expected_shifts)
+                expected_values = shifted_original_column[
+                    shifted_original_column.index.isin(transformed_for_horizon.index)
+                ].to_numpy()
+            else:
+                # If the lag is smaller than the horizon, all values must be NaN.
+                expected_values = np.full(
+                    shape=len(transformed_for_horizon.index),
+                    fill_value=np.nan,
+                )
+            assert np.array_equal(
+                transformed_for_horizon.data[lag_col].to_numpy(),
+                expected_values,
+                equal_nan=True,
+            )
