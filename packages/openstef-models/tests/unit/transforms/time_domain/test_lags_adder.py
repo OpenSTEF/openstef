@@ -493,9 +493,10 @@ def test_add_lags_for_multiple_horizons():
         sample_interval=sample_interval,
         horizons=np.tile([lt.value for lt in horizons], num_samples).tolist(),
     )
+    assert dataset.horizons is not None
     lags_adder = LagsAdder(
         history_available=timedelta(hours=4),
-        horizons=dataset.horizons if dataset.horizons is not None else [LeadTime(value=sample_interval)],
+        horizons=dataset.horizons,
     )
 
     # Act
