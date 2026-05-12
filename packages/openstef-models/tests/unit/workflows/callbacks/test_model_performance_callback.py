@@ -8,7 +8,6 @@ import pytest
 
 from openstef_beam.evaluation.metric_providers import MetricDirection
 from openstef_core.exceptions import ModelUnderperformingError
-from openstef_core.types import Q
 from openstef_models.mixins.callbacks import WorkflowContext
 from openstef_models.workflows.callbacks.model_performance_callback import ModelPerformanceCallback
 
@@ -22,7 +21,7 @@ def _make_callback(
         metric_name=metric_name,
         threshold=threshold,
         metric_direction=metric_direction,
-        quantile=Q(0.5),
+        quantile="global",
     )
 
 
