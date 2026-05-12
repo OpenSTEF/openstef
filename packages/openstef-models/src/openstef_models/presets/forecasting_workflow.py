@@ -34,6 +34,7 @@ from openstef_models.models.forecasting.constant_quantile_forecaster import Cons
 from openstef_models.models.forecasting.flatliner_forecaster import FlatlinerForecaster
 from openstef_models.models.forecasting.gblinear_forecaster import GBLinearForecaster, GBLinearHyperParams
 from openstef_models.models.forecasting.lgbm_forecaster import LGBMForecaster, LGBMHyperParams
+from openstef_models.models.forecasting.median_forecaster import MedianForecaster
 from openstef_models.models.forecasting.lgbmlinear_forecaster import LGBMLinearForecaster, LGBMLinearHyperParams
 from openstef_models.models.forecasting.xgboost_forecaster import XGBoostForecaster, XGBoostHyperParams
 from openstef_models.transforms.energy_domain import WindPowerFeatureAdder
@@ -117,7 +118,15 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
     )
 
     # Model configuration
-    model: Literal["xgboost", "gblinear", "flatliner", "constant_quantile", "lgbm", "lgbmlinear"] = Field(
+    model: Literal[
+        "xgboost",
+        "gblinear",
+        "flatliner",
+        "median",
+        "constant_quantile",
+        "lgbm",
+        "lgbmlinear"
+    ] = Field(
         description="Type of forecasting model to use."
     )
     quantiles: list[Quantile] = Field(
@@ -490,6 +499,19 @@ def create_forecasting_workflow(
                 add_quantiles_from_std=False,
             ),
         ]
+    elif config.model == "median":
+        preprocessing = [
+            LagsAdder(
+                history_available=config.predict_history,
+                horizons=config.horizons,
+                add_trivial_lags=True,
+                target_column=config.target_column,
+            )
+        ]
+        forecaster = MedianForecaster(
+            quantiles=config.quantiles,
+            horizons=config.horizons,
+        )
     elif config.model == "constant_quantile":
         preprocessing = []
         forecaster = ConstantQuantileForecaster(
