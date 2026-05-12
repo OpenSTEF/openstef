@@ -72,6 +72,7 @@ from openstef_models.transforms.weather_domain import (
 )
 from openstef_models.utils.data_split import DataSplitter
 from openstef_models.utils.feature_selection import Exclude, FeatureSelection, Include
+from openstef_models.workflows.callbacks import ModelPerformanceCallback
 from openstef_models.workflows.custom_forecasting_workflow import (
     CustomForecastingWorkflow,
     ForecastingCallback,
@@ -298,6 +299,17 @@ class EnsembleForecastingWorkflowConfig(BaseConfig):
     model_selection_old_model_penalty: float = Field(
         default=1.2,
         description="Penalty to apply to the old model's metric to bias selection towards newer models.",
+    )
+
+    model_performance_callback_enable: bool = Field(
+        default=False,
+        description=(
+            "Whether to enable the ModelPerformanceCallback that evaluates model performance at the end of fitting."
+        ),
+    )
+    model_performance_callback_metric_threshold: tuple[QuantileOrGlobal, str, MetricDirection, float] = Field(
+        default=(Q(0.5), "R2", "higher_is_better", 0.0),
+        description=("Metric to monitor for model performance threshold at the end of fitting. "),
     )
 
     verbosity: Literal[0, 1, 2, 3, True] = Field(
@@ -591,6 +603,13 @@ def create_ensemble_forecasting_workflow(config: EnsembleForecastingWorkflowConf
                 model_selection_enable=config.model_selection_enable,
                 model_selection_metric=config.model_selection_metric,
                 model_selection_old_model_penalty=config.model_selection_old_model_penalty,
+            )
+        )
+
+    if config.model_performance_callback_enable:
+        callbacks.append(
+            ModelPerformanceCallback(
+                model_performance_metric_threshold=config.model_performance_callback_metric_threshold,
             )
         )
 

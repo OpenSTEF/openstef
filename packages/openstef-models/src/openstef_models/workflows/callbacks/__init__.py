@@ -5,5 +5,9 @@
 """Workflow callbacks for data capture, persistence, and debugging."""
 
 from openstef_models.workflows.callbacks.data_save import DataSaveCallback
+from openstef_models.workflows.callbacks.model_performance_callback import ModelPerformanceCallback
 
-__all__ = ["DataSaveCallback"]
+__all__ = [
+    "DataSaveCallback",
+    "ModelPerformanceCallback",
+]
