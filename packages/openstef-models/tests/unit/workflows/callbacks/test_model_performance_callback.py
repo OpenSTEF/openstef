@@ -19,7 +19,10 @@ def _make_callback(
     metric_direction: MetricDirection = "lower_is_better",
 ) -> ModelPerformanceCallback:
     return ModelPerformanceCallback(
-        model_performance_metric_threshold=(Q(0.5), metric_name, metric_direction, threshold)
+        metric_name=metric_name,
+        threshold=threshold,
+        metric_direction=metric_direction,
+        quantile=Q(0.5),
     )
 
 

@@ -34,8 +34,8 @@ from openstef_models.models.forecasting.constant_quantile_forecaster import Cons
 from openstef_models.models.forecasting.flatliner_forecaster import FlatlinerForecaster
 from openstef_models.models.forecasting.gblinear_forecaster import GBLinearForecaster, GBLinearHyperParams
 from openstef_models.models.forecasting.lgbm_forecaster import LGBMForecaster, LGBMHyperParams
-from openstef_models.models.forecasting.median_forecaster import MedianForecaster
 from openstef_models.models.forecasting.lgbmlinear_forecaster import LGBMLinearForecaster, LGBMLinearHyperParams
+from openstef_models.models.forecasting.median_forecaster import MedianForecaster
 from openstef_models.models.forecasting.xgboost_forecaster import XGBoostForecaster, XGBoostHyperParams
 from openstef_models.transforms.energy_domain import WindPowerFeatureAdder
 from openstef_models.transforms.general import (
@@ -118,15 +118,7 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
     )
 
     # Model configuration
-    model: Literal[
-        "xgboost",
-        "gblinear",
-        "flatliner",
-        "median",
-        "constant_quantile",
-        "lgbm",
-        "lgbmlinear"
-    ] = Field(
+    model: Literal["xgboost", "gblinear", "flatliner", "median", "constant_quantile", "lgbm", "lgbmlinear"] = Field(
         description="Type of forecasting model to use."
     )
     quantiles: list[Quantile] = Field(
@@ -512,6 +504,7 @@ def create_forecasting_workflow(
             quantiles=config.quantiles,
             horizons=config.horizons,
         )
+        postprocessing = []
     elif config.model == "constant_quantile":
         preprocessing = []
         forecaster = ConstantQuantileForecaster(
@@ -558,9 +551,13 @@ def create_forecasting_workflow(
         )
 
     if config.model_performance_callback_enabled:
+        quantile, metric_name, metric_direction, threshold = config.model_performance_callback_metric_threshold
         callbacks.append(
             ModelPerformanceCallback(
-                model_performance_metric_threshold=config.model_performance_callback_metric_threshold,
+                metric_name=metric_name,
+                threshold=threshold,
+                metric_direction=metric_direction,
+                quantile=quantile,
             )
         )
 

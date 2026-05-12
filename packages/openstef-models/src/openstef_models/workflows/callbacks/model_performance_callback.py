@@ -17,7 +17,7 @@ from pydantic import Field, PrivateAttr
 from openstef_beam.evaluation.metric_providers import MetricDirection
 from openstef_core.base_model import BaseConfig
 from openstef_core.exceptions import ModelUnderperformingError
-from openstef_core.types import Q, QuantileOrGlobal
+from openstef_core.types import QuantileOrGlobal
 from openstef_models.mixins.callbacks import WorkflowContext
 from openstef_models.models.forecasting_model import ModelFitResult
 from openstef_models.workflows.custom_forecasting_workflow import CustomForecastingWorkflow, ForecastingCallback
@@ -30,11 +30,21 @@ class ModelPerformanceCallback(BaseConfig, ForecastingCallback):
     If the performance metric does not meet the defined threshold, a ModelUnderperformingError is raised.
     """
 
-    model_performance_metric_threshold: tuple[QuantileOrGlobal, str, MetricDirection, float] = Field(
-        default=(Q(0.5), "R2", "higher_is_better", 0.0),
-        description="Metric to monitor for model performance threshold during training.",
+    metric_name: str = Field(description="The name of the performance metric to evaluate.")
+    threshold: float = Field(
+        description="The minimum acceptable value for the performance metric. If the model's performance is "
+        "below or above this threshold (depending on `metric_direction`), it will be considered underperforming."
     )
-
+    metric_direction: MetricDirection = Field(
+        description=("Direction of the performance metric. Either 'higher_is_better' or 'lower_is_better'.")
+    )
+    quantile: QuantileOrGlobal = Field(
+        default="global",
+        description=(
+            "The quantile level to evaluate the metric on. Use 'global' for overall performance metrics, or specify a "
+            "quantile (e.g., 0.5 for median) for quantile-specific metrics."
+        ),
+    )
     _logger: logging.Logger = PrivateAttr(default_factory=lambda: logging.getLogger(__name__))
 
     @override
@@ -56,29 +66,27 @@ class ModelPerformanceCallback(BaseConfig, ForecastingCallback):
             self._logger.warning("No validation metrics found in fit results. Skipping performance evaluation.")
             return
 
-        quantile, metric_name, metric_direction, threshold = self.model_performance_metric_threshold
-
-        metric_value = result.metrics_val.get_metric(quantile, metric_name)
+        metric_value = result.metrics_val.get_metric(self.quantile, self.metric_name)
 
         if metric_value is None:
             self._logger.warning(
                 "Performance metric '%s' not found in fit results. Skipping performance evaluation.",
-                metric_name,
+                self.metric_name,
             )
             return
 
-        match metric_direction:
-            case "higher_is_better" if metric_value < threshold:
+        match self.metric_direction:
+            case "higher_is_better" if metric_value < self.threshold:
                 raise ModelUnderperformingError(
-                    metric_name=metric_name,
+                    metric_name=self.metric_name,
                     metric_value=metric_value,
-                    threshold=threshold,
+                    threshold=self.threshold,
                 )
-            case "lower_is_better" if metric_value > threshold:
+            case "lower_is_better" if metric_value > self.threshold:
                 raise ModelUnderperformingError(
-                    metric_name=metric_name,
+                    metric_name=self.metric_name,
                     metric_value=metric_value,
-                    threshold=threshold,
+                    threshold=self.threshold,
                 )
             case _:
                 return

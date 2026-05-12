@@ -607,9 +607,13 @@ def create_ensemble_forecasting_workflow(config: EnsembleForecastingWorkflowConf
         )
 
     if config.model_performance_callback_enabled:
+        quantile, metric_name, metric_direction, threshold = config.model_performance_callback_metric_threshold
         callbacks.append(
             ModelPerformanceCallback(
-                model_performance_metric_threshold=config.model_performance_callback_metric_threshold,
+                metric_name=metric_name,
+                threshold=threshold,
+                metric_direction=metric_direction,
+                quantile=quantile,
             )
         )
 
