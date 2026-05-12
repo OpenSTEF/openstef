@@ -1,0 +1,23 @@
+graph LR
+    A[Historical Data Start] --> B[Training Window 1]
+    B --> C[Predict Step 1]
+    C --> D[Advance Window]
+    D --> E[Training Window 2]
+    E --> F[Predict Step 2]
+    F --> G[Advance Window]
+    G --> H[Final Predictions]
+
+    I[Data Horizon Grows] -.-> B
+    I -.-> E
+
+    J[No Future Data Used] -.-> C
+    J -.-> F
+
+    classDef primary fill:#00D9C5,stroke:#1E3A5F,stroke-width:2px,color:#000
+    classDef secondary fill:#1E3A5F,stroke:#00D9C5,stroke-width:2px,color:#fff
+    classDef accent fill:#e6f7f5,stroke:#00D9C5,stroke-width:2px,color:#000
+
+    class A,D,G primary
+    class B,E secondary
+    class C,F,H primary
+    class I,J accent

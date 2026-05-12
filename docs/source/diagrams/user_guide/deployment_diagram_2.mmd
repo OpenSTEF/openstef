@@ -1,0 +1,17 @@
+graph TD
+    A([DAG Trigger]) --> B[Fetch Shared Data]
+    B --> C[Predict Substation North]
+    B --> D[Predict Substation South]
+    B --> E[Predict Industrial Park]
+    C --> F[Publish Forecasts]
+    D --> F
+    E --> F
+    F --> G[(Forecast Store)]
+    classDef primary fill:#00D9C5,stroke:#1E3A5F,stroke-width:2px,color:#000
+    classDef secondary fill:#1E3A5F,stroke:#00D9C5,stroke-width:2px,color:#fff
+    classDef accent fill:#e6f7f5,stroke:#00D9C5,stroke-width:2px,color:#000
+    class A accent
+    class B secondary
+    class C,D,E primary
+    class F primary
+    class G secondary

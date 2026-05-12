@@ -1,0 +1,20 @@
+graph TD
+    A[(Target Database)] --> B[Job Scheduler]
+    B --> C[Worker 1]
+    B --> D[Worker 2]
+    B --> E[Worker 3]
+    B --> F[Worker N]
+    G[(Shared Model Storage)] --> C
+    G --> D
+    G --> E
+    G --> F
+    C --> H[(Output Sink)]
+    D --> H
+    E --> H
+    F --> H
+    classDef primary fill:#00D9C5,stroke:#1E3A5F,stroke-width:2px,color:#000
+    classDef secondary fill:#1E3A5F,stroke:#00D9C5,stroke-width:2px,color:#fff
+    classDef accent fill:#e6f7f5,stroke:#00D9C5,stroke-width:2px,color:#000
+    class B primary
+    class C,D,E,F accent
+    class A,G,H secondary

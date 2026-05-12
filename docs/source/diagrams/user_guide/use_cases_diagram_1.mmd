@@ -1,0 +1,17 @@
+graph TD
+    I1[Load Measurements] --> P
+    I2[Weather Data] --> P
+    I3[Grid Topology] --> P
+    I4[Market Prices] --> P
+    P[OpenSTEF Pipeline] --> O1[Peak Alerts]
+    P --> O2[Capacity Estimates]
+    P --> O3[Loss Predictions]
+    P --> O4[Transport Plans]
+    P --> O5[Heat Demand Curves]
+    P --> O6[Route-Level Loading]
+    classDef primary fill:#00D9C5,stroke:#1E3A5F,stroke-width:2px,color:#000
+    classDef secondary fill:#1E3A5F,stroke:#00D9C5,stroke-width:2px,color:#fff
+    classDef accent fill:#e6f7f5,stroke:#00D9C5,stroke-width:2px,color:#000
+    class P secondary
+    class I1,I2,I3,I4 accent
+    class O1,O2,O3,O4,O5,O6 primary

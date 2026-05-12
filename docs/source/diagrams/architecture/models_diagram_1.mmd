@@ -1,0 +1,25 @@
+graph TD
+    A[Presets and Workflows] --> B[Weather Transforms]
+    A --> C[General Transforms]
+    B --> D[Forecasting Models]
+    C --> D
+    B --> E[Component Splitting]
+    C --> E
+    F[MLflow Integration] --- D
+    G[Mixins: Callbacks etc] --- D
+    F --- E
+    G --- E
+    H[openstef_core Base Classes] -.-> B
+    H -.-> C
+    H -.-> D
+    H -.-> E
+
+    classDef primary fill:#00D9C5,stroke:#1E3A5F,stroke-width:2px,color:#000
+    classDef secondary fill:#1E3A5F,stroke:#00D9C5,stroke-width:2px,color:#fff
+    classDef accent fill:#e6f7f5,stroke:#00D9C5,stroke-width:2px,color:#000
+
+    class A primary
+    class B,C accent
+    class D,E secondary
+    class F,G primary
+    class H secondary

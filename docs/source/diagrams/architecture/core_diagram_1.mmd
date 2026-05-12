@@ -1,0 +1,15 @@
+graph TD
+    A([TimeSeriesMixin]) --> C[TimeSeriesDataset]
+    A --> D[VersionedTimeSeriesDataset]
+    B([DatasetMixin]) --> C
+    B --> D
+    C --> E[ForecastInputDataset]
+    C --> F[ForecastDataset]
+    C --> G[EnergyComponentDataset]
+    C --> H[EnsembleForecastDataset]
+    classDef primary fill:#00D9C5,stroke:#1E3A5F,stroke-width:2px,color:#000
+    classDef secondary fill:#1E3A5F,stroke:#00D9C5,stroke-width:2px,color:#fff
+    classDef accent fill:#e6f7f5,stroke:#00D9C5,stroke-width:2px,color:#000
+    class A,B accent
+    class C,D secondary
+    class E,F,G,H primary

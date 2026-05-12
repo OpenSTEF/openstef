@@ -1,0 +1,12 @@
+graph TD
+    A[openstef_core] --> B[openstef_models]
+    A --> C[openstef_beam]
+    A --> D[openstef_meta]
+    B --> D
+    C --> D
+    classDef primary fill:#00D9C5,stroke:#1E3A5F,stroke-width:2px,color:#000
+    classDef secondary fill:#1E3A5F,stroke:#00D9C5,stroke-width:2px,color:#fff
+    classDef accent fill:#e6f7f5,stroke:#00D9C5,stroke-width:2px,color:#000
+    class A secondary
+    class B,C primary
+    class D accent

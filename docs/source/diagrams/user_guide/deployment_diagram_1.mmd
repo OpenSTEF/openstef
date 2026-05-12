@@ -1,0 +1,16 @@
+graph LR
+    A[(Weather APIs)] --> D[OpenSTEF Pipeline]
+    B[(SCADA / Meters)] --> D
+    C[(Market Data)] --> D
+    D --> E{Train or Predict}
+    E -->|train| F[(MLflow Storage)]
+    F -->|load model| E
+    E -->|predict| G[Forecast Output]
+    G --> H[(Dashboard)]
+    G --> I[(Energy Platform)]
+    classDef primary fill:#00D9C5,stroke:#1E3A5F,stroke-width:2px,color:#000
+    classDef secondary fill:#1E3A5F,stroke:#00D9C5,stroke-width:2px,color:#fff
+    classDef accent fill:#e6f7f5,stroke:#00D9C5,stroke-width:2px,color:#000
+    class D,E primary
+    class A,B,C,F secondary
+    class G,H,I accent

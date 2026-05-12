@@ -1,0 +1,15 @@
+graph LR
+    A[Todays Forecast] --> B{7-day lag available?}
+    B -->|Yes| C[Use Last Week Data]
+    B -->|No| D{14-day lag available?}
+    D -->|Yes| E[Use Two Weeks Ago Data]
+    D -->|No| F[No Forecast Available]
+    C --> A
+    E --> A
+    classDef primary fill:#00D9C5,stroke:#1E3A5F,stroke-width:2px,color:#000
+    classDef secondary fill:#1E3A5F,stroke:#00D9C5,stroke-width:2px,color:#fff
+    classDef accent fill:#e6f7f5,stroke:#00D9C5,stroke-width:2px,color:#000
+    class A primary
+    class B,D secondary
+    class C,E accent
+    class F secondary

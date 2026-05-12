@@ -1,0 +1,15 @@
+graph LR
+    A([Now]) -->|15min| B[Intra-hour]
+    A -->|1h| C[Very Short-term]
+    A -->|6h| D[Short-term Ops]
+    A -->|24h| E[Day-ahead]
+    A -->|36h| F[OpenSTEF Default]
+    A -->|48h-7d| G[Extended Planning]
+    H[Lead Time: gap to start] --- I[Update Freq: every 6h]
+    I --- J[Sample Interval: 15min]
+    classDef primary fill:#00D9C5,stroke:#1E3A5F,stroke-width:2px,color:#000
+    classDef secondary fill:#1E3A5F,stroke:#00D9C5,stroke-width:2px,color:#fff
+    classDef accent fill:#e6f7f5,stroke:#00D9C5,stroke-width:2px,color:#000
+    class A secondary
+    class B,C,D,E,F,G primary
+    class H,I,J accent

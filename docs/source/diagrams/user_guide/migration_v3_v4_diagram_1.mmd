@@ -1,0 +1,18 @@
+graph TD
+    A[OpenSTEF V3] --> B[openstef]
+    B --> C[Single Package]
+    C --> D[All functionality combined]
+
+    E[OpenSTEF V4] --> F[openstef_core]
+    E --> G[openstef_models]
+    E --> H[openstef_meta]
+    F --> I[Workflows and pipelines]
+    G --> J[ML model definitions]
+    H --> K[Orchestration layer]
+
+    classDef primary fill:#00D9C5,stroke:#1E3A5F,stroke-width:2px,color:#000
+    classDef secondary fill:#1E3A5F,stroke:#00D9C5,stroke-width:2px,color:#fff
+    classDef accent fill:#e6f7f5,stroke:#00D9C5,stroke-width:2px,color:#000
+    class A,E secondary
+    class B,F,G,H primary
+    class C,D,I,J,K accent

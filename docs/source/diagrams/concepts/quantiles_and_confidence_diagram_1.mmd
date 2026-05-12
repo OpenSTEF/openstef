@@ -1,0 +1,19 @@
+graph TD
+    A[" "] --> B[P10 - 10th Percentile]
+    A --> C[P50 - Median]
+    A --> D[P90 - 90th Percentile]
+    B -->|80% Prediction Interval| D
+    E[10% below P10] --> B
+    C --> F[50% above and below]
+    D --> G[90% below P90]
+    H[Shaded Region: 80% confidence] --> B
+    H --> D
+
+    classDef primary fill:#00D9C5,stroke:#1E3A5F,stroke-width:2px,color:#000
+    classDef secondary fill:#1E3A5F,stroke:#00D9C5,stroke-width:2px,color:#fff
+    classDef accent fill:#e6f7f5,stroke:#00D9C5,stroke-width:2px,color:#000
+
+    class A secondary
+    class B,C,D primary
+    class E,F,G accent
+    class H secondary

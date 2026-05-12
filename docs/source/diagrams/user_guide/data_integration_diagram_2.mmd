@@ -1,0 +1,12 @@
+graph LR
+    A[(Database)] --> B[Load Data]
+    B --> C[Validate Columns]
+    C --> D[Fill Gaps]
+    D --> E[Create TimeSeriesDataset]
+    E --> F[Forecast]
+    F --> G[Write Results]
+    classDef primary fill:#00D9C5,stroke:#1E3A5F,stroke-width:2px,color:#000
+    classDef secondary fill:#1E3A5F,stroke:#00D9C5,stroke-width:2px,color:#fff
+    classDef accent fill:#e6f7f5,stroke:#00D9C5,stroke-width:2px,color:#000
+    class B,C,D,E,F primary
+    class A,G secondary

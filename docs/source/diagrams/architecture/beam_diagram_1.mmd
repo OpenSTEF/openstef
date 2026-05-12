@@ -1,0 +1,17 @@
+graph TD
+    A[BenchmarkPipeline] --> B["Iterate target; model pairs"]
+    B --> C[BacktestPipeline]
+    C -->|Forecast outputs| D[EvaluationPipeline]
+    D -->|Evaluation reports| E[AnalysisPipeline]
+    F[(Target and Model List)] --> A
+    C --> G[Generate Forecasts]
+    D --> H[Compute Metrics]
+    E --> I[Aggregate Results]
+
+    classDef primary fill:#00D9C5,stroke:#1E3A5F,stroke-width:2px,color:#000
+    classDef secondary fill:#1E3A5F,stroke:#00D9C5,stroke-width:2px,color:#fff
+    classDef accent fill:#e6f7f5,stroke:#00D9C5,stroke-width:2px,color:#000
+
+    class A secondary
+    class B,C,D,E primary
+    class F,G,H,I accent

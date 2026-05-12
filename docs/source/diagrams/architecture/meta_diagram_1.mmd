@@ -1,0 +1,30 @@
+graph TD
+    subgraph core[openstef_core]
+        A[TimeSeriesDataset]
+        B[TransformPipeline]
+    end
+    subgraph models[openstef_models]
+        C[LGBMForecaster]
+        D[GBLinearForecaster]
+    end
+    subgraph beam[openstef_beam]
+        E[ForecastingWorkflow]
+    end
+    subgraph meta[openstef_meta]
+        F[EnsembleForecastingModel]
+        G[ForecastCombiner]
+        H[(ForecastDataset)]
+    end
+    C --> F
+    D --> F
+    F --> G
+    G --> H
+    A -->|data| F
+    B -->|transforms| F
+    E -->|execution| F
+    classDef primary fill:#00D9C5,stroke:#1E3A5F,stroke-width:2px,color:#000
+    classDef secondary fill:#1E3A5F,stroke:#00D9C5,stroke-width:2px,color:#fff
+    classDef accent fill:#e6f7f5,stroke:#00D9C5,stroke-width:2px,color:#000
+    class F,G primary
+    class A,B,C,D,E accent
+    class H secondary

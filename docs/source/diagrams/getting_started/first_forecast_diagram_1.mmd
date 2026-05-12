@@ -1,0 +1,14 @@
+graph LR
+    A[Raw Data] --> B[TimeSeriesDataset]
+    B --> C[Custom Workflow]
+    C --> D[Transforms]
+    D --> E[Model]
+    C --> F[fit - Training]
+    C --> G[predict - Forecasting]
+    G --> H[ForecastDataset with Quantiles]
+    classDef primary fill:#00D9C5,stroke:#1E3A5F,stroke-width:2px,color:#000
+    classDef secondary fill:#1E3A5F,stroke:#00D9C5,stroke-width:2px,color:#fff
+    classDef accent fill:#e6f7f5,stroke:#00D9C5,stroke-width:2px,color:#000
+    class A,B primary
+    class C,D,E secondary
+    class F,G,H accent

@@ -1,0 +1,17 @@
+graph TD
+    A[openstef v3 Monolithic] --> B{Migration}
+    B --> C[openstef-core]
+    B --> D[openstef-models]
+    B --> E[openstef-beam]
+    B --> F[openstef-meta]
+    C --> G[Core forecasting logic]
+    D --> H[ML model interfaces]
+    E --> I[Pipeline orchestration]
+    F --> J[Metadata and config]
+    classDef primary fill:#00D9C5,stroke:#1E3A5F,stroke-width:2px,color:#000
+    classDef secondary fill:#1E3A5F,stroke:#00D9C5,stroke-width:2px,color:#fff
+    classDef accent fill:#e6f7f5,stroke:#00D9C5,stroke-width:2px,color:#000
+    class A secondary
+    class B accent
+    class C,D,E,F primary
+    class G,H,I,J accent

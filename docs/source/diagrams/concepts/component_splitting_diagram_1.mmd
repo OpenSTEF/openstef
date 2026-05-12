@@ -1,0 +1,15 @@
+graph LR
+    A[(Aggregate Load Measurement)] --> B[ComponentSplitter]
+    B -->|solar| C[Solar Component]
+    B -->|wind| D[Wind Component]
+    B -->|residual| E[Other Component]
+    C --> F[Solar Forecast Model]
+    D --> G[Wind Forecast Model]
+    E --> H[Residual Forecast Model]
+    classDef primary fill:#00D9C5,stroke:#1E3A5F,stroke-width:2px,color:#000
+    classDef secondary fill:#1E3A5F,stroke:#00D9C5,stroke-width:2px,color:#fff
+    classDef accent fill:#e6f7f5,stroke:#00D9C5,stroke-width:2px,color:#000
+    class B primary
+    class A secondary
+    class C,D,E accent
+    class F,G,H secondary
