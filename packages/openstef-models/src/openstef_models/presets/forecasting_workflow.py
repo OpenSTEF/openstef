@@ -288,7 +288,7 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
         description="Penalty to apply to the old model's metric to bias selection towards newer models.",
     )
 
-    model_performance_callback_enable: bool = Field(
+    model_performance_callback_enabled: bool = Field(
         default=False,
         description=(
             "Whether to enable the ModelPerformanceCallback that evaluates model performance at the end of fitting."
@@ -535,7 +535,7 @@ def create_forecasting_workflow(
             )
         )
 
-    if config.model_performance_callback_enable:
+    if config.model_performance_callback_enabled:
         callbacks.append(
             ModelPerformanceCallback(
                 model_performance_metric_threshold=config.model_performance_callback_metric_threshold,
