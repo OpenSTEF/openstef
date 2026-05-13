@@ -38,7 +38,7 @@ extensions = [
     "sphinx.ext.mathjax",
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
-    "myst_parser",
+    "myst_nb",
     "sphinx_design",
     "sphinx_copybutton",
     "matplotlib.sphinxext.plot_directive",
@@ -50,7 +50,7 @@ templates_path = ["_templates"]
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = []
+exclude_patterns = ["conf.py", "**/*.ipynb"]
 
 # Specify how to identify the prompt when copying code snippets
 copybutton_prompt_text = r">>> |\.\.\. "
@@ -123,6 +123,14 @@ myst_enable_extensions = [
     "tasklist",
     "colon_fence",
 ]
+
+# -- Notebook execution (myst-nb) -------------------------------------------
+nb_custom_formats = {".py": ["jupytext.reads", {"fmt": "py:percent"}]}
+nb_execution_mode = "off"  # TODO(#884): enable "cache" once tutorials are optimized for faster execution
+nb_execution_timeout = 120
+nb_execution_raise_on_error = True
+# TODO(#884): backtesting notebook exceeds timeout — needs rewrite or execution split
+nb_execution_excludepatterns = ["tutorials/backtesting_openstef_with_beam*"]
 
 # Sphinx version switcher
 config = SphinxConfig("../../pyproject.toml", globalns=globals())
@@ -300,10 +308,15 @@ html_context = {
 # -- Sphinx setup ------------------------------------------------------------
 
 
-def rstjinja(app: Sphinx, _docname: str, source: list[str]) -> None:
+def rstjinja(app: Sphinx, docname: str, source: list[str]) -> None:
     """Render RST files as Jinja templates for variable substitution."""
     # Only process HTML builds
     if app.builder.format != "html":  # type: ignore[attr-defined]
+        return
+
+    # Only process .rst sources — skip notebooks/MyST which contain {} literals
+    rst_path = Path(app.srcdir) / f"{docname}.rst"
+    if not rst_path.is_file() or not source[0].strip():
         return
 
     src: str = source[0]

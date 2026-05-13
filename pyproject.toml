@@ -130,9 +130,11 @@ lint.ignore = [
 lint.per-file-ignores."./examples/tutorials/*" = [
   "D100",   # Notebooks don't need module docstrings
   "E402",   # Imports not at top — notebook cells have natural ordering
+  "E501",   # Long lines in notebooks — readability is cell-scoped
   "ERA001", # Jupytext YAML frontmatter looks like commented-out code
   "F821",   # Cell-scoped names appear undefined to Ruff's module-level analysis
   "INP001", # Not a namespace package — notebooks don't need __init__.py
+  "PTH",    # Tutorials may use os.path for simplicity
   "S101",   # Tutorials may use assert for runtime checks
   "T201",   # Tutorials may use print for demonstration
 ]
@@ -230,6 +232,9 @@ include = [
   "packages/*/examples/**/*.py",
   "packages/*/tests/**/*.py",
 ]
+exclude = [
+  "examples/tutorials/**/*.py",
+]
 
 typeCheckingMode = "strict"
 reportPrivateImportUsage = false
@@ -282,11 +287,16 @@ cmd = "pytest --numprocesses=auto --doctest-modules packages/*/src --maxfail=1"
 help = "Sync jupytext .py percent sources → .ipynb notebooks (and vice versa)"
 cmd = "jupytext --sync examples/tutorials/*.py"
 
+[tool.poe.tasks.notebooks-clear]
+help = "Strip outputs from all .ipynb notebooks"
+cmd = "jupyter nbconvert --clear-output --inplace examples/tutorials/*.ipynb"
+
 [tool.poe.tasks.notebooks-check]
-help = "Check that .ipynb notebooks are in sync with their jupytext .py sources"
+help = "Check that .ipynb notebooks are in sync with their jupytext .py sources and have no outputs"
 sequence = [
   { cmd = "jupytext --sync examples/tutorials/*.py" },
   { cmd = "git diff --exit-code -- examples/tutorials/" },
+  { script = "tools.check_notebook_outputs:main" },
 ]
 
 [tool.poe.tasks.report]
