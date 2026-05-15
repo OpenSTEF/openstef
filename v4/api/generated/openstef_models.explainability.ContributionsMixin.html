@@ -60,7 +60,7 @@
     <link rel="icon" href="../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="ExplainableForecaster" href="openstef_models.explainability.ExplainableForecaster.html" />
+    <link rel="next" title="ContributionsPlotter" href="openstef_models.explainability.ContributionsPlotter.html" />
     <link rel="prev" title="openstef_models.explainability" href="openstef_models.explainability.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -453,6 +453,7 @@
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="openstef_models.explainability.html">openstef_models.explainability</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">ContributionsMixin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="openstef_models.explainability.ContributionsPlotter.html">ContributionsPlotter</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_models.explainability.ExplainableForecaster.html">ExplainableForecaster</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_models.explainability.FeatureImportancePlotter.html">FeatureImportancePlotter</a></li>
 </ul>
@@ -620,6 +621,36 @@ model intercept/base value.</p>
 </dl>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef_models.explainability.ContributionsMixin.plot_contributions">
+<span class="sig-name descname"><span class="pre">plot_contributions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="openstef_core.datasets.ForecastInputDataset.html#openstef_core.datasets.ForecastInputDataset" title="openstef_core.datasets.validated_datasets.ForecastInputDataset"><span class="pre">ForecastInputDataset</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">kind</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'heatmap'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'waterfall'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'bar'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'heatmap'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Figure</span></span></span><a class="reference internal" href="../../_modules/openstef_models/explainability/mixins.html#ContributionsMixin.plot_contributions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_models.explainability.ContributionsMixin.plot_contributions" title="Link to this definition">#</a></dt>
+<dd><p>Plot per-sample feature contributions.</p>
+<p>Calls <code class="docutils literal notranslate"><span class="pre">predict_contributions()</span></code> and visualizes the result using the
+requested chart type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="openstef_core.datasets.ForecastInputDataset.html#openstef_core.datasets.ForecastInputDataset" title="openstef_core.datasets.validated_datasets.ForecastInputDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">ForecastInputDataset</span></code></a></span>) – Preprocessed input data.</p></li>
+<li><p><strong>kind</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code>[<code class="docutils literal notranslate"><span class="pre">'heatmap'</span></code>, <code class="docutils literal notranslate"><span class="pre">'waterfall'</span></code>, <code class="docutils literal notranslate"><span class="pre">'bar'</span></code>]</span>) – Chart type — <code class="docutils literal notranslate"><span class="pre">&quot;heatmap&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;waterfall&quot;</span></code>, or <code class="docutils literal notranslate"><span class="pre">&quot;bar&quot;</span></code>.</p></li>
+<li><p><strong>**kwargs</strong> (<em>Any</em>) – Forwarded to the corresponding plotter method
+(e.g. <code class="docutils literal notranslate"><span class="pre">top_n</span></code>, <code class="docutils literal notranslate"><span class="pre">timestep</span></code>).</p></li>
+<li><p><strong>data</strong></p></li>
+<li><p><strong>kind</strong></p></li>
+<li><p><strong>kwargs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></span>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Plotly Figure.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ValueError</strong> – If <em>kind</em> is not one of the supported chart types.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Figure</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -644,11 +675,11 @@ model intercept/base value.</p>
       </div>
     </a>
     <a class="right-next"
-       href="openstef_models.explainability.ExplainableForecaster.html"
+       href="openstef_models.explainability.ContributionsPlotter.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">ExplainableForecaster</p>
+        <p class="prev-next-title">ContributionsPlotter</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -673,6 +704,7 @@ model intercept/base value.</p>
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.explainability.ContributionsMixin"><code class="docutils literal notranslate"><span class="pre">ContributionsMixin</span></code></a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.explainability.ContributionsMixin.predict_contributions"><code class="docutils literal notranslate"><span class="pre">ContributionsMixin.predict_contributions()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.explainability.ContributionsMixin.plot_contributions"><code class="docutils literal notranslate"><span class="pre">ContributionsMixin.plot_contributions()</span></code></a></li>
 </ul>
 </li>
 </ul>

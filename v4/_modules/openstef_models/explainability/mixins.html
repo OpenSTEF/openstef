@@ -451,12 +451,14 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Literal</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">plotly.graph_objects</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">go</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">ForecastInputDataset</span><span class="p">,</span> <span class="n">TimeSeriesDataset</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Q</span><span class="p">,</span> <span class="n">Quantile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.explainability.plotters.contributions_plotter</span><span class="w"> </span><span class="kn">import</span> <span class="n">ContributionsPlotter</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.explainability.plotters.feature_importance_plotter</span><span class="w"> </span><span class="kn">import</span> <span class="n">FeatureImportancePlotter</span>
 
 
@@ -540,6 +542,43 @@
 <span class="sd">            rows are timesteps.  A ``bias`` column may be included for the</span>
 <span class="sd">            model intercept/base value.</span>
 <span class="sd">        &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="ContributionsMixin.plot_contributions">
+<a class="viewcode-back" href="../../../api/generated/openstef_models.explainability.ContributionsMixin.html#openstef_models.explainability.ContributionsMixin.plot_contributions">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">plot_contributions</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">data</span><span class="p">:</span> <span class="n">ForecastInputDataset</span><span class="p">,</span>
+        <span class="n">kind</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;heatmap&quot;</span><span class="p">,</span> <span class="s2">&quot;waterfall&quot;</span><span class="p">,</span> <span class="s2">&quot;bar&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;heatmap&quot;</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">go</span><span class="o">.</span><span class="n">Figure</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Plot per-sample feature contributions.</span>
+
+<span class="sd">        Calls ``predict_contributions()`` and visualizes the result using the</span>
+<span class="sd">        requested chart type.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data: Preprocessed input data.</span>
+<span class="sd">            kind: Chart type — ``&quot;heatmap&quot;``, ``&quot;waterfall&quot;``, or ``&quot;bar&quot;``.</span>
+<span class="sd">            **kwargs: Forwarded to the corresponding plotter method</span>
+<span class="sd">                (e.g. ``top_n``, ``timestep``).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Plotly Figure.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If *kind* is not one of the supported chart types.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">contributions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict_contributions</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">plotters</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;heatmap&quot;</span><span class="p">:</span> <span class="n">ContributionsPlotter</span><span class="o">.</span><span class="n">plot_heatmap</span><span class="p">,</span>
+            <span class="s2">&quot;waterfall&quot;</span><span class="p">:</span> <span class="n">ContributionsPlotter</span><span class="o">.</span><span class="n">plot_waterfall</span><span class="p">,</span>
+            <span class="s2">&quot;bar&quot;</span><span class="p">:</span> <span class="n">ContributionsPlotter</span><span class="o">.</span><span class="n">plot_bar</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">kind</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">plotters</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Unknown plot kind </span><span class="si">{</span><span class="n">kind</span><span class="si">!r}</span><span class="s2">. Choose from </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">plotters</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">plotters</span><span class="p">[</span><span class="n">kind</span><span class="p">](</span><span class="n">contributions</span><span class="o">=</span><span class="n">contributions</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 </div>
 
 </pre></div>

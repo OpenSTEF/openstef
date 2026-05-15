@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>openstef_beam.evaluation &#8212; OpenSTEF 0.0.0 documentation</title>
+    <title>ContributionsPlotter &#8212; OpenSTEF 0.0.0 documentation</title>
   
   
   
@@ -49,7 +49,7 @@
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../_static/copybutton.js?v=97f0b27d"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'api/generated/openstef_beam.evaluation';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/generated/openstef_models.explainability.ContributionsPlotter';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = '_static/versions.json';
@@ -60,8 +60,8 @@
     <link rel="icon" href="../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="EvaluationConfig" href="openstef_beam.evaluation.EvaluationConfig.html" />
-    <link rel="prev" title="VisualizationOutput" href="openstef_beam.analysis.VisualizationOutput.html" />
+    <link rel="next" title="ExplainableForecaster" href="openstef_models.explainability.ExplainableForecaster.html" />
+    <link rel="prev" title="ContributionsMixin" href="openstef_models.explainability.ContributionsMixin.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="0.0.0" />
@@ -443,7 +443,7 @@
 </ul>
 </details></li>
 </ul>
-<ul class="nav bd-sidenav">
+<ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="openstef_models.transforms.html">openstef_models.transforms</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="openstef_models.models.html">openstef_models.models</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="openstef_models.models.BaseForecastingModel.html">BaseForecastingModel</a></li>
@@ -451,15 +451,15 @@
 <li class="toctree-l2"><a class="reference internal" href="openstef_models.models.ForecastingModel.html">ForecastingModel</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="openstef_models.explainability.html">openstef_models.explainability</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="openstef_models.explainability.html">openstef_models.explainability</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="openstef_models.explainability.ContributionsMixin.html">ContributionsMixin</a></li>
-<li class="toctree-l2"><a class="reference internal" href="openstef_models.explainability.ContributionsPlotter.html">ContributionsPlotter</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">ContributionsPlotter</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_models.explainability.ExplainableForecaster.html">ExplainableForecaster</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_models.explainability.FeatureImportancePlotter.html">FeatureImportancePlotter</a></li>
 </ul>
 </details></li>
 </ul>
-<ul class="current nav bd-sidenav">
+<ul class="nav bd-sidenav">
 <li class="toctree-l1 has-children"><a class="reference internal" href="openstef_beam.metrics.html">openstef_beam.metrics</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.completeness.html">completeness</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.metrics.confusion_matrix.html">confusion_matrix</a></li>
@@ -492,7 +492,7 @@
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.analysis.VisualizationOutput.html">VisualizationOutput</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">openstef_beam.evaluation</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="openstef_beam.evaluation.html">openstef_beam.evaluation</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.evaluation.EvaluationConfig.html">EvaluationConfig</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.evaluation.EvaluationPipeline.html">EvaluationPipeline</a></li>
 <li class="toctree-l2"><a class="reference internal" href="openstef_beam.evaluation.EvaluationReport.html">EvaluationReport</a></li>
@@ -562,7 +562,10 @@
     
     <li class="breadcrumb-item"><a href="../index.html" class="nav-link">API Reference</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">openstef_beam.evaluation</span></li>
+    
+    <li class="breadcrumb-item"><a href="openstef_models.explainability.html" class="nav-link">openstef_models.explainability</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">ContributionsPlotter</span></li>
   </ul>
 </nav>
 </div>
@@ -579,51 +582,105 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="module-openstef_beam.evaluation">
-<span id="openstef-beam-evaluation"></span><h1>openstef_beam.evaluation<a class="headerlink" href="#module-openstef_beam.evaluation" title="Link to this heading">#</a></h1>
-<p>Organizes forecasting results into structured performance reports.</p>
-<p>After running backtests, you get lots of predictions and actual values. This module
-helps you make sense of them by calculating metrics across different time periods,
-filtering for specific conditions (like weekends or peak hours), and organizing
-everything into clear reports.</p>
-<dl class="simple">
-<dt>What it handles:</dt><dd><ul class="simple">
-<li><p>Time windows: Compare performance across days, weeks, seasons</p></li>
-<li><p>Lead times: Evaluate how accuracy changes from 1-hour to 48-hour forecasts</p></li>
-<li><p>Data filtering: Focus on specific conditions (peaks, weekdays, etc.)</p></li>
-<li><p>Metric calculation: Apply the right metrics to the right data subsets</p></li>
-<li><p>Report structure: Organize results for easy analysis and comparison</p></li>
+  <section id="contributionsplotter">
+<h1>ContributionsPlotter<a class="headerlink" href="#contributionsplotter" title="Link to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="openstef_models.explainability.ContributionsPlotter">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef_models.explainability.</span></span><span class="sig-name descname"><span class="pre">ContributionsPlotter</span></span><a class="reference internal" href="../../_modules/openstef_models/explainability/plotters/contributions_plotter.html#ContributionsPlotter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_models.explainability.ContributionsPlotter" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Visualizations for per-timestep feature contributions.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef_models.explainability.ContributionsPlotter.plot_heatmap">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">plot_heatmap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">contributions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><span class="pre">TimeSeriesDataset</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">top_n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'load'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias_column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'bias'</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_prediction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Figure</span></span></span><a class="reference internal" href="../../_modules/openstef_models/explainability/plotters/contributions_plotter.html#ContributionsPlotter.plot_heatmap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_models.explainability.ContributionsPlotter.plot_heatmap" title="Link to this definition">#</a></dt>
+<dd><p>Create an interactive heatmap of feature contributions over time.</p>
+<p>X-axis is the prediction datetime, Y-axis shows feature names ranked by mean absolute contribution
+(most important at top). Color ranges from blue (negative) through white (zero) to red (positive).
+When <code class="docutils literal notranslate"><span class="pre">show_prediction</span></code> is True a line plot of the model prediction (sum of contributions + bias)
+is shown above the heatmap.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>contributions</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeSeriesDataset</span></code></a></span>) – Output of <code class="docutils literal notranslate"><span class="pre">predict_contributions()</span></code>.</p></li>
+<li><p><strong>top_n</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – Number of top features to show (ranked by mean absolute contribution).</p></li>
+<li><p><strong>target_column</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Name of the target column to exclude. Default “load”.</p></li>
+<li><p><strong>bias_column</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Name of the bias column. Default “bias”.</p></li>
+<li><p><strong>show_prediction</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – If True, add a prediction line subplot above the heatmap. Default True.</p></li>
+<li><p><strong>contributions</strong></p></li>
+<li><p><strong>top_n</strong></p></li>
+<li><p><strong>target_column</strong></p></li>
+<li><p><strong>bias_column</strong></p></li>
+<li><p><strong>show_prediction</strong></p></li>
 </ul>
 </dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Plotly Figure with a diverging heatmap centered at zero (and optional prediction line).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Figure</span></code></span></p>
+</dd>
 </dl>
-<p>The evaluation produces raw numerical data (metrics, timestamps, values) that can
-be fed into the analysis module for visualization and further interpretation.</p>
-<section id="classes">
-<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading">#</a></h2>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="openstef_beam.evaluation.EvaluationConfig.html#openstef_beam.evaluation.EvaluationConfig" title="openstef_beam.evaluation.EvaluationConfig"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EvaluationConfig</span></code></a>(**data)</p></td>
-<td><p>Configuration for the evaluation pipeline.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="openstef_beam.evaluation.EvaluationPipeline.html#openstef_beam.evaluation.EvaluationPipeline" title="openstef_beam.evaluation.EvaluationPipeline"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EvaluationPipeline</span></code></a>(config, quantiles, ...)</p></td>
-<td><p>Pipeline for evaluating probabilistic forecasting models.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="openstef_beam.evaluation.EvaluationReport.html#openstef_beam.evaluation.EvaluationReport" title="openstef_beam.evaluation.EvaluationReport"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EvaluationReport</span></code></a>(**data)</p></td>
-<td><p>Complete evaluation report containing results for all data subsets.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="openstef_beam.evaluation.EvaluationSubsetReport.html#openstef_beam.evaluation.EvaluationSubsetReport" title="openstef_beam.evaluation.EvaluationSubsetReport"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EvaluationSubsetReport</span></code></a>(**data)</p></td>
-<td><p>Container for evaluation results on a specific data subset.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="openstef_beam.evaluation.SubsetMetric.html#openstef_beam.evaluation.SubsetMetric" title="openstef_beam.evaluation.SubsetMetric"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SubsetMetric</span></code></a>(**data)</p></td>
-<td><p>Container for evaluation metrics computed on a data subset.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="openstef_beam.evaluation.Window.html#openstef_beam.evaluation.Window" title="openstef_beam.evaluation.Window"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Window</span></code></a>(lag, size[, stride, minimum_coverage])</p></td>
-<td><p>Represents a time window with lag, size, and stride parameters.</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef_models.explainability.ContributionsPlotter.plot_waterfall">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">plot_waterfall</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">contributions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><span class="pre">TimeSeriesDataset</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestep</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top_n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'load'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias_column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'bias'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Figure</span></span></span><a class="reference internal" href="../../_modules/openstef_models/explainability/plotters/contributions_plotter.html#ContributionsPlotter.plot_waterfall"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_models.explainability.ContributionsPlotter.plot_waterfall" title="Link to this definition">#</a></dt>
+<dd><p>Create a waterfall chart decomposing a single timestep’s prediction.</p>
+<p>Shows how the bias (base value) is pushed up or down by each feature’s
+contribution to arrive at the final prediction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>contributions</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeSeriesDataset</span></code></a></span>) – Output of <code class="docutils literal notranslate"><span class="pre">predict_contributions()</span></code>.</p></li>
+<li><p><strong>timestep</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – Row index (0-based) of the timestep to explain.</p></li>
+<li><p><strong>top_n</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – Number of top features to show. Remaining features are
+aggregated into an “other” bar.</p></li>
+<li><p><strong>target_column</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Name of the target column to exclude. Default “load”.</p></li>
+<li><p><strong>bias_column</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Name of the bias column used as base value. Default “bias”.</p></li>
+<li><p><strong>contributions</strong></p></li>
+<li><p><strong>timestep</strong></p></li>
+<li><p><strong>top_n</strong></p></li>
+<li><p><strong>target_column</strong></p></li>
+<li><p><strong>bias_column</strong></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Plotly Figure with waterfall chart.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Figure</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="openstef_models.explainability.ContributionsPlotter.plot_bar">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">plot_bar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">contributions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><span class="pre">TimeSeriesDataset</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">top_n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'load'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias_column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'bias'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Figure</span></span></span><a class="reference internal" href="../../_modules/openstef_models/explainability/plotters/contributions_plotter.html#ContributionsPlotter.plot_bar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_models.explainability.ContributionsPlotter.plot_bar" title="Link to this definition">#</a></dt>
+<dd><p>Create a horizontal bar chart of mean absolute contributions per feature.</p>
+<p>Features are ranked from most to least important (top to bottom).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>contributions</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeSeriesDataset</span></code></a></span>) – Output of <code class="docutils literal notranslate"><span class="pre">predict_contributions()</span></code>.</p></li>
+<li><p><strong>top_n</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – Number of top features to show.</p></li>
+<li><p><strong>target_column</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Name of the target column to exclude. Default “load”.</p></li>
+<li><p><strong>bias_column</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Name of the bias column to exclude. Default “bias”.</p></li>
+<li><p><strong>contributions</strong></p></li>
+<li><p><strong>top_n</strong></p></li>
+<li><p><strong>target_column</strong></p></li>
+<li><p><strong>bias_column</strong></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Plotly Figure with horizontal bar chart.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Figure</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 
 
@@ -637,20 +694,20 @@ be fed into the analysis module for visualization and further interpretation.</p
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="openstef_beam.analysis.VisualizationOutput.html"
+       href="openstef_models.explainability.ContributionsMixin.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">VisualizationOutput</p>
+        <p class="prev-next-title">ContributionsMixin</p>
       </div>
     </a>
     <a class="right-next"
-       href="openstef_beam.evaluation.EvaluationConfig.html"
+       href="openstef_models.explainability.ExplainableForecaster.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">EvaluationConfig</p>
+        <p class="prev-next-title">ExplainableForecaster</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -673,7 +730,12 @@ be fed into the analysis module for visualization and further interpretation.</p
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.explainability.ContributionsPlotter"><code class="docutils literal notranslate"><span class="pre">ContributionsPlotter</span></code></a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.explainability.ContributionsPlotter.plot_heatmap"><code class="docutils literal notranslate"><span class="pre">ContributionsPlotter.plot_heatmap()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.explainability.ContributionsPlotter.plot_waterfall"><code class="docutils literal notranslate"><span class="pre">ContributionsPlotter.plot_waterfall()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.explainability.ContributionsPlotter.plot_bar"><code class="docutils literal notranslate"><span class="pre">ContributionsPlotter.plot_bar()</span></code></a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 
@@ -681,7 +743,7 @@ be fed into the analysis module for visualization and further interpretation.</p
 
   
   <div class="tocsection editthispage">
-    <a href="https://github.com/OpenSTEF/openstef/edit/release/v4.0.0/docs/source/api/generated/openstef_beam.evaluation.rst">
+    <a href="https://github.com/OpenSTEF/openstef/edit/release/v4.0.0/docs/source/api/generated/openstef_models.explainability.ContributionsPlotter.rst">
       <i class="fa-solid fa-pencil"></i>
       
       

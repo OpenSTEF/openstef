@@ -29,6 +29,7 @@ Classes
    :template: custom_class.rst
 
    ContributionsMixin
+   ContributionsPlotter
    ExplainableForecaster
    FeatureImportancePlotter
 
