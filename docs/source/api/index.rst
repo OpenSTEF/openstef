@@ -15,57 +15,58 @@ This is the complete API reference for OpenSTEF. The API is organized into sever
     .. grid-item-card:: :fa:`cube` Core Package
         :link: core-api
         :link-type: ref
-        
+
         Core data structures, datasets, and utilities
 
     .. grid-item-card:: :fa:`robot` Models Package
         :link: models-api
         :link-type: ref
-        
+
         Machine learning models and feature engineering
 
     .. grid-item-card:: :fa:`chart-line` BEAM Package
         :link: beam-api
         :link-type: ref
-        
+
         Backtesting, evaluation, analysis and metrics for forecasting models
 
     .. grid-item-card:: :fa:`layer-group` Meta Package
         :link: meta-api
         :link-type: ref
-        
+
         Ensemble forecasting and preset workflows
 
-.. _core-api:
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+
+   core
+   models
+   beam
+   meta
 
 Core Package (:mod:`openstef_core`)
 -----------------------------------
 
 .. currentmodule:: openstef_core
 
-**Core Modules:**
-
 .. autosummary::
-   :toctree: generated/
-   :template: package_overview.rst
 
    datasets
    utils
    base_model
    exceptions
-
-.. _models-api:
+   mixins
+   testing
+   transforms
+   types
 
 Models Package (:mod:`openstef_models`)
 ---------------------------------------
 
 .. currentmodule:: openstef_models
 
-**Model Modules:**
-
 .. autosummary::
-   :toctree: generated/
-   :template: package_overview.rst
 
    models
    workflows
@@ -73,32 +74,15 @@ Models Package (:mod:`openstef_models`)
    explainability
    mixins
    integrations
+   transforms
    utils
-
-**Transforms:**
-
-.. autosummary::
-   :toctree: generated/
-   :template: package_overview.rst
-
-   transforms.general
-   transforms.time_domain
-   transforms.energy_domain
-   transforms.weather_domain
-   transforms.validation
-
-.. _beam-api:
 
 BEAM Package (:mod:`openstef_beam`)
 -----------------------------------
 
 .. currentmodule:: openstef_beam
 
-**BEAM Modules:**
-
 .. autosummary::
-   :toctree: generated/
-   :template: package_overview.rst
 
    metrics
    backtesting
@@ -106,18 +90,12 @@ BEAM Package (:mod:`openstef_beam`)
    evaluation
    benchmarking
 
-.. _meta-api:
-
 Meta Package (:mod:`openstef_meta`)
 -----------------------------------
 
 .. currentmodule:: openstef_meta
 
-**Meta Modules:**
-
 .. autosummary::
-   :toctree: generated/
-   :template: package_overview.rst
 
    models
    presets
