@@ -390,6 +390,43 @@ Common issues
 
 .. include:: _getting_help.rst
 
+Working with tutorial notebooks
+===============================
+
+Tutorials live in ``examples/tutorials/`` as paired `Jupytext <https://jupytext.readthedocs.io/>`_
+files: a ``.py`` (percent format) source of truth and a ``.ipynb`` companion kept in sync.
+
+Key rules
+---------
+
+* **Edit the** ``.py`` **file**, not the ``.ipynb`` — the script is the single source of truth.
+* **Never commit notebook outputs.** The ``.ipynb`` on ``main`` must be output-free.
+* Notebooks are rendered into the docs via `myst-nb <https://myst-nb.readthedocs.io/>`_ with
+  cached execution (``nb_execution_mode = "cache"``).
+
+Workflow
+--------
+
+.. code-block:: bash
+
+    # After editing a .py tutorial:
+    poe notebooks          # Sync .py → .ipynb
+
+    # Before committing:
+    poe notebooks-clear    # Strip any outputs from .ipynb
+    poe notebooks-check    # Verify sync + no outputs (runs in CI)
+
+Creating a new tutorial
+-----------------------
+
+.. code-block:: bash
+
+    # Create the .py file in percent format, then pair it:
+    jupytext --set-formats "ipynb,py:percent" examples/tutorials/my_tutorial.py
+
+    # Add a toctree entry in docs/source/examples.rst
+    # Optionally tag the first SPDX cell with "remove-cell" (see existing tutorials)
+
 Additional documentation resources
 ==================================
 
