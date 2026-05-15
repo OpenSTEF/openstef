@@ -391,7 +391,7 @@ cmd = "python -c \"import shutil; shutil.rmtree('docs/source/tutorials', ignore_
 
 [tool.poe.tasks.docs]
 help = "Build the documentation"
-deps = ["_docs_sync"]
+deps = [ "_docs_sync" ]
 control.expr = "serve"
 switch = [
   { case = "True", cmd = "sphinx-autobuild docs/source docs/build/html --watch packages" },

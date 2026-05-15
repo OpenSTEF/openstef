@@ -136,8 +136,5 @@ liander_dataset/
 
 .github/instructions
 
-# Internal review docs (not public)
-_review/
-
 # Jupyter notebook cache (myst-nb execution outputs)
 .jupyter_cache/
