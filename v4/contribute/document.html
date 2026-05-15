@@ -31,6 +31,7 @@
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
@@ -845,6 +846,41 @@ poe<span class="w"> </span>all<span class="w"> </span>--check
 </ul>
 <p>For more information, see our <a class="reference internal" href="../project/support.html"><span class="doc">Support</span></a> page.</p>
 </section>
+<section id="working-with-tutorial-notebooks">
+<h2>Working with tutorial notebooks<a class="headerlink" href="#working-with-tutorial-notebooks" title="Link to this heading">#</a></h2>
+<p>Tutorials live in <code class="docutils literal notranslate"><span class="pre">examples/tutorials/</span></code> as paired <a class="reference external" href="https://jupytext.readthedocs.io/">Jupytext</a>
+files: a <code class="docutils literal notranslate"><span class="pre">.py</span></code> (percent format) source of truth and a <code class="docutils literal notranslate"><span class="pre">.ipynb</span></code> companion kept in sync.</p>
+<section id="key-rules">
+<h3>Key rules<a class="headerlink" href="#key-rules" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Edit the</strong> <code class="docutils literal notranslate"><span class="pre">.py</span></code> <strong>file</strong>, not the <code class="docutils literal notranslate"><span class="pre">.ipynb</span></code> — the script is the single source of truth.</p></li>
+<li><p><strong>Never commit notebook outputs.</strong> The <code class="docutils literal notranslate"><span class="pre">.ipynb</span></code> on <code class="docutils literal notranslate"><span class="pre">main</span></code> must be output-free.</p></li>
+<li><p>Notebooks are rendered into the docs via <a class="reference external" href="https://myst-nb.readthedocs.io/">myst-nb</a> with
+cached execution (<code class="docutils literal notranslate"><span class="pre">nb_execution_mode</span> <span class="pre">=</span> <span class="pre">&quot;cache&quot;</span></code>).</p></li>
+</ul>
+</section>
+<section id="workflow">
+<h3>Workflow<a class="headerlink" href="#workflow" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># After editing a .py tutorial:</span>
+poe<span class="w"> </span>notebooks<span class="w">          </span><span class="c1"># Sync .py → .ipynb</span>
+
+<span class="c1"># Before committing:</span>
+poe<span class="w"> </span>notebooks-clear<span class="w">    </span><span class="c1"># Strip any outputs from .ipynb</span>
+poe<span class="w"> </span>notebooks-check<span class="w">    </span><span class="c1"># Verify sync + no outputs (runs in CI)</span>
+</pre></div>
+</div>
+</section>
+<section id="creating-a-new-tutorial">
+<h3>Creating a new tutorial<a class="headerlink" href="#creating-a-new-tutorial" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create the .py file in percent format, then pair it:</span>
+jupytext<span class="w"> </span>--set-formats<span class="w"> </span><span class="s2">&quot;ipynb,py:percent&quot;</span><span class="w"> </span>examples/tutorials/my_tutorial.py
+
+<span class="c1"># Add a toctree entry in docs/source/examples.rst</span>
+<span class="c1"># Optionally tag the first SPDX cell with &quot;remove-cell&quot; (see existing tutorials)</span>
+</pre></div>
+</div>
+</section>
+</section>
 <section id="additional-documentation-resources">
 <h2>Additional documentation resources<a class="headerlink" href="#additional-documentation-resources" title="Link to this heading">#</a></h2>
 <p>If you need help with documentation specifically:</p>
@@ -936,6 +972,12 @@ poe<span class="w"> </span>all<span class="w"> </span>--check
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#getting-help">Getting help</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#working-with-tutorial-notebooks">Working with tutorial notebooks</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#key-rules">Key rules</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#workflow">Workflow</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#creating-a-new-tutorial">Creating a new tutorial</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#additional-documentation-resources">Additional documentation resources</a></li>
 </ul>
   </nav></div>
