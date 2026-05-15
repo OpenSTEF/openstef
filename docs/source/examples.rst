@@ -13,6 +13,7 @@ Jupyter notebook rendered with executed outputs.
 .. toctree::
    :maxdepth: 1
 
+   Forecasting Quickstart <tutorials/forecasting_quickstart>
    Forecasting with Presets <tutorials/forecasting_with_workflow_presets>
    Hyperparameter Tuning <tutorials/hyperparameter_tuning_with_optuna>
    Backtesting with BEAM <tutorials/backtesting_openstef_with_beam>
