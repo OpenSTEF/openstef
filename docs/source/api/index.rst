@@ -7,7 +7,7 @@ API Reference
 
 This is the complete API reference for OpenSTEF. The API is organized into several packages:
 
-.. grid:: 1 1 3 3
+.. grid:: 1 1 2 2
     :gutter: 4
     :padding: 2 2 0 0
     :class-container: sd-text-center
@@ -29,6 +29,12 @@ This is the complete API reference for OpenSTEF. The API is organized into sever
         :link-type: ref
         
         Backtesting, evaluation, analysis and metrics for forecasting models
+
+    .. grid-item-card:: :fa:`layer-group` Meta Package
+        :link: meta-api
+        :link-type: ref
+        
+        Ensemble forecasting and preset workflows
 
 .. _core-api:
 
@@ -61,11 +67,25 @@ Models Package (:mod:`openstef_models`)
    :toctree: generated/
    :template: package_overview.rst
 
-   transforms
    models
-   pipelines
+   workflows
+   presets
    explainability
-   exceptions
+   mixins
+   integrations
+   utils
+
+**Transforms:**
+
+.. autosummary::
+   :toctree: generated/
+   :template: package_overview.rst
+
+   transforms.general
+   transforms.time_domain
+   transforms.energy_domain
+   transforms.weather_domain
+   transforms.validation
 
 .. _beam-api:
 
@@ -85,3 +105,20 @@ BEAM Package (:mod:`openstef_beam`)
    analysis
    evaluation
    benchmarking
+
+.. _meta-api:
+
+Meta Package (:mod:`openstef_meta`)
+-----------------------------------
+
+.. currentmodule:: openstef_meta
+
+**Meta Modules:**
+
+.. autosummary::
+   :toctree: generated/
+   :template: package_overview.rst
+
+   models
+   presets
+   utils

@@ -243,10 +243,10 @@ html_theme_options = {
     "search_bar_text": "Search the docs ...",
     "navigation_with_keys": False,
     "collapse_navigation": False,
-    "navigation_depth": 3,  # Show more levels for API reference
-    "show_nav_level": 2,  # Show more levels in navbar
+    "navigation_depth": 2,
+    "show_nav_level": 2,
     "navbar_center": ["navbar-nav"],  # Use only primary navigation
-    "show_toc_level": 3,  # Show deeper TOC levels in sidebar
+    "show_toc_level": 2,
     "navbar_align": "left",
     "header_links_before_dropdown": 5,
     "header_dropdown_text": "More",
@@ -327,6 +327,37 @@ def rstjinja(app: Sphinx, docname: str, source: list[str]) -> None:
     source[0] = rendered
 
 
+def _inject_pydantic_field_descriptions(
+    app: Sphinx,  # noqa: ARG001
+    what: str,
+    name: str,  # noqa: ARG001
+    obj: object,
+    options: object,  # noqa: ARG001
+    lines: list[str],
+) -> None:
+    """Append Pydantic Field(description=...) values to class docstrings."""
+    if what != "class":
+        return
+    model_fields = getattr(obj, "model_fields", None)
+    if model_fields is None:
+        return
+    # Only add if there are fields with descriptions
+    field_docs: list[tuple[str, str]] = []
+    for field_name, field_info in model_fields.items():
+        desc = field_info.description
+        if desc:
+            field_docs.append((field_name, desc))
+    if not field_docs:
+        return
+    # Append a Fields section to the docstring
+    lines.append("")
+    lines.append("**Fields:**")
+    lines.append("")
+    for field_name, desc in field_docs:
+        lines.append(f"- **{field_name}**: {desc}")
+    lines.append("")
+
+
 def setup(app: Sphinx) -> None:
     """Sphinx setup function to make citation data available in templates."""
     if citation_cff:
@@ -336,3 +367,4 @@ def setup(app: Sphinx) -> None:
         }
         app.config.html_context.update(context_update)  # type: ignore[attr-defined]
         app.connect("source-read", rstjinja)
+    app.connect("autodoc-process-docstring", _inject_pydantic_field_descriptions)
