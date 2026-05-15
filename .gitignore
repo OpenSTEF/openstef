@@ -67,6 +67,7 @@ dmypy.json
 # Sphinx
 docs/_build/
 docs/source/api/generated/
+docs/source/tutorials/
 
 # docs/_doctrees/
 # docs/_static_gen/
@@ -126,8 +127,14 @@ certificates/
 # Benchmark outputs
 benchmark_results*/
 
+# Local dataset files
+liander_dataset/
+
 # Mlflow
 /mlflow
 /mlflow_artifacts_local
 
 .github/instructions
+
+# Jupyter notebook cache (myst-nb execution outputs)
+.jupyter_cache/

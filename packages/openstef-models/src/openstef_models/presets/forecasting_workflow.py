@@ -30,6 +30,7 @@ from openstef_core.types import LeadTime, Q, Quantile, QuantileOrGlobal
 from openstef_models.integrations.mlflow import MLFlowStorage, MLFlowStorageCallback
 from openstef_models.mixins import ModelIdentifier
 from openstef_models.models import ForecastingModel
+from openstef_models.models.forecasting.constant_quantile_forecaster import ConstantQuantileForecaster
 from openstef_models.models.forecasting.flatliner_forecaster import FlatlinerForecaster
 from openstef_models.models.forecasting.gblinear_forecaster import GBLinearForecaster, GBLinearHyperParams
 from openstef_models.models.forecasting.lgbm_forecaster import LGBMForecaster, LGBMHyperParams
@@ -65,6 +66,7 @@ from openstef_models.transforms.weather_domain import (
 )
 from openstef_models.utils.data_split import DataSplitter
 from openstef_models.utils.feature_selection import Exclude, FeatureSelection, Include
+from openstef_models.workflows.callbacks import ModelPerformanceCallback
 from openstef_models.workflows.custom_forecasting_workflow import (
     CustomForecastingWorkflow,
     ForecastingCallback,
@@ -116,7 +118,7 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
     )
 
     # Model configuration
-    model: Literal["xgboost", "gblinear", "flatliner", "median", "lgbm", "lgbmlinear"] = Field(
+    model: Literal["xgboost", "gblinear", "flatliner", "median", "constant_quantile", "lgbm", "lgbmlinear"] = Field(
         description="Type of forecasting model to use."
     )
     quantiles: list[Quantile] = Field(
@@ -285,6 +287,17 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
     model_selection_old_model_penalty: float = Field(
         default=1.2,
         description="Penalty to apply to the old model's metric to bias selection towards newer models.",
+    )
+
+    model_performance_callback_enabled: bool = Field(
+        default=False,
+        description=(
+            "Whether to enable the ModelPerformanceCallback that evaluates model performance at the end of fitting."
+        ),
+    )
+    model_performance_callback_metric_threshold: tuple[QuantileOrGlobal, str, MetricDirection, float] = Field(
+        default=(Q(0.5), "R2", "higher_is_better", 0.0),
+        description=("Metric to monitor for model performance threshold at the end of fitting. "),
     )
 
     verbosity: Literal[0, 1, 2, 3, True] = Field(
@@ -492,6 +505,13 @@ def create_forecasting_workflow(
             horizons=config.horizons,
         )
         postprocessing = []
+    elif config.model == "constant_quantile":
+        preprocessing = []
+        forecaster = ConstantQuantileForecaster(
+            quantiles=config.quantiles,
+            horizons=config.horizons,
+        )
+        postprocessing = []
     elif config.model == "flatliner":
         preprocessing = []
         forecaster = FlatlinerForecaster(
@@ -527,6 +547,17 @@ def create_forecasting_workflow(
                 model_selection_enable=config.model_selection_enable,
                 model_selection_metric=config.model_selection_metric,
                 model_selection_old_model_penalty=config.model_selection_old_model_penalty,
+            )
+        )
+
+    if config.model_performance_callback_enabled:
+        quantile, metric_name, metric_direction, threshold = config.model_performance_callback_metric_threshold
+        callbacks.append(
+            ModelPerformanceCallback(
+                metric_name=metric_name,
+                threshold=threshold,
+                metric_direction=metric_direction,
+                quantile=quantile,
             )
         )
 
