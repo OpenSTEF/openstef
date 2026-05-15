@@ -17,6 +17,7 @@ Jupyter notebook rendered with executed outputs.
    Model Explainability <tutorials/model_explainability>
    Quantile Calibration <tutorials/quantile_calibration>
    Building a Custom Pipeline <tutorials/custom_pipeline>
+   Ensemble Forecasting <tutorials/ensemble_forecasting>
    Forecasting with Presets <tutorials/forecasting_with_workflow_presets>
    Hyperparameter Tuning <tutorials/hyperparameter_tuning_with_optuna>
    Backtesting with BEAM <tutorials/backtesting_openstef_with_beam>
