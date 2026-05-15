@@ -163,6 +163,7 @@ nb_execution_raise_on_error = True
 nb_execution_excludepatterns = [
     "tutorials/backtesting_openstef_with_beam*",
     "tutorials/hyperparameter_tuning_with_optuna*",
+    "tutorials/forecasting_with_workflow_presets*",
 ]
 
 # Sphinx version switcher
