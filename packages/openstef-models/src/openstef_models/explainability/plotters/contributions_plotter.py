@@ -11,14 +11,13 @@ from typing import TYPE_CHECKING
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots  # pyright: ignore[reportUnknownVariableType]
 
-from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset  # noqa: TC001  # runtime needed for pyright
 
 if TYPE_CHECKING:
     import pandas as pd
 
 
-class ContributionsPlotter(BaseConfig):
+class ContributionsPlotter:
     """Visualizations for per-timestep feature contributions."""
 
     @staticmethod

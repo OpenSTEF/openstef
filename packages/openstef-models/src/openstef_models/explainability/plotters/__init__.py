@@ -8,7 +8,7 @@ Provides plotters for creating interactive visualizations of feature importance
 scores and other model explanation outputs.
 """
 
-from .contibutions_plotter import ContributionsPlotter
+from .contributions_plotter import ContributionsPlotter
 from .feature_importance_plotter import FeatureImportancePlotter
 
 __all__ = [

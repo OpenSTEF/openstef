@@ -12,7 +12,7 @@ import plotly.graph_objects as go
 import pytest
 
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_models.explainability.plotters.contibutions_plotter import ContributionsPlotter
+from openstef_models.explainability.plotters.contributions_plotter import ContributionsPlotter
 
 TARGET_COLUMN = "load"
 BIAS_COLUMN = "bias"

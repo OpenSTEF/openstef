@@ -16,7 +16,7 @@ import plotly.graph_objects as go
 
 from openstef_core.datasets import ForecastInputDataset, TimeSeriesDataset
 from openstef_core.types import Q, Quantile
-from openstef_models.explainability.plotters.contibutions_plotter import ContributionsPlotter
+from openstef_models.explainability.plotters.contributions_plotter import ContributionsPlotter
 from openstef_models.explainability.plotters.feature_importance_plotter import FeatureImportancePlotter
 
 
@@ -110,11 +110,17 @@ class ContributionsMixin(ABC):
 
         Returns:
             Plotly Figure.
+
+        Raises:
+            ValueError: If *kind* is not one of the supported chart types.
         """
         contributions = self.predict_contributions(data)
-        plotter = {
+        plotters = {
             "heatmap": ContributionsPlotter.plot_heatmap,
             "waterfall": ContributionsPlotter.plot_waterfall,
             "bar": ContributionsPlotter.plot_bar,
         }
-        return plotter[kind](contributions=contributions, **kwargs)
+        if kind not in plotters:
+            msg = f"Unknown plot kind {kind!r}. Choose from {list(plotters)}"
+            raise ValueError(msg)
+        return plotters[kind](contributions=contributions, **kwargs)
