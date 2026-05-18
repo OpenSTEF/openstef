@@ -644,6 +644,10 @@
         <span class="n">default</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
         <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Minimum fraction of data that should be available for making a regular forecast.&quot;</span><span class="p">,</span>
     <span class="p">)</span>
+    <span class="n">completeness_threshold_target_constant_quantile</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="mf">0.03</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Minimum fraction of target data that should be available for making a constant quantile forecast.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
     <span class="n">flatliner_threshold</span><span class="p">:</span> <span class="n">timedelta</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
         <span class="n">default</span><span class="o">=</span><span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">24</span><span class="p">),</span>
         <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Number of minutes that the load has to be constant to detect a flatliner.&quot;</span><span class="p">,</span>
@@ -956,7 +960,12 @@
         <span class="p">)</span>
         <span class="n">postprocessing</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">elif</span> <span class="n">config</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s2">&quot;constant_quantile&quot;</span><span class="p">:</span>
-        <span class="n">preprocessing</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">preprocessing</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">CompletenessChecker</span><span class="p">(</span>
+                <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">config</span><span class="o">.</span><span class="n">target_column</span><span class="p">],</span>
+                <span class="n">completeness_threshold</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">completeness_threshold_target_constant_quantile</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">]</span>
         <span class="n">forecaster</span> <span class="o">=</span> <span class="n">ConstantQuantileForecaster</span><span class="p">(</span>
             <span class="n">quantiles</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">quantiles</span><span class="p">,</span>
             <span class="n">horizons</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">horizons</span><span class="p">,</span>
