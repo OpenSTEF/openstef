@@ -77,7 +77,9 @@ def test_constant_quantile_forecaster__fit_predict(
     assert math.isclose(actual_values["quantile_P90"], expected_p90)
 
 
-def test_constant_quantile_forecaster__fit_with_all_nan_target_raises_error(sample_forecaster: ConstantQuantileForecaster):
+def test_constant_quantile_forecaster__fit_with_all_nan_target_raises_error(
+    sample_forecaster: ConstantQuantileForecaster,
+):
     """Test that fitting with all NaN target values raises InputValidationError."""
     # Arrange
     forecaster = sample_forecaster.model_copy(deep=True)
@@ -85,7 +87,7 @@ def test_constant_quantile_forecaster__fit_with_all_nan_target_raises_error(samp
     sample_forecast_input_dataset = create_forecast_input_dataset(nan_values)
 
     # Act & Assert
-    with pytest.raises(ValueError, match="Training data must contain at least one non-NaN value in the target column."):
+    with pytest.raises(ValueError, match=r"Training data must contain at least one non-NaN value in the target column."):
         forecaster.fit(sample_forecast_input_dataset)
 
 
