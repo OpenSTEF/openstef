@@ -315,28 +315,23 @@ fig.show()
 # ## Metrics comparison
 #
 # Let's quantify the ensemble advantage with relative MAE (rMAE) on the
-# forecast period.  rMAE normalizes by the mean of actuals, making it
-# easier to compare across datasets with different scales.
+# forecast period.  rMAE normalizes the MAE by the range of actuals, making it
+# easier to compare across datasets with different scales.  We use the
+# implementation from `openstef_beam.metrics`.
 
 # %%
-import numpy as np
-import pandas as pd
+
+from openstef_beam.metrics import rmae
 
 actuals = predict_dataset.data["load"].loc[train_end:forecast_end]
-
-
-def rmae(actual: pd.Series, predicted: pd.Series) -> float:
-    common = actual.index.intersection(predicted.index)
-    mae = float(np.mean(np.abs(actual.loc[common] - predicted.loc[common])))
-    return mae / float(np.abs(actual.loc[common]).mean())
-
 
 models = {"lgbm": individual_forecasts["lgbm"], "gblinear": individual_forecasts["gblinear"], "Ensemble": forecast}
 
 print(f"{'Model':<12} {'rMAE':>8}")
 print(f"{'':-<12} {'':-^8}")
 for name, fc in models.items():
-    print(f"{name:<12} {rmae(actuals, fc.median_series):>8.4f}")
+    common = actuals.index.intersection(fc.median_series.index)
+    print(f"{name:<12} {rmae(actuals.loc[common].to_numpy(), fc.median_series.loc[common].to_numpy()):>8.4f}")
 
 # %% [markdown]
 # The ensemble consistently achieves the lowest rMAE by combining the

@@ -139,3 +139,4 @@ liander_dataset/
 
 # Jupyter notebook cache (myst-nb execution outputs)
 .jupyter_cache/
+docs/build.zip
