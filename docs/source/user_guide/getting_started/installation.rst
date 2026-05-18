@@ -312,7 +312,7 @@ Getting Help
 If you encounter issues:
 
 1. Check the `GitHub Issues <https://github.com/OpenSTEF/openstef/issues>`_
-2. Review the :doc:`../contribute/index` guide
+2. Review the :doc:`/contribute/index` guide
 3. Visit our :ref:`support` page for community resources
 4. Contact us at openstef@lfenergy.org
 
@@ -345,9 +345,9 @@ Next Steps
 After installation:
 
 1. Read the :doc:`quick_start` guide
-2. Explore :doc:`tutorials` for hands-on examples
-3. Check the :doc:`../api/index` for detailed documentation
-4. Review :doc:`intro/index` to understand OpenSTEF's capabilities
+2. Explore the :doc:`/examples` for hands-on examples
+3. Check the :doc:`/api/index` for detailed documentation
+4. Review :doc:`/user_guide/concepts/index` to understand OpenSTEF's capabilities
 
 Staying Updated
 ===============
