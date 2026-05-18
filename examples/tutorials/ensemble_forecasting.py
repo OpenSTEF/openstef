@@ -340,14 +340,13 @@ for name, fc in models.items():
 # The ensemble consistently achieves the lowest rMAE by combining the
 # strengths of both models.  In production with longer training windows and
 # more diverse base models (e.g. adding XGBoost or a neural forecaster),
-# the improvement typically grows larger.
+# the improvement typically grows larger.  To validate ensemble gains over
+# longer periods, run a full {doc}`backtesting_quickstart`.
 
 # %% [markdown]
 # ## Next steps
 #
-# - **Backtesting** — evaluate ensemble performance over time: {doc}`backtesting_quickstart`
-# - **Hyperparameter tuning** — optimize model parameters: {doc}`hyperparameter_tuning_with_optuna`
-# - **Quantile calibration** — improve uncertainty estimates: {doc}`quantile_calibration`
-# - **Custom pipeline** — build models from individual transforms: {doc}`custom_pipeline`
-# - **Production benchmarks** — run ensembles at scale: see the
-#   [Ensemble Models benchmark](../benchmarks/liander2024/run_ensemble_benchmark)
+# - {doc}`hyperparameter_tuning_with_optuna` — tune each base model's
+#   parameters before combining them.
+# - {doc}`quantile_calibration` — calibrate the ensemble's uncertainty
+#   estimates for more reliable confidence intervals.

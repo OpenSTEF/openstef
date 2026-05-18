@@ -172,6 +172,8 @@ assert result.metrics_full is not None, "Full metrics should be present"
 #
 # The trained workflow produces a [`ForecastDataset`](https://openstef.github.io/openstef/v4/api/generated/openstef_core.datasets.ForecastDataset.html) with point predictions and
 # quantile bands.  The P10–P90 interval covers 80 % of expected outcomes.
+# To improve the reliability of these quantile estimates, see
+# {doc}`quantile_calibration`.
 
 # %%
 from openstef_core.datasets import ForecastDataset
@@ -216,9 +218,7 @@ fig.show()
 # %% [markdown]
 # ## Next steps
 #
-# - **Backtesting** — evaluate on historical data: {doc}`backtesting_quickstart`
-# - **Ensemble forecasting** — combine multiple models: {doc}`ensemble_forecasting`
-# - **Hyperparameter tuning** — optimize model parameters with Optuna:
-#   {doc}`hyperparameter_tuning_with_optuna`
-# - **Model explainability** — understand predictions with SHAP: {doc}`model_explainability`
-# - **Quantile calibration** — improve uncertainty estimates: {doc}`quantile_calibration`
+# - {doc}`backtesting_quickstart` — evaluate how this model performs on
+#   historical data with realistic temporal constraints.
+# - {doc}`custom_pipeline` — build a model from individual transforms when
+#   presets don't cover your use case.

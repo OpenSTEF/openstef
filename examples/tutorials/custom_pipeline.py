@@ -313,10 +313,7 @@ print(f"Raw forecast columns: {list(raw_forecast.data.columns)}")
 # %% [markdown]
 # ## Next steps
 #
-# - **Forecasting quickstart** — standard preset-based approach:
-#   {doc}`forecasting_quickstart`
-# - **Ensemble forecasting** — combine multiple models: {doc}`ensemble_forecasting`
-# - **Quantile calibration** — add calibration postprocessing:
-#   {doc}`quantile_calibration`
-# - **Model explainability** — understand predictions:
-#   {doc}`model_explainability`
+# - {doc}`ensemble_forecasting` — combine your custom pipeline with other
+#   models into an ensemble for better accuracy.
+# - {doc}`quantile_calibration` — append isotonic calibration to your
+#   postprocessing for more reliable confidence intervals.

@@ -173,7 +173,9 @@ fig.show()
 #
 # Mean absolute contribution per feature, ranked from most to least impactful.
 # This gives a complementary view to global importance — here you see which
-# features actively moved predictions during the forecast window.
+# features actively moved predictions during the forecast window.  If certain
+# features dominate unexpectedly, consider adjusting the pipeline via
+# {doc}`custom_pipeline`.
 
 # %%
 fig = ContributionsPlotter.plot_bar(contributions, top_n=12)
@@ -195,7 +197,7 @@ fig.show()
 # %% [markdown]
 # ## Next steps
 #
-# - **Forecasting quickstart** — train and predict basics: {doc}`forecasting_quickstart`
-# - **Custom pipeline** — fine-tune feature engineering: {doc}`custom_pipeline`
-# - **Quantile calibration** — improve uncertainty estimates: {doc}`quantile_calibration`
-# - **Hyperparameter tuning** — optimize model parameters: {doc}`hyperparameter_tuning_with_optuna`
+# - {doc}`hyperparameter_tuning_with_optuna` — use explainability insights
+#   to guide which parameters to tune.
+# - {doc}`custom_pipeline` — fine-tune feature engineering based on what
+#   the contributions reveal.

@@ -291,6 +291,9 @@ fig.show()
 # ## Compare: untuned vs tuned
 #
 # Plot both models on the same chart to visualize the improvement.
+# Once you're happy with the tuned parameters, run a
+# {doc}`backtesting_quickstart` to measure the gain over a realistic
+# operational timeline.
 
 # %%
 from openstef_beam.analysis.plots import ForecastTimeSeriesPlotter
@@ -333,8 +336,7 @@ print(f"{'Improvement':<20} {baseline_rcrps - tuned_rcrps:>10.4f}")
 # %% [markdown]
 # ## Next steps
 #
-# - **Forecasting quickstart** — standard training approach: {doc}`forecasting_quickstart`
-# - **Ensemble forecasting** — combine tuned models: {doc}`ensemble_forecasting`
-# - **Custom pipeline** — build pipelines from individual transforms: {doc}`custom_pipeline`
-# - **Quantile calibration** — improve uncertainty estimates: {doc}`quantile_calibration`
-# - **Backtesting** — evaluate tuned models over time: {doc}`backtesting_quickstart`
+# - {doc}`ensemble_forecasting` — combine tuned models into an ensemble
+#   for even better accuracy.
+# - {doc}`backtesting_quickstart` — validate tuned parameters on longer
+#   historical windows.

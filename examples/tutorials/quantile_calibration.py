@@ -245,13 +245,13 @@ fig.show()
 # %% [markdown]
 # Points closer to the diagonal indicate better calibration.  The isotonic
 # correction pulls the observed coverage towards the expected level, improving
-# the reliability of uncertainty estimates.
+# the reliability of uncertainty estimates.  To measure calibration stability
+# over longer time horizons, combine this with a {doc}`backtesting_quickstart`.
 
 # %% [markdown]
 # ## Next steps
 #
-# - **Forecasting quickstart** — train and predict basics: {doc}`forecasting_quickstart`
-# - **Ensemble forecasting** — combine multiple models: {doc}`ensemble_forecasting`
-# - **Model explainability** — understand predictions with SHAP values: {doc}`model_explainability`
-# - **Hyperparameter tuning** — optimize before calibrating: {doc}`hyperparameter_tuning_with_optuna`
-# - **Backtesting** — measure calibration over time: {doc}`backtesting_quickstart`
+# - {doc}`backtesting_quickstart` — measure calibration consistency over
+#   realistic operational periods.
+# - {doc}`ensemble_forecasting` — apply calibration to ensemble models
+#   for combined accuracy and reliable uncertainty.
