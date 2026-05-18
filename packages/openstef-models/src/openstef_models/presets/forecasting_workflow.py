@@ -197,6 +197,10 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
         default=0.5,
         description="Minimum fraction of data that should be available for making a regular forecast.",
     )
+    completeness_threshold_target_constant_quantile: float = Field(
+        default=0.03,
+        description="Minimum fraction of target data that should be available for making a constant quantile forecast.",
+    )
     flatliner_threshold: timedelta = Field(
         default=timedelta(hours=24),
         description="Number of minutes that the load has to be constant to detect a flatliner.",
@@ -506,7 +510,12 @@ def create_forecasting_workflow(
         )
         postprocessing = []
     elif config.model == "constant_quantile":
-        preprocessing = []
+        preprocessing = [
+            CompletenessChecker(
+                columns=[config.target_column],
+                completeness_threshold=config.completeness_threshold_target_constant_quantile,
+            ),
+        ]
         forecaster = ConstantQuantileForecaster(
             quantiles=config.quantiles,
             horizons=config.horizons,
