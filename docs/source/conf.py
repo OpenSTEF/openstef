@@ -161,7 +161,6 @@ nb_execution_timeout = 120
 nb_execution_raise_on_error = True
 # TODO(#884): backtesting notebook exceeds timeout — needs rewrite or execution split
 nb_execution_excludepatterns = [
-    "tutorials/backtesting_openstef_with_beam*",
     "tutorials/forecasting_with_workflow_presets*",
 ]
 

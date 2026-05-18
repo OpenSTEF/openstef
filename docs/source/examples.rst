@@ -20,4 +20,4 @@ Jupyter notebook rendered with executed outputs.
    Ensemble Forecasting <tutorials/ensemble_forecasting>
    Forecasting with Presets <tutorials/forecasting_with_workflow_presets>
    Hyperparameter Tuning <tutorials/hyperparameter_tuning_with_optuna>
-   Backtesting with BEAM <tutorials/backtesting_openstef_with_beam>
+   Backtesting Quickstart <tutorials/backtesting_quickstart>
