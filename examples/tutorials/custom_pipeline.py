@@ -60,6 +60,11 @@ logger = setup_notebook_logging(
 # This tutorial is for advanced users who need to go beyond presets.
 # Start with {doc}`forecasting_quickstart` for the standard approach.
 # ```
+#
+# **Key API references:**
+# [`ForecastingModel`](https://openstef.github.io/openstef/v4/api/generated/openstef_models.forecasting_model.html)
+# · [`TransformPipeline`](https://openstef.github.io/openstef/v4/api/generated/openstef_core.transforms.html)
+# · [`GBLinearForecaster`](https://openstef.github.io/openstef/v4/api/generated/openstef_models.forecasters.gblinear.html)
 
 # %% [markdown]
 # ## Load the dataset
@@ -309,6 +314,7 @@ print(f"Raw forecast columns: {list(raw_forecast.data.columns)}")
 #
 # - **Forecasting quickstart** — standard preset-based approach:
 #   {doc}`forecasting_quickstart`
+# - **Ensemble forecasting** — combine multiple models: {doc}`ensemble_forecasting`
 # - **Quantile calibration** — add calibration postprocessing:
 #   {doc}`quantile_calibration`
 # - **Model explainability** — understand predictions:

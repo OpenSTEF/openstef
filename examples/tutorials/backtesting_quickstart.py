@@ -63,6 +63,12 @@ logger = setup_notebook_logging(
 # wraps all of this into a single pipeline call — see
 # `examples/benchmarks/` for ready-to-run examples.
 # ```
+#
+# **Key API references:**
+# [`BacktestPipeline`](https://openstef.github.io/openstef/v4/api/generated/openstef_beam.backtesting.backtest_pipeline.html)
+# · [`BacktestConfig`](https://openstef.github.io/openstef/v4/api/generated/openstef_beam.backtesting.BacktestConfig.html)
+# · [`BacktestForecasterConfig`](https://openstef.github.io/openstef/v4/api/generated/openstef_beam.backtesting.BacktestForecasterConfig.html)
+# · [`EvaluationConfig`](https://openstef.github.io/openstef/v4/api/generated/openstef_beam.evaluation.EvaluationConfig.html)
 
 # %% [markdown]
 # ## How backtesting works
@@ -300,9 +306,8 @@ fig.show()
 # %% [markdown]
 # ## Next steps
 #
+# - **Forecasting quickstart** — train and predict basics: {doc}`forecasting_quickstart`
+# - **Ensemble forecasting** — backtest ensemble models: {doc}`ensemble_forecasting`
+# - **Hyperparameter tuning** — optimize before backtesting: {doc}`hyperparameter_tuning_with_optuna`
 # - **Full benchmark** — run the Liander 2024 benchmark across all targets:
-#   see `examples/benchmarks/`
-# - **Multiple models** — compare different model types by running separate
-#   backtests and evaluating side-by-side
-# - **Ensemble forecasting** — backtest ensemble models: {doc}`Ensemble
-#   Forecasting <ensemble_forecasting>`
+#   see the [Benchmarking Guide](../benchmarks/README)

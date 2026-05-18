@@ -60,6 +60,10 @@ logger = setup_notebook_logging(
 # This tutorial uses a small data slice for fast execution.
 # See `examples/benchmarks/` for production-scale runs.
 # ```
+#
+# **Key API references:**
+# [`IsotonicQuantileCalibrator`](https://openstef.github.io/openstef/v4/api/generated/openstef_models.calibration.html)
+# · [`ForecastingWorkflowConfig`](https://openstef.github.io/openstef/v4/api/generated/openstef_models.presets.ForecastingWorkflowConfig.html)
 
 # %% [markdown]
 # ## Load data and train an uncalibrated model
@@ -244,7 +248,8 @@ fig.show()
 # %% [markdown]
 # ## Next steps
 #
-# - **Forecasting quickstart** — train and predict basics:
-#   {doc}`forecasting_quickstart`
-# - **Model explainability** — understand predictions with SHAP values:
-#   {doc}`model_explainability`
+# - **Forecasting quickstart** — train and predict basics: {doc}`forecasting_quickstart`
+# - **Ensemble forecasting** — combine multiple models: {doc}`ensemble_forecasting`
+# - **Model explainability** — understand predictions with SHAP values: {doc}`model_explainability`
+# - **Hyperparameter tuning** — optimize before calibrating: {doc}`hyperparameter_tuning_with_optuna`
+# - **Backtesting** — measure calibration over time: {doc}`backtesting_quickstart`

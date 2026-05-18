@@ -38,6 +38,12 @@
 # This tutorial uses a small data slice for fast execution.
 # See `examples/benchmarks/` for production-scale runs.
 # ```
+#
+# **Key API references:**
+# [`ForecastingWorkflowConfig`](https://openstef.github.io/openstef/v4/api/generated/openstef_models.presets.ForecastingWorkflowConfig.html)
+# · [`create_forecasting_workflow`](https://openstef.github.io/openstef/v4/api/generated/openstef_models.presets.html#create_forecasting_workflow)
+# · [`LeadTime`](https://openstef.github.io/openstef/v4/api/generated/openstef_core.types.LeadTime.html)
+# · [`Q`](https://openstef.github.io/openstef/v4/api/generated/openstef_core.types.Quantile.html)
 
 # %% tags=["remove-cell"]
 import warnings
@@ -210,5 +216,9 @@ fig.show()
 # %% [markdown]
 # ## Next steps
 #
+# - **Backtesting** — evaluate on historical data: {doc}`backtesting_quickstart`
+# - **Ensemble forecasting** — combine multiple models: {doc}`ensemble_forecasting`
 # - **Hyperparameter tuning** — optimize model parameters with Optuna:
 #   {doc}`hyperparameter_tuning_with_optuna`
+# - **Model explainability** — understand predictions with SHAP: {doc}`model_explainability`
+# - **Quantile calibration** — improve uncertainty estimates: {doc}`quantile_calibration`

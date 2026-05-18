@@ -62,6 +62,11 @@ logger = setup_notebook_logging(
 # This tutorial runs only 5 trials for fast execution.
 # Increase `n_trials` for production use.
 # ```
+#
+# **Key API references:**
+# [`HyperparameterTuner`](https://openstef.github.io/openstef/v4/api/generated/openstef_models.hyperparameter_tuning.html)
+# · [`XGBoostHyperParams`](https://openstef.github.io/openstef/v4/api/generated/openstef_models.forecasters.xgboost.html)
+# · [`FloatRange` / `IntRange`](https://openstef.github.io/openstef/v4/api/generated/openstef_models.hyperparameter_tuning.html)
 
 # %% [markdown]
 # ## Load the dataset
@@ -328,9 +333,8 @@ print(f"{'Improvement':<20} {baseline_rcrps - tuned_rcrps:>10.4f}")
 # %% [markdown]
 # ## Next steps
 #
-# - **Forecasting quickstart** — standard training approach: {doc}`Forecasting
-#   Quickstart <forecasting_quickstart>`
-# - **Custom pipeline** — build pipelines from individual transforms: {doc}`Building a
-#   Custom Pipeline <custom_pipeline>`
-# - **Quantile calibration** — improve uncertainty estimates: {doc}`Quantile
-#   Calibration <quantile_calibration>`
+# - **Forecasting quickstart** — standard training approach: {doc}`forecasting_quickstart`
+# - **Ensemble forecasting** — combine tuned models: {doc}`ensemble_forecasting`
+# - **Custom pipeline** — build pipelines from individual transforms: {doc}`custom_pipeline`
+# - **Quantile calibration** — improve uncertainty estimates: {doc}`quantile_calibration`
+# - **Backtesting** — evaluate tuned models over time: {doc}`backtesting_quickstart`

@@ -60,6 +60,11 @@ logger = setup_notebook_logging(
 # This tutorial uses a small dataset for fast execution.
 # See `examples/benchmarks/` for production-scale ensemble runs.
 # ```
+#
+# **Key API references:**
+# [`EnsembleForecastingWorkflowConfig`](https://openstef.github.io/openstef/v4/api/generated/openstef_meta.presets.EnsembleForecastingWorkflowConfig.html)
+# · [`create_ensemble_forecasting_workflow`](https://openstef.github.io/openstef/v4/api/generated/openstef_meta.presets.html#create_ensemble_forecasting_workflow)
+# · [`ForecastingWorkflowConfig`](https://openstef.github.io/openstef/v4/api/generated/openstef_models.presets.ForecastingWorkflowConfig.html)
 
 # %% [markdown]
 # ## Why ensemble forecasting?
@@ -340,9 +345,9 @@ for name, fc in models.items():
 # %% [markdown]
 # ## Next steps
 #
-# - **Hyperparameter tuning** — optimize model parameters: {doc}`Hyperparameter
-#   Tuning <hyperparameter_tuning_with_optuna>`
-# - **Quantile calibration** — improve uncertainty estimates: {doc}`Quantile
-#   Calibration <quantile_calibration>`
-# - **Custom pipeline** — build models from individual transforms: {doc}`Building a
-#   Custom Pipeline <custom_pipeline>`
+# - **Backtesting** — evaluate ensemble performance over time: {doc}`backtesting_quickstart`
+# - **Hyperparameter tuning** — optimize model parameters: {doc}`hyperparameter_tuning_with_optuna`
+# - **Quantile calibration** — improve uncertainty estimates: {doc}`quantile_calibration`
+# - **Custom pipeline** — build models from individual transforms: {doc}`custom_pipeline`
+# - **Production benchmarks** — run ensembles at scale: see the
+#   [Ensemble Models benchmark](../benchmarks/liander2024/run_ensemble_benchmark)

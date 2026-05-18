@@ -58,6 +58,10 @@ logger = setup_notebook_logging(
 # This tutorial uses a small data slice for fast execution.
 # See `examples/benchmarks/` for production-scale runs.
 # ```
+#
+# **Key API references:**
+# [`ExplainableForecaster`](https://openstef.github.io/openstef/v4/api/generated/openstef_models.explainability.html)
+# · [`ContributionsPlotter`](https://openstef.github.io/openstef/v4/api/generated/openstef_models.explainability.html)
 
 # %% [markdown]
 # ## Train a model
@@ -189,7 +193,7 @@ fig.show()
 # %% [markdown]
 # ## Next steps
 #
-# - **Forecasting quickstart** — train and predict basics:
-#   {doc}`forecasting_quickstart`
-# - **Hyperparameter tuning** — optimize model parameters with Optuna:
-#   {doc}`hyperparameter_tuning_with_optuna`
+# - **Forecasting quickstart** — train and predict basics: {doc}`forecasting_quickstart`
+# - **Custom pipeline** — fine-tune feature engineering: {doc}`custom_pipeline`
+# - **Quantile calibration** — improve uncertainty estimates: {doc}`quantile_calibration`
+# - **Hyperparameter tuning** — optimize model parameters: {doc}`hyperparameter_tuning_with_optuna`
