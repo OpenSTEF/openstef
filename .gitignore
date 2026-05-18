@@ -68,6 +68,10 @@ dmypy.json
 docs/_build/
 docs/source/api/generated/
 docs/source/tutorials/
+docs/source/benchmarks/
+
+# Playwright MCP (browser testing artifacts)
+.playwright-mcp/
 
 # docs/_doctrees/
 # docs/_static_gen/
