@@ -54,7 +54,6 @@ os.environ["MKL_NUM_THREADS"] = "1"
 
 # %%
 import logging
-import multiprocessing
 from datetime import timedelta
 from pathlib import Path
 
@@ -83,7 +82,7 @@ logging.basicConfig(level=logging.INFO, format="[%(asctime)s][%(levelname)s] %(m
 # %%
 OUTPUT_PATH = Path("./benchmark_results")
 
-N_PROCESSES = 1 if True else multiprocessing.cpu_count()
+N_PROCESSES = int(os.environ.get("OPENSTEF_N_PROCESSES", "1"))
 
 ensemble_type = "learned_weights"  # "stacking", "learned_weights" or "rules"
 base_models = ["lgbm", "gblinear"]  # combination of "lgbm", "gblinear", "xgboost" and "lgbm_linear"
@@ -113,7 +112,7 @@ BENCHMARK_FILTER: list[Liander2024Category] | None = None
 # settings: which base models to use, the combiner strategy, and per-model sample weights.
 
 # %%
-USE_MLFLOW_STORAGE = True
+USE_MLFLOW_STORAGE = os.environ.get("OPENSTEF_MLFLOW_STORAGE", "true").lower() == "true"
 
 if USE_MLFLOW_STORAGE:
     storage = MLFlowStorage(

@@ -32,7 +32,7 @@
 #
 # ```{admonition} Runtime
 # Expect 30-60 min on a laptop (uses all CPU cores).
-# Set `N_PROCESSES = 1` for easier debugging.
+# Set `OPENSTEF_N_PROCESSES=1` for easier debugging.
 # ```
 
 # %% tags=["remove-cell"]
@@ -81,7 +81,7 @@ OUTPUT_PATH = Path("./benchmark_results")
 
 BENCHMARK_RESULTS_PATH_XGBOOST = OUTPUT_PATH / "XGBoost"
 BENCHMARK_RESULTS_PATH_GBLINEAR = OUTPUT_PATH / "GBLinear"
-N_PROCESSES = multiprocessing.cpu_count()
+N_PROCESSES = int(os.environ.get("OPENSTEF_N_PROCESSES", str(multiprocessing.cpu_count())))
 
 # Forecast 3 days ahead, producing 7 quantile bands
 FORECAST_HORIZONS = [LeadTime.from_string("P3D")]
@@ -104,10 +104,10 @@ BENCHMARK_FILTER: list[Liander2024Category] | None = None
 # `ForecastingWorkflowConfig` defines how OpenSTEF trains and predicts.
 # We create a shared base config and derive model-specific variants with `model_copy()`.
 #
-# Set `USE_MLFLOW_STORAGE = True` to log experiment artifacts to MLflow.
+# Set `OPENSTEF_MLFLOW_STORAGE=true` to log experiment artifacts to MLflow.
 
 # %%
-USE_MLFLOW_STORAGE = False
+USE_MLFLOW_STORAGE = os.environ.get("OPENSTEF_MLFLOW_STORAGE", "false").lower() == "true"
 
 if USE_MLFLOW_STORAGE:
     storage = MLFlowStorage(

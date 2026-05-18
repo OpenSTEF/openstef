@@ -68,7 +68,7 @@ logging.basicConfig(level=logging.INFO, format="[%(asctime)s][%(levelname)s] %(m
 
 # %%
 OUTPUT_PATH = Path("./benchmark_results")
-N_PROCESSES = multiprocessing.cpu_count()
+N_PROCESSES = int(os.environ.get("OPENSTEF_N_PROCESSES", str(multiprocessing.cpu_count())))
 
 # Optional: filter to specific target categories (None = run all)
 BENCHMARK_FILTER: list[Liander2024Category] | None = None
