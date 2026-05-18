@@ -27,7 +27,6 @@ Tutorials
    Building a Custom Pipeline <tutorials/custom_pipeline>
    Ensemble Forecasting <tutorials/ensemble_forecasting>
    Hyperparameter Tuning <tutorials/hyperparameter_tuning_with_optuna>
-   Forecasting with Presets <tutorials/forecasting_with_workflow_presets>
 
 .. toctree::
    :maxdepth: 1

@@ -159,9 +159,7 @@ nb_custom_formats = {".py": ["jupytext.reads", {"fmt": "py:percent"}]}
 nb_execution_mode = "cache"
 nb_execution_timeout = 120
 nb_execution_raise_on_error = True
-# TODO(#884): backtesting notebook exceeds timeout — needs rewrite or execution split
 nb_execution_excludepatterns = [
-    "tutorials/forecasting_with_workflow_presets*",
     "benchmarks/*",  # Benchmarks are too expensive to execute during docs build
     "benchmarks/*/*",
 ]
