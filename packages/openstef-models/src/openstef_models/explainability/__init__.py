@@ -8,10 +8,11 @@ Tools for feature importance, attribution and model interpretation.
 """
 
 from .mixins import ContributionsMixin, ExplainableForecaster
-from .plotters import FeatureImportancePlotter
+from .plotters import ContributionsPlotter, FeatureImportancePlotter
 
 __all__ = [
     "ContributionsMixin",
+    "ContributionsPlotter",
     "ExplainableForecaster",
     "FeatureImportancePlotter",
 ]

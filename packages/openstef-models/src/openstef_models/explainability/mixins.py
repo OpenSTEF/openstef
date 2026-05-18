@@ -9,12 +9,14 @@ and generate visualization plots.
 """
 
 from abc import ABC, abstractmethod
+from typing import Any, Literal
 
 import pandas as pd
 import plotly.graph_objects as go
 
 from openstef_core.datasets import ForecastInputDataset, TimeSeriesDataset
 from openstef_core.types import Q, Quantile
+from openstef_models.explainability.plotters.contributions_plotter import ContributionsPlotter
 from openstef_models.explainability.plotters.feature_importance_plotter import FeatureImportancePlotter
 
 
@@ -88,3 +90,37 @@ class ContributionsMixin(ABC):
             rows are timesteps.  A ``bias`` column may be included for the
             model intercept/base value.
         """
+
+    def plot_contributions(
+        self,
+        data: ForecastInputDataset,
+        kind: Literal["heatmap", "waterfall", "bar"] = "heatmap",
+        **kwargs: Any,
+    ) -> go.Figure:
+        """Plot per-sample feature contributions.
+
+        Calls ``predict_contributions()`` and visualizes the result using the
+        requested chart type.
+
+        Args:
+            data: Preprocessed input data.
+            kind: Chart type — ``"heatmap"``, ``"waterfall"``, or ``"bar"``.
+            **kwargs: Forwarded to the corresponding plotter method
+                (e.g. ``top_n``, ``timestep``).
+
+        Returns:
+            Plotly Figure.
+
+        Raises:
+            ValueError: If *kind* is not one of the supported chart types.
+        """
+        contributions = self.predict_contributions(data)
+        plotters = {
+            "heatmap": ContributionsPlotter.plot_heatmap,
+            "waterfall": ContributionsPlotter.plot_waterfall,
+            "bar": ContributionsPlotter.plot_bar,
+        }
+        if kind not in plotters:
+            msg = f"Unknown plot kind {kind!r}. Choose from {list(plotters)}"
+            raise ValueError(msg)
+        return plotters[kind](contributions=contributions, **kwargs)
