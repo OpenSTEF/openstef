@@ -88,10 +88,9 @@ class ConstantQuantileForecaster(Forecaster, ExplainableForecaster, Contribution
 
     @override
     def fit(self, data: ForecastInputDataset, data_val: ForecastInputDataset | None = None) -> None:
-        target_series = data.target_series.dropna()
-        if target_series.empty:
+        if data.target_series.isna().all():
             raise InputValidationError("Training data must contain at least one non-NaN value in the target column.")
-        self._quantile_values = {quantile: target_series.quantile(quantile) for quantile in self.quantiles}
+        self._quantile_values = {quantile: data.target_series.quantile(quantile) for quantile in self.quantiles}
 
     @override
     def predict(self, data: ForecastInputDataset) -> ForecastDataset:
