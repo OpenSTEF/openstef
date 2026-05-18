@@ -2,8 +2,10 @@
 ..
 .. SPDX-License-Identifier: MPL-2.0
 
-{{ fullname }}
-{{ "=" * fullname|length }}
+{% set parts = fullname.split('.') %}
+{% set short_name = parts[-1] if parts|length >= 3 else (parts[1:] | join('.') if parts|length > 1 else fullname) %}
+{{ short_name }}
+{{ "=" * short_name|length }}
 
 .. currentmodule:: {{ fullname }}
 
@@ -12,23 +14,22 @@
    :no-inherited-members:
 
 {% block package_overview %}
-{% if modules or functions or classes or members %}
+{# Dynamically discover child modules/packages via pkgutil (no hardcoding needed) #}
+{% set discovered = discover_submodules(fullname) %}
+{# Remove any modules already provided by autosummary to avoid duplicates #}
+{% set known = modules | map('replace', fullname ~ '.', '') | list %}
+{% set extra_submodules = discovered | reject('in', known) | list %}
+{% if modules or extra_submodules or functions or classes or members %}
 
-{# Custom logic to detect submodules from __all__ #}
-{% set submodules = [] %}
-{% if fullname == 'openstef_core.datasets' %}
-{% set _ = submodules.append('mixins') %}
-{% endif %}
-
-{% if modules or submodules %}
+{% if modules or extra_submodules %}
 Submodules
 ----------
 
-{% if submodules %}
+{% if extra_submodules %}
 .. autosummary::
    :toctree: .
    :template: module_overview.rst
-{% for item in submodules %}
+{% for item in extra_submodules %}
    {{ fullname }}.{{ item }}
 {%- endfor %}
 

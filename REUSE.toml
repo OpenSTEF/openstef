@@ -6,6 +6,7 @@ path = [
     ".python-version",
     "uv.lock",
     "examples/*/*.ipynb",
+    "examples/tutorials/*.py",
 ]
 precedence = "override"
 SPDX-FileCopyrightText = "2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>"

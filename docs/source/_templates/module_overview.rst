@@ -2,8 +2,10 @@
 ..
 .. SPDX-License-Identifier: MPL-2.0
 
-{{ fullname }}
-{{ "=" * fullname|length }}
+{% set parts = fullname.split('.') %}
+{% set short_name = parts[-1] if parts|length >= 3 else (parts[1:] | join('.') if parts|length > 1 else fullname) %}
+{{ short_name }}
+{{ "=" * short_name|length }}
 
 .. currentmodule:: {{ fullname }}
 

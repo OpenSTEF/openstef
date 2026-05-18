@@ -13,7 +13,7 @@
 #     name: python3
 # ---
 
-# %%
+# %% tags=["remove-cell"]
 # SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
@@ -233,6 +233,31 @@ explainable_model = cast(ExplainableForecaster, forecaster)
 fig = explainable_model.plot_feature_importances()
 fig.update_layout(title="🔍 Feature Importance Treemap")
 fig.show()
+
+# %% [markdown]
+# ## 🔬 Step 9: Visualize Feature Contributions (SHAP)
+#
+# While feature importance shows **which** features matter overall, **contributions**
+# show how each feature pushed the prediction up or down for every individual timestep.
+# GBLinear models expose these as SHAP values via `predict_contributions()`.
+
+# %%
+# Compute per-timestep feature contributions for the forecast period
+from openstef_models.explainability import ContributionsPlotter
+
+contributions = workflow.model.predict_contributions(forecast_dataset)
+
+# %%
+# Heatmap: contributions over time with prediction line
+ContributionsPlotter.plot_heatmap(contributions, top_n=10, show_prediction=True).show()
+
+# %%
+# Waterfall: decompose a single timestep's prediction
+ContributionsPlotter.plot_waterfall(contributions, timestep=0, top_n=10).show()
+
+# %%
+# Bar chart: mean absolute contribution per feature
+ContributionsPlotter.plot_bar(contributions, top_n=10).show()
 
 # %% [markdown]
 # ---
