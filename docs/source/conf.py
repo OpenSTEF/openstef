@@ -10,10 +10,13 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
+import importlib
+import pkgutil
 from pathlib import Path
 import re
 from typing import Any
 import warnings
+from docutils import nodes as docutils_nodes
 from sphinx_pyproject import SphinxConfig
 from sphinx.application import Sphinx
 import yaml
@@ -62,6 +65,33 @@ copybutton_exclude = "style"
 autosummary_generate = True
 autosummary_generate_overwrite = True
 autosummary_imported_members = False
+
+# Suppress benign import_cycle warnings from recursive autosummary (modules are
+# listed in both the parent's :recursive: directive and the template's toctree)
+suppress_warnings = ["autosummary.import_cycle"]
+
+
+def _discover_submodules(fullname: str) -> list[str]:
+    """Discover child modules/packages of *fullname* via pkgutil.
+
+    Returns an empty list when *fullname* is not a package (has no ``__path__``)
+    or when the import fails (e.g. missing optional dependency).
+    """
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        try:
+            mod = importlib.import_module(fullname)
+        except Exception:  # noqa: BLE001
+            return []
+    pkg_path = getattr(mod, "__path__", None)
+    if pkg_path is None:
+        return []
+    return sorted(name for _, name, _ispkg in pkgutil.iter_modules(pkg_path))
+
+
+autosummary_context = {
+    "discover_submodules": _discover_submodules,
+}
 
 # Don't generate separate pages for class members
 autosummary_mock_imports = []
@@ -243,10 +273,10 @@ html_theme_options = {
     "search_bar_text": "Search the docs ...",
     "navigation_with_keys": False,
     "collapse_navigation": False,
-    "navigation_depth": 3,  # Show more levels for API reference
-    "show_nav_level": 2,  # Show more levels in navbar
+    "navigation_depth": 4,
+    "show_nav_level": 2,
     "navbar_center": ["navbar-nav"],  # Use only primary navigation
-    "show_toc_level": 3,  # Show deeper TOC levels in sidebar
+    "show_toc_level": 2,
     "navbar_align": "left",
     "header_links_before_dropdown": 5,
     "header_dropdown_text": "More",
@@ -327,6 +357,58 @@ def rstjinja(app: Sphinx, docname: str, source: list[str]) -> None:
     source[0] = rendered
 
 
+def _inject_pydantic_field_descriptions(
+    app: Sphinx,  # noqa: ARG001
+    domain: str,
+    objtype: str,
+    contentnode: docutils_nodes.Element,
+) -> None:
+    """Inject Pydantic ``Field(description=...)`` text into attribute nodes.
+
+    This runs via ``object-description-transform`` *after* autodoc has rendered
+    each attribute directive.  For Pydantic model fields whose content area is
+    empty, we look up the ``description`` from ``model_fields`` and insert a
+    paragraph node so the description appears next to the type annotation.
+    """
+    if domain != "py" or objtype != "attribute":
+        return
+    # Only inject into empty content areas
+    if contentnode.children:
+        return
+    # The signature node is the first child of the parent desc node
+    sig = contentnode.parent[0] if contentnode.parent else None
+    if sig is None:
+        return
+    ids = sig.get("ids", [])
+    if not ids:
+        return
+    # ID looks like "pkg.mod.ClassName.field_name"
+    full_id = ids[0]
+    parts = full_id.rsplit(".", 2)
+    if len(parts) < 3:
+        return
+    field_name = parts[-1]
+    parent_qualname = ".".join(parts[:-1])
+    parent_module, _, parent_attr = parent_qualname.rpartition(".")
+    if not parent_module:
+        return
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        try:
+            mod = importlib.import_module(parent_module)
+        except Exception:  # noqa: BLE001
+            return
+    parent_cls = getattr(mod, parent_attr, None)
+    model_fields = getattr(parent_cls, "model_fields", None)
+    if model_fields is None or field_name not in model_fields:
+        return
+    desc = model_fields[field_name].description
+    if not desc:
+        return
+    para = docutils_nodes.paragraph("", desc)
+    contentnode.append(para)
+
+
 def setup(app: Sphinx) -> None:
     """Sphinx setup function to make citation data available in templates."""
     if citation_cff:
@@ -336,3 +418,4 @@ def setup(app: Sphinx) -> None:
         }
         app.config.html_context.update(context_update)  # type: ignore[attr-defined]
         app.connect("source-read", rstjinja)
+    app.connect("object-description-transform", _inject_pydantic_field_descriptions)
