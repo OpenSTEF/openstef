@@ -141,7 +141,7 @@ calibration_df = pd.DataFrame({
     "quantile": [f"P{int(float(q) * 100)}" for q in quantiles],
     "expected": expected,
     "observed": observed_uncal,
-    "error": [o - e for o, e in zip(observed_uncal, expected)],
+    "error": [o - e for o, e in zip(observed_uncal, expected, strict=True)],
 })
 print("Calibration before isotonic correction:")
 print(calibration_df.to_string(index=False))
@@ -190,8 +190,8 @@ comparison_df = pd.DataFrame({
     "expected": expected,
     "observed (before)": observed_uncal,
     "observed (after)": observed_cal,
-    "error (before)": [o - e for o, e in zip(observed_uncal, expected)],
-    "error (after)": [o - e for o, e in zip(observed_cal, expected)],
+    "error (before)": [o - e for o, e in zip(observed_uncal, expected, strict=True)],
+    "error (after)": [o - e for o, e in zip(observed_cal, expected, strict=True)],
 })
 print(comparison_df.to_string(index=False))
 

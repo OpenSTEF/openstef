@@ -142,7 +142,6 @@ lint.per-file-ignores."./examples/benchmarks/liander2024/*" = [
 ]
 lint.per-file-ignores."./examples/tutorials/*" = [
   "ANN",     # Tutorials don't need full type annotations for inline helpers
-  "B905",    # zip() strict= not needed in notebook demo code
   "D100",    # Notebooks don't need module docstrings
   "D103",    # Inline helpers in notebooks don't need docstrings
   "E402",    # Imports not at top — notebook cells have natural ordering
@@ -153,7 +152,6 @@ lint.per-file-ignores."./examples/tutorials/*" = [
   "PLR2004", # Magic values in assertions are fine for notebook checks
   "PT018",   # Assertion style doesn't matter in notebooks
   "PTH",     # Tutorials may use os.path for simplicity
-  "RUF003",  # Unicode chars (EN dashes etc.) are fine in markdown comments
   "S101",    # Tutorials may use assert for runtime checks
   "SLF001",  # Private member access needed to demonstrate internals
   "T201",    # Tutorials may use print for demonstration
