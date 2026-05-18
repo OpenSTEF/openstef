@@ -2,15 +2,16 @@
 ..
 .. SPDX-License-Identifier: MPL-2.0
 
-openstef_core.datasets
-======================
+
+
+datasets
+========
 
 .. currentmodule:: openstef_core.datasets
 
 .. automodule:: openstef_core.datasets
    :no-members:
    :no-inherited-members:
-
 
 
 
@@ -30,6 +31,10 @@ Submodules
    :template: module_overview.rst
 
    openstef_core.datasets.mixins
+   openstef_core.datasets.timeseries_dataset
+   openstef_core.datasets.validated_datasets
+   openstef_core.datasets.validation
+   openstef_core.datasets.versioned_timeseries_dataset
 
 
 

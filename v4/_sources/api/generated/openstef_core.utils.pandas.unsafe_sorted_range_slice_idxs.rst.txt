@@ -1,0 +1,10 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+unsafe_sorted_range_slice_idxs
+==============================
+
+.. currentmodule:: openstef_core.utils.pandas
+
+.. autofunction:: unsafe_sorted_range_slice_idxs

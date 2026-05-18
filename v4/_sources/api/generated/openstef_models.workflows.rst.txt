@@ -1,0 +1,58 @@
+﻿.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+
+
+workflows
+=========
+
+.. currentmodule:: openstef_models.workflows
+
+.. automodule:: openstef_models.workflows
+   :no-members:
+   :no-inherited-members:
+
+
+
+
+
+
+
+
+
+
+Submodules
+----------
+
+
+.. autosummary::
+   :toctree: .
+   :template: module_overview.rst
+
+   openstef_models.workflows.callbacks
+   openstef_models.workflows.custom_component_split_workflow
+   openstef_models.workflows.custom_forecasting_workflow
+
+
+
+
+
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_class.rst
+
+   CustomComponentSplitWorkflow
+   CustomForecastingWorkflow
+
+
+
+
+
+
+
+

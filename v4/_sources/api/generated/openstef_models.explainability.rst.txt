@@ -2,8 +2,10 @@
 ..
 .. SPDX-License-Identifier: MPL-2.0
 
-openstef_models.explainability
-==============================
+
+
+explainability
+==============
 
 .. currentmodule:: openstef_models.explainability
 
@@ -15,6 +17,21 @@ openstef_models.explainability
 
 
 
+
+
+
+
+
+Submodules
+----------
+
+
+.. autosummary::
+   :toctree: .
+   :template: module_overview.rst
+
+   openstef_models.explainability.mixins
+   openstef_models.explainability.plotters
 
 
 

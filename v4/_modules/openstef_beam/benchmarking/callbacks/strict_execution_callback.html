@@ -462,7 +462,7 @@
 
 
 <div class="viewcode-block" id="StrictExecutionCallback">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.StrictExecutionCallback.html#openstef_beam.benchmarking.StrictExecutionCallback">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.callbacks.StrictExecutionCallback.html#openstef_beam.benchmarking.StrictExecutionCallback">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">StrictExecutionCallback</span><span class="p">(</span><span class="n">BenchmarkCallback</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Callback to ensure strict benchmark execution with immediate error termination.</span>
 
@@ -475,7 +475,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="StrictExecutionCallback.on_error">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.StrictExecutionCallback.html#openstef_beam.benchmarking.StrictExecutionCallback.on_error">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.callbacks.StrictExecutionCallback.html#openstef_beam.benchmarking.StrictExecutionCallback.on_error">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">on_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runner</span><span class="p">:</span> <span class="s2">&quot;BenchmarkPipeline[Any, Any]&quot;</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">,</span> <span class="n">error</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Re-raise any error to immediately terminate benchmark execution.&quot;&quot;&quot;</span>

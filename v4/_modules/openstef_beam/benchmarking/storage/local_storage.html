@@ -463,7 +463,7 @@
 
 
 <div class="viewcode-block" id="LocalBenchmarkStorage">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.LocalBenchmarkStorage.html#openstef_beam.benchmarking.LocalBenchmarkStorage">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.storage.LocalBenchmarkStorage.html#openstef_beam.benchmarking.LocalBenchmarkStorage">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">LocalBenchmarkStorage</span><span class="p">(</span><span class="n">BenchmarkStorage</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;File system-based storage implementation for benchmark results.</span>
 
@@ -488,7 +488,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="LocalBenchmarkStorage.__init__">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.LocalBenchmarkStorage.html#openstef_beam.benchmarking.LocalBenchmarkStorage.__init__">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.storage.LocalBenchmarkStorage.html#openstef_beam.benchmarking.LocalBenchmarkStorage.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">base_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
@@ -519,7 +519,7 @@
 
 
 <div class="viewcode-block" id="LocalBenchmarkStorage.save_backtest_output">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.LocalBenchmarkStorage.html#openstef_beam.benchmarking.LocalBenchmarkStorage.save_backtest_output">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.storage.LocalBenchmarkStorage.html#openstef_beam.benchmarking.LocalBenchmarkStorage.save_backtest_output">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">save_backtest_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">,</span> <span class="n">output</span><span class="p">:</span> <span class="n">TimeSeriesDataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Save backtest predictions to a parquet file.&quot;&quot;&quot;</span>
@@ -529,7 +529,7 @@
 
 
 <div class="viewcode-block" id="LocalBenchmarkStorage.load_backtest_output">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.LocalBenchmarkStorage.html#openstef_beam.benchmarking.LocalBenchmarkStorage.load_backtest_output">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.storage.LocalBenchmarkStorage.html#openstef_beam.benchmarking.LocalBenchmarkStorage.load_backtest_output">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">load_backtest_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TimeSeriesDataset</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Load backtest predictions from a parquet file.</span>
@@ -543,35 +543,35 @@
 
 
 <div class="viewcode-block" id="LocalBenchmarkStorage.has_backtest_output">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.LocalBenchmarkStorage.html#openstef_beam.benchmarking.LocalBenchmarkStorage.has_backtest_output">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.storage.LocalBenchmarkStorage.html#openstef_beam.benchmarking.LocalBenchmarkStorage.has_backtest_output">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">has_backtest_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_predictions_path_for_target</span><span class="p">(</span><span class="n">target</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">skip_when_existing</span></div>
 
 
 <div class="viewcode-block" id="LocalBenchmarkStorage.save_evaluation_output">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.LocalBenchmarkStorage.html#openstef_beam.benchmarking.LocalBenchmarkStorage.save_evaluation_output">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.storage.LocalBenchmarkStorage.html#openstef_beam.benchmarking.LocalBenchmarkStorage.save_evaluation_output">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">save_evaluation_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">,</span> <span class="n">output</span><span class="p">:</span> <span class="n">EvaluationReport</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">output</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_evaluations_path_for_target</span><span class="p">(</span><span class="n">target</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="LocalBenchmarkStorage.load_evaluation_output">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.LocalBenchmarkStorage.html#openstef_beam.benchmarking.LocalBenchmarkStorage.load_evaluation_output">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.storage.LocalBenchmarkStorage.html#openstef_beam.benchmarking.LocalBenchmarkStorage.load_evaluation_output">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">load_evaluation_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EvaluationReport</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">EvaluationReport</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_evaluations_path_for_target</span><span class="p">(</span><span class="n">target</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="LocalBenchmarkStorage.has_evaluation_output">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.LocalBenchmarkStorage.html#openstef_beam.benchmarking.LocalBenchmarkStorage.has_evaluation_output">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.storage.LocalBenchmarkStorage.html#openstef_beam.benchmarking.LocalBenchmarkStorage.has_evaluation_output">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">has_evaluation_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_evaluations_path_for_target</span><span class="p">(</span><span class="n">target</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">skip_when_existing</span></div>
 
 
 <div class="viewcode-block" id="LocalBenchmarkStorage.save_analysis_output">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.LocalBenchmarkStorage.html#openstef_beam.benchmarking.LocalBenchmarkStorage.save_analysis_output">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.storage.LocalBenchmarkStorage.html#openstef_beam.benchmarking.LocalBenchmarkStorage.save_analysis_output">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">save_analysis_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output</span><span class="p">:</span> <span class="n">AnalysisOutput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Save analysis visualizations to HTML files.&quot;&quot;&quot;</span>
@@ -584,14 +584,14 @@
 
 
 <div class="viewcode-block" id="LocalBenchmarkStorage.has_analysis_output">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.LocalBenchmarkStorage.html#openstef_beam.benchmarking.LocalBenchmarkStorage.has_analysis_output">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.storage.LocalBenchmarkStorage.html#openstef_beam.benchmarking.LocalBenchmarkStorage.has_analysis_output">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">has_analysis_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scope</span><span class="p">:</span> <span class="n">AnalysisScope</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_analysis_path</span><span class="p">(</span><span class="n">scope</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">skip_when_existing</span></div>
 
 
 <div class="viewcode-block" id="LocalBenchmarkStorage.get_predictions_path_for_target">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.LocalBenchmarkStorage.html#openstef_beam.benchmarking.LocalBenchmarkStorage.get_predictions_path_for_target">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.storage.LocalBenchmarkStorage.html#openstef_beam.benchmarking.LocalBenchmarkStorage.get_predictions_path_for_target">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_predictions_path_for_target</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the path for storing predictions for a target.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">(</span>
@@ -604,14 +604,14 @@
 
 
 <div class="viewcode-block" id="LocalBenchmarkStorage.get_evaluations_path_for_target">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.LocalBenchmarkStorage.html#openstef_beam.benchmarking.LocalBenchmarkStorage.get_evaluations_path_for_target">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.storage.LocalBenchmarkStorage.html#openstef_beam.benchmarking.LocalBenchmarkStorage.get_evaluations_path_for_target">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_evaluations_path_for_target</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the path for storing evaluation results for a target.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_path</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluations_dirname</span> <span class="o">/</span> <span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">group_name</span><span class="p">)</span> <span class="o">/</span> <span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="LocalBenchmarkStorage.get_analysis_path">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.LocalBenchmarkStorage.html#openstef_beam.benchmarking.LocalBenchmarkStorage.get_analysis_path">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.storage.LocalBenchmarkStorage.html#openstef_beam.benchmarking.LocalBenchmarkStorage.get_analysis_path">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_analysis_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scope</span><span class="p">:</span> <span class="n">AnalysisScope</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the file path for storing analysis output based on aggregation scope.</span>
 

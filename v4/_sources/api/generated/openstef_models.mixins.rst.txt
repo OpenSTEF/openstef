@@ -1,0 +1,57 @@
+﻿.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+
+
+mixins
+======
+
+.. currentmodule:: openstef_models.mixins
+
+.. automodule:: openstef_models.mixins
+   :no-members:
+   :no-inherited-members:
+
+
+
+
+
+
+
+
+
+
+Submodules
+----------
+
+
+.. autosummary::
+   :toctree: .
+   :template: module_overview.rst
+
+   openstef_models.mixins.callbacks
+   openstef_models.mixins.model_serializer
+
+
+
+
+
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_class.rst
+
+   ModelSerializer
+   PredictorCallback
+
+
+
+
+
+
+
+

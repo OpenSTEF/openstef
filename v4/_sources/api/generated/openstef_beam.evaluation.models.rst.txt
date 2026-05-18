@@ -1,0 +1,35 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+
+
+models
+======
+
+.. currentmodule:: openstef_beam.evaluation.models
+
+.. automodule:: openstef_beam.evaluation.models
+   :no-members:
+   :no-inherited-members:
+
+
+
+
+
+
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_class.rst
+
+   EvaluationReport
+   EvaluationSubsetReport
+   SubsetMetric
+   Window
+
+
+

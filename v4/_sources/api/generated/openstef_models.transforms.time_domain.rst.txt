@@ -1,0 +1,35 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+
+
+time_domain
+===========
+
+.. currentmodule:: openstef_models.transforms.time_domain
+
+.. automodule:: openstef_models.transforms.time_domain
+   :no-members:
+   :no-inherited-members:
+
+
+
+
+
+
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_class.rst
+
+   CyclicFeaturesAdder
+   DatetimeFeaturesAdder
+   HolidayFeatureAdder
+   RollingAggregatesAdder
+
+
+

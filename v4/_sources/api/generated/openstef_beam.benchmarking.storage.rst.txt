@@ -1,0 +1,35 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+
+
+storage
+=======
+
+.. currentmodule:: openstef_beam.benchmarking.storage
+
+.. automodule:: openstef_beam.benchmarking.storage
+   :no-members:
+   :no-inherited-members:
+
+
+
+
+
+
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_class.rst
+
+   BenchmarkStorage
+   InMemoryBenchmarkStorage
+   LocalBenchmarkStorage
+   S3BenchmarkStorage
+
+
+

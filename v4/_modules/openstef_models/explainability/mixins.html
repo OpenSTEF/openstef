@@ -463,7 +463,7 @@
 
 
 <div class="viewcode-block" id="ExplainableForecaster">
-<a class="viewcode-back" href="../../../api/generated/openstef_models.explainability.ExplainableForecaster.html#openstef_models.explainability.ExplainableForecaster">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/openstef_models.explainability.mixins.ExplainableForecaster.html#openstef_models.explainability.ExplainableForecaster">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ExplainableForecaster</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Mixin for forecasters that can explain feature importance.</span>
 
@@ -492,7 +492,7 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
 <div class="viewcode-block" id="ExplainableForecaster.plot_feature_importances">
-<a class="viewcode-back" href="../../../api/generated/openstef_models.explainability.ExplainableForecaster.html#openstef_models.explainability.ExplainableForecaster.plot_feature_importances">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/openstef_models.explainability.mixins.ExplainableForecaster.html#openstef_models.explainability.ExplainableForecaster.plot_feature_importances">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">plot_feature_importances</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quantile</span><span class="p">:</span> <span class="n">Quantile</span> <span class="o">=</span> <span class="n">Q</span><span class="p">(</span><span class="mf">0.5</span><span class="p">))</span> <span class="o">-&gt;</span> <span class="n">go</span><span class="o">.</span><span class="n">Figure</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create interactive treemap visualization of feature importances.</span>
 
@@ -510,7 +510,7 @@
 
 
 <div class="viewcode-block" id="ContributionsMixin">
-<a class="viewcode-back" href="../../../api/generated/openstef_models.explainability.ContributionsMixin.html#openstef_models.explainability.ContributionsMixin">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/openstef_models.explainability.mixins.ContributionsMixin.html#openstef_models.explainability.ContributionsMixin">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ContributionsMixin</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Mixin for forecasters that can explain per-sample feature contributions.</span>
 
@@ -524,7 +524,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="ContributionsMixin.predict_contributions">
-<a class="viewcode-back" href="../../../api/generated/openstef_models.explainability.ContributionsMixin.html#openstef_models.explainability.ContributionsMixin.predict_contributions">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/openstef_models.explainability.mixins.ContributionsMixin.html#openstef_models.explainability.ContributionsMixin.predict_contributions">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">predict_contributions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">ForecastInputDataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TimeSeriesDataset</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute per-sample feature contributions for the given input data.</span>
@@ -545,7 +545,7 @@
 
 
 <div class="viewcode-block" id="ContributionsMixin.plot_contributions">
-<a class="viewcode-back" href="../../../api/generated/openstef_models.explainability.ContributionsMixin.html#openstef_models.explainability.ContributionsMixin.plot_contributions">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/openstef_models.explainability.mixins.ContributionsMixin.html#openstef_models.explainability.ContributionsMixin.plot_contributions">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">plot_contributions</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">data</span><span class="p">:</span> <span class="n">ForecastInputDataset</span><span class="p">,</span>

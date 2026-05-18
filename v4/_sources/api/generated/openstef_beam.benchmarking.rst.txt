@@ -2,8 +2,10 @@
 ..
 .. SPDX-License-Identifier: MPL-2.0
 
-openstef_beam.benchmarking
-==========================
+
+
+benchmarking
+============
 
 .. currentmodule:: openstef_beam.benchmarking
 
@@ -15,6 +17,27 @@ openstef_beam.benchmarking
 
 
 
+
+
+
+
+
+Submodules
+----------
+
+
+.. autosummary::
+   :toctree: .
+   :template: module_overview.rst
+
+   openstef_beam.benchmarking.baselines
+   openstef_beam.benchmarking.benchmark_comparison_pipeline
+   openstef_beam.benchmarking.benchmark_pipeline
+   openstef_beam.benchmarking.benchmarks
+   openstef_beam.benchmarking.callbacks
+   openstef_beam.benchmarking.models
+   openstef_beam.benchmarking.storage
+   openstef_beam.benchmarking.target_provider
 
 
 

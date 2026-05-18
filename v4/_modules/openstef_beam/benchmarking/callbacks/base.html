@@ -470,7 +470,7 @@
 
 
 <div class="viewcode-block" id="BenchmarkCallback">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.BenchmarkCallback.html#openstef_beam.benchmarking.BenchmarkCallback">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.callbacks.BenchmarkCallback.html#openstef_beam.benchmarking.BenchmarkCallback">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">BenchmarkCallback</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for benchmark execution callbacks.</span>
 
@@ -525,7 +525,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="BenchmarkCallback.on_benchmark_start">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.BenchmarkCallback.html#openstef_beam.benchmarking.BenchmarkCallback.on_benchmark_start">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.callbacks.BenchmarkCallback.html#openstef_beam.benchmarking.BenchmarkCallback.on_benchmark_start">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">on_benchmark_start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runner</span><span class="p">:</span> <span class="s2">&quot;BenchmarkPipeline[Any, Any]&quot;</span><span class="p">,</span> <span class="n">targets</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">BenchmarkTarget</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Called when benchmark starts.</span>
 
@@ -537,7 +537,7 @@
 
 
 <div class="viewcode-block" id="BenchmarkCallback.on_target_start">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.BenchmarkCallback.html#openstef_beam.benchmarking.BenchmarkCallback.on_target_start">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.callbacks.BenchmarkCallback.html#openstef_beam.benchmarking.BenchmarkCallback.on_target_start">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">on_target_start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runner</span><span class="p">:</span> <span class="s2">&quot;BenchmarkPipeline[Any, Any]&quot;</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Called when processing a target begins.</span>
 
@@ -549,7 +549,7 @@
 
 
 <div class="viewcode-block" id="BenchmarkCallback.on_backtest_start">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.BenchmarkCallback.html#openstef_beam.benchmarking.BenchmarkCallback.on_backtest_start">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.callbacks.BenchmarkCallback.html#openstef_beam.benchmarking.BenchmarkCallback.on_backtest_start">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">on_backtest_start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runner</span><span class="p">:</span> <span class="s2">&quot;BenchmarkPipeline[Any, Any]&quot;</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Called before backtest execution.</span>
 
@@ -561,7 +561,7 @@
 
 
 <div class="viewcode-block" id="BenchmarkCallback.on_backtest_complete">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.BenchmarkCallback.html#openstef_beam.benchmarking.BenchmarkCallback.on_backtest_complete">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.callbacks.BenchmarkCallback.html#openstef_beam.benchmarking.BenchmarkCallback.on_backtest_complete">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">on_backtest_complete</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">runner</span><span class="p">:</span> <span class="s2">&quot;BenchmarkPipeline[Any, Any]&quot;</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">,</span> <span class="n">predictions</span><span class="p">:</span> <span class="n">TimeSeriesDataset</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -570,7 +570,7 @@
 
 
 <div class="viewcode-block" id="BenchmarkCallback.on_evaluation_start">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.BenchmarkCallback.html#openstef_beam.benchmarking.BenchmarkCallback.on_evaluation_start">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.callbacks.BenchmarkCallback.html#openstef_beam.benchmarking.BenchmarkCallback.on_evaluation_start">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">on_evaluation_start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runner</span><span class="p">:</span> <span class="s2">&quot;BenchmarkPipeline[Any, Any]&quot;</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Called before evaluation starts.</span>
 
@@ -582,7 +582,7 @@
 
 
 <div class="viewcode-block" id="BenchmarkCallback.on_evaluation_complete">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.BenchmarkCallback.html#openstef_beam.benchmarking.BenchmarkCallback.on_evaluation_complete">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.callbacks.BenchmarkCallback.html#openstef_beam.benchmarking.BenchmarkCallback.on_evaluation_complete">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">on_evaluation_complete</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">runner</span><span class="p">:</span> <span class="s2">&quot;BenchmarkPipeline[Any, Any]&quot;</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">,</span> <span class="n">report</span><span class="p">:</span> <span class="n">EvaluationReport</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -591,28 +591,28 @@
 
 
 <div class="viewcode-block" id="BenchmarkCallback.on_target_complete">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.BenchmarkCallback.html#openstef_beam.benchmarking.BenchmarkCallback.on_target_complete">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.callbacks.BenchmarkCallback.html#openstef_beam.benchmarking.BenchmarkCallback.on_target_complete">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">on_target_complete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runner</span><span class="p">:</span> <span class="s2">&quot;BenchmarkPipeline[Any, Any]&quot;</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Called when target processing finishes.&quot;&quot;&quot;</span>
         <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="p">,</span> <span class="n">runner</span><span class="p">,</span> <span class="n">target</span>  <span class="c1"># Suppress unused variable warning</span></div>
 
 
 <div class="viewcode-block" id="BenchmarkCallback.on_benchmark_complete">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.BenchmarkCallback.html#openstef_beam.benchmarking.BenchmarkCallback.on_benchmark_complete">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.callbacks.BenchmarkCallback.html#openstef_beam.benchmarking.BenchmarkCallback.on_benchmark_complete">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">on_benchmark_complete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runner</span><span class="p">:</span> <span class="s2">&quot;BenchmarkPipeline[Any, Any]&quot;</span><span class="p">,</span> <span class="n">targets</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">BenchmarkTarget</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Called when entire benchmark finishes.&quot;&quot;&quot;</span>
         <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="p">,</span> <span class="n">runner</span><span class="p">,</span> <span class="n">targets</span>  <span class="c1"># Suppress unused variable warning</span></div>
 
 
 <div class="viewcode-block" id="BenchmarkCallback.on_error">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.BenchmarkCallback.html#openstef_beam.benchmarking.BenchmarkCallback.on_error">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.callbacks.BenchmarkCallback.html#openstef_beam.benchmarking.BenchmarkCallback.on_error">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">on_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runner</span><span class="p">:</span> <span class="s2">&quot;BenchmarkPipeline[Any, Any]&quot;</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">,</span> <span class="n">error</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Called when an error occurs.&quot;&quot;&quot;</span>
         <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="p">,</span> <span class="n">runner</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">error</span>  <span class="c1"># Suppress unused variable warning</span></div>
 
 
 <div class="viewcode-block" id="BenchmarkCallback.on_analysis_complete">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.BenchmarkCallback.html#openstef_beam.benchmarking.BenchmarkCallback.on_analysis_complete">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.callbacks.BenchmarkCallback.html#openstef_beam.benchmarking.BenchmarkCallback.on_analysis_complete">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">on_analysis_complete</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">runner</span><span class="p">:</span> <span class="s2">&quot;BenchmarkPipeline[Any, Any]&quot;</span><span class="p">,</span>
@@ -626,12 +626,12 @@
 
 
 <div class="viewcode-block" id="BenchmarkCallbackManager">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.BenchmarkCallbackManager.html#openstef_beam.benchmarking.BenchmarkCallbackManager">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.callbacks.BenchmarkCallbackManager.html#openstef_beam.benchmarking.BenchmarkCallbackManager">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">BenchmarkCallbackManager</span><span class="p">(</span><span class="n">BenchmarkCallback</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Group of callbacks that can be used to aggregate multiple callbacks.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="BenchmarkCallbackManager.__init__">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.BenchmarkCallbackManager.html#openstef_beam.benchmarking.BenchmarkCallbackManager.__init__">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.callbacks.BenchmarkCallbackManager.html#openstef_beam.benchmarking.BenchmarkCallbackManager.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callbacks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">BenchmarkCallback</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the callback manager.</span>
 
@@ -642,42 +642,42 @@
 
 
 <div class="viewcode-block" id="BenchmarkCallbackManager.add_callback">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.BenchmarkCallbackManager.html#openstef_beam.benchmarking.BenchmarkCallbackManager.add_callback">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.callbacks.BenchmarkCallbackManager.html#openstef_beam.benchmarking.BenchmarkCallbackManager.add_callback">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">add_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">BenchmarkCallback</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a new callback to the manager.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="BenchmarkCallbackManager.add_callbacks">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.BenchmarkCallbackManager.html#openstef_beam.benchmarking.BenchmarkCallbackManager.add_callbacks">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.callbacks.BenchmarkCallbackManager.html#openstef_beam.benchmarking.BenchmarkCallbackManager.add_callbacks">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">add_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callbacks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">BenchmarkCallback</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Add multiple callbacks to the manager.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">callbacks</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="BenchmarkCallbackManager.on_benchmark_start">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.BenchmarkCallbackManager.html#openstef_beam.benchmarking.BenchmarkCallbackManager.on_benchmark_start">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.callbacks.BenchmarkCallbackManager.html#openstef_beam.benchmarking.BenchmarkCallbackManager.on_benchmark_start">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">on_benchmark_start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runner</span><span class="p">:</span> <span class="s2">&quot;BenchmarkPipeline[Any, Any]&quot;</span><span class="p">,</span> <span class="n">targets</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">BenchmarkTarget</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">on_benchmark_start</span><span class="p">(</span><span class="n">runner</span><span class="o">=</span><span class="n">runner</span><span class="p">,</span> <span class="n">targets</span><span class="o">=</span><span class="n">targets</span><span class="p">)</span> <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="BenchmarkCallbackManager.on_target_start">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.BenchmarkCallbackManager.html#openstef_beam.benchmarking.BenchmarkCallbackManager.on_target_start">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.callbacks.BenchmarkCallbackManager.html#openstef_beam.benchmarking.BenchmarkCallbackManager.on_target_start">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">on_target_start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runner</span><span class="p">:</span> <span class="s2">&quot;BenchmarkPipeline[Any, Any]&quot;</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">on_target_start</span><span class="p">(</span><span class="n">runner</span><span class="o">=</span><span class="n">runner</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">)</span> <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="BenchmarkCallbackManager.on_backtest_start">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.BenchmarkCallbackManager.html#openstef_beam.benchmarking.BenchmarkCallbackManager.on_backtest_start">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.callbacks.BenchmarkCallbackManager.html#openstef_beam.benchmarking.BenchmarkCallbackManager.on_backtest_start">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">on_backtest_start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runner</span><span class="p">:</span> <span class="s2">&quot;BenchmarkPipeline[Any, Any]&quot;</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">on_backtest_start</span><span class="p">(</span><span class="n">runner</span><span class="o">=</span><span class="n">runner</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">)</span> <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="BenchmarkCallbackManager.on_backtest_complete">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.BenchmarkCallbackManager.html#openstef_beam.benchmarking.BenchmarkCallbackManager.on_backtest_complete">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.callbacks.BenchmarkCallbackManager.html#openstef_beam.benchmarking.BenchmarkCallbackManager.on_backtest_complete">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">on_backtest_complete</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">runner</span><span class="p">:</span> <span class="s2">&quot;BenchmarkPipeline[Any, Any]&quot;</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">,</span> <span class="n">predictions</span><span class="p">:</span> <span class="n">TimeSeriesDataset</span>
@@ -687,14 +687,14 @@
 
 
 <div class="viewcode-block" id="BenchmarkCallbackManager.on_evaluation_start">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.BenchmarkCallbackManager.html#openstef_beam.benchmarking.BenchmarkCallbackManager.on_evaluation_start">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.callbacks.BenchmarkCallbackManager.html#openstef_beam.benchmarking.BenchmarkCallbackManager.on_evaluation_start">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">on_evaluation_start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runner</span><span class="p">:</span> <span class="s2">&quot;BenchmarkPipeline[Any, Any]&quot;</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="n">callback</span><span class="o">.</span><span class="n">on_evaluation_start</span><span class="p">(</span><span class="n">runner</span><span class="o">=</span><span class="n">runner</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">)</span> <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="BenchmarkCallbackManager.on_evaluation_complete">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.BenchmarkCallbackManager.html#openstef_beam.benchmarking.BenchmarkCallbackManager.on_evaluation_complete">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.callbacks.BenchmarkCallbackManager.html#openstef_beam.benchmarking.BenchmarkCallbackManager.on_evaluation_complete">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">on_evaluation_complete</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">runner</span><span class="p">:</span> <span class="s2">&quot;BenchmarkPipeline[Any, Any]&quot;</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">,</span> <span class="n">report</span><span class="p">:</span> <span class="n">EvaluationReport</span>
@@ -704,7 +704,7 @@
 
 
 <div class="viewcode-block" id="BenchmarkCallbackManager.on_analysis_complete">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.BenchmarkCallbackManager.html#openstef_beam.benchmarking.BenchmarkCallbackManager.on_analysis_complete">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.callbacks.BenchmarkCallbackManager.html#openstef_beam.benchmarking.BenchmarkCallbackManager.on_analysis_complete">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">on_analysis_complete</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -717,7 +717,7 @@
 
 
 <div class="viewcode-block" id="BenchmarkCallbackManager.on_target_complete">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.BenchmarkCallbackManager.html#openstef_beam.benchmarking.BenchmarkCallbackManager.on_target_complete">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.callbacks.BenchmarkCallbackManager.html#openstef_beam.benchmarking.BenchmarkCallbackManager.on_target_complete">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">on_target_complete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runner</span><span class="p">:</span> <span class="s2">&quot;BenchmarkPipeline[Any, Any]&quot;</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span><span class="p">:</span>
@@ -725,7 +725,7 @@
 
 
 <div class="viewcode-block" id="BenchmarkCallbackManager.on_benchmark_complete">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.BenchmarkCallbackManager.html#openstef_beam.benchmarking.BenchmarkCallbackManager.on_benchmark_complete">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.callbacks.BenchmarkCallbackManager.html#openstef_beam.benchmarking.BenchmarkCallbackManager.on_benchmark_complete">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">on_benchmark_complete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runner</span><span class="p">:</span> <span class="s2">&quot;BenchmarkPipeline[Any, Any]&quot;</span><span class="p">,</span> <span class="n">targets</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">BenchmarkTarget</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span><span class="p">:</span>
@@ -733,7 +733,7 @@
 
 
 <div class="viewcode-block" id="BenchmarkCallbackManager.on_error">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.BenchmarkCallbackManager.html#openstef_beam.benchmarking.BenchmarkCallbackManager.on_error">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.callbacks.BenchmarkCallbackManager.html#openstef_beam.benchmarking.BenchmarkCallbackManager.on_error">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">on_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">runner</span><span class="p">:</span> <span class="s2">&quot;BenchmarkPipeline[Any, Any]&quot;</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">,</span> <span class="n">error</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span><span class="p">:</span>

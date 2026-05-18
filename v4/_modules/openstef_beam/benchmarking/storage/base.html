@@ -466,7 +466,7 @@
 
 
 <div class="viewcode-block" id="BenchmarkStorage">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.BenchmarkStorage.html#openstef_beam.benchmarking.BenchmarkStorage">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.storage.BenchmarkStorage.html#openstef_beam.benchmarking.BenchmarkStorage">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">BenchmarkStorage</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract base class for storing and retrieving benchmark results.</span>
 
@@ -548,7 +548,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="BenchmarkStorage.save_backtest_output">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.BenchmarkStorage.html#openstef_beam.benchmarking.BenchmarkStorage.save_backtest_output">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.storage.BenchmarkStorage.html#openstef_beam.benchmarking.BenchmarkStorage.save_backtest_output">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">save_backtest_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">,</span> <span class="n">output</span><span class="p">:</span> <span class="n">TimeSeriesDataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Save the backtest output for a specific benchmark target.</span>
@@ -560,7 +560,7 @@
 
 
 <div class="viewcode-block" id="BenchmarkStorage.load_backtest_output">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.BenchmarkStorage.html#openstef_beam.benchmarking.BenchmarkStorage.load_backtest_output">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.storage.BenchmarkStorage.html#openstef_beam.benchmarking.BenchmarkStorage.load_backtest_output">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">load_backtest_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TimeSeriesDataset</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Load previously saved backtest output for a benchmark target.</span>
@@ -575,7 +575,7 @@
 
 
 <div class="viewcode-block" id="BenchmarkStorage.has_backtest_output">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.BenchmarkStorage.html#openstef_beam.benchmarking.BenchmarkStorage.has_backtest_output">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.storage.BenchmarkStorage.html#openstef_beam.benchmarking.BenchmarkStorage.has_backtest_output">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">has_backtest_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if backtest output exists for the given benchmark target.</span>
@@ -587,7 +587,7 @@
 
 
 <div class="viewcode-block" id="BenchmarkStorage.save_evaluation_output">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.BenchmarkStorage.html#openstef_beam.benchmarking.BenchmarkStorage.save_evaluation_output">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.storage.BenchmarkStorage.html#openstef_beam.benchmarking.BenchmarkStorage.save_evaluation_output">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">save_evaluation_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">,</span> <span class="n">output</span><span class="p">:</span> <span class="n">EvaluationReport</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Save the evaluation report for a specific benchmark target.</span>
@@ -599,7 +599,7 @@
 
 
 <div class="viewcode-block" id="BenchmarkStorage.load_evaluation_output">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.BenchmarkStorage.html#openstef_beam.benchmarking.BenchmarkStorage.load_evaluation_output">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.storage.BenchmarkStorage.html#openstef_beam.benchmarking.BenchmarkStorage.load_evaluation_output">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">load_evaluation_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EvaluationReport</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Load previously saved evaluation report for a benchmark target.</span>
@@ -614,7 +614,7 @@
 
 
 <div class="viewcode-block" id="BenchmarkStorage.has_evaluation_output">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.BenchmarkStorage.html#openstef_beam.benchmarking.BenchmarkStorage.has_evaluation_output">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.storage.BenchmarkStorage.html#openstef_beam.benchmarking.BenchmarkStorage.has_evaluation_output">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">has_evaluation_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if evaluation output exists for the given benchmark target.</span>
@@ -626,7 +626,7 @@
 
 
 <div class="viewcode-block" id="BenchmarkStorage.save_analysis_output">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.BenchmarkStorage.html#openstef_beam.benchmarking.BenchmarkStorage.save_analysis_output">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.storage.BenchmarkStorage.html#openstef_beam.benchmarking.BenchmarkStorage.save_analysis_output">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">save_analysis_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output</span><span class="p">:</span> <span class="n">AnalysisOutput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Save analysis output, optionally associated with a benchmark target.</span>
@@ -638,7 +638,7 @@
 
 
 <div class="viewcode-block" id="BenchmarkStorage.has_analysis_output">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.BenchmarkStorage.html#openstef_beam.benchmarking.BenchmarkStorage.has_analysis_output">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.storage.BenchmarkStorage.html#openstef_beam.benchmarking.BenchmarkStorage.has_analysis_output">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">has_analysis_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scope</span><span class="p">:</span> <span class="n">AnalysisScope</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if analysis output exists for the given target or global scope.</span>
@@ -655,7 +655,7 @@
 
 
 <div class="viewcode-block" id="InMemoryBenchmarkStorage">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.InMemoryBenchmarkStorage.html#openstef_beam.benchmarking.InMemoryBenchmarkStorage">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.storage.InMemoryBenchmarkStorage.html#openstef_beam.benchmarking.InMemoryBenchmarkStorage">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">InMemoryBenchmarkStorage</span><span class="p">(</span><span class="n">BenchmarkStorage</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;In-memory implementation of BenchmarkStorage for testing and temporary use.</span>
 
@@ -668,7 +668,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="InMemoryBenchmarkStorage.__init__">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.InMemoryBenchmarkStorage.html#openstef_beam.benchmarking.InMemoryBenchmarkStorage.__init__">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.storage.InMemoryBenchmarkStorage.html#openstef_beam.benchmarking.InMemoryBenchmarkStorage.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize empty in-memory storage containers.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_backtest_outputs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TimeSeriesDataset</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
@@ -677,56 +677,56 @@
 
 
 <div class="viewcode-block" id="InMemoryBenchmarkStorage.save_backtest_output">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.InMemoryBenchmarkStorage.html#openstef_beam.benchmarking.InMemoryBenchmarkStorage.save_backtest_output">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.storage.InMemoryBenchmarkStorage.html#openstef_beam.benchmarking.InMemoryBenchmarkStorage.save_backtest_output">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">save_backtest_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">,</span> <span class="n">output</span><span class="p">:</span> <span class="n">TimeSeriesDataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_backtest_outputs</span><span class="p">[</span><span class="n">target</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">output</span></div>
 
 
 <div class="viewcode-block" id="InMemoryBenchmarkStorage.load_backtest_output">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.InMemoryBenchmarkStorage.html#openstef_beam.benchmarking.InMemoryBenchmarkStorage.load_backtest_output">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.storage.InMemoryBenchmarkStorage.html#openstef_beam.benchmarking.InMemoryBenchmarkStorage.load_backtest_output">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">load_backtest_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TimeSeriesDataset</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_backtest_outputs</span><span class="p">[</span><span class="n">target</span><span class="o">.</span><span class="n">name</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="InMemoryBenchmarkStorage.has_backtest_output">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.InMemoryBenchmarkStorage.html#openstef_beam.benchmarking.InMemoryBenchmarkStorage.has_backtest_output">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.storage.InMemoryBenchmarkStorage.html#openstef_beam.benchmarking.InMemoryBenchmarkStorage.has_backtest_output">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">has_backtest_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">target</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_backtest_outputs</span></div>
 
 
 <div class="viewcode-block" id="InMemoryBenchmarkStorage.save_evaluation_output">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.InMemoryBenchmarkStorage.html#openstef_beam.benchmarking.InMemoryBenchmarkStorage.save_evaluation_output">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.storage.InMemoryBenchmarkStorage.html#openstef_beam.benchmarking.InMemoryBenchmarkStorage.save_evaluation_output">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">save_evaluation_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">,</span> <span class="n">output</span><span class="p">:</span> <span class="n">EvaluationReport</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_evaluation_outputs</span><span class="p">[</span><span class="n">target</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">output</span></div>
 
 
 <div class="viewcode-block" id="InMemoryBenchmarkStorage.load_evaluation_output">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.InMemoryBenchmarkStorage.html#openstef_beam.benchmarking.InMemoryBenchmarkStorage.load_evaluation_output">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.storage.InMemoryBenchmarkStorage.html#openstef_beam.benchmarking.InMemoryBenchmarkStorage.load_evaluation_output">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">load_evaluation_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EvaluationReport</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evaluation_outputs</span><span class="p">[</span><span class="n">target</span><span class="o">.</span><span class="n">name</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="InMemoryBenchmarkStorage.has_evaluation_output">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.InMemoryBenchmarkStorage.html#openstef_beam.benchmarking.InMemoryBenchmarkStorage.has_evaluation_output">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.storage.InMemoryBenchmarkStorage.html#openstef_beam.benchmarking.InMemoryBenchmarkStorage.has_evaluation_output">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">has_evaluation_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">target</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evaluation_outputs</span></div>
 
 
 <div class="viewcode-block" id="InMemoryBenchmarkStorage.save_analysis_output">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.InMemoryBenchmarkStorage.html#openstef_beam.benchmarking.InMemoryBenchmarkStorage.save_analysis_output">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.storage.InMemoryBenchmarkStorage.html#openstef_beam.benchmarking.InMemoryBenchmarkStorage.save_analysis_output">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">save_analysis_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output</span><span class="p">:</span> <span class="n">AnalysisOutput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_analytics_outputs</span><span class="p">[</span><span class="n">output</span><span class="o">.</span><span class="n">scope</span><span class="p">]</span> <span class="o">=</span> <span class="n">output</span></div>
 
 
 <div class="viewcode-block" id="InMemoryBenchmarkStorage.has_analysis_output">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.InMemoryBenchmarkStorage.html#openstef_beam.benchmarking.InMemoryBenchmarkStorage.has_analysis_output">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.storage.InMemoryBenchmarkStorage.html#openstef_beam.benchmarking.InMemoryBenchmarkStorage.has_analysis_output">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">has_analysis_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scope</span><span class="p">:</span> <span class="n">AnalysisScope</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if analysis output exists for the given scope.</span>

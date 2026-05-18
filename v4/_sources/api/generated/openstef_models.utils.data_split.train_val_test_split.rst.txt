@@ -1,0 +1,10 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+train_val_test_split
+====================
+
+.. currentmodule:: openstef_models.utils.data_split
+
+.. autofunction:: train_val_test_split

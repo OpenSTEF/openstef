@@ -466,7 +466,7 @@
 
 
 <div class="viewcode-block" id="ForecastInputDataset">
-<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.ForecastInputDataset.html#openstef_core.datasets.ForecastInputDataset">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.validated_datasets.ForecastInputDataset.html#openstef_core.datasets.ForecastInputDataset">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ForecastInputDataset</span><span class="p">(</span><span class="n">TimeSeriesDataset</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Time series dataset for forecasting with validated target column.</span>
 
@@ -517,7 +517,7 @@
     <span class="n">_forecast_start</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="ForecastInputDataset.__init__">
-<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.ForecastInputDataset.html#openstef_core.datasets.ForecastInputDataset.__init__">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.validated_datasets.ForecastInputDataset.html#openstef_core.datasets.ForecastInputDataset.__init__">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -583,7 +583,7 @@
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
 
 <div class="viewcode-block" id="ForecastInputDataset.input_data">
-<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.ForecastInputDataset.html#openstef_core.datasets.ForecastInputDataset.input_data">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.validated_datasets.ForecastInputDataset.html#openstef_core.datasets.ForecastInputDataset.input_data">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">input_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Extract the input features excluding the target column.</span>
 
@@ -606,7 +606,7 @@
 
 
 <div class="viewcode-block" id="ForecastInputDataset.from_timeseries">
-<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.ForecastInputDataset.html#openstef_core.datasets.ForecastInputDataset.from_timeseries">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.validated_datasets.ForecastInputDataset.html#openstef_core.datasets.ForecastInputDataset.from_timeseries">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">from_timeseries</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span>
@@ -633,7 +633,7 @@
 
 
 <div class="viewcode-block" id="ForecastInputDataset.create_forecast_range">
-<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.ForecastInputDataset.html#openstef_core.datasets.ForecastInputDataset.create_forecast_range">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.validated_datasets.ForecastInputDataset.html#openstef_core.datasets.ForecastInputDataset.create_forecast_range">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">create_forecast_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">horizon</span><span class="p">:</span> <span class="n">LeadTime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create forecast index for given horizon starting from forecast_start.</span>
 
@@ -652,7 +652,7 @@
 
 
 <div class="viewcode-block" id="ForecastInputDataset.to_pandas">
-<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.ForecastInputDataset.html#openstef_core.datasets.ForecastInputDataset.to_pandas">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.validated_datasets.ForecastInputDataset.html#openstef_core.datasets.ForecastInputDataset.to_pandas">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">to_pandas</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
         <span class="n">df</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
@@ -665,7 +665,7 @@
 
 
 <div class="viewcode-block" id="ForecastDataset">
-<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.ForecastDataset.html#openstef_core.datasets.ForecastDataset">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.validated_datasets.ForecastDataset.html#openstef_core.datasets.ForecastDataset">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ForecastDataset</span><span class="p">(</span><span class="n">TimeSeriesDataset</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Time series dataset containing probabilistic forecasts with quantile estimates.</span>
 
@@ -708,7 +708,7 @@
     <span class="n">target_column</span><span class="p">:</span> <span class="nb">str</span>
 
 <div class="viewcode-block" id="ForecastDataset.__init__">
-<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.ForecastDataset.html#openstef_core.datasets.ForecastDataset.__init__">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.validated_datasets.ForecastDataset.html#openstef_core.datasets.ForecastDataset.__init__">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -744,7 +744,7 @@
 
 
 <div class="viewcode-block" id="ForecastDataset.from_quantile_predictions">
-<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.ForecastDataset.html#openstef_core.datasets.ForecastDataset.from_quantile_predictions">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.validated_datasets.ForecastDataset.html#openstef_core.datasets.ForecastDataset.from_quantile_predictions">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">from_quantile_predictions</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span>
@@ -826,7 +826,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">quantile_columns</span><span class="p">]</span>
 
 <div class="viewcode-block" id="ForecastDataset.filter_quantiles">
-<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.ForecastDataset.html#openstef_core.datasets.ForecastDataset.filter_quantiles">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.validated_datasets.ForecastDataset.html#openstef_core.datasets.ForecastDataset.filter_quantiles">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">filter_quantiles</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quantiles</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Quantile</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Select a subset of quantiles from the forecast dataset.</span>
 
@@ -849,7 +849,7 @@
 
 
 <div class="viewcode-block" id="ForecastDataset.to_pandas">
-<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.ForecastDataset.html#openstef_core.datasets.ForecastDataset.to_pandas">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.validated_datasets.ForecastDataset.html#openstef_core.datasets.ForecastDataset.to_pandas">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">to_pandas</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
         <span class="n">df</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
@@ -860,7 +860,7 @@
 
 
 <div class="viewcode-block" id="ForecastDataset.from_timeseries">
-<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.ForecastDataset.html#openstef_core.datasets.ForecastDataset.from_timeseries">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.validated_datasets.ForecastDataset.html#openstef_core.datasets.ForecastDataset.from_timeseries">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">from_timeseries</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span>
@@ -889,7 +889,7 @@
 
 
 <div class="viewcode-block" id="EnergyComponentDataset">
-<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.EnergyComponentDataset.html#openstef_core.datasets.EnergyComponentDataset">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.validated_datasets.EnergyComponentDataset.html#openstef_core.datasets.EnergyComponentDataset">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">EnergyComponentDataset</span><span class="p">(</span><span class="n">TimeSeriesDataset</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Time series dataset for energy generation by component type.</span>
 
@@ -921,7 +921,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="EnergyComponentDataset.__init__">
-<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.EnergyComponentDataset.html#openstef_core.datasets.EnergyComponentDataset.__init__">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.validated_datasets.EnergyComponentDataset.html#openstef_core.datasets.EnergyComponentDataset.__init__">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -946,7 +946,7 @@
 
 
 <div class="viewcode-block" id="EnsembleForecastDataset">
-<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.EnsembleForecastDataset.html#openstef_core.datasets.EnsembleForecastDataset">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.validated_datasets.EnsembleForecastDataset.html#openstef_core.datasets.EnsembleForecastDataset">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">EnsembleForecastDataset</span><span class="p">(</span><span class="n">TimeSeriesDataset</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;First stage output format for ensemble forecasters.&quot;&quot;&quot;</span>
 
@@ -956,7 +956,7 @@
     <span class="n">target_column</span><span class="p">:</span> <span class="nb">str</span>
 
 <div class="viewcode-block" id="EnsembleForecastDataset.__init__">
-<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.EnsembleForecastDataset.html#openstef_core.datasets.EnsembleForecastDataset.__init__">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.validated_datasets.EnsembleForecastDataset.html#openstef_core.datasets.EnsembleForecastDataset.__init__">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1000,7 +1000,7 @@
         <span class="k">return</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="EnsembleForecastDataset.get_learner_and_quantile">
-<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.EnsembleForecastDataset.html#openstef_core.datasets.EnsembleForecastDataset.get_learner_and_quantile">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.validated_datasets.EnsembleForecastDataset.html#openstef_core.datasets.EnsembleForecastDataset.get_learner_and_quantile">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_learner_and_quantile</span><span class="p">(</span><span class="n">feature_names</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="n">Quantile</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Extract base forecaster names and quantiles from feature names.</span>
@@ -1037,7 +1037,7 @@
 
 
 <div class="viewcode-block" id="EnsembleForecastDataset.from_forecast_datasets">
-<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.EnsembleForecastDataset.html#openstef_core.datasets.EnsembleForecastDataset.from_forecast_datasets">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.validated_datasets.EnsembleForecastDataset.html#openstef_core.datasets.EnsembleForecastDataset.from_forecast_datasets">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">from_forecast_datasets</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span>
@@ -1081,7 +1081,7 @@
 
 
 <div class="viewcode-block" id="EnsembleForecastDataset.get_base_predictions_for_quantile">
-<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.EnsembleForecastDataset.html#openstef_core.datasets.EnsembleForecastDataset.get_base_predictions_for_quantile">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/openstef_core.datasets.validated_datasets.EnsembleForecastDataset.html#openstef_core.datasets.EnsembleForecastDataset.get_base_predictions_for_quantile">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_base_predictions_for_quantile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quantile</span><span class="p">:</span> <span class="n">Quantile</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ForecastInputDataset</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get base forecaster predictions for a specific quantile.</span>
 

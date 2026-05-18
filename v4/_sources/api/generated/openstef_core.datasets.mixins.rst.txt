@@ -2,8 +2,10 @@
 ..
 .. SPDX-License-Identifier: MPL-2.0
 
-openstef_core.datasets.mixins
-=============================
+
+
+mixins
+======
 
 .. currentmodule:: openstef_core.datasets.mixins
 

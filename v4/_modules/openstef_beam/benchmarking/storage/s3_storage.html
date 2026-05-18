@@ -467,7 +467,7 @@
 
 
 <div class="viewcode-block" id="S3BenchmarkStorage">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.S3BenchmarkStorage.html#openstef_beam.benchmarking.S3BenchmarkStorage">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.storage.S3BenchmarkStorage.html#openstef_beam.benchmarking.S3BenchmarkStorage">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">S3BenchmarkStorage</span><span class="p">(</span><span class="n">BenchmarkStorage</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;S3-backed storage implementation that combines local and cloud storage.</span>
 
@@ -481,7 +481,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="S3BenchmarkStorage.__init__">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.S3BenchmarkStorage.html#openstef_beam.benchmarking.S3BenchmarkStorage.__init__">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.storage.S3BenchmarkStorage.html#openstef_beam.benchmarking.S3BenchmarkStorage.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">local_storage</span><span class="p">:</span> <span class="n">LocalBenchmarkStorage</span><span class="p">,</span>
@@ -517,7 +517,7 @@
 
 
 <div class="viewcode-block" id="S3BenchmarkStorage.save_backtest_output">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.S3BenchmarkStorage.html#openstef_beam.benchmarking.S3BenchmarkStorage.save_backtest_output">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.storage.S3BenchmarkStorage.html#openstef_beam.benchmarking.S3BenchmarkStorage.save_backtest_output">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">save_backtest_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">,</span> <span class="n">output</span><span class="p">:</span> <span class="n">TimeSeriesDataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Save backtest predictions locally and sync to S3.&quot;&quot;&quot;</span>
@@ -528,7 +528,7 @@
 
 
 <div class="viewcode-block" id="S3BenchmarkStorage.load_backtest_output">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.S3BenchmarkStorage.html#openstef_beam.benchmarking.S3BenchmarkStorage.load_backtest_output">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.storage.S3BenchmarkStorage.html#openstef_beam.benchmarking.S3BenchmarkStorage.load_backtest_output">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">load_backtest_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TimeSeriesDataset</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Load backtest predictions from local storage.</span>
@@ -540,7 +540,7 @@
 
 
 <div class="viewcode-block" id="S3BenchmarkStorage.has_backtest_output">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.S3BenchmarkStorage.html#openstef_beam.benchmarking.S3BenchmarkStorage.has_backtest_output">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.storage.S3BenchmarkStorage.html#openstef_beam.benchmarking.S3BenchmarkStorage.has_backtest_output">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">has_backtest_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if backtest output exists in local storage.</span>
@@ -552,7 +552,7 @@
 
 
 <div class="viewcode-block" id="S3BenchmarkStorage.save_evaluation_output">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.S3BenchmarkStorage.html#openstef_beam.benchmarking.S3BenchmarkStorage.save_evaluation_output">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.storage.S3BenchmarkStorage.html#openstef_beam.benchmarking.S3BenchmarkStorage.save_evaluation_output">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">save_evaluation_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">,</span> <span class="n">output</span><span class="p">:</span> <span class="n">EvaluationReport</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Save evaluation report locally and sync to S3.&quot;&quot;&quot;</span>
@@ -563,7 +563,7 @@
 
 
 <div class="viewcode-block" id="S3BenchmarkStorage.load_evaluation_output">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.S3BenchmarkStorage.html#openstef_beam.benchmarking.S3BenchmarkStorage.load_evaluation_output">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.storage.S3BenchmarkStorage.html#openstef_beam.benchmarking.S3BenchmarkStorage.load_evaluation_output">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">load_evaluation_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EvaluationReport</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Load evaluation report from local storage.</span>
@@ -575,7 +575,7 @@
 
 
 <div class="viewcode-block" id="S3BenchmarkStorage.has_evaluation_output">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.S3BenchmarkStorage.html#openstef_beam.benchmarking.S3BenchmarkStorage.has_evaluation_output">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.storage.S3BenchmarkStorage.html#openstef_beam.benchmarking.S3BenchmarkStorage.has_evaluation_output">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">has_evaluation_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if evaluation output exists in local storage.</span>
@@ -587,7 +587,7 @@
 
 
 <div class="viewcode-block" id="S3BenchmarkStorage.save_analysis_output">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.S3BenchmarkStorage.html#openstef_beam.benchmarking.S3BenchmarkStorage.save_analysis_output">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.storage.S3BenchmarkStorage.html#openstef_beam.benchmarking.S3BenchmarkStorage.save_analysis_output">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">save_analysis_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output</span><span class="p">:</span> <span class="n">AnalysisOutput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Save analysis visualizations locally and sync to S3.&quot;&quot;&quot;</span>
@@ -598,7 +598,7 @@
 
 
 <div class="viewcode-block" id="S3BenchmarkStorage.has_analysis_output">
-<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.S3BenchmarkStorage.html#openstef_beam.benchmarking.S3BenchmarkStorage.has_analysis_output">[docs]</a>
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.storage.S3BenchmarkStorage.html#openstef_beam.benchmarking.S3BenchmarkStorage.has_analysis_output">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">has_analysis_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scope</span><span class="p">:</span> <span class="n">AnalysisScope</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if analysis output exists in local storage.</span>

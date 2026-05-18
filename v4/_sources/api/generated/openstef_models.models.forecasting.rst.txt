@@ -1,0 +1,17 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+
+
+forecasting
+===========
+
+.. currentmodule:: openstef_models.models.forecasting
+
+.. automodule:: openstef_models.models.forecasting
+   :no-members:
+   :no-inherited-members:
+
+
+

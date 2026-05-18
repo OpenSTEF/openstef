@@ -2,8 +2,10 @@
 ..
 .. SPDX-License-Identifier: MPL-2.0
 
-openstef_models.models
-======================
+
+
+models
+======
 
 .. currentmodule:: openstef_models.models
 
@@ -15,6 +17,23 @@ openstef_models.models
 
 
 
+
+
+
+
+
+Submodules
+----------
+
+
+.. autosummary::
+   :toctree: .
+   :template: module_overview.rst
+
+   openstef_models.models.component_splitting
+   openstef_models.models.component_splitting_model
+   openstef_models.models.forecasting
+   openstef_models.models.forecasting_model
 
 
 

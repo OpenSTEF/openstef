@@ -1,0 +1,10 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+split_by_dates
+==============
+
+.. currentmodule:: openstef_models.utils.data_split
+
+.. autofunction:: split_by_dates

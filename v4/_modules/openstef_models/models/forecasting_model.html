@@ -482,6 +482,8 @@
 <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
+<div class="viewcode-block" id="ModelFitResult">
+<a class="viewcode-back" href="../../../api/generated/openstef_models.models.forecasting_model.ModelFitResult.html#openstef_meta.models.ensemble_forecasting_model.ModelFitResult">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ModelFitResult</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Result of fitting a forecasting model.</span>
 
@@ -508,6 +510,8 @@
     <span class="p">)</span>
     <span class="n">metrics_full</span><span class="p">:</span> <span class="n">SubsetMetric</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Evaluation metrics computed on the full original dataset.&quot;</span><span class="p">)</span>
 
+<div class="viewcode-block" id="ModelFitResult.metrics_to_flat_dict">
+<a class="viewcode-back" href="../../../api/generated/openstef_models.models.forecasting_model.ModelFitResult.html#openstef_meta.models.ensemble_forecasting_model.ModelFitResult.metrics_to_flat_dict">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">metrics_to_flat_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Flatten all split metrics into a single dict for logging.</span>
 
@@ -524,7 +528,8 @@
             <span class="n">result</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metrics_val</span><span class="o">.</span><span class="n">to_flat_dict</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;val_&quot;</span><span class="p">))</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">metrics_test</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">result</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metrics_test</span><span class="o">.</span><span class="n">to_flat_dict</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;test_&quot;</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">result</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">component_fit_results</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="s2">&quot;ModelFitResult&quot;</span><span class="p">]:</span>
@@ -533,11 +538,12 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            Empty dict by default; ensemble subclasses override.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="p">{}</span>
+        <span class="k">return</span> <span class="p">{}</span></div>
+
 
 
 <div class="viewcode-block" id="BaseForecastingModel">
-<a class="viewcode-back" href="../../../api/generated/openstef_models.models.BaseForecastingModel.html#openstef_models.models.BaseForecastingModel">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/openstef_models.models.forecasting_model.BaseForecastingModel.html#openstef_meta.models.ensemble_forecasting_model.BaseForecastingModel">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">BaseForecastingModel</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">,</span> <span class="n">Predictor</span><span class="p">[</span><span class="n">TimeSeriesDataset</span><span class="p">,</span> <span class="n">ForecastDataset</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract base for forecasting models (single-forecaster and ensemble).</span>
 
@@ -651,7 +657,7 @@
         <span class="k">return</span> <span class="bp">self</span>
 
 <div class="viewcode-block" id="BaseForecastingModel.get_explainable_components">
-<a class="viewcode-back" href="../../../api/generated/openstef_models.models.BaseForecastingModel.html#openstef_models.models.BaseForecastingModel.get_explainable_components">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/openstef_models.models.forecasting_model.BaseForecastingModel.html#openstef_meta.models.ensemble_forecasting_model.BaseForecastingModel.get_explainable_components">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_explainable_components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ExplainableForecaster</span><span class="p">]:</span>  <span class="c1"># noqa: PLR6301</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return named components that support feature-importance plotting.</span>
 
@@ -665,7 +671,7 @@
 
 
 <div class="viewcode-block" id="BaseForecastingModel.fit">
-<a class="viewcode-back" href="../../../api/generated/openstef_models.models.BaseForecastingModel.html#openstef_models.models.BaseForecastingModel.fit">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/openstef_models.models.forecasting_model.BaseForecastingModel.html#openstef_meta.models.ensemble_forecasting_model.BaseForecastingModel.fit">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span>
@@ -697,7 +703,7 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
 <div class="viewcode-block" id="BaseForecastingModel.prepare_input">
-<a class="viewcode-back" href="../../../api/generated/openstef_models.models.BaseForecastingModel.html#openstef_models.models.BaseForecastingModel.prepare_input">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/openstef_models.models.forecasting_model.BaseForecastingModel.html#openstef_meta.models.ensemble_forecasting_model.BaseForecastingModel.prepare_input">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">prepare_input</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">data</span><span class="p">:</span> <span class="n">TimeSeriesDataset</span><span class="p">,</span>
@@ -739,7 +745,7 @@
 
 
 <div class="viewcode-block" id="BaseForecastingModel.predict">
-<a class="viewcode-back" href="../../../api/generated/openstef_models.models.BaseForecastingModel.html#openstef_models.models.BaseForecastingModel.predict">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/openstef_models.models.forecasting_model.BaseForecastingModel.html#openstef_meta.models.ensemble_forecasting_model.BaseForecastingModel.predict">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">TimeSeriesDataset</span><span class="p">,</span> <span class="n">forecast_start</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ForecastDataset</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate forecasts using the trained model.</span>
@@ -767,7 +773,7 @@
 
 
 <div class="viewcode-block" id="BaseForecastingModel.score">
-<a class="viewcode-back" href="../../../api/generated/openstef_models.models.BaseForecastingModel.html#openstef_models.models.BaseForecastingModel.score">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/openstef_models.models.forecasting_model.BaseForecastingModel.html#openstef_meta.models.ensemble_forecasting_model.BaseForecastingModel.score">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">TimeSeriesDataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SubsetMetric</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Evaluate model performance on the provided dataset.</span>
 
@@ -813,7 +819,7 @@
         <span class="k">return</span> <span class="n">global_metric</span>
 
 <div class="viewcode-block" id="BaseForecastingModel.predict_contributions">
-<a class="viewcode-back" href="../../../api/generated/openstef_models.models.BaseForecastingModel.html#openstef_models.models.BaseForecastingModel.predict_contributions">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/openstef_models.models.forecasting_model.BaseForecastingModel.html#openstef_meta.models.ensemble_forecasting_model.BaseForecastingModel.predict_contributions">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">predict_contributions</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">data</span><span class="p">:</span> <span class="n">TimeSeriesDataset</span><span class="p">,</span>
@@ -839,7 +845,7 @@
 
 
 <div class="viewcode-block" id="ForecastingModel">
-<a class="viewcode-back" href="../../../api/generated/openstef_models.models.ForecastingModel.html#openstef_models.models.ForecastingModel">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/openstef_models.models.forecasting_model.ForecastingModel.html#openstef_meta.models.ensemble_forecasting_model.ForecastingModel">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ForecastingModel</span><span class="p">(</span><span class="n">BaseForecastingModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Single-forecaster pipeline: preprocessing -&gt; forecaster -&gt; postprocessing.</span>
 
@@ -911,7 +917,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">forecaster</span><span class="o">.</span><span class="n">is_fitted</span>
 
 <div class="viewcode-block" id="ForecastingModel.get_explainable_components">
-<a class="viewcode-back" href="../../../api/generated/openstef_models.models.ForecastingModel.html#openstef_models.models.ForecastingModel.get_explainable_components">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/openstef_models.models.forecasting_model.ForecastingModel.html#openstef_meta.models.ensemble_forecasting_model.ForecastingModel.get_explainable_components">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_explainable_components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ExplainableForecaster</span><span class="p">]:</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">forecaster</span><span class="p">,</span> <span class="n">ExplainableForecaster</span><span class="p">):</span>
@@ -920,7 +926,7 @@
 
 
 <div class="viewcode-block" id="ForecastingModel.fit">
-<a class="viewcode-back" href="../../../api/generated/openstef_models.models.ForecastingModel.html#openstef_models.models.ForecastingModel.fit">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/openstef_models.models.forecasting_model.ForecastingModel.html#openstef_meta.models.ensemble_forecasting_model.ForecastingModel.fit">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1013,7 +1019,7 @@
         <span class="k">return</span> <span class="n">restore_target</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="n">prediction</span><span class="p">,</span> <span class="n">original_dataset</span><span class="o">=</span><span class="n">input_data</span><span class="p">,</span> <span class="n">target_column</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">target_column</span><span class="p">)</span>
 
 <div class="viewcode-block" id="ForecastingModel.predict_contributions">
-<a class="viewcode-back" href="../../../api/generated/openstef_models.models.ForecastingModel.html#openstef_models.models.ForecastingModel.predict_contributions">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/openstef_models.models.forecasting_model.ForecastingModel.html#openstef_meta.models.ensemble_forecasting_model.ForecastingModel.predict_contributions">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">predict_contributions</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1031,6 +1037,8 @@
 
 
 
+<div class="viewcode-block" id="restore_target">
+<a class="viewcode-back" href="../../../api/generated/openstef_models.models.forecasting_model.restore_target.html#openstef_meta.models.ensemble_forecasting_model.restore_target">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">restore_target</span><span class="p">[</span><span class="n">T</span><span class="p">:</span> <span class="n">TimeSeriesDataset</span><span class="p">](</span>
     <span class="n">dataset</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span>
     <span class="n">original_dataset</span><span class="p">:</span> <span class="n">TimeSeriesDataset</span><span class="p">,</span>
@@ -1077,7 +1085,8 @@
 
         <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="o">**</span><span class="p">{</span><span class="n">target_column</span><span class="p">:</span> <span class="n">restored</span><span class="p">})</span>
 
-    <span class="k">return</span> <span class="n">dataset</span><span class="o">.</span><span class="n">pipe_pandas</span><span class="p">(</span><span class="n">_transform_restore_target</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dataset</span><span class="o">.</span><span class="n">pipe_pandas</span><span class="p">(</span><span class="n">_transform_restore_target</span><span class="p">)</span></div>
+
 
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;BaseForecastingModel&quot;</span><span class="p">,</span> <span class="s2">&quot;ForecastingModel&quot;</span><span class="p">,</span> <span class="s2">&quot;ModelFitResult&quot;</span><span class="p">,</span> <span class="s2">&quot;restore_target&quot;</span><span class="p">]</span>

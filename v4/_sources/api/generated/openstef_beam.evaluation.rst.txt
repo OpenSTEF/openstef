@@ -2,8 +2,10 @@
 ..
 .. SPDX-License-Identifier: MPL-2.0
 
-openstef_beam.evaluation
-========================
+
+
+evaluation
+==========
 
 .. currentmodule:: openstef_beam.evaluation
 
@@ -16,6 +18,29 @@ openstef_beam.evaluation
 
 
 
+
+
+
+
+Submodules
+----------
+
+
+.. autosummary::
+   :toctree: .
+   :template: module_overview.rst
+
+   openstef_beam.evaluation.evaluation_pipeline
+   openstef_beam.evaluation.models
+   openstef_beam.evaluation.window_iterators
+
+
+
+.. autosummary::
+   :toctree: .
+   :template: module_overview.rst
+
+   metric_providers
 
 
 

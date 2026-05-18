@@ -1,0 +1,10 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+combine_timeseries_indexes
+==========================
+
+.. currentmodule:: openstef_core.utils.pandas
+
+.. autofunction:: combine_timeseries_indexes

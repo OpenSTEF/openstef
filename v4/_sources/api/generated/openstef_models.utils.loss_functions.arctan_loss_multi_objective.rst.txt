@@ -1,0 +1,10 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+arctan_loss_multi_objective
+===========================
+
+.. currentmodule:: openstef_models.utils.loss_functions
+
+.. autofunction:: arctan_loss_multi_objective

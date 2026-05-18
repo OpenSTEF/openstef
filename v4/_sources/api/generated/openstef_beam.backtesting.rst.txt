@@ -2,8 +2,10 @@
 ..
 .. SPDX-License-Identifier: MPL-2.0
 
-openstef_beam.backtesting
-=========================
+
+
+backtesting
+===========
 
 .. currentmodule:: openstef_beam.backtesting
 
@@ -16,6 +18,31 @@ openstef_beam.backtesting
 
 
 
+
+
+
+
+Submodules
+----------
+
+
+.. autosummary::
+   :toctree: .
+   :template: module_overview.rst
+
+   openstef_beam.backtesting.backtest_callback
+   openstef_beam.backtesting.backtest_event
+   openstef_beam.backtesting.backtest_event_generator
+   openstef_beam.backtesting.backtest_pipeline
+   openstef_beam.backtesting.restricted_horizon_timeseries
+
+
+
+.. autosummary::
+   :toctree: .
+   :template: module_overview.rst
+
+   backtest_forecaster
 
 
 

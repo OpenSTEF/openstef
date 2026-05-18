@@ -1,0 +1,32 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+
+
+benchmarks
+==========
+
+.. currentmodule:: openstef_beam.benchmarking.benchmarks
+
+.. automodule:: openstef_beam.benchmarking.benchmarks
+   :no-members:
+   :no-inherited-members:
+
+
+
+
+
+
+Functions
+---------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_function.rst
+
+   create_liander2024_benchmark_runner
+
+
+
+

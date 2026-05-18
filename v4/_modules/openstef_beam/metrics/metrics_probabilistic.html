@@ -465,7 +465,7 @@
 
 
 <div class="viewcode-block" id="crps">
-<a class="viewcode-back" href="../../../api/generated/openstef_beam.metrics.crps.html#openstef_beam.metrics.crps">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/openstef_beam.metrics.metrics_probabilistic.crps.html#openstef_beam.metrics.crps">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">crps</span><span class="p">(</span>
     <span class="n">y_true</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
     <span class="n">y_pred</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
@@ -619,7 +619,7 @@
 
 
 <div class="viewcode-block" id="mean_absolute_calibration_error">
-<a class="viewcode-back" href="../../../api/generated/openstef_beam.metrics.mean_absolute_calibration_error.html#openstef_beam.metrics.mean_absolute_calibration_error">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/openstef_beam.metrics.metrics_probabilistic.mean_absolute_calibration_error.html#openstef_beam.metrics.mean_absolute_calibration_error">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">mean_absolute_calibration_error</span><span class="p">(</span>
     <span class="n">y_true</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
     <span class="n">y_pred</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
@@ -671,6 +671,8 @@
 
 
 
+<div class="viewcode-block" id="mean_pinball_loss">
+<a class="viewcode-back" href="../../../api/generated/openstef_beam.metrics.metrics_probabilistic.mean_pinball_loss.html#openstef_beam.metrics.mean_pinball_loss">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">mean_pinball_loss</span><span class="p">(</span>
     <span class="n">y_true</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
     <span class="n">y_pred</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
@@ -723,7 +725,8 @@
         <span class="n">total_weight</span> <span class="o">=</span> <span class="n">loss</span><span class="o">.</span><span class="n">size</span>
 
     <span class="c1"># Return mean loss across all samples and quantiles</span>
-    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">loss</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="n">total_weight</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">loss</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="n">total_weight</span><span class="p">)</span></div>
+
 </pre></div>
 
                 </article>

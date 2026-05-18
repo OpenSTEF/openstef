@@ -2,14 +2,17 @@
 ..
 .. SPDX-License-Identifier: MPL-2.0
 
-openstef_core.base_model
-========================
+
+
+base_model
+==========
 
 .. currentmodule:: openstef_core.base_model
 
 .. automodule:: openstef_core.base_model
    :no-members:
    :no-inherited-members:
+
 
 
 
