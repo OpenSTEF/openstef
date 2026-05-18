@@ -1,3 +1,38 @@
+# ---
+# jupyter:
+#   jupytext:
+#     formats: ipynb,py:percent
+#     text_representation:
+#       extension: .py
+#       format_name: percent
+#       format_version: '1.3'
+#       jupytext_version: 1.19.1
+#   kernelspec:
+#     display_name: Python 3
+#     language: python
+#     name: python3
+# ---
+
+# %% [markdown]
+# # Custom Benchmark Configuration
+#
+# Defines a complete benchmark: where your data lives, which metrics to compute,
+# and how to assemble the pipeline.
+#
+# **User story:** *"I want to benchmark on my own data."*
+#
+# Copy this file and modify `MyTargetProvider` to point at your dataset.
+# The pipeline configuration (`create_custom_benchmark_runner`) shows all the
+# knobs: backtest schedule, evaluation windows, analysis visualizations.
+#
+# **See also:**
+# - [TargetProvider](https://openstef.github.io/openstef/v4/api/generated/openstef_beam.benchmarking.TargetProvider.html) — abstract interface
+# - [SimpleTargetProvider](https://openstef.github.io/openstef/v4/api/generated/openstef_beam.benchmarking.target_provider.SimpleTargetProvider.html) — file-based implementation (what we extend here)
+# - [BenchmarkPipeline](https://openstef.github.io/openstef/v4/api/generated/openstef_beam.benchmarking.BenchmarkPipeline.html) — the orchestrator
+# - [EvaluationConfig](https://openstef.github.io/openstef/v4/api/generated/openstef_beam.evaluation.EvaluationConfig.html) — how predictions are sliced and scored
+# - [Custom Forecaster template](./custom_forecaster.ipynb) — implement your model here
+
+# %% tags=["remove-cell"]
 """Example: custom benchmark with your own target provider.
 
 Shows how to extend SimpleTargetProvider to load your own data and build a
@@ -17,6 +52,8 @@ Expected directory layout (customize via path overrides)::
 # SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
+
+# %%
 
 from datetime import timedelta
 from pathlib import Path
@@ -41,6 +78,18 @@ from openstef_core.types import AvailableAt, LeadTime, Quantile
 
 # Define your own target categories for filtering (must match group_name in targets.yaml)
 type MyCategory = Literal["solar_park", "wind_park"]
+
+# %% [markdown]
+# ## Target Provider
+#
+# The [`TargetProvider`](https://openstef.github.io/openstef/v4/api/generated/openstef_beam.benchmarking.TargetProvider.html)
+# tells BEAM where your data lives and which metrics to compute.
+# Here we extend [`SimpleTargetProvider`](https://openstef.github.io/openstef/v4/api/generated/openstef_beam.benchmarking.target_provider.SimpleTargetProvider.html)
+# which handles file-based datasets with a targets YAML + parquet files.
+#
+# **CUSTOMIZE HERE:** Change path templates, category types, and metric selection.
+
+# %%
 
 
 class MyTargetProvider(SimpleTargetProvider[BenchmarkTarget, list[MyCategory]]):
@@ -114,6 +163,13 @@ class MyTargetProvider(SimpleTargetProvider[BenchmarkTarget, list[MyCategory]]):
         return self.data_dir / "weather_forecasts_versioned" / target.group_name / f"{target.name}.parquet"
 
 
+# %% [markdown]
+# ## Analysis Configuration
+#
+# Choose which visualizations and summary tables BEAM generates after evaluation.
+# Add or remove providers to customize the output report.
+
+# %%
 # --- Analysis config: which plots and tables to generate after evaluation ---
 ANALYSIS_CONFIG = AnalysisConfig(
     visualization_providers=[
@@ -134,6 +190,19 @@ ANALYSIS_CONFIG = AnalysisConfig(
         QuantileProbabilityVisualization(name="quantile_probability"),
     ],
 )
+
+
+# %% [markdown]
+# ## Pipeline Assembly
+#
+# Wire everything together: backtest schedule, evaluation config, analysis, and target provider.
+# See [`BacktestConfig`](https://openstef.github.io/openstef/v4/api/generated/openstef_beam.backtesting.BacktestConfig.html)
+# and [`EvaluationConfig`](https://openstef.github.io/openstef/v4/api/generated/openstef_beam.evaluation.EvaluationConfig.html)
+# for all available options.
+#
+# **CUSTOMIZE HERE:** Adjust `predict_interval`, `train_interval`, evaluation windows, and lead times.
+
+# %%
 
 
 def create_custom_benchmark_runner(

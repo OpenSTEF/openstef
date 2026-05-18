@@ -1,3 +1,28 @@
+# ---
+# jupyter:
+#   jupytext:
+#     formats: ipynb,py:percent
+#     text_representation:
+#       extension: .py
+#       format_name: percent
+#       format_version: '1.3'
+#       jupytext_version: 1.19.1
+#   kernelspec:
+#     display_name: Python 3
+#     language: python
+#     name: python3
+# ---
+
+# %% [markdown]
+# # Compare Benchmark Runs
+#
+# Generate side-by-side comparison plots from multiple benchmark runs.
+# Uses [`BenchmarkComparisonPipeline`](https://openstef.github.io/openstef/v4/api/generated/openstef_beam.benchmarking.BenchmarkComparisonPipeline.html)
+# to produce global, per-group, and per-target HTML visualizations.
+#
+# **Prerequisites:** Run at least two models first (e.g. via `run_liander2024_benchmark.py`).
+
+# %% tags=["remove-cell"]
 """Compare benchmark results from different runs on the Liander 2024 dataset.
 
 Usage:
@@ -11,6 +36,13 @@ Output is saved to ./benchmark_results_comparison/liander2024/.
 # SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
+
+# %% [markdown]
+# ## Setup
+#
+# Point at the result directories from your benchmark runs.
+
+# %%
 
 from pathlib import Path
 from typing import cast
@@ -34,6 +66,13 @@ for name, storage in run_storages.items():
         msg = f"Benchmark directory not found for '{name}': {base_path}. Run the benchmarks first."
         raise FileNotFoundError(msg)
 
+# %% [markdown]
+# ## Run comparison
+#
+# The pipeline loads predictions from each run, re-evaluates them, and produces
+# comparison visualizations.
+
+# %%
 # Reuse the Liander 2024 target provider.
 OUTPUT_PATH = Path("./benchmark_results_comparison/liander2024")
 target_provider = create_liander2024_benchmark_runner(

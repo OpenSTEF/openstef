@@ -162,6 +162,8 @@ nb_execution_raise_on_error = True
 # TODO(#884): backtesting notebook exceeds timeout — needs rewrite or execution split
 nb_execution_excludepatterns = [
     "tutorials/forecasting_with_workflow_presets*",
+    "benchmarks/*",  # Benchmarks are too expensive to execute during docs build
+    "benchmarks/*/*",
 ]
 
 # Sphinx version switcher

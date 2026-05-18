@@ -138,6 +138,19 @@ lint.per-file-ignores."./examples/tutorials/*" = [
   "S101",   # Tutorials may use assert for runtime checks
   "T201",   # Tutorials may use print for demonstration
 ]
+lint.per-file-ignores."./examples/benchmarks/custom/*" = [
+  "E501",   # Long lines in markdown cells (API doc URLs)
+  "ERA001", # Jupytext YAML frontmatter looks like commented-out code
+  "E402",   # Imports not at top — notebook cells have natural ordering
+  "T201",   # Benchmarks may use print for demonstration
+]
+lint.per-file-ignores."./examples/benchmarks/liander2024/*" = [
+  "D100",   # Module docstring is in a remove-cell for clean notebook rendering
+  "E501",   # Long lines in markdown cells (API doc URLs)
+  "ERA001", # Jupytext YAML frontmatter looks like commented-out code
+  "E402",   # Imports not at top — os.environ must be set before imports
+  "T201",   # Benchmarks may use print for demonstration
+]
 lint.per-file-ignores."./packages/*/tests/*" = [
   "ARG",     # Unused function args -> fixtures nevertheless are functionally relevant...
   "D",       # All docstring rules
@@ -285,17 +298,24 @@ cmd = "pytest --numprocesses=auto --doctest-modules packages/*/src --maxfail=1"
 
 [tool.poe.tasks.notebooks]
 help = "Sync jupytext .py percent sources → .ipynb notebooks (and vice versa)"
-cmd = "jupytext --sync examples/tutorials/*.py"
+sequence = [
+  { cmd = "jupytext --sync examples/tutorials/*.py" },
+  { cmd = "jupytext --sync examples/benchmarks/custom/*.py examples/benchmarks/liander2024/*.py" },
+]
 
 [tool.poe.tasks.notebooks-clear]
 help = "Strip outputs from all .ipynb notebooks"
-cmd = "jupyter nbconvert --clear-output --inplace examples/tutorials/*.ipynb"
+sequence = [
+  { cmd = "jupyter nbconvert --clear-output --inplace examples/tutorials/*.ipynb" },
+  { cmd = "jupyter nbconvert --clear-output --inplace examples/benchmarks/custom/*.ipynb examples/benchmarks/liander2024/*.ipynb" },
+]
 
 [tool.poe.tasks.notebooks-check]
 help = "Check that .ipynb notebooks are in sync with their jupytext .py sources and have no outputs"
 sequence = [
   { cmd = "jupytext --sync examples/tutorials/*.py" },
-  { cmd = "git diff --exit-code -- examples/tutorials/" },
+  { cmd = "jupytext --sync examples/benchmarks/custom/*.py examples/benchmarks/liander2024/*.py" },
+  { cmd = "git diff --exit-code -- examples/tutorials/ examples/benchmarks/" },
   { script = "tools.check_notebook_outputs:main" },
 ]
 
@@ -386,8 +406,8 @@ sequence = [
 ]
 
 [tool.poe.tasks._docs_sync]
-help = "Sync tutorial sources into docs/source for Sphinx"
-cmd = "python -c \"import shutil; shutil.rmtree('docs/source/tutorials', ignore_errors=True); shutil.copytree('examples/tutorials', 'docs/source/tutorials')\""
+help = "Sync tutorial and benchmark sources into docs/source for Sphinx"
+cmd = "python -c \"import shutil; shutil.rmtree('docs/source/tutorials', ignore_errors=True); shutil.copytree('examples/tutorials', 'docs/source/tutorials'); shutil.rmtree('docs/source/benchmarks', ignore_errors=True); shutil.copytree('examples/benchmarks', 'docs/source/benchmarks')\""
 
 [tool.poe.tasks.docs]
 help = "Build the documentation"

@@ -1,3 +1,34 @@
+# ---
+# jupyter:
+#   jupytext:
+#     formats: ipynb,py:percent
+#     text_representation:
+#       extension: .py
+#       format_name: percent
+#       format_version: '1.3'
+#       jupytext_version: 1.19.1
+#   kernelspec:
+#     display_name: Python 3
+#     language: python
+#     name: python3
+# ---
+
+# %% [markdown]
+# # Custom Forecaster Template
+#
+# Implements [`BacktestForecasterMixin`](https://openstef.github.io/openstef/v4/api/generated/openstef_beam.backtesting.BacktestForecasterMixin.html)
+# — the interface BEAM needs to run any model in its backtesting/benchmarking pipeline.
+#
+# **User story:** *"I want to benchmark my own model."*
+#
+# Copy this file and modify `fit()` and `predict()` to wrap your model.
+#
+# **See also:**
+# - [BacktestForecasterConfig](https://openstef.github.io/openstef/v4/api/generated/openstef_beam.backtesting.BacktestForecasterConfig.html) — scheduling settings
+# - [RestrictedHorizonVersionedTimeSeries](https://openstef.github.io/openstef/v4/api/generated/openstef_beam.backtesting.RestrictedHorizonVersionedTimeSeries.html) — the data view passed to `fit()` and `predict()`
+# - [Backtesting quickstart tutorial](../../tutorials/backtesting_quickstart.ipynb) — introduction to backtesting concepts
+
+# %% tags=["remove-cell"]
 """Custom baseline: predicts a constant value (last known median) for all future timestamps.
 
 Implements BacktestForecasterMixin — the interface BEAM needs to run any model
@@ -9,6 +40,8 @@ file and modify fit() and predict().
 #
 # SPDX-License-Identifier: MPL-2.0
 
+# %%
+
 from datetime import timedelta
 from typing import override
 
@@ -18,6 +51,19 @@ from openstef_beam.backtesting.backtest_forecaster import BacktestForecasterConf
 from openstef_beam.backtesting.restricted_horizon_timeseries import RestrictedHorizonVersionedTimeSeries
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.types import Q, Quantile
+
+# %% [markdown]
+# ## The `BacktestForecasterMixin` interface
+#
+# Your forecaster must implement:
+# - `config` — a [`BacktestForecasterConfig`](https://openstef.github.io/openstef/v4/api/generated/openstef_beam.backtesting.BacktestForecasterConfig.html) that tells BEAM how to schedule training and prediction
+# - `quantiles` — which probabilistic bands to produce (e.g. `[Q(0.05), Q(0.5), Q(0.95)]`)
+# - `fit(data)` — train your model on restricted-horizon data (no lookahead)
+# - `predict(data)` → `TimeSeriesDataset | None` — produce a forecast
+#
+# BEAM calls `fit()` at `train_interval` spacing, and `predict()` at `predict_interval` spacing.
+
+# %%
 
 
 class ExampleBenchmarkForecaster(BacktestForecasterMixin):

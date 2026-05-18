@@ -1,8 +1,33 @@
-"""Example: run the built-in Liander 2024 benchmark with a custom baseline and GBLinear.
+# ---
+# jupyter:
+#   jupytext:
+#     formats: ipynb,py:percent
+#     text_representation:
+#       extension: .py
+#       format_name: percent
+#       format_version: '1.3'
+#       jupytext_version: 1.19.1
+#   kernelspec:
+#     display_name: Python 3
+#     language: python
+#     name: python3
+# ---
 
-Uses create_liander2024_benchmark_runner() which pre-configures everything:
-backtest settings, evaluation windows, metrics, analysis plots, and target
-definitions. Data is auto-downloaded from HuggingFace.
+# %% [markdown]
+# # Run Custom Benchmark
+#
+# Entry point: run your custom forecaster on your own data using the pipeline
+# configured in [`custom_benchmark.py`](./custom_benchmark.ipynb).
+#
+# **See also:**
+# - [Custom Forecaster template](./custom_forecaster.ipynb) — define your model
+# - [Custom Benchmark configuration](./custom_benchmark.ipynb) — configure targets and metrics
+
+# %% tags=["remove-cell"]
+"""Run the custom benchmark: example baseline vs OpenSTEF GBLinear.
+
+Uses the custom benchmark pipeline from example_benchmark.py (which extends
+SimpleTargetProvider) instead of the built-in Liander 2024 runner.
 """
 
 # SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
@@ -11,37 +36,46 @@ definitions. Data is auto-downloaded from HuggingFace.
 
 import os
 
+# Prevent thread contention when running multiple targets in parallel
 os.environ["OMP_NUM_THREADS"] = "1"
 os.environ["OPENBLAS_NUM_THREADS"] = "1"
 os.environ["MKL_NUM_THREADS"] = "1"
+
+# %% [markdown]
+# ## Setup
+
+# %%
 
 import logging
 import multiprocessing
 from pathlib import Path
 
-from examples.benchmarks.custom_benchmark.example_baseline import ExampleBenchmarkForecaster
-from openstef_beam.benchmarking import BenchmarkContext, BenchmarkTarget, LocalBenchmarkStorage, StrictExecutionCallback
+from examples.benchmarks.custom.custom_benchmark import MyCategory, create_custom_benchmark_runner
+from examples.benchmarks.custom.custom_forecaster import ExampleBenchmarkForecaster
+from openstef_beam.benchmarking import BenchmarkContext, BenchmarkTarget, LocalBenchmarkStorage
 from openstef_beam.benchmarking.baselines.openstef4 import create_openstef4_preset_backtest_forecaster
-from openstef_beam.benchmarking.benchmarks.liander2024 import Liander2024Category, create_liander2024_benchmark_runner
 from openstef_core.types import LeadTime, Q
 from openstef_models.presets import ForecastingWorkflowConfig
 
 logging.basicConfig(level=logging.INFO, format="[%(asctime)s][%(levelname)s] %(message)s")
 
+# %% [markdown]
+# ## Configuration
+
+# %%
 OUTPUT_PATH = Path("./benchmark_results")
 N_PROCESSES = multiprocessing.cpu_count()
 
 # Optional: filter to specific target categories (None = run all)
-BENCHMARK_FILTER: list[Liander2024Category] | None = None
+BENCHMARK_FILTER: list[MyCategory] | None = ["solar_park"]
 
 # Quantiles define the probabilistic forecast bands
-# Q(0.05) = 5th percentile, Q(0.5) = median, Q(0.95) = 95th percentile
 PREDICTION_QUANTILES = [Q(0.05), Q(0.1), Q(0.3), Q(0.5), Q(0.7), Q(0.9), Q(0.95)]
 
-# --- GBLinear model config ---
+# --- GBLinear config ---
 # Map column names in your data to what OpenSTEF expects
 gblinear_config = ForecastingWorkflowConfig(
-    model_id="liander_benchmark_",
+    model_id="custom_benchmark_",
     run_name=None,
     model="gblinear",
     horizons=[LeadTime.from_string("P3D")],
@@ -57,8 +91,15 @@ gblinear_config = ForecastingWorkflowConfig(
 )
 
 
+# %% [markdown]
+# ## Forecaster factory
+
+# %%
+
+
+# --- Example baseline factory ---
 def example_factory(_context: BenchmarkContext, _target: BenchmarkTarget) -> ExampleBenchmarkForecaster:
-    """Create the example baseline forecaster.
+    """Create an example forecaster for a benchmark target.
 
     Returns:
         Configured ExampleBenchmarkForecaster instance.
@@ -66,25 +107,26 @@ def example_factory(_context: BenchmarkContext, _target: BenchmarkTarget) -> Exa
     return ExampleBenchmarkForecaster(predict_quantiles=PREDICTION_QUANTILES)
 
 
+# %% [markdown]
+# ## Run benchmark
+#
+# Run the custom baseline and GBLinear on your data.
+
+# %%
 if __name__ == "__main__":
-    # 1. Run custom baseline on Liander 2024
-    # create_liander2024_benchmark_runner() sets up everything: data download, configs, metrics
-    # LocalBenchmarkStorage writes results as parquet files to disk
-    create_liander2024_benchmark_runner(
+    # 1. Run example baseline using the custom benchmark pipeline
+    create_custom_benchmark_runner(
         storage=LocalBenchmarkStorage(base_path=OUTPUT_PATH / "ExampleBaseline"),
-        callbacks=[StrictExecutionCallback()],  # Fail fast on errors
     ).run(
-        forecaster_factory=example_factory,  # Your model factory (called per target)
-        run_name="example_baseline",  # Label for this run
-        n_processes=N_PROCESSES,  # Parallel targets
-        filter_args=BENCHMARK_FILTER,  # None = all categories
+        forecaster_factory=example_factory,
+        run_name="example_baseline",
+        n_processes=N_PROCESSES,
+        filter_args=BENCHMARK_FILTER,
     )
 
-    # 2. Run GBLinear on Liander 2024
-    # create_openstef4_preset_backtest_forecaster returns a factory that wraps OpenSTEF models
-    create_liander2024_benchmark_runner(
+    # 2. Run GBLinear using the same custom pipeline
+    create_custom_benchmark_runner(
         storage=LocalBenchmarkStorage(base_path=OUTPUT_PATH / "GBLinear"),
-        callbacks=[StrictExecutionCallback()],
     ).run(
         forecaster_factory=create_openstef4_preset_backtest_forecaster(
             workflow_config=gblinear_config,

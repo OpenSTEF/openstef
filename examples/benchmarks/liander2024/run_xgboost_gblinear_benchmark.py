@@ -1,21 +1,57 @@
-"""Liander 2024 Benchmark Example.
+# ---
+# jupyter:
+#   jupytext:
+#     formats: ipynb,py:percent
+#     text_representation:
+#       extension: .py
+#       format_name: percent
+#       format_version: '1.3'
+#       jupytext_version: 1.19.1
+#   kernelspec:
+#     display_name: Python 3
+#     language: python
+#     name: python3
+# ---
 
-====================================
+# %% [markdown]
+# # XGBoost & GBLinear Benchmark
+#
+# Run two models head-to-head on the
+# [Liander 2024 STEF benchmark](https://huggingface.co/datasets/OpenSTEF/liander2024-stef-benchmark)
+# — an open dataset of Dutch energy grid measurements.
+#
+# **What this does:**
+#
+# 1. Downloads the Liander 2024 dataset from HuggingFace (automatic)
+# 2. Trains XGBoost and GBLinear on each target using day-by-day backtesting
+# 3. Produces probabilistic forecasts (7 quantiles) for a 3-day horizon
+# 4. Saves results locally for comparison (see *Compare Results* notebook)
+#
+# **No code changes needed** — just run it. To benchmark your own model instead,
+# see [Implement a Custom Forecaster](../custom/custom_forecaster.ipynb).
+#
+# ```{admonition} Runtime
+# Expect 30-60 min on a laptop (uses all CPU cores).
+# Set `N_PROCESSES = 1` for easier debugging.
+# ```
 
-This example demonstrates how to set up and run the Liander 2024 STEF benchmark using OpenSTEF BEAM.
-The benchmark will evaluate XGBoost and GBLinear models on the dataset from HuggingFace.
-"""
-
+# %% tags=["remove-cell"]
 # SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
 import os
 
-os.environ["OMP_NUM_THREADS"] = "1"  # Set OMP_NUM_THREADS to 1 to avoid issues with parallel execution and xgboost
+os.environ["OMP_NUM_THREADS"] = "1"
 os.environ["OPENBLAS_NUM_THREADS"] = "1"
 os.environ["MKL_NUM_THREADS"] = "1"
 
+# %% [markdown]
+# ## Setup
+#
+# Import BEAM components and configure logging.
+
+# %%
 import logging
 import multiprocessing
 from pathlib import Path
@@ -34,14 +70,21 @@ from openstef_models.presets import (
 
 logging.basicConfig(level=logging.INFO, format="[%(asctime)s][%(levelname)s] %(message)s")
 
+# %% [markdown]
+# ## Configuration
+#
+# Define output paths, forecast horizons, and quantiles.
+# The benchmark runs each model in parallel across all targets in the dataset.
+
+# %%
 OUTPUT_PATH = Path("./benchmark_results")
 
 BENCHMARK_RESULTS_PATH_XGBOOST = OUTPUT_PATH / "XGBoost"
 BENCHMARK_RESULTS_PATH_GBLINEAR = OUTPUT_PATH / "GBLinear"
-N_PROCESSES = multiprocessing.cpu_count()  # Amount of parallel processes to use for the benchmark
+N_PROCESSES = multiprocessing.cpu_count()
 
-# Model configuration
-FORECAST_HORIZONS = [LeadTime.from_string("P3D")]  # Forecast horizon(s)
+# Forecast 3 days ahead, producing 7 quantile bands
+FORECAST_HORIZONS = [LeadTime.from_string("P3D")]
 PREDICTION_QUANTILES = [
     Q(0.05),
     Q(0.1),
@@ -50,10 +93,20 @@ PREDICTION_QUANTILES = [
     Q(0.7),
     Q(0.9),
     Q(0.95),
-]  # Quantiles for probabilistic forecasts
+]
 
+# Set to a list of categories to run only a subset (e.g. [Liander2024Category.SOLAR])
 BENCHMARK_FILTER: list[Liander2024Category] | None = None
 
+# %% [markdown]
+# ## Model configuration
+#
+# `ForecastingWorkflowConfig` defines how OpenSTEF trains and predicts.
+# We create a shared base config and derive model-specific variants with `model_copy()`.
+#
+# Set `USE_MLFLOW_STORAGE = True` to log experiment artifacts to MLflow.
+
+# %%
 USE_MLFLOW_STORAGE = False
 
 if USE_MLFLOW_STORAGE:
@@ -82,11 +135,17 @@ common_config = ForecastingWorkflowConfig(
 )
 
 xgboost_config = common_config.model_copy(update={"model": "xgboost"})
-
 gblinear_config = common_config.model_copy(update={"model": "gblinear"})
 
+# %% [markdown]
+# ## Run the benchmark
+#
+# Each model gets its own output directory. `StrictExecutionCallback` raises on
+# any target failure (remove it to skip failing targets silently).
+
+# %%
 if __name__ == "__main__":
-    # Run for XGBoost model
+    # --- XGBoost ---
     create_liander2024_benchmark_runner(
         storage=LocalBenchmarkStorage(base_path=BENCHMARK_RESULTS_PATH_XGBOOST),
         callbacks=[StrictExecutionCallback()],
@@ -100,7 +159,7 @@ if __name__ == "__main__":
         filter_args=BENCHMARK_FILTER,
     )
 
-    # # Run for GBLinear model
+    # --- GBLinear ---
     create_liander2024_benchmark_runner(
         storage=LocalBenchmarkStorage(base_path=BENCHMARK_RESULTS_PATH_GBLINEAR),
         callbacks=[StrictExecutionCallback()],

@@ -1,3 +1,54 @@
+# ---
+# jupyter:
+#   jupytext:
+#     formats: ipynb,py:percent
+#     text_representation:
+#       extension: .py
+#       format_name: percent
+#       format_version: '1.3'
+#       jupytext_version: 1.19.1
+#   kernelspec:
+#     display_name: Python 3
+#     language: python
+#     name: python3
+# ---
+
+# %% [markdown]
+# # Evaluate Existing Forecasts
+#
+# Skip backtesting entirely — bring your own prediction parquets and run only
+# evaluation + analysis.
+#
+# **User story:** *"I already have forecasts from my own system. I just want to
+# score them with BEAM's metrics and visualizations."*
+#
+# **See also:**
+# - [BenchmarkPipeline](https://openstef.github.io/openstef/v4/api/generated/openstef_beam.benchmarking.BenchmarkPipeline.html) — auto-detects existing predictions and skips backtesting
+# - [Custom Benchmark configuration](./custom_benchmark.ipynb) — defines which targets and metrics to use
+# - [Quantile naming convention](https://openstef.github.io/openstef/v4/api/generated/openstef_core.types.Quantile.html) — `Quantile(x).format()` → column names
+#
+# ## Expected directory layout
+#
+# ```
+# benchmark_results/MyForecasts/
+# └── backtest/
+#     └── <group_name>/           # e.g. "solar_park"
+#         └── <target_name>/      # e.g. "Within 15 kilometers of Opmeer_normalized"
+#             └── predictions.parquet
+# ```
+#
+# ## Expected parquet format
+#
+# | Column | Type | Description |
+# |--------|------|-------------|
+# | *index* | `DatetimeIndex` (name="timestamp", tz-naive UTC, 15-min) | Forecast timestamp |
+# | `available_at` | datetime | When the prediction was generated |
+# | `quantile_P05` | float | 5th percentile |
+# | `quantile_P50` | float | Median (required) |
+# | `quantile_P95` | float | 95th percentile |
+# | ... | float | One column per quantile via `Quantile(x).format()` |
+
+# %% tags=["remove-cell"]
 """Evaluate pre-existing forecasts without running backtesting.
 
 If you already have forecast predictions (e.g. from your own model or an external
@@ -47,24 +98,36 @@ but fit() and predict() are never called. We use DummyForecaster for this.
 #
 # SPDX-License-Identifier: MPL-2.0
 
-import logging
-import multiprocessing
 import os
-from pathlib import Path
-
-from examples.benchmarks.custom_benchmark.example_benchmark import create_custom_benchmark_runner
-from openstef_beam.backtesting.backtest_forecaster import DummyForecaster
-from openstef_beam.benchmarking import BenchmarkContext, BenchmarkTarget, LocalBenchmarkStorage
-from openstef_core.types import Q
 
 os.environ["OMP_NUM_THREADS"] = "1"
 os.environ["OPENBLAS_NUM_THREADS"] = "1"
 os.environ["MKL_NUM_THREADS"] = "1"
 
+# %% [markdown]
+# ## Setup
+
+# %%
+import logging
+import multiprocessing
+from pathlib import Path
+
+from examples.benchmarks.custom.custom_benchmark import create_custom_benchmark_runner
+from openstef_beam.backtesting.backtest_forecaster import DummyForecaster
+from openstef_beam.benchmarking import BenchmarkContext, BenchmarkTarget, LocalBenchmarkStorage
+from openstef_core.types import Q
+
 _logger = logging.getLogger(__name__)
 
 logging.basicConfig(level=logging.INFO, format="[%(asctime)s][%(levelname)s] %(message)s")
 
+# %% [markdown]
+# ## Configuration
+#
+# Point at the folder containing your prediction parquets and list the quantiles
+# they were generated for.
+
+# %%
 # Path to the folder that contains the backtest/ directory with your parquets.
 OUTPUT_PATH = Path("./benchmark_results/MyForecasts")
 N_PROCESSES = multiprocessing.cpu_count()
@@ -72,6 +135,14 @@ N_PROCESSES = multiprocessing.cpu_count()
 # Quantiles your forecasts were generated for (must include 0.5 = median).
 # Adjust this list to match whatever quantiles are in your parquet columns.
 PREDICTION_QUANTILES = [Q(0.05), Q(0.1), Q(0.3), Q(0.5), Q(0.7), Q(0.9), Q(0.95)]
+
+# %% [markdown]
+# ## Dummy forecaster factory
+#
+# The pipeline still needs a factory to know which quantiles were used, but
+# `fit()` and `predict()` are never called — backtesting is skipped.
+
+# %%
 
 
 def stub_factory(_context: BenchmarkContext, _target: BenchmarkTarget) -> DummyForecaster:
@@ -86,16 +157,17 @@ def stub_factory(_context: BenchmarkContext, _target: BenchmarkTarget) -> DummyF
     return DummyForecaster(predict_quantiles=PREDICTION_QUANTILES)
 
 
+# %% [markdown]
+# ## Run evaluation
+#
+# The pipeline reads existing parquets and runs evaluation + analysis only.
+
+# %%
 if __name__ == "__main__":
-    # Point the storage at your results folder.
-    # The pipeline reads parquets from:
-    #   OUTPUT_PATH / backtest / <group_name> / <target_name> / predictions.parquet
     storage = LocalBenchmarkStorage(base_path=OUTPUT_PATH)
 
     runner = create_custom_benchmark_runner(storage=storage)
 
-    # Run the pipeline — backtesting is auto-skipped for every target that
-    # already has a predictions.parquet on disk.
     runner.run(
         forecaster_factory=stub_factory,
         run_name="my_forecasts",

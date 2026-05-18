@@ -1,11 +1,43 @@
-"""Liander 2024 Benchmark Example.
+# ---
+# jupyter:
+#   jupytext:
+#     formats: ipynb,py:percent
+#     text_representation:
+#       extension: .py
+#       format_name: percent
+#       format_version: '1.3'
+#       jupytext_version: 1.19.1
+#   kernelspec:
+#     display_name: Python 3
+#     language: python
+#     name: python3
+# ---
 
-====================================
+# %% [markdown]
+# # Ensemble Model Benchmark
+#
+# Run an ensemble of multiple base models (e.g. LightGBM + GBLinear) with a learned
+# weight combiner on the
+# [Liander 2024 STEF benchmark](https://huggingface.co/datasets/OpenSTEF/liander2024-stef-benchmark).
+#
+# **What this does:**
+#
+# 1. Downloads the Liander 2024 dataset from HuggingFace (automatic)
+# 2. Trains multiple base models and a combiner that learns optimal weights
+# 3. Produces probabilistic forecasts (7 quantiles) for a 36-hour horizon
+# 4. Saves results locally for comparison
+#
+# **No code changes needed.** To benchmark your own model, see
+# [Implement a Custom Forecaster](../custom/custom_forecaster.ipynb).
+#
+# ```{admonition} Ensemble types
+# Change `ensemble_type` below to try different strategies:
+# - `"learned_weights"` — a combiner model learns per-quantile weights
+# - `"stacking"` — base model outputs become features for a meta-model
+# - `"rules"` — fixed rule-based combination
+# ```
 
-This example demonstrates how to set up and run the Liander 2024 STEF benchmark using OpenSTEF BEAM.
-The benchmark will evaluate XGBoost and GBLinear models on the dataset from HuggingFace.
-"""
-
+# %% tags=["remove-cell"]
 # SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
 #
 # SPDX-License-Identifier: MPL-2.0
@@ -13,10 +45,14 @@ The benchmark will evaluate XGBoost and GBLinear models on the dataset from Hugg
 import os
 import time
 
-os.environ["OMP_NUM_THREADS"] = "1"  # Set OMP_NUM_THREADS to 1 to avoid issues with parallel execution and xgboost
+os.environ["OMP_NUM_THREADS"] = "1"
 os.environ["OPENBLAS_NUM_THREADS"] = "1"
 os.environ["MKL_NUM_THREADS"] = "1"
 
+# %% [markdown]
+# ## Setup
+
+# %%
 import logging
 import multiprocessing
 from datetime import timedelta
@@ -38,20 +74,25 @@ from openstef_models.transforms.general import SampleWeightConfig
 
 logging.basicConfig(level=logging.INFO, format="[%(asctime)s][%(levelname)s] %(message)s")
 
+# %% [markdown]
+# ## Ensemble configuration
+#
+# Choose which base models to combine and how. The `ensemble_type` controls the
+# combination strategy; `base_models` lists which individual models to train.
+
+# %%
 OUTPUT_PATH = Path("./benchmark_results")
 
-N_PROCESSES = 1 if True else multiprocessing.cpu_count()  # Amount of parallel processes to use for the benchmark
+N_PROCESSES = 1 if True else multiprocessing.cpu_count()
 
 ensemble_type = "learned_weights"  # "stacking", "learned_weights" or "rules"
 base_models = ["lgbm", "gblinear"]  # combination of "lgbm", "gblinear", "xgboost" and "lgbm_linear"
-combiner_model = (
-    "lgbm"  # "lgbm", "xgboost", "rf" or "logistic" for learned weights combiner, gblinear for stacking combiner
-)
+combiner_model = "lgbm"  # "lgbm", "xgboost", "rf" or "logistic" for learned weights; "gblinear" for stacking
 
 model = "Ensemble_" + "_".join(base_models) + "_" + ensemble_type + "_" + combiner_model
 
-# Model configuration
-FORECAST_HORIZONS = [LeadTime.from_string("PT36H")]  # Forecast horizon(s)
+# Forecast 36 hours ahead, producing 7 quantile bands
+FORECAST_HORIZONS = [LeadTime.from_string("PT36H")]
 PREDICTION_QUANTILES = [
     Q(0.05),
     Q(0.1),
@@ -60,10 +101,18 @@ PREDICTION_QUANTILES = [
     Q(0.7),
     Q(0.9),
     Q(0.95),
-]  # Quantiles for probabilistic forecasts
+]
 
+# Set to a list of categories to run only a subset (e.g. [Liander2024Category.SOLAR])
 BENCHMARK_FILTER: list[Liander2024Category] | None = None
 
+# %% [markdown]
+# ## Workflow configuration
+#
+# `EnsembleForecastingWorkflowConfig` extends the standard config with ensemble-specific
+# settings: which base models to use, the combiner strategy, and per-model sample weights.
+
+# %%
 USE_MLFLOW_STORAGE = True
 
 if USE_MLFLOW_STORAGE:
@@ -98,8 +147,13 @@ workflow_config = EnsembleForecastingWorkflowConfig(
     },
 )
 
+# %% [markdown]
+# ## Backtest schedule
+#
+# The `BacktestForecasterConfig` controls how BEAM schedules training and prediction
+# windows. Ensemble models typically need more context than single models.
 
-# Create the backtest configuration
+# %%
 backtest_config = BacktestForecasterConfig(
     requires_training=True,
     predict_length=timedelta(days=7),
@@ -111,7 +165,10 @@ backtest_config = BacktestForecasterConfig(
     predict_sample_interval=timedelta(minutes=15),
 )
 
+# %% [markdown]
+# ## Run the benchmark
 
+# %%
 if __name__ == "__main__":
     start_time = time.time()
     create_liander2024_benchmark_runner(
