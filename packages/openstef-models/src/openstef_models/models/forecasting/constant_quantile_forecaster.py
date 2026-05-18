@@ -14,7 +14,7 @@ import pandas as pd
 from pydantic import Field, PrivateAttr
 
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset, TimeSeriesDataset
-from openstef_core.exceptions import NotFittedError
+from openstef_core.exceptions import InputValidationError, NotFittedError
 from openstef_core.mixins.predictor import HyperParams
 from openstef_core.types import Any, LeadTime, Quantile
 from openstef_models.explainability.mixins import ContributionsMixin, ExplainableForecaster
@@ -88,7 +88,10 @@ class ConstantQuantileForecaster(Forecaster, ExplainableForecaster, Contribution
 
     @override
     def fit(self, data: ForecastInputDataset, data_val: ForecastInputDataset | None = None) -> None:
-        self._quantile_values = {quantile: data.target_series.quantile(quantile) for quantile in self.quantiles}
+        target_series = data.target_series.dropna()
+        if target_series.empty:
+            raise InputValidationError("Training data must contain at least one non-NaN value in the target column.")
+        self._quantile_values = {quantile: target_series.quantile(quantile) for quantile in self.quantiles}
 
     @override
     def predict(self, data: ForecastInputDataset) -> ForecastDataset:

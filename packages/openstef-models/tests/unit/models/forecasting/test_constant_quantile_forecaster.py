@@ -5,6 +5,7 @@
 import math
 from datetime import datetime, timedelta
 
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -17,16 +18,9 @@ from openstef_models.models.forecasting.constant_quantile_forecaster import (
 )
 
 
-@pytest.fixture
-def sample_forecast_input_dataset() -> ForecastInputDataset:
-    """Create sample input dataset for forecaster training and prediction.
-
-    Returns:
-        ForecastInputDataset with load values [90, 100, 110, 120, 130] spanning 5 hours,
-        designed for predictable quantile calculation.
-    """
+def create_forecast_input_dataset(values: list[float]) -> ForecastInputDataset:
     data = pd.DataFrame(
-        {"load": [90.0, 100.0, 110.0, 120.0, 130.0]},
+        {"load": values},
         index=pd.date_range(datetime.fromisoformat("2025-01-01T00:00:00"), periods=5, freq="1h"),
     )
     return ForecastInputDataset(
@@ -47,13 +41,23 @@ def sample_forecaster() -> ConstantQuantileForecaster:
     )
 
 
-def test_constant_median_forecaster__fit_predict(
+@pytest.mark.parametrize(
+    ("values", "expected_quantile_values"),
+    [
+        pytest.param([90.0, 100.0, 110.0, 120.0, 130.0], [99, 115, 131], id="simple"),
+        pytest.param([100.0, 100.0, 100.0, 100.0, 100.0], [105, 105, 105], id="constant"),
+        pytest.param([90.0, 100.0, np.nan, 120.0, 130.0], [98, 115, 132], id="single_nan"),
+    ],
+)
+def test_constant_quantile_forecaster__fit_predict(
+    values: list[float],
+    expected_quantile_values: list[float],
     sample_forecaster: ConstantQuantileForecaster,
-    sample_forecast_input_dataset: ForecastInputDataset,
 ):
     """Test that forecaster trains on data and produces constant predictions with added hyperparameter."""
     # Arrange
     forecaster = sample_forecaster.model_copy(deep=True)
+    sample_forecast_input_dataset = create_forecast_input_dataset(values)
 
     # Act
     forecaster.fit(sample_forecast_input_dataset)
@@ -65,18 +69,27 @@ def test_constant_median_forecaster__fit_predict(
     assert isinstance(result, ForecastDataset)
     assert len(result.data) == 7  # Only forecasts after forecast_start (2025-01-01T02:00:00)
 
-    # Check quantile values: quantiles of [90, 100, 110, 120, 130] plus constant 5.0
-    expected_p10 = 99.0  # 94 + 5
-    expected_median = 115.0  # 110 + 5
-    expected_p90 = 131.0  # 126 + 5
-
+    expected_p10, expected_median, expected_p90 = expected_quantile_values
     actual_values = result.data.iloc[0]  # First forecast row
+    assert np.isfinite(actual_values).all()
     assert math.isclose(actual_values["quantile_P10"], expected_p10)
     assert math.isclose(actual_values["quantile_P50"], expected_median)
     assert math.isclose(actual_values["quantile_P90"], expected_p90)
 
 
-def test_constant_median_forecaster__predict_not_fitted_raises_error(
+def test_constant_quantile_forecaster__fit_with_all_nan_target_raises_error(sample_forecaster: ConstantQuantileForecaster):
+    """Test that fitting with all NaN target values raises InputValidationError."""
+    # Arrange
+    forecaster = sample_forecaster.model_copy(deep=True)
+    nan_values = [float("nan")] * 5
+    sample_forecast_input_dataset = create_forecast_input_dataset(nan_values)
+
+    # Act & Assert
+    with pytest.raises(ValueError, match="Training data must contain at least one non-NaN value in the target column."):
+        forecaster.fit(sample_forecast_input_dataset)
+
+
+def test_constant_quantile_forecaster__predict_not_fitted_raises_error(
     sample_forecaster: ConstantQuantileForecaster,
 ):
     """Test that predicting without fitting raises ModelNotFittedError."""
