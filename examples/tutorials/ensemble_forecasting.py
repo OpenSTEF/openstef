@@ -52,7 +52,7 @@ logger = setup_notebook_logging(
 # **What you'll learn:**
 #
 # - Why combining tree-based and linear models improves forecasts
-# - How to configure and train an ensemble with `EnsembleForecastingWorkflowConfig`
+# - How to configure and train an ensemble with [`EnsembleForecastingWorkflowConfig`](https://openstef.github.io/openstef/v4/api/generated/openstef_meta.presets.EnsembleForecastingWorkflowConfig.html)
 # - How to inspect combiner behavior (which model does it prefer?)
 # - How ensemble predictions compare to individual base models
 #
@@ -63,7 +63,7 @@ logger = setup_notebook_logging(
 #
 # **Key API references:**
 # [`EnsembleForecastingWorkflowConfig`](https://openstef.github.io/openstef/v4/api/generated/openstef_meta.presets.EnsembleForecastingWorkflowConfig.html)
-# · [`create_ensemble_forecasting_workflow`](https://openstef.github.io/openstef/v4/api/generated/openstef_meta.presets.html#create_ensemble_forecasting_workflow)
+# · [`create_ensemble_forecasting_workflow`](https://openstef.github.io/openstef/v4/api/generated/openstef_meta.presets.create_ensemble_forecasting_workflow.html)
 # · [`ForecastingWorkflowConfig`](https://openstef.github.io/openstef/v4/api/generated/openstef_models.presets.ForecastingWorkflowConfig.html)
 
 # %% [markdown]
@@ -123,7 +123,7 @@ print(f"Predict:   {predict_dataset.data.shape[0]:,} rows")
 # %% [markdown]
 # ## Configure the ensemble
 #
-# `EnsembleForecastingWorkflowConfig` sets up the full pipeline.
+# [`EnsembleForecastingWorkflowConfig`](https://openstef.github.io/openstef/v4/api/generated/openstef_meta.presets.EnsembleForecastingWorkflowConfig.html) sets up the full pipeline.
 # Key parameters:
 #
 # - `base_models` — which forecasters to include

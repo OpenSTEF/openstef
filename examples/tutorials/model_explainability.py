@@ -60,8 +60,9 @@ logger = setup_notebook_logging(
 # ```
 #
 # **Key API references:**
-# [`ExplainableForecaster`](https://openstef.github.io/openstef/v4/api/generated/openstef_models.explainability.html)
-# · [`ContributionsPlotter`](https://openstef.github.io/openstef/v4/api/generated/openstef_models.explainability.html)
+# [`ExplainableForecaster`](https://openstef.github.io/openstef/v4/api/generated/openstef_models.explainability.ExplainableForecaster.html)
+# · [`ContributionsPlotter`](https://openstef.github.io/openstef/v4/api/generated/openstef_models.explainability.ContributionsPlotter.html)
+# · [`FeatureImportancePlotter`](https://openstef.github.io/openstef/v4/api/generated/openstef_models.explainability.FeatureImportancePlotter.html)
 
 # %% [markdown]
 # ## Train a model
@@ -118,7 +119,7 @@ assert result is not None, "Training should produce a result"
 # ## Feature importance
 #
 # Feature importance scores rank features by their overall impact on the model's
-# predictions.  The treemap visualization groups features by magnitude — larger
+# predictions.  The [`FeatureImportancePlotter`](https://openstef.github.io/openstef/v4/api/generated/openstef_models.explainability.FeatureImportancePlotter.html) treemap visualization groups features by magnitude — larger
 # tiles represent more influential features.
 
 # %%
@@ -140,7 +141,8 @@ fig.show()
 # additive terms: one per feature plus a bias.
 #
 # GBLinear models provide exact SHAP values, making this decomposition faithful
-# to the model's internal logic.
+# to the model's internal logic.  Use [`ContributionsPlotter`](https://openstef.github.io/openstef/v4/api/generated/openstef_models.explainability.ContributionsPlotter.html)
+# to visualize contributions as heatmaps, bar charts, or waterfall charts.
 
 # %%
 from openstef_models.explainability import ContributionsPlotter

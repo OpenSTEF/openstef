@@ -44,10 +44,10 @@ logger = setup_notebook_logging(
 # %% [markdown]
 # # Building a Custom Pipeline
 #
-# The `create_forecasting_workflow` preset handles pipeline assembly
+# The [`create_forecasting_workflow`](https://openstef.github.io/openstef/v4/api/generated/openstef_models.presets.create_forecasting_workflow.html) preset handles pipeline assembly
 # automatically.  When you need full control — custom transforms, different
 # feature engineering, or non-standard postprocessing — you can build a
-# `ForecastingModel` from individual components.
+# [`ForecastingModel`](https://openstef.github.io/openstef/v4/api/generated/openstef_models.models.ForecastingModel.html) from individual components.
 #
 # **What you'll learn:**
 #
@@ -62,9 +62,9 @@ logger = setup_notebook_logging(
 # ```
 #
 # **Key API references:**
-# [`ForecastingModel`](https://openstef.github.io/openstef/v4/api/generated/openstef_models.forecasting_model.html)
-# · [`TransformPipeline`](https://openstef.github.io/openstef/v4/api/generated/openstef_core.transforms.html)
-# · [`GBLinearForecaster`](https://openstef.github.io/openstef/v4/api/generated/openstef_models.forecasters.gblinear.html)
+# [`ForecastingModel`](https://openstef.github.io/openstef/v4/api/generated/openstef_models.models.ForecastingModel.html)
+# · [`TransformPipeline`](https://openstef.github.io/openstef/v4/api/generated/openstef_core.mixins.TransformPipeline.html)
+# · [`GBLinearForecaster`](https://openstef.github.io/openstef/v4/api/generated/openstef_models.models.forecasting.html)
 
 # %% [markdown]
 # ## Load the dataset
@@ -95,7 +95,7 @@ print(f"Predict:   {predict_dataset.data.shape[0]:,} rows")
 # %% [markdown]
 # ## Define pipeline components
 #
-# A `ForecastingModel` has three stages:
+# A [`ForecastingModel`](https://openstef.github.io/openstef/v4/api/generated/openstef_models.models.ForecastingModel.html) has three stages:
 #
 # 1. **Preprocessing** — feature engineering and data cleaning transforms
 # 2. **Forecaster** — the model that produces predictions
@@ -177,8 +177,8 @@ forecaster = GBLinearForecaster(
 # %% [markdown]
 # ### Postprocessing
 #
-# We add a `QuantileSorter` (ensures quantile ordering) and a
-# `ConfidenceIntervalApplicator` (adds confidence interval columns).
+# We add a [`QuantileSorter`](https://openstef.github.io/openstef/v4/api/generated/openstef_models.transforms.postprocessing.QuantileSorter.html) (ensures quantile ordering) and a
+# [`ConfidenceIntervalApplicator`](https://openstef.github.io/openstef/v4/api/generated/openstef_models.transforms.postprocessing.ConfidenceIntervalApplicator.html) (adds confidence interval columns).
 
 # %%
 from openstef_models.transforms.postprocessing import (
@@ -199,8 +199,8 @@ postprocessing = TransformPipeline(
 # %% [markdown]
 # ## Assemble the model
 #
-# `ForecastingModel` combines all three stages.  We wrap it in a
-# `CustomForecastingWorkflow` which adds train/predict orchestration.
+# [`ForecastingModel`](https://openstef.github.io/openstef/v4/api/generated/openstef_models.models.ForecastingModel.html) combines all three stages.  We wrap it in a
+# [`CustomForecastingWorkflow`](https://openstef.github.io/openstef/v4/api/generated/openstef_models.workflows.custom_forecasting_workflow.CustomForecastingWorkflow.html) which adds train/predict orchestration.
 
 # %%
 from openstef_models.models.forecasting_model import ForecastingModel
@@ -287,7 +287,8 @@ print(f"CyclicFeaturesAdder added {len(added)} columns: {added}")
 # %% [markdown]
 # ### Call the forecaster directly
 #
-# After preprocessing, you can pass the data directly to the forecaster.
+# After preprocessing, you can pass the data to a [`ForecastInputDataset`](https://openstef.github.io/openstef/v4/api/generated/openstef_core.datasets.ForecastInputDataset.html)
+# and call the forecaster directly.
 # This is useful for debugging or integrating into custom workflows.
 
 # %%
