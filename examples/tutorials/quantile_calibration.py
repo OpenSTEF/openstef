@@ -22,7 +22,6 @@
 
 # %% tags=["remove-cell"]
 import warnings
-from typing import Any, cast
 
 warnings.filterwarnings("ignore")
 
@@ -136,10 +135,7 @@ actuals = predict_dataset.data["load"].loc[train_end:].reindex(forecast_uncal.da
 forecast_aligned = forecast_uncal.data.loc[actuals.index]
 
 expected = [float(q) for q in quantiles]
-observed_uncal = [
-    float((actuals <= forecast_aligned[f"quantile_P{int(float(q) * 100)}"]).mean())
-    for q in quantiles
-]
+observed_uncal = [float((actuals <= forecast_aligned[f"quantile_P{int(float(q) * 100)}"]).mean()) for q in quantiles]
 
 calibration_df = pd.DataFrame({
     "quantile": [f"P{int(float(q) * 100)}" for q in quantiles],
@@ -187,10 +183,7 @@ assert len(forecast_cal.data) > 100, f"Expected >100 calibrated forecast rows, g
 # %%
 forecast_cal_aligned = forecast_cal.data.loc[actuals.index]
 
-observed_cal = [
-    float((actuals <= forecast_cal_aligned[f"quantile_P{int(float(q) * 100)}"]).mean())
-    for q in quantiles
-]
+observed_cal = [float((actuals <= forecast_cal_aligned[f"quantile_P{int(float(q) * 100)}"]).mean()) for q in quantiles]
 
 comparison_df = pd.DataFrame({
     "quantile": [f"P{int(float(q) * 100)}" for q in quantiles],
@@ -207,16 +200,20 @@ fig = go.Figure()
 
 fig.add_trace(  # pyright: ignore[reportUnknownMemberType]
     go.Scatter(
-        x=[0, 1], y=[0, 1],
-        mode="lines", name="Perfect calibration",
+        x=[0, 1],
+        y=[0, 1],
+        mode="lines",
+        name="Perfect calibration",
         line={"color": "gray", "dash": "dash", "width": 2},
     )
 )
 
 fig.add_trace(  # pyright: ignore[reportUnknownMemberType]
     go.Scatter(
-        x=expected, y=observed_uncal,
-        mode="markers+lines", name="Before calibration",
+        x=expected,
+        y=observed_uncal,
+        mode="markers+lines",
+        name="Before calibration",
         marker={"size": 12, "color": "red", "symbol": "x"},
         line={"color": "red", "width": 2, "dash": "dot"},
     )
@@ -224,8 +221,10 @@ fig.add_trace(  # pyright: ignore[reportUnknownMemberType]
 
 fig.add_trace(  # pyright: ignore[reportUnknownMemberType]
     go.Scatter(
-        x=expected, y=observed_cal,
-        mode="markers+lines", name="After calibration",
+        x=expected,
+        y=observed_cal,
+        mode="markers+lines",
+        name="After calibration",
         marker={"size": 12, "color": "blue"},
         line={"color": "blue", "width": 2},
     )

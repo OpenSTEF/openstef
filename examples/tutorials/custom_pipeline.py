@@ -118,10 +118,10 @@ print(f"Predict:   {predict_dataset.data.shape[0]:,} rows")
 
 # %%
 from openstef_core.mixins import TransformPipeline
-from openstef_models.transforms.general import Imputer, NaNDropper, Scaler, EmptyFeatureRemover
-from openstef_models.transforms.time_domain import HolidayFeatureAdder, CyclicFeaturesAdder
+from openstef_models.transforms.general import EmptyFeatureRemover, Imputer, NaNDropper, Scaler
+from openstef_models.transforms.time_domain import CyclicFeaturesAdder, HolidayFeatureAdder
 from openstef_models.transforms.time_domain.lags_adder import LagsAdder
-from openstef_models.utils.feature_selection import Exclude, FeatureSelection
+from openstef_models.utils.feature_selection import Exclude
 
 quantiles = [Q(0.1), Q(0.5), Q(0.9)]
 horizons = [LeadTime.from_string("PT36H")]

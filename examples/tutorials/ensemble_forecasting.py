@@ -164,8 +164,8 @@ print(f"Combiner:       {ensemble_config.combiner_model}")
 workflow = create_ensemble_forecasting_workflow(ensemble_config)
 fit_result = workflow.fit(train_dataset)
 
-print(f"Ensemble trained successfully")
-print(f"\nPer-model validation R2:")
+print("Ensemble trained successfully")
+print("\nPer-model validation R2:")
 for name, child_result in fit_result.component_fit_results.items():
     r2 = child_result.metrics_val.get_metric(quantile=Q(0.5), metric_name="R2")
     print(f"  {name:12s}: {r2:.4f}")
@@ -258,7 +258,6 @@ fig.show()
 #    assigned to each model during forecasting.
 
 # %%
-import plotly.express as px
 import plotly.graph_objects as go
 
 ensemble_model = workflow.model
@@ -324,10 +323,12 @@ import numpy as np
 
 actuals = predict_dataset.data["load"].loc[train_end:forecast_end]
 
+
 def rmae(actual, predicted):
     common = actual.index.intersection(predicted.index)
     mae = float(np.mean(np.abs(actual.loc[common] - predicted.loc[common])))
     return mae / float(np.abs(actual.loc[common]).mean())
+
 
 models = {"lgbm": individual_forecasts["lgbm"], "gblinear": individual_forecasts["gblinear"], "Ensemble": forecast}
 

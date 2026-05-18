@@ -101,10 +101,14 @@ predict_dataset = dataset.filter_by_range(
     end=forecast_end,
 )
 
-print(f"Training:  {train_dataset.data.shape[0]:,} rows, "
-      f"{train_dataset.data.index.min():%Y-%m-%d} to {train_dataset.data.index.max():%Y-%m-%d}")
-print(f"Predict:   {predict_dataset.data.shape[0]:,} rows, "
-      f"{predict_dataset.data.index.min():%Y-%m-%d} to {predict_dataset.data.index.max():%Y-%m-%d}")
+print(
+    f"Training:  {train_dataset.data.shape[0]:,} rows, "
+    f"{train_dataset.data.index.min():%Y-%m-%d} to {train_dataset.data.index.max():%Y-%m-%d}"
+)
+print(
+    f"Predict:   {predict_dataset.data.shape[0]:,} rows, "
+    f"{predict_dataset.data.index.min():%Y-%m-%d} to {predict_dataset.data.index.max():%Y-%m-%d}"
+)
 
 # %%
 # Quick look at the target variable
@@ -171,7 +175,7 @@ assert result.metrics_full is not None, "Full metrics should be present"
 # ## Generate forecasts
 #
 # The trained workflow produces a [`ForecastDataset`](https://openstef.github.io/openstef/v4/api/generated/openstef_core.datasets.ForecastDataset.html) with point predictions and
-# quantile bands.  The P10–P90 interval covers 80 % of expected outcomes.
+# quantile bands.  The P10-P90 interval covers 80 % of expected outcomes.
 # To improve the reliability of these quantile estimates, see
 # {doc}`quantile_calibration`.
 

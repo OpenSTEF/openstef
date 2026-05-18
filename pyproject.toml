@@ -127,29 +127,36 @@ lint.ignore = [
   "TC006",  # Let's not force quoting the first param of typing.cast
   "TRY003", # simplify exception messages
 ]
-lint.per-file-ignores."./examples/tutorials/*" = [
-  "D100",   # Notebooks don't need module docstrings
-  "E402",   # Imports not at top — notebook cells have natural ordering
-  "E501",   # Long lines in notebooks — readability is cell-scoped
-  "ERA001", # Jupytext YAML frontmatter looks like commented-out code
-  "F821",   # Cell-scoped names appear undefined to Ruff's module-level analysis
-  "INP001", # Not a namespace package — notebooks don't need __init__.py
-  "PTH",    # Tutorials may use os.path for simplicity
-  "S101",   # Tutorials may use assert for runtime checks
-  "T201",   # Tutorials may use print for demonstration
-]
 lint.per-file-ignores."./examples/benchmarks/custom/*" = [
+  "E402",   # Imports not at top — notebook cells have natural ordering
   "E501",   # Long lines in markdown cells (API doc URLs)
   "ERA001", # Jupytext YAML frontmatter looks like commented-out code
-  "E402",   # Imports not at top — notebook cells have natural ordering
   "T201",   # Benchmarks may use print for demonstration
 ]
 lint.per-file-ignores."./examples/benchmarks/liander2024/*" = [
   "D100",   # Module docstring is in a remove-cell for clean notebook rendering
+  "E402",   # Imports not at top — os.environ must be set before imports
   "E501",   # Long lines in markdown cells (API doc URLs)
   "ERA001", # Jupytext YAML frontmatter looks like commented-out code
-  "E402",   # Imports not at top — os.environ must be set before imports
   "T201",   # Benchmarks may use print for demonstration
+]
+lint.per-file-ignores."./examples/tutorials/*" = [
+  "ANN",     # Tutorials don't need full type annotations for inline helpers
+  "B905",    # zip() strict= not needed in notebook demo code
+  "D100",    # Notebooks don't need module docstrings
+  "D103",    # Inline helpers in notebooks don't need docstrings
+  "E402",    # Imports not at top — notebook cells have natural ordering
+  "E501",    # Long lines in notebooks — readability is cell-scoped
+  "ERA001",  # Jupytext YAML frontmatter looks like commented-out code
+  "F821",    # Cell-scoped names appear undefined to Ruff's module-level analysis
+  "INP001",  # Not a namespace package — notebooks don't need __init__.py
+  "PLR2004", # Magic values in assertions are fine for notebook checks
+  "PT018",   # Assertion style doesn't matter in notebooks
+  "PTH",     # Tutorials may use os.path for simplicity
+  "RUF003",  # Unicode chars (EN dashes etc.) are fine in markdown comments
+  "S101",    # Tutorials may use assert for runtime checks
+  "SLF001",  # Private member access needed to demonstrate internals
+  "T201",    # Tutorials may use print for demonstration
 ]
 lint.per-file-ignores."./packages/*/tests/*" = [
   "ARG",     # Unused function args -> fixtures nevertheless are functionally relevant...

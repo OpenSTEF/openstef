@@ -22,7 +22,7 @@
 
 # %% tags=["remove-cell"]
 import warnings
-from typing import Any, cast
+from typing import cast
 
 warnings.filterwarnings("ignore")
 
