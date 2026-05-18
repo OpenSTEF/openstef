@@ -320,11 +320,12 @@ fig.show()
 
 # %%
 import numpy as np
+import pandas as pd
 
 actuals = predict_dataset.data["load"].loc[train_end:forecast_end]
 
 
-def rmae(actual, predicted):
+def rmae(actual: pd.Series, predicted: pd.Series) -> float:
     common = actual.index.intersection(predicted.index)
     mae = float(np.mean(np.abs(actual.loc[common] - predicted.loc[common])))
     return mae / float(np.abs(actual.loc[common]).mean())
