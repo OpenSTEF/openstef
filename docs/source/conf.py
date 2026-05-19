@@ -166,6 +166,7 @@ nb_execution_mode = "cache"
 nb_execution_cache_path = str(ROOT_DIR / "docs" / "build" / ".jupyter_cache")
 nb_execution_timeout = 120
 nb_execution_raise_on_error = True
+nb_execution_show_tb = True
 nb_execution_excludepatterns = [
     "benchmarks/*",  # Benchmarks are too expensive to execute during docs build
     "benchmarks/*/*",
