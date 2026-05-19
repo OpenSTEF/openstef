@@ -96,8 +96,11 @@ logger = setup_notebook_logging(
 from pathlib import Path
 
 from openstef_core.datasets import VersionedTimeSeriesDataset
+from openstef_core.testing import load_liander_dataset
 
+# Download the dataset from HuggingFace (cached after first run)
 data_dir = Path("liander_dataset")
+load_liander_dataset(local_dir=data_dir)
 
 # Ground truth: actual load measurements
 ground_truth = VersionedTimeSeriesDataset.read_parquet(
