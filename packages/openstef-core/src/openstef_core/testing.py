@@ -8,19 +8,17 @@ Provides matcher classes for use in test assertions when comparing pandas
 DataFrames and Series with equality semantics.
 """
 
+import logging
 from collections.abc import Sequence
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, override
+from typing import Any, override
 
 import numpy as np
 import pandas as pd
 
 from openstef_core.constants import LIANDER_DATASET_REPO_ID
 from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesDataset
-
-if TYPE_CHECKING:
-    import logging
 
 
 class IsSamePandas:
@@ -185,6 +183,7 @@ def load_liander_dataset(
     """
     try:
         from huggingface_hub import hf_hub_download  # pyright: ignore[reportUnknownVariableType]  # noqa: PLC0415
+        from huggingface_hub.utils import logging as hf_logging  # noqa: PLC0415
     except ImportError:
         msg = "huggingface-hub is required for benchmark datasets: pip install openstef-core[benchmark]"
         raise ImportError(msg) from None
@@ -197,13 +196,14 @@ def load_liander_dataset(
         *(extra_files or []),
     ]
 
+    # Suppress HF Hub noise (unauthenticated requests warning, progress bars)
+    hf_logging.set_verbosity_error()
     for filename in files_to_download:
         hf_hub_download(  # pyright: ignore[reportCallIssue]
             repo_id=repo_id,
             filename=filename,
             repo_type="dataset",
             local_dir=local_dir,
-            local_dir_use_symlinks=False,
         )
 
     datasets = [VersionedTimeSeriesDataset.read_parquet(local_dir / f) for f in files_to_download]
@@ -238,33 +238,46 @@ def configure_notebook_display(renderer: str = "png") -> None:
     pio.renderers.default = renderer
 
 
-_DEFAULT_NOISY_LOGGERS: tuple[str, ...] = ("choreographer", "kaleido")
+_DEFAULT_NOISY_LOGGERS: tuple[str, ...] = (
+    "choreographer",
+    "kaleido",
+    "huggingface_hub",
+    "huggingface_hub.utils._http",
+    "openstef_core.datasets.timeseries_dataset",
+)
 
 
 def setup_notebook_logging(
     name: str | None = None,
     suppress: Sequence[str] | None = None,
-) -> "logging.Logger":
+) -> logging.Logger:
     """Configure logging for tutorial notebooks and return a named logger.
 
     Sets the root logger to INFO level and silences the loggers in *suppress*
-    by raising their level to ERROR and disabling them entirely.
+    by raising their level to ERROR and disabling propagation.  Child loggers
+    sharing a prefix are also silenced.
 
     Args:
         name: Logger name, typically ``__name__`` of the calling module.
         suppress: Sequence of logger names to silence.  Defaults to
-            ``("choreographer", "kaleido")``.
+            ``_DEFAULT_NOISY_LOGGERS``.
 
     Returns:
         Configured Logger instance.
     """
-    import logging  # noqa: PLC0415
-
     noisy = suppress if suppress is not None else _DEFAULT_NOISY_LOGGERS
     logging.basicConfig(level=logging.INFO, format="[%(asctime)s][%(levelname)s] %(message)s")
     for logger_name in noisy:
-        logging.getLogger(logger_name).setLevel(logging.ERROR)
-        logging.getLogger(logger_name).disabled = True
+        lgr = logging.getLogger(logger_name)
+        lgr.setLevel(logging.ERROR)
+        lgr.propagate = False
+        # Also silence any existing child loggers
+        prefix = logger_name + "."
+        for key in logging.Logger.manager.loggerDict:
+            if key.startswith(prefix):
+                child = logging.getLogger(key)
+                child.setLevel(logging.ERROR)
+                child.propagate = False
     return logging.getLogger(name)
 
 

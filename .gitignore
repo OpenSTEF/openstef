@@ -68,6 +68,7 @@ dmypy.json
 docs/_build/
 docs/source/api/generated/
 docs/source/tutorials/
+docs/source/benchmarks/
 
 # docs/_doctrees/
 # docs/_static_gen/
@@ -138,3 +139,4 @@ liander_dataset/
 
 # Jupyter notebook cache (myst-nb execution outputs)
 .jupyter_cache/
+docs/build.zip

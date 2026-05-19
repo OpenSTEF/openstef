@@ -150,17 +150,20 @@ napoleon_custom_sections = ["Invariants"]
 # Configure MyST for docstrings
 myst_enable_extensions = [
     "deflist",
+    "dollarmath",
     "tasklist",
     "colon_fence",
 ]
 
 # -- Notebook execution (myst-nb) -------------------------------------------
 nb_custom_formats = {".py": ["jupytext.reads", {"fmt": "py:percent"}]}
-nb_execution_mode = "off"  # TODO(#884): enable "cache" once tutorials are optimized for faster execution
+nb_execution_mode = "cache"
 nb_execution_timeout = 120
 nb_execution_raise_on_error = True
-# TODO(#884): backtesting notebook exceeds timeout — needs rewrite or execution split
-nb_execution_excludepatterns = ["tutorials/backtesting_openstef_with_beam*"]
+nb_execution_excludepatterns = [
+    "benchmarks/*",  # Benchmarks are too expensive to execute during docs build
+    "benchmarks/*/*",
+]
 
 # Sphinx version switcher
 config = SphinxConfig("../../pyproject.toml", globalns=globals())
