@@ -163,6 +163,7 @@ myst_enable_extensions = [
 # -- Notebook execution (myst-nb) -------------------------------------------
 nb_custom_formats = {".py": ["jupytext.reads", {"fmt": "py:percent"}]}
 nb_execution_mode = "cache"
+nb_execution_cache_path = str(ROOT_DIR / "docs" / "build" / ".jupyter_cache")
 nb_execution_timeout = 120
 nb_execution_raise_on_error = True
 nb_execution_excludepatterns = [
