@@ -281,7 +281,9 @@ single_transform = CyclicFeaturesAdder()
 single_transform.fit(train_dataset)
 result_single = single_transform.transform(train_dataset)
 
-print(f"CyclicFeaturesAdder added {len(single_transform.features_added())} columns: {single_transform.features_added()}")
+print(
+    f"CyclicFeaturesAdder added {len(single_transform.features_added())} columns: {single_transform.features_added()}"
+)
 
 # %% [markdown]
 # ### Call the forecaster directly
