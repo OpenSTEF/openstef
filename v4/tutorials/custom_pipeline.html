@@ -1,0 +1,1009 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Building a Custom Pipeline &#8212; OpenSTEF 0.0.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=01a4ee56" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=7026087e"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=97f0b27d"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'tutorials/custom_pipeline';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = '_static/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Feature Engineering for Energy Forecasting" href="feature_engineering.html" />
+    <link rel="prev" title="Backtesting Quickstart" href="backtesting_quickstart.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.0.0" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/openstef-horizontal-color.svg" class="logo__image only-light" alt="OpenSTEF homepage"/>
+    <img src="../_static/openstef-horizontal-white.svg" class="logo__image only-dark pst-js-only" alt="OpenSTEF homepage"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api/index.html">
+    API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../project/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contribute/index.html">
+    Contributing
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../changelog.html">
+    Changelog
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/OpenSTEF/openstef" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.lfenergy.org/projects/openstef/" title="LFE Homepage" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-bolt fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">LFE Homepage</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api/index.html">
+    API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../project/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contribute/index.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/OpenSTEF/openstef" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.lfenergy.org/projects/openstef/" title="LFE Homepage" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-bolt fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">LFE Homepage</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="forecasting_quickstart.html">Forecasting Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="backtesting_quickstart.html">Backtesting Quickstart</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Model Training</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Custom Pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="feature_engineering.html">Feature Engineering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ensemble_forecasting.html">Ensemble Forecasting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hyperparameter_tuning_with_optuna.html">Hyperparameter Tuning</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Evaluation &amp; Analysis</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="model_explainability.html">Model Explainability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quantile_calibration.html">Quantile Calibration</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Benchmarks</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../benchmarks/README.html">Benchmarking Guide</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../benchmarks/liander2024/README.html">Liander 2024</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks/liander2024/run_xgboost_gblinear_benchmark.html">XGBoost &amp; GBLinear</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks/liander2024/run_ensemble_benchmark.html">Ensemble Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks/liander2024/compare_benchmark_runs.html">Compare Results</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../benchmarks/custom/README.html">Build Your Own</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks/custom/custom_forecaster.html">Implement a Custom Forecaster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks/custom/custom_benchmark.html">Configure a Custom Benchmark</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks/custom/run_liander2024_benchmark.html">Run on Liander 2024 Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks/custom/run_custom_benchmark.html">Run on Your Own Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks/custom/evaluate_existing_forecasts.html">Evaluate Existing Forecasts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks/custom/compare_benchmark_runs.html">Compare Multiple Runs</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../examples.html" class="nav-link">Examples</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Building a Custom Pipeline</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="building-a-custom-pipeline">
+<h1>Building a Custom Pipeline<a class="headerlink" href="#building-a-custom-pipeline" title="Link to this heading">#</a></h1>
+<p>The <a class="reference external" href="https://openstef.github.io/openstef/v4/api/generated/openstef_models.presets.create_forecasting_workflow.html"><code class="docutils literal notranslate"><span class="pre">create_forecasting_workflow</span></code></a> preset handles pipeline assembly
+automatically.  When you need full control — custom transforms, different
+feature engineering, or non-standard postprocessing — you can build a
+<a class="reference external" href="https://openstef.github.io/openstef/v4/api/generated/openstef_models.models.ForecastingModel.html"><code class="docutils literal notranslate"><span class="pre">ForecastingModel</span></code></a> from individual components.</p>
+<p><strong>What you’ll learn:</strong></p>
+<ul class="simple">
+<li><p>Assemble preprocessing, forecaster, and postprocessing into a pipeline</p></li>
+<li><p>Select and configure individual transforms</p></li>
+<li><p>Train and predict with a hand-built pipeline</p></li>
+<li><p>Compare the custom pipeline against a preset</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This tutorial is for advanced users who need to go beyond presets.
+Start with <a class="reference internal" href="forecasting_quickstart.html"><span class="doc">Forecasting Quickstart</span></a> for the standard approach.</p>
+</div>
+<p><strong>Key API references:</strong>
+<a class="reference external" href="https://openstef.github.io/openstef/v4/api/generated/openstef_models.models.ForecastingModel.html"><code class="docutils literal notranslate"><span class="pre">ForecastingModel</span></code></a>
+· <a class="reference external" href="https://openstef.github.io/openstef/v4/api/generated/openstef_core.mixins.TransformPipeline.html"><code class="docutils literal notranslate"><span class="pre">TransformPipeline</span></code></a>
+· <a class="reference external" href="https://openstef.github.io/openstef/v4/api/generated/openstef_models.models.forecasting.html"><code class="docutils literal notranslate"><span class="pre">GBLinearForecaster</span></code></a></p>
+<section id="load-the-dataset">
+<h2>Load the dataset<a class="headerlink" href="#load-the-dataset" title="Link to this heading">#</a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">timedelta</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.testing</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_liander_dataset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">LeadTime</span><span class="p">,</span> <span class="n">Q</span>
+
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">load_liander_dataset</span><span class="p">()</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+
+<span class="n">train_start</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="s2">&quot;2024-03-01T00:00:00Z&quot;</span><span class="p">)</span>
+<span class="n">train_end</span> <span class="o">=</span> <span class="n">train_start</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">45</span><span class="p">)</span>
+<span class="n">forecast_end</span> <span class="o">=</span> <span class="n">train_end</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+
+<span class="n">train_dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">filter_by_range</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">train_start</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">train_end</span><span class="p">)</span>
+<span class="n">predict_dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">filter_by_range</span><span class="p">(</span>
+    <span class="n">start</span><span class="o">=</span><span class="n">train_end</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">14</span><span class="p">),</span>
+    <span class="n">end</span><span class="o">=</span><span class="n">forecast_end</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Training:  </span><span class="si">{</span><span class="n">train_dataset</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> rows&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Predict:   </span><span class="si">{</span><span class="n">predict_dataset</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> rows&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Training:  4,320 rows
+Predict:   2,016 rows
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="define-pipeline-components">
+<h2>Define pipeline components<a class="headerlink" href="#define-pipeline-components" title="Link to this heading">#</a></h2>
+<p>A <a class="reference external" href="https://openstef.github.io/openstef/v4/api/generated/openstef_models.models.ForecastingModel.html"><code class="docutils literal notranslate"><span class="pre">ForecastingModel</span></code></a> has three stages:</p>
+<ol class="arabic simple">
+<li><p><strong>Preprocessing</strong> — feature engineering and data cleaning transforms</p></li>
+<li><p><strong>Forecaster</strong> — the model that produces predictions</p></li>
+<li><p><strong>Postprocessing</strong> — transforms applied to the forecast output</p></li>
+</ol>
+<p>Below we build each stage explicitly.</p>
+<section id="preprocessing">
+<h3>Preprocessing<a class="headerlink" href="#preprocessing" title="Link to this heading">#</a></h3>
+<p>We select transforms from the available modules:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Module</p></th>
+<th class="head"><p>Transforms</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">transforms.general</span></code></p></td>
+<td><p>Scaler, Imputer, NaNDropper, OutlierHandler, EmptyFeatureRemover</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">transforms.time_domain</span></code></p></td>
+<td><p>HolidayFeatureAdder, DatetimeFeaturesAdder, CyclicFeaturesAdder, LagsAdder</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">transforms.weather_domain</span></code></p></td>
+<td><p>AtmosphereDerivedFeaturesAdder, DaylightFeatureAdder, RadiationDerivedFeaturesAdder</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">transforms.energy_domain</span></code></p></td>
+<td><p>WindPowerFeatureAdder</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">transforms.validation</span></code></p></td>
+<td><p>CompletenessChecker, FlatlineChecker</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.mixins</span><span class="w"> </span><span class="kn">import</span> <span class="n">TransformPipeline</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.transforms.general</span><span class="w"> </span><span class="kn">import</span> <span class="n">EmptyFeatureRemover</span><span class="p">,</span> <span class="n">Imputer</span><span class="p">,</span> <span class="n">NaNDropper</span><span class="p">,</span> <span class="n">Scaler</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.transforms.time_domain</span><span class="w"> </span><span class="kn">import</span> <span class="n">CyclicFeaturesAdder</span><span class="p">,</span> <span class="n">HolidayFeatureAdder</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.transforms.time_domain.lags_adder</span><span class="w"> </span><span class="kn">import</span> <span class="n">LagsAdder</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.utils.feature_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">Exclude</span>
+
+<span class="n">quantiles</span> <span class="o">=</span> <span class="p">[</span><span class="n">Q</span><span class="p">(</span><span class="mf">0.1</span><span class="p">),</span> <span class="n">Q</span><span class="p">(</span><span class="mf">0.5</span><span class="p">),</span> <span class="n">Q</span><span class="p">(</span><span class="mf">0.9</span><span class="p">)]</span>
+<span class="n">horizons</span> <span class="o">=</span> <span class="p">[</span><span class="n">LeadTime</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;PT36H&quot;</span><span class="p">)]</span>
+
+<span class="n">preprocessing</span> <span class="o">=</span> <span class="n">TransformPipeline</span><span class="p">(</span>
+    <span class="n">transforms</span><span class="o">=</span><span class="p">[</span>
+        <span class="c1"># Feature engineering</span>
+        <span class="n">LagsAdder</span><span class="p">(</span>
+            <span class="n">history_available</span><span class="o">=</span><span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">14</span><span class="p">),</span>
+            <span class="n">horizons</span><span class="o">=</span><span class="n">horizons</span><span class="p">,</span>
+            <span class="n">add_trivial_lags</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">target_column</span><span class="o">=</span><span class="s2">&quot;load&quot;</span><span class="p">,</span>
+            <span class="n">custom_lags</span><span class="o">=</span><span class="p">[</span><span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">7</span><span class="p">)],</span>
+            <span class="n">lag_fallback_offset</span><span class="o">=</span><span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">7</span><span class="p">),</span>
+        <span class="p">),</span>
+        <span class="n">CyclicFeaturesAdder</span><span class="p">(),</span>
+        <span class="n">HolidayFeatureAdder</span><span class="p">(</span><span class="n">country_code</span><span class="o">=</span><span class="s2">&quot;NL&quot;</span><span class="p">),</span>
+        <span class="c1"># Standardization</span>
+        <span class="n">Scaler</span><span class="p">(</span><span class="n">selection</span><span class="o">=</span><span class="n">Exclude</span><span class="p">(</span><span class="s2">&quot;load&quot;</span><span class="p">),</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;standard&quot;</span><span class="p">),</span>
+        <span class="n">EmptyFeatureRemover</span><span class="p">(),</span>
+        <span class="c1"># Missing value handling</span>
+        <span class="n">Imputer</span><span class="p">(</span><span class="n">selection</span><span class="o">=</span><span class="n">Exclude</span><span class="p">(</span><span class="s2">&quot;load&quot;</span><span class="p">),</span> <span class="n">imputation_strategy</span><span class="o">=</span><span class="s2">&quot;mean&quot;</span><span class="p">),</span>
+        <span class="n">NaNDropper</span><span class="p">(</span><span class="n">selection</span><span class="o">=</span><span class="n">Exclude</span><span class="p">(</span><span class="s2">&quot;load&quot;</span><span class="p">)),</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Preprocessing steps: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">transforms</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">preprocessing</span><span class="o">.</span><span class="n">transforms</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  - </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Preprocessing steps: 7
+  - LagsAdder
+  - CyclicFeaturesAdder
+  - HolidayFeatureAdder
+  - Scaler
+  - EmptyFeatureRemover
+  - Imputer
+  - NaNDropper
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="forecaster">
+<h3>Forecaster<a class="headerlink" href="#forecaster" title="Link to this heading">#</a></h3>
+<p>We use <code class="docutils literal notranslate"><span class="pre">GBLinearForecaster</span></code> — a gradient-boosted linear model that works well
+with the Imputer + NaNDropper preprocessing pattern above.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.models.forecasting.gblinear_forecaster</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">GBLinearForecaster</span><span class="p">,</span>
+    <span class="n">GBLinearHyperParams</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">forecaster</span> <span class="o">=</span> <span class="n">GBLinearForecaster</span><span class="p">(</span>
+    <span class="n">quantiles</span><span class="o">=</span><span class="n">quantiles</span><span class="p">,</span>
+    <span class="n">horizons</span><span class="o">=</span><span class="n">horizons</span><span class="p">,</span>
+    <span class="n">hyperparams</span><span class="o">=</span><span class="n">GBLinearHyperParams</span><span class="p">(</span>
+        <span class="n">n_steps</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+        <span class="n">learning_rate</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">verbosity</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="postprocessing">
+<h3>Postprocessing<a class="headerlink" href="#postprocessing" title="Link to this heading">#</a></h3>
+<p>We add a <a class="reference external" href="https://openstef.github.io/openstef/v4/api/generated/openstef_models.transforms.postprocessing.QuantileSorter.html"><code class="docutils literal notranslate"><span class="pre">QuantileSorter</span></code></a> (ensures quantile ordering) and a
+<a class="reference external" href="https://openstef.github.io/openstef/v4/api/generated/openstef_models.transforms.postprocessing.ConfidenceIntervalApplicator.html"><code class="docutils literal notranslate"><span class="pre">ConfidenceIntervalApplicator</span></code></a> (adds confidence interval columns).</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.transforms.postprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ConfidenceIntervalApplicator</span><span class="p">,</span>
+    <span class="n">QuantileSorter</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">postprocessing</span> <span class="o">=</span> <span class="n">TransformPipeline</span><span class="p">(</span>
+    <span class="n">transforms</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">QuantileSorter</span><span class="p">(),</span>
+        <span class="n">ConfidenceIntervalApplicator</span><span class="p">(</span>
+            <span class="n">quantiles</span><span class="o">=</span><span class="n">quantiles</span><span class="p">,</span>
+            <span class="n">add_quantiles_from_std</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="assemble-the-model">
+<h2>Assemble the model<a class="headerlink" href="#assemble-the-model" title="Link to this heading">#</a></h2>
+<p><a class="reference external" href="https://openstef.github.io/openstef/v4/api/generated/openstef_models.models.ForecastingModel.html"><code class="docutils literal notranslate"><span class="pre">ForecastingModel</span></code></a> combines all three stages.  We wrap it in a
+<a class="reference external" href="https://openstef.github.io/openstef/v4/api/generated/openstef_models.workflows.custom_forecasting_workflow.CustomForecastingWorkflow.html"><code class="docutils literal notranslate"><span class="pre">CustomForecastingWorkflow</span></code></a> which adds train/predict orchestration.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.models.forecasting_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">ForecastingModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.workflows</span><span class="w"> </span><span class="kn">import</span> <span class="n">CustomForecastingWorkflow</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">ForecastingModel</span><span class="p">(</span>
+    <span class="n">preprocessing</span><span class="o">=</span><span class="n">preprocessing</span><span class="p">,</span>
+    <span class="n">forecaster</span><span class="o">=</span><span class="n">forecaster</span><span class="p">,</span>
+    <span class="n">postprocessing</span><span class="o">=</span><span class="n">postprocessing</span><span class="p">,</span>
+    <span class="n">target_column</span><span class="o">=</span><span class="s2">&quot;load&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">workflow</span> <span class="o">=</span> <span class="n">CustomForecastingWorkflow</span><span class="p">(</span>
+    <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;custom_pipeline_demo&quot;</span><span class="p">,</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+    <span class="n">callbacks</span><span class="o">=</span><span class="p">[],</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="train-and-predict">
+<h2>Train and predict<a class="headerlink" href="#train-and-predict" title="Link to this heading">#</a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">workflow</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">)</span>
+<span class="n">forecast</span> <span class="o">=</span> <span class="n">workflow</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">predict_dataset</span><span class="p">,</span> <span class="n">forecast_start</span><span class="o">=</span><span class="n">train_end</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Forecast rows:  </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">forecast</span><span class="o">.</span><span class="n">data</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Columns:        </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">forecast</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Forecast rows:  672
+Columns:        [&#39;quantile_P10&#39;, &#39;quantile_P50&#39;, &#39;quantile_P90&#39;, &#39;load&#39;, &#39;stdev&#39;]
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="visualize-the-result">
+<h2>Visualize the result<a class="headerlink" href="#visualize-the-result" title="Link to this heading">#</a></h2>
+<div class="cell tag_hide-input docutils container">
+<details class="admonition hide above-input">
+<summary aria-label="Toggle hidden content">
+<p class="collapsed admonition-title">Show code cell source</p>
+<p class="expanded admonition-title">Hide code cell source</p>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.analysis.plots</span><span class="w"> </span><span class="kn">import</span> <span class="n">ForecastTimeSeriesPlotter</span>
+
+<span class="n">fig</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">ForecastTimeSeriesPlotter</span><span class="p">()</span>
+    <span class="o">.</span><span class="n">add_measurements</span><span class="p">(</span><span class="n">measurements</span><span class="o">=</span><span class="n">predict_dataset</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;load&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">train_end</span><span class="p">:])</span>
+    <span class="o">.</span><span class="n">add_model</span><span class="p">(</span>
+        <span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;Custom GBLinear&quot;</span><span class="p">,</span>
+        <span class="n">forecast</span><span class="o">=</span><span class="n">forecast</span><span class="o">.</span><span class="n">median_series</span><span class="p">,</span>
+        <span class="n">quantiles</span><span class="o">=</span><span class="n">forecast</span><span class="o">.</span><span class="n">quantiles_data</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+<span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Custom pipeline — forecast vs actuals&quot;</span><span class="p">,</span>
+    <span class="n">yaxis_title</span><span class="o">=</span><span class="s2">&quot;Load (MW)&quot;</span><span class="p">,</span>
+    <span class="n">xaxis_title</span><span class="o">=</span><span class="s2">&quot;Time&quot;</span><span class="p">,</span>
+    <span class="n">height</span><span class="o">=</span><span class="mi">450</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</details>
+<div class="cell_output docutils container">
+<img alt="../_images/4dd0ebdb27b87f6091c838eb6d02523ad310824a9c95db1e922d593fb6b29c1d.png" src="../_images/4dd0ebdb27b87f6091c838eb6d02523ad310824a9c95db1e922d593fb6b29c1d.png" />
+</div>
+</div>
+</section>
+<section id="using-components-individually">
+<h2>Using components individually<a class="headerlink" href="#using-components-individually" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">ForecastingModel</span></code> is convenient, but every component also works on its
+own.  You can run the preprocessing pipeline, inspect intermediate data,
+and call the forecaster directly.</p>
+<section id="run-preprocessing-on-raw-data">
+<h3>Run preprocessing on raw data<a class="headerlink" href="#run-preprocessing-on-raw-data" title="Link to this heading">#</a></h3>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">preprocessed</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Before preprocessing: </span><span class="si">{</span><span class="n">train_dataset</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> columns&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;After preprocessing:  </span><span class="si">{</span><span class="n">preprocessed</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> columns&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Added features: </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">preprocessed</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">set</span><span class="p">(</span><span class="n">train_dataset</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">))[:</span><span class="mi">8</span><span class="p">]</span><span class="si">}</span><span class="s2">...&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Before preprocessing: 28 columns
+After preprocessing:  49 columns
+
+Added features: [&#39;day_of_week_cosine&#39;, &#39;day_of_week_sine&#39;, &#39;is_ascension_day&#39;, &#39;is_christmas_day&#39;, &#39;is_easter_monday&#39;, &#39;is_easter_sunday&#39;, &#39;is_good_friday&#39;, &#39;is_holiday&#39;]...
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="run-a-single-transform">
+<h3>Run a single transform<a class="headerlink" href="#run-a-single-transform" title="Link to this heading">#</a></h3>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">single_transform</span> <span class="o">=</span> <span class="n">CyclicFeaturesAdder</span><span class="p">()</span>
+<span class="n">single_transform</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">)</span>
+<span class="n">result_single</span> <span class="o">=</span> <span class="n">single_transform</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;CyclicFeaturesAdder added </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">single_transform</span><span class="o">.</span><span class="n">features_added</span><span class="p">())</span><span class="si">}</span><span class="s2"> columns: </span><span class="si">{</span><span class="n">single_transform</span><span class="o">.</span><span class="n">features_added</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>CyclicFeaturesAdder added 8 columns: [&#39;time_of_day_sine&#39;, &#39;season_sine&#39;, &#39;day_of_week_sine&#39;, &#39;month_sine&#39;, &#39;time_of_day_cosine&#39;, &#39;season_cosine&#39;, &#39;day_of_week_cosine&#39;, &#39;month_cosine&#39;]
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="call-the-forecaster-directly">
+<h3>Call the forecaster directly<a class="headerlink" href="#call-the-forecaster-directly" title="Link to this heading">#</a></h3>
+<p>After preprocessing, you can pass the data to a <a class="reference external" href="https://openstef.github.io/openstef/v4/api/generated/openstef_core.datasets.ForecastInputDataset.html"><code class="docutils literal notranslate"><span class="pre">ForecastInputDataset</span></code></a>
+and call the forecaster directly.
+This is useful for debugging or integrating into custom workflows.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">ForecastInputDataset</span>
+
+<span class="c1"># Preprocess the prediction data</span>
+<span class="n">preprocessed_predict</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">predict_dataset</span><span class="p">)</span>
+
+<span class="c1"># Convert to ForecastInputDataset (what the forecaster expects)</span>
+<span class="n">forecast_input</span> <span class="o">=</span> <span class="n">ForecastInputDataset</span><span class="p">(</span>
+    <span class="n">data</span><span class="o">=</span><span class="n">preprocessed_predict</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
+    <span class="n">sample_interval</span><span class="o">=</span><span class="n">preprocessed_predict</span><span class="o">.</span><span class="n">sample_interval</span><span class="p">,</span>
+    <span class="n">target_column</span><span class="o">=</span><span class="s2">&quot;load&quot;</span><span class="p">,</span>
+    <span class="n">forecast_start</span><span class="o">=</span><span class="n">train_end</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Call the forecaster directly</span>
+<span class="n">raw_forecast</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">forecaster</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">forecast_input</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Raw forecast shape: </span><span class="si">{</span><span class="n">raw_forecast</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Raw forecast columns: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">raw_forecast</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Raw forecast shape: (672, 3)
+Raw forecast columns: [&#39;quantile_P10&#39;, &#39;quantile_P50&#39;, &#39;quantile_P90&#39;]
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="next-steps">
+<h2>Next steps<a class="headerlink" href="#next-steps" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="ensemble_forecasting.html"><span class="doc">Ensemble Forecasting</span></a> — combine your custom pipeline with other
+models into an ensemble for better accuracy.</p></li>
+<li><p><a class="reference internal" href="quantile_calibration.html"><span class="doc">Quantile Calibration</span></a> — append isotonic calibration to your
+postprocessing for more reliable confidence intervals.</p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="backtesting_quickstart.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Backtesting Quickstart</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="feature_engineering.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Feature Engineering for Energy Forecasting</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#load-the-dataset">Load the dataset</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#define-pipeline-components">Define pipeline components</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#preprocessing">Preprocessing</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#forecaster">Forecaster</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#postprocessing">Postprocessing</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#assemble-the-model">Assemble the model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#train-and-predict">Train and predict</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#visualize-the-result">Visualize the result</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-components-individually">Using components individually</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#run-preprocessing-on-raw-data">Run preprocessing on raw data</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#run-a-single-transform">Run a single transform</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#call-the-forecaster-directly">Call the forecaster directly</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#next-steps">Next steps</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/OpenSTEF/openstef/edit/release/v4.0.0/docs/source/tutorials/custom_pipeline.py">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2017-2025 Contributors to the OpenSTEF project.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

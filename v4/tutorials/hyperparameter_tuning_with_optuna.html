@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Define a base config with inline search space &#8212; OpenSTEF 0.0.0 documentation</title>
+    <title>Hyperparameter Tuning with Optuna &#8212; OpenSTEF 0.0.0 documentation</title>
   
   
   
@@ -60,8 +60,8 @@
     <link rel="icon" href="../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="📊 Backtesting OpenSTEF Models with OpenSTEF-BEAM" href="backtesting_openstef_with_beam.html" />
-    <link rel="prev" title="🔮 Forecasting with OpenSTEF 4.0 Workflow Presets" href="forecasting_with_workflow_presets.html" />
+    <link rel="next" title="Model Explainability" href="model_explainability.html" />
+    <link rel="prev" title="Ensemble Forecasting" href="ensemble_forecasting.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="0.0.0" />
@@ -153,6 +153,13 @@
 </li>
 
 
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../examples.html">
+    Examples
+  </a>
+</li>
+
+
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../api/index.html">
     API
@@ -173,13 +180,6 @@
   </a>
 </li>
 
-
-<li class="nav-item ">
-  <a class="nav-link nav-internal" href="../changelog.html">
-    Changelog
-  </a>
-</li>
-
             <li class="nav-item dropdown">
                 <button class="btn dropdown-toggle nav-item" type="button"
                 data-bs-toggle="dropdown" aria-expanded="false"
@@ -188,9 +188,9 @@
                 </button>
                 <ul id="pst-nav-more-links" class="dropdown-menu">
                     
-<li class=" current active">
-  <a class="nav-link dropdown-item nav-internal" href="../examples.html">
-    Examples
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../changelog.html">
+    Changelog
   </a>
 </li>
 
@@ -305,6 +305,13 @@
 </li>
 
 
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../examples.html">
+    Examples
+  </a>
+</li>
+
+
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../api/index.html">
     API
@@ -329,13 +336,6 @@
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../changelog.html">
     Changelog
-  </a>
-</li>
-
-
-<li class="nav-item current active">
-  <a class="nav-link nav-internal" href="../examples.html">
-    Examples
   </a>
 </li>
 
@@ -394,14 +394,41 @@
 <nav class="bd-docs-nav bd-links"
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
-  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="forecasting_with_workflow_presets.html">Forecasting with Presets</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">Define a base config with inline search space</a></li>
-
-
-
-
-<li class="toctree-l1"><a class="reference internal" href="backtesting_openstef_with_beam.html">Backtesting with BEAM</a></li>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="forecasting_quickstart.html">Forecasting Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="backtesting_quickstart.html">Backtesting Quickstart</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Model Training</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="custom_pipeline.html">Custom Pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="feature_engineering.html">Feature Engineering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ensemble_forecasting.html">Ensemble Forecasting</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Hyperparameter Tuning</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Evaluation &amp; Analysis</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="model_explainability.html">Model Explainability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quantile_calibration.html">Quantile Calibration</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Benchmarks</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../benchmarks/README.html">Benchmarking Guide</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../benchmarks/liander2024/README.html">Liander 2024</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks/liander2024/run_xgboost_gblinear_benchmark.html">XGBoost &amp; GBLinear</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks/liander2024/run_ensemble_benchmark.html">Ensemble Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks/liander2024/compare_benchmark_runs.html">Compare Results</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../benchmarks/custom/README.html">Build Your Own</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks/custom/custom_forecaster.html">Implement a Custom Forecaster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks/custom/custom_benchmark.html">Configure a Custom Benchmark</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks/custom/run_liander2024_benchmark.html">Run on Liander 2024 Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks/custom/run_custom_benchmark.html">Run on Your Own Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks/custom/evaluate_existing_forecasts.html">Evaluate Existing Forecasts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks/custom/compare_benchmark_runs.html">Compare Multiple Runs</a></li>
+</ul>
+</details></li>
 </ul>
 </div>
 </nav></div>
@@ -445,7 +472,7 @@
     
     <li class="breadcrumb-item"><a href="../examples.html" class="nav-link">Examples</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Define a base config with inline search space</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Hyperparameter Tuning with Optuna</span></li>
   </ul>
 </nav>
 </div>
@@ -462,227 +489,413 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># --- Setup: Logging and Display Configuration ---</span>
-<span class="c1"># Configure logging and display settings for the notebook</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
-
-<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.testing</span><span class="w"> </span><span class="kn">import</span> <span class="n">configure_notebook_display</span><span class="p">,</span> <span class="n">setup_notebook_logging</span>
-
-<span class="n">configure_notebook_display</span><span class="p">()</span>
-<span class="n">logger</span> <span class="o">=</span> <span class="n">setup_notebook_logging</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
-</pre></div>
+  <section class="tex2jax_ignore mathjax_ignore" id="hyperparameter-tuning-with-optuna">
+<h1>Hyperparameter Tuning with Optuna<a class="headerlink" href="#hyperparameter-tuning-with-optuna" title="Link to this heading">#</a></h1>
+<p>OpenSTEF integrates with <a class="reference external" href="https://optuna.org/">Optuna</a> for Bayesian
+hyperparameter optimization.  Every forecaster in OpenSTEF declares
+sensible search bounds on its hyperparameters — you just choose which
+ones to activate for tuning.</p>
+<p><strong>What you’ll learn:</strong></p>
+<ul class="simple">
+<li><p>Why models ship with built-in search spaces</p></li>
+<li><p>How to activate, deactivate, and customize tunable parameters</p></li>
+<li><p>How to change the optimization metric (e.g. rCRPS for probabilistic scoring)</p></li>
+<li><p>How to compare an untuned baseline against the tuned model</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This tutorial runs only 5 trials for fast execution.
+Increase <code class="docutils literal notranslate"><span class="pre">n_trials</span></code> for production use.</p>
 </div>
-</div>
-</div>
+<p><strong>Key API references:</strong>
+<a class="reference external" href="https://openstef.github.io/openstef/v4/api/generated/openstef_models.integrations.optuna.HyperparameterTuner.html"><code class="docutils literal notranslate"><span class="pre">HyperparameterTuner</span></code></a>
+· <a class="reference external" href="https://openstef.github.io/openstef/v4/api/generated/openstef_models.models.forecasting.html"><code class="docutils literal notranslate"><span class="pre">XGBoostHyperParams</span></code></a>
+· <a class="reference external" href="https://openstef.github.io/openstef/v4/api/generated/openstef_core.mixins.param_ranges.FloatRange.html"><code class="docutils literal notranslate"><span class="pre">FloatRange</span></code></a> / <a class="reference external" href="https://openstef.github.io/openstef/v4/api/generated/openstef_core.mixins.param_ranges.IntRange.html"><code class="docutils literal notranslate"><span class="pre">IntRange</span></code></a></p>
+<section id="load-the-dataset">
+<h2>Load the dataset<a class="headerlink" href="#load-the-dataset" title="Link to this heading">#</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Download and combine the Liander benchmark dataset into a single TimeSeriesDataset.</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.testing</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_liander_dataset</span><span class="p">,</span> <span class="n">prepare_tutorial_datasets</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.testing</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_liander_dataset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">LeadTime</span><span class="p">,</span> <span class="n">Q</span>
 
 <span class="n">dataset</span> <span class="o">=</span> <span class="n">load_liander_dataset</span><span class="p">()</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Dataset shape: </span><span class="si">{</span><span class="n">dataset</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Date range: </span><span class="si">{</span><span class="n">dataset</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">dataset</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="n">dataset</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<span class="n">train_start</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="s2">&quot;2024-03-01T00:00:00Z&quot;</span><span class="p">)</span>
+<span class="n">train_end</span> <span class="o">=</span> <span class="n">train_start</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">45</span><span class="p">)</span>
+<span class="n">forecast_end</span> <span class="o">=</span> <span class="n">train_end</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+
+<span class="n">train_dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">filter_by_range</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">train_start</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">train_end</span><span class="p">)</span>
+<span class="n">predict_dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">filter_by_range</span><span class="p">(</span>
+    <span class="n">start</span><span class="o">=</span><span class="n">train_end</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">14</span><span class="p">),</span>
+    <span class="n">end</span><span class="o">=</span><span class="n">forecast_end</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Training:  </span><span class="si">{</span><span class="n">train_dataset</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> rows&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Predict:   </span><span class="si">{</span><span class="n">predict_dataset</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> rows&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Training:  4,320 rows
+Predict:   2,016 rows
 </pre></div>
 </div>
 </div>
 </div>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Split the dataset into training (90 days) and forecast (14 days) periods.</span>
-<span class="n">train_dataset</span><span class="p">,</span> <span class="n">forecast_dataset</span> <span class="o">=</span> <span class="n">prepare_tutorial_datasets</span><span class="p">()</span>
+</section>
+<section id="understanding-built-in-search-spaces">
+<h2>Understanding built-in search spaces<a class="headerlink" href="#understanding-built-in-search-spaces" title="Link to this heading">#</a></h2>
+<p>Each forecaster’s <code class="docutils literal notranslate"><span class="pre">HyperParams</span></code> class uses Python’s <code class="docutils literal notranslate"><span class="pre">Annotated</span></code> type hints
+to declare valid search bounds on every parameter.  For example,
+<code class="docutils literal notranslate"><span class="pre">XGBoostHyperParams</span></code> defines:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">n_estimators</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">IntRange</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">500</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">learning_rate</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">FloatRange</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">True</span><span class="p">)]</span> <span class="o">=</span> <span class="mf">0.3</span>
+<span class="n">max_depth</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">IntRange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">15</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">6</span>
+<span class="n">subsample</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">FloatRange</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)]</span> <span class="o">=</span> <span class="mf">1.0</span>
 </pre></div>
 </div>
-</div>
-</div>
+<p>These ranges define <strong>where</strong> Optuna can search, but tuning is <strong>not active
+by default</strong>.  The <code class="docutils literal notranslate"><span class="pre">tune=True</span></code> flag explicitly activates each parameter.
+This design means you always get sensible bounds without accidentally
+tuning everything.</p>
+<p>Let’s see the default search space — with nothing activated:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Visualize the training data</span>
-<span class="c1"># The plot shows the &#39;load&#39; column (energy consumption in MW) over time</span>
-<span class="n">fig</span> <span class="o">=</span> <span class="n">train_dataset</span><span class="o">.</span><span class="n">data</span><span class="p">[[</span><span class="s2">&quot;load&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Training Data: Energy Load over Time&quot;</span><span class="p">)</span>
-<span class="n">fig</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span><span class="n">yaxis_title</span><span class="o">=</span><span class="s2">&quot;Load (MW)&quot;</span><span class="p">,</span> <span class="n">xaxis_title</span><span class="o">=</span><span class="s2">&quot;Time&quot;</span><span class="p">)</span>  <span class="c1"># type: ignore[union-attr]  # plotly Figure</span>
-<span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>  <span class="c1"># type: ignore[union-attr]</span>
-</pre></div>
-</div>
-</div>
-</div>
-<section id="define-a-base-config-with-inline-search-space">
-<h1>Define a base config with inline search space<a class="headerlink" href="#define-a-base-config-with-inline-search-space" title="Link to this heading">#</a></h1>
-<p>Override default hyperparameters with <code class="docutils literal notranslate"><span class="pre">TuningRange(tune=True)</span></code> to mark them for tuning.
-Any parameter left as a plain value keeps its default during tuning.</p>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.evaluation.metric_providers</span><span class="w"> </span><span class="kn">import</span> <span class="n">ObservedProbabilityProvider</span><span class="p">,</span> <span class="n">RMAEProvider</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.mixins.param_ranges</span><span class="w"> </span><span class="kn">import</span> <span class="n">FloatRange</span><span class="p">,</span> <span class="n">IntRange</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">LeadTime</span><span class="p">,</span> <span class="n">Q</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.integrations.optuna</span><span class="w"> </span><span class="kn">import</span> <span class="n">HyperparameterTuner</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.mixins.param_ranges</span><span class="w"> </span><span class="kn">import</span> <span class="n">FloatRange</span><span class="p">,</span> <span class="n">IntRange</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.models.forecasting.xgboost_forecaster</span><span class="w"> </span><span class="kn">import</span> <span class="n">XGBoostHyperParams</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.presets</span><span class="w"> </span><span class="kn">import</span> <span class="n">ForecastingWorkflowConfig</span><span class="p">,</span> <span class="n">create_forecasting_workflow</span>
+
+<span class="n">default_hp</span> <span class="o">=</span> <span class="n">XGBoostHyperParams</span><span class="p">()</span>
+<span class="n">default_space</span> <span class="o">=</span> <span class="n">default_hp</span><span class="o">.</span><span class="n">get_search_space</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Default tunable parameters: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">default_space</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;(All parameters use their fixed defaults until you opt in with tune=True)&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Default tunable parameters: 0
+(All parameters use their fixed defaults until you opt in with tune=True)
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="customizing-the-search-space">
+<h2>Customizing the search space<a class="headerlink" href="#customizing-the-search-space" title="Link to this heading">#</a></h2>
+<p>To activate tuning on a parameter, pass a range with <code class="docutils literal notranslate"><span class="pre">tune=True</span></code>.
+You can also narrow or widen the bounds, or leave bounds as <code class="docutils literal notranslate"><span class="pre">None</span></code> to
+inherit the class-level defaults from the <code class="docutils literal notranslate"><span class="pre">Annotated</span></code> metadata.</p>
+<p><strong>Activate with custom bounds:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">learning_rate</span><span class="o">=</span><span class="n">FloatRange</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tune</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Activate with default bounds</strong> (inherits from Annotated metadata):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">subsample</span><span class="o">=</span><span class="n">FloatRange</span><span class="p">(</span><span class="n">tune</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Keep a parameter fixed</strong> (don’t pass a range — just a plain value or omit it):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">max_depth</span><span class="o">=</span><span class="mi">6</span>  <span class="c1"># fixed, not tuned</span>
+</pre></div>
+</div>
+<p>Let’s configure XGBoost with 4 tunable parameters and keep <code class="docutils literal notranslate"><span class="pre">reg_alpha</span></code>
+fixed at a known-good value:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.presets</span><span class="w"> </span><span class="kn">import</span> <span class="n">ForecastingWorkflowConfig</span><span class="p">,</span> <span class="n">create_forecasting_workflow</span>
 
 <span class="n">config</span> <span class="o">=</span> <span class="n">ForecastingWorkflowConfig</span><span class="p">(</span>
     <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;tuning_demo&quot;</span><span class="p">,</span>
     <span class="n">model</span><span class="o">=</span><span class="s2">&quot;xgboost&quot;</span><span class="p">,</span>
-    <span class="c1"># Forecast settings</span>
-    <span class="n">horizons</span><span class="o">=</span><span class="p">[</span><span class="n">LeadTime</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;PT36H&quot;</span><span class="p">)],</span>  <span class="c1"># Predict up to 36 hours ahead</span>
-    <span class="n">quantiles</span><span class="o">=</span><span class="p">[</span><span class="n">Q</span><span class="p">(</span><span class="mf">0.5</span><span class="p">),</span> <span class="n">Q</span><span class="p">(</span><span class="mf">0.1</span><span class="p">),</span> <span class="n">Q</span><span class="p">(</span><span class="mf">0.9</span><span class="p">)],</span>  <span class="c1"># Median + 80% prediction interval</span>
-    <span class="c1"># Target column (what we&#39;re predicting)</span>
+    <span class="n">horizons</span><span class="o">=</span><span class="p">[</span><span class="n">LeadTime</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;PT36H&quot;</span><span class="p">)],</span>
+    <span class="n">quantiles</span><span class="o">=</span><span class="p">[</span><span class="n">Q</span><span class="p">(</span><span class="mf">0.5</span><span class="p">),</span> <span class="n">Q</span><span class="p">(</span><span class="mf">0.1</span><span class="p">),</span> <span class="n">Q</span><span class="p">(</span><span class="mf">0.9</span><span class="p">)],</span>
     <span class="n">target_column</span><span class="o">=</span><span class="s2">&quot;load&quot;</span><span class="p">,</span>
-    <span class="c1"># Weather feature columns (from the dataset)</span>
     <span class="n">temperature_column</span><span class="o">=</span><span class="s2">&quot;temperature_2m&quot;</span><span class="p">,</span>
     <span class="n">relative_humidity_column</span><span class="o">=</span><span class="s2">&quot;relative_humidity_2m&quot;</span><span class="p">,</span>
     <span class="n">wind_speed_column</span><span class="o">=</span><span class="s2">&quot;wind_speed_10m&quot;</span><span class="p">,</span>
-    <span class="n">radiation_column</span><span class="o">=</span><span class="s2">&quot;shortwave_radiation&quot;</span><span class="p">,</span>  <span class="c1"># Solar radiation</span>
+    <span class="n">radiation_column</span><span class="o">=</span><span class="s2">&quot;shortwave_radiation&quot;</span><span class="p">,</span>
     <span class="n">pressure_column</span><span class="o">=</span><span class="s2">&quot;surface_pressure&quot;</span><span class="p">,</span>
-    <span class="c1"># Hyperparameters to tune</span>
     <span class="n">xgboost_hyperparams</span><span class="o">=</span><span class="n">XGBoostHyperParams</span><span class="p">(</span>
-        <span class="n">learning_rate</span><span class="o">=</span><span class="n">FloatRange</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tune</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>  <span class="c1"># pyright: ignore[reportCallIssue]  # ranges accepted at runtime via Annotated</span>
-        <span class="n">n_estimators</span><span class="o">=</span><span class="n">IntRange</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">500</span><span class="p">,</span> <span class="n">tune</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
-        <span class="n">max_depth</span><span class="o">=</span><span class="n">IntRange</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">tune</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
-        <span class="n">subsample</span><span class="o">=</span><span class="n">FloatRange</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">tune</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
-        <span class="n">colsample_bytree</span><span class="o">=</span><span class="n">FloatRange</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">tune</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+        <span class="c1"># Tuned — custom bounds</span>
+        <span class="n">learning_rate</span><span class="o">=</span><span class="n">FloatRange</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tune</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>  <span class="c1"># pyright: ignore[reportCallIssue]</span>
+        <span class="n">n_estimators</span><span class="o">=</span><span class="n">IntRange</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="n">tune</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+        <span class="c1"># Tuned — inherits class-level bounds [1, 15]</span>
+        <span class="n">max_depth</span><span class="o">=</span><span class="n">IntRange</span><span class="p">(</span><span class="n">tune</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+        <span class="c1"># Tuned — custom narrower bounds</span>
+        <span class="n">subsample</span><span class="o">=</span><span class="n">FloatRange</span><span class="p">(</span><span class="mf">0.6</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">tune</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+        <span class="c1"># Fixed — not tuned</span>
+        <span class="n">reg_alpha</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
     <span class="p">),</span>
-    <span class="n">evaluation_metrics</span><span class="o">=</span><span class="p">[</span><span class="n">RMAEProvider</span><span class="p">(),</span> <span class="n">ObservedProbabilityProvider</span><span class="p">()],</span>
-    <span class="n">mlflow_storage</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># Disable MLFlow tune to avoid reusing models between trials.</span>
+    <span class="n">mlflow_storage</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">verbosity</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">space</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">xgboost_hyperparams</span><span class="o">.</span><span class="n">get_search_space</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Active search space (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">space</span><span class="p">)</span><span class="si">}</span><span class="s2"> parameters):&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">space</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="p">(</span><span class="n">FloatRange</span><span class="p">,</span> <span class="n">IntRange</span><span class="p">)):</span>
+        <span class="n">scale</span> <span class="o">=</span> <span class="s2">&quot; [log]&quot;</span> <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">log</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">name</span><span class="si">:</span><span class="s2">20s</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">param</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">  [</span><span class="si">{</span><span class="n">param</span><span class="o">.</span><span class="n">low</span><span class="si">}</span><span class="s2"> — </span><span class="si">{</span><span class="n">param</span><span class="o">.</span><span class="n">high</span><span class="si">}</span><span class="s2">]</span><span class="si">{</span><span class="n">scale</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Active search space (4 parameters):
+  n_estimators        : IntRange  [50 — 300]
+  learning_rate       : FloatRange  [0.01 — 0.3] [log]
+  max_depth           : IntRange  [1 — 15]
+  subsample           : FloatRange  [0.6 — 1.0]
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="changing-the-tuning-metric">
+<h2>Changing the tuning metric<a class="headerlink" href="#changing-the-tuning-metric" title="Link to this heading">#</a></h2>
+<p>By default, <code class="docutils literal notranslate"><span class="pre">HyperparameterTuner</span></code> optimizes <code class="docutils literal notranslate"><span class="pre">R2</span></code> on the median quantile.
+For probabilistic forecasts, the <strong>relative Continuous Ranked Probability
+Score (rCRPS)</strong> is a better choice — it evaluates the full quantile
+distribution, not just the median.</p>
+<p>To use rCRPS, add <a class="reference external" href="https://openstef.github.io/openstef/v4/api/generated/openstef_beam.evaluation.metric_providers.RCRPSProvider.html"><code class="docutils literal notranslate"><span class="pre">RCRPSProvider</span></code></a> to the config’s <code class="docutils literal notranslate"><span class="pre">evaluation_metrics</span></code>
+and set <code class="docutils literal notranslate"><span class="pre">metric_name=&quot;rCRPS&quot;</span></code> with <code class="docutils literal notranslate"><span class="pre">direction=&quot;minimize&quot;</span></code> (lower is better):</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.evaluation.metric_providers</span><span class="w"> </span><span class="kn">import</span> <span class="n">ObservedProbabilityProvider</span><span class="p">,</span> <span class="n">R2Provider</span><span class="p">,</span> <span class="n">RCRPSProvider</span>
+
+<span class="n">config_with_rcrps</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">model_copy</span><span class="p">(</span>
+    <span class="n">update</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;evaluation_metrics&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">R2Provider</span><span class="p">(),</span> <span class="n">ObservedProbabilityProvider</span><span class="p">(),</span> <span class="n">RCRPSProvider</span><span class="p">()]}</span>
 <span class="p">)</span>
 </pre></div>
 </div>
 </div>
 </div>
 </section>
-<section id="inspect-the-resolved-search-space">
-<h1>Inspect the resolved search space<a class="headerlink" href="#inspect-the-resolved-search-space" title="Link to this heading">#</a></h1>
+<section id="train-an-untuned-baseline">
+<h2>Train an untuned baseline<a class="headerlink" href="#train-an-untuned-baseline" title="Link to this heading">#</a></h2>
+<p>Before tuning, let’s train a model with the default hyperparameters so we
+can measure the improvement.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
-<span class="c1"># Get the search space from the hyperparams instance (resolve fills None bounds from class-level defaults).</span>
-<span class="n">resolved_space</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">xgboost_hyperparams</span><span class="o">.</span><span class="n">get_search_space</span><span class="p">()</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">baseline_config</span> <span class="o">=</span> <span class="n">config_with_rcrps</span><span class="o">.</span><span class="n">model_copy</span><span class="p">(</span>
+    <span class="n">update</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;xgboost_hyperparams&quot;</span><span class="p">:</span> <span class="n">XGBoostHyperParams</span><span class="p">(</span><span class="n">reg_alpha</span><span class="o">=</span><span class="mf">0.1</span><span class="p">),</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+<span class="n">baseline_workflow</span> <span class="o">=</span> <span class="n">create_forecasting_workflow</span><span class="p">(</span><span class="n">baseline_config</span><span class="p">)</span>
+<span class="n">baseline_result</span> <span class="o">=</span> <span class="n">baseline_workflow</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">)</span>
+<span class="n">baseline_forecast</span> <span class="o">=</span> <span class="n">baseline_workflow</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">predict_dataset</span><span class="p">,</span> <span class="n">forecast_start</span><span class="o">=</span><span class="n">train_end</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Resolved search space:&quot;</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">resolved_space</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="p">(</span><span class="n">FloatRange</span><span class="p">,</span> <span class="n">IntRange</span><span class="p">)):</span>
-        <span class="n">scale</span> <span class="o">=</span> <span class="s2">&quot;  [log]&quot;</span> <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">log</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">name</span><span class="si">:</span><span class="s2">25s</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">param</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">  [</span><span class="si">{</span><span class="n">param</span><span class="o">.</span><span class="n">low</span><span class="si">}</span><span class="s2"> — </span><span class="si">{</span><span class="n">param</span><span class="o">.</span><span class="n">high</span><span class="si">}</span><span class="s2">]</span><span class="si">{</span><span class="n">scale</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">name</span><span class="si">:</span><span class="s2">25s</span><span class="si">}</span><span class="s2">: CategoricalRange  </span><span class="si">{</span><span class="n">param</span><span class="o">.</span><span class="n">choices</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">baseline_r2</span> <span class="o">=</span> <span class="n">baseline_result</span><span class="o">.</span><span class="n">metrics_val</span><span class="o">.</span><span class="n">get_metric</span><span class="p">(</span><span class="n">quantile</span><span class="o">=</span><span class="n">Q</span><span class="p">(</span><span class="mf">0.5</span><span class="p">),</span> <span class="n">metric_name</span><span class="o">=</span><span class="s2">&quot;R2&quot;</span><span class="p">)</span>
+<span class="n">baseline_rcrps</span> <span class="o">=</span> <span class="n">baseline_result</span><span class="o">.</span><span class="n">metrics_val</span><span class="o">.</span><span class="n">get_metric</span><span class="p">(</span><span class="n">quantile</span><span class="o">=</span><span class="s2">&quot;global&quot;</span><span class="p">,</span> <span class="n">metric_name</span><span class="o">=</span><span class="s2">&quot;rCRPS&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Baseline R2:    </span><span class="si">{</span><span class="n">baseline_r2</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Baseline rCRPS: </span><span class="si">{</span><span class="n">baseline_rcrps</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Baseline R2:    0.7932
+Baseline rCRPS: 0.0504
 </pre></div>
 </div>
 </div>
 </div>
 </section>
-<section id="run-the-optuna-study-with-hyperparametertuner">
-<h1>Run the Optuna study with <code class="docutils literal notranslate"><span class="pre">HyperparameterTuner</span></code><a class="headerlink" href="#run-the-optuna-study-with-hyperparametertuner" title="Link to this heading">#</a></h1>
+<section id="run-the-optuna-study">
+<h2>Run the Optuna study<a class="headerlink" href="#run-the-optuna-study" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">HyperparameterTuner.fit_with_tuning()</span></code> runs the study and trains a final
+workflow using <a class="reference external" href="https://openstef.github.io/openstef/v4/api/generated/openstef_models.presets.create_forecasting_workflow.html"><code class="docutils literal notranslate"><span class="pre">create_forecasting_workflow</span></code></a> on the full training set with the best hyperparameters.
+The first trial always evaluates the default values so the search starts
+from a known baseline.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">optuna</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">optuna</span>
 
-<span class="n">optuna</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">set_verbosity</span><span class="p">(</span><span class="n">optuna</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">)</span>  <span class="c1"># Suppress per-trial logs</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.integrations.optuna</span><span class="w"> </span><span class="kn">import</span> <span class="n">HyperparameterTuner</span>
+
+<span class="n">optuna</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">set_verbosity</span><span class="p">(</span><span class="n">optuna</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">)</span>
 
 <span class="n">tuner</span> <span class="o">=</span> <span class="n">HyperparameterTuner</span><span class="p">(</span>
-    <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+    <span class="n">config</span><span class="o">=</span><span class="n">config_with_rcrps</span><span class="p">,</span>
     <span class="n">train_dataset</span><span class="o">=</span><span class="n">train_dataset</span><span class="p">,</span>
     <span class="n">create_workflow</span><span class="o">=</span><span class="n">create_forecasting_workflow</span><span class="p">,</span>
-    <span class="n">target_quantile</span><span class="o">=</span><span class="n">Q</span><span class="p">(</span><span class="mf">0.5</span><span class="p">),</span>
-    <span class="n">metric_name</span><span class="o">=</span><span class="s2">&quot;rMAE&quot;</span><span class="p">,</span>
+    <span class="n">target_quantile</span><span class="o">=</span><span class="s2">&quot;global&quot;</span><span class="p">,</span>
+    <span class="n">metric_name</span><span class="o">=</span><span class="s2">&quot;rCRPS&quot;</span><span class="p">,</span>
     <span class="n">direction</span><span class="o">=</span><span class="s2">&quot;minimize&quot;</span><span class="p">,</span>
-    <span class="n">n_trials</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+    <span class="n">n_trials</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
     <span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="n">tuning_result</span> <span class="o">=</span> <span class="n">tuner</span><span class="o">.</span><span class="n">fit_with_tuning</span><span class="p">()</span>
+<span class="n">tuning_result</span> <span class="o">=</span> <span class="n">tuner</span><span class="o">.</span><span class="n">fit_with_tuning</span><span class="p">(</span><span class="n">show_progress_bar</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Study complete: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">tuning_result</span><span class="o">.</span><span class="n">study</span><span class="o">.</span><span class="n">trials</span><span class="p">)</span><span class="si">}</span><span class="s2"> trials&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Best value: </span><span class="si">{</span><span class="n">tuning_result</span><span class="o">.</span><span class="n">study</span><span class="o">.</span><span class="n">best_value</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Trials completed: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">tuning_result</span><span class="o">.</span><span class="n">study</span><span class="o">.</span><span class="n">trials</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Best rCRPS: </span><span class="si">{</span><span class="n">tuning_result</span><span class="o">.</span><span class="n">study</span><span class="o">.</span><span class="n">best_value</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Best params: </span><span class="si">{</span><span class="n">tuning_result</span><span class="o">.</span><span class="n">study</span><span class="o">.</span><span class="n">best_params</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Trials completed: 5
+Best rCRPS: 0.0424
+Best params: {&#39;n_estimators&#39;: 200, &#39;learning_rate&#39;: 0.11114989443094977, &#39;max_depth&#39;: 1, &#39;subsample&#39;: 0.9879639408647978}
+</pre></div>
 </div>
+</div>
+</div>
+</section>
+<section id="inspect-the-best-hyperparameters">
+<h2>Inspect the best hyperparameters<a class="headerlink" href="#inspect-the-best-hyperparameters" title="Link to this heading">#</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Inspect which hyperparameters were tuned vs kept at their default.</span>
-<span class="n">best_config</span> <span class="o">=</span> <span class="n">tuning_result</span><span class="o">.</span><span class="n">best_config</span>  <span class="c1"># type: ignore[union-attr]  # known to be ForecastingWorkflowConfig</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Final XGBoost hyperparameters (tuned values marked):&quot;</span><span class="p">)</span>
-<span class="n">final_hp</span> <span class="o">=</span> <span class="n">best_config</span><span class="o">.</span><span class="n">xgboost_hyperparams</span>
-<span class="n">baseline_hp</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">xgboost_hyperparams</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">best_hp</span> <span class="o">=</span> <span class="n">tuning_result</span><span class="o">.</span><span class="n">best_config</span><span class="o">.</span><span class="n">xgboost_hyperparams</span>
 <span class="n">best_params</span> <span class="o">=</span> <span class="n">tuning_result</span><span class="o">.</span><span class="n">study</span><span class="o">.</span><span class="n">best_params</span>
 
-<span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="nb">type</span><span class="p">(</span><span class="n">final_hp</span><span class="p">)</span><span class="o">.</span><span class="n">model_fields</span><span class="p">:</span>
-    <span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">final_hp</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span>
-    <span class="n">baseline</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">baseline_hp</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span>
-    <span class="n">marker</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot; &lt;- tuned&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot; &lt;- tuned&quot;</span> <span class="k">if</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">best_params</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">field</span><span class="si">:</span><span class="s2">25s</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">value</span><span class="si">}{</span><span class="n">marker</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Final hyperparameters (tuned values marked):&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="nb">type</span><span class="p">(</span><span class="n">best_hp</span><span class="p">)</span><span class="o">.</span><span class="n">model_fields</span><span class="p">:</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">best_hp</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span>
+    <span class="n">marker</span> <span class="o">=</span> <span class="s2">&quot; &lt;- tuned&quot;</span> <span class="k">if</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">best_params</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">field</span><span class="si">:</span><span class="s2">20s</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">value</span><span class="si">}{</span><span class="n">marker</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Final hyperparameters (tuned values marked):
+  n_estimators        : 200 &lt;- tuned
+  learning_rate       : 0.11114989443094977 &lt;- tuned
+  max_depth           : 1 &lt;- tuned
+  min_child_weight    : 1
+  gamma               : 0
+  objective           : pinball_loss
+  evaluation_metric   : mean_pinball_loss
+  reg_alpha           : 0.1
+  reg_lambda          : 1
+  max_delta_step      : 0
+  max_leaves          : 0
+  grow_policy         : depthwise
+  max_bin             : 256
+  num_parallel_trees  : 1
+  subsample           : 0.9879639408647978 &lt;- tuned
+  colsample_bytree    : 1.0
+  colsample_bylevel   : 1.0
+  colsample_bynode    : 1.0
+  tree_method         : auto
+  random_state        : 42
+  early_stopping_rounds: None
+  use_target_scaling  : True
 </pre></div>
 </div>
 </div>
 </div>
 </section>
-<section id="the-fitted-workflow">
-<h1>The fitted workflow<a class="headerlink" href="#the-fitted-workflow" title="Link to this heading">#</a></h1>
-<p><code class="docutils literal notranslate"><span class="pre">fit_with_tuning()</span></code> already trains a final workflow on the full training set using the best
-hyperparameters — no separate fit step is needed. The result is in <code class="docutils literal notranslate"><span class="pre">tuning_result.workflow</span></code>.</p>
-<div class="cell docutils container">
+<section id="visualize-optimization-history">
+<h2>Visualize optimization history<a class="headerlink" href="#visualize-optimization-history" title="Link to this heading">#</a></h2>
+<p>The optimization history shows how rCRPS decreased over trials.  With only
+5 trials results are noisy — increase <code class="docutils literal notranslate"><span class="pre">n_trials</span></code> for smoother convergence.</p>
+<div class="cell tag_hide-input docutils container">
+<details class="admonition hide above-input">
+<summary aria-label="Toggle hidden content">
+<p class="collapsed admonition-title">Show code cell source</p>
+<p class="expanded admonition-title">Hide code cell source</p>
+</summary>
 <div class="cell_input docutils container">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">workflow</span> <span class="o">=</span> <span class="n">tuning_result</span><span class="o">.</span><span class="n">workflow</span>
-</pre></div>
-</div>
-</div>
-</div>
-</section>
-<section id="inspect-the-study-and-forecast">
-<h1>Inspect the study and forecast<a class="headerlink" href="#inspect-the-study-and-forecast" title="Link to this heading">#</a></h1>
-<ol class="arabic simple">
-<li><p>How did $rMAE$ improve over trials?</p></li>
-<li><p>Which parameters had the most impact?</p></li>
-<li><p>Final tuned model predictions on the held-out forecast window.</p></li>
-</ol>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">optuna.visualization</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_optimization_history</span><span class="p">,</span> <span class="n">plot_param_importances</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">optuna.visualization</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_optimization_history</span>
 
-<span class="n">study</span> <span class="o">=</span> <span class="n">tuning_result</span><span class="o">.</span><span class="n">study</span>
-
-<span class="c1"># How the best score evolved over trials</span>
-<span class="n">fig</span> <span class="o">=</span> <span class="n">plot_optimization_history</span><span class="p">(</span><span class="n">study</span><span class="p">)</span>
-<span class="n">fig</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Optimization History: rMAE over Trials&quot;</span><span class="p">)</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plot_optimization_history</span><span class="p">(</span><span class="n">tuning_result</span><span class="o">.</span><span class="n">study</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Optimization History: rCRPS over Trials&quot;</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">400</span><span class="p">)</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-
-<span class="c1"># Which hyperparameters mattered most (requires ≥ ~20 trials for reliable ranking)</span>
-<span class="n">fig2</span> <span class="o">=</span> <span class="n">plot_param_importances</span><span class="p">(</span><span class="n">study</span><span class="p">)</span>
-<span class="n">fig2</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Hyperparameter Importances&quot;</span><span class="p">)</span>
-<span class="n">fig2</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
+</details>
+<div class="cell_output docutils container">
+<img alt="../_images/ea93b37acb3e8c4a9e878715eb6392d13ea1cc09bed823081f5ff98239d2b5dd.png" src="../_images/ea93b37acb3e8c4a9e878715eb6392d13ea1cc09bed823081f5ff98239d2b5dd.png" />
 </div>
-<div class="cell docutils container">
+</div>
+</section>
+<section id="compare-untuned-vs-tuned">
+<h2>Compare: untuned vs tuned<a class="headerlink" href="#compare-untuned-vs-tuned" title="Link to this heading">#</a></h2>
+<p>Plot both models on the same chart to visualize the improvement.
+Once you’re happy with the tuned parameters, run a
+<a class="reference internal" href="backtesting_quickstart.html"><span class="doc">Backtesting Quickstart</span></a> to measure the gain over a realistic
+operational timeline.</p>
+<div class="cell tag_hide-input docutils container">
+<details class="admonition hide above-input">
+<summary aria-label="Toggle hidden content">
+<p class="collapsed admonition-title">Show code cell source</p>
+<p class="expanded admonition-title">Hide code cell source</p>
+</summary>
 <div class="cell_input docutils container">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.analysis.plots</span><span class="w"> </span><span class="kn">import</span> <span class="n">ForecastTimeSeriesPlotter</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.analysis.plots</span><span class="w"> </span><span class="kn">import</span> <span class="n">ForecastTimeSeriesPlotter</span>
 
-<span class="n">forecast</span> <span class="o">=</span> <span class="n">workflow</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">forecast_dataset</span><span class="p">)</span>
+<span class="n">tuned_forecast</span> <span class="o">=</span> <span class="n">tuning_result</span><span class="o">.</span><span class="n">workflow</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">predict_dataset</span><span class="p">,</span> <span class="n">forecast_start</span><span class="o">=</span><span class="n">train_end</span><span class="p">)</span>
 
 <span class="n">fig</span> <span class="o">=</span> <span class="p">(</span>
     <span class="n">ForecastTimeSeriesPlotter</span><span class="p">()</span>
-    <span class="o">.</span><span class="n">add_measurements</span><span class="p">(</span><span class="n">measurements</span><span class="o">=</span><span class="n">forecast_dataset</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;load&quot;</span><span class="p">])</span>
+    <span class="o">.</span><span class="n">add_measurements</span><span class="p">(</span><span class="n">measurements</span><span class="o">=</span><span class="n">predict_dataset</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;load&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">train_end</span><span class="p">:])</span>
+    <span class="o">.</span><span class="n">add_model</span><span class="p">(</span>
+        <span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;XGBoost (default)&quot;</span><span class="p">,</span>
+        <span class="n">forecast</span><span class="o">=</span><span class="n">baseline_forecast</span><span class="o">.</span><span class="n">median_series</span><span class="p">,</span>
+        <span class="n">quantiles</span><span class="o">=</span><span class="n">baseline_forecast</span><span class="o">.</span><span class="n">quantiles_data</span><span class="p">,</span>
+    <span class="p">)</span>
     <span class="o">.</span><span class="n">add_model</span><span class="p">(</span>
         <span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;XGBoost (tuned)&quot;</span><span class="p">,</span>
-        <span class="n">forecast</span><span class="o">=</span><span class="n">forecast</span><span class="o">.</span><span class="n">median_series</span><span class="p">,</span>
-        <span class="n">quantiles</span><span class="o">=</span><span class="n">forecast</span><span class="o">.</span><span class="n">quantiles_data</span><span class="p">,</span>
+        <span class="n">forecast</span><span class="o">=</span><span class="n">tuned_forecast</span><span class="o">.</span><span class="n">median_series</span><span class="p">,</span>
+        <span class="n">quantiles</span><span class="o">=</span><span class="n">tuned_forecast</span><span class="o">.</span><span class="n">quantiles_data</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="o">.</span><span class="n">plot</span><span class="p">()</span>
 <span class="p">)</span>
+
 <span class="n">fig</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span>
-    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Tuned XGBoost Forecast vs Actual&quot;</span><span class="p">,</span>
-    <span class="n">yaxis_title</span><span class="o">=</span><span class="s2">&quot;Load (MW)&quot;</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Hyperparameter Tuning: Default vs Tuned XGBoost&quot;</span><span class="p">,</span>
     <span class="n">xaxis_title</span><span class="o">=</span><span class="s2">&quot;Time&quot;</span><span class="p">,</span>
-    <span class="n">height</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
+    <span class="n">yaxis_title</span><span class="o">=</span><span class="s2">&quot;MW&quot;</span><span class="p">,</span>
+    <span class="n">height</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
+</details>
+<div class="cell_output docutils container">
+<img alt="../_images/c49c5d82589a725f4db4743c8786abc2a6c8ba3a9b4985224df6a61716f08614.png" src="../_images/c49c5d82589a725f4db4743c8786abc2a6c8ba3a9b4985224df6a61716f08614.png" />
 </div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tuned_rcrps</span> <span class="o">=</span> <span class="n">tuning_result</span><span class="o">.</span><span class="n">study</span><span class="o">.</span><span class="n">best_value</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;Model&#39;</span><span class="si">:</span><span class="s2">&lt;20</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s1">&#39;rCRPS&#39;</span><span class="si">:</span><span class="s2">&gt;10</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;&#39;</span><span class="si">:</span><span class="s2">-&lt;20</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s1">&#39;&#39;</span><span class="si">:</span><span class="s2">-^10</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;XGBoost (default)&#39;</span><span class="si">:</span><span class="s2">&lt;20</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">baseline_rcrps</span><span class="si">:</span><span class="s2">&gt;10.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;XGBoost (tuned)&#39;</span><span class="si">:</span><span class="s2">&lt;20</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">tuned_rcrps</span><span class="si">:</span><span class="s2">&gt;10.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;Improvement&#39;</span><span class="si">:</span><span class="s2">&lt;20</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">baseline_rcrps</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">tuned_rcrps</span><span class="si">:</span><span class="s2">&gt;10.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Model                     rCRPS
+-------------------- ----------
+XGBoost (default)        0.0504
+XGBoost (tuned)          0.0424
+Improvement              0.0080
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="next-steps">
+<h2>Next steps<a class="headerlink" href="#next-steps" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="ensemble_forecasting.html"><span class="doc">Ensemble Forecasting</span></a> — combine tuned models into an ensemble
+for even better accuracy.</p></li>
+<li><p><a class="reference internal" href="backtesting_quickstart.html"><span class="doc">Backtesting Quickstart</span></a> — validate tuned parameters on longer
+historical windows.</p></li>
+</ul>
+</section>
 </section>
 
 
@@ -696,20 +909,20 @@ hyperparameters — no separate fit step is needed. The result is in <code class
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="forecasting_with_workflow_presets.html"
+       href="ensemble_forecasting.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">🔮 Forecasting with OpenSTEF 4.0 Workflow Presets</p>
+        <p class="prev-next-title">Ensemble Forecasting</p>
       </div>
     </a>
     <a class="right-next"
-       href="backtesting_openstef_with_beam.html"
+       href="model_explainability.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">📊 Backtesting OpenSTEF Models with OpenSTEF-BEAM</p>
+        <p class="prev-next-title">Model Explainability</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -732,13 +945,17 @@ hyperparameters — no separate fit step is needed. The result is in <code class
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Define a base config with inline search space</a></li>
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#inspect-the-resolved-search-space">Inspect the resolved search space</a></li>
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#run-the-optuna-study-with-hyperparametertuner">Run the Optuna study with <code class="docutils literal notranslate"><span class="pre">HyperparameterTuner</span></code></a></li>
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#the-fitted-workflow">The fitted workflow</a></li>
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#inspect-the-study-and-forecast">Inspect the study and forecast</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#load-the-dataset">Load the dataset</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#understanding-built-in-search-spaces">Understanding built-in search spaces</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#customizing-the-search-space">Customizing the search space</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#changing-the-tuning-metric">Changing the tuning metric</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#train-an-untuned-baseline">Train an untuned baseline</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#run-the-optuna-study">Run the Optuna study</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#inspect-the-best-hyperparameters">Inspect the best hyperparameters</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#visualize-optimization-history">Visualize optimization history</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compare-untuned-vs-tuned">Compare: untuned vs tuned</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#next-steps">Next steps</a></li>
 </ul>
-
   </nav></div>
 
   <div class="sidebar-secondary-item">

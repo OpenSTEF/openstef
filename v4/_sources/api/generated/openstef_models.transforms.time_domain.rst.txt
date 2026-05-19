@@ -29,7 +29,9 @@ Classes
    CyclicFeaturesAdder
    DatetimeFeaturesAdder
    HolidayFeatureAdder
+   LagsAdder
    RollingAggregatesAdder
+   VersionedLagsAdder
 
 
 

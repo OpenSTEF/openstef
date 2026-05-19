@@ -60,8 +60,8 @@
     <link rel="icon" href="../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="validation" href="openstef_models.transforms.validation.html" />
-    <link rel="prev" title="HolidayFeatureAdder" href="openstef_models.transforms.time_domain.HolidayFeatureAdder.html" />
+    <link rel="next" title="VersionedLagsAdder" href="openstef_models.transforms.time_domain.VersionedLagsAdder.html" />
+    <link rel="prev" title="LagsAdder" href="openstef_models.transforms.time_domain.LagsAdder.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="0.0.0" />
@@ -153,6 +153,13 @@
 </li>
 
 
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../examples.html">
+    Examples
+  </a>
+</li>
+
+
 <li class="nav-item current active">
   <a class="nav-link nav-internal" href="../index.html">
     API
@@ -173,13 +180,6 @@
   </a>
 </li>
 
-
-<li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../changelog.html">
-    Changelog
-  </a>
-</li>
-
             <li class="nav-item dropdown">
                 <button class="btn dropdown-toggle nav-item" type="button"
                 data-bs-toggle="dropdown" aria-expanded="false"
@@ -189,8 +189,8 @@
                 <ul id="pst-nav-more-links" class="dropdown-menu">
                     
 <li class=" ">
-  <a class="nav-link dropdown-item nav-internal" href="../../examples.html">
-    Examples
+  <a class="nav-link dropdown-item nav-internal" href="../../changelog.html">
+    Changelog
   </a>
 </li>
 
@@ -305,6 +305,13 @@
 </li>
 
 
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../examples.html">
+    Examples
+  </a>
+</li>
+
+
 <li class="nav-item current active">
   <a class="nav-link nav-internal" href="../index.html">
     API
@@ -329,13 +336,6 @@
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../changelog.html">
     Changelog
-  </a>
-</li>
-
-
-<li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../examples.html">
-    Examples
   </a>
 </li>
 
@@ -658,6 +658,11 @@
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.integrations.mlflow.MLFlowStorageCallback.html">MLFlowStorageCallback</a></li>
 </ul>
 </details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="openstef_models.integrations.optuna.html">optuna</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.integrations.optuna.HyperparameterTuner.html">HyperparameterTuner</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.integrations.optuna.TuningResult.html">TuningResult</a></li>
+</ul>
+</details></li>
 </ul>
 </details></li>
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="openstef_models.transforms.html">transforms</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
@@ -689,7 +694,9 @@
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.time_domain.CyclicFeaturesAdder.html">CyclicFeaturesAdder</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.time_domain.DatetimeFeaturesAdder.html">DatetimeFeaturesAdder</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.time_domain.HolidayFeatureAdder.html">HolidayFeatureAdder</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.time_domain.LagsAdder.html">LagsAdder</a></li>
 <li class="toctree-l4 current active"><a class="current reference internal" href="#">RollingAggregatesAdder</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.time_domain.VersionedLagsAdder.html">VersionedLagsAdder</a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_models.transforms.validation.html">validation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -1237,20 +1244,20 @@ to the dataset by this transform. Default is an empty list.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="openstef_models.transforms.time_domain.HolidayFeatureAdder.html"
+       href="openstef_models.transforms.time_domain.LagsAdder.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">HolidayFeatureAdder</p>
+        <p class="prev-next-title">LagsAdder</p>
       </div>
     </a>
     <a class="right-next"
-       href="openstef_models.transforms.validation.html"
+       href="openstef_models.transforms.time_domain.VersionedLagsAdder.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">validation</p>
+        <p class="prev-next-title">VersionedLagsAdder</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

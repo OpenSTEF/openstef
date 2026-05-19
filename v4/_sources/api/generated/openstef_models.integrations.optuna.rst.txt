@@ -1,0 +1,33 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+
+
+optuna
+======
+
+.. currentmodule:: openstef_models.integrations.optuna
+
+.. automodule:: openstef_models.integrations.optuna
+   :no-members:
+   :no-inherited-members:
+
+
+
+
+
+
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_class.rst
+
+   HyperparameterTuner
+   TuningResult
+
+
+

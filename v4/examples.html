@@ -60,8 +60,8 @@
     <link rel="icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="🔮 Forecasting with OpenSTEF 4.0 Workflow Presets" href="tutorials/forecasting_with_workflow_presets.html" />
-    <link rel="prev" title="Changelog" href="changelog.html" />
+    <link rel="next" title="Forecasting Quickstart" href="tutorials/forecasting_quickstart.html" />
+    <link rel="prev" title="External resources" href="user_guide/external_resources.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="0.0.0" />
@@ -153,6 +153,13 @@
 </li>
 
 
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    Examples
+  </a>
+</li>
+
+
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="api/index.html">
     API
@@ -173,13 +180,6 @@
   </a>
 </li>
 
-
-<li class="nav-item ">
-  <a class="nav-link nav-internal" href="changelog.html">
-    Changelog
-  </a>
-</li>
-
             <li class="nav-item dropdown">
                 <button class="btn dropdown-toggle nav-item" type="button"
                 data-bs-toggle="dropdown" aria-expanded="false"
@@ -188,9 +188,9 @@
                 </button>
                 <ul id="pst-nav-more-links" class="dropdown-menu">
                     
-<li class=" current active">
-  <a class="nav-link dropdown-item nav-internal" href="#">
-    Examples
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="changelog.html">
+    Changelog
   </a>
 </li>
 
@@ -305,6 +305,13 @@
 </li>
 
 
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    Examples
+  </a>
+</li>
+
+
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="api/index.html">
     API
@@ -329,13 +336,6 @@
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="changelog.html">
     Changelog
-  </a>
-</li>
-
-
-<li class="nav-item current active">
-  <a class="nav-link nav-internal" href="#">
-    Examples
   </a>
 </li>
 
@@ -394,14 +394,41 @@
 <nav class="bd-docs-nav bd-links"
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
-  <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
-<li class="toctree-l1"><a class="reference internal" href="tutorials/forecasting_with_workflow_presets.html">Forecasting with Presets</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/hyperparameter_tuning_with_optuna.html">Define a base config with inline search space</a></li>
-
-
-
-
-<li class="toctree-l1"><a class="reference internal" href="tutorials/backtesting_openstef_with_beam.html">Backtesting with BEAM</a></li>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="tutorials/forecasting_quickstart.html">Forecasting Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/backtesting_quickstart.html">Backtesting Quickstart</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Model Training</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="tutorials/custom_pipeline.html">Custom Pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/feature_engineering.html">Feature Engineering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/ensemble_forecasting.html">Ensemble Forecasting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/hyperparameter_tuning_with_optuna.html">Hyperparameter Tuning</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Evaluation &amp; Analysis</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="tutorials/model_explainability.html">Model Explainability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/quantile_calibration.html">Quantile Calibration</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Benchmarks</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="benchmarks/README.html">Benchmarking Guide</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="benchmarks/liander2024/README.html">Liander 2024</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="benchmarks/liander2024/run_xgboost_gblinear_benchmark.html">XGBoost &amp; GBLinear</a></li>
+<li class="toctree-l2"><a class="reference internal" href="benchmarks/liander2024/run_ensemble_benchmark.html">Ensemble Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="benchmarks/liander2024/compare_benchmark_runs.html">Compare Results</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="benchmarks/custom/README.html">Build Your Own</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="benchmarks/custom/custom_forecaster.html">Implement a Custom Forecaster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="benchmarks/custom/custom_benchmark.html">Configure a Custom Benchmark</a></li>
+<li class="toctree-l2"><a class="reference internal" href="benchmarks/custom/run_liander2024_benchmark.html">Run on Liander 2024 Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="benchmarks/custom/run_custom_benchmark.html">Run on Your Own Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="benchmarks/custom/evaluate_existing_forecasts.html">Evaluate Existing Forecasts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="benchmarks/custom/compare_benchmark_runs.html">Compare Multiple Runs</a></li>
+</ul>
+</details></li>
 </ul>
 </div>
 </nav></div>
@@ -461,19 +488,122 @@
                   
   <section id="examples">
 <span id="id1"></span><h1>Examples<a class="headerlink" href="#examples" title="Link to this heading">#</a></h1>
-<p>End-to-end tutorials demonstrating OpenSTEF workflows. Each example is a runnable
-Jupyter notebook rendered with executed outputs.</p>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/forecasting_with_workflow_presets.html">Forecasting with Presets</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/hyperparameter_tuning_with_optuna.html">Define a base config with inline search space</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/hyperparameter_tuning_with_optuna.html#inspect-the-resolved-search-space">Inspect the resolved search space</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/hyperparameter_tuning_with_optuna.html#run-the-optuna-study-with-hyperparametertuner">Run the Optuna study with <code class="docutils literal notranslate"><span class="pre">HyperparameterTuner</span></code></a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/hyperparameter_tuning_with_optuna.html#the-fitted-workflow">The fitted workflow</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/hyperparameter_tuning_with_optuna.html#inspect-the-study-and-forecast">Inspect the study and forecast</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorials/backtesting_openstef_with_beam.html">Backtesting with BEAM</a></li>
-</ul>
+<p>End-to-end tutorials and benchmarks demonstrating OpenSTEF workflows. Each
+tutorial is a runnable Jupyter notebook rendered with executed outputs.</p>
+<section id="tutorials">
+<h2>Tutorials<a class="headerlink" href="#tutorials" title="Link to this heading">#</a></h2>
+<section id="getting-started">
+<h3>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 70.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Tutorial</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="tutorials/forecasting_quickstart.html"><span class="doc">Forecasting Quickstart</span></a></p></td>
+<td><p>Train your first XGBoost model and produce a 47-hour ahead forecast using the Liander dataset.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="tutorials/backtesting_quickstart.html"><span class="doc">Backtesting Quickstart</span></a></p></td>
+<td><p>Evaluate forecast accuracy on historical data using BEAM’s rolling-window backtesting pipeline.</p></td>
+</tr>
+</tbody>
+</table>
 </div>
+</section>
+<section id="model-training">
+<h3>Model Training<a class="headerlink" href="#model-training" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 70.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Tutorial</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="tutorials/custom_pipeline.html"><span class="doc">Custom Pipeline</span></a></p></td>
+<td><p>Build a forecasting workflow from scratch with custom transforms, feature selection, and callbacks.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="tutorials/feature_engineering.html"><span class="doc">Feature Engineering</span></a></p></td>
+<td><p>Explore transforms by domain, apply them individually, and compose preprocessing pipelines.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="tutorials/ensemble_forecasting.html"><span class="doc">Ensemble Forecasting</span></a></p></td>
+<td><p>Combine multiple models into an ensemble for improved accuracy and robustness.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="tutorials/hyperparameter_tuning_with_optuna.html"><span class="doc">Hyperparameter Tuning</span></a></p></td>
+<td><p>Optimize model hyperparameters using Optuna integration with cross-validated backtesting.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="evaluation-analysis">
+<h3>Evaluation &amp; Analysis<a class="headerlink" href="#evaluation-analysis" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 70.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Tutorial</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="tutorials/model_explainability.html"><span class="doc">Model Explainability</span></a></p></td>
+<td><p>Inspect feature importances, SHAP values, and contribution plots for trained models.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="tutorials/quantile_calibration.html"><span class="doc">Quantile Calibration</span></a></p></td>
+<td><p>Calibrate prediction intervals using isotonic regression for reliable uncertainty estimates.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</section>
+<section id="benchmarks">
+<h2>Benchmarks<a class="headerlink" href="#benchmarks" title="Link to this heading">#</a></h2>
+<p>Compare models on real energy data. These notebooks are <strong>not executed</strong> during
+the docs build — run them locally to reproduce results.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 70.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Benchmark</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="benchmarks/README.html"><span class="doc">Benchmarking Guide</span></a></p></td>
+<td><p>Overview of the benchmarking framework and how to interpret results.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="benchmarks/liander2024/README.html"><span class="doc">Liander 2024</span></a></p></td>
+<td><p>Full benchmark on Liander’s MV feeder dataset comparing XGBoost, LightGBM, and linear baselines.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="benchmarks/custom/README.html"><span class="doc">Build Your Own</span></a></p></td>
+<td><p>Template for creating custom benchmarks on your own data.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="toctree-wrapper compound">
+</div>
+<div class="toctree-wrapper compound">
+</div>
+<div class="toctree-wrapper compound">
+</div>
+<div class="toctree-wrapper compound">
+</div>
+</section>
 </section>
 
 
@@ -487,20 +617,20 @@ Jupyter notebook rendered with executed outputs.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="changelog.html"
+       href="user_guide/external_resources.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Changelog</p>
+        <p class="prev-next-title">External resources</p>
       </div>
     </a>
     <a class="right-next"
-       href="tutorials/forecasting_with_workflow_presets.html"
+       href="tutorials/forecasting_quickstart.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">🔮 Forecasting with OpenSTEF 4.0 Workflow Presets</p>
+        <p class="prev-next-title">Forecasting Quickstart</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -514,6 +644,26 @@ Jupyter notebook rendered with executed outputs.</p>
                 <dialog id="pst-secondary-sidebar-modal"></dialog>
                 <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
 
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tutorials">Tutorials</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#getting-started">Getting Started</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#model-training">Model Training</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#evaluation-analysis">Evaluation &amp; Analysis</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#benchmarks">Benchmarks</a><ul class="visible nav section-nav flex-column">
+</ul>
+</li>
+</ul>
+  </nav></div>
 
   <div class="sidebar-secondary-item">
 
