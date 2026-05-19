@@ -21,7 +21,7 @@ Step-by-step instructions for common OpenSTEF tasks.
         Build and run forecasting pipelines end-to-end.
 
     .. grid-item-card:: :fa:`gears` Feature Engineering
-        :link: feature_engineering
+        :link: feature_engineering_tutorial
         :link-type: doc
 
         Create, select, and manage features for your models.
@@ -67,7 +67,7 @@ Step-by-step instructions for common OpenSTEF tasks.
     :hidden:
 
     forecasting
-    feature_engineering
+    Feature Engineering <feature_engineering_tutorial>
     datasets
     probabilistic_forecasting
     reliability_fallback

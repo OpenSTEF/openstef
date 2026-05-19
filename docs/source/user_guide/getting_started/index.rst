@@ -21,7 +21,7 @@ Get up and running with OpenSTEF in minutes.
         Install OpenSTEF packages and set up your Python environment.
 
     .. grid-item-card:: :fa:`play` Quick Start
-        :link: /tutorials/forecasting_quickstart
+        :link: quick_start_tutorial
         :link-type: doc
 
         Train your first model and make a forecast in under 5 minutes.
@@ -37,4 +37,5 @@ Get up and running with OpenSTEF in minutes.
     :hidden:
 
     installation
+    quick_start_tutorial
     migration

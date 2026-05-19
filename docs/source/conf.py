@@ -12,6 +12,7 @@
 
 import importlib
 import pkgutil
+import sys
 from pathlib import Path
 import re
 from typing import Any
@@ -22,6 +23,10 @@ from sphinx.application import Sphinx
 import yaml
 
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent
+
+# Make docs/ importable so we can use sync_sources
+sys.path.insert(0, str(ROOT_DIR / "docs"))
+from sync_sources import sync as _sync_sources  # noqa: E402
 
 project = "OpenSTEF"
 copyright = "2017-2025 Contributors to the OpenSTEF project"
@@ -414,6 +419,9 @@ def _inject_pydantic_field_descriptions(
 
 def setup(app: Sphinx) -> None:
     """Sphinx setup function to make citation data available in templates."""
+    # Sync tutorial/benchmark sources into docs/source on every build
+    _sync_sources()
+
     if citation_cff:
         context_update: dict[str, object] = {
             "citation_cff": citation_cff,

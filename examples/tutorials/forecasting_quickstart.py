@@ -18,7 +18,6 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-# pyright: basic
 
 # %% [markdown]
 # # Forecasting Quickstart
