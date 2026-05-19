@@ -8,19 +8,17 @@ Provides matcher classes for use in test assertions when comparing pandas
 DataFrames and Series with equality semantics.
 """
 
+import logging
 from collections.abc import Sequence
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, override
+from typing import Any, override
 
 import numpy as np
 import pandas as pd
 
 from openstef_core.constants import LIANDER_DATASET_REPO_ID
 from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesDataset
-
-if TYPE_CHECKING:
-    import logging
 
 
 class IsSamePandas:
@@ -185,13 +183,10 @@ def load_liander_dataset(
     """
     try:
         from huggingface_hub import hf_hub_download  # pyright: ignore[reportUnknownVariableType]  # noqa: PLC0415
+        from huggingface_hub.utils import logging as hf_logging  # noqa: PLC0415
     except ImportError:
         msg = "huggingface-hub is required for benchmark datasets: pip install openstef-core[benchmark]"
         raise ImportError(msg) from None
-
-    import contextlib  # noqa: PLC0415
-    import io  # noqa: PLC0415
-    import logging as _logging  # noqa: PLC0415
 
     files_to_download = [
         f"load_measurements/{target}.parquet",
@@ -201,19 +196,15 @@ def load_liander_dataset(
         *(extra_files or []),
     ]
 
-    # Suppress the HF Hub "unauthenticated requests" message written directly to stderr
-    hf_logger = _logging.getLogger("huggingface_hub.utils._http")
-    prev_level = hf_logger.level
-    hf_logger.setLevel(_logging.ERROR)
-    with contextlib.redirect_stderr(io.StringIO()):
-        for filename in files_to_download:
-            hf_hub_download(  # pyright: ignore[reportCallIssue]
-                repo_id=repo_id,
-                filename=filename,
-                repo_type="dataset",
-                local_dir=local_dir,
-            )
-    hf_logger.setLevel(prev_level)
+    # Suppress HF Hub noise (unauthenticated requests warning, progress bars)
+    hf_logging.set_verbosity_error()
+    for filename in files_to_download:
+        hf_hub_download(  # pyright: ignore[reportCallIssue]
+            repo_id=repo_id,
+            filename=filename,
+            repo_type="dataset",
+            local_dir=local_dir,
+        )
 
     datasets = [VersionedTimeSeriesDataset.read_parquet(local_dir / f) for f in files_to_download]
     return VersionedTimeSeriesDataset.concat(datasets, mode="left").select_version()
@@ -259,7 +250,7 @@ _DEFAULT_NOISY_LOGGERS: tuple[str, ...] = (
 def setup_notebook_logging(
     name: str | None = None,
     suppress: Sequence[str] | None = None,
-) -> "logging.Logger":
+) -> logging.Logger:
     """Configure logging for tutorial notebooks and return a named logger.
 
     Sets the root logger to INFO level and silences the loggers in *suppress*
@@ -274,8 +265,6 @@ def setup_notebook_logging(
     Returns:
         Configured Logger instance.
     """
-    import logging  # noqa: PLC0415
-
     noisy = suppress if suppress is not None else _DEFAULT_NOISY_LOGGERS
     logging.basicConfig(level=logging.INFO, format="[%(asctime)s][%(levelname)s] %(message)s")
     for logger_name in noisy:
