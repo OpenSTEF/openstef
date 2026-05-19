@@ -61,9 +61,9 @@ logger = setup_notebook_logging(
 # matters for energy forecasting, and shows how to build your own.
 #
 # ```{seealso}
-# - {doc}`custom_pipeline` — full end-to-end custom model assembly
-# - {doc}`forecasting_quickstart` — standard approach using presets
-# - {doc}`quantile_calibration` — deep-dive into postprocessing calibration
+# - {doc}`/tutorials/custom_pipeline` — full end-to-end custom model assembly
+# - {doc}`/tutorials/forecasting_quickstart` — standard approach using presets
+# - {doc}`/tutorials/quantile_calibration` — deep-dive into postprocessing calibration
 # ```
 
 # %% [markdown]
@@ -142,7 +142,7 @@ from openstef_models.transforms.time_domain import CyclicFeaturesAdder
 cyclic = CyclicFeaturesAdder()
 result = cyclic.transform(sample)
 
-cyclic_cols = [c for c in result.data.columns if c not in sample.data.columns]
+cyclic_cols = cyclic.features_added()
 print(f"Added {len(cyclic_cols)} columns: {cyclic_cols}")
 
 # %% tags=["hide-input"]
@@ -189,7 +189,7 @@ from openstef_models.transforms.time_domain import HolidayFeatureAdder
 holidays = HolidayFeatureAdder(country_code="NL")
 result = holidays.transform(sample)
 
-holiday_cols = [c for c in result.data.columns if c not in sample.data.columns]
+holiday_cols = holidays.features_added()
 print(f"Added {len(holiday_cols)} columns: {holiday_cols}")
 
 # %% tags=["hide-input"]
@@ -247,28 +247,30 @@ lags = LagsAdder(
 )
 result = lags.transform(sample)
 
-lag_cols = [c for c in result.data.columns if c not in sample.data.columns]
+lag_cols = lags.features_added()
 print(f"Added {len(lag_cols)} lag columns: {lag_cols[:5]}")
 
 # %% tags=["hide-input"]
-# Plot load vs its 7-day lag
-one_week = result.data.iloc[672:1344]
+# Plot load vs its 7-day lag over 2 weeks
+two_weeks = result.data.iloc[672:2016]
 lag_7d_col = [c for c in lag_cols if "7 day" in c.lower() or "168" in c]
 target_col = lag_7d_col[0] if lag_7d_col else lag_cols[0]
 
 fig = go.Figure()
-fig.add_trace(go.Scatter(x=one_week.index, y=one_week["load"], mode="lines", name="Current Load", line={"width": 1.5}))
+fig.add_trace(
+    go.Scatter(x=two_weeks.index, y=two_weeks["load"], mode="lines", name="Current Load", line={"width": 1.5})
+)
 fig.add_trace(
     go.Scatter(
-        x=one_week.index,
-        y=one_week[target_col],
+        x=two_weeks.index,
+        y=two_weeks[target_col],
         mode="lines",
         name=f"Lag: {target_col}",
         line={"width": 1.5, "dash": "dash"},
     )
 )
 fig.update_layout(
-    title="Load vs. 7-Day Lag — Weekly Pattern Repeats",
+    title="Load vs. 7-Day Lag Over 2 Weeks — Weekly Pattern Repeats",
     xaxis_title="Time",
     yaxis_title=LOAD_LABEL,
     height=350,
@@ -298,7 +300,7 @@ rolling = RollingAggregatesAdder(
 rolling.fit(sample)
 result = rolling.transform(sample)
 
-rolling_cols = [c for c in result.data.columns if c not in sample.data.columns]
+rolling_cols = rolling.features_added()
 print(f"Added: {rolling_cols}")
 
 # %% tags=["hide-input"]
@@ -340,7 +342,7 @@ from openstef_models.transforms.time_domain import DatetimeFeaturesAdder
 dt_features = DatetimeFeaturesAdder()
 result = dt_features.transform(sample)
 
-dt_cols = [c for c in result.data.columns if c not in sample.data.columns]
+dt_cols = dt_features.features_added()
 print(f"Added {len(dt_cols)} columns: {dt_cols}")
 result.data[dt_cols].head(8)
 
@@ -428,40 +430,21 @@ from openstef_models.transforms.weather_domain import DaylightFeatureAdder
 daylight = DaylightFeatureAdder(coordinate=(52.0, 5.9))
 result = daylight.transform(sample)
 
-daylight_cols = [c for c in result.data.columns if c not in sample.data.columns]
+daylight_cols = daylight.features_added()
 print(f"Added: {daylight_cols}")
 
 # %% tags=["hide-input"]
-fig = make_subplots(
-    rows=2,
-    cols=1,
-    shared_xaxes=True,
-    vertical_spacing=0.08,
-    subplot_titles=("Daily Load Envelope", "Daylight Duration"),
+# Show the raw daylight feature over the full 3-month period
+# The expanding bright periods from March→May show lengthening days
+dl_col = daylight_cols[0]
+fig = go.Figure()
+fig.add_trace(go.Scatter(x=result.data.index, y=result.data[dl_col], mode="lines", name=dl_col, line={"width": 0.5}))
+fig.update_layout(
+    title="Daylight Feature (Mar-May): Days Visibly Getting Longer",
+    yaxis_title=dl_col,
+    height=300,
+    template="plotly_white",
 )
-daily = result.data["load"].resample("D")
-fig.add_trace(
-    go.Scatter(x=daily.max().index, y=daily.max().values, mode="lines", name="Daily Max", line={"width": 1}),
-    row=1,
-    col=1,
-)
-fig.add_trace(
-    go.Scatter(
-        x=daily.min().index, y=daily.min().values, mode="lines", name="Daily Min", line={"width": 1}, fill="tonexty"
-    ),
-    row=1,
-    col=1,
-)
-
-dl_col = [c for c in daylight_cols if "continuous" in c or "duration" in c]
-if dl_col:
-    dl_daily = result.data[dl_col[0]].resample("D").mean()
-    fig.add_trace(
-        go.Scatter(x=dl_daily.index, y=dl_daily.values, mode=MODE_LINES_MARKERS, name=dl_col[0], line={"width": 2}),
-        row=2,
-        col=1,
-    )
-fig.update_layout(height=400, template="plotly_white", title="Daylight Increases Through March — Affecting Load")
 fig.show()
 
 # %% [markdown]
@@ -473,20 +456,20 @@ fig.show()
 # **Why for energy forecasting:**
 # - **Dewpoint** → discomfort threshold → HVAC demand
 # - **Air density** → affects wind turbine output
-# - **Humidity** → reduces PV efficiency
+# - **Vapour pressure** → humidity signal for HVAC & PV efficiency
 
 # %%
 from openstef_models.transforms.weather_domain import AtmosphereDerivedFeaturesAdder
 
 atmosphere = AtmosphereDerivedFeaturesAdder(
-    included_features=["dewpoint", "air_density"],
+    included_features=["dewpoint", "air_density", "vapour_pressure"],
     temperature_column="temperature_2m",
     pressure_column="surface_pressure",
     relative_humidity_column="relative_humidity_2m",
 )
 result = atmosphere.transform(sample)
 
-atmo_cols = [c for c in result.data.columns if c not in sample.data.columns]
+atmo_cols = atmosphere.features_added()
 print(f"Added: {atmo_cols}")
 result.data[atmo_cols].describe().loc[["mean", "std", "min", "max"]]
 
@@ -514,7 +497,7 @@ radiation = RadiationDerivedFeaturesAdder(
 )
 result = radiation.transform(sample)
 
-rad_cols = [c for c in result.data.columns if c not in sample.data.columns]
+rad_cols = radiation.features_added()
 print(f"Added: {rad_cols}")
 
 # %% tags=["hide-input"]
@@ -563,34 +546,28 @@ wind = WindPowerFeatureAdder(
 )
 result = wind.transform(sample)
 
-wind_cols = [c for c in result.data.columns if c not in sample.data.columns]
+wind_cols = wind.features_added()
 print(f"Added: {wind_cols}")
 
 # %% tags=["hide-input"]
-fig = make_subplots(rows=1, cols=2, subplot_titles=("Wind Speed (Hub Height)", "Estimated Power"))
+# Power curve: wind speed vs estimated power (non-linear relationship)
+fig = go.Figure()
 fig.add_trace(
-    go.Scatter(
-        x=result.data.index[:672],
-        y=result.data["windspeed_hub_height"].iloc[:672],
-        mode="lines",
-        name="Speed",
-        line={"width": 1},
-    ),
-    row=1,
-    col=1,
+    go.Scattergl(
+        x=result.data["windspeed_hub_height"],
+        y=result.data["wind_power"],
+        mode="markers",
+        name="Power curve",
+        marker={"size": 2, "opacity": 0.5, "color": "green"},
+    )
 )
-fig.add_trace(
-    go.Scatter(
-        x=result.data.index[:672],
-        y=result.data["wind_power"].iloc[:672],
-        mode="lines",
-        name="Power",
-        line={"width": 1.5, "color": "green"},
-    ),
-    row=1,
-    col=2,
+fig.update_layout(
+    title="Wind Power Curve: Speed → Power (Sigmoid)",
+    xaxis_title="Wind Speed at Hub Height (m/s)",
+    yaxis_title="Estimated Wind Power (normalized)",
+    height=350,
+    template="plotly_white",
 )
-fig.update_layout(height=280, template="plotly_white", title="Wind Speed → Power: Non-Linear Sigmoid Conversion")
 fig.show()
 
 # %% [markdown]
@@ -619,15 +596,16 @@ noisy[mask] = np.nan
 noisy_ds = TimeSeriesDataset(data=noisy, sample_interval=sample.sample_interval)
 
 result = imputer.fit_transform(noisy_ds)
-print(f"Before: {noisy_ds.data.isna().sum().sum():,} NaN values")
-print(f"After:  {result.data.isna().sum().sum():,} NaN values (load preserved)")
+print("NaN count per column:")
+nan_comparison = pd.DataFrame({"before": noisy_ds.data.isna().sum(), "after": result.data.isna().sum()})
+print(nan_comparison[nan_comparison["before"] > 0].to_string())
 
 # %% [markdown]
 # ### {class}`~openstef_models.transforms.general.Scaler`
 #
 # **What:** Standardizes features to zero mean / unit variance.
 #
-# **Why:** Features on different scales (temperature 0-16C vs radiation 0-633 W/m2)
+# **Why:** Features on different scales (temperature 0-16 °C vs radiation 0-633 W/m²)
 # need normalization for neural networks and fair regularization.
 
 # %%
@@ -683,31 +661,40 @@ print(f"Wind speed 100 m/s → clipped to {result.data['wind_speed_10m'].iloc[20
 
 # %%
 from openstef_models.transforms.general import SampleWeighter
+from openstef_models.transforms.general.sample_weighter import SampleWeightConfig
 
-weighter = SampleWeighter()
-result = weighter.fit_transform(sample)
+# Compare two weighting methods
+weighter_exp = SampleWeighter(config=SampleWeightConfig(method="exponential"))
+weighter_inv = SampleWeighter(config=SampleWeightConfig(method="inverse_frequency"))
+
+result_exp = weighter_exp.fit_transform(sample)
+result_inv = weighter_inv.fit_transform(sample)
 
 # %% tags=["hide-input"]
-fig = go.Figure()
-fig.add_trace(
-    go.Scatter(
-        x=result.data.index[:672],
-        y=result.data["load"].iloc[:672],
-        mode="markers",
-        name="Load",
-        marker={
-            "size": 3,
-            "color": result.data["sample_weight"].iloc[:672],
-            "colorscale": "YlOrRd",
-            "showscale": True,
-            "colorbar": {"title": "Weight"},
-        },
+fig = make_subplots(rows=1, cols=2, subplot_titles=("Exponential", "Inverse Frequency"))
+for col_idx, (result, label) in enumerate([(result_exp, "exponential"), (result_inv, "inverse_frequency")], start=1):
+    fig.add_trace(
+        go.Scatter(
+            x=result.data.index[:672],
+            y=result.data["load"].iloc[:672],
+            mode="markers",
+            name=label,
+            marker={
+                "size": 3,
+                "color": result.data["sample_weight"].iloc[:672],
+                "colorscale": "YlOrRd",
+                "showscale": col_idx == 2,
+                "colorbar": {"title": "Weight", "x": 1.02, "len": 0.8},
+            },
+        ),
+        row=1,
+        col=col_idx,
     )
-)
 fig.update_layout(
-    title="Sample Weights: Peak Loads Get Higher Training Importance",
-    yaxis_title=LOAD_LABEL,
+    title="Sample Weighting Methods",
     height=350,
+    width=900,
+    showlegend=False,
     template="plotly_white",
 )
 fig.show()
@@ -767,7 +754,7 @@ sparse_ds = TimeSeriesDataset(data=sparse, sample_interval=sample.sample_interva
 
 try:
     checker.transform(sparse_ds)
-except (InsufficientlyCompleteError, MissingColumnsError) as e:
+except InsufficientlyCompleteError as e:
     print(f"✗ Rejected: {type(e).__name__}")
 
 # %% tags=["hide-input"]
@@ -822,7 +809,7 @@ flat_ds = TimeSeriesDataset(data=flat_data, sample_interval=sample.sample_interv
 
 try:
     flatliner.transform(flat_ds)
-except (FlatlinerDetectedError, MissingColumnsError) as e:
+except FlatlinerDetectedError as e:
     print(f"✗ Caught: {type(e).__name__}")
 
 # %% tags=["hide-input"]
@@ -881,7 +868,7 @@ except MissingColumnsError as e:
 # | {class}`~openstef_models.transforms.postprocessing.IsotonicQuantileCalibrator` | Calibrates quantiles via isotonic regression | {class}`~openstef_models.transforms.postprocessing.IsotonicQuantileCalibrator` |
 # | {class}`~openstef_models.transforms.postprocessing.QuantileSorter` | Ensures q10 ≤ q50 ≤ q90 | {class}`~openstef_models.transforms.postprocessing.QuantileSorter` |
 #
-# See {doc}`quantile_calibration` for a full walkthrough. Conceptual usage:
+# See {doc}`/tutorials/quantile_calibration` for a full walkthrough. Conceptual usage:
 #
 # ```python
 # from openstef_core.mixins import TransformPipeline
@@ -974,12 +961,15 @@ fig.show()
 # ---
 # ## 8. Composing a Full Pipeline
 #
-# Order matters: **validation → features → cleaning**.
+# Order matters: **validation → features → cleaning** for preprocessing.
+# Postprocessing operates on forecasts and refines model outputs.
+#
+# ### Preprocessing pipeline
 
 # %%
 from openstef_core.mixins import TransformPipeline
 
-pipeline = TransformPipeline(
+preprocessing = TransformPipeline(
     transforms=[
         # 1. Validation
         CompletenessChecker(completeness_threshold=0.5),
@@ -1004,10 +994,53 @@ pipeline = TransformPipeline(
     ]
 )
 
-result = pipeline.fit_transform(sample)
+result = preprocessing.fit_transform(sample)
 print(
     f"Input: {sample.data.shape[1]} cols → Output: {result.data.shape[1]} cols (+{result.data.shape[1] - sample.data.shape[1]} features)"
 )
+
+# %% [markdown]
+# ### Postprocessing pipeline
+#
+# After prediction, postprocessing transforms refine model outputs (e.g.,
+# prediction intervals, quantile sorting). These operate on
+# {class}`~openstef_core.datasets.ForecastDataset`.
+
+# %% tags=["hide-input"]
+import numpy as np
+
+from openstef_core.datasets import ForecastDataset
+from openstef_core.types import Quantile
+from openstef_models.transforms.postprocessing import (
+    ConfidenceIntervalApplicator,
+    QuantileSorter,
+)
+
+# Create a synthetic forecast: median prediction = load + small noise
+rng = np.random.default_rng(42)
+forecast_index = sample.data.index[-192:]  # last 2 days
+actuals = sample.data["load"].iloc[-192:]
+median_pred = actuals + rng.normal(0, 0.05, len(forecast_index))
+
+# Build a ForecastDataset with median predictions and actuals
+forecast_df = pd.DataFrame(
+    {"quantile_P50": median_pred, "load": actuals},
+    index=forecast_index,
+)
+forecast_dataset = ForecastDataset(data=forecast_df, sample_interval=sample.sample_interval)
+
+# %%
+# Fit CI applicator on "validation" data, then add quantile bands
+quantiles = [Quantile(0.1), Quantile(0.5), Quantile(0.9)]
+postprocessing = TransformPipeline(
+    transforms=[
+        ConfidenceIntervalApplicator(quantiles=quantiles),
+        QuantileSorter(),
+    ]
+)
+calibrated = postprocessing.fit_transform(forecast_dataset)
+print(f"Forecast columns: {list(calibrated.data.columns)}")
+print(calibrated.data[["quantile_P10", "quantile_P50", "quantile_P90"]].head())
 
 # %% [markdown]
 # ## Summary
@@ -1036,6 +1069,6 @@ print(
 # ```{seealso}
 # - {class}`~openstef_core.mixins.transform.TransformPipeline` — composing transforms
 # - {class}`~openstef_core.transforms.dataset_transforms.TimeSeriesTransform` — base class
-# - {doc}`custom_pipeline` — transforms in a full forecasting model
-# - {doc}`quantile_calibration` — postprocessing deep-dive
+# - {doc}`/tutorials/custom_pipeline` — transforms in a full forecasting model
+# - {doc}`/tutorials/quantile_calibration` — postprocessing deep-dive
 # ```
