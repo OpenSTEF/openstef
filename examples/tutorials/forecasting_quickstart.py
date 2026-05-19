@@ -110,7 +110,7 @@ print(
     f"{predict_dataset.data.index.min():%Y-%m-%d} to {predict_dataset.data.index.max():%Y-%m-%d}"
 )
 
-# %%
+# %% tags=["hide-input"]
 # Quick look at the target variable
 fig = cast(Any, train_dataset.data[["load"]].plot(title="Training period — energy load"))
 fig.update_layout(yaxis_title="Load (MW)", xaxis_title="Time")
@@ -198,7 +198,7 @@ assert forecast.quantiles is not None, "Quantile data should be present"
 # [`ForecastTimeSeriesPlotter`](https://openstef.github.io/openstef/v4/api/generated/openstef_beam.analysis.plots.ForecastTimeSeriesPlotter.html) overlays measurements and predictions with shaded
 # confidence bands in a single interactive chart.
 
-# %%
+# %% tags=["hide-input"]
 from openstef_beam.analysis.plots import ForecastTimeSeriesPlotter
 
 fig = (

@@ -256,7 +256,7 @@ for subset_report in report.subset_reports:
 # each lead-time subset.  We use this directly for visualization — it
 # shows only day-ahead predictions aligned with their corresponding actuals.
 
-# %%
+# %% tags=["hide-input"]
 from openstef_beam.analysis.plots import ForecastTimeSeriesPlotter
 
 # The evaluation subset contains actuals + predictions filtered by lead time

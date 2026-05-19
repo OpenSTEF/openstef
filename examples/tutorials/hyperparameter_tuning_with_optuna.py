@@ -120,7 +120,7 @@ from openstef_models.models.forecasting.xgboost_forecaster import XGBoostHyperPa
 default_hp = XGBoostHyperParams()
 default_space = default_hp.get_search_space()
 print(f"Default tunable parameters: {len(default_space)}")
-print("(None — all parameters use their fixed defaults until you opt in)")
+print("(All parameters use their fixed defaults until you opt in with tune=True)")
 
 # %% [markdown]
 # ## Customizing the search space
@@ -280,7 +280,7 @@ for field in type(best_hp).model_fields:
 # The optimization history shows how rCRPS decreased over trials.  With only
 # 5 trials results are noisy — increase `n_trials` for smoother convergence.
 
-# %%
+# %% tags=["hide-input"]
 from optuna.visualization import plot_optimization_history
 
 fig = plot_optimization_history(tuning_result.study)
@@ -295,7 +295,7 @@ fig.show()
 # {doc}`backtesting_quickstart` to measure the gain over a realistic
 # operational timeline.
 
-# %%
+# %% tags=["hide-input"]
 from openstef_beam.analysis.plots import ForecastTimeSeriesPlotter
 
 tuned_forecast = tuning_result.workflow.predict(predict_dataset, forecast_start=train_end)

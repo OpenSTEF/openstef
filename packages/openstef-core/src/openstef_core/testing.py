@@ -189,6 +189,10 @@ def load_liander_dataset(
         msg = "huggingface-hub is required for benchmark datasets: pip install openstef-core[benchmark]"
         raise ImportError(msg) from None
 
+    import contextlib  # noqa: PLC0415
+    import io  # noqa: PLC0415
+    import logging as _logging  # noqa: PLC0415
+
     files_to_download = [
         f"load_measurements/{target}.parquet",
         f"weather_forecasts_versioned/{target}.parquet",
@@ -197,14 +201,19 @@ def load_liander_dataset(
         *(extra_files or []),
     ]
 
-    for filename in files_to_download:
-        hf_hub_download(  # pyright: ignore[reportCallIssue]
-            repo_id=repo_id,
-            filename=filename,
-            repo_type="dataset",
-            local_dir=local_dir,
-            local_dir_use_symlinks=False,
-        )
+    # Suppress the HF Hub "unauthenticated requests" message written directly to stderr
+    hf_logger = _logging.getLogger("huggingface_hub.utils._http")
+    prev_level = hf_logger.level
+    hf_logger.setLevel(_logging.ERROR)
+    with contextlib.redirect_stderr(io.StringIO()):
+        for filename in files_to_download:
+            hf_hub_download(  # pyright: ignore[reportCallIssue]
+                repo_id=repo_id,
+                filename=filename,
+                repo_type="dataset",
+                local_dir=local_dir,
+            )
+    hf_logger.setLevel(prev_level)
 
     datasets = [VersionedTimeSeriesDataset.read_parquet(local_dir / f) for f in files_to_download]
     return VersionedTimeSeriesDataset.concat(datasets, mode="left").select_version()
@@ -238,7 +247,13 @@ def configure_notebook_display(renderer: str = "png") -> None:
     pio.renderers.default = renderer
 
 
-_DEFAULT_NOISY_LOGGERS: tuple[str, ...] = ("choreographer", "kaleido")
+_DEFAULT_NOISY_LOGGERS: tuple[str, ...] = (
+    "choreographer",
+    "kaleido",
+    "huggingface_hub",
+    "huggingface_hub.utils._http",
+    "openstef_core.datasets.timeseries_dataset",
+)
 
 
 def setup_notebook_logging(
@@ -248,12 +263,13 @@ def setup_notebook_logging(
     """Configure logging for tutorial notebooks and return a named logger.
 
     Sets the root logger to INFO level and silences the loggers in *suppress*
-    by raising their level to ERROR and disabling them entirely.
+    by raising their level to ERROR and disabling propagation.  Child loggers
+    sharing a prefix are also silenced.
 
     Args:
         name: Logger name, typically ``__name__`` of the calling module.
         suppress: Sequence of logger names to silence.  Defaults to
-            ``("choreographer", "kaleido")``.
+            ``_DEFAULT_NOISY_LOGGERS``.
 
     Returns:
         Configured Logger instance.
@@ -263,8 +279,16 @@ def setup_notebook_logging(
     noisy = suppress if suppress is not None else _DEFAULT_NOISY_LOGGERS
     logging.basicConfig(level=logging.INFO, format="[%(asctime)s][%(levelname)s] %(message)s")
     for logger_name in noisy:
-        logging.getLogger(logger_name).setLevel(logging.ERROR)
-        logging.getLogger(logger_name).disabled = True
+        lgr = logging.getLogger(logger_name)
+        lgr.setLevel(logging.ERROR)
+        lgr.propagate = False
+        # Also silence any existing child loggers
+        prefix = logger_name + "."
+        for key in list(logging.Logger.manager.loggerDict):
+            if key.startswith(prefix):
+                child = logging.getLogger(key)
+                child.setLevel(logging.ERROR)
+                child.propagate = False
     return logging.getLogger(name)
 
 

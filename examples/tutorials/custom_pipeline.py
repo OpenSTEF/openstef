@@ -235,7 +235,7 @@ assert len(forecast.data) > 100, f"Expected >100 forecast rows, got {len(forecas
 # %% [markdown]
 # ## Visualize the result
 
-# %%
+# %% tags=["hide-input"]
 from openstef_beam.analysis.plots import ForecastTimeSeriesPlotter
 
 fig = (
@@ -281,8 +281,7 @@ single_transform = CyclicFeaturesAdder()
 single_transform.fit(train_dataset)
 result_single = single_transform.transform(train_dataset)
 
-added = sorted(set(result_single.data.columns) - set(train_dataset.data.columns))
-print(f"CyclicFeaturesAdder added {len(added)} columns: {added}")
+print(f"CyclicFeaturesAdder added {len(single_transform.features_added)} columns: {single_transform.features_added}")
 
 # %% [markdown]
 # ### Call the forecaster directly

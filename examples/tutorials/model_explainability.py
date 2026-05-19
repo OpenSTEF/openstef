@@ -122,7 +122,7 @@ assert result is not None, "Training should produce a result"
 # predictions.  The [`FeatureImportancePlotter`](https://openstef.github.io/openstef/v4/api/generated/openstef_models.explainability.FeatureImportancePlotter.html) treemap visualization groups features by magnitude — larger
 # tiles represent more influential features.
 
-# %%
+# %% tags=["hide-input"]
 from openstef_models.explainability import ExplainableForecaster
 from openstef_models.models.forecasting_model import ForecastingModel
 
@@ -163,7 +163,7 @@ assert "bias" in contributions.data.columns, "Contributions should include bias 
 # contributions (pushing the prediction up), blue cells indicate negative ones.
 # The prediction line overlays the total.
 
-# %%
+# %% tags=["hide-input"]
 fig = ContributionsPlotter.plot_heatmap(contributions, top_n=10, show_prediction=True)
 fig.update_layout(height=500)
 fig.show()
@@ -177,7 +177,7 @@ fig.show()
 # features dominate unexpectedly, consider adjusting the pipeline via
 # {doc}`custom_pipeline`.
 
-# %%
+# %% tags=["hide-input"]
 fig = ContributionsPlotter.plot_bar(contributions, top_n=12)
 fig.update_layout(title="Mean absolute contribution per feature", height=450)
 fig.show()
@@ -189,7 +189,7 @@ fig.show()
 # Starting from the bias (baseline prediction), each feature adds or subtracts
 # from the final value.
 
-# %%
+# %% tags=["hide-input"]
 fig = ContributionsPlotter.plot_waterfall(contributions, timestep=48, top_n=10)
 fig.update_layout(title="Prediction decomposition (timestep 48)", height=500)
 fig.show()

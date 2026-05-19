@@ -150,6 +150,7 @@ napoleon_custom_sections = ["Invariants"]
 # Configure MyST for docstrings
 myst_enable_extensions = [
     "deflist",
+    "dollarmath",
     "tasklist",
     "colon_fence",
 ]

@@ -195,7 +195,7 @@ comparison_df = pd.DataFrame({
 })
 print(comparison_df.to_string(index=False))
 
-# %%
+# %% tags=["hide-input"]
 fig = go.Figure()
 
 fig.add_trace(  # pyright: ignore[reportUnknownMemberType]

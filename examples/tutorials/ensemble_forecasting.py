@@ -221,7 +221,7 @@ for model_type in ["lgbm", "gblinear"]:
 # %% [markdown]
 # ## Visualize the comparison
 
-# %%
+# %% tags=["hide-input"]
 from openstef_beam.analysis.plots import ForecastTimeSeriesPlotter
 
 plotter = ForecastTimeSeriesPlotter()
@@ -278,7 +278,7 @@ print(importances.to_string())
 # More informative is the **per-timestamp weight** — the actual probability
 # the combiner assigns to each model at each point in time during forecasting.
 
-# %%
+# %% tags=["hide-input"]
 # Reproduce the internal flow to extract per-timestamp weights
 ensemble_dataset = ensemble_model._predict_forecasters(predict_dataset, forecast_start=train_end)
 base_preds = ensemble_dataset.get_base_predictions_for_quantile(Q(0.5))
