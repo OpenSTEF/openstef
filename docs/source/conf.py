@@ -12,6 +12,7 @@
 
 import importlib
 import pkgutil
+import sys
 from pathlib import Path
 import re
 from typing import Any
@@ -22,6 +23,10 @@ from sphinx.application import Sphinx
 import yaml
 
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent
+
+# Make docs/ importable so we can use sync_sources
+sys.path.insert(0, str(ROOT_DIR / "docs"))
+from sync_sources import sync as _sync_sources  # noqa: E402
 
 project = "OpenSTEF"
 copyright = "2017-2025 Contributors to the OpenSTEF project"
@@ -156,17 +161,21 @@ napoleon_custom_sections = ["Invariants"]
 # Configure MyST for docstrings
 myst_enable_extensions = [
     "deflist",
+    "dollarmath",
     "tasklist",
     "colon_fence",
 ]
 
 # -- Notebook execution (myst-nb) -------------------------------------------
 nb_custom_formats = {".py": ["jupytext.reads", {"fmt": "py:percent"}]}
-nb_execution_mode = "off"  # TODO(#884): enable "cache" once tutorials are optimized for faster execution
+nb_execution_mode = "cache"
+nb_execution_cache_path = str(ROOT_DIR / "docs" / "build" / ".jupyter_cache")
 nb_execution_timeout = 120
 nb_execution_raise_on_error = True
-# TODO(#884): backtesting notebook exceeds timeout — needs rewrite or execution split
-nb_execution_excludepatterns = ["tutorials/backtesting_openstef_with_beam*"]
+nb_execution_excludepatterns = [
+    "benchmarks/*",  # Benchmarks are too expensive to execute during docs build
+    "benchmarks/*/*",
+]
 
 # Sphinx version switcher
 config = SphinxConfig("../../pyproject.toml", globalns=globals())
@@ -417,6 +426,9 @@ def _inject_pydantic_field_descriptions(
 
 def setup(app: Sphinx) -> None:
     """Sphinx setup function to make citation data available in templates."""
+    # Sync tutorial/benchmark sources into docs/source on every build
+    _sync_sources()
+
     if citation_cff:
         context_update: dict[str, object] = {
             "citation_cff": citation_cff,

@@ -15,11 +15,15 @@ from openstef_models.transforms.time_domain.datetime_features_adder import (
     DatetimeFeaturesAdder,
 )
 from openstef_models.transforms.time_domain.holiday_features_adder import HolidayFeatureAdder
+from openstef_models.transforms.time_domain.lags_adder import LagsAdder
 from openstef_models.transforms.time_domain.rolling_aggregates_adder import RollingAggregatesAdder
+from openstef_models.transforms.time_domain.versioned_lags_adder import VersionedLagsAdder
 
 __all__ = [
     "CyclicFeaturesAdder",
     "DatetimeFeaturesAdder",
     "HolidayFeatureAdder",
+    "LagsAdder",
     "RollingAggregatesAdder",
+    "VersionedLagsAdder",
 ]

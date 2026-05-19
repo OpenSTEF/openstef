@@ -127,16 +127,33 @@ lint.ignore = [
   "TC006",  # Let's not force quoting the first param of typing.cast
   "TRY003", # simplify exception messages
 ]
-lint.per-file-ignores."./examples/tutorials/*" = [
-  "D100",   # Notebooks don't need module docstrings
+lint.per-file-ignores."./examples/benchmarks/custom/*" = [
   "E402",   # Imports not at top — notebook cells have natural ordering
-  "E501",   # Long lines in notebooks — readability is cell-scoped
+  "E501",   # Long lines in markdown cells (API doc URLs)
   "ERA001", # Jupytext YAML frontmatter looks like commented-out code
-  "F821",   # Cell-scoped names appear undefined to Ruff's module-level analysis
-  "INP001", # Not a namespace package — notebooks don't need __init__.py
-  "PTH",    # Tutorials may use os.path for simplicity
-  "S101",   # Tutorials may use assert for runtime checks
-  "T201",   # Tutorials may use print for demonstration
+  "T201",   # Benchmarks may use print for demonstration
+]
+lint.per-file-ignores."./examples/benchmarks/liander2024/*" = [
+  "D100",   # Module docstring is in a remove-cell for clean notebook rendering
+  "E402",   # Imports not at top — os.environ must be set before imports
+  "E501",   # Long lines in markdown cells (API doc URLs)
+  "ERA001", # Jupytext YAML frontmatter looks like commented-out code
+  "T201",   # Benchmarks may use print for demonstration
+]
+lint.per-file-ignores."./examples/tutorials/*" = [
+  "D100",    # Notebooks don't need module docstrings
+  "D103",    # Inline helpers in notebooks don't need docstrings
+  "E402",    # Imports not at top — notebook cells have natural ordering
+  "E501",    # Long lines in notebooks — readability is cell-scoped
+  "ERA001",  # Jupytext YAML frontmatter looks like commented-out code
+  "F821",    # Cell-scoped names appear undefined to Ruff's module-level analysis
+  "INP001",  # Not a namespace package — notebooks don't need __init__.py
+  "PLR2004", # Magic values in assertions are fine for notebook checks
+  "PT018",   # Assertion style doesn't matter in notebooks
+  "PTH",     # Tutorials may use os.path for simplicity
+  "S101",    # Tutorials may use assert for runtime checks
+  "SLF001",  # Private member access needed to demonstrate internals
+  "T201",    # Tutorials may use print for demonstration
 ]
 lint.per-file-ignores."./packages/*/tests/*" = [
   "ARG",     # Unused function args -> fixtures nevertheless are functionally relevant...
@@ -285,17 +302,24 @@ cmd = "pytest --numprocesses=auto --doctest-modules packages/*/src --maxfail=1"
 
 [tool.poe.tasks.notebooks]
 help = "Sync jupytext .py percent sources → .ipynb notebooks (and vice versa)"
-cmd = "jupytext --sync examples/tutorials/*.py"
+sequence = [
+  { cmd = "jupytext --sync examples/tutorials/*.py" },
+  { cmd = "jupytext --sync examples/benchmarks/custom/*.py examples/benchmarks/liander2024/*.py" },
+]
 
 [tool.poe.tasks.notebooks-clear]
 help = "Strip outputs from all .ipynb notebooks"
-cmd = "jupyter nbconvert --clear-output --inplace examples/tutorials/*.ipynb"
+sequence = [
+  { cmd = "jupyter nbconvert --clear-output --inplace examples/tutorials/*.ipynb" },
+  { cmd = "jupyter nbconvert --clear-output --inplace examples/benchmarks/custom/*.ipynb examples/benchmarks/liander2024/*.ipynb" },
+]
 
 [tool.poe.tasks.notebooks-check]
 help = "Check that .ipynb notebooks are in sync with their jupytext .py sources and have no outputs"
 sequence = [
   { cmd = "jupytext --sync examples/tutorials/*.py" },
-  { cmd = "git diff --exit-code -- examples/tutorials/" },
+  { cmd = "jupytext --sync examples/benchmarks/custom/*.py examples/benchmarks/liander2024/*.py" },
+  { cmd = "git diff --exit-code -- examples/tutorials/ examples/benchmarks/" },
   { script = "tools.check_notebook_outputs:main" },
 ]
 
@@ -386,15 +410,14 @@ sequence = [
 ]
 
 [tool.poe.tasks._docs_sync]
-help = "Sync tutorial sources into docs/source for Sphinx"
-cmd = "python -c \"import shutil; shutil.rmtree('docs/source/tutorials', ignore_errors=True); shutil.copytree('examples/tutorials', 'docs/source/tutorials')\""
+help = "Sync tutorial and benchmark sources into docs/source for Sphinx (also runs automatically via conf.py)"
+cmd = "python docs/sync_sources.py"
 
 [tool.poe.tasks.docs]
 help = "Build the documentation"
-deps = [ "_docs_sync" ]
 control.expr = "serve"
 switch = [
-  { case = "True", cmd = "sphinx-autobuild docs/source docs/build/html --watch packages" },
+  { case = "True", cmd = "sphinx-autobuild docs/source docs/build/html --watch packages --watch examples" },
   { cmd = "sphinx-build -b html docs/source docs/build/html" },
 ]
 args = [

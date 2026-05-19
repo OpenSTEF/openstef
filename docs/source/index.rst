@@ -12,11 +12,11 @@
    :titlesonly:
 
    User Guide <user_guide/index>
+   Examples <examples>
    API <api/index>
    Community <project/index>
    Contributing <contribute/index>
    changelog
-   examples
 
 ##################################
 OpenSTEF 4.0.0 documentation
@@ -60,11 +60,11 @@ Install
 
         .. rst-class:: section-toc
 
-        :doc:`user_guide/installation`
+        :doc:`user_guide/getting_started/installation`
 
 
 For more detailed instructions, see the
-:doc:`installation guide <user_guide/installation>`.
+:doc:`installation guide <user_guide/getting_started/installation>`.
 
 Learn
 =====
@@ -78,8 +78,8 @@ Learn
         **How to use OpenSTEF?**
         ^^^
 
-        * :doc:`user_guide/installation`
-        * :doc:`user_guide/quick_start`
+        * :doc:`user_guide/getting_started/installation`
+        * :doc:`user_guide/getting_started/quick_start`
         * :doc:`user_guide/tutorials`
 
     .. grid-item-card::
