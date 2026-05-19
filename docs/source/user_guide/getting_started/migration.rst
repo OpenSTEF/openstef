@@ -15,4 +15,3 @@ Migrating from OpenSTEF 3
     - Key architectural changes in OpenSTEF 4.0
     - API changes and replacements
     - Step-by-step migration instructions
-    - Compatibility package (``openstef-compatibility``)

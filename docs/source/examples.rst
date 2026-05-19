@@ -39,6 +39,8 @@ Model Training
      - Description
    * - :doc:`Custom Pipeline <tutorials/custom_pipeline>`
      - Build a forecasting workflow from scratch with custom transforms, feature selection, and callbacks.
+   * - :doc:`Feature Engineering <tutorials/feature_engineering>`
+     - Explore transforms by domain, apply them individually, and compose preprocessing pipelines.
    * - :doc:`Ensemble Forecasting <tutorials/ensemble_forecasting>`
      - Combine multiple models into an ensemble for improved accuracy and robustness.
    * - :doc:`Hyperparameter Tuning <tutorials/hyperparameter_tuning_with_optuna>`
@@ -93,6 +95,7 @@ the docs build — run them locally to reproduce results.
    :caption: Model Training
 
    Custom Pipeline <tutorials/custom_pipeline>
+   Feature Engineering <tutorials/feature_engineering>
    Ensemble Forecasting <tutorials/ensemble_forecasting>
    Hyperparameter Tuning <tutorials/hyperparameter_tuning_with_optuna>
 

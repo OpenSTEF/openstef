@@ -33,16 +33,12 @@ OpenSTEF 4.0 follows a modular design with specialized packages:
      - Description
    * - ``openstef``
      - Meta-package that installs the core components
-     * - ``openstef-core``
-         - Core utilities, dataset types, shared types and base models
-     * - ``openstef-models``
+   * - ``openstef-core``
+     - Core utilities, dataset types, shared types and base models
+   * - ``openstef-models``
      - Core ML models, feature engineering, and data processing
-    * - ``openstef-beam``
+   * - ``openstef-beam``
      - Backtesting, Evaluation, Analysis, and Metrics (BEAM)
-   * - ``openstef-compatibility``
-     - Compatibility layer for OpenSTEF 3.x (coming soon)
-   * - ``openstef-foundational-models``
-     - Deep learning and foundational models (coming soon)
 
 Quick Installation
 ==================
