@@ -33,16 +33,12 @@ OpenSTEF 4.0 follows a modular design with specialized packages:
      - Description
    * - ``openstef``
      - Meta-package that installs the core components
-     * - ``openstef-core``
-         - Core utilities, dataset types, shared types and base models
-     * - ``openstef-models``
+   * - ``openstef-core``
+     - Core utilities, dataset types, shared types and base models
+   * - ``openstef-models``
      - Core ML models, feature engineering, and data processing
-    * - ``openstef-beam``
+   * - ``openstef-beam``
      - Backtesting, Evaluation, Analysis, and Metrics (BEAM)
-   * - ``openstef-compatibility``
-     - Compatibility layer for OpenSTEF 3.x (coming soon)
-   * - ``openstef-foundational-models``
-     - Deep learning and foundational models (coming soon)
 
 Quick Installation
 ==================
@@ -312,7 +308,7 @@ Getting Help
 If you encounter issues:
 
 1. Check the `GitHub Issues <https://github.com/OpenSTEF/openstef/issues>`_
-2. Review the :doc:`../contribute/index` guide
+2. Review the :doc:`/contribute/index` guide
 3. Visit our :ref:`support` page for community resources
 4. Contact us at openstef@lfenergy.org
 
@@ -345,9 +341,9 @@ Next Steps
 After installation:
 
 1. Read the :doc:`quick_start` guide
-2. Explore :doc:`tutorials` for hands-on examples
-3. Check the :doc:`../api/index` for detailed documentation
-4. Review :doc:`intro/index` to understand OpenSTEF's capabilities
+2. Explore the :doc:`/examples` for hands-on examples
+3. Check the :doc:`/api/index` for detailed documentation
+4. Review :doc:`/user_guide/concepts/index` to understand OpenSTEF's capabilities
 
 Staying Updated
 ===============
