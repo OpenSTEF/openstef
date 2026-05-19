@@ -273,7 +273,7 @@ def setup_notebook_logging(
         lgr.propagate = False
         # Also silence any existing child loggers
         prefix = logger_name + "."
-        for key in list(logging.Logger.manager.loggerDict):
+        for key in logging.Logger.manager.loggerDict:
             if key.startswith(prefix):
                 child = logging.getLogger(key)
                 child.setLevel(logging.ERROR)
