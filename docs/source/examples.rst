@@ -27,6 +27,8 @@ Getting Started
      - Train your first XGBoost model and produce a 47-hour ahead forecast using the Liander dataset.
    * - :doc:`Backtesting Quickstart <tutorials/backtesting_quickstart>`
      - Evaluate forecast accuracy on historical data using BEAM's rolling-window backtesting pipeline.
+   * - :doc:`Understanding Datasets <tutorials/datasets>`
+     - Learn how versioned time series data works and why it matters for honest forecasting.
 
 Model Training
 ^^^^^^^^^^^^^^
@@ -88,6 +90,7 @@ the docs build — run them locally to reproduce results.
 
    Forecasting Quickstart <tutorials/forecasting_quickstart>
    Backtesting Quickstart <tutorials/backtesting_quickstart>
+   Understanding Datasets <tutorials/datasets>
 
 .. toctree::
    :maxdepth: 1

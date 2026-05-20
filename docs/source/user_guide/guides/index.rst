@@ -68,7 +68,7 @@ Step-by-step instructions for common OpenSTEF tasks.
 
     forecasting
     Feature Engineering <feature_engineering_tutorial>
-    datasets
+    Datasets <datasets_tutorial>
     probabilistic_forecasting
     reliability_fallback
     backtesting
