@@ -79,8 +79,9 @@ Learn
         ^^^
 
         * :doc:`user_guide/getting_started/installation`
-        * :doc:`user_guide/getting_started/quick_start`
-        * :doc:`user_guide/tutorials`
+        * :doc:`user_guide/getting_started/quick_start_tutorial`
+        * :doc:`user_guide/guides/forecasting`
+        * :doc:`examples`
 
     .. grid-item-card::
         :padding: 2
@@ -89,8 +90,11 @@ Learn
         **What can OpenSTEF do?**
         ^^^
 
-        * :doc:`user_guide/intro/index`
-        * :doc:`examples`
+        * :doc:`user_guide/concepts/intro_to_energy_forecasting`
+        * :doc:`user_guide/concepts/models`
+        * :doc:`user_guide/guides/probabilistic_forecasting`
+        * :doc:`user_guide/guides/backtesting`
+        * :doc:`user_guide/concepts/component_splitting`
 
 
     .. grid-item-card::
@@ -106,14 +110,16 @@ Learn
             .. grid-item::
 
                 * :doc:`API reference <api/index>`
+                * :doc:`Concepts <user_guide/concepts/index>`
 
             .. grid-item::
 
-                References for OpenSTEF's components:
+                OpenSTEF packages:
 
-                - openstef-models: Core forecasting models and feature engineering
-                - openstef-beam: Backtesting, evaluation, analysis and metrics
-                - openstef-core: Core utilities, dataset types, shared types and base models
+                - :doc:`openstef-models <api/models>` forecasting models and feature engineering
+                - :doc:`openstef-beam <api/beam>` backtesting, evaluation, analysis and metrics
+                - :doc:`openstef-core <api/core>` utilities, dataset types, shared types
+                - :doc:`openstef-meta <api/meta>` metalearning and model selection
 
 
 What's new
