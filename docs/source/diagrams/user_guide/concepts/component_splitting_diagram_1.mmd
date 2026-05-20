@@ -1,0 +1,14 @@
+graph LR
+    A[Aggregated Load Forecast] --> B[Component Splitter]
+    B --> C[Solar]
+    B --> D[Wind on shore]
+    B --> E[Other and Residual]
+    F([Sum of outputs = input])
+    B -.-> F
+    classDef primary fill:#00D9C5,stroke:#1E3A5F,stroke-width:2px,color:#000
+    classDef secondary fill:#1E3A5F,stroke:#00D9C5,stroke-width:2px,color:#fff
+    classDef accent fill:#e6f7f5,stroke:#00D9C5,stroke-width:2px,color:#000
+    class A primary
+    class B secondary
+    class C,D,E primary
+    class F accent

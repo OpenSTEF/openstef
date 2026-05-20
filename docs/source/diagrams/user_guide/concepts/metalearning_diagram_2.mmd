@@ -1,0 +1,18 @@
+graph TD
+    A[Base Predictions for Q] --> B[Classifier per Quantile]
+    B --> C[predict_proba per Forecaster]
+    C --> D[Probabilities as Weights]
+    D --> E[Weighted Mean of Predictions]
+    E --> F([Final Prediction - Blend])
+
+    G[Base Predictions for Q] --> H[Meta-Regressor per Quantile]
+    H --> I[Base Predictions as Features]
+    I --> J([Final Prediction - New Value])
+
+    classDef primary fill:#00D9C5,stroke:#1E3A5F,stroke-width:2px,color:#000
+    classDef secondary fill:#1E3A5F,stroke:#00D9C5,stroke-width:2px,color:#fff
+    classDef accent fill:#e6f7f5,stroke:#00D9C5,stroke-width:2px,color:#000
+
+    class A,B,C,D,E primary
+    class G,H,I secondary
+    class F,J accent

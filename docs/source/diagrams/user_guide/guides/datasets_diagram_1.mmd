@@ -1,0 +1,17 @@
+graph TD
+    A[Target: Noon Tomorrow] --> B[Forecast v1: 6AM Issue]
+    A --> C[Forecast v2: 12PM Issue]
+    A --> D[Forecast v3: 6PM Issue]
+    B --> E[Long Lead Time]
+    C --> F[Medium Lead Time]
+    D --> G[Short Lead Time]
+    E --> H[Lower Accuracy]
+    F --> I[Medium Accuracy]
+    G --> J[Higher Accuracy]
+    classDef primary fill:#00D9C5,stroke:#1E3A5F,stroke-width:2px,color:#000
+    classDef secondary fill:#1E3A5F,stroke:#00D9C5,stroke-width:2px,color:#fff
+    classDef accent fill:#e6f7f5,stroke:#00D9C5,stroke-width:2px,color:#000
+    class A primary
+    class B,C,D secondary
+    class E,F,G accent
+    class H,I,J primary

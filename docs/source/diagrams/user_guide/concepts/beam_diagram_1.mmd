@@ -1,0 +1,19 @@
+graph TD
+    A[BenchmarkPipeline] --> B[TargetProvider]
+    B -->|data and config| C[ForecasterFactory]
+    C -->|BacktestForecasterMixin| D[BacktestPipeline]
+    D -->|TimeSeriesDataset| E[EvaluationPipeline]
+    E -->|EvaluationReport| F[AnalysisPipeline]
+    F -->|AnalysisOutput| G[(BenchmarkStorage)]
+    D -->|persists| G
+    E -->|persists| G
+    A -->|per target| B
+
+    classDef primary fill:#00D9C5,stroke:#1E3A5F,stroke-width:2px,color:#000
+    classDef secondary fill:#1E3A5F,stroke:#00D9C5,stroke-width:2px,color:#fff
+    classDef accent fill:#e6f7f5,stroke:#00D9C5,stroke-width:2px,color:#000
+
+    class A secondary
+    class B,C accent
+    class D,E,F primary
+    class G secondary

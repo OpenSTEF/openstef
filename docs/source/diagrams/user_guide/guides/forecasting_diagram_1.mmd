@@ -1,0 +1,19 @@
+graph TD
+    A[Historical TimeSeriesDataset] --> B[Preprocessing Pipeline]
+    C[New TimeSeriesDataset] --> B
+    B --> D[ForecastInputDataset]
+    D --> E[Forecaster fit]
+    D --> F[Forecaster predict]
+    E --> G[(Trained Model)]
+    F --> H[Postprocessing Pipeline]
+    H --> I[Final ForecastDataset]
+    J([Workflow Callbacks]) -.-> E
+    J -.-> F
+
+    classDef primary fill:#00D9C5,stroke:#1E3A5F,stroke-width:2px,color:#000
+    classDef secondary fill:#1E3A5F,stroke:#00D9C5,stroke-width:2px,color:#fff
+    classDef accent fill:#e6f7f5,stroke:#00D9C5,stroke-width:2px,color:#000
+
+    class B,E,F,H primary
+    class A,C,D,G,I secondary
+    class J accent

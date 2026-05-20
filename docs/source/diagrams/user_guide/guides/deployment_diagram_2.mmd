@@ -1,0 +1,20 @@
+graph TD
+    A[Weekly Retraining Cycle] --> B[Train New Model]
+    B --> C[(MLflow Model Store)]
+    C --> D[Load Best Model]
+    D --> E[Predict Every 15 Min]
+    E --> F{Data Complete?}
+    F -->|Yes| G[Generate Forecast]
+    F -->|No| H[Fallback Forecast]
+    G --> I[Deliver Prediction]
+    H --> I
+    E -->|Next cycle| E
+
+    classDef primary fill:#00D9C5,stroke:#1E3A5F,stroke-width:2px,color:#000
+    classDef secondary fill:#1E3A5F,stroke:#00D9C5,stroke-width:2px,color:#fff
+    classDef accent fill:#e6f7f5,stroke:#00D9C5,stroke-width:2px,color:#000
+
+    class A,B primary
+    class C,D secondary
+    class E,F,G,I accent
+    class H primary
