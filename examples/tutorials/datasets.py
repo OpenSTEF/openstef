@@ -25,10 +25,10 @@
 # more accurately. Using future-issued data during training causes data leakage.
 #
 # OpenSTEF prevents this with
-# {class}`~openstef_core.datasets.TimeSeriesDataset` - a DataFrame with a
-# timestamp index and an `available_at` column that records when each row became
-# known. By filtering on `available_at`, you guarantee that only genuinely
-# available data enters the model.
+# {class}`~openstef_core.datasets.TimeSeriesDataset` - a thin wrapper around a
+# `pandas.DataFrame` that adds a timestamp index and an `available_at` column
+# recording when each row became known. By filtering on `available_at`, you
+# guarantee that only genuinely available data enters the model.
 #
 # This notebook walks through a real forecasting scenario using the Liander
 # distribution network dataset, building from a single data source up to a
@@ -337,21 +337,21 @@ snapshot = weather.filter_by_available_before(now)
 
 # %% tags=["hide-input"]
 # Show before/after for a few timestamps
-sample_range = weather.data.loc["2024-12-28 10:00":"2024-12-28 12:00"]
 sample_range_filtered = snapshot.data.loc["2024-12-28 10:00":"2024-12-28 12:00"]
 
-print("BEFORE select_version - multiple versions per timestamp:")
-print(f"  (showing {len(sample_range_filtered)} rows for 3 hours)")
-print()
+# %% [markdown]
+# **Before** `select_version` - multiple versions per timestamp:
+
+# %% tags=["hide-input"]
+print(f"  ({len(sample_range_filtered)} rows for 3 hours)")
 sample_range_filtered[["temperature_2m", "available_at"]].head(12)
+
+# %% [markdown]
+# **After** `select_version` - one row per timestamp, no `available_at` column:
 
 # %%
 resolved = snapshot.select_version()
-
-print("AFTER select_version - one row per timestamp, no available_at column:")
-print(f"  Total: {len(snapshot.data):,} rows -> {len(resolved.data):,} rows")
-print(f"  Columns: {list(resolved.data.columns[:4])}")
-print()
+print(f"  {len(snapshot.data):,} rows -> {len(resolved.data):,} rows")
 resolved.data.loc["2024-12-28 10:00":"2024-12-28 12:00", ["temperature_2m"]].head(9)
 
 # %% [markdown]
@@ -439,7 +439,7 @@ summary = pd.DataFrame({
     "Versioned": [load.is_versioned, weather.is_versioned, epex.is_versioned, profiles.is_versioned],
     "Update schedule": ["real-time", "every ~6h", "noon day-before", "months ahead"],
 })
-summary.style.hide(axis="index")
+summary.set_index("Source").style.set_properties(padding="6px 12px")
 
 # %% [markdown]
 # These sources update on **different schedules** - weather has ~6 versions per
