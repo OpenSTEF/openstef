@@ -1,0 +1,16 @@
+graph TD
+    S[Scheduler / Orchestrator] --> O
+    W[Weather Data] --> O
+    M[Meter / Load Data] --> O
+    P[Price / Market Data] --> O
+    O[OpenSTEF Library] --> F[Energy Forecasts]
+    O --> A[(Model Artifacts)]
+    O --> R[Confidence Intervals]
+    classDef primary fill:#00D9C5,stroke:#1E3A5F,stroke-width:2px,color:#000
+    classDef secondary fill:#1E3A5F,stroke:#00D9C5,stroke-width:2px,color:#fff
+    classDef accent fill:#e6f7f5,stroke:#00D9C5,stroke-width:2px,color:#000
+    class O secondary
+    class W,M,P accent
+    class S primary
+    class F,R primary
+    class A secondary

@@ -1,0 +1,15 @@
+graph TD
+    A[(TimeSeriesDataset)] --> B[Shared TransformPipeline]
+    B --> C[Per-forecaster Preprocess 1]
+    B --> D[Per-forecaster Preprocess 2]
+    C -->|SampleWeighter| E[LGBMForecaster]
+    D -->|Weighter; Selectors| F[GBLinearForecaster]
+    E --> G[(EnsembleForecastDataset)]
+    F --> G
+    G --> H[ForecastCombiner]
+    H --> I[(ForecastDataset)]
+    classDef primary fill:#00D9C5,stroke:#1E3A5F,stroke-width:2px,color:#000
+    classDef secondary fill:#1E3A5F,stroke:#00D9C5,stroke-width:2px,color:#fff
+    classDef accent fill:#e6f7f5,stroke:#00D9C5,stroke-width:2px,color:#000
+    class B,C,D,E,F,H primary
+    class A,G,I secondary
