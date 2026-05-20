@@ -35,6 +35,9 @@ EMBED_MAP = {
     EXAMPLES / "tutorials" / "feature_engineering.py": (
         DOCS_SOURCE / "user_guide" / "guides" / "feature_engineering_tutorial.py"
     ),
+    EXAMPLES / "tutorials" / "datasets.py": (
+        DOCS_SOURCE / "user_guide" / "guides" / "datasets_tutorial.py"
+    ),
 }
 
 
