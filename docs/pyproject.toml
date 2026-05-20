@@ -16,7 +16,9 @@ requires-python = ">=3.12,<4.0"
 dependencies = [
   "sphinx-pyproject>=0.3.0",
   "ipython>=9.4.0",
+  "kaleido>=1.0.0",
   "matplotlib>=3.10.5",
+  "optuna>=4.7",
   "openstef-models",
   "openstef-core",
   "pydata-sphinx-theme>=0.16.1",
