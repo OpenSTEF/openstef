@@ -1,19 +1,20 @@
 graph LR
-    A[Start Date] --> B[Train Event]
-    B --> C[Predict Event]
-    C --> D[Visibility Wall]
-    D --> E[Multi-Horizon Forecasts]
-    E --> F[End Date]
-    F --> G[EvaluationPipeline]
-    G --> H[Lead Time Grid]
-    H --> I[Short Horizon: More Points]
-    H --> J[Long Horizon: Fewer Points]
+    A[Historical Data Timeline] --> B[Step 1: Train Window]
+    B --> C[Step 1: Predict]
+    C --> D[Step 2: Train Window]
+    D --> E[Step 2: Predict]
+    E --> F[Step N: Train and Predict]
+    F --> G[Collect All Forecasts]
+    G --> H[Slice by Lead Time]
+    H --> I[Per-Horizon Metrics]
+
+    B -.->|"Future blocked"| J([Restricted Horizon Data])
+    D -.->|"Future blocked"| J
 
     classDef primary fill:#00D9C5,stroke:#1E3A5F,stroke-width:2px,color:#000
     classDef secondary fill:#1E3A5F,stroke:#00D9C5,stroke-width:2px,color:#fff
     classDef accent fill:#e6f7f5,stroke:#00D9C5,stroke-width:2px,color:#000
 
-    class A,F primary
-    class B,C,E secondary
-    class D,G,H accent
-    class I,J primary
+    class A,B,D,F primary
+    class C,E,G secondary
+    class H,I,J accent
