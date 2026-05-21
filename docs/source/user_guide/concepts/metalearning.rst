@@ -1,132 +1,121 @@
 Metalearning
 ============
 
-This page explains how OpenSTEF combines multiple forecasting models into an ensemble that outperforms any individual model. It covers the motivation for metalearning, the architecture of :class:`EnsembleForecastingModel`, and the two combiner strategies available.
+This page explains the metalearning approach implemented in the ``openstef-meta`` package: why combining forecasters with complementary strengths produces better energy forecasts than any single model, and how :class:`~openstef_meta.models.ensemble_forecasting_model.EnsembleForecastingModel` orchestrates this combination.
 
 For a hands-on walkthrough, see :doc:`/tutorials/ensemble_forecasting`.
-
-.. contents:: On this page
-   :local:
-   :depth: 2
 
 Why Combine Models?
 -------------------
 
-Short-term energy forecasting faces a fundamental tension between two desirable properties:
+Short-term energy forecasting presents a fundamental tension between two desirable properties:
 
-- **Non-linear pattern learning** — Tree-based models (LightGBM, XGBoost) excel at capturing complex interactions between weather, time-of-day, and load patterns. However, they *cannot extrapolate* beyond the range of values seen during training.
-- **Extrapolation capability** — Linear models (GBLinear) can predict values outside the training range because their output is an unbounded linear combination of inputs. However, they *cannot learn non-linear patterns*.
+- **Non-linear pattern capture.** Tree-based models (LightGBM, XGBoost) excel at learning complex interactions between weather, time-of-day, and load. However, decision trees partition the feature space into regions and predict constants within each region. They *cannot extrapolate* beyond the range of values seen during training.
 
-This tension matters most in two scenarios:
+- **Extrapolation.** Linear models (GBLinear) fit a global linear function. They cannot learn non-linear interactions, but they *can* extrapolate to values outside the training range because a linear function extends naturally.
 
-1. **Congestion management** — Grid operators care about peak loads. If a new peak exceeds all historical values, tree-based models will systematically underpredict it. A linear model can extrapolate to the new peak.
-2. **Seasonal transitions** — When load patterns shift (e.g., first heat wave of summer), tree-based models lag behind because they haven't seen the new regime. Linear models adapt faster through their extrapolation ability.
+This distinction matters most for:
 
-OpenSTEF's metalearning layer addresses this by combining tree-based and linear forecasters, letting a *combiner* learn when each model's strengths apply.
+- **Congestion management**, where peak values (often near or beyond historical maxima) drive operational decisions.
+- **Seasonal transitions**, where load patterns shift to levels not recently observed in training data.
 
-Architecture Overview
----------------------
+Neither model family alone covers both needs. A tree-based model underestimates unprecedented peaks; a linear model misses the nuanced patterns during stable periods. Metalearning combines them so that a learned combiner can trust the linear model when extrapolation is needed and the tree model when complex patterns dominate.
 
-:class:`EnsembleForecastingModel` sits alongside :class:`ForecastingModel` as a sibling under :class:`BaseForecastingModel`. Both share the same API contract (``fit``, ``predict``, ``predict_contributions``), but the ensemble model orchestrates multiple base forecasters and a combiner.
+.. note::
+
+   The term "metalearning" here refers to learning *how to combine* base model predictions, not meta-learning in the few-shot sense. The combiner is itself a learned model that operates on the outputs of other models.
+
+Architecture
+------------
+
+:class:`~openstef_meta.models.ensemble_forecasting_model.EnsembleForecastingModel` is a **sibling** of ``ForecastingModel``, not a subclass. Both inherit from ``BaseForecastingModel`` and share the same ``preprocessing → predict → postprocessing`` contract, but the ensemble model fans out to multiple forecasters internally.
 
 .. mermaid:: /diagrams/user_guide/concepts/metalearning_diagram_1.mmd
 
-The key phases during training are:
+The key stages are:
 
-1. **Phase 1 — Fit base forecasters**: Each forecaster is trained independently on the same data (after its own preprocessing). In-sample predictions are collected.
-2. **Phase 2 — Fit combiner**: The combiner learns from the base forecasters' in-sample predictions how to optimally combine them.
+- **Common preprocessing.** Shared feature engineering (lag creation, holiday features, datetime encoding, standardization) runs once and produces a rich feature set for all forecasters.
+- **Per-forecaster preprocessing.** Each base model receives a tailored view of the features. For GBLinear, this aggressively filters the feature set: it keeps only ``load_lag_P7D`` (removing all other lags to avoid collinearity) and drops holiday and datetime one-hot columns (which create near-singular design matrices for a linear model). Tree-based models receive the full feature set.
+- **Parallel prediction.** Each forecaster independently produces quantile predictions over the forecast horizon.
+- **Combination.** An :class:`~openstef_meta.models.ensemble_forecasting_model.EnsembleForecastingModel` merges all base predictions into an ``EnsembleForecastDataset``, then a ``ForecastCombiner`` produces the final ``ForecastDataset``.
 
-Per-Forecaster Preprocessing
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Per-Forecaster Feature Selection
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Not all models receive the same features. GBLinear requires aggressive feature filtering because global linear models suffer from collinearity when given many correlated lag features or one-hot encoded columns:
+The per-forecaster preprocessing for GBLinear illustrates a core design principle: the same raw data can require very different representations for different algorithms.
 
-- **Most lag features are removed** — only ``load_lag_P7D`` (the 7-day lag) is retained
-- **Holiday and datetime features are dropped** — one-hot and cyclic encodings create near-singular design matrices for linear models
+A ``Selector`` removes all lag features except ``load_lag_P7D``, and a second ``Selector`` removes holiday and datetime features. This prevents the linear model from encountering highly correlated inputs that would destabilize its coefficients, while preserving the single most informative lag (one week back, capturing weekly seasonality).
 
-This filtering is applied via :class:`Selector` steps in the per-forecaster preprocessing pipeline, configured automatically by :func:`create_ensemble_forecasting_workflow`.
+Tree-based forecasters do not need this filtering because they are inherently robust to correlated and redundant features.
 
 Combiner Strategies
 -------------------
 
-OpenSTEF provides two combiner strategies, each training one model *per quantile*.
+The combiner is the "meta" in metalearning: it learns *when* to trust each base forecaster. OpenSTEF provides two strategies, configured via the ``ensemble_type`` parameter.
 
-.. list-table:: Combiner Comparison
+.. list-table:: Combiner Strategy Comparison
    :header-rows: 1
    :widths: 20 40 40
 
-   * - Aspect
-     - WeightsCombiner
-     - StackingCombiner
-   * - Approach
-     - Classification: "which forecaster is best here?"
-     - Regression: "what is the best prediction here?"
+   * - Property
+     - WeightsCombiner (``"learned_weights"``)
+     - StackingCombiner (``"stacking"``)
+   * - Mechanism
+     - Classifier per quantile predicts which forecaster is best; uses ``predict_proba`` as soft weights
+     - Meta-regressor per quantile takes base predictions as input features and directly predicts the target
    * - Output
-     - Weighted blend of base predictions
-     - New prediction (may differ from all base predictions)
+     - Weighted average of base predictions
+     - New prediction derived from base predictions
    * - Default model
-     - LGBM classifier
-     - LGBM regressor (template Forecaster)
+     - LGBM classifier (also supports random forest, XGBoost, logistic regression)
+     - LGBM regressor (a template Forecaster cloned per quantile)
    * - Interpretability
-     - High — weights show model preference per timestep
-     - Moderate — feature importances show which base model matters
-   * - Configuration
-     - ``ensemble_type="learned_weights"``
-     - ``ensemble_type="stacking"``
-
-.. mermaid:: /diagrams/user_guide/concepts/metalearning_diagram_2.mmd
+     - High (weights sum to 1; you can inspect which model is trusted at each timestep)
+     - Lower (meta-regressor coefficients are less directly interpretable)
+   * - When to prefer
+     - When base models are individually strong and you want adaptive selection
+     - When base model predictions contain complementary signal that a regressor can exploit beyond simple weighting
 
 WeightsCombiner
 ^^^^^^^^^^^^^^^
 
-The :class:`WeightsCombiner` frames combination as a classification problem: "for this timestep and quantile, which base forecaster would have produced the lowest error?"
+.. mermaid:: /diagrams/user_guide/concepts/metalearning_diagram_2.mmd
 
-During training, it labels each historical timestep with the best-performing forecaster, then trains a classifier to predict those labels. At inference time, it uses ``predict_proba`` to obtain soft probabilities and computes a weighted mean of the base predictions:
+The ``WeightsCombiner`` frames combination as a classification problem: "which forecaster will be closest to the true value at this timestep?" A classifier (default: LightGBM) is trained per quantile. At prediction time, ``predict_proba`` returns soft probabilities that serve as weights for a weighted average of the base forecaster outputs.
 
-.. code-block:: python
-
-   # Conceptual logic (simplified)
-   weights = classifier.predict_proba(base_predictions)  # shape: (n_samples, n_forecasters)
-   final = (weights * base_predictions).sum(axis=1)
-
-Available classifier backends include LGBM (default), Random Forest, XGBoost, and Logistic Regression — configured via ``combiner_model`` in :class:`EnsembleForecastingWorkflowConfig`.
+This approach is adaptive: during stable periods the combiner may assign 80% weight to the tree-based model, while near historical peaks it shifts weight toward the linear model. The tutorial at :doc:`/tutorials/ensemble_forecasting` demonstrates how to visualize these weight dynamics.
 
 StackingCombiner
 ^^^^^^^^^^^^^^^^
 
-The :class:`StackingCombiner` takes a more flexible approach: it treats the base forecaster predictions as *input features* to a meta-regressor. This allows the combiner to learn non-linear relationships between base predictions and the optimal output — for example, it might learn to trust one model more when its prediction diverges significantly from another.
+.. mermaid:: /diagrams/user_guide/concepts/metalearning_diagram_3.mmd
 
-A template :class:`Forecaster` (e.g., :class:`LGBMForecaster`) is cloned once per quantile. Each clone is trained to predict the target directly from the base forecasters' outputs.
+The ``StackingCombiner`` treats base forecaster outputs as features for a second-stage regression model. A template ``Forecaster`` is cloned for each quantile, and each clone learns to map the vector of base predictions to the final target value. This is more expressive than weighted averaging (the meta-regressor can learn non-linear transformations of base predictions) but requires more training data to avoid overfitting.
 
 Configuration
 -------------
 
-Ensemble workflows are configured through :class:`EnsembleForecastingWorkflowConfig`, which extends the standard forecasting configuration with ensemble-specific settings:
+Ensemble models are configured through :class:`~openstef_meta.presets.EnsembleForecastingWorkflowConfig`:
 
 .. code-block:: python
 
-   from openstef_meta.presets import create_ensemble_forecasting_workflow
+   from openstef_meta.presets import EnsembleForecastingWorkflowConfig
 
-   workflow = create_ensemble_forecasting_workflow(config)
+   config = EnsembleForecastingWorkflowConfig(
+       base_models=["lgbm", "gblinear"],
+       ensemble_type="learned_weights",  # or "stacking"
+       combiner_model="lgbm",
+   )
 
-The ``config.base_models`` list specifies which forecasters to include (e.g., ``["lgbm", "gblinear"]``), while ``config.ensemble_type`` and ``config.combiner_model`` control the combination strategy.
-
-See :doc:`/tutorials/ensemble_forecasting` for a complete worked example.
-
-When to Use Ensemble Forecasting
----------------------------------
-
-Ensemble forecasting adds complexity. Consider it when:
-
-- **Peak accuracy matters** — congestion management use cases where underestimating peaks has operational consequences
-- **The prediction horizon spans regime changes** — seasonal transitions, new connection points ramping up
-- **Individual model performance is inconsistent** — one model wins in summer, another in winter
-
-For simpler use cases where a single LightGBM model performs well, the standard :class:`ForecastingModel` (see :ref:`models`) is sufficient and faster to train.
+The ``base_models`` list determines which forecasters participate, ``ensemble_type`` selects the combiner strategy, and ``combiner_model`` specifies the algorithm used within the combiner. See :doc:`/tutorials/ensemble_forecasting` for a complete working example.
 
 Relationship to Other Concepts
 ------------------------------
 
-- **Model architecture** — Ensemble models share the same :class:`BaseForecastingModel` interface as single models. See :doc:`models` for the full model taxonomy.
-- **BEAM** — The backtest evaluation framework works with ensemble models the same way it works with single models. See :doc:`beam`.
-- **Component splitting** — Ensemble forecasting operates on the total load signal. Component splitting (see :doc:`component_splitting`) is a separate concern applied downstream.
+- For details on individual model types (LightGBM, XGBoost, GBLinear), see :doc:`/user_guide/concepts/models`.
+- Ensemble models are evaluated using the same metrics framework described in :doc:`/user_guide/concepts/beam`.
+- The shared preprocessing pipeline uses the same ``TransformPipeline`` pattern as single-model forecasting; see :doc:`/user_guide/guides/forecasting` for that workflow.
+
+.. warning::
+
+   The ``openstef-meta`` package is newer than the core ``openstef-models`` package. Its API surface is stable but may evolve faster than the single-model workflow. Pin your dependency version in production deployments.

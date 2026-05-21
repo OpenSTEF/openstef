@@ -1,237 +1,162 @@
 Backtesting
 ===========
 
-.. _guide_backtesting:
+Backtesting answers a critical question before deploying any forecasting model: *how would this model have performed if it had been running in production over the past weeks or months?* A naive approach (training on all history, then predicting the same period) produces optimistic results because the model has already "seen" the future. OpenSTEF's backtesting framework prevents this by simulating real-time constraints: at every point in the replay, the model can only access data that would have been available at that moment.
 
-Before deploying a forecasting model to production, you need confidence that it
-performs well across diverse conditions—peak demand, weather transitions, holidays,
-and data gaps. Backtesting provides this confidence by replaying history as if it
-were happening in real time, ensuring your model never sees future data during
-evaluation.
-
-This guide explains how to set up and interpret a backtest using OpenSTEF's BEAM
-components. For the underlying architecture, see :ref:`concept_beam`. For a
-runnable notebook, see :doc:`/tutorials/backtesting_quickstart`.
-
-Why Backtesting Matters for Energy Forecasting
-----------------------------------------------
-
-A single train/test split is insufficient for energy forecasting because:
-
-- **Seasonality**: a model trained on summer may fail in winter.
-- **Regime changes**: grid topology changes, new solar installations, or demand shifts invalidate older patterns.
-- **Operational realism**: in production, your model retrains periodically and predicts at fixed intervals. A backtest must replicate this cadence.
-
-OpenSTEF's backtesting framework addresses these concerns by simulating the exact
-operational loop—periodic retraining, scheduled predictions, and strict data
-availability constraints—across an arbitrary historical window.
-
-
-The Three Stages of a Backtest
-------------------------------
-
-A complete backtest in OpenSTEF follows three stages:
-
-1. **Configure** — wrap your forecaster with :class:`~openstef_beam.backtesting.backtest_forecaster.mixins.BacktestForecasterMixin` and define timing via :class:`~openstef_beam.backtesting.backtest_pipeline.BacktestConfig`.
-2. **Run** — execute :class:`~openstef_beam.backtesting.backtest_pipeline.BacktestPipeline` which steps through history generating train and predict events.
-3. **Evaluate** — feed collected predictions into :class:`~openstef_beam.evaluation.EvaluationPipeline` for fair per-horizon assessment.
+This page explains how to configure and run a backtest, then evaluate the results fairly across different forecast horizons.
 
 .. mermaid:: /diagrams/user_guide/guides/backtesting_diagram_1.mmd
 
-Stage 1: Configure the Forecaster
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Why Backtesting Requires Special Infrastructure
+------------------------------------------------
 
-Your forecasting model must implement the :class:`~openstef_beam.backtesting.backtest_forecaster.mixins.BacktestForecasterMixin` interface. This mixin defines two key methods:
+Energy forecasting models operate under strict temporal constraints. In production, a model predicting tomorrow's load at 06:00 today can only use data published before 06:00. Weather forecasts, meter readings, and market prices all arrive at different times with different latencies. A backtest must replicate these constraints faithfully, or the results will overestimate real-world performance.
 
-- ``fit(data)`` — train on a :class:`~openstef_beam.backtesting.restricted_horizon_timeseries.RestrictedHorizonVersionedTimeSeries`
-- ``predict(data)`` — generate forecasts from the same restricted view
+OpenSTEF addresses this with three coordinated components:
 
-The :class:`~openstef_beam.backtesting.backtest_forecaster.mixins.BacktestForecasterConfig` controls operational parameters:
+- **Lookahead prevention** via :class:`~openstef_beam.backtesting.restricted_horizon_timeseries.RestrictedHorizonVersionedTimeSeries`, which wraps your data and blocks access to anything published after the simulated "current time."
+- **Event scheduling** via :class:`~openstef_beam.backtesting.BacktestPipeline`, which steps through history generating train and predict events at configurable intervals.
+- **Fair evaluation** via :class:`~openstef_beam.evaluation.EvaluationPipeline`, which segments predictions by when they were made (``available_at``) and how far ahead they look (``lead_time``).
 
-.. code-block:: python
-
-   from openstef_beam.backtesting.backtest_forecaster.mixins import BacktestForecasterConfig
-
-   forecaster_config = BacktestForecasterConfig(
-       requires_training=True,
-       predict_length=timedelta(days=2),
-       predict_sample_interval=timedelta(minutes=15),
-       training_context_length=timedelta(days=365),
-   )
-
-The ``predict_length`` determines how far ahead each prediction event forecasts,
-while ``training_context_length`` controls how much history the model sees during
-training.
+For the architectural context of how these components fit into the broader BEAM framework, see :ref:`concept_beam`.
 
 
-Stage 2: Run the BacktestPipeline
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Configuring the Backtest
+-------------------------
 
-The pipeline orchestrates the simulation:
+The backtest is configured through :class:`~openstef_beam.backtesting.BacktestConfig`, which controls how the pipeline steps through time:
 
 .. code-block:: python
 
-   from openstef_beam.backtesting.backtest_pipeline import BacktestPipeline, BacktestConfig
+   from datetime import timedelta
+   from openstef_beam.backtesting import BacktestConfig
 
    config = BacktestConfig(
+       predict_interval=timedelta(hours=1),
+       train_interval=timedelta(days=7),
        prediction_sample_interval=timedelta(minutes=15),
-       prediction_interval=timedelta(hours=1),
-       training_interval=timedelta(days=7),
    )
+
+The key fields are:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 25 75
+
+   * - Field
+     - Purpose
+   * - ``predict_interval``
+     - How often the pipeline generates a new forecast (e.g., every hour). Smaller intervals produce more predictions but take longer to run.
+   * - ``train_interval``
+     - How often the model is retrained on accumulated data (e.g., every 7 days). This simulates periodic retraining in production.
+   * - ``prediction_sample_interval``
+     - The resolution of the output forecast (e.g., 15-minute intervals). Must match your forecaster's configuration.
+
+
+Implementing a Forecaster
+--------------------------
+
+Your model must implement :class:`~openstef_beam.backtesting.BacktestForecasterMixin`, which defines two methods:
+
+- ``fit(data)`` — train the model on a :class:`~openstef_beam.backtesting.restricted_horizon_timeseries.RestrictedHorizonVersionedTimeSeries` (only data up to the current simulated time is accessible).
+- ``predict(data)`` — generate quantile forecasts from the same restricted view.
+
+The ``RestrictedHorizonVersionedTimeSeries`` wrapper is the key to preventing lookahead. When your forecaster calls ``data.get_window(start, end)``, the wrapper silently enforces ``available_before=current_horizon``, ensuring no future data leaks into training or prediction.
+
+The forecaster also requires a :class:`~openstef_beam.backtesting.backtest_forecaster.BacktestForecasterConfig` specifying operational parameters like ``predict_length`` (how far ahead to forecast), ``predict_context_length`` (how much history the model needs), and ``requires_training`` (whether the model needs periodic retraining).
+
+
+Running the Pipeline
+--------------------
+
+Once configured, running the backtest is straightforward:
+
+.. code-block:: python
 
    pipeline = BacktestPipeline(config=config, forecaster=my_forecaster)
    predictions = pipeline.run(
        ground_truth=ground_truth_dataset,
        predictors=predictor_dataset,
-       start=datetime(2023, 1, 1),
-       end=datetime(2023, 12, 31),
+       start=start_datetime,
+       end=end_datetime,
    )
 
-**How it works internally:**
+The pipeline internally:
 
-1. A ``BacktestEventGenerator`` creates a chronological schedule of train and predict events based on ``training_interval`` and ``prediction_interval``.
-2. At each **train event**, the pipeline wraps the full dataset in a :class:`~openstef_beam.backtesting.restricted_horizon_timeseries.RestrictedHorizonVersionedTimeSeries` with the event's timestamp as the horizon. This ensures ``fit()`` cannot access any data published after that moment.
-3. At each **predict event**, the same restriction applies—``predict()`` receives only data that would have been available operationally.
-4. All predictions are collected into a single versioned :class:`~openstef_beam.datasets.TimeSeriesDataset` with ``available_at`` metadata.
+1. Creates a schedule of train and predict events using ``BacktestEventGenerator`` based on your configured intervals.
+2. At each train event, wraps the dataset with a restricted horizon and calls ``forecaster.fit()``.
+3. At each predict event, wraps the dataset again (horizon set to the event timestamp) and calls ``forecaster.predict()``.
+4. Collects all predictions into a single ``TimeSeriesDataset`` with ``available_at`` metadata preserved.
 
-Preventing Data Leakage
-""""""""""""""""""""""""
-
-The :class:`~openstef_beam.backtesting.restricted_horizon_timeseries.RestrictedHorizonVersionedTimeSeries` is the critical guardrail. It wraps a :class:`~openstef_beam.datasets.VersionedTimeSeriesDataset` and exposes a ``get_window()`` method that enforces ``available_before`` filtering. Even if your forecaster accidentally requests future timestamps, the wrapper returns only data published before the current simulation time.
-
-.. warning::
-
-   If your ``prediction_sample_interval`` in the backtest config does not match
-   your forecaster's ``predict_sample_interval``, the pipeline raises a
-   ``ValueError`` at initialization. Always ensure these are consistent.
+The result is a time series of forecasts, each tagged with when it was generated, ready for evaluation.
 
 
-Stage 3: Evaluate with EvaluationPipeline
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Evaluating Results
+------------------
 
-Raw predictions are not directly comparable—a 15-minute-ahead forecast is
-inherently easier than a 48-hour-ahead forecast. The
-:class:`~openstef_beam.evaluation.EvaluationPipeline` slices predictions along
-multiple dimensions for fair comparison:
-
-.. list-table:: Evaluation Dimensions
-   :header-rows: 1
-   :widths: 20 40 40
-
-   * - Dimension
-     - What it controls
-     - Example
-   * - ``available_at``
-     - When the forecast was issued
-     - ``D-1T06:00`` (day-ahead at 6 AM)
-   * - ``lead_time``
-     - Gap between issuance and target
-     - ``PT36H`` (36 hours ahead)
-   * - ``windows``
-     - Rolling evaluation periods
-     - 21-day rolling windows
+Raw predictions are not directly comparable: a 1-hour-ahead forecast should be more accurate than a 36-hour-ahead forecast. The :class:`~openstef_beam.evaluation.EvaluationPipeline` segments predictions along multiple dimensions to produce fair comparisons.
 
 .. code-block:: python
 
-   from openstef_beam.evaluation import EvaluationPipeline, EvaluationConfig
+   from openstef_beam.evaluation import EvaluationConfig, EvaluationPipeline
 
    evaluation_config = EvaluationConfig(
        available_ats=[AvailableAt.from_string("D-1T06:00")],
-       lead_times=[LeadTime.from_string("PT36H")],
+       lead_times=[LeadTime.from_string("PT1H"), LeadTime.from_string("PT36H")],
        windows=[Window(lag=timedelta(hours=0), size=timedelta(days=21))],
    )
 
-   eval_pipeline = EvaluationPipeline(
-       config=evaluation_config,
-       quantiles=my_forecaster.quantiles,
-       window_metric_providers=[RMAEProvider(quantiles=[Q(0.5)]), RCRPSProvider()],
-       global_metric_providers=[RMAEProvider(quantiles=[Q(0.5)]), RCRPSProvider()],
-   )
+The three evaluation dimensions are:
 
-   report = eval_pipeline.run(
-       predictions=predictions,
-       ground_truth=ground_truth,
-       target_column="load",
-   )
+- **available_at** — filters predictions to those generated at a specific time of day (e.g., the day-ahead forecast made at 06:00).
+- **lead_time** — groups predictions by how far ahead they look (e.g., 1 hour vs. 36 hours).
+- **windows** — defines rolling time windows for computing metrics, allowing you to see how performance evolves over the backtest period.
 
-The pipeline automatically includes observed probability as a calibration metric,
-ensuring you always assess whether your quantile forecasts are well-calibrated.
+The pipeline produces an ``EvaluationReport`` containing subset reports for each combination of these dimensions, with metrics computed per window and globally.
 
 
-Interpreting Backtest Results
------------------------------
+Interpreting Metrics
+--------------------
 
-Per-Window vs. Aggregated Metrics
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+OpenSTEF's evaluation supports both deterministic metrics (applied to the median quantile) and probabilistic metrics (applied across all quantiles):
 
-The evaluation report contains both:
-
-- **Windowed metrics** — computed over rolling time windows (e.g., 21-day blocks). These reveal performance drift: degradation after regime changes, seasonal patterns in error, or recovery after retraining.
-- **Global metrics** — aggregated across the entire backtest period. These give an overall performance summary but can mask temporal variation.
-
-Always inspect windowed metrics first. A model with acceptable global RMAE but
-large spikes in specific windows may be unreliable for operations.
-
-What "Good" Looks Like
-^^^^^^^^^^^^^^^^^^^^^^
-
-Typical error ranges depend heavily on the aggregation level and forecast horizon:
-
-.. list-table:: Indicative Performance Ranges
+.. list-table::
    :header-rows: 1
-   :widths: 30 25 25 20
+   :widths: 30 70
 
-   * - Aggregation Level
-     - Horizon
-     - Typical RMAE
-     - Notes
-   * - National/regional (GW-scale)
-     - Day-ahead
-     - 2–5%
-     - Smoothing from aggregation
-   * - Substation (MW-scale)
-     - Day-ahead
-     - 5–15%
-     - Weather-sensitive
-   * - Individual connection (kW-scale)
-     - Day-ahead
-     - 20–50%+
-     - High stochasticity
-   * - Any level
-     - Intraday (<4h)
-     - 30–70% of day-ahead error
-     - Recent data helps significantly
+   * - Metric
+     - What it tells you
+   * - RMAE (Relative MAE)
+     - Point forecast accuracy relative to a naive baseline. Values below 1.0 indicate the model outperforms persistence.
+   * - RCRPS (Relative CRPS)
+     - Probabilistic forecast skill relative to a baseline. Evaluates the full predictive distribution, not just the median.
+   * - Observed Probability
+     - Calibration check: do 90% prediction intervals actually contain 90% of observations? Always included automatically.
 
-.. note::
+What constitutes "good" performance depends heavily on context:
 
-   These ranges are indicative. Actual performance depends on load type (base load
-   vs. weather-driven), data quality, and feature availability. Use your own
-   historical baselines rather than absolute thresholds.
+- **Aggregation level** — a single household is inherently noisier than a substation serving thousands. Expect higher relative errors at lower aggregation.
+- **Forecast horizon** — accuracy degrades with lead time. A 15-minute-ahead forecast might achieve 2-3% MAPE at substation level, while a 36-hour-ahead forecast might show 8-12%.
+- **Season and weather** — performance typically degrades during extreme weather events and seasonal transitions.
 
-Key Metrics to Monitor
-^^^^^^^^^^^^^^^^^^^^^^
+Use the windowed metrics to identify periods where performance drops, which may indicate missing features or concept drift.
 
-- **RMAE** (Relative Mean Absolute Error) at the median quantile — primary accuracy measure.
-- **RCRPS** (Relative Continuous Ranked Probability Score) — assesses the full probabilistic forecast quality.
-- **Observed Probability** — calibration check: does the 90th percentile quantile actually contain 90% of observations?
+.. warning::
 
-See :doc:`probabilistic_forecasting` for details on interpreting probabilistic metrics.
+   A model that looks excellent in backtesting may still underperform in production if the backtest period does not include challenging conditions (extreme weather, holidays, grid topology changes). Always backtest across at least one full year if possible.
 
 
-Common Pitfalls
----------------
+Probabilistic Calibration
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-- **Too-short backtest window**: include at least one full seasonal cycle (ideally 12+ months) to capture all operational conditions.
-- **Ignoring retraining cadence**: set ``training_interval`` to match your production schedule. A model retrained daily in backtesting but weekly in production gives optimistic results.
-- **Evaluating only global metrics**: always check per-window results to detect performance instability.
-- **Mismatched sample intervals**: ensure your data, forecaster config, and backtest config all use the same ``prediction_sample_interval``.
+For probabilistic forecasts (see :doc:`/tutorials/backtesting_quickstart` for a full worked example), pay special attention to the observed probability metric. If your 90% prediction interval only captures 75% of observations, the model is overconfident. This matters for grid operations where under-estimated uncertainty can lead to insufficient reserve capacity.
+
+The ``EvaluationPipeline`` automatically includes :class:`~openstef_beam.evaluation.ObservedProbabilityProvider` in global metrics to ensure calibration is always assessed.
 
 
-Next Steps
-----------
+Relationship to Production Forecasting
+---------------------------------------
 
-- :doc:`/tutorials/backtesting_quickstart` — full worked example with real data
-- :ref:`concept_beam` — architecture details on how pipelines compose
-- :doc:`forecasting` — how to configure the forecasting model itself
-- :doc:`datasets` — understanding versioned time series and data access patterns
-- :doc:`probabilistic_forecasting` — interpreting quantile forecasts and calibration
+Backtesting validates your model *before* deployment, but the forecaster you backtest should be as close as possible to what runs in production. The :class:`~openstef_beam.backtesting.BacktestForecasterMixin` interface is intentionally similar to the production forecasting interface described in :doc:`/user_guide/guides/forecasting`. The key difference is that backtesting wraps data access in ``RestrictedHorizonVersionedTimeSeries`` to enforce temporal constraints that production naturally provides (you simply cannot access tomorrow's meter readings today).
+
+For details on probabilistic output formats and quantile configuration, see :doc:`/user_guide/guides/probabilistic_forecasting`.

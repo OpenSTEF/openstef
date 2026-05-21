@@ -1,102 +1,95 @@
 Probabilistic Forecasting
 =========================
 
-.. _guide_probabilistic_forecasting:
+A point forecast tells you what is most likely to happen, but it does not tell you how wrong it might be. If your model predicts 100 MW of load, reality could be anywhere from 80 to 120 MW. Grid operators need that range of possible outcomes to make sound decisions about reserve planning, congestion management, and market bidding. Probabilistic forecasting quantifies this uncertainty by producing multiple quantile predictions that describe the full distribution of possible outcomes.
 
-A point forecast tells you what is *most likely* to happen — "expect 100 MW at 14:00 tomorrow." But grid operators cannot act on a single number alone. If reality could be anywhere between 80 MW and 120 MW, that uncertainty range drives critical decisions:
+This page explains how OpenSTEF produces calibrated probabilistic forecasts and why calibration matters for operational use.
 
-- **Reserve planning** — how much backup capacity to procure
-- **Congestion management** — whether a line might overload under plausible scenarios
-- **Market bidding** — balancing risk of over- vs. under-procurement
+Why Quantiles, Not Confidence Intervals
+----------------------------------------
 
-Probabilistic forecasts express this uncertainty as a set of *quantiles*: the P10 value should be exceeded roughly 90% of the time, the P90 value only about 10% of the time. Together, these quantiles form prediction intervals that communicate the full range of plausible outcomes.
+OpenSTEF expresses uncertainty through quantile forecasts. A quantile forecast at level 0.1 (P10) means "we expect the actual value to fall below this prediction about 10% of the time." A set of quantiles (e.g., P5, P10, P30, P50, P70, P90, P95) describes the shape of the predictive distribution without assuming normality or symmetry.
 
-OpenSTEF treats probabilistic forecasting as a first-class capability. Every supported model produces quantile predictions natively — this is not bolted on as an afterthought.
+This is important for energy forecasting because:
 
-.. mermaid:: /diagrams/user_guide/guides/probabilistic_forecasting_diagram_1.mmd
+- Solar generation uncertainty is highly asymmetric (bounded at zero, skewed by cloud cover)
+- Wind power distributions are non-Gaussian due to the cubic relationship between wind speed and power
+- Load uncertainty varies by time of day and season
 
-How Quantile Forecasting Works
+Configuring Quantile Forecasts
 ------------------------------
 
-Traditional regression minimises squared error, producing a conditional mean. Quantile regression instead minimises the *pinball loss* (also called quantile loss), which asymmetrically penalises over- and under-predictions depending on the target quantile level. For quantile τ:
-
-- Under-predictions are penalised by weight τ
-- Over-predictions are penalised by weight (1 − τ)
-
-This causes the model to learn the τ-th conditional quantile of the target distribution rather than the mean.
-
-OpenSTEF implements this differently depending on the model backend:
-
-.. list-table:: Quantile Regression by Model Type
-   :header-rows: 1
-   :widths: 25 75
-
-   * - Model
-     - Approach
-   * - XGBoost
-     - Custom multi-quantile pinball loss objective (``pinball_loss_multi_objective``) or arctan-smoothed variant (``arctan_loss_multi_objective``). All quantiles are predicted simultaneously in a single multi-output model.
-   * - GBLinear
-     - XGBoost's built-in ``reg:quantileerror`` objective, which natively supports quantile regression.
-   * - LightGBM
-     - ``MultiQuantileRegressor`` wrapper that trains quantile predictions using LightGBM's quantile objective.
-
-All approaches produce a single model that outputs all requested quantiles at once, rather than training separate models per quantile.
-
-
-Configuring Quantiles
----------------------
-
-Quantiles are specified when setting up a forecasting workflow via the ``quantiles`` field on your workflow configuration. The standard set used across OpenSTEF benchmarks and examples is:
+All forecaster models in OpenSTEF support quantile prediction. You configure which quantiles to produce through the ``quantiles`` field on :class:`~openstef_models.presets.ForecastingWorkflowConfig`:
 
 .. code-block:: python
 
    from openstef_core.types import Quantile as Q
+   from openstef_models.presets import ForecastingWorkflowConfig
 
-   quantiles = [Q(0.05), Q(0.1), Q(0.3), Q(0.5), Q(0.7), Q(0.9), Q(0.95)]
+   config = ForecastingWorkflowConfig(
+       model_id="my_forecast",
+       model="gblinear",
+       quantiles=[Q(0.05), Q(0.1), Q(0.3), Q(0.5), Q(0.7), Q(0.9), Q(0.95)],
+   )
 
-The P50 quantile corresponds to the median forecast. The outer quantiles (P05, P95) define a 90% prediction interval — you expect the actual value to fall within this range 90% of the time.
+The median quantile (P50) serves as the point forecast. The outer quantiles define prediction intervals of varying width.
 
-Output columns in the forecast dataset are named ``quantile_P05``, ``quantile_P10``, etc., making them easy to identify and process downstream.
+How Each Model Produces Quantiles
+---------------------------------
+
+Different model backends use different strategies to estimate quantiles:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 20 40 40
+
+   * - Model
+     - Quantile Method
+     - Key Detail
+   * - XGBoost
+     - Custom pinball loss objective
+     - Multi-output: trains all quantiles jointly using gradient/hessian of pinball loss (or smoothed arctan variant)
+   * - GBLinear
+     - ``reg:quantileerror`` objective
+     - XGBoost's built-in quantile regression for linear boosters
+   * - LightGBM
+     - ``MultiQuantileRegressor``
+     - Native multi-quantile support in LightGBM
+
+All approaches train a single model that produces all requested quantiles simultaneously, rather than fitting separate models per quantile. This is more efficient and helps maintain consistency between quantile levels.
 
 .. note::
 
-   The choice of quantiles depends on your operational needs. For reserve planning you may care most about extreme tails (P01, P99). For day-ahead market bidding, P10–P90 may suffice. OpenSTEF lets you specify any set of quantiles between 0 and 1.
-
+   The XGBoost pinball loss implementation includes a non-degenerate hessian approximation required for proper tree splitting. The ``max_delta_step`` hyperparameter must satisfy ``0.5 * max_delta_step <= min(quantile, 1 - quantile)`` for stable convergence.
 
 The Calibration Problem
 -----------------------
 
-Raw quantile models often *miscalibrate*: the predicted P10 value might actually be exceeded 15% of the time rather than the expected 10%. This happens because:
+Raw quantile models often produce predictions where the stated coverage does not match observed coverage. For example, a predicted P10 might actually be exceeded 15% of the time rather than the expected 10%. This miscalibration can arise from:
 
-- The model's loss landscape has local minima
-- Feature distributions shift between training and deployment
-- The pinball loss converges slowly in the tails where data is sparse
+- Distribution shift between training and deployment data
+- Model misspecification (the model cannot perfectly capture the true conditional distribution)
+- Feature interactions that affect uncertainty differently than the mean
 
-Miscalibration means your prediction intervals are unreliable — a "90% interval" might only cover 80% of outcomes, leading to under-estimated risk.
-
-.. note:: [VISUALIZATION: Reliability diagram (calibration plot) showing expected quantile level on x-axis vs. observed frequency on y-axis. A perfectly calibrated model follows the diagonal. The "before calibration" line deviates, the "after calibration" line hugs the diagonal.]
-
+For operational use, calibration matters enormously. If a grid operator uses P95 to set reserves, they need that bound to actually contain 95% of outcomes. Systematic miscalibration leads to either over-procurement (wasting money) or under-procurement (risking reliability).
 
 Isotonic Quantile Calibration
 -----------------------------
 
-OpenSTEF addresses miscalibration with :class:`~openstef_models.transforms.postprocessing.IsotonicQuantileCalibrator`, a postprocessing transform that restores proper quantile coverage.
+OpenSTEF addresses miscalibration with :class:`~openstef_models.transforms.postprocessing.IsotonicQuantileCalibrator`, a postprocessing transform that corrects quantile predictions after the model produces them.
 
-**How it works:**
+The calibrator works as follows:
 
-1. During training, the calibrator observes predicted quantile values on a validation split and computes the *empirical* quantile level each prediction actually corresponds to.
-2. It fits a ``sklearn.isotonic.IsotonicRegression`` per quantile, learning a monotonic mapping from predicted values to calibrated values.
-3. During prediction, each quantile column is remapped through its learned isotonic function.
+1. During training, it observes the model's predicted quantile values on a validation split alongside actual outcomes
+2. For each quantile level, it fits a scikit-learn :class:`~sklearn.isotonic.IsotonicRegression` that maps predicted values to calibrated values
+3. During prediction, each quantile column is passed through its learned isotonic mapping
 
-This approach has two key properties:
-
-- **Proper coverage** — after calibration, the predicted P10 is exceeded approximately 10% of the time
-- **Monotonicity preservation** — isotonic regression guarantees that higher quantiles always produce values ≥ lower quantiles (no "crossing" quantiles)
+Isotonic regression is ideal for this task because it is monotone by construction: if the raw model predicts a higher value, the calibrated output will also be higher (or equal). This preserves the ordering of quantiles, ensuring that P90 is always greater than or equal to P50, which is always greater than or equal to P10.
 
 Adding Calibration to a Workflow
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The calibrator is appended to the model's postprocessing pipeline:
+The calibrator is appended to the postprocessing pipeline of a forecasting workflow:
 
 .. code-block:: python
 
@@ -109,77 +102,31 @@ The calibrator is appended to the model's postprocessing pipeline:
        )
    )
 
-When ``use_local_quantile_estimation=True``, the calibrator estimates empirical quantile levels using a local rolling window (minimum 20 samples), which adapts better to non-stationary data than a global estimate.
-
-After calling ``workflow.fit()``, the calibrator is fitted on the validation portion of the training data. Subsequent calls to ``workflow.predict()`` automatically apply the calibration correction.
+When ``use_local_quantile_estimation=True``, the calibrator estimates observed quantile levels using a local window approach rather than global statistics, which better captures conditional calibration.
 
 .. warning::
 
-   Calibration requires sufficient validation data to estimate empirical quantile levels reliably. With fewer than ~200 validation samples, the isotonic mapping may overfit. Ensure your training dataset includes an adequate validation split.
+   The calibrator must be fitted (via ``workflow.fit()``) before it can be used for prediction. Calling ``predict()`` on a workflow with an unfitted calibrator will raise a :class:`~openstef_core.exceptions.NotFittedError`.
 
+For a complete worked example showing calibration before and after, including diagnostic plots, see :doc:`/tutorials/quantile_calibration`.
 
 Evaluating Probabilistic Forecasts
 -----------------------------------
 
-Point forecast metrics (MAE, RMSE) do not capture probabilistic forecast quality. Key metrics for quantile forecasts include:
+Calibration quality can be assessed by comparing expected vs. observed quantile levels. For each quantile Q, compute the fraction of actual observations that fall below the predicted quantile value. A well-calibrated model produces a diagonal on a calibration plot (expected = observed).
 
-.. list-table:: Probabilistic Forecast Metrics
-   :header-rows: 1
-   :widths: 30 70
+Key metrics for probabilistic forecast quality include:
 
-   * - Metric
-     - What it measures
-   * - Pinball loss (quantile score)
-     - Average asymmetric error per quantile — lower is better
-   * - Coverage
-     - Fraction of actuals falling within a prediction interval — should match the nominal level
-   * - Winkler score
-     - Interval width penalised for non-coverage — rewards tight intervals that still cover
-   * - Calibration error
-     - Deviation between expected and observed quantile levels — should be near zero
+- **Calibration error**: the difference between expected and observed coverage per quantile
+- **Sharpness**: the width of prediction intervals (narrower is better, given proper calibration)
+- **Pinball loss**: the proper scoring rule for quantile forecasts, penalizing both miscalibration and lack of sharpness
 
-To assess calibration, compare the expected quantile level against the observed frequency:
+See :doc:`/user_guide/guides/backtesting` for how to evaluate forecast quality on historical data.
 
-.. code-block:: python
+Relationship to Other Guides
+-----------------------------
 
-   observed_p10 = (actuals <= forecast["quantile_P10"]).mean()
-   # Should be approximately 0.10
-
-For systematic evaluation across multiple prediction jobs, see :doc:`/user_guide/guides/backtesting`.
-
-
-When to Use Probabilistic Forecasts
-------------------------------------
-
-Not every application needs full quantile predictions. Use this decision framework:
-
-.. list-table::
-   :header-rows: 1
-   :widths: 40 30 30
-
-   * - Use Case
-     - Point Forecast Sufficient?
-     - Quantiles Needed?
-   * - Dashboard display
-     - Often yes
-     - Nice-to-have
-   * - Reserve procurement
-     - No
-     - Yes (tails: P01–P10, P90–P99)
-   * - Congestion risk assessment
-     - No
-     - Yes (upper tail: P90, P95)
-   * - Market bidding
-     - Sometimes
-     - Yes for optimal bidding
-   * - Model comparison / benchmarking
-     - Partial
-     - Yes for full evaluation
-
-
-Next Steps
-----------
-
-- :doc:`/tutorials/quantile_calibration` — worked example showing calibration before and after isotonic correction
-- :doc:`/user_guide/guides/forecasting` — the full forecasting lifecycle including model selection
-- :doc:`/user_guide/guides/backtesting` — evaluating forecast quality on historical data
+- For the overall forecasting workflow (fitting, predicting, model selection), see :doc:`/user_guide/guides/forecasting`
+- For understanding how different model types compare, see :doc:`/user_guide/concepts/models`
+- For evaluating forecast performance systematically, see :doc:`/user_guide/guides/backtesting`
+- For operational concerns like fallback behavior when data is missing, see :doc:`/user_guide/guides/reliability_fallback`

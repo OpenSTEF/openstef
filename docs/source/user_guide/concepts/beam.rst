@@ -1,132 +1,206 @@
 BEAM
 ====
 
-This page explains the layered architecture of **BEAM** (Backtesting, Evaluation, Analysis, and Model-comparison), OpenSTEF's framework for systematic, reproducible forecasting model comparison. BEAM separates concerns into distinct pipeline stages so that each can be configured, tested, and extended independently.
+Energy forecasting teams need to compare models fairly. A model that appears superior on
+one target or time horizon may underperform on another. Without a systematic framework,
+comparisons become ad-hoc: different evaluation windows, inconsistent data splits, or
+accidental future data leakage can all invalidate results. BEAM (Backtesting, Evaluation,
+Analysis, and Metrics) solves this by providing a reproducible, sequential pipeline for
+model comparison.
+
+This page explains the architecture and design principles of BEAM. For a hands-on
+walkthrough, see :ref:`guide_backtesting`.
+
+Why Systematic Benchmarking Matters
+-----------------------------------
+
+In production energy forecasting, you must answer questions like:
+
+- Does a new model outperform the current one across all targets?
+- How does performance vary by lead time (1-hour ahead vs. day-ahead)?
+- Are improvements consistent across seasonal windows?
+
+Answering these requires three guarantees:
+
+1. **No future data leakage** during backtesting (the model must never see data it would not have in production).
+2. **Consistent segmentation** of results by horizon, availability time, and evaluation window.
+3. **Reproducible analysis** that can be re-run or extended without re-executing expensive training.
+
+BEAM encodes these guarantees into its pipeline structure.
+
+Pipeline Overview
+-----------------
+
+BEAM is organized as three sequential stages, orchestrated by :class:`~openstef_beam.benchmarking.benchmark_pipeline.BenchmarkPipeline`:
 
 .. mermaid:: /diagrams/user_guide/concepts/beam_diagram_1.mmd
 
-Why BEAM Exists
----------------
+.. list-table:: BEAM Pipeline Stages
+   :header-rows: 1
+   :widths: 20 30 25 25
 
-Comparing forecasting models is deceptively hard. Naive approaches introduce subtle biases:
+   * - Stage
+     - Responsibility
+     - Input
+     - Output
+   * - BacktestPipeline
+     - Simulate production forecasting over historical data
+     - Ground truth, predictors, BacktestForecasterMixin
+     - ``TimeSeriesDataset`` of predictions
+   * - EvaluationPipeline
+     - Segment predictions and compute metrics
+     - Predictions, ground truth, metric providers
+     - ``EvaluationReport``
+   * - AnalysisPipeline
+     - Generate visualizations at configurable aggregation levels
+     - EvaluationReports, VisualizationProviders
+     - ``AnalysisOutput`` (HTML)
 
-- **Future data leakage** — using information that wouldn't have been available at prediction time.
-- **Inconsistent evaluation windows** — comparing models on different time periods or lead times.
-- **Non-reproducibility** — ad-hoc scripts that can't be re-run or audited.
+These stages are completely decoupled. You can re-run evaluation with different metrics
+without re-running the backtest, or generate new visualizations without recomputing metrics.
 
-BEAM solves these problems by enforcing a strict separation between *generating predictions*, *evaluating predictions*, and *visualizing results*. Each stage has a single responsibility, clear inputs and outputs, and no hidden coupling to the others.
+Backtesting Stage
+-----------------
 
-Layer 1: BacktestForecasterMixin
----------------------------------
+The :class:`~openstef_beam.backtesting.backtest_pipeline.BacktestPipeline` simulates how a
+model would have performed in production by stepping through historical data sequentially.
 
-The :class:`~openstef_beam.backtesting.backtest_forecaster.mixins.BacktestForecasterMixin` defines the interface that any forecasting model must implement to participate in a backtest. It is **not** the same as a Forecaster in ``openstef-models`` — it is glue code that simulates production data access patterns.
+Preventing Future Data Leakage
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-In production, a forecaster would request data from live APIs. In BEAM, the mixin's ``fit`` and ``predict`` methods receive a :class:`~openstef_beam.backtesting.restricted_horizon_timeseries.RestrictedHorizonVersionedTimeSeries` — a wrapper that provides only the data that would have been *published* before the simulated prediction moment. This prevents future data leakage by construction, not by convention.
-
-.. code-block:: python
-
-   class MyForecaster(BacktestForecasterMixin):
-       def fit(self, data: RestrictedHorizonVersionedTimeSeries) -> None: ...
-       def predict(self, data: RestrictedHorizonVersionedTimeSeries) -> TimeSeriesDataset | None: ...
-
-For batch-capable models, :class:`~openstef_beam.backtesting.backtest_forecaster.mixins.BacktestBatchForecasterMixin` adds a ``predict_batch`` method for efficient multi-horizon prediction.
+The central design challenge in backtesting is ensuring the model never accesses data from
+the future. BEAM solves this with
+:class:`~openstef_beam.backtesting.restricted_horizon_timeseries.RestrictedHorizonVersionedTimeSeries`,
+a wrapper that restricts the model's view of the underlying dataset to only data available
+before the current simulation timestamp.
 
 .. warning::
 
-   ``RestrictedHorizonVersionedTimeSeries`` enforces temporal constraints at the data-access layer. Even if your model code accidentally requests future timestamps, the wrapper will not return them. This is the key mechanism that makes BEAM backtests trustworthy.
+   A :class:`~openstef_beam.backtesting.backtest_forecaster.mixins.BacktestForecasterMixin`
+   is **not** the same as a Forecaster in openstef-models. It is glue code that adapts any
+   model to the backtesting interface, receiving only a restricted data view and never
+   having direct access to the full dataset.
 
-Layer 2: BacktestPipeline
---------------------------
+Event-Driven Simulation
+^^^^^^^^^^^^^^^^^^^^^^^^
 
-:class:`~openstef_beam.backtesting.backtest_pipeline.BacktestPipeline` takes a ``BacktestForecasterMixin`` and replays history as if it were happening in real time.
+:class:`~openstef_beam.backtesting.backtest_event_generator.BacktestEventGenerator`
+schedules train and predict events according to the configured horizon and window step.
+For each event, the pipeline either calls ``fit()`` or ``predict()`` on the forecaster,
+always passing a :class:`~openstef_beam.backtesting.restricted_horizon_timeseries.RestrictedHorizonVersionedTimeSeries`
+that enforces the temporal boundary.
 
-**How it works:**
+The output is a :class:`~openstef_beam.datasets.TimeSeriesDataset` containing all
+predictions, each tagged with an ``available_at`` timestamp indicating when that
+prediction would have been generated in production.
 
-- A ``BacktestEventGenerator`` creates a schedule of **train** and **predict** events based on configured intervals (e.g., retrain daily, predict every 15 minutes).
-- The pipeline iterates through events chronologically. At each train event, it calls ``forecaster.fit()`` with a horizon-restricted view. At each predict event, it calls ``forecaster.predict()``.
-- Output: a single :class:`~openstef_beam.backtesting.backtest_pipeline.TimeSeriesDataset` containing all predictions, annotated with ``available_at`` timestamps.
+Evaluation Stage
+----------------
 
-**What it does NOT do:** BacktestPipeline does not evaluate predictions. It has no concept of metrics, accuracy, or ground truth comparison. This separation is intentional — it means you can re-evaluate the same predictions with different metrics without re-running the expensive simulation.
+The :class:`~openstef_beam.evaluation.EvaluationPipeline` is entirely separate from
+backtesting. It takes predictions and ground truth, then segments and scores them along
+three dimensions:
 
-Layer 3: EvaluationPipeline
-----------------------------
+- **available_at**: When the prediction was generated (e.g., "day-ahead at 06:00").
+- **lead_time**: The gap between prediction generation and the target timestamp (e.g., 36 hours ahead).
+- **time_windows**: Rolling evaluation periods for detecting performance drift.
 
-:class:`~openstef_beam.evaluation.EvaluationPipeline` is **completely separate** from BacktestPipeline. It takes predictions and ground truth as inputs and produces an :class:`~openstef_beam.evaluation.EvaluationReport`.
+Configurable Metrics
+^^^^^^^^^^^^^^^^^^^^
 
-The key insight is *segmentation*: not all predictions are equally interesting. EvaluationPipeline slices results along multiple dimensions:
-
-.. list-table:: Evaluation Segmentation Dimensions
-   :header-rows: 1
-   :widths: 25 75
-
-   * - Dimension
-     - Purpose
-   * - ``available_at``
-     - When the prediction was made (time-of-day, day-of-week effects)
-   * - ``lead_time``
-     - How far ahead the prediction looks (1h vs 24h accuracy)
-   * - ``time_windows``
-     - Which calendar period the target falls in (seasonal patterns)
-
-Metrics (e.g., :class:`~openstef_beam.evaluation.metric_providers.RMAEProvider`, :class:`~openstef_beam.evaluation.metric_providers.RCRPSProvider`) are configurable via :class:`~openstef_beam.evaluation.EvaluationConfig`. Each metric is computed per subset, giving a multi-dimensional view of model performance.
-
-Layer 4: AnalysisPipeline
---------------------------
-
-:class:`~openstef_beam.analysis.analysis_pipeline.AnalysisPipeline` transforms ``EvaluationReport`` objects into human-readable HTML visualizations. It operates at three aggregation levels:
-
-.. list-table:: Analysis Aggregation Levels
-   :header-rows: 1
-   :widths: 20 80
-
-   * - Level
-     - Description
-   * - ``NONE``
-     - Individual target detail — one report, full diagnostic depth
-   * - ``TARGET``
-     - Cross-target comparison within a single model run
-   * - ``GROUP``
-     - Grouped comparison (e.g., by region, asset type, or model variant)
-
-Visualizations are provided by pluggable :class:`~openstef_beam.analysis.visualizations.VisualizationProvider` implementations (e.g., ``SummaryTableVisualization``, ``GroupedTargetMetricVisualization``, ``TimeSeriesVisualization``). You configure which providers to use in :class:`~openstef_beam.analysis.analysis_pipeline.AnalysisConfig`.
-
-Layer 5: BenchmarkPipeline
----------------------------
-
-:class:`~openstef_beam.benchmarking.benchmark_pipeline.BenchmarkPipeline` is the top-level orchestrator that ties everything together. For each target it:
-
-1. Obtains data from a **TargetProvider** (measurements, predictors, metadata).
-2. Creates a ``BacktestForecasterMixin`` via a configured factory.
-3. Runs **BacktestPipeline** → predictions.
-4. Runs **EvaluationPipeline** → evaluation report.
-5. Runs **AnalysisPipeline** → visualizations.
-6. Persists all outputs to **BenchmarkStorage**.
+Metrics are supplied as provider objects. BEAM includes providers such as
+``RMAEProvider`` (Relative Mean Absolute Error) and ``RCRPSProvider`` (Relative
+Continuous Ranked Probability Score) for probabilistic evaluation. You can implement
+custom providers to add domain-specific metrics.
 
 .. code-block:: python
 
-   pipeline = BenchmarkPipeline(
-       backtest_config=backtest_config,
-       evaluation_config=evaluation_config,
-       analysis_config=analysis_config,
-       target_provider=my_target_provider,
-       storage=LocalBenchmarkStorage(base_path=Path("./results")),
+   from openstef_beam.evaluation import EvaluationConfig, EvaluationPipeline
+   from openstef_beam.evaluation.metric_providers import RMAEProvider, RCRPSProvider
+
+   eval_pipeline = EvaluationPipeline(
+       config=EvaluationConfig(),
+       quantiles=forecaster.quantiles,
+       window_metric_providers=[RMAEProvider(), RCRPSProvider()],
+       global_metric_providers=[RMAEProvider(), RCRPSProvider()],
    )
 
-BenchmarkPipeline supports **parallel target processing** — multiple targets can be backtested concurrently since they are independent. Storage backends are pluggable: local filesystem, cloud storage, or in-memory for testing.
+The output is an :class:`~openstef_beam.evaluation.EvaluationReport` containing per-subset
+metrics that can be inspected programmatically or passed to the analysis stage.
+
+Analysis Stage
+--------------
+
+The :class:`~openstef_beam.analysis.analysis_pipeline.AnalysisPipeline` transforms
+evaluation reports into HTML visualizations. It operates at configurable aggregation
+levels:
+
+.. list-table:: Aggregation Levels
+   :header-rows: 1
+   :widths: 30 70
+
+   * - Level
+     - Description
+   * - NONE
+     - Individual target, single run
+   * - TARGET
+     - Aggregate across runs for one target
+   * - GROUP
+     - Aggregate across targets within a group
+   * - RUN_AND_NONE
+     - Compare runs at individual target level
+   * - RUN_AND_TARGET
+     - Compare runs aggregated per target
+   * - RUN_AND_GROUP
+     - Compare runs aggregated per group
+
+Visualization providers (e.g., ``SummaryTableVisualization``) are pluggable. Each
+provider receives the relevant subset of evaluation data and produces a self-contained
+HTML fragment.
+
+BenchmarkPipeline: The Orchestrator
+------------------------------------
+
+:class:`~openstef_beam.benchmarking.benchmark_pipeline.BenchmarkPipeline` ties everything
+together. For each target supplied by a ``TargetProvider``, it executes the three stages
+sequentially and persists results via ``BenchmarkStorage``.
+
+Key responsibilities:
+
+- **Target iteration**: Acquires targets (with ground truth, predictors, and metric configuration) from a pluggable ``TargetProvider``.
+- **Forecaster creation**: Uses a factory to instantiate a ``BacktestForecasterMixin`` per target.
+- **Sequential execution**: Runs Backtest, then Evaluation, then Analysis for each target.
+- **Parallel processing**: Supports processing multiple targets concurrently for efficiency.
+- **Storage management**: Persists predictions, evaluation reports, and analysis outputs through a ``BenchmarkStorage`` backend (local filesystem, cloud, or in-memory).
+
+Because results are persisted after each stage, you can use
+:class:`~openstef_beam.benchmarking.benchmark_comparison_pipeline.BenchmarkComparisonPipeline`
+to compare results across multiple benchmark runs without re-executing them.
 
 Design Principles
 -----------------
 
-BEAM's architecture embodies several principles that make model comparison trustworthy:
+**Separation of concerns**: Each stage has a single responsibility and a well-defined
+interface. This makes it possible to swap metric providers, visualization backends, or
+storage implementations independently.
 
-- **Temporal integrity by construction** — ``RestrictedHorizonVersionedTimeSeries`` makes data leakage structurally impossible, not just discouraged.
-- **Separation of generation and evaluation** — predictions are a reusable artifact. Change your metrics without re-running backtests.
-- **Reproducibility** — all configuration is declarative (``BacktestConfig``, ``EvaluationConfig``, ``AnalysisConfig``). Store configs alongside results for full audit trails.
-- **Fair comparison** — all models see exactly the same data at exactly the same timestamps. The event schedule is model-agnostic.
+**Temporal integrity**: The ``RestrictedHorizonVersionedTimeSeries`` wrapper guarantees
+that no stage can accidentally introduce future information into model training or
+prediction.
 
-Next Steps
-----------
+**Reproducibility**: Configurations (``BacktestConfig``, ``EvaluationConfig``,
+``AnalysisConfig``) are serializable data classes. Storing them alongside results ensures
+any benchmark can be reproduced exactly.
 
-- :ref:`guide_backtesting` — practical guide to setting up and running backtests
-- :doc:`models` — understand which models to compare using BEAM
-- :doc:`intro_to_energy_forecasting` — context on the forecasting problem BEAM helps solve
+**Scalability**: Parallel target processing and decoupled stages mean that large-scale
+benchmarks (hundreds of targets, multiple models) remain tractable.
+
+Relationship to Other Concepts
+------------------------------
+
+BEAM builds on the forecasting models described in :ref:`concept_models`. Any model that
+can be wrapped in a :class:`~openstef_beam.backtesting.backtest_forecaster.mixins.BacktestForecasterMixin`
+can participate in a benchmark. The :ref:`concept_metalearning` system can use BEAM
+results to inform model selection decisions across targets.
+
+For a practical guide to setting up and running benchmarks, see :ref:`guide_backtesting`.

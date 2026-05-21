@@ -1,237 +1,148 @@
 Deployment
 ==========
 
-OpenSTEF is a **pure ML library** — it has no built-in scheduling, orchestration,
-or data storage. You bring your own infrastructure and wrap OpenSTEF's training
-and prediction steps in whatever execution environment fits your team.
+OpenSTEF is a pure machine learning library. It has no built-in scheduler, no orchestration engine, no database layer, and no web server. You bring your own infrastructure and wrap OpenSTEF's training and prediction workflows in whatever execution environment suits your organization.
 
-This page explains how OpenSTEF fits into different deployment contexts, from
-scheduled notebooks to enterprise-scale queued systems. It does not prescribe a
-single architecture; instead, it shows the integration points where your
-infrastructure connects to OpenSTEF's API.
+This page explains the three most common deployment strategies, how to handle model storage, and where to integrate external data sources.
 
-.. mermaid:: /diagrams/user_guide/guides/deployment_diagram_1.mmd
+Why Deployment is Your Responsibility
+-------------------------------------
 
-What OpenSTEF Does and Does Not Provide
-----------------------------------------
+OpenSTEF's core API is intentionally narrow: you call :class:`~openstef_models.workflows.custom_forecasting_workflow.CustomForecastingWorkflow` with data, and it returns forecasts or a trained model. Everything else (scheduling, data retrieval, result storage, alerting) lives outside the library.
 
-OpenSTEF provides:
+This design means OpenSTEF works in any environment that can run Python, from a single notebook to a distributed task queue. The trade-off is that you must build the integration layer yourself.
 
-- Feature engineering, model training, and prediction via :class:`~openstef_models.workflows.custom_forecasting_workflow.CustomForecastingWorkflow`
-- Model versioning and artifact storage via :class:`~openstef_models.integrations.mlflow.MLFlowStorageCallback`
-- Configurable callbacks for lifecycle events
+Deployment Strategies
+---------------------
 
-OpenSTEF does **not** provide:
-
-- Job scheduling or cron-like triggers
-- Data ingestion or API connectors
-- Database or message queue integrations
-- Deployment infrastructure (containers, serverless functions)
-
-Your deployment wraps two core operations:
-
-.. code-block:: python
-
-   # Training
-   result = workflow.fit(train_dataset)
-
-   # Prediction
-   forecast = workflow.predict(predict_dataset, forecast_start=start)
-
-Everything else — how you fetch data, when you trigger these calls, and where you
-store results — is your responsibility.
-
-
-Deployment Tiers
-----------------
-
-The table below summarizes three common patterns observed in production deployments:
+The table below summarizes three common approaches, ordered by operational complexity:
 
 .. list-table::
    :header-rows: 1
    :widths: 20 30 25 25
 
-   * - Tier
-     - Pattern
-     - Typical Tools
-     - When to Use
-   * - Small teams / startups
-     - Scheduled notebooks
-     - SageMaker, Databricks, Jupyter + cron
-     - < 50 locations, rapid iteration
-   * - Mid-size with own infra
-     - DAG-based pipelines
-     - Airflow, Dagster, Prefect
-     - 50–500 locations, separate concerns
-   * - Enterprise at scale
-     - Queued execution
-     - Custom task queues, Kubernetes
-     - 500+ locations, strict SLAs
+   * - Strategy
+     - Description
+     - Best For
+     - Considerations
+   * - Scheduled notebooks
+     - Self-contained notebooks that load data, train/predict, and store results. Run on a timer.
+     - Small teams, proof-of-concept, fewer than ~50 forecast targets.
+     - Simple but limited visibility into failures.
+   * - DAG-based orchestration
+     - Separate tasks for data integration, training, and prediction, connected in a directed acyclic graph.
+     - Teams needing retry logic, dependency tracking, and audit trails.
+     - Requires an orchestration platform and task design.
+   * - Queued execution
+     - Lightweight per-location tasks dispatched to a pool of workers with optimized batch data loading.
+     - Large-scale operations with thousands of forecast targets.
+     - Highest throughput but most complex to operate.
 
-Tier 1: Scheduled Notebooks
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Scheduled Notebooks
+^^^^^^^^^^^^^^^^^^^
 
-The simplest deployment is a notebook (or script) that runs on a schedule. Each
-notebook handles the full lifecycle: fetch data, train or predict, store results.
+The simplest deployment: a notebook (or script) that contains the full cycle of data loading, model training or prediction, and result storage. You schedule it to run periodically using any compute platform that supports timed execution (managed notebook services, cron, CI/CD pipelines).
 
-A single notebook might:
-
-1. Query your data warehouse for historical load and weather data
-2. Construct a :class:`~openstef_core.datasets.timeseries_dataset.TimeSeriesDataset`
-3. Call ``workflow.fit()`` or ``workflow.predict()``
-4. Write forecasts back to your database or dashboard
-
-This works well for small teams because there's no infrastructure to maintain
-beyond the compute environment. The tradeoff is that data integration, ML logic,
-and storage are coupled in one artifact.
-
-Tier 2: DAG-Based Pipelines
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-When you need separation of concerns — different teams own data ingestion vs. ML
-vs. delivery — a directed acyclic graph (DAG) orchestrator is natural:
-
-- **Stage 1: Data integration** — fetch weather forecasts, meter readings, and
-  assemble datasets
-- **Stage 2: Training** — periodic retraining (e.g., weekly) using ``workflow.fit()``
-- **Stage 3: Prediction** — frequent forecasting (e.g., every 15 minutes) using
-  ``workflow.predict()``
-- **Stage 4: Delivery** — push forecasts to downstream systems
-
-Each stage is an independent task with clear inputs and outputs. MLflow (see below)
-bridges stages 2 and 3 by persisting trained models.
-
-Tier 3: Queued Execution at Scale
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-For large-scale deployments (thousands of locations), the pattern shifts to
-lightweight per-location tasks dispatched from a queue:
-
-- A scheduler enqueues tasks: "forecast location X" or "train location Y"
-- Workers pull tasks, execute the OpenSTEF workflow, and store results
-- Data integration is optimized: batch-fetch weather data for all locations, then
-  fan out to individual forecast tasks
-
-.. note::
-
-   Sigholm (an OpenSTEF contributor) processes approximately 20,000 forecasts per
-   week with 4-second cycle times per forecast using this queued pattern.
-
-The key insight is that OpenSTEF's ``workflow.predict()`` is stateless once a model
-is loaded — it scales horizontally without coordination between workers.
-
-
-Model Storage with MLflow
--------------------------
-
-Across all deployment tiers, you need a way to persist trained models between
-training and prediction runs. OpenSTEF's **one opinionated choice** about storage
-is the :class:`~openstef_models.integrations.mlflow.MLFlowStorageCallback`, which
-integrates with MLflow for:
-
-- **Model versioning** — every training run produces a versioned artifact
-- **Experiment tracking** — metrics, hyperparameters, and metadata are logged
-- **Model selection** — automatically pick the best-performing model across runs
-- **Model reuse** — skip retraining if the current model is still recent and performant
-
-The callback hooks into the workflow lifecycle:
+A typical notebook structure:
 
 .. code-block:: python
 
-   from openstef_models.integrations.mlflow import MLFlowStorageCallback, MLFlowStorage
+   # 1. Load data from your source
+   data = load_my_timeseries(location_id="substation_A")
+   # 2. Run the OpenSTEF workflow
+   forecast = workflow.predict(data)
+   # 3. Store results
+   save_forecast_to_database(forecast)
 
-   callbacks = [
-       MLFlowStorageCallback(
-           storage=MLFlowStorage(tracking_uri="http://your-mlflow-server"),
-           model_reuse_enable=True,
-           model_reuse_max_age=timedelta(days=7),
-       )
-   ]
+This approach works well when you have a small number of forecast targets and can tolerate coarse error handling (the whole notebook succeeds or fails).
 
-   workflow = CustomForecastingWorkflow(model_id="location_42", model=model, callbacks=callbacks)
+DAG-based Orchestration
+^^^^^^^^^^^^^^^^^^^^^^^
 
-With this in place, ``workflow.fit()`` logs the trained model to MLflow, and
-``workflow.predict()`` loads the latest model automatically. This decouples your
-training schedule from your prediction schedule.
+When you need visibility into individual pipeline stages, retry logic for transient failures, and clear dependency management, a DAG tool (Airflow, Dagster, Prefect, or similar) is a natural fit.
 
-.. note::
+A typical DAG separates concerns into discrete tasks:
 
-   MLflow is an optional dependency. If your deployment uses a different model
-   registry, implement the :class:`~openstef_models.workflows.custom_forecasting_workflow.ForecastingCallback`
-   interface to integrate with your storage backend.
+- **Data integration task**: fetches weather forecasts and meter data, validates completeness.
+- **Training task**: calls ``workflow.fit()`` on prepared data, runs on a slower schedule (e.g., daily or weekly).
+- **Prediction task**: calls ``workflow.predict()`` with fresh input data, runs on a fast schedule (e.g., every 15 minutes).
 
+Each task is independently retriable. The DAG tool handles scheduling, logging, and alerting. OpenSTEF remains a library call inside each task.
+
+Queued Execution
+^^^^^^^^^^^^^^^^
+
+For organizations managing thousands of forecast targets (e.g., one per grid connection or transformer), dispatching individual tasks to a worker pool provides the best throughput. A message queue or task broker distributes work; workers pull tasks, run the OpenSTEF workflow, and report results.
+
+Key optimizations at this scale:
+
+- **Batch data loading**: fetch weather data once and distribute it to all workers that need the same region.
+- **Model caching**: reuse loaded model artifacts across predictions for the same location within a worker.
+- **Graceful degradation**: if a single location fails, other locations continue unaffected. See :doc:`/user_guide/guides/reliability_fallback` for fallback strategies.
 
 Data Sources
 ------------
 
-OpenSTEF expects input data as a :class:`~openstef_core.datasets.timeseries_dataset.TimeSeriesDataset`
-— it does not fetch data itself. Your data integration layer must supply:
-
-- **Load/generation measurements** — historical actuals for training
-- **Weather forecasts** — temperature, wind speed, radiation, humidity, pressure
-- **Calendar features** — handled internally by OpenSTEF's feature engineering
+OpenSTEF requires time series input data (load measurements) and, for most models, weather forecast features. The library does not fetch data; you provide it as a :class:`~openstef_core.datasets.timeseries_dataset.TimeSeriesDataset`.
 
 Common weather data sources:
 
-.. list-table::
-   :header-rows: 1
-   :widths: 25 40 35
+- **Open-Meteo** (https://open-meteo.com): free, global coverage, multiple weather models. A good default for any deployment.
+- **KNMI** (https://www.knmi.nl): high-quality observations and forecasts specific to the Netherlands.
 
-   * - Source
-     - Coverage
-     - Notes
-   * - `Open-Meteo <https://open-meteo.com/>`_
-     - Global, free tier available
-     - Good default for most deployments
-   * - KNMI
-     - Netherlands
-     - High-quality observations and forecasts
-   * - MFFBAS
-     - Netherlands
-     - Specialized Dutch meteorological data
+Your data integration layer is responsible for fetching from these (or other) sources, aligning timestamps, and assembling the dataset that OpenSTEF expects.
 
-Your data integration code maps source-specific column names to the columns
-OpenSTEF expects (e.g., ``temperature_2m``, ``wind_speed_10m``,
-``shortwave_radiation``). See :doc:`datasets` for details on dataset structure.
+Model Storage with MLflow
+-------------------------
 
+OpenSTEF supports MLflow as a model registry backend through :class:`~openstef_models.integrations.mlflow.mlflow_storage_callback.MLFlowStorageCallback`. This callback hooks into the workflow lifecycle to automatically store trained models, log metrics, and retrieve previously trained models for reuse.
 
-Writing Custom Integrations
----------------------------
+.. code-block:: python
 
-OpenSTEF is designed to be modular. If your deployment produces artifacts or uses
-services that OpenSTEF doesn't support yet, extend it:
+   from openstef_models.integrations.mlflow.mlflow_storage_callback import MLFlowStorageCallback
 
-- **Custom callbacks** — implement :class:`~openstef_models.workflows.custom_forecasting_workflow.ForecastingCallback`
-  to hook into ``on_fit_start``, ``on_fit_end``, ``on_predict_start``, etc.
-- **Custom storage backends** — replace MLflow with your own model registry
-- **Custom transforms** — add domain-specific feature engineering to the
-  :class:`~openstef_core.mixins.TransformPipeline`
+   callback = MLFlowStorageCallback(
+       storage=my_mlflow_storage,
+       model_reuse_enable=True,
+       model_reuse_max_age=timedelta(days=7),
+   )
+   workflow = CustomForecastingWorkflow(
+       model=model, model_id="substation_A", callbacks=[callback]
+   )
 
-Contributions to the OpenSTEF project are welcome — if your integration is
-general-purpose, consider upstreaming it.
+The callback handles:
 
+- **Model versioning**: each training run produces a new model version in the MLflow registry.
+- **Model reuse**: if a recently trained model exists and ``model_reuse_enable=True``, the workflow skips retraining.
+- **Model selection**: optionally compares new models against previous versions using a configurable metric.
 
-Operational Considerations
---------------------------
+This mechanism works identically across all three deployment strategies. Whether you run in a notebook or a distributed queue, the same callback persists and retrieves models.
 
-Regardless of deployment tier, consider:
+Custom Storage Backends
+^^^^^^^^^^^^^^^^^^^^^^^
 
-- **Retraining frequency** — models degrade over time as load patterns shift.
-  Weekly or bi-weekly retraining is common. MLflow's model reuse feature avoids
-  unnecessary retraining when performance is still acceptable.
-- **Fallback behavior** — when data feeds fail, forecasts must still be produced.
-  See :doc:`reliability_fallback` for OpenSTEF's approach.
-- **Monitoring** — use the :class:`~openstef_models.integrations.mlflow.MLFlowStorageCallback`
-  metrics logging or implement a custom callback to track forecast quality over time.
-- **Backtesting before deployment** — validate model performance on historical data
-  before going live. See :doc:`backtesting`.
+The callback system is pluggable. If MLflow does not fit your infrastructure, you can implement your own callback by subclassing :class:`~openstef_models.workflows.custom_forecasting_workflow.ForecastingCallback`:
 
-.. mermaid:: /diagrams/user_guide/guides/deployment_diagram_2.mmd
+.. code-block:: python
 
-Next Steps
-----------
+   class MyStorageCallback(ForecastingCallback):
+       def on_fit_end(self, context, result):
+           # Save model artifact to your backend
+           ...
 
-- :doc:`forecasting` — understand the full forecasting lifecycle
-- :doc:`datasets` — learn how to structure input data
-- :doc:`reliability_fallback` — handle data feed failures in production
-- :doc:`backtesting` — validate models before deployment
+Register your callback in the workflow's ``callbacks`` list. The workflow calls your hooks at each lifecycle stage (``on_fit_start``, ``on_fit_end``, ``on_predict_start``, ``on_predict_end``).
+
+Modularity and Extensibility
+-----------------------------
+
+OpenSTEF is designed to be composed, not configured. If your deployment needs something the library does not provide:
+
+- Write a custom :class:`~openstef_models.workflows.custom_forecasting_workflow.ForecastingCallback` for monitoring, storage, or validation logic.
+- Implement your own data loading layer that produces the expected dataset format.
+- Add custom preprocessing transforms to the model pipeline (see :doc:`/user_guide/concepts/models`).
+
+Contributions to the project are welcome. If you build an integration that others would benefit from, consider opening a pull request.
+
+.. note::
+
+   For details on how to structure the forecasting workflow itself (model creation, training, prediction), see :doc:`/user_guide/guides/forecasting`. This page focuses on the infrastructure surrounding those calls.

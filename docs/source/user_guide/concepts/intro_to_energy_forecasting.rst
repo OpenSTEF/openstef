@@ -1,137 +1,85 @@
 Intro to Energy Forecasting
 ===========================
 
-This page provides the conceptual foundation for understanding short-term energy forecasting — the core problem that OpenSTEF solves. If you're new to the domain, start here before diving into the library's architecture and APIs.
+This page introduces the problem domain that OpenSTEF addresses: short-term energy load forecasting for electricity grid operators. It explains what the problem is, why it matters, and what makes it difficult. For the practical steps of producing a forecast with OpenSTEF, see :ref:`guide_forecasting`.
 
-What Is Short-Term Energy Forecasting?
---------------------------------------
+What is Short-Term Load Forecasting?
+-------------------------------------
 
-Short-term energy forecasting (STEF) is the task of predicting electrical load or generation at specific points in the grid over horizons ranging from 15 minutes to approximately 7 days. Grid operators rely on these forecasts to make operational decisions: managing congestion, planning transport capacity, coordinating with upstream and downstream network operators, and minimizing grid losses.
+Short-term load forecasting (STLF) is the prediction of electrical energy demand or generation at specific points in the grid, from 15 minutes to approximately 7 days into the future. Grid operators rely on these forecasts to:
 
-Unlike long-term planning (months to years), short-term forecasting must be:
+- Manage congestion at substations and cables before it occurs
+- Communicate planned energy transport to upstream and downstream operators
+- Optimize grid losses against market prices
+- Plan maintenance windows safely
 
-- **Granular** — typically at 15-minute resolution
-- **Frequent** — updated multiple times per day as new data arrives
-- **Actionable** — accurate enough to trigger real operational decisions
+Unlike long-term planning (months or years), short-term forecasting operates at high temporal resolution (typically 15-minute intervals) and must be refreshed frequently as new measurements and weather forecasts become available.
 
-.. mermaid:: /diagrams/user_guide/concepts/intro_to_energy_forecasting_diagram_1.mmd
+Input Signals
+-------------
 
-Why Does It Matter?
--------------------
+Accurate load forecasts depend on combining several categories of input data, each contributing different information:
 
-Grid operators face a fundamental challenge: electricity supply and demand must balance at every moment, yet the grid has physical capacity limits. Accurate forecasts enable:
-
-- **Congestion management** — predicting when substations approach capacity limits so mitigation strategies can be deployed in time
-- **Transport coordination** — communicating expected load to upstream transmission operators (e.g., a distribution operator reporting to a TSO)
-- **Grid loss optimization** — minimizing financial costs by anticipating losses relative to market prices
-- **Capacity planning** — understanding whether infrastructure can handle expected demand
-
-The consequences of poor forecasts are tangible: unexpected congestion can damage equipment, force expensive emergency measures, or require curtailment of renewable generation.
-
-Input Signals and Why They Matter
----------------------------------
-
-Energy demand and generation are driven by a combination of physical, behavioural, and economic factors. Each input signal captures a different driver:
-
-.. list-table:: Key Input Signals for Energy Forecasting
+.. list-table::
    :header-rows: 1
    :widths: 20 40 40
 
-   * - Signal
+   * - Signal Category
+     - What It Provides
      - Why It Matters
-     - OpenSTEF Approach
-   * - **Load history**
-     - Energy demand is highly auto-correlated — last Monday's load is the best predictor of this Monday's load
-     - :class:`~openstef_models.transforms.time_domain.LagsAdder` automatically selects valid lags respecting the forecast horizon
-   * - **Weather forecasts**
-     - Temperature drives heating/cooling demand; radiation and wind drive renewable generation
-     - :class:`~openstef_models.transforms.time_domain.VersionedLagsAdder` respects data availability timestamps of weather forecasts
-   * - **Calendar features**
-     - Human behaviour follows daily, weekly, and holiday patterns (e.g., "if hour >= 17 and hour <= 20 → evening peak")
-     - :class:`~openstef_models.transforms.time_domain.DatetimeFeaturesAdder`, :class:`~openstef_models.transforms.time_domain.HolidayFeatureAdder`, :class:`~openstef_models.transforms.time_domain.CyclicFeaturesAdder`
-   * - **Market prices**
-     - Energy prices influence behaviour — wind parks may shut down at negative prices; industrial users shift load
-     - Configurable energy price columns in the forecasting workflow
+   * - Load history
+     - Recent and historical measurements of the target variable
+     - Energy demand is highly auto-correlated; last Monday's load is the best predictor of this Monday's load
+   * - Weather forecasts
+     - Temperature, solar irradiance, wind speed, cloud cover
+     - Drives heating/cooling demand, solar generation, and wind generation
+   * - Calendar features
+     - Hour of day, day of week, holidays, school vacations
+     - Captures recurring human behaviour patterns (commuting, industry schedules)
+   * - Market prices
+     - Day-ahead and intraday electricity prices
+     - Influences behaviour of price-responsive loads and generation (e.g., wind parks curtailing at negative prices)
 
-.. note::
+OpenSTEF provides transforms to extract features from these raw signals. For example, :class:`~openstef_models.transforms.time_domain.DatetimeFeaturesAdder` extracts calendar integers, and :class:`~openstef_models.transforms.time_domain.LagsAdder` creates historical lag features that respect the forecast horizon. However, the library cannot compensate for missing or poor-quality input data.
 
-   Weather forecasts are *versioned*: the forecast for Monday issued on Saturday differs from the one issued on Sunday. Standard lag features ignore this distinction, which is why OpenSTEF provides specialized versioned lag handling.
+Forecast Horizons
+-----------------
 
-Forecast Horizons and Accuracy Degradation
-------------------------------------------
+The "horizon" (or lead time) is the time gap between when a forecast is issued and the moment being predicted. A forecast issued now for 36 hours from now has a 36-hour horizon.
 
-The **forecast horizon** (or lead time) is the time gap between when a prediction is made and the period it covers. OpenSTEF supports horizons from 15 minutes to approximately 7 days.
+Accuracy degrades with increasing lead time for two reasons:
 
-A critical constraint: **lags must respect the forecast horizon.** If you're forecasting 36 hours ahead, you cannot use data from 24 hours ago — it won't be available at prediction time. OpenSTEF's lag transforms enforce this automatically.
+- **Information loss:** Lag features from recent measurements become unavailable. If you are forecasting 36 hours ahead, you cannot use data from 24 hours ago because it does not yet exist at the time the forecast must be issued.
+- **Weather forecast uncertainty:** Numerical weather predictions lose resolution and reliability beyond a few days. Solar and wind peaks become unpredictable as cloud and wind patterns diverge from forecasts.
 
-Accuracy degrades with increasing lead time for fundamental reasons:
+OpenSTEF's ``LagsAdder`` automatically selects only lags that are valid for a given horizon, ensuring the model never trains on information that would be unavailable at prediction time.
 
-- **Weather forecast quality drops** — beyond 7 days, weather models lack the 15-minute resolution needed for solar/wind peaks
-- **Behavioural uncertainty compounds** — unpredictable events become more likely over longer windows
-- **Auto-correlation weakens** — the further ahead you look, the less today's load tells you about future load
+Practical Difficulties
+----------------------
 
-.. note:: [VISUALIZATION: Plot showing forecast error (e.g., rMAE) increasing as a function of lead time from 15 minutes to 7 days, with annotations showing the "sweet spot" for different use cases]
+Several real-world factors make energy forecasting harder than textbook time-series prediction:
 
-This is why OpenSTEF treats horizon as a first-class concept throughout its pipeline — from feature construction to model training to evaluation.
+**Unpredictable behaviour at low aggregation levels.** Individual customers or small groups of assets exhibit high variability. A single industrial customer changing shift patterns, or a wind park shutting down in response to negative market prices, can dominate the signal at that grid point.
 
-Challenges in the Field
-------------------------
+**Aggregation helps, but is not always available.** Forecasting a substation serving thousands of households is substantially easier than forecasting a single customer. The law of large numbers smooths individual variability. Grid operators often need forecasts at both levels.
 
-Energy forecasting is not a clean textbook regression problem. Practitioners face several domain-specific difficulties:
+**Capacity changes over time.** New solar installations connect, factories relocate, and electric vehicle charging infrastructure grows. A model trained on last year's data may face a fundamentally different load profile today. Feature engineering and retraining strategies must account for non-stationarity.
 
-Unpredictable behaviour
-^^^^^^^^^^^^^^^^^^^^^^^
+**Weather forecast versioning.** The weather forecast for Monday issued on Saturday differs from the one issued on Sunday. Using the wrong version during training (one that was not actually available at the time) leads to overly optimistic accuracy estimates. OpenSTEF's :class:`~openstef_models.transforms.time_domain.VersionedLagsAdder` handles this distinction explicitly.
 
-Some energy users and generators behave in ways that are difficult to model from historical patterns alone:
+**Data quality issues.** Missing measurements, sensor errors, communication outages, and delayed data feeds are routine in operational settings. Robust forecasting pipelines must detect and handle these gracefully.
 
-- **Wind parks shutting down at negative market prices** — generation drops to zero not because of weather, but because of economic signals
-- **Maintenance events** — planned or unplanned outages cause sudden load changes
-- **Behind-the-meter solar and storage** — invisible generation that changes the apparent load profile
-- **New connections or disconnections** — the underlying capacity of a grid point changes over time
+The Role of OpenSTEF
+--------------------
 
-Aggregation level effects
-^^^^^^^^^^^^^^^^^^^^^^^^^
+OpenSTEF does not eliminate these difficulties, but it provides a structured approach to managing them:
 
-A fundamental principle: **higher aggregation levels are generally easier to forecast.** Individual customer behaviour is erratic, but the aggregate of thousands of customers follows smooth, predictable patterns. This means:
+- Feature transforms that encode domain knowledge (lags, calendar features, weather interactions)
+- Models suited to the characteristics of energy data (see :doc:`/user_guide/concepts/models`)
+- Probabilistic outputs that quantify forecast uncertainty (see :doc:`/user_guide/guides/probabilistic_forecasting`)
+- Backtesting tools to measure real-world performance honestly (see :doc:`/user_guide/concepts/beam`)
+- Reliability mechanisms for when forecasts cannot be produced (see :doc:`/user_guide/guides/reliability_fallback`)
 
-- Substation-level forecasts (many customers) are more predictable than individual customer forecasts
-- System-level patterns (temporal, cyclic) dominate at high aggregation, while weather effects diminish
-- Low-aggregation forecasts require different model optimization strategies (e.g., emphasis on peak detection rather than average accuracy)
+Good input data remains essential. OpenSTEF's transforms extract signal from the data you provide, but they cannot invent information that is not there. Investing in data quality, appropriate weather forecast sources, and correct historical measurements pays dividends in forecast accuracy.
 
-OpenSTEF supports use cases across the full aggregation spectrum — from highly aggregated grid loss forecasting to individual customer predictions for congestion management.
-
-Data quality as the binding constraint
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-In practice, **feature quality and data quality are the primary determinants of forecast accuracy** — often more so than model choice. Common issues include:
-
-- Missing or delayed measurements from SCADA systems
-- Weather forecast providers changing their model or grid resolution
-- Incorrect meter configurations reporting wrong values
-- Capacity changes not reflected in historical data
-
-OpenSTEF provides transforms to extract maximum value from available data (rolling aggregates, cyclic encodings, holiday detection), but no amount of feature engineering can compensate for fundamentally unreliable inputs. Good input data is essential.
-
-.. warning::
-
-   "Garbage in, garbage out" applies strongly to energy forecasting. Before investing time in model tuning, verify that your input data is complete, correctly timestamped, and representative of current grid conditions.
-
-How OpenSTEF Addresses These Challenges
-----------------------------------------
-
-OpenSTEF's design reflects lessons learned from years of operational forecasting at scale:
-
-- **Horizon-aware feature engineering** — transforms automatically respect what data is available at each lead time
-- **Modular transform pipelines** — compose feature extractors for your specific use case and data availability
-- **Probabilistic forecasting** — quantile predictions capture uncertainty that increases with horizon
-- **Extensible architecture** — add custom transforms or models without modifying core code
-
-For a detailed walkthrough of how to build and run forecasts, see :ref:`guide_forecasting`. For information on available models, see :doc:`models`. For understanding how OpenSTEF handles uncertainty across model combinations, see :doc:`beam`.
-
-Next Steps
-----------
-
-- :doc:`models` — understand which model types are available and when to use each
-- :doc:`component_splitting` — learn how forecasts can be decomposed into solar, wind, and other components
-- :ref:`guide_forecasting` — practical guide to building your first forecast pipeline
-- :doc:`/tutorials/feature_engineering` — hands-on tutorial demonstrating feature transforms
+For a practical walkthrough of producing forecasts with OpenSTEF, see :ref:`guide_forecasting`.
