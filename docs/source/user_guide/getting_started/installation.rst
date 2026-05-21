@@ -289,10 +289,10 @@ If you encounter import errors, ensure you're using the correct package names:
 .. code-block:: python
 
     # Correct imports
-    from openstef_models import forecasting
-    from openstef_beam import evaluation
+    from openstef_models.presets import ForecastingWorkflowConfig
+    from openstef_beam.evaluation import EvaluationPipeline
 
-    # Not: from openstef.models import forecasting
+    # Not: from openstef.models import ...
 
 **Memory Issues**
 
