@@ -1,5 +1,5 @@
-Migrating from OpenSTEF 3
-=========================
+Migrating from OpenSTEF 3 to 4
+===============================
 
 This page guides users of the legacy ``openstef`` v3 package through the conceptual
 and practical changes in OpenSTEF v4. If you are starting fresh, skip this page and
@@ -11,15 +11,14 @@ begin with :doc:`/user_guide/getting_started/installation`.
    surface is intentionally different. Plan for a rewrite of integration code, not a
    find-and-replace.
 
-Why the Split Happened
-----------------------
+Package Structure
+-----------------
 
-V3 shipped as a single ``openstef`` package that mixed ML logic, database access
-(``openstef-dbc``), orchestration ("tasks"), and data types in one repository. This
-created tight coupling: you couldn't use the models without pulling in database
-opinions, and testing required standing up infrastructure.
+V4 splits functionality into focused, independently installable packages. You can
+use the models without any database dependency, and each package can be tested in
+isolation.
 
-V4 separates concerns into focused packages:
+In v3 these were all bundled in a single ``openstef`` package:
 
 .. list-table:: Package Mapping
    :header-rows: 1
@@ -46,82 +45,164 @@ V4 separates concerns into focused packages:
 
 .. mermaid:: /diagrams/user_guide/getting_started/migration_diagram_1.mmd
 
-Configuration: Dicts → Pydantic Models
----------------------------------------
+Configuration
+-------------
 
-In v3, a "prediction job" was a plain dictionary (or a thin dataclass wrapper) with
-loosely typed fields. Typos in keys were silent bugs, and required fields were only
-discovered at runtime deep in a pipeline.
+V4's :class:`~openstef_models.presets.ForecastingWorkflowConfig` validates all fields
+at construction time. Model types are constrained literals, durations use ``timedelta``,
+and hyperparameters are typed per-model objects. This replaces v3's
+``PredictionJobDataClass`` which used free-form strings and untyped dicts.
 
 **Before (V3):**
 
 .. code-block:: python
 
-   pj = {"id": 287, "model": "xgb", "quantiles": [10, 30, 50, 70, 90],
-         "forecast_type": "demand", "resolution_minutes": 15}
-   pj = PredictionJobDataClass(**pj)
+   from openstef.data_classes.prediction_job import PredictionJobDataClass
+
+   pj = PredictionJobDataClass(
+       id=287,
+       model="xgb",
+       resolution_minutes=15,
+       forecast_type="demand",
+       quantiles=[10, 30, 50, 70, 90],
+   )
 
 **After (V4):**
 
 .. code-block:: python
 
    from openstef_models.presets import ForecastingWorkflowConfig
-   config = ForecastingWorkflowConfig(model_id="loc_287", model="xgboost", ...)
 
-Key differences:
+   config = ForecastingWorkflowConfig(
+       model_id="loc_287",
+       model="xgboost",
+       sample_interval=timedelta(minutes=15),
+       quantiles=[Q(0.1), Q(0.3), Q(0.5), Q(0.7), Q(0.9)],
+   )
 
-- :class:`~openstef_models.presets.ForecastingWorkflowConfig` (the v4 successor to
-  ``PredictionJobDataClass``) is a full Pydantic model with validation, defaults, and
-  type checking at construction time.
-- Fields use explicit types (``Literal["xgboost", "lgbm", ...]``) instead of free-form
-  strings.
-- Location, horizon, and feature settings are structured sub-objects rather than flat
-  keys.
+Key improvements:
 
-See :doc:`/user_guide/concepts/configuration` for the full configuration model.
+- :class:`~openstef_models.presets.ForecastingWorkflowConfig` uses Pydantic v2 with
+  strict validation. Configuration errors surface immediately at construction time.
+- Model types, quantiles, and durations use constrained types with IDE autocompletion.
+- Location, horizon, and hyperparameter settings are structured sub-objects with their
+  own validation and defaults.
 
-Data: DataFrames → TimeSeriesDataset
--------------------------------------
+.. list-table:: Field Mapping
+   :header-rows: 1
+   :widths: 35 35 30
 
-V3 passed raw ``pandas.DataFrame`` objects between pipeline stages. Metadata like
-sample interval, availability windows, and column roles lived *outside* the data — in
-the prediction job dict or as implicit conventions.
+   * - V3 (``PredictionJobDataClass``)
+     - V4 (``ForecastingWorkflowConfig``)
+     - Notes
+   * - ``id``
+     - ``model_id``
+     - Now ``ModelIdentifier`` type
+   * - ``model`` (free string)
+     - ``model`` (Literal)
+     - Validated; see Model Types below
+   * - ``model_kwargs`` (dict)
+     - ``xgboost_hyperparams`` / ``gblinear_hyperparams`` / etc.
+     - Per-model typed config objects
+   * - ``resolution_minutes`` (int)
+     - ``sample_interval`` (timedelta)
+     -
+   * - ``horizon_minutes`` (int)
+     - ``horizons`` (list[LeadTime])
+     - Supports multiple horizons
+   * - ``lat`` / ``lon``
+     - ``location.coordinate``
+     - Structured LocationConfig sub-object
+   * - ``name``
+     - ``location.name``
+     -
+   * - ``quantiles`` (list[float])
+     - ``quantiles`` (list[Quantile])
+     - Always set; default ``[0.5]``
+   * - ``completeness_threshold``
+     - ``completeness_threshold``
+     - Same name and semantics
+   * - ``flatliner_threshold_minutes`` (int)
+     - ``flatliner_threshold`` (timedelta)
+     -
+   * - ``detect_non_zero_flatliner``
+     - ``detect_non_zero_flatliner``
+     - Unchanged
+   * - ``predict_non_zero_flatliner``
+     - ``predict_nonzero_flatliner``
+     - Slight rename (no underscore in "nonzero")
+   * - ``rolling_aggregate_features``
+     - ``rolling_aggregate_features``
+     - Unchanged
+   * - ``forecast_type``
+     - Removed
+     - Handled by model choice + transforms
+   * - ``electricity_bidding_zone``
+     - ``location.country_code``
+     - Simplified
+   * - ``train_split_func``
+     - ``data_splitter``
+     - Structured config
+   * - ``depends_on``
+     - Removed
+     - User manages orchestration
+   * - ``pipelines_to_run``
+     - Removed
+     - Call workflow methods directly
+   * - ``default_modelspecs``
+     - ``selected_features``
+     - Feature selection via enum
+
+See the :class:`~openstef_models.presets.ForecastingWorkflowConfig` API reference for
+the full list of fields and defaults.
+
+Data Handling
+-------------
 
 V4 introduces :class:`~openstef_core.datasets.timeseries_dataset.TimeSeriesDataset`,
-which carries the data **and** its metadata together:
+which carries the data **and** its metadata together. In v3, metadata like sample
+interval and column roles lived separately in the prediction job.
 
-- **Sample interval** — validated on construction; no more silent resampling bugs.
-- **Availability windows** — tracks when each observation became available (critical
+Benefits of ``TimeSeriesDataset``:
+
+- **Sample interval** -- validated on construction, ensuring consistent resampling.
+- **Availability windows** -- tracks when each observation became available (critical
   for correct backtesting without lookahead).
-- **Versioning** — supports horizon-aware or ``available_at``-aware slicing.
+- **Versioning** -- supports horizon-aware or ``available_at``-aware slicing.
 
 **Before (V3):**
 
 .. code-block:: python
 
+   import pandas as pd
+
    input_data = pd.read_csv("data.csv", index_col="index", parse_dates=True)
+
    train_model_pipeline(pj, input_data)
 
 **After (V4):**
 
 .. code-block:: python
 
+   import pandas as pd
    from openstef_core.datasets import TimeSeriesDataset
-   dataset = TimeSeriesDataset.from_csv("data.csv", sample_interval=timedelta(minutes=15))
+
+   df = pd.read_csv("data.csv", index_col="index", parse_dates=True)
+
+   dataset = TimeSeriesDataset(
+       data=df,
+       sample_interval=timedelta(minutes=15),
+   )
 
 The dataset is then passed to workflows which can introspect its properties without
-external configuration. See :doc:`/user_guide/concepts/datasets` for details.
+external configuration.
 
-Pipelines/Tasks → Workflows/Presets
-------------------------------------
+Workflows
+---------
 
-V3 had two abstraction layers:
-
-- **Tasks** — fetched data from a database, ran a pipeline, wrote results back.
-  Provided by ``openstef-dbc``.
-- **Pipelines** — pure ML logic (``train_model_pipeline``, ``create_forecast``).
-
-V4 replaces both with a single concept: **Workflows**.
+V4 unifies the v3 concepts of "tasks" (database-coupled orchestration) and
+"pipelines" (ML logic) into a single concept: **Workflows**. A workflow encapsulates
+the full train/predict cycle without assuming any particular storage backend.
 
 .. list-table:: API Mapping
    :header-rows: 1
@@ -130,10 +211,10 @@ V4 replaces both with a single concept: **Workflows**.
    * - V3
      - V4
    * - ``train_model_pipeline(pj, data)``
-     - ``workflow.train(dataset)``
+     - ``workflow.fit(dataset)``
    * - ``create_forecast(pj, data)``
      - ``workflow.predict(dataset)``
-   * - Task (fetch → pipeline → store)
+   * - Task (fetch -> pipeline -> store)
      - User code + workflow (you own I/O)
 
 A **Preset** is a factory that builds a fully configured workflow from a config object:
@@ -141,7 +222,21 @@ A **Preset** is a factory that builds a fully configured workflow from a config 
 .. code-block:: python
 
    from openstef_models.presets import create_forecasting_workflow, ForecastingWorkflowConfig
+
+   config = ForecastingWorkflowConfig(
+       model_id="loc_287",
+       model="xgboost",
+       sample_interval=timedelta(minutes=15),
+       quantiles=[Q(0.1), Q(0.5), Q(0.9)],
+   )
+
    workflow = create_forecasting_workflow(config)
+
+   # Training
+   workflow.fit(dataset)
+
+   # Prediction
+   forecast = workflow.predict(dataset)
 
 :func:`~openstef_models.presets.create_forecasting_workflow` assembles preprocessing,
 the forecaster, postprocessing, and callbacks into a
@@ -152,73 +247,71 @@ For ensemble approaches, ``openstef-meta`` provides
 
 See :doc:`/user_guide/guides/forecasting` for a complete walkthrough.
 
-.. _migration_dbc:
+Model Types
+-----------
 
-Database Connector (openstef-dbc)
----------------------------------
-
-``openstef-dbc`` provided MySQL/InfluxDB integration: fetching prediction jobs,
-reading time series, writing forecasts. **V4 has no equivalent package.** This is
-intentional — v4 is a pure ML library with no opinions on data storage.
-
-If your v3 code relied on ``openstef-dbc``:
-
-1. **Data ingestion** — write your own adapter that loads data into
-   :class:`~openstef_core.datasets.timeseries_dataset.TimeSeriesDataset`.
-2. **Result storage** — extract forecasts from the workflow output and write them to
-   your database of choice.
-3. **Configuration storage** — serialize
-   :class:`~openstef_models.presets.ForecastingWorkflowConfig` to/from your config
-   store (JSON, YAML, database row).
-
-See :doc:`/user_guide/deployment/index` for integration patterns and reference
-architectures.
-
-.. warning::
-
-   There is no automated migration path for ``openstef-dbc`` schemas. The v3 database
-   tables (``prediction_jobs``, ``predictions_systems``, etc.) are specific to the v3
-   architecture.
-
-Model Type Names
-----------------
-
-Some model identifiers changed for clarity:
+Model identifiers changed for clarity. Quantile variants are no longer separate model
+types; configure quantiles via the ``quantiles`` field instead.
 
 .. list-table::
    :header-rows: 1
-   :widths: 30 30
+   :widths: 30 30 40
 
    * - V3
      - V4
+     - Notes
    * - ``"xgb"``
      - ``"xgboost"``
+     -
    * - ``"xgb_quantile"``
-     - ``"xgboost"`` (quantiles configured separately)
+     - ``"xgboost"``
+     - Quantiles now in config, not model name
+   * - ``"xgb_multioutput_quantile"``
+     - ``"xgboost"``
+     - Same
    * - ``"lgb"``
      - ``"lgbm"``
+     -
+   * - ``"linear"``
+     - Removed
+     - Use ``"gblinear"`` instead
+   * - ``"linear_quantile"``
+     - ``"gblinear"``
+     -
+   * - ``"gblinear_quantile"``
+     - ``"gblinear"``
+     - Quantiles now in config
+   * - ``"flatliner"``
+     - ``"flatliner"``
+     - Unchanged
+   * - ``"median"``
+     - ``"median"``
+     - Unchanged
+   * - (new)
+     - ``"constant_quantile"``
+     - Fallback model for low-data situations
+   * - (new)
+     - ``"lgbmlinear"``
+     - LightGBM with linear learner
 
-Quantile configuration is now part of the workflow config rather than the model name.
+.. _migration_dbc:
 
-Migration Checklist
--------------------
+Reference Implementation
+------------------------
 
-- ☐ Replace ``openstef`` import with ``openstef-models``, ``openstef-core``, and
-  (if needed) ``openstef-beam`` / ``openstef-meta``.
-- ☐ Convert prediction job dicts to :class:`~openstef_models.presets.ForecastingWorkflowConfig`.
-- ☐ Wrap input DataFrames in :class:`~openstef_core.datasets.timeseries_dataset.TimeSeriesDataset`.
-- ☐ Replace ``train_model_pipeline`` / ``create_forecast`` calls with workflow
-  ``.train()`` / ``.predict()``.
-- ☐ Remove ``openstef-dbc`` dependency; implement your own data I/O layer.
-- ☐ Update model type strings (``"xgb"`` → ``"xgboost"``).
-- ☐ Review feature engineering — v4 uses composable transform pipelines rather than
-  implicit feature selection from column names.
+In v3, ``openstef-dbc`` provided scheduling, database integration, and orchestration.
+V4 focuses on the core ML libraries and leaves integration to the user.
 
-Next Steps
-----------
+The `openstef-reference <https://github.com/OpenSTEF/openstef-reference>`_ repository
+demonstrates how to build a complete system with scheduling, data integration, and
+storage around the v4 libraries.
 
-- :doc:`/user_guide/getting_started/installation` — install the v4 packages
-- :doc:`/user_guide/concepts/datasets` — understand TimeSeriesDataset in depth
-- :doc:`/user_guide/concepts/configuration` — the new configuration model
-- :doc:`/user_guide/guides/forecasting` — end-to-end forecasting workflow
-- :doc:`/user_guide/deployment/index` — patterns for production integration
+If your v3 code relied on ``openstef-dbc``:
+
+1. **Data ingestion** -- write an adapter that loads data into
+   :class:`~openstef_core.datasets.timeseries_dataset.TimeSeriesDataset`.
+2. **Result storage** -- extract forecasts from the workflow output and write them to
+   your database of choice.
+3. **Configuration storage** -- serialize
+   :class:`~openstef_models.presets.ForecastingWorkflowConfig` to/from your config
+   store (JSON, YAML, database row).
