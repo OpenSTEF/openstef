@@ -22,8 +22,6 @@ Unlike long-term planning (months to years), short-term forecasting must be:
 - **Frequent** - updated multiple times per day as new data arrives
 - **Actionable** - accurate enough to trigger real operational decisions
 
-.. mermaid:: /diagrams/user_guide/concepts/intro_to_energy_forecasting_diagram_1.mmd
-
 Use Cases
 ---------
 

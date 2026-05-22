@@ -1,21 +1,21 @@
-graph TD
-    subgraph Presets["Presets: Config + Factory"]
-        subgraph Workflow["CustomForecastingWorkflow"]
-            subgraph Model["ForecastingModel"]
-                A[PreProcess Pipeline]
-                B[Forecaster]
-                C[PostProcess Pipeline]
-            end
-            D[Callbacks]
-            E[Model ID]
-            F[Lifecycle Management]
+graph LR
+    subgraph Workflow["CustomForecastingWorkflow"]
+        subgraph Model["ForecastingModel"]
+            direction TB
+            A[PreProcess Pipeline] --> B[Forecaster] --> C[PostProcess Pipeline]
         end
+        D[Callbacks]
+        F[Lifecycle Management]
     end
+
+    P["Presets (Config + Factory)"] -.->|creates| Workflow
 
     classDef primary fill:#00D9C5,stroke:#1E3A5F,stroke-width:2px,color:#000
     classDef secondary fill:#1E3A5F,stroke:#00D9C5,stroke-width:2px,color:#fff
     classDef accent fill:#e6f7f5,stroke:#00D9C5,stroke-width:2px,color:#000
+    classDef factory fill:#fff3cd,stroke:#856404,stroke-width:2px,color:#000
 
     class B secondary
     class A,C primary
-    class D,E,F accent
+    class D,F accent
+    class P factory

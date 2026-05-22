@@ -43,8 +43,6 @@ In v3 these were all bundled in a single ``openstef`` package:
      - *No equivalent*
      - See :ref:`migration_dbc` below
 
-.. mermaid:: /diagrams/user_guide/getting_started/migration_diagram_1.mmd
-
 Configuration
 -------------
 
