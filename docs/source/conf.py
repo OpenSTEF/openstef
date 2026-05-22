@@ -27,6 +27,7 @@ ROOT_DIR = Path(__file__).resolve().parent.parent.parent
 # Make docs/ importable so we can use sync_sources
 sys.path.insert(0, str(ROOT_DIR / "docs"))
 from sync_sources import sync as _sync_sources  # noqa: E402
+from autosummary_helpers import DiscoverSubmodules  # noqa: E402
 
 project = "OpenSTEF"
 copyright = "2017-2025 Contributors to the OpenSTEF project"
@@ -38,6 +39,7 @@ author = "Contributors to the OpenSTEF project"
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = [
+    "autosummary_cache",
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
     "sphinx.ext.doctest",
@@ -82,26 +84,8 @@ autosummary_imported_members = False
 suppress_warnings = ["autosummary.import_cycle"]
 
 
-def _discover_submodules(fullname: str) -> list[str]:
-    """Discover child modules/packages of *fullname* via pkgutil.
-
-    Returns an empty list when *fullname* is not a package (has no ``__path__``)
-    or when the import fails (e.g. missing optional dependency).
-    """
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        try:
-            mod = importlib.import_module(fullname)
-        except Exception:  # noqa: BLE001
-            return []
-    pkg_path = getattr(mod, "__path__", None)
-    if pkg_path is None:
-        return []
-    return sorted(name for _, name, _ispkg in pkgutil.iter_modules(pkg_path))
-
-
 autosummary_context = {
-    "discover_submodules": _discover_submodules,
+    "discover_submodules": DiscoverSubmodules(),
 }
 
 # Don't generate separate pages for class members
