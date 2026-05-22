@@ -177,7 +177,7 @@ def test_holiday_feature_adder_no_is_sunday_for_sweden():
     # Arrange — include a Sunday in the range
     data = pd.DataFrame(
         {"load": [100.0] * 7},
-        index=pd.date_range("2025-06-16", periods=7, freq="D"),  # Mon–Sun
+        index=pd.date_range("2025-06-16", periods=7, freq="D"),  # Mon to Sun
     )
     dataset = TimeSeriesDataset(data, timedelta(days=1))
     transform = HolidayFeatureAdder(country_code=CountryAlpha2("SE"))
