@@ -1,3 +1,5 @@
+.. _concept_beam:
+
 BEAM
 ====
 
@@ -54,25 +56,44 @@ BEAM is organized as three sequential stages, orchestrated by :class:`~openstef_
    * - AnalysisPipeline
      - Generate visualizations at configurable aggregation levels
      - EvaluationReports, VisualizationProviders
-     - ``AnalysisOutput`` (HTML)
+     - ``AnalysisOutput``
 
 These stages are completely decoupled. You can re-run evaluation with different metrics
-without re-running the backtest, or generate new visualizations without recomputing metrics.
+without re-running the backtest, or generate new visualizations without recomputing
+metrics. This decoupling matters because each stage has a different computational cost and
+a different rate of change:
+
+- **Backtesting is expensive.** Every backtest requires many forward passes through the
+  model, potentially with periodic retraining. You want to run this once and re-use
+  the predictions.
+- **You may not need backtesting at all.** If you ran backtests with external tooling,
+  received shared predictions from a colleague, or already have stored results from a
+  previous run, you can feed them directly into evaluation.
+- **Evaluation and analysis evolve independently.** As you refine your metric set or
+  add new visualization providers, you should not have to wait hours re-running
+  expensive model predictions.
 
 Backtesting Stage
 -----------------
 
 The :class:`~openstef_beam.backtesting.backtest_pipeline.BacktestPipeline` simulates how a
 model would have performed in production by stepping through historical data sequentially.
+In production, forecasts are generated at regular intervals (e.g., every 6 hours) and
+models are retrained periodically (e.g., weekly). The simulation replicates this schedule
+so that error distributions match what you would observe in a real deployment.
 
-Preventing Future Data Leakage
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. image:: /images/concepts/backtesting_simulation.gif
+   :alt: Animation showing BEAM stepping through time - green region marks training data,
+         orange line shows forecast output, red line marks the current horizon.
+   :align: center
 
-The central design challenge in backtesting is ensuring the model never accesses data from
-the future. BEAM solves this with
-:class:`~openstef_beam.backtesting.restricted_horizon_timeseries.RestrictedHorizonVersionedTimeSeries`,
-a wrapper that restricts the model's view of the underlying dataset to only data available
-before the current simulation timestamp.
+**Preventing future data leakage.** The central design challenge in backtesting is
+ensuring the model never accesses data from the future. Energy data has different arrival
+latencies: weather forecast revisions, late meter readings, and market settlements all
+arrive at different times. BEAM uses
+:class:`~openstef_beam.backtesting.restricted_horizon_timeseries.RestrictedHorizonVersionedTimeSeries`
+to track not just data values but *when each value first became available*, restricting
+the model's view to only data published before the simulated "current time".
 
 .. warning::
 
@@ -81,16 +102,17 @@ before the current simulation timestamp.
    model to the backtesting interface, receiving only a restricted data view and never
    having direct access to the full dataset.
 
-Event-Driven Simulation
-^^^^^^^^^^^^^^^^^^^^^^^^
-
+**Event-driven simulation.**
 :class:`~openstef_beam.backtesting.backtest_event_generator.BacktestEventGenerator`
-schedules train and predict events according to the configured horizon and window step.
-For each event, the pipeline either calls ``fit()`` or ``predict()`` on the forecaster,
-always passing a :class:`~openstef_beam.backtesting.restricted_horizon_timeseries.RestrictedHorizonVersionedTimeSeries`
+schedules train and predict events according to the configured ``predict_interval``
+and ``train_interval``. It merges two streams of events in chronological order, with
+train events always executing before predict events at the same timestamp (ensuring the
+model is freshly trained before generating predictions). For each event, the pipeline
+calls ``fit()`` or ``predict()`` on the forecaster, always passing a
+:class:`~openstef_beam.backtesting.restricted_horizon_timeseries.RestrictedHorizonVersionedTimeSeries`
 that enforces the temporal boundary.
 
-The output is a :class:`~openstef_beam.datasets.TimeSeriesDataset` containing all
+The output is a :class:`~openstef_core.datasets.TimeSeriesDataset` containing all
 predictions, each tagged with an ``available_at`` timestamp indicating when that
 prediction would have been generated in production.
 
@@ -99,19 +121,21 @@ Evaluation Stage
 
 The :class:`~openstef_beam.evaluation.EvaluationPipeline` is entirely separate from
 backtesting. It takes predictions and ground truth, then segments and scores them along
-three dimensions:
+three dimensions. Each dimension answers a different operational question:
 
 - **available_at**: When the prediction was generated (e.g., "day-ahead at 06:00").
-- **lead_time**: The gap between prediction generation and the target timestamp (e.g., 36 hours ahead).
-- **time_windows**: Rolling evaluation periods for detecting performance drift.
+  A model may perform differently when forecasting in the morning versus the evening
+  because different information is available at each time.
+- **lead_time**: The gap between prediction generation and the target timestamp (e.g.,
+  36 hours ahead). Model error typically grows with the forecast horizon, so a "better"
+  model might only outperform at short lead times.
+- **time_windows**: Rolling evaluation periods (e.g., 21-day windows). Seasonal effects
+  and model drift mean that aggregate metrics can hide periods of poor performance.
 
-Configurable Metrics
-^^^^^^^^^^^^^^^^^^^^
-
-Metrics are supplied as provider objects. BEAM includes providers such as
-``RMAEProvider`` (Relative Mean Absolute Error) and ``RCRPSProvider`` (Relative
-Continuous Ranked Probability Score) for probabilistic evaluation. You can implement
-custom providers to add domain-specific metrics.
+**Configurable metrics.** Metrics are supplied as provider objects. BEAM includes
+providers such as ``RMAEProvider`` (Relative Mean Absolute Error) and ``RCRPSProvider``
+(Relative Continuous Ranked Probability Score) for probabilistic evaluation. You can
+implement custom providers to add domain-specific metrics.
 
 .. code-block:: python
 
@@ -142,17 +166,17 @@ levels:
    * - Level
      - Description
    * - NONE
-     - Individual target, single run
+     - Single run, single target - individual performance analysis
    * - TARGET
-     - Aggregate across runs for one target
+     - Single run, per target - cross-target comparison (e.g., RMAE per target)
    * - GROUP
-     - Aggregate across targets within a group
+     - Single run, multiple targets - cross-group comparison (e.g., RMAE per group)
    * - RUN_AND_NONE
-     - Compare runs at individual target level
+     - Multiple runs, single target - compare model variants on one target
    * - RUN_AND_TARGET
-     - Compare runs aggregated per target
+     - Multiple runs, per target - compare model variants across targets
    * - RUN_AND_GROUP
-     - Compare runs aggregated per group
+     - Multiple runs, multiple targets - full comparison matrix
 
 Visualization providers (e.g., ``SummaryTableVisualization``) are pluggable. Each
 provider receives the relevant subset of evaluation data and produces a self-contained
@@ -177,6 +201,10 @@ Because results are persisted after each stage, you can use
 :class:`~openstef_beam.benchmarking.benchmark_comparison_pipeline.BenchmarkComparisonPipeline`
 to compare results across multiple benchmark runs without re-executing them.
 
+The pipeline also supports **incremental execution**: if a target already has stored
+backtest output, that stage is skipped automatically. This means restarting a failed or
+interrupted benchmark does not redo work for targets that completed successfully.
+
 Design Principles
 -----------------
 
@@ -200,3 +228,4 @@ benchmarks (hundreds of targets, multiple models) remain tractable.
    - :ref:`concept_models` for the forecasting models that BEAM evaluates.
    - :ref:`concept_metalearning` for how BEAM results inform model selection decisions.
    - :ref:`guide_backtesting` for a practical guide to setting up and running benchmarks.
+   - :doc:`/api/beam` for the full openstef-beam API reference.
