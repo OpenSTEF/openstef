@@ -123,10 +123,9 @@ Key metrics for probabilistic forecast quality include:
 
 See :doc:`/user_guide/guides/backtesting` for how to evaluate forecast quality on historical data.
 
-Relationship to Other Guides
------------------------------
+.. seealso::
 
-- For the overall forecasting workflow (fitting, predicting, model selection), see :doc:`/user_guide/guides/forecasting`
-- For understanding how different model types compare, see :doc:`/user_guide/concepts/models`
-- For evaluating forecast performance systematically, see :doc:`/user_guide/guides/backtesting`
-- For operational concerns like fallback behavior when data is missing, see :doc:`/user_guide/guides/reliability_fallback`
+   - :doc:`/user_guide/guides/forecasting` for the overall forecasting workflow (fitting, predicting, model selection).
+   - :doc:`/user_guide/concepts/models` for understanding how different model types compare.
+   - :doc:`/user_guide/guides/backtesting` for evaluating forecast performance systematically.
+   - :doc:`/user_guide/guides/reliability_fallback` for operational concerns like fallback behavior when data is missing.

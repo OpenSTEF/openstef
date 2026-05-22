@@ -1,19 +1,24 @@
-graph TD
-    A[TimeSeriesDataset] --> B[Shared TransformPipeline]
-    B --> C[Selector + Filter Features]
-    B --> D[SampleWeighter]
-    C --> E[GBLinearForecaster]
-    D --> F[LGBMForecaster]
-    E --> G[EnsembleForecastDataset]
-    F --> G
-    G --> H[ForecastCombiner]
-    H --> I[ForecastDataset]
+graph LR
+    A[TimeSeriesDataset] --> B[Common Preprocessing]
+
+    B --> L_PRE[SampleWeighter]
+    B --> G_PRE[SampleWeighter + Selectors + Imputer]
+
+    L_PRE --> L[LGBMForecaster]
+    G_PRE --> G[GBLinearForecaster]
+
+    L --> ENS[EnsembleForecastDataset]
+    G --> ENS
+    ENS --> C[ForecastCombiner]
+    C --> OUT[ForecastDataset]
 
     classDef primary fill:#00D9C5,stroke:#1E3A5F,stroke-width:2px,color:#000
     classDef secondary fill:#1E3A5F,stroke:#00D9C5,stroke-width:2px,color:#fff
     classDef accent fill:#e6f7f5,stroke:#00D9C5,stroke-width:2px,color:#000
+    classDef permodel fill:#2c5282,stroke:#00D9C5,stroke-width:2px,color:#fff
 
-    class A,I accent
-    class B,H primary
-    class C,D,E,F secondary
-    class G primary
+    class A,OUT accent
+    class B,C primary
+    class L,G secondary
+    class L_PRE,G_PRE permodel
+    class ENS primary

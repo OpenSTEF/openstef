@@ -153,10 +153,9 @@ For probabilistic forecasts (see :doc:`/tutorials/backtesting_quickstart` for a 
 
 The ``EvaluationPipeline`` automatically includes :class:`~openstef_beam.evaluation.ObservedProbabilityProvider` in global metrics to ensure calibration is always assessed.
 
-
-Relationship to Production Forecasting
----------------------------------------
-
 Backtesting validates your model *before* deployment, but the forecaster you backtest should be as close as possible to what runs in production. The :class:`~openstef_beam.backtesting.BacktestForecasterMixin` interface is intentionally similar to the production forecasting interface described in :doc:`/user_guide/guides/forecasting`. The key difference is that backtesting wraps data access in ``RestrictedHorizonVersionedTimeSeries`` to enforce temporal constraints that production naturally provides (you simply cannot access tomorrow's meter readings today).
 
-For details on probabilistic output formats and quantile configuration, see :doc:`/user_guide/guides/probabilistic_forecasting`.
+.. seealso::
+
+   - :doc:`/user_guide/guides/forecasting` for the production forecasting workflow.
+   - :doc:`/user_guide/guides/probabilistic_forecasting` for probabilistic output formats and quantile configuration.

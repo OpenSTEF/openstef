@@ -195,12 +195,8 @@ any benchmark can be reproduced exactly.
 **Scalability**: Parallel target processing and decoupled stages mean that large-scale
 benchmarks (hundreds of targets, multiple models) remain tractable.
 
-Relationship to Other Concepts
-------------------------------
+.. seealso::
 
-BEAM builds on the forecasting models described in :ref:`concept_models`. Any model that
-can be wrapped in a :class:`~openstef_beam.backtesting.backtest_forecaster.mixins.BacktestForecasterMixin`
-can participate in a benchmark. The :ref:`concept_metalearning` system can use BEAM
-results to inform model selection decisions across targets.
-
-For a practical guide to setting up and running benchmarks, see :ref:`guide_backtesting`.
+   - :ref:`concept_models` for the forecasting models that BEAM evaluates.
+   - :ref:`concept_metalearning` for how BEAM results inform model selection decisions.
+   - :ref:`guide_backtesting` for a practical guide to setting up and running benchmarks.

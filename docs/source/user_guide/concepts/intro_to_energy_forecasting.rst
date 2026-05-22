@@ -161,10 +161,9 @@ accuracy**, often more so than model choice. Common issues include:
    time in model tuning, verify that your input data is complete, correctly timestamped,
    and representative of current grid conditions.
 
-Next Steps
-----------
+.. seealso::
 
-- :doc:`models` - understand which model types are available and when to use each
-- :doc:`component_splitting` - learn how forecasts can be decomposed into solar, wind, and other components
-- :doc:`/user_guide/guides/forecasting` - practical guide to building your first forecast pipeline
-- :doc:`/tutorials/feature_engineering` - hands-on tutorial demonstrating feature transforms
+   - :doc:`models` for which model types are available and when to use each.
+   - :doc:`component_splitting` for how forecasts can be decomposed into solar, wind, and other components.
+   - :doc:`/user_guide/guides/forecasting` for a practical guide to building your first forecast pipeline.
+   - :doc:`/tutorials/feature_engineering` for a hands-on tutorial demonstrating feature transforms.
