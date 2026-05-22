@@ -14,12 +14,26 @@
    :no-inherited-members:
 
 {% block overview_table %}
-{% if modules or functions or classes %}
+{# Dynamically discover child modules/packages via pkgutil (for packages with empty __init__.py) #}
+{% set discovered = discover_submodules(fullname) %}
+{% set known = modules | map('replace', fullname ~ '.', '') | list %}
+{% set extra_submodules = discovered | reject('in', known) | list %}
+{% if modules or extra_submodules or functions or classes %}
 
-{% if modules %}
+{% if modules or extra_submodules %}
 Submodules
 ----------
 
+{% if extra_submodules %}
+.. autosummary::
+   :toctree: .
+   :template: module_overview.rst
+{% for item in extra_submodules %}
+   {{ fullname }}.{{ item }}
+{%- endfor %}
+
+{% endif %}
+{% if modules %}
 .. autosummary::
    :toctree: .
    :template: module_overview.rst
@@ -27,6 +41,7 @@ Submodules
    {{ item }}
 {%- endfor %}
 
+{% endif %}
 {% endif %}
 {% if functions %}
 Functions

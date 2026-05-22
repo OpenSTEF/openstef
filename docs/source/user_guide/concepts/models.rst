@@ -1,11 +1,11 @@
 Models
 ======
 
-This page explains OpenSTEF's model architecture — the layered design that separates
-pure prediction from data transformation, lifecycle management, and production
-configuration. Understanding these layers helps you choose the right level of
-abstraction for your use case: from research experimentation with raw components to
-production deployment with opinionated presets.
+OpenSTEF's forecasting system is built from composable components. At the lowest level,
+a Forecaster wraps a single ML algorithm. Transforms handle feature engineering and
+postprocessing. A Model binds these together into a trainable unit. Higher-level
+Workflows add lifecycle management, and Presets provide opinionated defaults for
+production. You choose the level of abstraction that matches your use case.
 
 .. note::
 
@@ -14,126 +14,129 @@ production deployment with opinionated presets.
    :doc:`beam`.
 
 
-Architecture Layers
--------------------
+Component Overview
+------------------
 
-OpenSTEF's model system is composed of five distinct layers, each adding
-orchestration on top of the one below it. You can enter at any layer depending on
-how much control you need.
+OpenSTEF's model system is composed of five components, each building on the one
+below. You can enter at any level depending on how much control you need.
 
 .. mermaid:: /diagrams/user_guide/concepts/models_diagram_1.mmd
 
-Layer 1: Forecasters
-^^^^^^^^^^^^^^^^^^^^^
+Forecasters
+^^^^^^^^^^^
 
-Forecasters are **pure ML predictors**. They wrap a specific algorithm (XGBoost,
-LightGBM, GBLinear, etc.), receive a preprocessed ``ForecastInputDataset``, and
-return a ``ForecastDataset``. No feature engineering or postprocessing happens inside
-a Forecaster — it is solely responsible for the mathematical prediction step.
+Forecasters are pure ML predictors. They wrap a specific algorithm (XGBoost,
+LightGBM, GBLinear, etc.), receive a preprocessed :class:`~openstef_core.datasets.ForecastInputDataset`, and
+return a :class:`~openstef_core.datasets.ForecastDataset`. No feature engineering or postprocessing happens inside
+a Forecaster - it is solely responsible for the mathematical prediction step.
 
-All forecasters implement the :class:`~openstef_models.models.forecasting.Forecaster`
-interface with ``fit()`` and ``predict()`` methods.
+All forecasters implement the :class:`~openstef_models.models.forecasting.forecaster.Forecaster` interface with ``fit()`` and ``predict()``
+methods.
 
-Layer 2: Transforms
-^^^^^^^^^^^^^^^^^^^^
+Transforms
+^^^^^^^^^^
 
-Transforms are standalone pre- and postprocessing steps — lag features, holiday
-indicators, datetime features, quantile sorting, and more. They are composed into a
-:class:`~openstef_core.mixins.TransformPipeline` which applies them sequentially.
-Transforms are stateless or carry minimal fitted state (e.g., scalers).
+Transforms are standalone pre- and postprocessing steps - lag features, holiday
+indicators, datetime features, quantile sorting, and more. They compose into a
+:class:`~openstef_core.mixins.TransformPipeline` which applies them sequentially. Transforms are stateless or
+carry minimal fitted state (e.g., scalers).
 
-Layer 3: ForecastingModel
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+Model
+^^^^^
 
-:class:`~openstef_models.models.forecasting_model.ForecastingModel` binds a
-preprocessing ``TransformPipeline``, a ``Forecaster``, and a postprocessing
-``TransformPipeline`` into a single saveable unit. This is the core trainable object:
+The Model (:class:`~openstef_models.models.ForecastingModel`) binds a preprocessing :class:`~openstef_core.mixins.TransformPipeline`, a
+:class:`~openstef_models.models.forecasting.forecaster.Forecaster`, and a postprocessing :class:`~openstef_core.mixins.TransformPipeline` into a single saveable unit.
+This is the core trainable object:
 
 .. code-block:: python
 
    model = ForecastingModel(
-       preprocessing=TransformPipeline(transforms=[...]),
+       preprocessing=preprocess_pipeline,
        forecaster=forecaster,
-       postprocessing=TransformPipeline(transforms=[...]),
+       postprocessing=postprocess_pipeline,
        target_column="load",
    )
 
-The model's ``fit()`` and ``predict()`` methods accept raw ``TimeSeriesDataset``
+The model's ``fit()`` and ``predict()`` methods accept raw :class:`~openstef_core.datasets.TimeSeriesDataset`
 objects and handle the full pipeline internally.
 
-Layer 4: CustomForecastingWorkflow
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Workflow
+^^^^^^^^
 
-:class:`~openstef_models.models.CustomForecastingWorkflow` wraps a
-``ForecastingModel`` and adds **lifecycle management**: callbacks for MLflow storage,
-model reuse logic, model selection, performance monitoring, experiment tagging, and
-run naming. This is where operational concerns live — the Model stays focused on
-prediction.
+The Workflow (:class:`~openstef_models.workflows.CustomForecastingWorkflow`) wraps a Model and adds lifecycle
+management: callbacks for MLflow storage, model reuse logic, model selection,
+performance monitoring, experiment tagging, and run naming. This is where operational
+concerns live - the Model stays focused on prediction.
 
-Layer 5: Presets
-^^^^^^^^^^^^^^^^^
+Presets
+^^^^^^^
 
-For production use, :func:`~openstef_models.create_forecasting_workflow` is an
-opinionated factory that constructs a fully-wired ``CustomForecastingWorkflow`` from a
-:class:`~openstef_models.ForecastingWorkflowConfig`. Presets cover ~99% of production
-use cases with sensible defaults for preprocessing, feature engineering, and callbacks.
+For production use, :func:`~openstef_models.presets.create_forecasting_workflow` is an opinionated factory that
+constructs a fully-wired :class:`~openstef_models.workflows.CustomForecastingWorkflow` from a
+:class:`~openstef_models.presets.ForecastingWorkflowConfig`. Presets cover the majority of production use cases with
+sensible defaults for preprocessing, feature engineering, and callbacks.
 
 .. warning::
 
-   OpenSTEF is **not** opinionated by default — the full configuration surface is
-   exposed at every layer. Presets *add* opinions for convenience. For research or
-   experimentation, use the raw Workflow API (Layers 1–4) for full configurability.
+   OpenSTEF is **not** opinionated by default - the full configuration surface is
+   exposed at every level. Presets *add* opinions for convenience. For research or
+   experimentation, use the raw Workflow API for full configurability.
 
 
 Model Selection Guide
 ---------------------
 
-All forecasters in OpenSTEF support **quantile forecasting** — producing probabilistic
-predictions at configurable quantiles. The exceptions are ``MedianForecaster`` and
-``BaseCaseForecaster``, which produce only a single quantile.
+All forecasters in OpenSTEF support **quantile forecasting**, producing probabilistic
+predictions at configurable quantiles. The exceptions are the Median and
+Base Case forecasters, which produce only a single quantile.
 
 .. list-table:: Forecaster Comparison
    :header-rows: 1
-   :widths: 18 30 30 12 10
+   :widths: 15 33 32 10 10
 
    * - Model
      - Strengths
      - Best For
      - Quantiles
      - Extrapolation
-   * - :class:`~openstef_models.models.forecasting.xgboost_forecaster.XGBoostForecaster`
-     - Excellent non-linear pattern capture; robust to noise; well-understood
-     - General-purpose load forecasting; complex non-linear relationships
+   * - :class:`XGBoost <openstef_models.models.forecasting.xgboost_forecaster.XGBoostForecaster>`
+     - Non-linear pattern capture; robust
+     - General-purpose
      - Multi
      - No
-   * - :class:`~openstef_models.models.forecasting.lgbm_forecaster.LGBMForecaster`
-     - Fast training; memory efficient; strong non-linear performance
-     - General-purpose; large datasets; rapid iteration
+   * - :class:`LightGBM <openstef_models.models.forecasting.lgbm_forecaster.LGBMForecaster>`
+     - Fast training; low memory
+     - General-purpose; large datasets
      - Multi
      - No
-   * - :class:`~openstef_models.models.forecasting.gblinear_forecaster.GBLinearForecaster`
-     - Linear model with gradient boosting; can extrapolate beyond training range
-     - Congestion management; scenarios exceeding historical peaks
+   * - :class:`GBLinear <openstef_models.models.forecasting.gblinear_forecaster.GBLinearForecaster>`
+     - Extrapolates beyond training range
+     - Congestion management
      - Multi
      - Yes
-   * - :class:`~openstef_models.models.forecasting.lgbm_linear_forecaster.LGBMLinearForecaster`
-     - Trees with linear leaves; balances expressiveness and extrapolation
-     - Mixed linear/non-linear patterns; moderate extrapolation needs
+   * - :class:`LGBM Linear <openstef_models.models.forecasting.lgbmlinear_forecaster.LGBMLinearForecaster>`
+     - Non-linear splits + linear leaves
+     - Partial extrapolation
      - Multi
      - Partial
    * - Ensemble (via openstef-meta)
-     - Combines tree + linear models; complementary strengths reduce error
-     - Production when runtime allows; highest accuracy
+     - Complementary model combination
+     - Best accuracy
      - Multi
      - Partial
-   * - MedianForecaster
-     - Simple; robust; minimal data requirements
-     - Very stable/predictable loads; baseline comparison
+   * - :class:`Constant Quantile <openstef_models.models.forecasting.constant_quantile_forecaster.ConstantQuantileForecaster>`
+     - No features needed at prediction
+     - Fallback
+     - Multi
+     - N/A
+   * - :class:`Median <openstef_models.models.forecasting.median_forecaster.MedianForecaster>`
+     - Robust; minimal assumptions
+     - Stable loads; baseline
      - Single
      - N/A
-   * - BaseCaseForecaster
-     - Persistence-based; zero training cost
-     - Benchmarking; fallback
+   * - :class:`Base Case <openstef_models.models.forecasting.base_case_forecaster.BaseCaseForecaster>`
+     - Zero cost; persistence
+     - Baseline reference
      - Single
      - N/A
 
@@ -142,26 +145,26 @@ When to Use What
 
 **General-purpose forecasting**: Start with XGBoost or LightGBM. Both excel at
 capturing non-linear patterns in load data (weather interactions, time-of-day effects,
-calendar patterns). LightGBM trains faster on large datasets.
+calendar patterns). LightGBM trains faster on large datasets. For highest accuracy,
+use the Ensemble approach (openstef-meta) which combines multiple forecasters.
 
-**Congestion management**: Use :class:`~openstef_models.models.forecasting.gblinear_forecaster.GBLinearForecaster`.
-Tree-based models cannot predict values outside their training range — a critical
-limitation when forecasting peak loads that may exceed historical maxima. GBLinear's
-linear structure allows natural extrapolation.
+**Congestion management**: Use GBLinear. Tree-based models cannot predict
+values outside their training range - a critical limitation when forecasting peak loads
+that may exceed historical maxima. GBLinear's linear structure allows natural
+extrapolation.
 
 **Best accuracy (production)**: Use the **Ensemble** approach (available via
 openstef-meta). Combining tree-based and linear forecasters exploits their
-complementary strengths — trees capture non-linear interactions while linear models
+complementary strengths - trees capture non-linear interactions while linear models
 provide extrapolation capability and stability.
 
-**Stable/predictable loads**: ``MedianForecaster`` provides a robust baseline with
+**Stable/predictable loads**: The Median forecaster provides a robust baseline with
 minimal complexity. Useful for loads with very low variance or as a sanity-check
 reference.
 
-.. note::
-
-   OpenSTEF also scales beyond electricity — Sigholm uses it for 40% of Sweden's
-   district heating production, demonstrating applicability to thermal energy domains.
+**Fallback/degraded mode**: The Constant Quantile forecaster learns fixed quantile values
+per hour of day. It requires no input features at prediction time, making it suitable
+as a last-resort fallback when data pipelines fail.
 
 
 Choosing Your Abstraction Level
@@ -172,26 +175,22 @@ Choosing Your Abstraction Level
    :widths: 25 40 35
 
    * - Use Case
-     - Recommended Layer
+     - Recommended Component
      - Why
    * - Production deployment
-     - Presets (``create_forecasting_workflow``)
+     - Presets (:func:`~openstef_models.presets.create_forecasting_workflow`)
      - Sensible defaults, MLflow integration, model reuse
    * - Custom preprocessing research
-     - ``ForecastingModel`` (Layer 3)
+     - :class:`~openstef_models.models.ForecastingModel`
      - Full control over transforms without lifecycle overhead
    * - Novel algorithm development
-     - ``Forecaster`` (Layer 1)
-     - Implement the interface, plug into any higher layer
+     - :class:`~openstef_models.models.forecasting.forecaster.Forecaster`
+     - Implement the interface, plug into any higher level
    * - Operational monitoring
-     - ``CustomForecastingWorkflow`` (Layer 4)
+     - :class:`~openstef_models.workflows.CustomForecastingWorkflow`
      - Add callbacks without changing model logic
 
-
-Further Reading
----------------
-
-- :doc:`/tutorials/ensemble_forecasting` — worked example of ensemble model setup
-- :doc:`metalearning` — automatic model selection across prediction jobs
-- :doc:`beam` — backtesting and benchmarking framework for model evaluation
-- :doc:`component_splitting` — decomposing forecasts into interpretable components
+Most users start with Presets and only drop down to lower levels when they need
+custom behavior. The component boundaries are designed so you can replace one piece
+(e.g., swap a Forecaster or add a Transform) without rewriting the rest of the
+pipeline.
