@@ -1,3 +1,5 @@
+.. _concept_component_splitting:
+
 Component Splitting
 ===================
 
@@ -50,6 +52,8 @@ produces a prediction of total load. Component splitting then takes that predict
 and allocates it across energy components using weather features and known physical
 relationships.
 
+.. mermaid:: /diagrams/user_guide/concepts/component_splitting_diagram_1.mmd
+
 This two-stage approach has important implications:
 
 - The sum of all components always equals the original forecast (an invariant
@@ -71,23 +75,23 @@ defined by :class:`~openstef_models.models.component_splitting.ComponentSplitter
    * - Splitter
      - Approach
      - When to Use
-   * - ``LinearComponentSplitter``
+   * - :class:`~openstef_models.models.component_splitting.linear_component_splitter.LinearComponentSplitter`
      - Pre-trained linear model using radiation and wind speed features to estimate
        solar and wind contributions; residual becomes "other"
      - Default choice when weather data (radiation, wind speed at 100m) is available
-   * - ``ConstantComponentSplitter``
+   * - :class:`~openstef_models.models.component_splitting.constant_component_splitter.ConstantComponentSplitter`
      - Splits load using fixed ratios per component (e.g., 60% solar, 40% wind)
      - Quick approximation when weather features are unavailable or for testing
 
-All splitters share the same contract: they accept a :class:`~openstef_core.types.TimeSeriesDataset`
-containing the total load column and return an :class:`~openstef_core.types.EnergyComponentDataset`
+All splitters share the same contract: they accept a :class:`~openstef_core.datasets.TimeSeriesDataset`
+containing the total load column and return an :class:`~openstef_core.datasets.EnergyComponentDataset`
 whose columns sum to the original source values.
 
 Energy Component Types
 ^^^^^^^^^^^^^^^^^^^^^^
 
 The system defines a fixed set of recognized component types through
-``EnergyComponentType``:
+:class:`~openstef_core.types.EnergyComponentType`:
 
 - **Solar**: Photovoltaic generation (represented as negative values, since generation
   reduces net load)
@@ -127,7 +131,7 @@ contains the total load to decompose.
 How the Linear Splitter Works
 ------------------------------
 
-The ``LinearComponentSplitter`` uses a pre-trained linear model that maps weather
+The :class:`~openstef_models.models.component_splitting.linear_component_splitter.LinearComponentSplitter` uses a pre-trained linear model that maps weather
 features to generation components:
 
 - **Inputs**: radiation (solar irradiance) and wind speed at 100m height, plus the
@@ -147,7 +151,7 @@ Workflow Integration
 ---------------------
 
 For production use, component splitting integrates into the broader workflow system
-through ``CustomComponentSplitWorkflow``, which adds lifecycle callbacks for
+through :class:`~openstef_models.workflows.custom_component_split_workflow.CustomComponentSplitWorkflow`, which adds lifecycle callbacks for
 monitoring, logging, and model management. This follows the same callback pattern as
 the forecasting workflow described in :doc:`/user_guide/guides/deployment`.
 
@@ -173,3 +177,9 @@ When using component splitting, keep these constraints in mind:
    events), the component split will faithfully distribute those errors across
    components. Always evaluate forecast quality at the aggregated level first
    (see :doc:`/user_guide/concepts/beam`).
+
+.. seealso::
+
+   - :ref:`concept_models` for the model architecture that component splitting builds on.
+   - :doc:`/user_guide/guides/forecasting` for how the aggregated forecast is produced before splitting.
+   - :doc:`/user_guide/guides/deployment` for integrating component splitting into production workflows.
