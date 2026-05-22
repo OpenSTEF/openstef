@@ -1,3 +1,5 @@
+.. _guide_forecasting:
+
 Forecasting
 ===========
 
@@ -8,9 +10,15 @@ What OpenSTEF Needs From You
 
 To produce a forecast, OpenSTEF requires three things:
 
-- **A datetime-indexed DataFrame with a ``load`` column.** This is your target variable (energy demand or generation). The DataFrame index must be a ``DatetimeIndex`` named ``timestamp``.
-- **Weather features** (or other exogenous variables). These are additional columns in the same DataFrame, such as temperature, wind speed, or irradiance.
-- **A declared ``sample_interval``**. This tells OpenSTEF the expected time resolution of your data (e.g., 15 minutes, 1 hour). It defaults to 15 minutes if not specified.
+- A datetime-indexed DataFrame with a ``load`` column. This is your target variable
+  (energy demand or generation). The DataFrame index must be a ``DatetimeIndex``
+  named ``timestamp``.
+- Weather features (or other exogenous variables). These are additional columns in
+  the same DataFrame, such as temperature, wind speed, or irradiance. OpenSTEF does
+  not fetch weather data for you - your data integration layer provides it. See
+  :doc:`/user_guide/guides/deployment` for common weather data sources.
+- A declared ``sample_interval``. This tells OpenSTEF the expected time resolution
+  of your data (e.g., 15 minutes, 1 hour). It defaults to 15 minutes if not specified.
 
 You wrap your data in a :class:`~openstef_core.datasets.TimeSeriesDataset`:
 
@@ -93,7 +101,7 @@ At the Workflow level, both training and inference follow a structured lifecycle
 
 1. **Preprocessing**: The input :class:`~openstef_core.datasets.TimeSeriesDataset` passes through a :class:`~openstef_core.mixins.transform.TransformPipeline` that performs validation, feature engineering, and standardization.
 2. **Forecaster.fit()**: The preprocessed data is passed to the underlying forecaster for model training.
-3. **Callbacks**: After training completes, lifecycle callbacks fire. The ``MLFlowStorageCallback`` persists the trained model, logs metrics, and optionally stores feature importance plots.
+3. **Callbacks**: After training completes, lifecycle callbacks fire (e.g., persisting the trained model, logging metrics, and storing feature importance plots).
 
 The ``fit()`` method returns a :class:`~openstef_models.models.forecasting_model.ModelFitResult` containing training metadata and metrics.
 
@@ -101,20 +109,20 @@ The ``fit()`` method returns a :class:`~openstef_models.models.forecasting_model
 
 1. **Preprocessing**: New data passes through the same preprocessing pipeline used during training, ensuring feature consistency.
 2. **Forecaster.predict()**: The model generates raw predictions.
-3. **Postprocessing**: A separate :class:`~openstef_core.mixins.transform.TransformPipeline` applies quantile sorting (via ``QuantileSorter``) and confidence interval construction (via ``ConfidenceIntervalApplicator``).
+3. **Postprocessing**: A separate :class:`~openstef_core.mixins.transform.TransformPipeline` applies quantile sorting (via :class:`~openstef_models.transforms.postprocessing.quantile_sorter.QuantileSorter`) and confidence interval construction (via :class:`~openstef_models.transforms.postprocessing.confidence_interval_applicator.ConfidenceIntervalApplicator`).
 4. **Callbacks**: The final :class:`~openstef_core.datasets.validated_datasets.ForecastDataset` is passed to callbacks for logging or downstream delivery.
 
 Model Reuse
 -----------
 
-In production, you do not always need to retrain. The ``MLFlowStorageCallback`` supports model reuse: if a recently trained model exists in storage (within ``model_reuse_max_age``, defaulting to 7 days), the workflow can skip training entirely and load the existing model for prediction.
+In production, you do not always need to retrain. The :class:`~openstef_models.integrations.mlflow.mlflow_storage_callback.MLFlowStorageCallback` supports model reuse: if a recently trained model exists in storage (within ``model_reuse_max_age``, defaulting to 7 days), the workflow can skip training entirely and load the existing model for prediction.
 
 This behavior is controlled by two configuration parameters:
 
 - ``model_reuse_enable``: Whether to attempt loading an existing model before training (default: ``True``).
 - ``model_reuse_max_age``: Maximum age of a stored model that is still considered valid (default: 7 days).
 
-When model reuse is active and a valid model is found, the workflow raises a ``SkipFitting`` signal internally, and the ``fit()`` call returns ``None`` instead of a new fit result.
+When model reuse is active and a valid model is found, the workflow raises a :class:`~openstef_core.exceptions.SkipFitting` signal internally, and the ``fit()`` call returns ``None`` instead of a new fit result.
 
 Model selection can also be enabled: when a new model is trained, its performance is compared against the existing model using a configurable metric. The old model receives a penalty factor (``model_selection_old_model_penalty``) to bias selection toward fresher models.
 
@@ -135,3 +143,10 @@ A minimal production setup using a Preset looks like this:
 The workflow object exposes ``fit(data)`` and ``predict(data)`` at the top level. The Preset handles wiring up preprocessing, postprocessing, callbacks, and storage based on your configuration.
 
 For a complete walkthrough with real data, see :doc:`/tutorials/forecasting_quickstart`. For building custom pipelines with non-default transforms, see :doc:`/tutorials/custom_pipeline`.
+
+.. seealso::
+
+   - :ref:`concept_models` for details on available model types and the containment hierarchy.
+   - :doc:`/user_guide/guides/probabilistic_forecasting` for quantile forecasts and calibration.
+   - :doc:`/user_guide/guides/deployment` for integrating forecasting into production systems.
+   - :ref:`guide_backtesting` for systematic model comparison using BEAM.
