@@ -25,6 +25,10 @@ from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.transforms import TimeSeriesTransform
 
+# Holiday names (after sanitization) that collide with features
+# produced by DatetimeFeaturesAdder and must be excluded.
+_RESERVED_DATETIME_FEATURES: frozenset[str] = frozenset({"sunday", "week_day", "weekend_day"})
+
 
 class HolidayFeatureAdder(BaseConfig, TimeSeriesTransform):
     """Transform that adds holiday features to time series data.
@@ -131,7 +135,7 @@ def get_holiday_names(country_code: CountryAlpha2) -> list[str]:
     return sorted([
         sanitize_holiday_name(holiday_name)
         for holiday_name in set(country_holidays.values())
-        if sanitize_holiday_name(holiday_name)
+        if sanitize_holiday_name(holiday_name) and sanitize_holiday_name(holiday_name) not in _RESERVED_DATETIME_FEATURES
     ])
 
 
