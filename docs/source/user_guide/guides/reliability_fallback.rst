@@ -1,79 +1,59 @@
 Reliability and Fallback
 ========================
 
-In production energy forecasting, the question is not *whether* data feeds will fail, but *when*. Smart meters stop reporting. Weather APIs go down. Telemetry arrives late or corrupted. A forecasting system that silently produces garbage during these events is worse than one that raises an alarm — grid operators making decisions on bad forecasts face real consequences.
+Energy forecasting operates on live data feeds that inevitably degrade. Smart meters stop reporting, weather APIs experience outages, and network issues cause data to arrive late or not at all. A production forecasting system must detect these conditions and respond gracefully, rather than silently producing unreliable predictions.
 
-This page explains how OpenSTEF detects degraded data conditions and responds gracefully, ensuring that forecasts are either trustworthy or explicitly flagged as unreliable.
-
-.. mermaid:: /diagrams/user_guide/guides/reliability_fallback_diagram_1.mmd
+OpenSTEF addresses this through two complementary mechanisms: **validation transforms** that detect data quality problems, and **fallback forecasters** that produce safe predictions when the primary model cannot be trusted.
 
 The Problem: Silent Failures
 ----------------------------
 
-Energy data pipelines face several failure modes that are difficult to detect without explicit checks:
+Consider a substation meter that freezes at its last reported value. The data pipeline continues to receive records (the value simply does not change), so no obvious error occurs. If a forecasting model trains on this stale data, it learns a false pattern. Worse, if it predicts using stale inputs, the forecast may look plausible while being completely wrong.
 
-.. list-table:: Common Data Failure Modes
+Similarly, when 60% of input features are missing due to a weather API outage, a tree-based model will still produce a number. That number may be meaningless, but nothing in the model itself will flag the problem.
+
+OpenSTEF's approach is to make these failures explicit through validation checks that run before forecasting, and to provide degraded-but-honest predictions through fallback models.
+
+Detecting Data Quality Issues
+-----------------------------
+
+Flatline Detection
+^^^^^^^^^^^^^^^^^^
+
+The :class:`~openstef_models.transforms.validation.FlatlineChecker` detects when a signal stops changing, which typically indicates a meter or sensor failure rather than genuinely constant consumption.
+
+Configuration parameters (set in ``ForecastingWorkflowConfig``):
+
+.. list-table::
    :header-rows: 1
-   :widths: 20 40 40
+   :widths: 30 15 55
 
-   * - Failure Mode
-     - Symptom
-     - Risk if Undetected
-   * - Meter flatlining
-     - Load value stays constant (often zero) for hours
-     - Model trains on or predicts from fake "stable" load
-   * - Stale data
-     - Most recent measurement is hours or days old
-     - Forecast anchored to outdated state
-   * - Missing columns
-     - Weather source drops a variable between train and predict
-     - Model receives incomplete features, produces unreliable output
-   * - Incomplete data
-     - Large gaps in historical data used for training
-     - Model learns from sparse, unrepresentative patterns
+   * - Parameter
+     - Default
+     - Purpose
+   * - ``flatliner_threshold``
+     - 24 hours
+     - Duration the load must remain constant before flagging a flatline
+   * - ``detect_non_zero_flatliner``
+     - ``False``
+     - When ``True``, detects flatlines at any constant value (not just zero)
+   * - ``absolute_tolerance``
+     - 0.0
+     - Absolute tolerance for considering values as equal
+   * - ``relative_tolerance``
+     - 1e-5
+     - Relative tolerance for considering values as equal
 
-OpenSTEF addresses these through **validation transforms** — pipeline components that check data quality and either raise exceptions or log warnings before forecasting proceeds.
+When a flatline is detected, the checker raises a ``FlatlinerDetectedError``. The workflow catches this and switches to a fallback forecaster automatically.
 
-Flatliner Detection
--------------------
+.. note::
 
-A "flatliner" is a time series where the measured value stops changing — typically indicating a sensor malfunction, communication failure, or data pipeline freeze rather than genuinely constant energy consumption.
+   Setting ``detect_non_zero_flatliner=True`` is important for loads that genuinely idle at zero (e.g., solar generation at night). Without this flag, only zero-value flatlines are detected, which would miss a meter stuck at its last non-zero reading.
 
-Why this matters
-^^^^^^^^^^^^^^^^
+Completeness Checking
+^^^^^^^^^^^^^^^^^^^^^
 
-A meter reporting exactly 0.0 kW for 24 hours is almost certainly broken, not measuring a building that happens to use zero energy. If this data enters training, the model learns incorrect patterns. If it enters prediction, the forecast is anchored to a false baseline.
-
-OpenSTEF's approach
-^^^^^^^^^^^^^^^^^^^
-
-The :class:`~openstef_models.transforms.validation.FlatlineChecker` transform detects ongoing flatliners by examining whether recent measurements remain constant (within tolerance) over a configurable duration:
-
-.. code-block:: python
-
-   from openstef_models.transforms.validation import FlatlineChecker
-
-   checker = FlatlineChecker(
-       flatliner_threshold=timedelta(hours=24),
-       detect_non_zero_flatliner=True,
-       error_on_flatliner=True,
-   )
-
-Key configuration options:
-
-- **flatliner_threshold** — How long the signal must be constant before triggering detection (default: 24 hours). Shorter thresholds catch failures faster but risk false positives on legitimately stable loads.
-- **detect_non_zero_flatliner** — When ``True``, detects flatliners at any constant value (e.g., a meter stuck at 42.5 kW), not just zero. Uses the median of recent measurements as the reference.
-- **absolute_tolerance** / **relative_tolerance** — Numeric tolerances for "constant." Small fluctuations from sensor noise won't prevent detection.
-- **error_on_flatliner** — When ``True``, raises :class:`~openstef_core.exceptions.FlatlinerDetectedError`. When ``False``, logs a warning and allows the pipeline to continue.
-
-The detection algorithm compares recent measurements against a reference value using ``numpy.isclose``, ensuring that minor floating-point variations don't mask a genuine flatliner.
-
-.. note:: [VISUALIZATION: Time series plot showing normal load pattern transitioning to a flat line at hour T, with the flatliner_threshold window highlighted and the detection point marked]
-
-Data Completeness Validation
-----------------------------
-
-Even when data is arriving, it may contain too many gaps to produce a reliable forecast. The :class:`~openstef_models.transforms.validation.CompletenessChecker` validates that required columns meet a minimum completeness threshold:
+The :class:`~openstef_models.transforms.validation.CompletenessChecker` enforces minimum data availability by computing the ratio of non-missing values to total expected values.
 
 .. code-block:: python
 
@@ -84,94 +64,72 @@ Even when data is arriving, it may contain too many gaps to produce a reliable f
        completeness_threshold=0.8,
    )
 
-If more than 20% of values are missing in any specified column, the transform raises :class:`~openstef_core.exceptions.InsufficientlyCompleteError`. This prevents training on sparse data that would produce unreliable models.
+When completeness falls below the threshold, an ``InsufficientlyCompleteError`` is raised. The checker supports optional column weights to prioritize certain features (e.g., the load column may be more critical than a secondary weather variable).
 
-Schema Drift Detection
-----------------------
+The ``completeness_threshold`` in ``ForecastingWorkflowConfig`` controls the minimum fraction of data required for a regular forecast (default: 0.5).
 
-When a weather data source stops providing a column between training and prediction time, the model receives incomplete features. The :class:`~openstef_models.transforms.validation.InputConsistencyChecker` learns the expected column schema during ``fit()`` and raises :class:`~openstef_core.exceptions.MissingColumnsError` if columns disappear at prediction time.
-
-This catches a subtle but dangerous failure: the model doesn't crash — it simply produces forecasts without important features, degrading quality silently.
-
-Fallback Forecasting
+Fallback Forecasters
 --------------------
 
-When validation detects degraded conditions, the system needs a response beyond simply refusing to forecast. Grid operators need *something* — even a rough estimate is better than nothing, as long as it's clearly marked as degraded.
+When validation checks fail, OpenSTEF does not simply skip the forecast. Instead, it switches to a fallback model that produces honest, if limited, predictions.
 
-The BaseCaseForecaster
-^^^^^^^^^^^^^^^^^^^^^^
+FlatlinerForecaster
+^^^^^^^^^^^^^^^^^^^
 
-OpenSTEF provides :class:`~openstef_models.models.forecasting.BaseCaseForecaster` as a fallback strategy. This model requires no weather data or complex features — it simply repeats historical weekly load patterns:
+The :class:`~openstef_models.models.forecasting.flatliner_forecaster.FlatlinerForecaster` activates when flatline detection triggers. It produces a constant prediction for all horizons and quantiles:
 
-- **Primary strategy**: Use load data from 7 days ago (weekly periodicity assumption)
-- **Fallback strategy**: If primary lag data is unavailable, fall back to 14 days ago
-- **Uncertainty**: Calculates confidence intervals from hourly standard deviations of the repeated pattern
+- **Default behavior**: predicts zero for all time steps
+- **With** ``predict_nonzero_flatliner=True``: predicts the median of historical load measurements
+
+This is appropriate because if the meter is genuinely flatlining (e.g., a decommissioned connection), zero is the correct forecast. If the meter is stuck at a non-zero value, the historical median provides a safer estimate than the frozen reading.
+
+ConstantQuantileForecaster
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The :class:`~openstef_models.models.forecasting.constant_quantile_forecaster.ConstantQuantileForecaster` serves as a minimal fallback when only a tiny fraction of data is available. Rather than attempting a time-series forecast with insufficient information, it returns constant quantile values derived from whatever training data was available.
+
+This forecaster is configured through ``completeness_threshold_target_constant_quantile`` in the workflow configuration, which defines the completeness level below which this ultra-conservative fallback is used instead of the regular model.
+
+How the Workflow Selects Forecasters
+------------------------------------
+
+The preset factory and workflow configuration handle fallback selection automatically. You do not need to implement switching logic yourself. The decision flow follows this sequence:
+
+1. **Flatline check**: If the load signal is flatlining, use ``FlatlinerForecaster``
+2. **Completeness check (severe)**: If data completeness is below ``completeness_threshold_target_constant_quantile``, use ``ConstantQuantileForecaster``
+3. **Completeness check (moderate)**: If data completeness is below ``completeness_threshold``, raise an error (no forecast produced)
+4. **Normal operation**: Use the configured primary forecaster
+
+This tiered approach ensures that some prediction is always available for operational systems that cannot tolerate gaps, while clearly signaling degraded confidence.
+
+Configuration in Practice
+-------------------------
+
+All reliability parameters live in ``ForecastingWorkflowConfig``:
 
 .. code-block:: python
 
-   from openstef_models.models.forecasting import BaseCaseForecaster
+   from openstef_core.config import ForecastingWorkflowConfig
 
-   fallback = BaseCaseForecaster(
-       quantiles=[Quantile(0.1), Quantile(0.5), Quantile(0.9)],
-       horizons=[LeadTime(timedelta(hours=1))],
+   config = ForecastingWorkflowConfig(
+       flatliner_threshold=timedelta(hours=24),
+       detect_non_zero_flatliner=True,
+       predict_nonzero_flatliner=False,
+       completeness_threshold=0.5,
    )
-
-This is intentionally simple. It won't capture weather-driven variations, but it provides a reasonable baseline that degrades gracefully — a property more valuable than accuracy when primary data feeds are down.
-
-Building a Resilient Pipeline
------------------------------
-
-The recommended pattern combines validation transforms with fallback logic:
-
-.. mermaid:: /diagrams/user_guide/guides/reliability_fallback_diagram_2.mmd
-
-The key principles are:
-
-1. **Fail fast on training** — Use ``error_on_flatliner=True`` and strict completeness thresholds during model training. Bad training data corrupts the model permanently.
-
-2. **Degrade gracefully on prediction** — During real-time forecasting, catch validation exceptions and switch to fallback strategies rather than producing no forecast at all.
-
-3. **Signal degradation clearly** — Any fallback forecast should be flagged so downstream consumers (operators, trading systems) know to treat it with appropriate skepticism.
-
-4. **Layer your checks** — Place validation transforms early in the pipeline to reject bad data before expensive computation occurs.
-
-Exception Hierarchy
-^^^^^^^^^^^^^^^^^^^
-
-OpenSTEF defines specific exceptions for each failure mode, enabling targeted error handling:
-
-.. list-table:: Validation Exceptions
-   :header-rows: 1
-   :widths: 35 65
-
-   * - Exception
-     - Meaning
-   * - :class:`~openstef_core.exceptions.FlatlinerDetectedError`
-     - Load signal is constant — likely meter failure
-   * - :class:`~openstef_core.exceptions.InsufficientlyCompleteError`
-     - Too many missing values for reliable forecasting
-   * - :class:`~openstef_core.exceptions.MissingColumnsError`
-     - Expected input columns are absent (schema drift)
-   * - :class:`~openstef_core.exceptions.PredictError`
-     - Forecasting operation failed at runtime
-
-Tuning for Your Environment
-----------------------------
-
-The right validation thresholds depend on your operational context:
-
-- **Industrial loads** with genuinely stable consumption may need longer ``flatliner_threshold`` values or higher tolerances to avoid false positives.
-- **Solar generation** legitimately flatlines at zero overnight — use time-of-day awareness or disable zero-flatliner detection for generation meters.
-- **Completeness thresholds** should be stricter for training (0.9+) than for prediction (0.7–0.8), since a single bad training run has lasting effects.
 
 .. warning::
 
-   Setting ``error_on_flatliner=False`` in production means flatliners will only generate log warnings. Ensure your monitoring system captures these warnings — otherwise failures become truly silent.
+   Setting ``flatliner_threshold`` too low (e.g., 1 hour) may cause false positives for loads with naturally flat periods, such as industrial processes with steady-state operation or solar panels during overcast conditions. Tune this threshold based on the variability profile of your specific prediction job.
 
-Related Topics
---------------
+Interpreting Fallback Predictions
+---------------------------------
 
-- :doc:`forecasting` — The primary forecasting workflow that these reliability checks protect
-- :doc:`datasets` — How OpenSTEF's dataset types support validation and quality metadata
-- :doc:`probabilistic_forecasting` — Uncertainty quantification, which becomes especially important during degraded conditions
-- :doc:`deployment` — Operational patterns for integrating fallback logic into production systems
+Downstream systems consuming OpenSTEF forecasts should be aware that fallback predictions carry different semantics:
+
+- **FlatlinerForecaster output**: All quantiles collapse to the same constant value. The forecast conveys "we believe this connection is inactive or the meter is broken."
+- **ConstantQuantileForecaster output**: Quantiles reflect historical distribution but carry no temporal structure. The forecast conveys "we lack sufficient data for a time-aware prediction."
+
+Both cases produce valid forecast objects with proper quantile structure, so consuming systems do not need special handling. However, monitoring systems should track how often fallbacks activate, as frequent activation indicates upstream data quality problems that need resolution.
+
+For details on how quantile forecasts are structured in normal operation, see :doc:`/user_guide/guides/probabilistic_forecasting`. For the broader forecasting workflow that these fallbacks plug into, see :doc:`/user_guide/guides/forecasting`.

@@ -1,9 +1,9 @@
 graph LR
-    A[openstef V3 Monolith] -->|Core ML| B[openstef-models]
+    A[v3 openstef monolith] -->|Core ML| B[openstef-models]
     A -->|Data Classes| C[openstef-core]
     A -->|Evaluation| D[openstef-beam]
     A -->|New| E[openstef-meta]
-    F[openstef-dbc] -->|Removed| G([No V4 Equivalent])
+    F[v3 openstef-dbc] -->|Replaced by| G[Your own I/O layer]
     classDef primary fill:#00D9C5,stroke:#1E3A5F,stroke-width:2px,color:#000
     classDef secondary fill:#1E3A5F,stroke:#00D9C5,stroke-width:2px,color:#fff
     classDef accent fill:#e6f7f5,stroke:#00D9C5,stroke-width:2px,color:#000

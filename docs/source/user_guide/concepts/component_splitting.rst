@@ -1,134 +1,175 @@
 Component Splitting
 ===================
 
-.. _concept_component_splitting:
+Component splitting is the process of decomposing an aggregated energy forecast into
+its constituent parts: solar generation, wind generation, and residual (base) load.
+Grid operators typically observe only the net load at a substation or connection point,
+but operational decisions often require understanding *what is underneath* that
+aggregated signal.
 
-This page explains **component splitting** — the process of decomposing an aggregated energy forecast into its constituent parts (solar, wind, base load, etc.). This is a post-forecast step that helps grid operators understand *what* is driving the load they see at a substation or grid connection point.
+This page explains why component splitting matters, how OpenSTEF approaches it, and
+what invariants the system enforces.
 
-Why Component Splitting Matters
--------------------------------
+Why Decompose a Forecast?
+--------------------------
 
-A grid operator typically observes a single aggregated load signal at a measurement point — the net sum of all generation and consumption behind that connection. But for operational decision-making, knowing the *composition* of that load is critical:
+A grid operator's measurement infrastructure records the net power flow at a
+connection point. This single time series is the sum of many underlying processes:
+rooftop solar feeding back into the grid (negative contribution), wind turbines
+generating power, heat pumps cycling, industrial machinery running, and residential
+consumption patterns overlapping.
 
-- **Congestion analysis**: Understanding how much solar generation is expected helps predict when reverse power flows might cause congestion.
-- **Grid planning**: Knowing the wind vs. solar vs. base-load mix informs infrastructure investment decisions.
-- **Regulatory reporting**: Transmission system operators often require breakdowns by generation type.
-- **Curtailment decisions**: If congestion is forecast, operators need to know which generation source to curtail.
+Forecasting this aggregated load directly is statistically sound; the aggregated
+signal is smoother and more predictable than its parts. However, once a forecast
+exists, operators need to decompose it for several reasons:
 
-.. warning::
+- **Congestion analysis**: Understanding how much solar generation is expected helps
+  predict reverse power flow and transformer loading.
+- **Grid planning**: Capacity studies require knowledge of generation mix to assess
+  future infrastructure needs.
+- **Regulatory reporting**: Some jurisdictions require reporting of renewable
+  generation volumes separately from consumption.
+- **Market operations**: Balancing responsible parties may need component-level
+  forecasts to settle imbalances by source.
+- **Curtailment decisions**: When congestion is anticipated, operators need to know
+  which generation source to curtail and by how much.
 
-   Component splitting does **not** improve forecast accuracy. The forecast is produced first on the aggregated load signal (see :doc:`intro_to_energy_forecasting`), and *then* decomposed into components. The total of all components always equals the original forecast.
+.. note::
 
-.. mermaid:: /diagrams/user_guide/concepts/component_splitting_diagram_1.mmd
+   Component splitting does **not** improve forecast accuracy. The forecast is
+   produced first on the aggregated load signal, then decomposed afterward. The
+   decomposition is a post-processing step that redistributes the forecasted total
+   into parts.
 
-How It Works
-------------
+Forecast First, Split Second
+-----------------------------
 
-The core invariant of component splitting is simple: **the predicted components must sum to the original source values**. The splitter takes a time series of total load and produces a time series for each component, using either:
+OpenSTEF's architecture enforces a clear separation between forecasting and
+splitting. The forecasting pipeline (see :doc:`/user_guide/guides/forecasting`)
+produces a prediction of total load. Component splitting then takes that prediction
+and allocates it across energy components using weather features and known physical
+relationships.
 
-- **Known ratios** — fixed proportions (e.g., a connection point is 60% solar, 40% wind)
-- **Weather-correlated models** — a pre-trained linear model that uses radiation and wind speed to estimate how much of the total load is attributable to each source
+This two-stage approach has important implications:
 
-OpenSTEF provides an abstract interface (:class:`~openstef_models.models.component_splitting.ComponentSplitter`) and concrete implementations for both approaches.
+- The sum of all components always equals the original forecast (an invariant
+  enforced by the splitting algorithm).
+- Errors in the aggregated forecast propagate into all components proportionally.
+- Improving the splitting model does not change the total forecast; it only
+  redistributes the same total differently.
 
-Available Splitters
--------------------
+Available Splitter Implementations
+-----------------------------------
 
-.. list-table::
+OpenSTEF provides multiple component splitting strategies through a common interface
+defined by :class:`~openstef_models.models.component_splitting.ComponentSplitter`.
+
+.. list-table:: Component Splitter Implementations
    :header-rows: 1
    :widths: 25 40 35
 
    * - Splitter
      - Approach
      - When to Use
-   * - :class:`~openstef_models.models.component_splitting.constant_component_splitter.ConstantComponentSplitter`
-     - Applies fixed ratios per component type
-     - Known solar parks, wind farms, or fixed generation mixes
-   * - :class:`~openstef_models.models.component_splitting.linear_component_splitter.LinearComponentSplitter`
-     - Pre-trained linear model using radiation and wind speed features
-     - Mixed connection points where component shares vary with weather
+   * - ``LinearComponentSplitter``
+     - Pre-trained linear model using radiation and wind speed features to estimate
+       solar and wind contributions; residual becomes "other"
+     - Default choice when weather data (radiation, wind speed at 100m) is available
+   * - ``ConstantComponentSplitter``
+     - Splits load using fixed ratios per component (e.g., 60% solar, 40% wind)
+     - Quick approximation when weather features are unavailable or for testing
 
-Constant Component Splitter
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+All splitters share the same contract: they accept a :class:`~openstef_core.types.TimeSeriesDataset`
+containing the total load column and return an :class:`~openstef_core.types.EnergyComponentDataset`
+whose columns sum to the original source values.
 
-The simplest approach: you know the generation mix and apply fixed ratios. This is appropriate for dedicated generation assets (a pure solar park, a wind farm) or connection points with well-characterized installed capacity.
+Energy Component Types
+^^^^^^^^^^^^^^^^^^^^^^
 
-.. code-block:: python
+The system defines a fixed set of recognized component types through
+``EnergyComponentType``:
 
-   from openstef_models.models.component_splitting.constant_component_splitter import (
-       ConstantComponentSplitter, ConstantComponentSplitterConfig
-   )
-   from openstef_core.types import EnergyComponentType
+- **Solar**: Photovoltaic generation (represented as negative values, since generation
+  reduces net load)
+- **Wind**: Wind turbine generation (also negative values)
+- **Other**: The residual after solar and wind are subtracted; encompasses base
+  industrial load, residential consumption, and any unmodeled generation
 
-   config = ConstantComponentSplitterConfig(
-       source_column="total_load",
-       component_ratios={EnergyComponentType.SOLAR: 0.6, EnergyComponentType.WIND: 0.4},
-   )
-   splitter = ConstantComponentSplitter(config)
+The Pipeline
+------------
 
-Convenience factory methods are also available:
+The high-level orchestration is handled by
+:class:`~openstef_models.models.component_splitting_model.ComponentSplittingModel`,
+which composes three stages:
 
-.. code-block:: python
+1. **Preprocessing**: A transform pipeline that prepares raw input data (e.g.,
+   selecting and renaming columns, handling missing values).
+2. **Splitting**: The core algorithm (one of the splitter implementations above) that
+   performs the actual decomposition.
+3. **Postprocessing**: A transform pipeline that adjusts the output (e.g., clipping,
+   scaling, or formatting).
 
-   solar_splitter = ConstantComponentSplitter.known_solar_park()
-   wind_splitter = ConstantComponentSplitter.known_wind_farm()
-
-Linear Component Splitter
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-For mixed connection points, the :class:`~openstef_models.models.component_splitting.linear_component_splitter.LinearComponentSplitter` uses weather features (radiation and wind speed at 100m) to estimate the contribution of each component. It decomposes total load into three predefined components:
-
-- **Wind on shore**
-- **Solar**
-- **Other** (residual: base industrial, residential, etc.)
-
-This splitter uses a pre-trained model and does not currently support re-training. It requires ``radiation`` and ``windspeed_100m`` columns in the input data alongside the source load column.
-
-The Component Splitting Pipeline
----------------------------------
-
-For production use, OpenSTEF provides :class:`~openstef_models.models.component_splitting_model.ComponentSplittingModel` — a high-level orchestrator that combines preprocessing, splitting, and postprocessing into a single pipeline:
+This composition follows the same pattern used elsewhere in OpenSTEF's model
+architecture (see :doc:`/user_guide/concepts/models`).
 
 .. code-block:: python
-
-   from openstef_models.models.component_splitting_model import ComponentSplittingModel
 
    model = ComponentSplittingModel(
        component_splitter=splitter,
        preprocessing=preprocessing_pipeline,
-       source_column="total_load",
+       source_column="load",
    )
-   model.fit(training_data)
-   components = model.predict(new_data)
+   components = model.predict(forecast_data)
 
-The ``predict()`` method returns an :class:`~openstef_core.types.EnergyComponentDataset` — a structured dataset where each component is a separate column, and the sum across components equals the original source column.
+The ``source_column`` parameter tells the model which column in the input dataset
+contains the total load to decompose.
 
-.. note:: [VISUALIZATION: Stacked area chart showing a 48-hour forecast decomposed into solar (yellow), wind (blue), and other/residual (grey) components, with the total load line overlaid on top demonstrating that components sum to the forecast.]
-
-Key Design Decisions
---------------------
-
-**Forecast first, split second**
-   OpenSTEF deliberately separates forecasting from decomposition. Forecasting on the aggregated signal benefits from the smoothing effect of aggregation and avoids error accumulation from forecasting each component independently. The split is a downstream interpretation step.
-
-**Sum-preserving constraint**
-   All splitters enforce the invariant that components sum to the original source values. This ensures consistency between the operational forecast and the component breakdown.
-
-**Extensibility**
-   The :class:`~openstef_models.models.component_splitting.ComponentSplitter` abstract base class defines a minimal interface (``fit``, ``predict``, ``config``, ``is_fitted``). Custom splitters — for example, one using installed capacity registries or real-time curtailment signals — can be implemented by subclassing this interface.
-
-When Not to Use Component Splitting
-------------------------------------
-
-Component splitting is the wrong tool if you need:
-
-- **Accurate per-component forecasts** — if you have separate metering for solar and wind, forecast them individually using the standard forecasting pipeline (see :doc:`models`).
-- **Behind-the-meter disaggregation** — component splitting assumes you know the *types* of generation present; it does not discover unknown loads.
-- **Real-time control signals** — the output is informational, not a control setpoint.
-
-Relationship to Other Concepts
+How the Linear Splitter Works
 ------------------------------
 
-- **Forecasting models** (:doc:`models`) produce the aggregated forecast that serves as input to component splitting.
-- **BEAM** (:doc:`beam`) orchestrates the full forecasting workflow; component splitting can be a post-processing step within that pipeline.
-- **Metalearning** (:doc:`metalearning`) selects the best model for the aggregated forecast — it operates upstream of component splitting.
+The ``LinearComponentSplitter`` uses a pre-trained linear model that maps weather
+features to generation components:
+
+- **Inputs**: radiation (solar irradiance) and wind speed at 100m height, plus the
+  total load value.
+- **Outputs**: Estimated solar and wind contributions (clipped to be non-positive,
+  since generation reduces net load).
+- **Residual**: The "other" component is computed as the difference between total load
+  and the sum of solar and wind estimates.
+
+This ensures the invariant holds: solar + wind + other = total load.
+
+The linear model is shipped pre-trained (from OpenSTEF V3.4.24) and does not require
+fitting on local data. This makes it immediately usable but means it represents
+average relationships rather than site-specific ones.
+
+Workflow Integration
+---------------------
+
+For production use, component splitting integrates into the broader workflow system
+through ``CustomComponentSplitWorkflow``, which adds lifecycle callbacks for
+monitoring, logging, and model management. This follows the same callback pattern as
+the forecasting workflow described in :doc:`/user_guide/guides/deployment`.
+
+Key Constraints and Assumptions
+--------------------------------
+
+When using component splitting, keep these constraints in mind:
+
+- **Weather data required** (for the linear splitter): The input dataset must contain
+  radiation and wind speed columns. Missing values are dropped before prediction.
+- **Summation invariant**: Components always sum to the source column value. If the
+  forecast is biased, all components inherit that bias.
+- **Sign conventions**: Generation components (solar, wind) are negative values in the
+  net load frame of reference. Consumption is positive.
+- **Temporal resolution**: The splitter operates at whatever resolution the input data
+  provides; it does not resample.
+- **No feedback loop**: Splitting results do not feed back into the forecasting model.
+  They are purely informational outputs for downstream consumers.
+
+.. warning::
+
+   If the aggregated forecast contains large errors (e.g., during extreme weather
+   events), the component split will faithfully distribute those errors across
+   components. Always evaluate forecast quality at the aggregated level first
+   (see :doc:`/user_guide/concepts/beam`).
