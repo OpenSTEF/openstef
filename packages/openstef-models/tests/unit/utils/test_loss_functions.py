@@ -1,0 +1,416 @@
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+#
+# SPDX-License-Identifier: MPL-2.0
+
+from collections.abc import Callable
+
+import numpy as np
+import pytest
+
+from openstef_core.types import Quantile
+from openstef_models.utils.loss_functions import (
+    arctan_loss_multi_objective,
+    pinball_loss_multi_objective,
+)
+
+
+@pytest.fixture
+def sample_data() -> tuple[np.ndarray, np.ndarray, list[Quantile]]:
+    """Fixture providing sample data for testing loss functions."""
+    # Simple case: 1 sample, 2 quantiles
+    y_true = np.array([1.0, 1.0])  # shape (n_samples * n_quantiles,)
+    y_pred = np.array([2.0, 2.0])  # overprediction
+    quantiles = [Quantile(0.1), Quantile(0.9)]
+    return y_true, y_pred, quantiles
+
+
+@pytest.fixture
+def sample_weights() -> np.ndarray:
+    """Fixture providing sample weights."""
+    return np.array([2.0])
+
+
+@pytest.mark.parametrize(
+    ("y_pred", "sample_weight", "expected_gradient"),
+    [
+        (np.ones(2) * 1.5, None, np.array([[0.225, 0.025]])),  # overprediction, no weights (error=0.5)
+        (np.zeros(2), None, np.array([[-0.05, -0.45]])),  # underprediction, no weights (error=-1.0)
+        (
+            np.ones(2) * 1.5,
+            np.array([2.0]),
+            np.array([[0.45, 0.05]]),
+        ),  # overprediction, with weights (error=0.5, weight=2)
+        (
+            np.zeros(2),
+            np.array([2.0]),
+            np.array([[-0.1, -0.9]]),
+        ),  # underprediction, with weights (error=-1.0, weight=2)
+        (np.ones(2), None, np.array([[0.0, 0.0]])),  # zero error case
+    ],
+)
+def test_pinball_loss_multi_objective__returns_expected_values_with_weights(
+    y_pred: np.ndarray, sample_weight: np.ndarray | None, expected_gradient: np.ndarray
+) -> None:
+    """Test pinball loss gradients for over/under prediction with/without sample weights."""
+    # Arrange
+    quantiles = [Quantile(0.1), Quantile(0.9)]
+    y_true = np.ones(2)
+
+    # Act
+    gradient, hessian = pinball_loss_multi_objective(y_true, y_pred, quantiles, sample_weight=sample_weight)
+
+    # Assert
+    np.testing.assert_array_almost_equal(gradient, expected_gradient)
+    assert np.all(hessian > 0)
+
+
+@pytest.mark.parametrize(
+    ("quantiles", "y_pred", "sample_weight", "expected_gradient"),
+    [
+        # Different quantiles, overprediction, no weights
+        ([Quantile(0.1), Quantile(0.9)], np.ones(2) * 1.5, None, np.array([[0.225, 0.025]])),
+        ([Quantile(0.25), Quantile(0.75)], np.ones(2) * 1.5, None, np.array([[0.1875, 0.0625]])),
+        # Test with weights (2x multiplier)
+        ([Quantile(0.1), Quantile(0.9)], np.ones(2) * 1.5, np.array([2.0]), np.array([[0.45, 0.05]])),
+        # Test larger errors produce larger gradients
+        ([Quantile(0.1), Quantile(0.9)], np.ones(2) * 2.0, None, np.array([[0.45, 0.05]])),  # error=1.0
+        # Zero error case
+        ([Quantile(0.1), Quantile(0.9)], np.ones(2), None, np.array([[0.0, 0.0]])),
+    ],
+)
+def test_pinball_loss_multi_objective__different_quantiles_and_weights(
+    quantiles: list[Quantile], y_pred: np.ndarray, sample_weight: np.ndarray | None, expected_gradient: np.ndarray
+) -> None:
+    """Test pinball loss with different quantiles, predictions, and weights."""
+    # Arrange
+    y_true = np.ones(len(quantiles))
+
+    # Act
+    gradient, hessian = pinball_loss_multi_objective(y_true, y_pred, quantiles, sample_weight=sample_weight)
+
+    # Assert
+    np.testing.assert_array_almost_equal(gradient, expected_gradient)
+    assert np.all(hessian > 0)
+
+
+@pytest.mark.parametrize(
+    ("y_pred", "sample_weight", "expected_gradient_negative"),
+    [
+        (np.array([0.0, 0.0]), None, np.array([[True, True]])),  # underprediction, no weights
+        (np.array([2.0, 2.0]), None, np.array([[False, False]])),  # overprediction, no weights
+        (np.array([0.0, 0.0]), np.array([2.0]), np.array([[True, True]])),  # underprediction, with weights
+        (np.array([2.0, 2.0]), np.array([2.0]), np.array([[False, False]])),  # overprediction, with weights
+        (np.array([1.0, 1.0]), None, np.array([[None, None]])),  # zero error case (gradient ~0)
+    ],
+)
+def test_arctan_loss_multi_objective__returns_expected_values_with_weights(
+    y_pred: np.ndarray, sample_weight: np.ndarray | None, expected_gradient_negative: np.ndarray
+) -> None:
+    """Test arctan loss gradients for under/over prediction with/without sample weights."""
+    # Arrange
+    quantiles = [Quantile(0.1), Quantile(0.9)]
+    y_true = np.array([1.0, 1.0])
+
+    # Act
+    gradient, hessian = arctan_loss_multi_objective(y_true, y_pred, quantiles, sample_weight=sample_weight)
+
+    # Assert - flatten for easier comparison
+    gradient_flat = gradient.flatten()
+    expected_flat = expected_gradient_negative.flatten()
+
+    for i, expected_neg in enumerate(expected_flat):
+        if expected_neg is None:
+            # Zero error case - gradient should be very close to zero
+            assert np.abs(gradient_flat[i]) < 1e-10
+        elif expected_neg:
+            assert gradient_flat[i] < 0
+        else:
+            assert gradient_flat[i] > 0
+    assert np.all(hessian > 0)
+
+
+@pytest.mark.parametrize("s", [0.01, 0.1, 1.0])
+def test_arctan_loss_multi_objective__smoothing_parameter_affects_hessian(s: float) -> None:
+    """Test that different smoothing parameters s affect hessian magnitude."""
+    # Arrange
+    y_true = np.array([1.0, 1.0])
+    y_pred = np.array([2.0, 2.0])
+    quantiles = [Quantile(0.1), Quantile(0.9)]
+
+    # Act
+    _, hessian = arctan_loss_multi_objective(y_true, y_pred, quantiles, s=s)
+
+    # Assert
+    # Hessians should be positive and constant (for numerical stability)
+    assert np.all(hessian > 0)
+    # Hessian should be constant regardless of s parameter
+    _, hessian_large = arctan_loss_multi_objective(y_true, y_pred, quantiles, s=1.0)
+    np.testing.assert_array_almost_equal(hessian, hessian_large)
+
+
+def test_loss_functions__raise_error_on_mismatched_lengths() -> None:
+    """Test that functions raise errors for mismatched input lengths."""
+    # Arrange
+    y_true = np.array([1.0, 1.0, 1.0])  # 3 elements
+    y_pred = np.array([2.0, 2.0])  # 2 elements
+    quantiles = [Quantile(0.1), Quantile(0.9)]
+
+    # Act & Assert
+    with pytest.raises(ValueError):  # noqa: PT011
+        pinball_loss_multi_objective(y_true, y_pred, quantiles)
+
+    with pytest.raises(ValueError):  # noqa: PT011
+        arctan_loss_multi_objective(y_true, y_pred, quantiles)
+
+
+def test_pinball_loss_multi_objective__larger_errors_produce_larger_gradients() -> None:
+    """Test that pinball loss produces larger gradients for larger errors (magnitude-aware property)."""
+    # Arrange
+    quantiles = [Quantile(0.5), Quantile(0.5)]
+    y_true = np.array([1.0, 1.0])
+    y_pred_small_error = np.array([1.5, 1.5])  # error = 0.5
+    y_pred_large_error = np.array([2.0, 2.0])  # error = 1.0
+
+    # Act
+    grad_small, _ = pinball_loss_multi_objective(y_true, y_pred_small_error, quantiles)
+    grad_large, _ = pinball_loss_multi_objective(y_true, y_pred_large_error, quantiles)
+
+    # Assert
+    # Larger errors should produce larger gradients
+    assert np.abs(grad_large.flatten()[0]) > np.abs(grad_small.flatten()[0])
+
+
+def test_arctan_loss_multi_objective__quantile_properties() -> None:
+    """Test that arctan loss respects quantile properties."""
+    # Arrange
+    y_true = np.array([1.0, 1.0])
+    y_pred = np.array([1.5, 1.5])  # overprediction
+    quantiles_low = [Quantile(0.1), Quantile(0.1)]
+    quantiles_high = [Quantile(0.9), Quantile(0.9)]
+
+    # Act
+    grad_low, _ = arctan_loss_multi_objective(y_true, y_pred, quantiles_low)
+    grad_high, _ = arctan_loss_multi_objective(y_true, y_pred, quantiles_high)
+
+    # Assert
+    # For overprediction, higher quantile should have smaller gradient magnitude
+    # Flatten for comparison
+    assert np.abs(grad_high.flatten()[0]) < np.abs(grad_low.flatten()[0])
+
+
+def test_pinball_loss_multi_objective__quantile_properties() -> None:
+    """Test that pinball loss respects quantile properties (higher quantile penalizes overprediction more)."""
+    # Arrange
+    y_true = np.array([1.0, 1.0])
+    y_pred = np.array([2.0, 2.0])  # overprediction
+    quantiles_low = [Quantile(0.1), Quantile(0.1)]
+    quantiles_high = [Quantile(0.9), Quantile(0.9)]
+
+    # Act
+    grad_low, _ = pinball_loss_multi_objective(y_true, y_pred, quantiles_low)
+    grad_high, _ = pinball_loss_multi_objective(y_true, y_pred, quantiles_high)
+
+    # Assert
+    # For overprediction, higher quantile should have smaller gradient magnitude
+    # Flatten for comparison
+    assert np.abs(grad_high.flatten()[0]) < np.abs(grad_low.flatten()[0])
+
+
+@pytest.mark.parametrize(
+    ("y_true", "y_pred", "description"),
+    [
+        (np.array([1e-10, 1e-10]), np.array([2e-10, 2e-10]), "very_small_values"),
+        (np.array([1e6, 1e6]), np.array([2e6, 2e6]), "very_large_values"),
+        (np.array([1.0, 1.0]), np.array([1.0 + 1e-15, 1.0 + 1e-15]), "tiny_differences"),
+    ],
+)
+def test_loss_functions__numerical_stability(y_true: np.ndarray, y_pred: np.ndarray, description: str) -> None:
+    """Test numerical stability with extreme values."""
+    # Arrange
+    quantiles = [Quantile(0.1), Quantile(0.9)]
+
+    # Act & Assert - all functions should handle extreme values without errors
+    grad_pinball, hess_pinball = pinball_loss_multi_objective(y_true, y_pred, quantiles)
+    grad_arctan, hess_arctan = arctan_loss_multi_objective(y_true, y_pred, quantiles)
+
+    # All gradients should be finite
+    assert np.all(np.isfinite(grad_pinball)), f"Pinball gradients not finite for {description}"
+    assert np.all(np.isfinite(grad_arctan)), f"Arctan gradients not finite for {description}"
+
+    # All hessians should be finite and positive
+    assert np.all(np.isfinite(hess_pinball)), f"Pinball hessians not finite for {description}"
+    assert np.all(np.isfinite(hess_arctan)), f"Arctan hessians not finite for {description}"
+    assert np.all(hess_pinball > 0), f"Pinball hessians not positive for {description}"
+    assert np.all(hess_arctan > 0), f"Arctan hessians not positive for {description}"
+
+
+def test_pinball_loss_multi_objective__medium_length_with_varied_weights() -> None:
+    """Test pinball loss with medium-length arrays and varied sample weights."""
+    # Arrange
+    quantiles = [Quantile(0.1), Quantile(0.5), Quantile(0.9)]
+    y_true = np.array([1.0, 2.0, 3.0, 4.0, 5.0] * len(quantiles))  # 15 elements
+    y_pred = np.array([1.2, 1.8, 3.1, 4.2, 4.8] * len(quantiles))  # mixed over/under prediction
+    sample_weights = np.array([1.0, 2.0, 0.5, 3.0, 1.5])
+
+    # Act
+    grad_weighted, hess_weighted = pinball_loss_multi_objective(y_true, y_pred, quantiles, sample_weight=sample_weights)
+    grad_unweighted, _ = pinball_loss_multi_objective(y_true, y_pred, quantiles)
+
+    # Assert - shape should be (n_samples, n_quantiles) = (5, 3)
+    assert grad_weighted.shape == (5, 3)
+    assert hess_weighted.shape == (5, 3)
+    assert np.all(hess_weighted > 0)
+    # Weighted results should differ from unweighted
+    assert not np.allclose(grad_weighted, grad_unweighted)
+
+
+def test_pinball_loss_multi_objective__magnitude_aware_property() -> None:
+    """Test pinball loss magnitude-aware property: larger errors produce larger gradients."""
+    # Arrange
+    quantiles = [Quantile(0.25), Quantile(0.75)]
+    y_true = np.array([1.0, 2.0, 3.0, 4.0, 5.0] * len(quantiles))  # 10 elements
+    y_pred = np.array([1.5, 1.5, 3.5, 4.5, 4.5] * len(quantiles))  # varied errors
+    sample_weights = np.array([2.0, 1.0, 3.0, 0.5, 1.5])
+
+    # Act
+    grad_weighted, hess_weighted = pinball_loss_multi_objective(y_true, y_pred, quantiles, sample_weight=sample_weights)
+    grad_unweighted, _ = pinball_loss_multi_objective(y_true, y_pred, quantiles)
+
+    # Assert - shape should be (n_samples, n_quantiles) = (5, 2)
+    assert grad_weighted.shape == (5, 2)
+    assert hess_weighted.shape == (5, 2)
+    assert np.all(hess_weighted > 0)
+    # Larger errors should have larger gradient magnitudes (magnitude-aware property)
+    error_magnitudes = np.abs(y_pred - y_true)
+    grad_magnitudes = np.abs(grad_unweighted)
+    # Reshape to (n_samples, n_quantiles)
+    error_magnitudes = error_magnitudes.reshape(5, 2)
+    grad_magnitudes = grad_magnitudes.reshape(5, 2)
+    # Compare gradients for same quantile positions
+    for q_idx in range(len(quantiles)):
+        q_errors = error_magnitudes[:, q_idx]
+        q_grads = grad_magnitudes[:, q_idx]
+        if len(np.unique(q_errors)) > 1:  # Only test if errors differ
+            # Larger errors should generally have larger gradients
+            max_error_idx = np.argmax(q_errors)
+            min_error_idx = np.argmin(q_errors)
+            assert q_grads[max_error_idx] >= q_grads[min_error_idx]
+
+
+def test_arctan_loss_multi_objective__medium_length_with_varied_weights() -> None:
+    """Test arctan loss with medium-length arrays and varied sample weights."""
+    # Arrange
+    quantiles = [Quantile(0.1), Quantile(0.9)]
+    y_true = np.array([1.0, 2.0, 3.0, 4.0, 5.0] * len(quantiles))  # 10 elements
+    y_pred = np.array([0.8, 2.2, 2.9, 4.1, 5.2] * len(quantiles))  # mixed predictions
+    sample_weights = np.array([1.5, 0.8, 2.5, 1.2, 3.0])
+
+    # Act
+    grad_weighted, hess_weighted = arctan_loss_multi_objective(y_true, y_pred, quantiles, sample_weight=sample_weights)
+    grad_unweighted, _ = arctan_loss_multi_objective(y_true, y_pred, quantiles)
+
+    # Assert - shape should be (n_samples, n_quantiles) = (5, 2)
+    assert grad_weighted.shape == (5, 2)
+    assert hess_weighted.shape == (5, 2)
+    assert np.all(hess_weighted > 0)
+    # Weighted results should differ from unweighted
+    assert not np.allclose(grad_weighted, grad_unweighted)
+
+
+def test_loss_functions__cross_function_consistency() -> None:
+    """Test that all loss functions have consistent gradient signs for identical inputs."""
+    # Arrange
+    quantiles = [Quantile(0.1), Quantile(0.9)]
+    test_cases = [
+        (np.array([1.0, 1.0]), np.array([0.5, 0.5])),  # underprediction
+        (np.array([1.0, 1.0]), np.array([1.5, 1.5])),  # overprediction
+        (np.array([1.0, 1.0]), np.array([1.0, 1.0])),  # zero error
+    ]
+
+    for y_true, y_pred in test_cases:
+        # Act
+        grad_pinball, _ = pinball_loss_multi_objective(y_true, y_pred, quantiles)
+        grad_arctan, _ = arctan_loss_multi_objective(y_true, y_pred, quantiles)
+
+        # Flatten for easier comparison
+        grad_pinball_flat = grad_pinball.flatten()
+        grad_arctan_flat = grad_arctan.flatten()
+
+        # Assert - gradient signs should be consistent across functions
+        for i in range(len(grad_pinball_flat)):
+            pinball_sign = np.sign(grad_pinball_flat[i])
+            arctan_sign = np.sign(grad_arctan_flat[i])
+
+            # For zero errors, some functions may have slightly different behavior
+            sample_idx = i // len(quantiles)
+            # Note: arctan may have slightly different zero-error behavior, so we're more lenient
+            if not np.isclose(y_true[sample_idx], y_pred[sample_idx]) and abs(grad_pinball_flat[i]) > 1e-10:
+                # Only check sign consistency for non-negligible gradients
+                assert pinball_sign == arctan_sign or abs(grad_arctan_flat[i]) < 1e-6, (
+                    f"Gradient sign mismatch between pinball and arctan at index {i}"
+                )
+
+
+@pytest.mark.parametrize(
+    "loss_fn",
+    [
+        pytest.param(pinball_loss_multi_objective, id="pinball"),
+        pytest.param(arctan_loss_multi_objective, id="arctan"),
+    ],
+)
+def test_loss_fn__2d_input_matches_1d_input(loss_fn: Callable[..., tuple[np.ndarray, np.ndarray]]) -> None:
+    """Regression: objective functions accept 2D (n_samples, n_quantiles) input from XGBoost 3.2."""
+    # Arrange
+    quantiles = [Quantile(0.1), Quantile(0.5), Quantile(0.9)]
+    n_samples, n_quantiles = 4, len(quantiles)
+
+    # XGBoost 3.2 passes 2D arrays — rows are samples, columns are quantiles.
+    # y_true has the same actual value repeated per quantile (created by xgb_prepare_target_for_objective).
+    y_true_2d = np.array([[1.0, 1.0, 1.0], [2.0, 2.0, 2.0], [3.0, 3.0, 3.0], [4.0, 4.0, 4.0]])
+    y_pred_2d = np.array([[0.8, 1.0, 1.3], [1.6, 2.0, 2.5], [2.7, 3.0, 3.4], [3.5, 4.0, 4.6]])
+
+    # Old XGBoost passes flat 1D arrays (row-major flatten of the 2D arrays above).
+    y_true_1d = y_true_2d.ravel()
+    y_pred_1d = y_pred_2d.ravel()
+
+    # Act
+    grad_2d, hess_2d = loss_fn(y_true_2d, y_pred_2d, quantiles)
+    grad_1d, hess_1d = loss_fn(y_true_1d, y_pred_1d, quantiles)
+
+    # Assert
+    assert grad_2d.shape == (n_samples, n_quantiles), "2D input must produce (n_samples, n_quantiles) gradient"
+    assert hess_2d.shape == (n_samples, n_quantiles), "2D input must produce (n_samples, n_quantiles) hessian"
+    np.testing.assert_array_almost_equal(grad_2d, grad_1d, err_msg="2D and 1D inputs must produce identical gradients")
+    np.testing.assert_array_almost_equal(hess_2d, hess_1d, err_msg="2D and 1D inputs must produce identical hessians")
+
+
+@pytest.mark.parametrize(
+    "loss_fn",
+    [
+        pytest.param(pinball_loss_multi_objective, id="pinball"),
+        pytest.param(arctan_loss_multi_objective, id="arctan"),
+    ],
+)
+def test_loss_fn__2d_input_with_sample_weights_matches_1d(
+    loss_fn: Callable[..., tuple[np.ndarray, np.ndarray]],
+) -> None:
+    """Regression: 2D input with sample_weight produces the same result as 1D input."""
+    # Arrange
+    quantiles = [Quantile(0.1), Quantile(0.9)]
+    n_samples = 3
+
+    y_true_2d = np.array([[1.0, 1.0], [2.0, 2.0], [3.0, 3.0]])
+    y_pred_2d = np.array([[0.5, 1.5], [1.8, 2.2], [2.5, 3.5]])
+    sample_weight = np.array([1.0, 2.0, 0.5])
+
+    y_true_1d = y_true_2d.ravel()
+    y_pred_1d = y_pred_2d.ravel()
+
+    # Act
+    grad_2d, hess_2d = loss_fn(y_true_2d, y_pred_2d, quantiles, sample_weight=sample_weight)
+    grad_1d, hess_1d = loss_fn(y_true_1d, y_pred_1d, quantiles, sample_weight=sample_weight)
+
+    # Assert
+    assert grad_2d.shape == (n_samples, len(quantiles))
+    np.testing.assert_array_almost_equal(grad_2d, grad_1d)
+    np.testing.assert_array_almost_equal(hess_2d, hess_1d)

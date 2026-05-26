@@ -1,0 +1,20 @@
+graph TD
+    A[Forecaster 1 Prediction] --> D[Assemble Feature Vector]
+    B[Forecaster 2 Prediction] --> D
+    C[Forecaster N Prediction] --> D
+    D --> E[Clone Template per Quantile]
+    E --> F[Meta-Regressor Q10]
+    E --> G[Meta-Regressor Q50]
+    E --> H[Meta-Regressor Q90]
+    F --> I[Final Quantile Predictions]
+    G --> I
+    H --> I
+
+    classDef primary fill:#00D9C5,stroke:#1E3A5F,stroke-width:2px,color:#000
+    classDef secondary fill:#1E3A5F,stroke:#00D9C5,stroke-width:2px,color:#fff
+    classDef accent fill:#e6f7f5,stroke:#00D9C5,stroke-width:2px,color:#000
+
+    class A,B,C accent
+    class D,E primary
+    class F,G,H secondary
+    class I primary

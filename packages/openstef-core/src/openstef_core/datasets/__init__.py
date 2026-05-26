@@ -1,0 +1,37 @@
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+#
+# SPDX-License-Identifier: MPL-2.0
+
+"""Time series datasets and versioned data access.
+
+This module provides core data structures for handling time series data in OpenSTEF forecasting.
+It includes both simple time series datasets and versioned datasets that track data availability
+over time, enabling realistic backtesting and training and forecasting.
+
+The module supports:
+
+    - Regular time series with consistent sampling intervals
+    - Versioned time series that track when data became available
+    - Validated datasets with domain-specific constraints
+    - Data transformations and validation utilities
+    - Feature concatenation and horizon restriction operations
+"""
+
+from openstef_core.datasets.timeseries_dataset import TimeSeriesDataset, validate_horizons_present
+from openstef_core.datasets.validated_datasets import (
+    EnergyComponentDataset,
+    EnsembleForecastDataset,
+    ForecastDataset,
+    ForecastInputDataset,
+)
+from openstef_core.datasets.versioned_timeseries_dataset import VersionedTimeSeriesDataset
+
+__all__ = [
+    "EnergyComponentDataset",
+    "EnsembleForecastDataset",
+    "ForecastDataset",
+    "ForecastInputDataset",
+    "TimeSeriesDataset",
+    "VersionedTimeSeriesDataset",
+    "validate_horizons_present",
+]

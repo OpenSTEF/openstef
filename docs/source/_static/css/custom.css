@@ -1,0 +1,24 @@
+/*
+ * SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+ *
+ * SPDX-License-Identifier: MPL-2.0
+ */
+
+.navbar-brand.logo {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+}
+
+/* Fix mermaid diagram height - auto-size instead of fixed 500px */
+pre.mermaid > svg {
+    height: auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+pre.mermaid {
+    display: block;
+    width: 100%;
+    margin: 1rem 0 !important;
+    padding: 0 !important;
+}

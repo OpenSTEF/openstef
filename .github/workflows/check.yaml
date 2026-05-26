@@ -1,0 +1,21 @@
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+# SPDX-License-Identifier: MPL-2.0
+
+name: Quality Check
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches: ['main']
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    name: Quality Checks
+    uses: ./.github/workflows/_job_quality_check.yaml

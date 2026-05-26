@@ -1,0 +1,59 @@
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+#
+# SPDX-License-Identifier: MPL-2.0
+
+[build-system]
+build-backend = "hatchling.build"
+
+requires = [ "hatchling" ]
+
+[project]
+name = "openstef-models"
+version = "0.0.0"
+description = "Core models for OpenSTEF"
+readme = "README.md"
+keywords = [ "energy", "forecasting", "machinelearning" ]
+license = "MPL-2.0"
+authors = [
+  { name = "Alliander N.V", email = "openstef@lfenergy.org" },
+]
+requires-python = ">=3.12,<4.0"
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+]
+
+dependencies = [
+  "holidays>=0.79",
+  "mlflow-skinny>=3,<4",
+  "openstef-beam>=4.0.0.dev0,<5",
+  "openstef-core>=4.0.0.dev0,<5",
+  "pvlib>=0.13",
+  "pycountry>=24.6.1",
+  "scikit-learn>=1.7.1,<1.8",
+  "scipy>=1.16.3,<2",
+]
+
+optional-dependencies.lgbm = [
+  "lightgbm>=4.6",
+]
+
+optional-dependencies.tuning = [ "optuna>=4.7" ]
+
+optional-dependencies.xgb-cpu = [
+  "xgboost>=3,<4; sys_platform=='darwin'",
+  "xgboost-cpu>=3,<4; sys_platform=='linux' or sys_platform=='win32'",
+]
+
+optional-dependencies.xgb-gpu = [ "xgboost>=3,<4" ]
+urls.Documentation = "https://openstef.github.io/openstef/index.html"
+urls.Homepage = "https://lfenergy.org/projects/openstef/"
+urls.Issues = "https://github.com/OpenSTEF/openstef/issues"
+urls.Repository = "https://github.com/OpenSTEF/openstef"
+
+[tool.hatch.build.targets.wheel]
+packages = [ "src/openstef_models" ]

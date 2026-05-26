@@ -1,0 +1,335 @@
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+#
+# SPDX-License-Identifier: MPL-2.0
+
+
+"""Gradient Boosted linear forecaster.
+
+Provides a model that uses a linear booster (`gb_linear`) from the Gradient Boosting framework
+for forecasting. This model does not suffer from the extrapolation issues of tree-based models
+and can be more suitable for certain types of time series data where it is important
+to predict values outside the range of the training data.
+"""
+
+from typing import Annotated, ClassVar, Literal, override
+
+import numpy as np
+import pandas as pd
+from pydantic import Field, PrivateAttr
+from sklearn.preprocessing import StandardScaler
+
+from openstef_core.datasets import TimeSeriesDataset
+from openstef_core.datasets.mixins import LeadTime
+from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
+from openstef_core.exceptions import InputValidationError, MissingExtraError, NotFittedError
+from openstef_core.mixins.param_ranges import CategoricalRange, FloatRange, IntRange
+from openstef_core.mixins.predictor import HyperParams
+from openstef_core.utils.pandas import normalize_to_unit_sum
+from openstef_models.explainability.mixins import ContributionsMixin, ExplainableForecaster
+from openstef_models.models.forecasting.forecaster import Forecaster
+from openstef_models.utils.evaluation_functions import EvaluationFunctionType, get_evaluation_function
+from openstef_models.utils.loss_functions import (
+    ObjectiveFunctionType,
+    get_objective_function,
+    xgb_prepare_target_for_objective,
+)
+from openstef_models.utils.xgboost import get_median_shap_contribs
+
+try:
+    import xgboost as xgb
+except ImportError as e:
+    raise MissingExtraError("xgboost", "openstef-models") from e
+
+
+class GBLinearHyperParams(HyperParams):
+    """Hyperparameter configuration for GBLinear forecaster."""
+
+    # Learning Parameters
+    n_steps: Annotated[int, IntRange(50, 1000)] = Field(
+        default=500,
+        description="Number for steps (boosting rounds) to train the GBLinear model.",
+    )
+    updater: Annotated[str, CategoricalRange(("shotgun", "coord_descent"))] = Field(
+        default="shotgun",
+        description="The updater to use for the GBLinear booster.",
+    )
+    learning_rate: Annotated[float, FloatRange(0.01, 0.5, log=True)] = Field(
+        default=0.15,
+        description="Step size shrinkage used to prevent overfitting. Range: [0,1]. Lower values require more boosting "
+        "rounds.",
+    )
+    objective: ObjectiveFunctionType | Literal["reg:quantileerror"] = Field(
+        default="reg:quantileerror",
+        description="Objective function for training. 'reg:quantileerror' is recommended "
+        "for probabilistic forecasting.",
+    )
+    evaluation_metric: EvaluationFunctionType = Field(
+        default="mean_pinball_loss",
+        description="Metric used for evaluation during training. Defaults to 'mean_pinball_loss' "
+        "for quantile regression.",
+    )
+
+    # Regularization
+    reg_alpha: Annotated[float, FloatRange(1e-8, 1.0, log=True)] = Field(
+        default=0.0001, description="L1 regularization on weights. Higher values increase regularization. Range: [0,∞]"
+    )
+    reg_lambda: Annotated[float, FloatRange(1e-8, 1.0, log=True)] = Field(
+        default=0.1, description="L2 regularization on weights. Higher values increase regularization. Range: [0,∞]"
+    )
+
+    # Feature selection
+    feature_selector: Annotated[str, CategoricalRange(("cyclic", "shuffle", "random", "greedy", "thrifty"))] = Field(
+        default="shuffle",
+        description="Feature selection method.",
+    )
+    top_k: int = Field(
+        default=0,
+        description="Number of top features to select. 0 means using all features.",
+    )
+
+    # General Parameters
+    random_state: int | None = Field(
+        default=None, description="Random seed for reproducibility. Controls tree structure randomness."
+    )
+    early_stopping_rounds: int | None = Field(
+        default=10,
+        description="Training will stop if performance doesn't improve for this many rounds. Requires validation data.",
+    )
+
+    @classmethod
+    def forecaster_class(cls) -> "type[GBLinearForecaster]":
+        """Forecaster class for these hyperparams.
+
+        Returns:
+            Forecaster class associated with this configuration.
+        """
+        return GBLinearForecaster
+
+
+MODEL_CODE_VERSION = 1
+
+
+class GBLinearForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
+    """GBLinear-based forecaster for probabilistic energy forecasting.
+
+    Implements gradient boosted linear models using XGBoost's `gblinear` booster for
+    multi-quantile forecasting. Unlike tree-based models, this linear approach does not
+    suffer from extrapolation issues and provides better performance for time series data
+    where predictions outside the training range are required.
+
+    The forecaster uses linear models with gradient boosting optimization, making it
+    particularly suitable for forecasting scenarios where the underlying relationships
+    are approximately linear or when avoiding extrapolation artifacts is critical.
+    This approach provides well-calibrated uncertainty estimates while maintaining
+    computational efficiency and interpretability.
+
+    Invariants:
+        - fit() must be called before predict() to train the model
+        - Configuration quantiles determine the number of prediction outputs
+        - Model state is preserved across predict() calls after fitting
+        - Input features must match training data structure during prediction
+
+    Example:
+        Basic forecasting workflow
+
+        >>> from datetime import timedelta
+        >>> from openstef_core.types import LeadTime, Quantile
+        >>> forecaster = GBLinearForecaster(
+        ...     quantiles=[Quantile(0.1), Quantile(0.5), Quantile(0.9)],
+        ...     horizons=[LeadTime(timedelta(hours=1))],
+        ...     hyperparams=GBLinearHyperParams(
+        ...         learning_rate=0.1,
+        ...         reg_alpha=0.1,
+        ...         reg_lambda=1.0,
+        ...     ),
+        ... )
+        >>> forecaster.fit(training_data)  # doctest: +SKIP
+        >>> predictions = forecaster.predict(test_data)  # doctest: +SKIP
+
+    Note:
+        XGBoost dependency is optional and must be installed separately.
+        The model automatically handles multi-quantile output using quantile regression
+        and is optimized for energy forecasting applications where linear relationships
+        dominate and extrapolation beyond training data is required.
+
+    See Also:
+        GBLinearHyperParams: Detailed hyperparameter configuration options.
+        Forecaster: Base interface for all forecasting models.
+        XGBoostForecaster: Tree-based alternative for non-linear patterns.
+    """
+
+    HyperParams: ClassVar[type[GBLinearHyperParams]] = GBLinearHyperParams
+
+    horizons: list[LeadTime] = Field(
+        default=...,
+        description=(
+            "Lead times for predictions, accounting for data availability and versioning cutoffs. "
+            "Each horizon defines how far ahead the model should predict."
+        ),
+        min_length=1,
+        max_length=1,
+    )
+
+    hyperparams: GBLinearHyperParams = Field(default_factory=GBLinearHyperParams)
+    device: str = Field(
+        default="cpu", description="Device for XGBoost computation. Options: 'cpu', 'cuda', 'cuda:<ordinal>', 'gpu'"
+    )
+    verbosity: Literal[0, 1, 2, 3, True] = Field(
+        default=0, description="Verbosity level. 0=silent, 1=warning, 2=info, 3=debug"
+    )
+
+    _gblinear_model: xgb.XGBRegressor = PrivateAttr()
+    _target_scaler: StandardScaler = PrivateAttr()
+
+    @property
+    @override
+    def hparams(self) -> GBLinearHyperParams:
+        return self.hyperparams
+
+    def model_post_init(self, _context: object, /) -> None:
+        """Initialize the underlying XGBoost gblinear model from configuration."""
+        self._gblinear_model = xgb.XGBRegressor(
+            booster="gblinear",
+            # Core parameters for forecasting
+            n_estimators=self.hyperparams.n_steps,
+            learning_rate=self.hyperparams.learning_rate,
+            early_stopping_rounds=self.hyperparams.early_stopping_rounds,
+            # Regularization parameters
+            reg_alpha=self.hyperparams.reg_alpha,
+            reg_lambda=self.hyperparams.reg_lambda,
+            # Boosting structure control
+            feature_selector=self.hyperparams.feature_selector,
+            updater=self.hyperparams.updater,
+            quantile_alpha=[float(q) for q in self.quantiles],
+            top_k=self.hyperparams.top_k if self.hyperparams.feature_selector == "thrifty" else None,
+            # Objective
+            objective=get_objective_function(function_type=self.hyperparams.objective, quantiles=self.quantiles)
+            if self.hyperparams.objective != "reg:quantileerror"
+            else "reg:quantileerror",
+            eval_metric=get_evaluation_function(
+                function_type=self.hyperparams.evaluation_metric, quantiles=self.quantiles
+            ),
+            disable_default_eval_metric=True,
+        )
+        self._target_scaler = StandardScaler()
+
+    @property
+    @override
+    def is_fitted(self) -> bool:
+        return self._gblinear_model.__sklearn_is_fitted__()
+
+    def _prepare_fit_input(self, data: ForecastInputDataset) -> tuple[pd.DataFrame, np.ndarray, pd.Series]:
+        input_data: pd.DataFrame = data.input_data()
+        # Scale the target variable
+        target: np.ndarray = np.asarray(data.target_series.values)
+        target = self._target_scaler.transform(target.reshape(-1, 1)).flatten()
+        # Reshape target for multi-quantile objectives
+        target = xgb_prepare_target_for_objective(
+            target=target,
+            quantiles=self.quantiles,
+            objective=self.hyperparams.objective,
+        )
+        # Prepare sample weights
+        sample_weight: pd.Series = data.sample_weight_series
+        return input_data, target, sample_weight
+
+    @override
+    def fit(self, data: ForecastInputDataset, data_val: ForecastInputDataset | None = None) -> None:
+        # Data checks
+        if data.data.isna().any().any():
+            raise InputValidationError("There are nan values in the input data. Use imputation transform to fix them.")
+        if len(data.data) == 0:
+            raise InputValidationError("The input data is empty after dropping NaN values.")
+
+        # Fit the scalers
+        self._target_scaler.fit(data.target_series.to_frame().to_numpy())
+        # Prepare training data
+        input_data, target, sample_weight = self._prepare_fit_input(data)
+
+        # Evaluation sets
+        eval_set = [(input_data, target)]
+        sample_weight_eval_set = [sample_weight]
+
+        if data_val is not None:
+            input_data_val, target_val, sample_weight_val = self._prepare_fit_input(data_val)
+            eval_set.append((input_data_val, target_val))
+            sample_weight_eval_set.append(sample_weight_val)
+
+        self._gblinear_model.fit(
+            X=input_data,
+            y=target,
+            sample_weight=sample_weight,
+            eval_set=eval_set,
+            sample_weight_eval_set=sample_weight_eval_set,
+            verbose=self.verbosity,
+        )
+
+    @override
+    def predict(self, data: ForecastInputDataset) -> ForecastDataset:
+        if not self.is_fitted:
+            raise NotFittedError(self.__class__.__name__)
+
+        # Data checks
+        if data.input_data().isna().any().any():
+            raise InputValidationError("There are nan values in the input data. Use imputation transform to fix them.")
+
+        # Get input features for prediction
+        input_data: pd.DataFrame = data.input_data(start=data.forecast_start)
+        # Generate predictions
+        predictions_array: np.ndarray = self._gblinear_model.predict(input_data).reshape(-1, len(self.quantiles))
+
+        # Inverse transform the scaled predictions
+        if len(predictions_array) > 0:
+            predictions_array = self._target_scaler.inverse_transform(predictions_array)
+
+        return ForecastDataset.from_quantile_predictions(
+            predictions_array,
+            input_data.index,
+            self.quantiles,
+            data.sample_interval,
+            target_column=data.target_column,
+        )
+
+    def predict_contributions(self, data: ForecastInputDataset) -> TimeSeriesDataset:
+        """Compute SHAP feature contributions for the median quantile.
+
+        Args:
+            data: Input dataset for which to compute feature contributions.
+
+        Returns:
+            TimeSeriesDataset with per-feature SHAP values plus a bias column.
+
+        Raises:
+            NotFittedError: If the model has not been fitted.
+        """
+        if not self.is_fitted:
+            raise NotFittedError(self.__class__.__name__)
+
+        input_data: pd.DataFrame = data.input_data(start=data.forecast_start)
+        contribs = get_median_shap_contribs(self._gblinear_model.get_booster(), input_data, self.quantiles)
+
+        # Inverse transform for target scaling
+        if self._target_scaler.scale_ is None or self._target_scaler.mean_ is None:
+            msg = "Target scaler not fitted"
+            raise NotFittedError(msg)
+        scale = float(self._target_scaler.scale_[0])
+        mean = float(self._target_scaler.mean_[0])
+        contribs[:, :-1] *= scale
+        contribs[:, -1] = contribs[:, -1] * scale + mean
+
+        columns = [*input_data.columns, "bias"]
+        contribs_df = pd.DataFrame(contribs, index=input_data.index, columns=columns)
+        return TimeSeriesDataset(data=contribs_df, sample_interval=data.sample_interval)
+
+    @property
+    @override
+    def feature_importances(self) -> pd.DataFrame:
+        booster = self._gblinear_model.get_booster()
+        weights_df = pd.DataFrame(
+            data=booster.get_score(importance_type="weight"),
+            index=[quantile.format() for quantile in self.quantiles],
+        ).transpose()
+        weights_df.index.name = "feature_name"
+        weights_df.columns.name = "quantiles"
+
+        return weights_df.pipe(normalize_to_unit_sum)
