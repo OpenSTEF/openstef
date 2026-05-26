@@ -172,7 +172,7 @@ print(f"Predict horizon:  {backtest_forecaster_config.predict_length}")
 # We configure the pipeline to predict every 6 hours and retrain weekly.
 # The backtest covers a short 5-day window for fast execution.
 
-# %%
+# %% tags=["remove-stderr"]
 from datetime import datetime
 
 from openstef_beam.backtesting import BacktestConfig, BacktestPipeline
