@@ -31,20 +31,20 @@ class WindPowerFeatureAdder(BaseConfig, TimeSeriesTransform):
     can significantly improve forecast accuracy, especially for locations with substantial wind resources.
 
     Example:
-    >>> import pandas as pd
-    >>> from datetime import timedelta
-    >>> from openstef_core.datasets import TimeSeriesDataset
-    >>> from openstef_models.transforms.energy_domain import WindPowerFeatureAdder
-    >>>
-    >>> # Create sample dataset
-    >>> df = pd.DataFrame({
-    ...     "windspeed": [5.0, 6.0, 7.0, 8.0, 9.0]
-    ... }, index=pd.date_range('2025-01-01', periods=5, freq='1h'))
-    >>> dataset = TimeSeriesDataset(df, timedelta(hours=1))
-    >>> transform = WindPowerFeatureAdder()
-    >>> transformed_dataset = transform.transform(dataset)
-    >>> transformed_dataset.feature_names
-    ['windspeed', 'windspeed_hub_height', 'wind_power']
+        >>> import pandas as pd
+        >>> from datetime import timedelta
+        >>> from openstef_core.datasets import TimeSeriesDataset
+        >>> from openstef_models.transforms.energy_domain import WindPowerFeatureAdder
+        >>>
+        >>> # Create sample dataset
+        >>> df = pd.DataFrame({
+        ...     "windspeed": [5.0, 6.0, 7.0, 8.0, 9.0]
+        ... }, index=pd.date_range('2025-01-01', periods=5, freq='1h'))
+        >>> dataset = TimeSeriesDataset(df, timedelta(hours=1))
+        >>> transform = WindPowerFeatureAdder()
+        >>> transformed_dataset = transform.transform(dataset)
+        >>> transformed_dataset.feature_names
+        ['windspeed', 'windspeed_hub_height', 'wind_power']
     """
 
     windspeed_reference_column: str = Field(

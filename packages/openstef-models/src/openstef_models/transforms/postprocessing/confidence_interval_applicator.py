@@ -29,23 +29,25 @@ class ConfidenceIntervalApplicator(BaseModel, Transform[ForecastDataset, Forecas
     This transform learns hour-specific uncertainty from validation errors and applies
     it to new predictions to generate probabilistic forecasts.
 
-    How it works:
-        1. **Learning phase (fit)**:
-           - Computes validation errors for each hour of day (0-23)
-           - Calculates standard deviation for each hour
-           - For multi-horizon data, stores separate std for each horizon
+    **How it works:**
 
-        2. **Prediction phase (transform)**:
-           - Looks up appropriate std based on prediction hour
-           - For multi-horizon: interpolates std using exponential decay
-           - Converts std to quantiles assuming normal distribution:
-             quantile_value = median + z_score * std
-             (e.g., P10 = median - 1.28*std, P90 = median + 1.28*std)
+    1. *Learning phase* (:meth:`fit`):
 
-    The exponential decay interpolation (for multi-horizon) uses:
-        sigma(t) = a * (1 - exp(-t/tau)) + b
-    where t is hours ahead, tau = far_horizon/4. This reflects the pattern
-    of uncertainty growing quickly at first then leveling off.
+       - Computes validation errors for each hour of day (0-23)
+       - Calculates standard deviation for each hour
+       - For multi-horizon data, stores separate std for each horizon
+
+    2. *Prediction phase* (:meth:`transform`):
+
+       - Looks up appropriate std based on prediction hour
+       - For multi-horizon: interpolates std using exponential decay
+       - Converts std to quantiles assuming a normal distribution
+         (e.g., ``P10 = median - 1.28*std``, ``P90 = median + 1.28*std``)
+
+    The exponential decay interpolation (for multi-horizon) uses
+    ``sigma(t) = a * (1 - exp(-t/tau)) + b``, where ``t`` is hours ahead and
+    ``tau = far_horizon / 4``. This reflects the pattern of uncertainty
+    growing quickly at first then leveling off.
 
     Args:
         quantiles: Quantiles to generate (e.g., [0.1, 0.5, 0.9]).

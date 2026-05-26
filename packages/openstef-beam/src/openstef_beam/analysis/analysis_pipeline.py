@@ -46,6 +46,7 @@ class AnalysisPipeline:
     """Orchestrates the generation of visualizations from evaluation reports.
 
     The pipeline processes evaluation reports at different aggregation levels:
+
     - Individual targets: Creates detailed visualizations for single targets
     - Multiple targets: Creates comparative visualizations across target groups
 

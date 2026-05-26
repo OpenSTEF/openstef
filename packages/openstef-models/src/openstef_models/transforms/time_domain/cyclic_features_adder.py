@@ -36,6 +36,7 @@ class CyclicFeaturesAdder(BaseConfig, TimeSeriesTransform):
     (e.g., end of day/week/year) are properly connected.
 
     The features generated depend on the included_features configuration:
+
         - season: season_sine, season_cosine (based on day of year, 365.25 day cycle)
         - day_of_week: day_of_week_sine, day_of_week_cosine (based on day of week, 7 day cycle)
         - month: month_sine, month_cosine (based on month of year, 12 month cycle)

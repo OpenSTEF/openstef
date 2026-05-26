@@ -36,12 +36,14 @@ class WindowedMetricVisualization(VisualizationProvider):
     periods where model accuracy degrades or improves.
 
     What you'll see:
+
     - Time series line plot with metric values on Y-axis and time on X-axis
     - Each point shows metric computed over a sliding evaluation window
     - Multiple lines when comparing across targets or model runs
     - Clear trends showing model performance stability over time
 
     Useful for identifying:
+
     - Performance degradation patterns over time
     - Seasonal effects in forecasting accuracy
     - Model stability across different periods
@@ -84,6 +86,7 @@ class WindowedMetricVisualization(VisualizationProvider):
 
         Returns:
             A tuple containing:
+
             - metric_name: The name of the metric
             - quantile_or_global: Either a Quantile object or the literal "global"
         """

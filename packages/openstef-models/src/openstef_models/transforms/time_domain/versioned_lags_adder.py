@@ -35,18 +35,20 @@ class VersionedLagsAdder(BaseConfig, VersionedTimeSeriesTransform):
     In production forecasting, you cannot use future data to predict the present.
 
     For each lag, the transform:
+
     - Shifts timestamps forward (e.g., -2h lag moves 10:00 data to 12:00)
     - Preserves availability constraints (data available at 15:00 stays available at 15:00)
-    - Creates new feature columns (e.g., 'load' becomes 'load_lag_-PT2H')
+    - Creates new feature columns (e.g., ``load`` becomes ``load_lag_-PT2H``)
     - Maintains the versioned structure so multiple data versions are preserved independently
 
     In versioned datasets with different availability times, this allows automatic selection
     of appropriate data versions:
+
     - **Short lags + long lead times**: Use high-quality data (available later)
     - **Long lags + short lead times**: Use lower-quality data (available sooner)
 
     Example:
-        Create lag features for energy forecasting:
+        Create lag features for energy forecasting
 
         >>> from datetime import timedelta
         >>> import pandas as pd

@@ -45,7 +45,7 @@ class JoblibModelSerializer(ModelSerializer):
         - Load operations fail with ModelNotFoundError if model file doesn't exist
 
     Example:
-        Basic usage with model persistence:
+        Basic usage with model persistence
 
         >>> from pathlib import Path
         >>> from openstef_models.models.forecasting_model import ForecastingModel

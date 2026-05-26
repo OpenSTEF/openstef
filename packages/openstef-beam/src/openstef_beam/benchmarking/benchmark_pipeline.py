@@ -9,6 +9,7 @@ across multiple targets, models, and evaluation metrics. Coordinates backtesting
 evaluation, and analysis phases while managing parallel execution and result storage.
 
 The benchmark pipeline follows a consistent workflow:
+
 1. Target acquisition from configurable providers
 2. Model training and backtesting for each target
 3. Evaluation against ground truth with configurable metrics
@@ -16,6 +17,7 @@ The benchmark pipeline follows a consistent workflow:
 5. Storage of results for comparison and reporting
 
 Key components:
+
 - BenchmarkPipeline: Main orchestrator for benchmark execution
 - ForecasterFactory: Factory pattern for creating target-specific models
 - BenchmarkStorage: Pluggable storage backends for results
@@ -66,6 +68,7 @@ class BenchmarkPipeline[T: BenchmarkTarget, F]:
     ensuring consistent evaluation methodology and result comparability.
 
     Core workflow:
+
     1. Target retrieval: Gets targets from configurable providers with optional filtering
     2. Model creation: Uses factory pattern to create target-specific forecasters
     3. Backtesting: Generates predictions using historical data with proper validation
@@ -74,6 +77,7 @@ class BenchmarkPipeline[T: BenchmarkTarget, F]:
     6. Storage: Persists results for future analysis and comparison
 
     Key features:
+
     - Parallel execution support for efficient processing of large target sets
     - Pluggable storage backends (local filesystem, cloud storage, in-memory)
     - Extensible callback system for monitoring and custom processing
@@ -81,7 +85,7 @@ class BenchmarkPipeline[T: BenchmarkTarget, F]:
     - Consistent error handling and recovery mechanisms
 
     Example:
-        Basic benchmark setup and execution:
+        Basic benchmark setup and execution
 
         >>> from openstef_beam.benchmarking import BenchmarkPipeline
         >>> from openstef_beam.backtesting import BacktestConfig
@@ -163,6 +167,7 @@ class BenchmarkPipeline[T: BenchmarkTarget, F]:
         """Runs the benchmark for all targets, optionally filtered and in parallel.
 
         This is the main entry point for executing a benchmark. It:
+
         1. Gets all available targets from the target provider
         2. Optionally filters them based on provided criteria
         3. Processes each target sequentially or in parallel

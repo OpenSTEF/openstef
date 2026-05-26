@@ -30,7 +30,7 @@ class QuantileCalibrationBoxPlotter:
     with tight distributions (consistent calibration across targets).
 
     Example:
-        Validating forecast calibration across multiple models and targets:
+        Validating forecast calibration across multiple models and targets
 
         >>> from openstef_core.types import Quantile
         >>> plotter = QuantileCalibrationBoxPlotter()

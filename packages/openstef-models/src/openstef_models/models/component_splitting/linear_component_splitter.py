@@ -70,6 +70,7 @@ class LinearComponentSplitter(ComponentSplitter):
 
     Provides a linear component splitter that uses a simple linear model to split
     energy data into predefined components. The predefined components are:
+
     - Wind on shore
     - Solar
     - Other
@@ -78,7 +79,7 @@ class LinearComponentSplitter(ComponentSplitter):
     into three predefined components. Training is currently not supported.
 
     Example:
-        Basic usage:
+        Basic usage
 
         >>> from openstef_core.types import EnergyComponentType
         >>> config = LinearComponentSplitterConfig(

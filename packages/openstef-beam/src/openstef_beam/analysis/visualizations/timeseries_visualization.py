@@ -24,12 +24,14 @@ class TimeSeriesVisualization(VisualizationProvider):
     and helps identify periods of poor performance or systematic biases.
 
     What you'll see:
+
     - Actual measurements as a line plot
     - Forecast quantiles as shaded uncertainty bands (darker = higher confidence)
     - Capacity limits as horizontal reference lines
     - Multiple model runs as different colored bands (when comparing models)
 
     Useful for:
+
     - Assessing forecast accuracy across different time periods
     - Identifying when uncertainty bands fail to contain actual values
     - Spotting systematic forecast biases or seasonal patterns

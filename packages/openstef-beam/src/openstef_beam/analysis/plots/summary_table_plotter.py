@@ -22,13 +22,14 @@ class SummaryTablePlotter:
     - What are the summary statistics for forecast accuracy?
 
     The generated tables include:
+
     - Styled headers and borders for professional appearance
     - Left-aligned text for readability
     - Consistent formatting across all metrics
     - HTML output suitable for embedding in reports
 
     Example:
-        Creating a summary table from metrics:
+        Creating a summary table from metrics
 
         >>> import pandas as pd
         >>> metrics_data = pd.DataFrame({

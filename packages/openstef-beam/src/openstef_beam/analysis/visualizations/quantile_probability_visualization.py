@@ -35,6 +35,7 @@ class QuantileProbabilityVisualization(VisualizationProvider):
     equals forecasted probability.
 
     Identifies forecast issues:
+
     - Overconfident predictions (points below diagonal)
     - Underconfident predictions (points above diagonal)
     - Systematic biases in uncertainty estimation
@@ -44,7 +45,7 @@ class QuantileProbabilityVisualization(VisualizationProvider):
     to evaluate which models provide better calibrated uncertainty estimates.
 
     Example:
-        Basic usage in analysis pipeline:
+        Basic usage in analysis pipeline
 
         >>> from openstef_beam.analysis import AnalysisConfig
         >>> from openstef_beam.analysis.visualizations import QuantileProbabilityVisualization

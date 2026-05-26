@@ -395,7 +395,7 @@ class ForecastingModel(BaseForecastingModel):
         pipeline since lags cannot be automatically inferred from the transforms.
 
     Example:
-        Basic forecasting workflow:
+        Basic forecasting workflow
 
         >>> from openstef_models.models.forecasting.constant_quantile_forecaster import (
         ...     ConstantQuantileForecaster,
@@ -464,6 +464,7 @@ class ForecastingModel(BaseForecastingModel):
         single-horizon and multi-horizon forecasters appropriately.
 
         The data splitting follows this sequence:
+
         1. Split test set from full data (using test_splitter)
         2. Split validation from remaining train+val data (using val_splitter)
         3. Train on the final training set

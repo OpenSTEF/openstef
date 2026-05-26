@@ -7,6 +7,7 @@ Forecast combiner that uses a classification approach to learn weights for base 
 It learns which forecaster is likely to perform best under different conditions.
 
 The combiner can operate in two modes:
+
 - Hard Selection: Selects the base forecaster with the highest predicted probability for each instance.
 - Soft Selection: Uses the predicted probabilities as weights to combine base forecaster predictions.
 """

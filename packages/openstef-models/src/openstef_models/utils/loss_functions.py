@@ -50,14 +50,17 @@ def arctan_loss_multi_objective(
 
     Returns:
         tuple: (gradient, hessian) arrays in 2D format for XGBoost multi-output
+
             - gradient: First derivative of arctan pinball loss, shape (n_samples, n_quantiles)
             - hessian: Second derivative of arctan pinball loss, shape (n_samples, n_quantiles)
+
             Both arrays are normalized by n_quantiles for consistent optimization dynamics.
 
     Mathematical Formulation:
         Loss function: L^(arctan)_τ,s(u) = (τ - 0.5 + arctan(u/s)/π) * u + s/π
 
         Where:
+
         - u = y_true - y_pred (prediction error)
         - τ = quantile level (0 < τ < 1)
         - s = smoothing parameter
@@ -69,8 +72,9 @@ def arctan_loss_multi_objective(
         ∂²L/∂u² = 2/(π*s) * (1+(u/s)²)^(-2)
 
     Key Properties:
+
         - Smooth approximation: Continuously differentiable everywhere
-        - Asymptotic unbiasedness: Behaves like standard pinball loss for large |u|
+        - Asymptotic unbiasedness: Behaves like standard pinball loss for large ``|u|``
         - Non-zero hessian: Provides substantial second derivatives for XGBoost optimization
         - Scale sensitivity: Hessian magnitude inversely proportional to smoothing parameter s
 
@@ -163,8 +167,10 @@ def pinball_loss_multi_objective(
 
     Returns:
         tuple: (gradient, hessian) arrays in 2D format for XGBoost multi-output
+
             - gradient: First derivative scaled by error magnitude, shape (n_samples, n_quantiles)
             - hessian: Constant positive values for numerical stability, shape (n_samples, n_quantiles)
+
             Both arrays are normalized by n_quantiles for consistent loss values.
 
     Mathematical Formulation:

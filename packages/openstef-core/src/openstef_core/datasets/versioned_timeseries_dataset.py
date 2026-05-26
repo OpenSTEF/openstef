@@ -44,7 +44,7 @@ class VersionedTimeSeriesDataset(TimeSeriesMixin, DatasetMixin):
         data_parts: List of TimeSeriesDataset instances that compose this dataset.
 
     Example:
-        Create a versioned dataset by combining multiple data parts:
+        Create a versioned dataset by combining multiple data parts
 
         >>> import pandas as pd
         >>> from datetime import datetime, timedelta
@@ -285,7 +285,7 @@ class VersionedTimeSeriesDataset(TimeSeriesMixin, DatasetMixin):
             New VersionedTimeSeriesDataset instance containing the data.
 
         Example:
-            Create dataset from a single DataFrame:
+            Create dataset from a single DataFrame
 
             >>> import pandas as pd
             >>> from datetime import datetime, timedelta

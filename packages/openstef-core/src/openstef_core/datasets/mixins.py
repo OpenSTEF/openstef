@@ -9,6 +9,7 @@ datasets in OpenSTEF. Protocols enable type checking and documentation of expect
 behavior without requiring inheritance.
 
 Key protocols:
+
     - TimeSeries: Core interface for all time series datasets with filtering and versioning
     - DatasetMixin: Interface for dataset persistence operations
 """
@@ -36,6 +37,7 @@ class TimeSeriesMixin(Protocol):
     the dataset's temporal index, and filtering/versioning capabilities.
 
     Classes implementing this interface must provide:
+
         - Access to the datetime index
         - Sample interval information
         - Feature names list
@@ -158,6 +160,7 @@ class DatasetMixin(Protocol):
     and reconstructed exactly as they were saved.
 
     Classes implementing this mixin must:
+
     - Save all data and metadata necessary for complete reconstruction
     - Store metadata in parquet file attributes using attrs
     - Handle missing metadata gracefully with sensible defaults when loading

@@ -64,11 +64,13 @@ class Imputer(BaseConfig, TimeSeriesTransform):
     preserving trailing NaNs after the last valid value in each column.
 
     The transform works by:
+
     1. Validating that selected columns are not completely empty
     2. Applying imputation to the specified columns
     3. Restoring trailing NaNs to preserve time series integrity
 
     Imputation Strategies:
+
         - Simple strategies (mean, median, most_frequent, constant): Use statistics
           computed during fit()
         - Iterative strategy: Multivariate imputation (default: BayesianRidge()).
@@ -78,64 +80,64 @@ class Imputer(BaseConfig, TimeSeriesTransform):
     to remove them before applying imputation.
 
     Example:
-    >>> from datetime import timedelta
-    >>> import numpy as np
-    >>> import pandas as pd
-    >>> from openstef_core.datasets import TimeSeriesDataset
-    >>> from openstef_models.transforms.general import (
-    ...     Imputer,
-    ... )
-    >>> data = pd.DataFrame(
-    ...     {
-    ...         "radiation": [100, np.nan, 110, np.nan],
-    ...         "temperature": [20, np.nan, 24, 21],
-    ...         "wind_speed": [5, 6, np.nan, np.nan]
-    ...     },
-    ...     index=pd.date_range("2025-01-01", periods=4, freq="1h"),
-    ... )
-    >>> dataset = TimeSeriesDataset(data, timedelta(hours=1))
-    >>> # Apply imputation to all columns (default behavior)
-    >>> transform_all = Imputer(imputation_strategy="mean")
-    >>> transform_all.fit(dataset)
-    >>> result_all = transform_all.transform(dataset)
-    >>> # Apply imputation only to specific columns
-    >>> from openstef_models.utils.feature_selection import FeatureSelection
-    >>> transform_selective = Imputer(
-    ...     imputation_strategy="mean",
-    ...     selection=FeatureSelection(include={"temperature", "wind_speed"})
-    ... )
-    >>> transform_selective.fit(dataset)
-    >>> result_selective = transform_selective.transform(dataset)
-    >>> result_selective.data["temperature"].isna().sum() == 0  # Temperature NaNs filled
-    np.True_
-    >>> result_selective.data["radiation"].isna().sum() == 2  # Radiation NaNs preserved
-    np.True_
-    >>> # Use iterative imputation with custom estimator
-    >>> from sklearn.ensemble import RandomForestRegressor
-    >>> transform_iterative = Imputer(
-    ...     imputation_strategy="iterative",
-    ...     selection=FeatureSelection(include={"temperature", "radiation"}),
-    ...     impute_estimator=RandomForestRegressor(
-    ...         n_estimators=2,  # not many trees for test speed
-    ...         max_depth=3,  # shallow tree for test speed
-    ...         bootstrap=True,
-    ...         max_samples=0.5,
-    ...         n_jobs=1,
-    ...         random_state=0,
-    ...     ),
-    ...     max_iterations=20,
-    ...     tolerance=0.1
-    ... )
-    >>> transform_iterative.fit(dataset)
-    >>> result_iterative = transform_iterative.transform(dataset)
-    >>> result_iterative.data["temperature"].isna().sum() == 0  # Temperature NaNs filled
-    np.True_
-    >>> np.isnan(result_iterative.data["radiation"].iloc[1])  # Radiation first NaN replaced
-    np.False_
-    >>> np.isnan(result_iterative.data["radiation"].iloc[3]) # Check if trailing NaN is preserved
-    np.True_
-    >>> result_iterative.data["wind_speed"].isna().sum() == 2  # Wind speed NaNs preserved
-    np.True_
+        >>> from datetime import timedelta
+        >>> import numpy as np
+        >>> import pandas as pd
+        >>> from openstef_core.datasets import TimeSeriesDataset
+        >>> from openstef_models.transforms.general import (
+        ...     Imputer,
+        ... )
+        >>> data = pd.DataFrame(
+        ...     {
+        ...         "radiation": [100, np.nan, 110, np.nan],
+        ...         "temperature": [20, np.nan, 24, 21],
+        ...         "wind_speed": [5, 6, np.nan, np.nan]
+        ...     },
+        ...     index=pd.date_range("2025-01-01", periods=4, freq="1h"),
+        ... )
+        >>> dataset = TimeSeriesDataset(data, timedelta(hours=1))
+        >>> # Apply imputation to all columns (default behavior)
+        >>> transform_all = Imputer(imputation_strategy="mean")
+        >>> transform_all.fit(dataset)
+        >>> result_all = transform_all.transform(dataset)
+        >>> # Apply imputation only to specific columns
+        >>> from openstef_models.utils.feature_selection import FeatureSelection
+        >>> transform_selective = Imputer(
+        ...     imputation_strategy="mean",
+        ...     selection=FeatureSelection(include={"temperature", "wind_speed"})
+        ... )
+        >>> transform_selective.fit(dataset)
+        >>> result_selective = transform_selective.transform(dataset)
+        >>> result_selective.data["temperature"].isna().sum() == 0  # Temperature NaNs filled
+        np.True_
+        >>> result_selective.data["radiation"].isna().sum() == 2  # Radiation NaNs preserved
+        np.True_
+        >>> # Use iterative imputation with custom estimator
+        >>> from sklearn.ensemble import RandomForestRegressor
+        >>> transform_iterative = Imputer(
+        ...     imputation_strategy="iterative",
+        ...     selection=FeatureSelection(include={"temperature", "radiation"}),
+        ...     impute_estimator=RandomForestRegressor(
+        ...         n_estimators=2,  # not many trees for test speed
+        ...         max_depth=3,  # shallow tree for test speed
+        ...         bootstrap=True,
+        ...         max_samples=0.5,
+        ...         n_jobs=1,
+        ...         random_state=0,
+        ...     ),
+        ...     max_iterations=20,
+        ...     tolerance=0.1
+        ... )
+        >>> transform_iterative.fit(dataset)
+        >>> result_iterative = transform_iterative.transform(dataset)
+        >>> result_iterative.data["temperature"].isna().sum() == 0  # Temperature NaNs filled
+        np.True_
+        >>> np.isnan(result_iterative.data["radiation"].iloc[1])  # Radiation first NaN replaced
+        np.False_
+        >>> np.isnan(result_iterative.data["radiation"].iloc[3]) # Check if trailing NaN is preserved
+        np.True_
+        >>> result_iterative.data["wind_speed"].isna().sum() == 2  # Wind speed NaNs preserved
+        np.True_
     """
 
     imputation_strategy: ImputationStrategy = Field(

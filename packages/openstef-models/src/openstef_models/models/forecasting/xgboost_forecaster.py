@@ -49,7 +49,7 @@ class XGBoostHyperParams(HyperParams):
     performance and overfitting prevention in time series forecasting.
 
     Example:
-        Creating custom hyperparameters for deep trees with regularization:
+        Creating custom hyperparameters for deep trees with regularization
 
         >>> hyperparams = XGBoostHyperParams(
         ...     n_estimators=200,
@@ -206,7 +206,7 @@ class XGBoostForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
         - Input features must match training data structure during prediction
 
     Example:
-        Basic forecasting workflow:
+        Basic forecasting workflow
 
         >>> from datetime import timedelta
         >>> from openstef_core.types import LeadTime, Quantile

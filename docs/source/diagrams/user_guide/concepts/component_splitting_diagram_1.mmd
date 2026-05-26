@@ -1,0 +1,17 @@
+graph LR
+    A[Total Load Forecast] --> B[Preprocessing]
+    B --> C[ComponentSplitter]
+    C --> D[Postprocessing]
+    D --> E[Solar]
+    D --> F[Wind]
+    D --> G[Other]
+    H([solar + wind + other = total load])
+    D -.-> H
+    classDef primary fill:#00D9C5,stroke:#1E3A5F,stroke-width:2px,color:#000
+    classDef secondary fill:#1E3A5F,stroke:#00D9C5,stroke-width:2px,color:#fff
+    classDef accent fill:#e6f7f5,stroke:#00D9C5,stroke-width:2px,color:#000
+    class A primary
+    class B,D secondary
+    class C secondary
+    class E,F,G primary
+    class H accent

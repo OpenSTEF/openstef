@@ -1,0 +1,21 @@
+graph TD
+    A[Meter Data] --> C{Validation Gate}
+    B[Weather Data] --> D{Validation Gate}
+    C -->|pass| E[Data Complete]
+    D -->|pass| E
+    C -->|partial| F[Degraded Input]
+    D -->|partial| F
+    C -->|fail| G[Data Rejected]
+    D -->|fail| G
+    E --> H[Proceed with Forecast]
+    F --> I[Fallback Forecast]
+    G --> J[Reject and Alert]
+    classDef primary fill:#00D9C5,stroke:#1E3A5F,stroke-width:2px,color:#000
+    classDef secondary fill:#1E3A5F,stroke:#00D9C5,stroke-width:2px,color:#fff
+    classDef accent fill:#e6f7f5,stroke:#00D9C5,stroke-width:2px,color:#000
+    classDef gate fill:#fff,stroke:#1E3A5F,stroke-width:2px,color:#000
+    class A,B secondary
+    class E,H primary
+    class F,I accent
+    class G,J secondary
+    class C,D gate

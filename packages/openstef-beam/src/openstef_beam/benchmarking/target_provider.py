@@ -36,12 +36,12 @@ class TargetProviderConfig(BaseConfig):
     All paths are resolved relative to data_dir.
 
     Examples:
-        Basic configuration with default templates:
+        Basic configuration with default templates
 
         >>> config = TargetProviderConfig()
         >>> # Uses default values, can be extended by specific providers
 
-        Custom path configuration:
+        Custom path configuration
 
         >>> config = TargetProviderConfig()
         >>> # Provider-specific configs inherit from this base
@@ -56,7 +56,7 @@ class TargetProvider[T: BenchmarkTarget, F](BaseConfig):
     alignment and consistent sampling intervals.
 
     Examples:
-        Complete custom provider implementation:
+        Complete custom provider implementation
 
         >>> from pathlib import Path
         >>> from datetime import datetime, timedelta
@@ -188,12 +188,13 @@ class SimpleTargetProvider[T: BenchmarkTarget, F](TargetProvider[T, F]):
     Directory structure expected by SimpleTargetProvider:
 
     The provider expects a hierarchical directory structure:
+
     - Root directory contains shared data files and target definitions
     - Group subdirectories contain target-specific measurement and weather files
     - Path templates use {name} placeholder for target-specific file naming
 
     Examples:
-        Complete provider setup with data loading:
+        Complete provider setup with data loading
 
         >>> from pathlib import Path
         >>> from datetime import timedelta
@@ -401,3 +402,11 @@ def filter_away_flatline_chunks(
         filtered_series.iloc[start:end] = np.nan
 
     return filtered_series
+
+
+__all__ = [
+    "SimpleTargetProvider",
+    "TargetProvider",
+    "TargetProviderConfig",
+    "filter_away_flatline_chunks",
+]

@@ -32,7 +32,7 @@ class ComponentSplitCallback(
     to override the specific events they care about.
 
     Example:
-        Creating a logging callback:
+        Creating a logging callback
 
         >>> class LoggingCallback(ComponentSplitCallback):
         ...     def on_fit_start(self, pipeline, dataset):
@@ -60,7 +60,7 @@ class CustomComponentSplitWorkflow(BaseModel):
         - Storage operations (if configured) maintain model persistence
 
     Example:
-        Basic workflow with callbacks:
+        Basic workflow with callbacks
 
         >>> import pandas as pd
         >>> import numpy as np
@@ -90,7 +90,7 @@ class CustomComponentSplitWorkflow(BaseModel):
         Model training completed
         >>> components = workflow.predict(dataset) # doctest: +SKIP
 
-        Loading from storage with fallback:
+        Loading from storage with fallback
 
         >>> workflow = ComponentSplitWorkflow.from_storage(
         ...     model_id="production_model_v1",

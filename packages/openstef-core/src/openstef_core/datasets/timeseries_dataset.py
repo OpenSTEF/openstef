@@ -42,6 +42,7 @@ class TimeSeriesDataset(TimeSeriesMixin, DatasetMixin):  # noqa: PLR0904 - impor
     over time through either a horizon column or an available_at column.
 
     The dataset automatically detects versioning:
+
     - If a horizon column exists, data is versioned by forecast horizon
     - If an available_at column exists, data is versioned by availability time
     - Otherwise, data is treated as a regular time series
@@ -52,6 +53,7 @@ class TimeSeriesDataset(TimeSeriesMixin, DatasetMixin):  # noqa: PLR0904 - impor
     transforms ignore them.
 
     The dataset guarantees:
+
         - Data is sorted by timestamp in ascending order
         - Consistent sampling interval across all data points
         - DateTime index for temporal operations
@@ -62,7 +64,7 @@ class TimeSeriesDataset(TimeSeriesMixin, DatasetMixin):  # noqa: PLR0904 - impor
         available_at_column: Name of the column storing availability times (if versioned).
 
     Example:
-        Create a simple time series dataset:
+        Create a simple time series dataset
 
         >>> import pandas as pd
         >>> from datetime import timedelta
@@ -76,7 +78,7 @@ class TimeSeriesDataset(TimeSeriesMixin, DatasetMixin):  # noqa: PLR0904 - impor
         >>> dataset.is_versioned
         False
 
-        Create a versioned dataset with horizons:
+        Create a versioned dataset with horizons
 
         >>> data_with_horizon = pd.DataFrame({
         ...     'load': [100, 120],
@@ -114,6 +116,7 @@ class TimeSeriesDataset(TimeSeriesMixin, DatasetMixin):  # noqa: PLR0904 - impor
         """Initialize a time series dataset.
 
         The dataset automatically detects whether it's versioned based on column presence:
+
         - If horizon_column exists: versioned by forecast horizon
         - If available_at_column exists: versioned by availability time
         - Otherwise: regular time series

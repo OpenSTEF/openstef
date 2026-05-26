@@ -25,11 +25,13 @@ class PrecisionRecallCurveVisualization(VisualizationProvider):
     corner, the better the model performs across all thresholds.
 
     Two evaluation modes:
+
     - Standard: Traditional precision/recall based on binary classification accuracy
     - Effective: Specialized for congestion management, evaluating whether forecasts
       provide actionable insights for grid operators (correct direction + sufficient magnitude)
 
     What you'll see:
+
     - Curve plotting precision (Y-axis) vs recall (X-axis)
     - Each point represents a different probability threshold
     - Area under curve (AUC-PR) as overall performance metric
@@ -37,6 +39,7 @@ class PrecisionRecallCurveVisualization(VisualizationProvider):
     - Reference lines showing random classifier performance
 
     Interpretation guide:
+
     - High precision: Few false alarms when predicting events
     - High recall: Catches most actual events that occur
     - Effective mode: Focuses on operationally useful predictions for grid management

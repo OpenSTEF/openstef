@@ -28,6 +28,7 @@ def iterate_by_window(
     """Yields fixed-size sliding windows over a time series index.
 
     Guarantees:
+
     - Windows are aligned to the window stride
     - Windows cover the entire range from index.min() + window.size to index.max()
     - Each window has exactly the specified window size
@@ -80,6 +81,7 @@ def iterate_subsets_by_window[T: TimeSeriesDataset](
     """Yields evaluation subsets for each window with sufficient data coverage.
 
     Guarantees:
+
     - Windows with coverage less than window.minimum_coverage are skipped
     - Each yielded subset contains only timestamps present in window, ground truth and predictions
     - All yielded subsets maintain the original sample interval

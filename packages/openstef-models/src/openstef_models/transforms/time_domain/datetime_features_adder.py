@@ -28,6 +28,7 @@ class DatetimeFeaturesAdder(BaseConfig, TimeSeriesTransform):
     Computes features that are derived from the datetime index of the dataset.
 
     The features added are:
+
         - is_week_day: 1 if the day is a weekday (Monday to Friday),
             0 otherwise (Saturday or Sunday).
         - is_weekend_day: 1 if the day is a weekend day (Saturday or Sunday),

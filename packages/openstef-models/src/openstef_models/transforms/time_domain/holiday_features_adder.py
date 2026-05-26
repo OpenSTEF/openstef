@@ -33,6 +33,7 @@ class HolidayFeatureAdder(BaseConfig, TimeSeriesTransform):
     based on the specified country and categories.
 
     The features added are:
+
         - is_holiday: 1 if the day is a public holiday, 0 otherwise.
         - is_{holiday_name}: 1 if the day is a specific holiday, 0 otherwise.
 

@@ -28,6 +28,7 @@ class DimensionalityReducer(BaseConfig, TimeSeriesTransform):
     """Reduce the dimensionality of a given set of features.
 
     Available methods include:
+
         - PCA: linear dimensionality reduction into orthogonal components.
         - Factor analysis: linear dimensionality reduction models observed variables as latent factors + Gaussian noise.
         - FastICA: linear dimensionality reduction that maximizes statistical independence among components.

@@ -35,6 +35,7 @@ class BenchmarkComparisonPipeline[T: BenchmarkTarget, F]:
     levels (global, group, target) to identify performance patterns and improvements.
 
     Use cases:
+
     - Compare model variants (different hyperparameters, algorithms)
     - Evaluate performance before/after model updates
     - Cross-validation analysis across different time periods
@@ -45,6 +46,7 @@ class BenchmarkComparisonPipeline[T: BenchmarkTarget, F]:
 
     Multi-level analysis:
         The pipeline automatically generates analysis at three aggregation levels:
+
         - Global: Overall performance across all runs and targets
         - Group: Performance comparison within target groups
         - Target: Individual target performance across runs
@@ -53,7 +55,7 @@ class BenchmarkComparisonPipeline[T: BenchmarkTarget, F]:
     across the entire portfolio or specific to certain target types.
 
     Example:
-        Comparing three model versions across all targets:
+        Comparing three model versions across all targets
 
         >>> from openstef_beam.benchmarking import BenchmarkComparisonPipeline
         >>> from openstef_beam.analysis import AnalysisConfig
