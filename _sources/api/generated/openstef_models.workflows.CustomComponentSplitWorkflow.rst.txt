@@ -1,0 +1,13 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+CustomComponentSplitWorkflow
+============================
+
+.. currentmodule:: openstef_models.workflows
+
+.. autoclass:: CustomComponentSplitWorkflow
+   :show-inheritance:
+   :members:
+   :special-members: __init__

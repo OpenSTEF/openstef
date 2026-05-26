@@ -1,0 +1,10 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+iterate_subsets_by_window
+=========================
+
+.. currentmodule:: openstef_beam.evaluation.window_iterators
+
+.. autofunction:: iterate_subsets_by_window

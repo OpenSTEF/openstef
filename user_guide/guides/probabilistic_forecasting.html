@@ -1,0 +1,817 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Probabilistic Forecasting &#8212; OpenSTEF 0.0.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=3f5a9049" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=7026087e"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=97f0b27d"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/guides/probabilistic_forecasting';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = '_static/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Reliability and Fallback" href="reliability_fallback.html" />
+    <link rel="prev" title="Understanding Time Series Datasets" href="datasets_tutorial.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.0.0" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/openstef-horizontal-color.svg" class="logo__image only-light" alt="OpenSTEF homepage"/>
+    <img src="../../_static/openstef-horizontal-white.svg" class="logo__image only-dark pst-js-only" alt="OpenSTEF homepage"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../project/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../contribute/index.html">
+    Contributing
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/OpenSTEF/openstef" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.lfenergy.org/projects/openstef/" title="LFE Homepage" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-bolt fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">LFE Homepage</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../project/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../contribute/index.html">
+    Contributing
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/OpenSTEF/openstef" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.lfenergy.org/projects/openstef/" title="LFE Homepage" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-bolt fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">LFE Homepage</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../getting_started/index.html">Getting Started</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/quick_start_tutorial.html">Forecasting Quickstart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/migration.html">Migrating from OpenSTEF 3 to 4</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../concepts/index.html">Concepts</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../concepts/intro_to_energy_forecasting.html">Intro to Energy Forecasting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../concepts/models.html">Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../concepts/metalearning.html">Metalearning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../concepts/beam.html">BEAM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../concepts/component_splitting.html">Component Splitting</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Guides</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="forecasting.html">Forecasting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="feature_engineering_tutorial.html">Feature Engineering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datasets_tutorial.html">Datasets</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Probabilistic Forecasting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reliability_fallback.html">Reliability and Fallback</a></li>
+<li class="toctree-l2"><a class="reference internal" href="backtesting_tutorial.html">Backtesting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deployment.html">Deployment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../logging.html">Logging</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../external_resources.html">External resources</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">User Guide</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Guides</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Probabilistic Forecasting</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="probabilistic-forecasting">
+<span id="guide-probabilistic-forecasting"></span><h1>Probabilistic Forecasting<a class="headerlink" href="#probabilistic-forecasting" title="Link to this heading">#</a></h1>
+<p>A point forecast tells you what is most likely to happen, but it does not tell
+you how wrong it might be. If your model predicts 100 MW of load, reality could
+be anywhere from 80 to 120 MW. Grid operators need that range of possible
+outcomes to make sound decisions about reserve planning, congestion management,
+and market bidding. Probabilistic forecasting quantifies this uncertainty by
+producing multiple quantile predictions that describe the full distribution of
+possible outcomes.</p>
+<p>This page explains how OpenSTEF produces calibrated probabilistic forecasts and
+why calibration matters for operational use. For a runnable end-to-end example
+with diagnostic plots, see <a class="reference internal" href="../../tutorials/quantile_calibration.html"><span class="doc">Quantile Calibration</span></a>.</p>
+<section id="what-you-get-back">
+<h2>What You Get Back<a class="headerlink" href="#what-you-get-back" title="Link to this heading">#</a></h2>
+<p>When you configure quantiles on a workflow, <code class="docutils literal notranslate"><span class="pre">predict()</span></code> returns a
+<a class="reference internal" href="../../api/generated/openstef_core.datasets.ForecastDataset.html#openstef_core.datasets.ForecastDataset" title="openstef_core.datasets.ForecastDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">ForecastDataset</span></code></a> whose <code class="docutils literal notranslate"><span class="pre">data</span></code> DataFrame
+contains:</p>
+<ul class="simple">
+<li><p>One <code class="docutils literal notranslate"><span class="pre">quantile_PXX</span></code> column per requested quantile level (e.g.,
+<code class="docutils literal notranslate"><span class="pre">quantile_P10</span></code>, <code class="docutils literal notranslate"><span class="pre">quantile_P50</span></code>, <code class="docutils literal notranslate"><span class="pre">quantile_P90</span></code>).</p></li>
+<li><p>The median (P50) doubles as the point forecast.</p></li>
+<li><p>All quantiles share the same datetime index and horizon metadata as the
+input.</p></li>
+</ul>
+<p>Quantiles are sorted at postprocessing time
+(<code class="xref py py-class docutils literal notranslate"><span class="pre">QuantileSorter</span></code>),
+so you can rely on <code class="docutils literal notranslate"><span class="pre">quantile_P10</span> <span class="pre">&lt;=</span> <span class="pre">quantile_P50</span> <span class="pre">&lt;=</span> <span class="pre">quantile_P90</span></code> row-by-row.</p>
+<figure class="align-center" id="id1">
+<img alt="A probabilistic forecast showing the median load prediction with nested confidence bands at P5-P95, P10-P90, and P30-P70." src="../../_images/probabilistic_fan_chart.svg" />
+<figcaption>
+<p><span class="caption-text">A real GBLinear forecast with seven quantiles. The dark band is the
+inter-quartile range (P30-P70); the lighter bands widen out to the
+90% and 95% prediction intervals. Width varies with the time of day:
+uncertainty is higher around the morning ramp than during the
+overnight trough.</span><a class="headerlink" href="#id1" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="why-quantiles-not-confidence-intervals">
+<h2>Why Quantiles, Not Confidence Intervals<a class="headerlink" href="#why-quantiles-not-confidence-intervals" title="Link to this heading">#</a></h2>
+<p>OpenSTEF expresses uncertainty through quantile forecasts. A quantile forecast at level 0.1 (P10) means “we expect the actual value to fall below this prediction about 10% of the time.” A set of quantiles (e.g., P5, P10, P30, P50, P70, P90, P95) describes the shape of the predictive distribution without assuming normality or symmetry.</p>
+<p>This is important for energy forecasting because:</p>
+<ul class="simple">
+<li><p>Solar generation uncertainty is highly asymmetric (bounded at zero, skewed by cloud cover)</p></li>
+<li><p>Wind power distributions are non-Gaussian due to the cubic relationship between wind speed and power</p></li>
+<li><p>Load uncertainty varies by time of day and season</p></li>
+</ul>
+<section id="why-not-full-probability-distributions">
+<h3>Why Not Full Probability Distributions?<a class="headerlink" href="#why-not-full-probability-distributions" title="Link to this heading">#</a></h3>
+<p>A natural question is why OpenSTEF outputs a discrete set of quantiles rather
+than a parametric distribution (e.g., a Gaussian with predicted mean and
+variance). The choice is deliberate, for three reasons:</p>
+<ol class="arabic simple">
+<li><p><strong>Most production-grade gradient-boosting models do not output
+distributions natively.</strong> XGBoost and LightGBM are tree ensembles; they
+produce point estimates. They can be adapted to predict at a configured set
+of quantile levels (via pinball loss or built-in quantile objectives), but
+they cannot emit a continuous density. Coercing them into a parametric
+distribution would require either an inappropriate normality assumption or
+a separate two-stage model that estimates mean and spread.</p></li>
+<li><p><strong>There is no standard distribution shape for energy load or generation.</strong>
+Solar generation is bounded at zero with a heavy tail on sunny days; wind
+power has a cubic relationship to wind speed; aggregated load looks
+roughly normal but mixes regimes. Picking a single parametric family would
+force a poor fit somewhere. Quantiles are non-parametric and adapt to
+whatever shape the data has.</p></li>
+<li><p><strong>Operational decisions are usually quantile-based anyway.</strong> Reserve
+procurement, congestion bidding, and risk-of-imbalance calculations
+consume specific percentiles directly. A grid operator asks “what is the
+95th percentile of expected load?”, not “what is the variance of a fitted
+normal?”. Quantiles cut out a lossy intermediate step.</p></li>
+</ol>
+<p>If you do need a continuous distribution downstream, you can always
+interpolate between the quantiles OpenSTEF returns (linear interpolation
+between adjacent quantiles, extrapolating beyond P5/P95 if needed). The
+reverse, recovering a non-parametric shape from a fitted distribution, is
+much harder.</p>
+</section>
+</section>
+<section id="configuring-quantile-forecasts">
+<h2>Configuring Quantile Forecasts<a class="headerlink" href="#configuring-quantile-forecasts" title="Link to this heading">#</a></h2>
+<p>All forecaster models in OpenSTEF support quantile prediction. You configure which quantiles to produce through the <code class="docutils literal notranslate"><span class="pre">quantiles</span></code> field on <a class="reference internal" href="../../api/generated/openstef_models.presets.ForecastingWorkflowConfig.html#openstef_models.presets.ForecastingWorkflowConfig" title="openstef_models.presets.ForecastingWorkflowConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">ForecastingWorkflowConfig</span></code></a>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Quantile</span> <span class="k">as</span> <span class="n">Q</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.presets</span><span class="w"> </span><span class="kn">import</span> <span class="n">ForecastingWorkflowConfig</span>
+
+<span class="n">config</span> <span class="o">=</span> <span class="n">ForecastingWorkflowConfig</span><span class="p">(</span>
+    <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;my_forecast&quot;</span><span class="p">,</span>
+    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gblinear&quot;</span><span class="p">,</span>
+    <span class="n">quantiles</span><span class="o">=</span><span class="p">[</span><span class="n">Q</span><span class="p">(</span><span class="mf">0.05</span><span class="p">),</span> <span class="n">Q</span><span class="p">(</span><span class="mf">0.1</span><span class="p">),</span> <span class="n">Q</span><span class="p">(</span><span class="mf">0.3</span><span class="p">),</span> <span class="n">Q</span><span class="p">(</span><span class="mf">0.5</span><span class="p">),</span> <span class="n">Q</span><span class="p">(</span><span class="mf">0.7</span><span class="p">),</span> <span class="n">Q</span><span class="p">(</span><span class="mf">0.9</span><span class="p">),</span> <span class="n">Q</span><span class="p">(</span><span class="mf">0.95</span><span class="p">)],</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>The median quantile (P50) serves as the point forecast. The outer quantiles define prediction intervals of varying width.</p>
+</section>
+<section id="how-each-model-produces-quantiles">
+<h2>How Each Model Produces Quantiles<a class="headerlink" href="#how-each-model-produces-quantiles" title="Link to this heading">#</a></h2>
+<p>Different backends use different strategies to estimate quantiles. All of them
+train a single model that produces all requested quantiles simultaneously,
+rather than fitting one model per quantile. This is more efficient and helps
+maintain consistency between levels.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 30.0%" />
+<col style="width: 30.0%" />
+<col style="width: 20.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Model</p></th>
+<th class="head"><p>Quantile method</p></th>
+<th class="head"><p>Pick when</p></th>
+<th class="head"><p>Key detail</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>XGBoost</strong></p></td>
+<td><p>Custom pinball loss objective</p></td>
+<td><p>Non-linear targets where you want full control over the loss (e.g.,
+smoothed arctan variant for sharper gradients).</p></td>
+<td><p>Multi-output: trains all quantiles jointly using gradient/hessian of
+pinball loss.</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>GBLinear</strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">reg:quantileerror</span></code> objective</p></td>
+<td><p>Fast iteration on linear-tractable problems, or as a robust baseline.</p></td>
+<td><p>Uses XGBoost’s built-in quantile regression for linear boosters.</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>LightGBM</strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">MultiQuantileRegressor</span></code></p></td>
+<td><p>Large feature sets where LightGBM’s training speed pays off.</p></td>
+<td><p>Native multi-quantile support inside LightGBM.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The XGBoost pinball loss includes a non-degenerate hessian approximation
+that gradient boosting needs for proper tree splitting. Set
+<code class="docutils literal notranslate"><span class="pre">max_delta_step</span></code> such that
+<code class="docutils literal notranslate"><span class="pre">0.5</span> <span class="pre">*</span> <span class="pre">max_delta_step</span> <span class="pre">&lt;=</span> <span class="pre">min(quantile,</span> <span class="pre">1</span> <span class="pre">-</span> <span class="pre">quantile)</span></code> across your
+configured quantiles, otherwise training can diverge.</p>
+</div>
+</section>
+<section id="the-calibration-problem">
+<h2>The Calibration Problem<a class="headerlink" href="#the-calibration-problem" title="Link to this heading">#</a></h2>
+<p>Raw quantile models often produce predictions where the stated coverage does not match observed coverage. For example, a predicted P10 might actually be exceeded 15% of the time rather than the expected 10%. This miscalibration can arise from:</p>
+<ul class="simple">
+<li><p>Distribution shift between training and deployment data</p></li>
+<li><p>Model misspecification (the model cannot perfectly capture the true conditional distribution)</p></li>
+<li><p>Feature interactions that affect uncertainty differently than the mean</p></li>
+</ul>
+<p>For operational use, calibration matters enormously. If a grid operator uses P95 to set reserves, they need that bound to actually contain 95% of outcomes. Systematic miscalibration leads to either over-procurement (wasting money) or under-procurement (risking reliability).</p>
+<figure class="align-center" id="id2">
+<a class="reference internal image-reference" href="../../_images/calibration_plot.svg"><img alt="A calibration plot showing forecasted versus observed probability for seven quantile levels. Points off the diagonal indicate miscalibration." src="../../_images/calibration_plot.svg" style="width: 70%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Calibration check: for each requested quantile (x-axis), the y-axis shows
+the fraction of actual observations that fell below it. A perfectly
+calibrated model lands on the dashed diagonal. Deviations above the
+diagonal mean the model is <em>over-predicting</em> (predicted P50 actually
+covers 60% of outcomes); below means <em>under-predicting</em>.</span><a class="headerlink" href="#id2" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="isotonic-quantile-calibration">
+<h2>Isotonic Quantile Calibration<a class="headerlink" href="#isotonic-quantile-calibration" title="Link to this heading">#</a></h2>
+<p>OpenSTEF addresses miscalibration with <code class="xref py py-class docutils literal notranslate"><span class="pre">IsotonicQuantileCalibrator</span></code>, a postprocessing transform that corrects quantile predictions after the model produces them.</p>
+<p>The calibrator works as follows:</p>
+<ol class="arabic simple">
+<li><p>During training, it observes the model’s predicted quantile values on a validation split alongside actual outcomes</p></li>
+<li><p>For each quantile level, it fits a scikit-learn <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.isotonic.IsotonicRegression.html#sklearn.isotonic.IsotonicRegression" title="(in scikit-learn v1.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">IsotonicRegression</span></code></a> that maps predicted values to calibrated values</p></li>
+<li><p>During prediction, each quantile column is passed through its learned isotonic mapping</p></li>
+</ol>
+<p>Isotonic regression is ideal for this task because it is monotone by construction: if the raw model predicts a higher value, the calibrated output will also be higher (or equal). This preserves the ordering of quantiles, ensuring that P90 is always greater than or equal to P50, which is always greater than or equal to P10.</p>
+<section id="adding-calibration-to-a-workflow">
+<h3>Adding Calibration to a Workflow<a class="headerlink" href="#adding-calibration-to-a-workflow" title="Link to this heading">#</a></h3>
+<p>The calibrator is appended to the postprocessing pipeline of a forecasting workflow:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.transforms.postprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">IsotonicQuantileCalibrator</span>
+
+<span class="n">workflow</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">postprocessing</span><span class="o">.</span><span class="n">transforms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+    <span class="n">IsotonicQuantileCalibrator</span><span class="p">(</span>
+        <span class="n">quantiles</span><span class="o">=</span><span class="n">quantiles</span><span class="p">,</span>
+        <span class="n">use_local_quantile_estimation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>When <code class="docutils literal notranslate"><span class="pre">use_local_quantile_estimation=True</span></code>, the calibrator estimates observed quantile levels using a local window approach rather than global statistics, which better captures conditional calibration.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The calibrator must be fitted (via <code class="docutils literal notranslate"><span class="pre">workflow.fit()</span></code>) before it can be used for prediction. Calling <code class="docutils literal notranslate"><span class="pre">predict()</span></code> on a workflow with an unfitted calibrator will raise a <a class="reference internal" href="../../api/generated/openstef_core.exceptions.NotFittedError.html#openstef_core.exceptions.NotFittedError" title="openstef_core.exceptions.NotFittedError"><code class="xref py py-class docutils literal notranslate"><span class="pre">NotFittedError</span></code></a>.</p>
+</div>
+<p>For a complete worked example showing calibration before and after, including diagnostic plots, see <a class="reference internal" href="../../tutorials/quantile_calibration.html"><span class="doc">Quantile Calibration</span></a>.</p>
+</section>
+</section>
+<section id="evaluating-probabilistic-forecasts">
+<h2>Evaluating Probabilistic Forecasts<a class="headerlink" href="#evaluating-probabilistic-forecasts" title="Link to this heading">#</a></h2>
+<p>Calibration quality can be assessed by comparing expected vs. observed quantile levels. For each quantile Q, compute the fraction of actual observations that fall below the predicted quantile value. A well-calibrated model produces a diagonal on a calibration plot (expected = observed).</p>
+<p>Key metrics for probabilistic forecast quality include:</p>
+<ul class="simple">
+<li><p><strong>Calibration error</strong>: the difference between expected and observed coverage per quantile</p></li>
+<li><p><strong>Sharpness</strong>: the width of prediction intervals (narrower is better, given proper calibration)</p></li>
+<li><p><strong>Pinball loss</strong>: the proper scoring rule for quantile forecasts, penalizing both miscalibration and lack of sharpness</p></li>
+</ul>
+<p>See <a class="reference internal" href="backtesting_tutorial.html"><span class="doc">Backtesting Quickstart</span></a> for how to evaluate forecast quality on historical data.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="forecasting.html"><span class="doc">Forecasting</span></a> for the overall forecasting workflow (fitting, predicting, model selection).</p></li>
+<li><p><a class="reference internal" href="../concepts/models.html"><span class="doc">Models</span></a> for understanding how different model types compare.</p></li>
+<li><p><a class="reference internal" href="backtesting_tutorial.html"><span class="doc">Backtesting Quickstart</span></a> for evaluating forecast performance systematically.</p></li>
+<li><p><a class="reference internal" href="reliability_fallback.html"><span class="doc">Reliability and Fallback</span></a> for operational concerns like fallback behavior when data is missing.</p></li>
+</ul>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="datasets_tutorial.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Understanding Time Series Datasets</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="reliability_fallback.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Reliability and Fallback</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-you-get-back">What You Get Back</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-quantiles-not-confidence-intervals">Why Quantiles, Not Confidence Intervals</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#why-not-full-probability-distributions">Why Not Full Probability Distributions?</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#configuring-quantile-forecasts">Configuring Quantile Forecasts</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-each-model-produces-quantiles">How Each Model Produces Quantiles</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-calibration-problem">The Calibration Problem</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#isotonic-quantile-calibration">Isotonic Quantile Calibration</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#adding-calibration-to-a-workflow">Adding Calibration to a Workflow</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#evaluating-probabilistic-forecasts">Evaluating Probabilistic Forecasts</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/OpenSTEF/openstef/edit/main/docs/source/user_guide/guides/probabilistic_forecasting.rst">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2017-2026 Contributors to the OpenSTEF project.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

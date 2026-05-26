@@ -1,0 +1,67 @@
+﻿.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+
+
+backtesting
+===========
+
+.. currentmodule:: openstef_beam.backtesting
+
+.. automodule:: openstef_beam.backtesting
+   :no-members:
+   :no-inherited-members:
+
+
+
+
+
+
+
+
+
+
+Submodules
+----------
+
+
+.. autosummary::
+   :toctree: .
+   :template: module_overview.rst
+
+   openstef_beam.backtesting.backtest_callback
+   openstef_beam.backtesting.backtest_event
+   openstef_beam.backtesting.backtest_event_generator
+   openstef_beam.backtesting.backtest_pipeline
+   openstef_beam.backtesting.restricted_horizon_timeseries
+
+
+
+.. autosummary::
+   :toctree: .
+   :template: module_overview.rst
+
+   backtest_forecaster
+
+
+
+
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_class.rst
+
+   BacktestConfig
+   BacktestPipeline
+
+
+
+
+
+
+
+

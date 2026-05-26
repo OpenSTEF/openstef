@@ -1,0 +1,63 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+
+
+visualizations
+==============
+
+.. currentmodule:: openstef_beam.analysis.visualizations
+
+.. automodule:: openstef_beam.analysis.visualizations
+   :no-members:
+   :no-inherited-members:
+
+
+
+
+
+
+
+
+
+Submodules
+----------
+
+
+.. autosummary::
+   :toctree: .
+   :template: module_overview.rst
+
+   openstef_beam.analysis.visualizations.base
+   openstef_beam.analysis.visualizations.grouped_target_metric_visualization
+   openstef_beam.analysis.visualizations.precision_recall_curve_visualization
+   openstef_beam.analysis.visualizations.quantile_calibration_box_visualization
+   openstef_beam.analysis.visualizations.quantile_probability_visualization
+   openstef_beam.analysis.visualizations.summary_table_visualization
+   openstef_beam.analysis.visualizations.timeseries_visualization
+   openstef_beam.analysis.visualizations.windowed_metric_visualization
+
+
+
+
+
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_class_noindex.rst
+
+   GroupedTargetMetricVisualization
+   PrecisionRecallCurveVisualization
+   QuantileCalibrationBoxVisualization
+   QuantileProbabilityVisualization
+   SummaryTableVisualization
+   TimeSeriesVisualization
+   VisualizationProvider
+   WindowedMetricVisualization
+
+
+

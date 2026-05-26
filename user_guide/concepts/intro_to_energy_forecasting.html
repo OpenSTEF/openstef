@@ -1,0 +1,788 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Intro to Energy Forecasting &#8212; OpenSTEF 0.0.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=3f5a9049" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=7026087e"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=97f0b27d"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/concepts/intro_to_energy_forecasting';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = '_static/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Models" href="models.html" />
+    <link rel="prev" title="Concepts" href="index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.0.0" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/openstef-horizontal-color.svg" class="logo__image only-light" alt="OpenSTEF homepage"/>
+    <img src="../../_static/openstef-horizontal-white.svg" class="logo__image only-dark pst-js-only" alt="OpenSTEF homepage"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../project/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../contribute/index.html">
+    Contributing
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/OpenSTEF/openstef" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.lfenergy.org/projects/openstef/" title="LFE Homepage" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-bolt fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">LFE Homepage</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../project/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../contribute/index.html">
+    Contributing
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/OpenSTEF/openstef" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.lfenergy.org/projects/openstef/" title="LFE Homepage" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-bolt fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">LFE Homepage</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../getting_started/index.html">Getting Started</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/quick_start_tutorial.html">Forecasting Quickstart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/migration.html">Migrating from OpenSTEF 3 to 4</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Concepts</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Intro to Energy Forecasting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models.html">Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="metalearning.html">Metalearning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="beam.html">BEAM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="component_splitting.html">Component Splitting</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../guides/index.html">Guides</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../guides/forecasting.html">Forecasting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/feature_engineering_tutorial.html">Feature Engineering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/datasets_tutorial.html">Datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/probabilistic_forecasting.html">Probabilistic Forecasting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/reliability_fallback.html">Reliability and Fallback</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/backtesting_tutorial.html">Backtesting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/deployment.html">Deployment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../logging.html">Logging</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../external_resources.html">External resources</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">User Guide</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Concepts</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Intro to Energy Forecasting</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="intro-to-energy-forecasting">
+<h1>Intro to Energy Forecasting<a class="headerlink" href="#intro-to-energy-forecasting" title="Link to this heading">#</a></h1>
+<p>Electricity supply and demand must balance at every moment, yet the grid has physical
+capacity limits. Short-term energy forecasting predicts load and generation hours to
+days ahead so operators can act before problems occur. This page explains the domain
+concepts that OpenSTEF builds on: what gets forecasted, why it matters, and what makes
+it challenging.</p>
+<section id="what-is-short-term-energy-forecasting">
+<h2>What Is Short-Term Energy Forecasting?<a class="headerlink" href="#what-is-short-term-energy-forecasting" title="Link to this heading">#</a></h2>
+<p>Short-term energy forecasting (STEF) is the task of predicting electrical load or
+generation at specific points in the grid over horizons ranging from 15 minutes to
+approximately 7 days. Grid operators rely on these forecasts to make operational
+decisions: managing congestion, planning transport capacity, coordinating with upstream
+and downstream network operators, and minimizing grid losses.</p>
+<p>Unlike long-term planning (months to years), short-term forecasting must be:</p>
+<ul class="simple">
+<li><p><strong>Granular</strong> - typically at 15-minute resolution</p></li>
+<li><p><strong>Frequent</strong> - updated multiple times per day as new data arrives</p></li>
+<li><p><strong>Actionable</strong> - accurate enough to trigger real operational decisions</p></li>
+</ul>
+</section>
+<section id="use-cases">
+<h2>Use Cases<a class="headerlink" href="#use-cases" title="Link to this heading">#</a></h2>
+<p>Different grid objectives require different models, aggregation levels, and accuracy
+targets. OpenSTEF supports a wide range of operational use cases:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 75.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Use Case</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Congestion Forecasting</strong></p></td>
+<td><p>Predict when substations approach capacity limits one to two days ahead. Operators activate pre-emptive flexibility (demand response, battery dispatch) rather than reacting to emergencies.</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Transport Forecasts</strong></p></td>
+<td><p>Distribution operators send day-ahead load forecasts to the transmission operator for each coupling point. Must be accurate across every hour of the day.</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Grid Loss Forecasting</strong></p></td>
+<td><p>Estimate total losses in transformers and cables for day-ahead energy market procurement. Grid operators must buy energy to compensate for losses; accurate forecasts reduce over- or under-procurement and lower costs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Free-Space Forecasting</strong></p></td>
+<td><p>Predict available headroom at specific hours to allocate unused capacity to flexible loads like EV charging. Increases infrastructure utilization without creating new overload risks.</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>MV Route Monitoring</strong></p></td>
+<td><p>Forecasts fill in missing real-time data so that grid state estimation models can assess cable loading across entire medium-voltage routes.</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>District Heating</strong></p></td>
+<td><p>Forecast heat demand at city scale for production unit scheduling, heat accumulator planning, and maintenance coordination. Temperature is a major driver alongside social patterns.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="input-signals">
+<h2>Input Signals<a class="headerlink" href="#input-signals" title="Link to this heading">#</a></h2>
+<p>Energy demand and generation are driven by a combination of physical, behavioural, and
+economic factors:</p>
+<div class="pst-scrollable-table-container"><table class="table" id="id1">
+<caption><span class="caption-text">Key Input Signals for Energy Forecasting</span><a class="headerlink" href="#id1" title="Link to this table">#</a></caption>
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 80.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Signal</p></th>
+<th class="head"><p>Why It Matters</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Load history</strong></p></td>
+<td><p>Energy demand is highly auto-correlated. Last Monday’s load is the best predictor of this Monday’s load.</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Weather forecasts</strong></p></td>
+<td><p>Temperature drives heating/cooling demand; radiation and wind drive renewable generation.</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Calendar features</strong></p></td>
+<td><p>Human behaviour follows daily, weekly, and holiday patterns (e.g., evening peak between 17:00 and 20:00).</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Market prices</strong></p></td>
+<td><p>Energy prices influence behaviour. Wind parks may shut down at negative prices; industrial users shift load in response to tariffs.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Weather forecasts are <em>versioned</em>: the forecast for Monday issued on Saturday differs from the one issued on Sunday. Standard lag features ignore this distinction, which is why OpenSTEF provides specialized versioned lag handling.</p>
+</div>
+<figure class="align-default" id="id2">
+<img alt="One week of substation load at 15-minute resolution showing daily and weekly patterns" src="../../_images/weekly_load_profile.svg" />
+<figcaption>
+<p><span class="caption-text">A typical substation load profile. Daily peaks (morning and evening) and a clear
+weekday/weekend difference are the patterns that forecasting models learn to capture.</span><a class="headerlink" href="#id2" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="forecast-horizons">
+<h2>Forecast Horizons<a class="headerlink" href="#forecast-horizons" title="Link to this heading">#</a></h2>
+<p>The <strong>forecast horizon</strong> (or lead time) is the time gap between when a prediction is
+made and the period it covers. OpenSTEF supports horizons from 15 minutes to
+approximately 7 days.</p>
+<p>A critical constraint: <strong>lags must respect the forecast horizon.</strong> If you are
+forecasting 36 hours ahead, you cannot use data from 24 hours ago because it will not
+be available at prediction time. OpenSTEF’s lag transforms enforce this automatically.</p>
+<p>Accuracy degrades with increasing lead time for fundamental reasons:</p>
+<ul class="simple">
+<li><p><strong>Weather forecast quality drops</strong> - beyond 7 days, weather models lack the 15-minute resolution needed for solar/wind peaks</p></li>
+<li><p><strong>Behavioural uncertainty compounds</strong> - unpredictable events become more likely over longer windows</p></li>
+<li><p><strong>Auto-correlation weakens</strong> - the further ahead you look, the less today’s load tells you about future load</p></li>
+</ul>
+<figure class="align-default" id="id3">
+<img alt="7-day forecast with P10-P90 confidence bands from a GBLinear model" src="../../_images/forecast_confidence_bands.svg" />
+<figcaption>
+<p><span class="caption-text">A real 7-day forecast produced by OpenSTEF’s GBLinear model. The shaded P10-P90
+band captures 80% of expected outcomes. Forecast skill degrades with increasing
+lead time as weather and behavioural uncertainty compound.</span><a class="headerlink" href="#id3" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>This is why OpenSTEF treats horizon as a first-class concept throughout its pipeline,
+from feature construction to model training to evaluation.</p>
+</section>
+<section id="challenges-in-the-field">
+<h2>Challenges in the Field<a class="headerlink" href="#challenges-in-the-field" title="Link to this heading">#</a></h2>
+<p>Energy forecasting is not a clean textbook regression problem. Practitioners face
+several domain-specific difficulties:</p>
+<section id="unpredictable-behaviour">
+<h3>Unpredictable behaviour<a class="headerlink" href="#unpredictable-behaviour" title="Link to this heading">#</a></h3>
+<p>Some energy users and generators behave in ways that are difficult to model from
+historical patterns alone:</p>
+<ul class="simple">
+<li><p><strong>Wind parks shutting down at negative market prices</strong> - generation drops to zero not because of weather, but because of economic signals</p></li>
+<li><p><strong>Maintenance events</strong> - planned or unplanned outages cause sudden load changes</p></li>
+<li><p><strong>Behind-the-meter solar and storage</strong> - invisible generation that changes the apparent load profile</p></li>
+<li><p><strong>New connections or disconnections</strong> - the underlying capacity of a grid point changes over time</p></li>
+</ul>
+</section>
+<section id="aggregation-level-effects">
+<h3>Aggregation level effects<a class="headerlink" href="#aggregation-level-effects" title="Link to this heading">#</a></h3>
+<p>A fundamental principle: <strong>higher aggregation levels are generally easier to forecast.</strong>
+Individual customer behaviour is erratic, but the aggregate of thousands of customers
+follows smooth, predictable patterns. This means:</p>
+<ul class="simple">
+<li><p>Substation-level forecasts (many customers) are more predictable than individual customer forecasts</p></li>
+<li><p>System-level patterns (temporal, cyclic) dominate at high aggregation, while weather effects diminish</p></li>
+<li><p>Low-aggregation forecasts require different optimization strategies (e.g., emphasis on peak detection rather than average accuracy)</p></li>
+</ul>
+<figure class="align-default" id="id4">
+<img alt="Comparison of a single solar park with on/off curtailment vs a large transformer" src="../../_images/aggregation_comparison.svg" />
+<figcaption>
+<p><span class="caption-text">Low aggregation (single solar park near Rotterdam) shows clear on/off curtailment -
+generation switches between full output and zero multiple times per day despite
+available sunshine. High aggregation (Amsterdam Hemweg transformer, ~50 MW peak)
+produces smooth, repeating daily patterns that models capture well.</span><a class="headerlink" href="#id4" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>OpenSTEF supports use cases across the full aggregation spectrum, from highly aggregated
+grid loss forecasting to individual customer predictions for congestion management.</p>
+</section>
+<section id="data-quality-as-the-binding-constraint">
+<h3>Data quality as the binding constraint<a class="headerlink" href="#data-quality-as-the-binding-constraint" title="Link to this heading">#</a></h3>
+<p>In practice, <strong>feature quality and data quality are the primary determinants of forecast
+accuracy</strong>, often more so than model choice. Common issues include:</p>
+<ul class="simple">
+<li><p>Missing or delayed measurements from SCADA systems</p></li>
+<li><p>Weather forecast providers changing their model or grid resolution</p></li>
+<li><p>Incorrect meter configurations reporting wrong values</p></li>
+<li><p>Capacity changes not reflected in historical data</p></li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>“Garbage in, garbage out” applies strongly to energy forecasting. Before investing
+time in model tuning, verify that your input data is complete, correctly timestamped,
+and representative of current grid conditions.</p>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="models.html"><span class="doc">Models</span></a> for which model types are available and when to use each.</p></li>
+<li><p><a class="reference internal" href="component_splitting.html"><span class="doc">Component Splitting</span></a> for how forecasts can be decomposed into solar, wind, and other components.</p></li>
+<li><p><a class="reference internal" href="../guides/forecasting.html"><span class="doc">Forecasting</span></a> for a practical guide to building your first forecast pipeline.</p></li>
+<li><p><a class="reference internal" href="../../tutorials/feature_engineering.html"><span class="doc">Feature Engineering for Energy Forecasting</span></a> for a hands-on tutorial demonstrating feature transforms.</p></li>
+</ul>
+</div>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Concepts</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="models.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Models</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-is-short-term-energy-forecasting">What Is Short-Term Energy Forecasting?</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#use-cases">Use Cases</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#input-signals">Input Signals</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#forecast-horizons">Forecast Horizons</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#challenges-in-the-field">Challenges in the Field</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#unpredictable-behaviour">Unpredictable behaviour</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#aggregation-level-effects">Aggregation level effects</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data-quality-as-the-binding-constraint">Data quality as the binding constraint</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/OpenSTEF/openstef/edit/main/docs/source/user_guide/concepts/intro_to_energy_forecasting.rst">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2017-2026 Contributors to the OpenSTEF project.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

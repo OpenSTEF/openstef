@@ -1,0 +1,36 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+
+
+invariants
+==========
+
+.. currentmodule:: openstef_core.utils.invariants
+
+.. automodule:: openstef_core.utils.invariants
+   :no-members:
+   :no-inherited-members:
+
+
+
+
+
+
+
+
+
+
+Functions
+---------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_function.rst
+
+   not_none
+
+
+
+

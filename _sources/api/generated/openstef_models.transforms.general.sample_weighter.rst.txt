@@ -1,0 +1,48 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+
+
+sample_weighter
+===============
+
+.. currentmodule:: openstef_models.transforms.general.sample_weighter
+
+.. automodule:: openstef_models.transforms.general.sample_weighter
+   :no-members:
+   :no-inherited-members:
+
+
+
+
+
+
+
+
+
+
+Functions
+---------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_function.rst
+
+   exponential_sample_weight
+   inverse_frequency_sample_weight
+
+
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_class_noindex.rst
+
+   SampleWeightConfig
+   SampleWeighter
+
+
+

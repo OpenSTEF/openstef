@@ -1,0 +1,36 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+
+
+backtest_event_generator
+========================
+
+.. currentmodule:: openstef_beam.backtesting.backtest_event_generator
+
+.. automodule:: openstef_beam.backtesting.backtest_event_generator
+   :no-members:
+   :no-inherited-members:
+
+
+
+
+
+
+
+
+
+
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_class_noindex.rst
+
+   BacktestEventGenerator
+
+
+

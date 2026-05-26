@@ -1,0 +1,929 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Backtesting Quickstart &#8212; OpenSTEF 0.0.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=3f5a9049" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=7026087e"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=97f0b27d"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'tutorials/backtesting_quickstart';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = '_static/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Understanding Time Series Datasets" href="datasets.html" />
+    <link rel="prev" title="Forecasting Quickstart" href="forecasting_quickstart.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.0.0" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/openstef-horizontal-color.svg" class="logo__image only-light" alt="OpenSTEF homepage"/>
+    <img src="../_static/openstef-horizontal-white.svg" class="logo__image only-dark pst-js-only" alt="OpenSTEF homepage"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api/index.html">
+    API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../project/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contribute/index.html">
+    Contributing
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/OpenSTEF/openstef" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.lfenergy.org/projects/openstef/" title="LFE Homepage" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-bolt fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">LFE Homepage</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api/index.html">
+    API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../project/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contribute/index.html">
+    Contributing
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/OpenSTEF/openstef" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.lfenergy.org/projects/openstef/" title="LFE Homepage" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-bolt fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">LFE Homepage</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="forecasting_quickstart.html">Forecasting Quickstart</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Backtesting Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">Understanding Datasets</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Model Training</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="custom_pipeline.html">Custom Pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="feature_engineering.html">Feature Engineering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ensemble_forecasting.html">Ensemble Forecasting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hyperparameter_tuning_with_optuna.html">Hyperparameter Tuning</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Evaluation &amp; Analysis</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="model_explainability.html">Model Explainability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quantile_calibration.html">Quantile Calibration</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Benchmarks</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../benchmarks/README.html">Benchmarking Guide</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../benchmarks/liander2024/README.html">Liander 2024</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks/liander2024/run_xgboost_gblinear_benchmark.html">XGBoost &amp; GBLinear</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks/liander2024/run_ensemble_benchmark.html">Ensemble Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks/liander2024/compare_benchmark_runs.html">Compare Results</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../benchmarks/custom/README.html">Build Your Own</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks/custom/custom_forecaster.html">Implement a Custom Forecaster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks/custom/custom_benchmark.html">Configure a Custom Benchmark</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks/custom/run_liander2024_benchmark.html">Run on Liander 2024 Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks/custom/run_custom_benchmark.html">Run on Your Own Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks/custom/evaluate_existing_forecasts.html">Evaluate Existing Forecasts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks/custom/compare_benchmark_runs.html">Compare Multiple Runs</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../examples.html" class="nav-link">Examples</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Backtesting Quickstart</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="backtesting-quickstart">
+<h1>Backtesting Quickstart<a class="headerlink" href="#backtesting-quickstart" title="Link to this heading">#</a></h1>
+<p>Backtesting simulates how a forecasting model would have performed in a
+real operational setting.  Unlike a simple train/test split, it respects
+temporal constraints: models are retrained on a schedule and predictions
+use only data that would have been available at prediction time.</p>
+<p><strong>What you will learn:</strong></p>
+<ul class="simple">
+<li><p>How to set up a backtesting pipeline with <a class="reference external" href="https://openstef.github.io/openstef/api/generated/openstef_beam.backtesting.BacktestPipeline.html"><code class="docutils literal notranslate"><span class="pre">BacktestPipeline</span></code></a></p></li>
+<li><p>How to configure prediction and retraining schedules</p></li>
+<li><p>How to evaluate backtest results with standardized metrics</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This tutorial shows the low-level backtesting API step by step.
+For production use, the <strong>benchmark framework</strong> (<code class="docutils literal notranslate"><span class="pre">openstef_beam.benchmarking</span></code>)
+wraps all of this into a single pipeline call — see
+<code class="docutils literal notranslate"><span class="pre">examples/benchmarks/</span></code> for ready-to-run examples.</p>
+</div>
+<p><strong>Key API references:</strong>
+<a class="reference external" href="https://openstef.github.io/openstef/api/generated/openstef_beam.backtesting.BacktestPipeline.html"><code class="docutils literal notranslate"><span class="pre">BacktestPipeline</span></code></a>
+· <a class="reference external" href="https://openstef.github.io/openstef/api/generated/openstef_beam.backtesting.BacktestConfig.html"><code class="docutils literal notranslate"><span class="pre">BacktestConfig</span></code></a>
+· <a class="reference external" href="https://openstef.github.io/openstef/api/generated/openstef_beam.backtesting.backtest_forecaster.BacktestForecasterConfig.html"><code class="docutils literal notranslate"><span class="pre">BacktestForecasterConfig</span></code></a>
+· <a class="reference external" href="https://openstef.github.io/openstef/api/generated/openstef_beam.evaluation.EvaluationConfig.html"><code class="docutils literal notranslate"><span class="pre">EvaluationConfig</span></code></a></p>
+<section id="how-backtesting-works">
+<h2>How backtesting works<a class="headerlink" href="#how-backtesting-works" title="Link to this heading">#</a></h2>
+<p>A backtesting pipeline replays history as if it were happening in real-time:</p>
+<ol class="arabic simple">
+<li><p><strong>Event generation</strong> — the pipeline creates a schedule of prediction and
+retraining events based on configured intervals.</p></li>
+<li><p><strong>Training</strong> — at each retraining event, the model is fitted on all data
+available up to that point (no lookahead).</p></li>
+<li><p><strong>Prediction</strong> — at each prediction event, the model generates a forecast
+using only data published before that moment.</p></li>
+<li><p><strong>Collection</strong> — all forecasts are gathered into a single dataset for
+evaluation against ground truth.</p></li>
+</ol>
+</section>
+<section id="load-the-versioned-dataset">
+<h2>Load the versioned dataset<a class="headerlink" href="#load-the-versioned-dataset" title="Link to this heading">#</a></h2>
+<p>Backtesting requires <strong>versioned</strong> data — each data point carries an
+<code class="docutils literal notranslate"><span class="pre">available_at</span></code> timestamp indicating when it became known.  This prevents
+the model from accidentally using future information.
+<a class="reference external" href="https://openstef.github.io/openstef/api/generated/openstef_core.datasets.VersionedTimeSeriesDataset.html"><code class="docutils literal notranslate"><span class="pre">VersionedTimeSeriesDataset</span></code></a>
+provides this out of the box.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">VersionedTimeSeriesDataset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.testing</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_liander_dataset</span>
+
+<span class="c1"># Download the dataset from HuggingFace (cached after first run)</span>
+<span class="n">data_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;liander_dataset&quot;</span><span class="p">)</span>
+<span class="n">load_liander_dataset</span><span class="p">(</span><span class="n">local_dir</span><span class="o">=</span><span class="n">data_dir</span><span class="p">)</span>
+
+<span class="c1"># Ground truth: actual load measurements</span>
+<span class="n">ground_truth</span> <span class="o">=</span> <span class="n">VersionedTimeSeriesDataset</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span>
+    <span class="n">data_dir</span> <span class="o">/</span> <span class="s2">&quot;load_measurements&quot;</span> <span class="o">/</span> <span class="s2">&quot;mv_feeder&quot;</span> <span class="o">/</span> <span class="s2">&quot;OS Gorredijk.parquet&quot;</span>
+<span class="p">)</span>
+
+<span class="c1"># Predictors: versioned weather forecasts (available_at &lt; forecast time)</span>
+<span class="n">predictors</span> <span class="o">=</span> <span class="n">VersionedTimeSeriesDataset</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span>
+    <span class="n">data_dir</span> <span class="o">/</span> <span class="s2">&quot;weather_forecasts_versioned&quot;</span> <span class="o">/</span> <span class="s2">&quot;mv_feeder&quot;</span> <span class="o">/</span> <span class="s2">&quot;OS Gorredijk.parquet&quot;</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Ground truth: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">ground_truth</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> timestamps, </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">ground_truth</span><span class="o">.</span><span class="n">feature_names</span><span class="p">)</span><span class="si">}</span><span class="s2"> features&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Predictors:   </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">predictors</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> timestamps, </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">predictors</span><span class="o">.</span><span class="n">feature_names</span><span class="p">)</span><span class="si">}</span><span class="s2"> features&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Ground truth: 35,136 timestamps, 1 features
+Predictors:   35,229 timestamps, 11 features
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="configure-the-forecaster">
+<h2>Configure the forecaster<a class="headerlink" href="#configure-the-forecaster" title="Link to this heading">#</a></h2>
+<p>We wrap a standard <a class="reference external" href="https://openstef.github.io/openstef/api/generated/openstef_models.presets.ForecastingWorkflowConfig.html"><code class="docutils literal notranslate"><span class="pre">ForecastingWorkflowConfig</span></code></a> in an
+<code class="docutils literal notranslate"><span class="pre">OpenSTEF4BacktestForecaster</span></code> which implements the backtesting interface
+(fit/predict with temporal constraints).</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">timedelta</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.backtesting.backtest_forecaster</span><span class="w"> </span><span class="kn">import</span> <span class="n">BacktestForecasterConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.benchmarking.baselines.openstef4</span><span class="w"> </span><span class="kn">import</span> <span class="n">OpenSTEF4BacktestForecaster</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">LeadTime</span><span class="p">,</span> <span class="n">Q</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.presets</span><span class="w"> </span><span class="kn">import</span> <span class="n">ForecastingWorkflowConfig</span><span class="p">,</span> <span class="n">create_forecasting_workflow</span>
+
+<span class="n">workflow_config</span> <span class="o">=</span> <span class="n">ForecastingWorkflowConfig</span><span class="p">(</span>
+    <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;backtest_demo&quot;</span><span class="p">,</span>
+    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;xgboost&quot;</span><span class="p">,</span>
+    <span class="n">horizons</span><span class="o">=</span><span class="p">[</span><span class="n">LeadTime</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;PT48H&quot;</span><span class="p">)],</span>
+    <span class="n">quantiles</span><span class="o">=</span><span class="p">[</span><span class="n">Q</span><span class="p">(</span><span class="mf">0.5</span><span class="p">),</span> <span class="n">Q</span><span class="p">(</span><span class="mf">0.1</span><span class="p">),</span> <span class="n">Q</span><span class="p">(</span><span class="mf">0.9</span><span class="p">)],</span>
+    <span class="n">target_column</span><span class="o">=</span><span class="s2">&quot;load&quot;</span><span class="p">,</span>
+    <span class="n">temperature_column</span><span class="o">=</span><span class="s2">&quot;temperature_2m&quot;</span><span class="p">,</span>
+    <span class="n">relative_humidity_column</span><span class="o">=</span><span class="s2">&quot;relative_humidity_2m&quot;</span><span class="p">,</span>
+    <span class="n">wind_speed_column</span><span class="o">=</span><span class="s2">&quot;wind_speed_10m&quot;</span><span class="p">,</span>
+    <span class="n">radiation_column</span><span class="o">=</span><span class="s2">&quot;shortwave_radiation&quot;</span><span class="p">,</span>
+    <span class="n">pressure_column</span><span class="o">=</span><span class="s2">&quot;surface_pressure&quot;</span><span class="p">,</span>
+    <span class="n">mlflow_storage</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">verbosity</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">backtest_forecaster_config</span> <span class="o">=</span> <span class="n">BacktestForecasterConfig</span><span class="p">(</span>
+    <span class="n">requires_training</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">predict_length</span><span class="o">=</span><span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">48</span><span class="p">),</span>
+    <span class="n">predict_min_length</span><span class="o">=</span><span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="mi">15</span><span class="p">),</span>
+    <span class="n">predict_context_length</span><span class="o">=</span><span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">14</span><span class="p">),</span>
+    <span class="n">predict_context_min_coverage</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">training_context_length</span><span class="o">=</span><span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">90</span><span class="p">),</span>
+    <span class="n">training_context_min_coverage</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">workflow</span> <span class="o">=</span> <span class="n">create_forecasting_workflow</span><span class="p">(</span><span class="n">workflow_config</span><span class="p">)</span>
+<span class="n">forecaster</span> <span class="o">=</span> <span class="n">OpenSTEF4BacktestForecaster</span><span class="p">(</span>
+    <span class="n">config</span><span class="o">=</span><span class="n">backtest_forecaster_config</span><span class="p">,</span>
+    <span class="n">workflow_template</span><span class="o">=</span><span class="n">workflow</span><span class="p">,</span>
+    <span class="n">cache_dir</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;cache/backtest_demo&quot;</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Model:            </span><span class="si">{</span><span class="n">workflow_config</span><span class="o">.</span><span class="n">model</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Training window:  </span><span class="si">{</span><span class="n">backtest_forecaster_config</span><span class="o">.</span><span class="n">training_context_length</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Predict horizon:  </span><span class="si">{</span><span class="n">backtest_forecaster_config</span><span class="o">.</span><span class="n">predict_length</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Model:            xgboost
+Training window:  90 days, 0:00:00
+Predict horizon:  2 days, 0:00:00
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="run-the-backtest">
+<h2>Run the backtest<a class="headerlink" href="#run-the-backtest" title="Link to this heading">#</a></h2>
+<p>We configure the pipeline to predict every 6 hours and retrain weekly.
+The backtest covers a short 5-day window for fast execution.</p>
+<div class="cell tag_remove-stderr docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.backtesting</span><span class="w"> </span><span class="kn">import</span> <span class="n">BacktestConfig</span><span class="p">,</span> <span class="n">BacktestPipeline</span>
+
+<span class="n">backtest_config</span> <span class="o">=</span> <span class="n">BacktestConfig</span><span class="p">(</span>
+    <span class="n">prediction_sample_interval</span><span class="o">=</span><span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="mi">15</span><span class="p">),</span>
+    <span class="n">predict_interval</span><span class="o">=</span><span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">6</span><span class="p">),</span>
+    <span class="n">train_interval</span><span class="o">=</span><span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">7</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">pipeline</span> <span class="o">=</span> <span class="n">BacktestPipeline</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">backtest_config</span><span class="p">,</span> <span class="n">forecaster</span><span class="o">=</span><span class="n">forecaster</span><span class="p">)</span>
+
+<span class="c1"># Short evaluation window: 5 days starting well into the dataset</span>
+<span class="n">backtest_start</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="s2">&quot;2024-05-01T00:00:00Z&quot;</span><span class="p">)</span>
+<span class="n">backtest_end</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="s2">&quot;2024-05-06T00:00:00Z&quot;</span><span class="p">)</span>
+
+<span class="n">predictions</span> <span class="o">=</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+    <span class="n">ground_truth</span><span class="o">=</span><span class="n">ground_truth</span><span class="p">,</span>
+    <span class="n">predictors</span><span class="o">=</span><span class="n">predictors</span><span class="p">,</span>
+    <span class="n">start</span><span class="o">=</span><span class="n">backtest_start</span><span class="p">,</span>
+    <span class="n">end</span><span class="o">=</span><span class="n">backtest_end</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Predictions generated: </span><span class="si">{</span><span class="n">predictions</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> rows&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Time range: </span><span class="si">{</span><span class="n">predictions</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">predictions</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Predictions generated: 3,840 rows
+Time range: 2024-05-01 00:00:00+00:00 to 2024-05-07 17:45:00+00:00
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="evaluate-the-results">
+<h2>Evaluate the results<a class="headerlink" href="#evaluate-the-results" title="Link to this heading">#</a></h2>
+<p>The <a class="reference external" href="https://openstef.github.io/openstef/api/generated/openstef_beam.evaluation.EvaluationPipeline.html"><code class="docutils literal notranslate"><span class="pre">EvaluationPipeline</span></code></a> computes metrics over configurable time windows.
+It filters predictions by lead time to produce meaningful comparisons
+(e.g., day-ahead forecasts only).</p>
+<p>We use <a class="reference external" href="https://openstef.github.io/openstef/api/generated/openstef_beam.evaluation.metric_providers.RMAEProvider.html">rMAE</a> (relative Mean Absolute Error) and <a class="reference external" href="https://openstef.github.io/openstef/api/generated/openstef_beam.evaluation.metric_providers.RCRPSProvider.html">rCRPS</a> (relative Continuous
+Ranked Probability Score) — both normalized by mean absolute actuals.
+See the full list of <a class="reference external" href="https://openstef.github.io/openstef/api/generated/openstef_beam.evaluation.metric_providers.html">available metrics</a>.
+If your scores are suboptimal, <a class="reference internal" href="hyperparameter_tuning_with_optuna.html"><span class="doc">Hyperparameter Tuning with Optuna</span></a>
+shows how to optimize model parameters before re-running the backtest.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.evaluation</span><span class="w"> </span><span class="kn">import</span> <span class="n">EvaluationConfig</span><span class="p">,</span> <span class="n">EvaluationPipeline</span><span class="p">,</span> <span class="n">Window</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.evaluation.metric_providers</span><span class="w"> </span><span class="kn">import</span> <span class="n">RCRPSProvider</span><span class="p">,</span> <span class="n">RMAEProvider</span>
+
+<span class="n">evaluation_config</span> <span class="o">=</span> <span class="n">EvaluationConfig</span><span class="p">(</span>
+    <span class="n">windows</span><span class="o">=</span><span class="p">[</span><span class="n">Window</span><span class="p">(</span><span class="n">lag</span><span class="o">=</span><span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">size</span><span class="o">=</span><span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">5</span><span class="p">))],</span>
+    <span class="n">lead_times</span><span class="o">=</span><span class="p">[],</span>  <span class="c1"># Only use available_at filtering (day-ahead)</span>
+<span class="p">)</span>
+
+<span class="n">eval_pipeline</span> <span class="o">=</span> <span class="n">EvaluationPipeline</span><span class="p">(</span>
+    <span class="n">config</span><span class="o">=</span><span class="n">evaluation_config</span><span class="p">,</span>
+    <span class="n">quantiles</span><span class="o">=</span><span class="n">workflow_config</span><span class="o">.</span><span class="n">quantiles</span><span class="p">,</span>
+    <span class="n">window_metric_providers</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">RMAEProvider</span><span class="p">(</span><span class="n">quantiles</span><span class="o">=</span><span class="p">[</span><span class="n">Q</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)]),</span>
+        <span class="n">RCRPSProvider</span><span class="p">(),</span>
+    <span class="p">],</span>
+    <span class="n">global_metric_providers</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">RMAEProvider</span><span class="p">(</span><span class="n">quantiles</span><span class="o">=</span><span class="p">[</span><span class="n">Q</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)]),</span>
+        <span class="n">RCRPSProvider</span><span class="p">(),</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+
+<span class="n">report</span> <span class="o">=</span> <span class="n">eval_pipeline</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+    <span class="n">predictions</span><span class="o">=</span><span class="n">predictions</span><span class="p">,</span>
+    <span class="n">ground_truth</span><span class="o">=</span><span class="n">ground_truth</span><span class="p">,</span>
+    <span class="n">target_column</span><span class="o">=</span><span class="s2">&quot;load&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Backtest evaluation metrics (day-ahead):&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">subset_report</span> <span class="ow">in</span> <span class="n">report</span><span class="o">.</span><span class="n">subset_reports</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">  Lead-time filter: </span><span class="si">{</span><span class="n">subset_report</span><span class="o">.</span><span class="n">filtering</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">metric</span> <span class="ow">in</span> <span class="n">subset_report</span><span class="o">.</span><span class="n">metrics</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">metric</span><span class="o">.</span><span class="n">to_dataframe</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Window: </span><span class="si">{</span><span class="n">metric</span><span class="o">.</span><span class="n">window</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Backtest evaluation metrics (day-ahead):
+
+  Lead-time filter: D-1T0600
+  Window: (lag=PT0S,size=P5D,stride=P1D)
+quantile     rMAE    rCRPS
+     0.5 0.083058      NaN
+  global      NaN 0.066299
+  Window: global
+quantile     rMAE  observed_probability    rCRPS
+     0.5 0.085668              0.539855      NaN
+  global      NaN                   NaN 0.067726
+     0.1      NaN              0.396739      NaN
+     0.9      NaN              0.757246      NaN
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="visualize-predictions-vs-actuals">
+<h2>Visualize predictions vs actuals<a class="headerlink" href="#visualize-predictions-vs-actuals" title="Link to this heading">#</a></h2>
+<p>The evaluation report contains a properly filtered <a class="reference external" href="https://openstef.github.io/openstef/api/generated/openstef_core.datasets.ForecastDataset.html"><code class="docutils literal notranslate"><span class="pre">ForecastDataset</span></code></a> for
+each lead-time subset.  We use this directly for visualization — it
+shows only day-ahead predictions aligned with their corresponding actuals.</p>
+<div class="cell tag_hide-input docutils container">
+<details class="admonition hide above-input">
+<summary aria-label="Toggle hidden content">
+<p class="collapsed admonition-title">Show code cell source</p>
+<p class="expanded admonition-title">Hide code cell source</p>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.analysis.plots</span><span class="w"> </span><span class="kn">import</span> <span class="n">ForecastTimeSeriesPlotter</span>
+
+<span class="c1"># The evaluation subset contains actuals + predictions filtered by lead time</span>
+<span class="n">subset</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">subset_reports</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">subset</span>
+
+<span class="n">plotter</span> <span class="o">=</span> <span class="n">ForecastTimeSeriesPlotter</span><span class="p">()</span>
+<span class="n">plotter</span><span class="o">.</span><span class="n">add_measurements</span><span class="p">(</span><span class="n">measurements</span><span class="o">=</span><span class="n">subset</span><span class="o">.</span><span class="n">target_series</span><span class="p">)</span>
+<span class="n">plotter</span><span class="o">.</span><span class="n">add_model</span><span class="p">(</span>
+    <span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;XGBoost (day-ahead)&quot;</span><span class="p">,</span>
+    <span class="n">forecast</span><span class="o">=</span><span class="n">subset</span><span class="o">.</span><span class="n">median_series</span><span class="p">,</span>
+    <span class="n">quantiles</span><span class="o">=</span><span class="n">subset</span><span class="o">.</span><span class="n">quantiles_data</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plotter</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Backtest: Day-Ahead Forecast vs Actuals&quot;</span><span class="p">,</span>
+    <span class="n">xaxis_title</span><span class="o">=</span><span class="s2">&quot;Time&quot;</span><span class="p">,</span>
+    <span class="n">yaxis_title</span><span class="o">=</span><span class="s2">&quot;Load (W)&quot;</span><span class="p">,</span>
+    <span class="n">height</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</details>
+<div class="cell_output docutils container">
+<img alt="../_images/22623615367ba1a00d80e0ae23b5d258383adc93196a2c69ac5825a7a7c11da5.png" src="../_images/22623615367ba1a00d80e0ae23b5d258383adc93196a2c69ac5825a7a7c11da5.png" />
+</div>
+</div>
+</section>
+<section id="the-easy-way-benchmark-framework">
+<h2>The easy way: benchmark framework<a class="headerlink" href="#the-easy-way-benchmark-framework" title="Link to this heading">#</a></h2>
+<p>The code above demonstrates each backtesting step explicitly.  In practice,
+the <strong>benchmark framework</strong> handles all of this (data loading, target
+management, evaluation, analysis) in a single pipeline:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.benchmarking.benchmarks.liander2024</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">create_liander2024_benchmark_runner</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.benchmarking.baselines.openstef4</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">create_openstef4_preset_backtest_forecaster</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">runner</span> <span class="o">=</span> <span class="n">create_liander2024_benchmark_runner</span><span class="p">()</span>
+<span class="n">forecaster_factory</span> <span class="o">=</span> <span class="n">create_openstef4_preset_backtest_forecaster</span><span class="p">(</span><span class="n">workflow_config</span><span class="p">)</span>
+<span class="n">runner</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">forecaster_factory</span><span class="p">,</span> <span class="n">run_name</span><span class="o">=</span><span class="s2">&quot;my_experiment&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The benchmark runner automatically:</p>
+<ul class="simple">
+<li><p>Downloads and manages the dataset</p></li>
+<li><p>Iterates over all targets (feeders, transformers, solar parks, etc.)</p></li>
+<li><p>Runs backtests with standardized configuration</p></li>
+<li><p>Computes metrics and generates analysis visualizations</p></li>
+</ul>
+<p>See <code class="docutils literal notranslate"><span class="pre">examples/benchmarks/</span></code> for complete benchmark scripts that will be
+converted to Jupytext tutorials in a future update.</p>
+</section>
+<section id="next-steps">
+<h2>Next steps<a class="headerlink" href="#next-steps" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="hyperparameter_tuning_with_optuna.html"><span class="doc">Hyperparameter Tuning with Optuna</span></a> — optimize model parameters,
+then re-run the backtest to measure improvement.</p></li>
+<li><p><a class="reference internal" href="ensemble_forecasting.html"><span class="doc">Ensemble Forecasting</span></a> — backtest an ensemble of diverse models.</p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="forecasting_quickstart.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Forecasting Quickstart</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="datasets.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Understanding Time Series Datasets</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-backtesting-works">How backtesting works</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#load-the-versioned-dataset">Load the versioned dataset</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#configure-the-forecaster">Configure the forecaster</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#run-the-backtest">Run the backtest</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#evaluate-the-results">Evaluate the results</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#visualize-predictions-vs-actuals">Visualize predictions vs actuals</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-easy-way-benchmark-framework">The easy way: benchmark framework</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#next-steps">Next steps</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/OpenSTEF/openstef/edit/main/docs/source/tutorials/backtesting_quickstart.py">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2017-2026 Contributors to the OpenSTEF project.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

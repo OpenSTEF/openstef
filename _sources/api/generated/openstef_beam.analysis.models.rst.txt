@@ -1,0 +1,55 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+
+
+models
+======
+
+.. currentmodule:: openstef_beam.analysis.models
+
+.. automodule:: openstef_beam.analysis.models
+   :no-members:
+   :no-inherited-members:
+
+
+
+
+
+
+
+
+
+Submodules
+----------
+
+
+.. autosummary::
+   :toctree: .
+   :template: module_overview.rst
+
+   openstef_beam.analysis.models.target_metadata
+   openstef_beam.analysis.models.visualization_aggregation
+   openstef_beam.analysis.models.visualization_output
+
+
+
+
+
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_class_noindex.rst
+
+   AnalysisAggregation
+   AnalysisOutput
+   AnalysisScope
+   TargetMetadata
+   VisualizationOutput
+
+
+

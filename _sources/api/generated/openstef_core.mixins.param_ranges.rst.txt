@@ -1,0 +1,49 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+
+
+param_ranges
+============
+
+.. currentmodule:: openstef_core.mixins.param_ranges
+
+.. automodule:: openstef_core.mixins.param_ranges
+   :no-members:
+   :no-inherited-members:
+
+
+
+
+
+
+
+
+
+
+Functions
+---------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_function.rst
+
+   get_tuning_range
+
+
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_class_noindex.rst
+
+   CategoricalRange
+   FloatRange
+   IntRange
+   ModelTuningInfo
+
+
+

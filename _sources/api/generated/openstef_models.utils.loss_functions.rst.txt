@@ -1,0 +1,37 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+
+
+loss_functions
+==============
+
+.. currentmodule:: openstef_models.utils.loss_functions
+
+.. automodule:: openstef_models.utils.loss_functions
+   :no-members:
+   :no-inherited-members:
+
+
+
+
+
+
+
+
+
+
+Functions
+---------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_function.rst
+
+   arctan_loss_multi_objective
+   pinball_loss_multi_objective
+
+
+
+

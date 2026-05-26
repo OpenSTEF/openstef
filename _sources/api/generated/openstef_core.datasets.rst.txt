@@ -1,0 +1,74 @@
+﻿.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+
+
+datasets
+========
+
+.. currentmodule:: openstef_core.datasets
+
+.. automodule:: openstef_core.datasets
+   :no-members:
+   :no-inherited-members:
+
+
+
+
+
+
+
+
+
+
+Submodules
+----------
+
+
+.. autosummary::
+   :toctree: .
+   :template: module_overview.rst
+
+   openstef_core.datasets.mixins
+   openstef_core.datasets.timeseries_dataset
+   openstef_core.datasets.validated_datasets
+   openstef_core.datasets.validation
+   openstef_core.datasets.versioned_timeseries_dataset
+
+
+
+
+
+Functions
+---------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_function.rst
+
+   validate_horizons_present
+
+
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_class.rst
+
+   EnergyComponentDataset
+   EnsembleForecastDataset
+   ForecastDataset
+   ForecastInputDataset
+   TimeSeriesDataset
+   VersionedTimeSeriesDataset
+
+
+
+
+
+
+
+

@@ -1,0 +1,861 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Reliability and Fallback &#8212; OpenSTEF 0.0.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=3f5a9049" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=7026087e"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=97f0b27d"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/guides/reliability_fallback';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = '_static/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Backtesting Quickstart" href="backtesting_tutorial.html" />
+    <link rel="prev" title="Probabilistic Forecasting" href="probabilistic_forecasting.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.0.0" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/openstef-horizontal-color.svg" class="logo__image only-light" alt="OpenSTEF homepage"/>
+    <img src="../../_static/openstef-horizontal-white.svg" class="logo__image only-dark pst-js-only" alt="OpenSTEF homepage"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../project/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../contribute/index.html">
+    Contributing
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/OpenSTEF/openstef" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.lfenergy.org/projects/openstef/" title="LFE Homepage" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-bolt fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">LFE Homepage</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../project/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../contribute/index.html">
+    Contributing
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/OpenSTEF/openstef" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.lfenergy.org/projects/openstef/" title="LFE Homepage" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-bolt fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">LFE Homepage</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../getting_started/index.html">Getting Started</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/quick_start_tutorial.html">Forecasting Quickstart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/migration.html">Migrating from OpenSTEF 3 to 4</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../concepts/index.html">Concepts</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../concepts/intro_to_energy_forecasting.html">Intro to Energy Forecasting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../concepts/models.html">Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../concepts/metalearning.html">Metalearning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../concepts/beam.html">BEAM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../concepts/component_splitting.html">Component Splitting</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Guides</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="forecasting.html">Forecasting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="feature_engineering_tutorial.html">Feature Engineering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datasets_tutorial.html">Datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="probabilistic_forecasting.html">Probabilistic Forecasting</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Reliability and Fallback</a></li>
+<li class="toctree-l2"><a class="reference internal" href="backtesting_tutorial.html">Backtesting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deployment.html">Deployment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../logging.html">Logging</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../external_resources.html">External resources</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">User Guide</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Guides</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Reliability and Fallback</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="reliability-and-fallback">
+<span id="guide-reliability-fallback"></span><h1>Reliability and Fallback<a class="headerlink" href="#reliability-and-fallback" title="Link to this heading">#</a></h1>
+<p>Energy forecasting runs on live data feeds that inevitably degrade. Smart meters
+freeze, weather APIs go down, and network issues cause data to arrive late or
+not at all. A production forecasting system has to detect these conditions and
+respond gracefully, rather than silently producing unreliable predictions.</p>
+<p>OpenSTEF gives you two building blocks: <strong>validation transforms</strong> that detect
+data quality problems and raise typed exceptions, and <strong>fallback forecaster
+models</strong> that produce safe predictions when the primary model cannot be trusted.
+Your application code decides which model to run and how to react when checks
+fail.</p>
+<p>This page covers what each component does, the exceptions you need to handle,
+and a recommended pattern for combining them in production.</p>
+<section id="the-problem-silent-failures">
+<h2>The Problem: Silent Failures<a class="headerlink" href="#the-problem-silent-failures" title="Link to this heading">#</a></h2>
+<p>Consider a substation meter that freezes at its last reported value. The data
+pipeline keeps receiving records (the value simply does not change), so no
+obvious error occurs. A model trained on this stale data learns a false
+pattern. Worse, if it predicts using stale inputs, the forecast may look
+plausible while being completely wrong.</p>
+<p>Similarly, when 60% of input features are missing because of a weather API
+outage, a tree-based model will still produce a number. That number may be
+meaningless, but nothing in the model itself flags the problem.</p>
+<p>OpenSTEF makes these failures explicit. Validation transforms in the
+preprocessing pipeline raise exceptions when their thresholds are violated, and
+your code is responsible for catching those exceptions and falling back to
+something safer.</p>
+<figure class="align-center" id="id1">
+<img alt="A load time series where the measured signal goes flat at hour 0; the primary model continues forecasting a normal daily pattern, while the FlatlinerForecaster output drops to zero across the flatline region." src="../../_images/flatline_detection.svg" />
+<figcaption>
+<p><span class="caption-text">A flatline scenario. The measured signal (red) freezes mid-day. The
+primary model (blue, dashed) is unaware of the sensor failure and
+confidently extrapolates a normal daily pattern. The
+FlatlinerForecaster (orange) recognizes the condition through the
+<code class="docutils literal notranslate"><span class="pre">FlatlineChecker</span></code> validation step and emits zero across all horizons,
+producing an honest “this connection looks inactive” forecast.</span><a class="headerlink" href="#id1" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</section>
+<section id="validation-transforms">
+<h2>Validation Transforms<a class="headerlink" href="#validation-transforms" title="Link to this heading">#</a></h2>
+<p>Both validators are wired into the preprocessing pipeline automatically when
+you build a workflow through <a class="reference internal" href="../../api/generated/openstef_models.presets.create_forecasting_workflow.html#openstef_models.presets.create_forecasting_workflow" title="openstef_models.presets.create_forecasting_workflow"><code class="xref py py-func docutils literal notranslate"><span class="pre">create_forecasting_workflow()</span></code></a>.
+You configure their thresholds via
+<a class="reference internal" href="../../api/generated/openstef_models.presets.ForecastingWorkflowConfig.html#openstef_models.presets.ForecastingWorkflowConfig" title="openstef_models.presets.ForecastingWorkflowConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">ForecastingWorkflowConfig</span></code></a>.</p>
+<section id="flatline-detection">
+<h3>Flatline Detection<a class="headerlink" href="#flatline-detection" title="Link to this heading">#</a></h3>
+<p><code class="xref py py-class docutils literal notranslate"><span class="pre">FlatlineChecker</span></code> detects when
+a signal stops changing, which typically indicates a meter or sensor failure
+rather than genuinely constant consumption.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 15.0%" />
+<col style="width: 55.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>Purpose</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">flatliner_threshold</span></code></p></td>
+<td><p>24 hours</p></td>
+<td><p>Duration the load must remain constant before flagging a flatline</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">detect_non_zero_flatliner</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">False</span></code></p></td>
+<td><p>When <code class="docutils literal notranslate"><span class="pre">True</span></code>, detects flatlines at any constant value (not just zero)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">absolute_tolerance</span></code></p></td>
+<td><p>0.0</p></td>
+<td><p>Absolute tolerance for considering values as equal</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">relative_tolerance</span></code></p></td>
+<td><p>1e-5</p></td>
+<td><p>Relative tolerance for considering values as equal</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>When a flatline is detected, the checker raises
+<a class="reference internal" href="../../api/generated/openstef_core.exceptions.FlatlinerDetectedError.html#openstef_core.exceptions.FlatlinerDetectedError" title="openstef_core.exceptions.FlatlinerDetectedError"><code class="xref py py-class docutils literal notranslate"><span class="pre">FlatlinerDetectedError</span></code></a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Set <code class="docutils literal notranslate"><span class="pre">detect_non_zero_flatliner=True</span></code> for loads that can legitimately idle
+at zero (e.g., solar generation at night). Without this flag, only
+zero-value flatlines are detected, which misses a meter stuck at a non-zero
+reading.</p>
+</div>
+</section>
+<section id="completeness-checking">
+<h3>Completeness Checking<a class="headerlink" href="#completeness-checking" title="Link to this heading">#</a></h3>
+<p><code class="xref py py-class docutils literal notranslate"><span class="pre">CompletenessChecker</span></code> enforces
+minimum data availability by computing the ratio of non-missing values to
+total expected values. If completeness falls below the threshold, it raises
+<a class="reference internal" href="../../api/generated/openstef_core.exceptions.InsufficientlyCompleteError.html#openstef_core.exceptions.InsufficientlyCompleteError" title="openstef_core.exceptions.InsufficientlyCompleteError"><code class="xref py py-class docutils literal notranslate"><span class="pre">InsufficientlyCompleteError</span></code></a>.</p>
+<p>The preset wires in a checker for the load column with threshold
+<code class="docutils literal notranslate"><span class="pre">completeness_threshold</span></code> (default <code class="docutils literal notranslate"><span class="pre">0.5</span></code>). You can also instantiate the
+checker manually for custom column sets:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.transforms.validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">CompletenessChecker</span>
+
+<span class="n">checker</span> <span class="o">=</span> <span class="n">CompletenessChecker</span><span class="p">(</span>
+    <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;load&quot;</span><span class="p">,</span> <span class="s2">&quot;temperature_2m&quot;</span><span class="p">],</span>
+    <span class="n">completeness_threshold</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Column weights are supported when some features are more critical than others.</p>
+</section>
+</section>
+<section id="fallback-forecaster-models">
+<h2>Fallback Forecaster Models<a class="headerlink" href="#fallback-forecaster-models" title="Link to this heading">#</a></h2>
+<p>When validation fails, you cannot run the primary model, but you may still
+need to produce <em>some</em> forecast for downstream systems that cannot tolerate
+gaps. OpenSTEF provides two purpose-built models for this:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Model</p></th>
+<th class="head"><p>Use when</p></th>
+<th class="head"><p>What it predicts</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="xref py py-class docutils literal notranslate"><span class="pre">FlatlinerForecaster</span></code></p></td>
+<td><p>The load signal is flatlining (sensor likely broken or connection
+decommissioned)</p></td>
+<td><p>Constant zero across all horizons and quantiles. With
+<code class="docutils literal notranslate"><span class="pre">predict_median=True</span></code>, the historical median instead.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-class docutils literal notranslate"><span class="pre">ConstantQuantileForecaster</span></code></p></td>
+<td><p>Data is so sparse that a time-aware forecast is impossible</p></td>
+<td><p>Constant quantile values derived from whatever training data is
+available. No temporal structure.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Both produce valid <a class="reference internal" href="../../api/generated/openstef_core.datasets.ForecastDataset.html#openstef_core.datasets.ForecastDataset" title="openstef_core.datasets.ForecastDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">ForecastDataset</span></code></a> objects
+with the same quantile schema as the primary model, so downstream consumers
+do not need special-case handling. Both are selected by setting
+<code class="docutils literal notranslate"><span class="pre">config.model</span> <span class="pre">=</span> <span class="pre">&quot;flatliner&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">config.model</span> <span class="pre">=</span> <span class="pre">&quot;constant_quantile&quot;</span></code>
+when building the workflow.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>At the preset level, <code class="docutils literal notranslate"><span class="pre">predict_median</span></code> (on the class) is exposed as
+<code class="docutils literal notranslate"><span class="pre">predict_nonzero_flatliner</span></code> on
+<a class="reference internal" href="../../api/generated/openstef_models.presets.ForecastingWorkflowConfig.html#openstef_models.presets.ForecastingWorkflowConfig" title="openstef_models.presets.ForecastingWorkflowConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">ForecastingWorkflowConfig</span></code></a>. The name is
+different to make its operational meaning clearer in configuration:
+“should the flatliner predict a non-zero value (the median) instead of
+the default zero.”</p>
+</div>
+</section>
+<section id="how-selection-actually-works">
+<h2>How Selection Actually Works<a class="headerlink" href="#how-selection-actually-works" title="Link to this heading">#</a></h2>
+<p>OpenSTEF does <strong>not</strong> automatically swap models when validation fails. The
+preset builds whichever workflow you configured via <code class="docutils literal notranslate"><span class="pre">config.model</span></code>, and the
+validators raise exceptions when they detect problems. Your application code
+catches those exceptions and decides what to do.</p>
+<p>The recommended pattern in production is to wrap the primary forecast in a
+try/except and rebuild the workflow with a fallback model when the data is
+unsuitable:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">FlatlinerDetectedError</span><span class="p">,</span>
+    <span class="n">InsufficientlyCompleteError</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.presets</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ForecastingWorkflowConfig</span><span class="p">,</span>
+    <span class="n">create_forecasting_workflow</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">forecast_with_fallback</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">base_config</span><span class="p">:</span> <span class="n">ForecastingWorkflowConfig</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">workflow</span> <span class="o">=</span> <span class="n">create_forecasting_workflow</span><span class="p">(</span><span class="n">base_config</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">workflow</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">FlatlinerDetectedError</span><span class="p">:</span>
+        <span class="c1"># Meter stuck: return zeros (or historical median).</span>
+        <span class="n">cfg</span> <span class="o">=</span> <span class="n">base_config</span><span class="o">.</span><span class="n">model_copy</span><span class="p">(</span><span class="n">update</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="s2">&quot;flatliner&quot;</span><span class="p">})</span>
+        <span class="k">return</span> <span class="n">create_forecasting_workflow</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">InsufficientlyCompleteError</span><span class="p">:</span>
+        <span class="c1"># Not enough data for a time-aware forecast: return constant quantiles.</span>
+        <span class="n">cfg</span> <span class="o">=</span> <span class="n">base_config</span><span class="o">.</span><span class="n">model_copy</span><span class="p">(</span><span class="n">update</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="s2">&quot;constant_quantile&quot;</span><span class="p">})</span>
+        <span class="k">return</span> <span class="n">create_forecasting_workflow</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This three-tier pattern (primary, flatliner, constant_quantile) covers the
+common degraded states without giving up on producing a prediction. You can
+extend it with logging, alerting, or metric emission inside each <code class="docutils literal notranslate"><span class="pre">except</span></code>
+block.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Catching <code class="docutils literal notranslate"><span class="pre">Exception</span></code> broadly will mask real bugs. Catch only the typed
+validation errors, and let everything else propagate so your monitoring can
+surface it.</p>
+</div>
+</section>
+<section id="configuration-in-practice">
+<h2>Configuration in Practice<a class="headerlink" href="#configuration-in-practice" title="Link to this heading">#</a></h2>
+<p>All reliability parameters live on <a class="reference internal" href="../../api/generated/openstef_models.presets.ForecastingWorkflowConfig.html#openstef_models.presets.ForecastingWorkflowConfig" title="openstef_models.presets.ForecastingWorkflowConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">ForecastingWorkflowConfig</span></code></a>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">timedelta</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.presets</span><span class="w"> </span><span class="kn">import</span> <span class="n">ForecastingWorkflowConfig</span>
+
+<span class="n">config</span> <span class="o">=</span> <span class="n">ForecastingWorkflowConfig</span><span class="p">(</span>
+    <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;substation_A&quot;</span><span class="p">,</span>
+    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;xgboost&quot;</span><span class="p">,</span>
+    <span class="n">flatliner_threshold</span><span class="o">=</span><span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">24</span><span class="p">),</span>
+    <span class="n">detect_non_zero_flatliner</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">predict_nonzero_flatliner</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">completeness_threshold</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">completeness_threshold_target_constant_quantile</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>The two completeness thresholds describe distinct decisions:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">completeness_threshold</span></code> is enforced by the <em>primary</em> workflow. Below this,
+the primary model raises <code class="docutils literal notranslate"><span class="pre">InsufficientlyCompleteError</span></code> and you should fall
+back.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">completeness_threshold_target_constant_quantile</span></code> is enforced inside the
+<em>constant_quantile</em> workflow. Below even this very low threshold, no
+forecast is possible at all.</p></li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Setting <code class="docutils literal notranslate"><span class="pre">flatliner_threshold</span></code> too low (e.g., 1 hour) causes false
+positives for loads with naturally flat periods: industrial processes
+running in steady state, or solar panels during overcast conditions. Tune
+this threshold against the variability profile of each prediction target.</p>
+</div>
+</section>
+<section id="interpreting-fallback-predictions">
+<h2>Interpreting Fallback Predictions<a class="headerlink" href="#interpreting-fallback-predictions" title="Link to this heading">#</a></h2>
+<p>Downstream systems should be aware that fallback predictions carry different
+semantics from primary forecasts:</p>
+<ul class="simple">
+<li><p><strong>FlatlinerForecaster output</strong>: all quantiles collapse to the same constant
+value. The forecast says “we believe this connection is inactive or the
+meter is broken.”</p></li>
+<li><p><strong>ConstantQuantileForecaster output</strong>: quantiles reflect the historical
+distribution but carry no temporal structure. The forecast says “we lack
+sufficient data for a time-aware prediction.”</p></li>
+</ul>
+<p>Both cases produce valid forecast objects, so consuming code does not need
+type-specific handling. However, monitoring should track how often each
+fallback activates. Frequent activation points to upstream data quality
+problems that need fixing at the source.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="forecasting.html"><span class="doc">Forecasting</span></a> for the overall forecasting workflow
+that these fallbacks plug into.</p></li>
+<li><p><a class="reference internal" href="probabilistic_forecasting.html"><span class="doc">Probabilistic Forecasting</span></a> for how quantile
+forecasts are structured in normal operation.</p></li>
+<li><p><a class="reference internal" href="../logging.html"><span class="doc">Logging</span></a> for monitoring fallback activations in production.</p></li>
+</ul>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="probabilistic_forecasting.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Probabilistic Forecasting</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="backtesting_tutorial.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Backtesting Quickstart</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-problem-silent-failures">The Problem: Silent Failures</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#validation-transforms">Validation Transforms</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#flatline-detection">Flatline Detection</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#completeness-checking">Completeness Checking</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fallback-forecaster-models">Fallback Forecaster Models</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-selection-actually-works">How Selection Actually Works</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration-in-practice">Configuration in Practice</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#interpreting-fallback-predictions">Interpreting Fallback Predictions</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/OpenSTEF/openstef/edit/main/docs/source/user_guide/guides/reliability_fallback.rst">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2017-2026 Contributors to the OpenSTEF project.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

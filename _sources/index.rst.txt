@@ -1,37 +1,176 @@
-.. comment:
-    SPDX-FileCopyrightText: 2017-2023 Contributors to the OpenSTEF project <openstef@lfenergy.org>
-    SPDX-License-Identifier: MPL-2.0
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
 
-Welcome to the OpenSTEF documentation!
-======================================
+.. title:: OpenSTEF documentation
 
-OpenSTEF is a Python package which is used to make short term forecasts for the energy sector.
-It contains all components for the machine learning pipeline required to make a forecast.
-The ``openstef`` Python package and its installation instructions are available at: https://pypi.org/project/openstef/.
-
-If you're brand new, start by reading the :ref:`architecture_methodology_components` section. Otherwise, if you're ready
-to start using OpenSTEF checkout the :ref:`user_guides`.
+.. module:: openstef
 
 .. toctree::
-    :maxdepth: 1
+   :hidden:
+   :maxdepth: 1
+   :titlesonly:
 
-    about_openstef
-    user_guides
-    architecture_methodology_components
-    api_reference
-    community
-    
+   User Guide <user_guide/index>
+   Examples <examples>
+   API <api/index>
+   Community <project/index>
+   Contributing <contribute/index>
 
-More on OpenSTEF
-================
-- Find the latest information on the project on `the project's website <https://www.lfenergy.org/projects/openstef/>`_.
-- You can also watch a `video about OpenSTEF <https://www.lfenergy.org/forecasting-to-create-a-more-resilient-optimized-grid/>`_, instead of reading about the project.
-- Want to join the discussion? Join our `Teams channel <https://teams.microsoft.com/l/team/19%3ac08a513650524fc988afb296cd0358cc%40thread.tacv2/conversations?groupId=bfcb763a-3a97-4938-81d7-b14512aa537d&tenantId=697f104b-d7cb-48c8-ac9f-bd87105bafdc>`_.
+##################################
+OpenSTEF 4.0.0 documentation
+##################################
 
-Contributing
-============
-Please read `CONTRIBUTING.md <https://github.com/OpenSTEF/.github/blob/main/CONTRIBUTING.md>`_, `CODE_OF_CONDUCT.md <https://github.com/OpenSTEF/.github/blob/main/CODE_OF_CONDUCT.md>`_, and `PROJECT_GOVERNANCE.md <https://github.com/OpenSTEF/.github/blob/main/PROJECT_GOVERNANCE.md>`_ for details on the process for submitting pull requests to us.
 
-License
+OpenSTEF is a library for creating short term forecasts for the energy sector. 
+It contains all components for the machine learning pipeline required to make a forecast.
+
+Install
 =======
-This project is licensed under the Mozilla Public License, version 2.0 - see LICENSE for details.
+
+.. tab-set::
+    :class: sd-width-content-min
+
+    .. tab-item:: pip
+
+        .. code-block:: bash
+
+            pip install openstef
+
+    .. tab-item:: uv
+
+        .. code-block:: bash
+
+            uv add openstef
+
+    .. tab-item:: conda
+
+        .. code-block:: bash
+
+            conda install -c conda-forge openstef
+
+    .. tab-item:: pixi
+
+        .. code-block:: bash
+
+            pixi add openstef
+
+    .. tab-item:: other
+
+        .. rst-class:: section-toc
+
+        :doc:`user_guide/getting_started/installation`
+
+
+For more detailed instructions, see the
+:doc:`installation guide <user_guide/getting_started/installation>`.
+
+Learn
+=====
+
+.. grid:: 1 1 2 2
+
+    .. grid-item-card::
+        :padding: 2
+        :columns: 6
+
+        **How to use OpenSTEF?**
+        ^^^
+
+        * :doc:`user_guide/getting_started/installation`
+        * :doc:`user_guide/getting_started/quick_start_tutorial`
+        * :doc:`user_guide/guides/forecasting`
+        * :doc:`examples`
+
+    .. grid-item-card::
+        :padding: 2
+        :columns: 6
+
+        **What can OpenSTEF do?**
+        ^^^
+
+        * :doc:`user_guide/concepts/intro_to_energy_forecasting`
+        * :doc:`user_guide/concepts/models`
+        * :doc:`user_guide/guides/probabilistic_forecasting`
+        * :doc:`user_guide/concepts/beam`
+        * :doc:`user_guide/concepts/component_splitting`
+
+
+    .. grid-item-card::
+        :padding: 2
+        :columns: 12
+
+        **Reference**
+        ^^^
+
+        .. grid:: 1 1 2 2
+            :class-row: sd-align-minor-center
+
+            .. grid-item::
+
+                * :doc:`API reference <api/index>`
+                * :doc:`Concepts <user_guide/concepts/index>`
+
+            .. grid-item::
+
+                OpenSTEF packages:
+
+                - :doc:`openstef-models <api/models>` forecasting models and feature engineering
+                - :doc:`openstef-beam <api/beam>` backtesting, evaluation, analysis and metrics
+                - :doc:`openstef-core <api/core>` utilities, dataset types, shared types
+                - :doc:`openstef-meta <api/meta>` metalearning and model selection
+
+
+What's new
+==========
+
+.. grid:: 1 1 2 2
+
+    .. grid-item::
+
+       Learn about new features and API changes.
+
+    .. grid-item::
+
+        * `Release notes on GitHub <https://github.com/OpenSTEF/openstef/releases>`_
+
+Contribute
+==========
+
+.. grid:: 1 1 2 2
+    :class-row: sd-align-minor-center
+
+    .. grid-item::
+
+        OpenSTEF is an LF Energy community maintained for and by its users. See
+        :ref:`contributing` for the many ways you can help!
+
+    .. grid-item::
+        .. rst-class:: section-toc
+
+        * :ref:`submitting-a-bug-report`
+        * :ref:`contribute_guide`
+        * :ref:`development_workflow`
+        * :ref:`contribution_guideline`
+
+
+
+About OpenSTEF
+==============
+
+.. grid:: 1 1 2 2
+    :class-row: sd-align-minor-center
+
+    .. grid-item::
+
+        Here you can find all information about the OpenSTEF community.
+
+    .. grid-item::
+        .. rst-class:: section-toc
+
+        * `Linux Foundation project page <https://www.lfenergy.org/projects/openstef/>`_
+        * `Video About OpenSTEF <https://www.lfenergy.org/forecasting-to-create-a-more-resilient-optimized-grid/>`_
+        * :doc:`project/committee`
+        * :doc:`project/maintainers`
+        * :doc:`project/citing`
+        * :doc:`project/license`

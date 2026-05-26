@@ -1,0 +1,37 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+
+
+pydantic
+========
+
+.. currentmodule:: openstef_core.utils.pydantic
+
+.. automodule:: openstef_core.utils.pydantic
+   :no-members:
+   :no-inherited-members:
+
+
+
+
+
+
+
+
+
+
+Functions
+---------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_function.rst
+
+   timedelta_from_isoformat
+   timedelta_to_isoformat
+
+
+
+

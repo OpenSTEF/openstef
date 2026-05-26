@@ -1,0 +1,14 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+ConstantQuantileForecasterHyperParams
+=====================================
+
+.. currentmodule:: openstef_models.models.forecasting.constant_quantile_forecaster
+
+.. autoclass:: ConstantQuantileForecasterHyperParams
+   :show-inheritance:
+   :members:
+   :special-members: __init__
+   :no-index:

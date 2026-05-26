@@ -1,0 +1,56 @@
+﻿.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+
+
+transforms
+==========
+
+.. currentmodule:: openstef_core.transforms
+
+.. automodule:: openstef_core.transforms
+   :no-members:
+   :no-inherited-members:
+
+
+
+
+
+
+
+
+
+
+Submodules
+----------
+
+
+.. autosummary::
+   :toctree: .
+   :template: module_overview.rst
+
+   openstef_core.transforms.dataset_transforms
+
+
+
+
+
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_class.rst
+
+   TimeSeriesTransform
+   VersionedTimeSeriesTransform
+
+
+
+
+
+
+
+

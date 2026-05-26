@@ -1,0 +1,726 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Run Liander 2024 Benchmark (Custom Forecaster) &#8212; OpenSTEF 0.0.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=3f5a9049" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=7026087e"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=97f0b27d"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'benchmarks/custom/run_liander2024_benchmark';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = '_static/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Run Custom Benchmark" href="run_custom_benchmark.html" />
+    <link rel="prev" title="Custom Benchmark Configuration" href="custom_benchmark.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.0.0" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/openstef-horizontal-color.svg" class="logo__image only-light" alt="OpenSTEF homepage"/>
+    <img src="../../_static/openstef-horizontal-white.svg" class="logo__image only-dark pst-js-only" alt="OpenSTEF homepage"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../project/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../contribute/index.html">
+    Contributing
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/OpenSTEF/openstef" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.lfenergy.org/projects/openstef/" title="LFE Homepage" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-bolt fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">LFE Homepage</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../project/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../contribute/index.html">
+    Contributing
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/OpenSTEF/openstef" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.lfenergy.org/projects/openstef/" title="LFE Homepage" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-bolt fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">LFE Homepage</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/forecasting_quickstart.html">Forecasting Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/backtesting_quickstart.html">Backtesting Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/datasets.html">Understanding Datasets</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Model Training</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/custom_pipeline.html">Custom Pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/feature_engineering.html">Feature Engineering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/ensemble_forecasting.html">Ensemble Forecasting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/hyperparameter_tuning_with_optuna.html">Hyperparameter Tuning</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Evaluation &amp; Analysis</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/model_explainability.html">Model Explainability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/quantile_calibration.html">Quantile Calibration</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Benchmarks</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../README.html">Benchmarking Guide</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../liander2024/README.html">Liander 2024</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../liander2024/run_xgboost_gblinear_benchmark.html">XGBoost &amp; GBLinear</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../liander2024/run_ensemble_benchmark.html">Ensemble Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../liander2024/compare_benchmark_runs.html">Compare Results</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="README.html">Build Your Own</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="custom_forecaster.html">Implement a Custom Forecaster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom_benchmark.html">Configure a Custom Benchmark</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Run on Liander 2024 Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="run_custom_benchmark.html">Run on Your Own Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="evaluate_existing_forecasts.html">Evaluate Existing Forecasts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compare_benchmark_runs.html">Compare Multiple Runs</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../examples.html" class="nav-link">Examples</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="README.html" class="nav-link">Custom Benchmark Templates</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Run Liander 2024 Benchmark (Custom Forecaster)</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="run-liander-2024-benchmark-custom-forecaster">
+<h1>Run Liander 2024 Benchmark (Custom Forecaster)<a class="headerlink" href="#run-liander-2024-benchmark-custom-forecaster" title="Link to this heading">#</a></h1>
+<p>Entry point: test your custom forecaster on the built-in
+<a class="reference external" href="https://huggingface.co/datasets/OpenSTEF/liander2024-stef-benchmark">Liander 2024 dataset</a>
+(auto-downloaded from HuggingFace).</p>
+<p>Uses <a class="reference external" href="https://openstef.github.io/openstef/api/generated/openstef_beam.benchmarking.benchmarks.liander2024.html"><code class="docutils literal notranslate"><span class="pre">create_liander2024_benchmark_runner()</span></code></a>
+which pre-configures backtest settings, evaluation windows, metrics, and target definitions.</p>
+<p><strong>See also:</strong> <a class="reference internal" href="custom_forecaster.html"><span class="std std-doc">Custom Forecaster template</span></a> — define your model here.</p>
+<section id="setup">
+<h2>Setup<a class="headerlink" href="#setup" title="Link to this heading">#</a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">multiprocessing</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">examples.benchmarks.custom.custom_forecaster</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExampleBenchmarkForecaster</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.benchmarking</span><span class="w"> </span><span class="kn">import</span> <span class="n">BenchmarkContext</span><span class="p">,</span> <span class="n">BenchmarkTarget</span><span class="p">,</span> <span class="n">LocalBenchmarkStorage</span><span class="p">,</span> <span class="n">StrictExecutionCallback</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.benchmarking.baselines.openstef4</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_openstef4_preset_backtest_forecaster</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.benchmarking.benchmarks.liander2024</span><span class="w"> </span><span class="kn">import</span> <span class="n">Liander2024Category</span><span class="p">,</span> <span class="n">create_liander2024_benchmark_runner</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">LeadTime</span><span class="p">,</span> <span class="n">Q</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.presets</span><span class="w"> </span><span class="kn">import</span> <span class="n">ForecastingWorkflowConfig</span>
+
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;[</span><span class="si">%(asctime)s</span><span class="s2">][</span><span class="si">%(levelname)s</span><span class="s2">] </span><span class="si">%(message)s</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="configuration">
+<h2>Configuration<a class="headerlink" href="#configuration" title="Link to this heading">#</a></h2>
+<p>Define output paths, quantiles, and the GBLinear model config.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">OUTPUT_PATH</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;./benchmark_results&quot;</span><span class="p">)</span>
+<span class="n">N_PROCESSES</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;OPENSTEF_N_PROCESSES&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">())))</span>
+
+<span class="c1"># Optional: filter to specific target categories (None = run all)</span>
+<span class="n">BENCHMARK_FILTER</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Liander2024Category</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="c1"># Quantiles define the probabilistic forecast bands</span>
+<span class="c1"># Q(0.05) = 5th percentile, Q(0.5) = median, Q(0.95) = 95th percentile</span>
+<span class="n">PREDICTION_QUANTILES</span> <span class="o">=</span> <span class="p">[</span><span class="n">Q</span><span class="p">(</span><span class="mf">0.05</span><span class="p">),</span> <span class="n">Q</span><span class="p">(</span><span class="mf">0.1</span><span class="p">),</span> <span class="n">Q</span><span class="p">(</span><span class="mf">0.3</span><span class="p">),</span> <span class="n">Q</span><span class="p">(</span><span class="mf">0.5</span><span class="p">),</span> <span class="n">Q</span><span class="p">(</span><span class="mf">0.7</span><span class="p">),</span> <span class="n">Q</span><span class="p">(</span><span class="mf">0.9</span><span class="p">),</span> <span class="n">Q</span><span class="p">(</span><span class="mf">0.95</span><span class="p">)]</span>
+
+<span class="c1"># --- GBLinear model config ---</span>
+<span class="c1"># Map column names in your data to what OpenSTEF expects</span>
+<span class="n">gblinear_config</span> <span class="o">=</span> <span class="n">ForecastingWorkflowConfig</span><span class="p">(</span>
+    <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;liander_benchmark_&quot;</span><span class="p">,</span>
+    <span class="n">run_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gblinear&quot;</span><span class="p">,</span>
+    <span class="n">horizons</span><span class="o">=</span><span class="p">[</span><span class="n">LeadTime</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;P3D&quot;</span><span class="p">)],</span>
+    <span class="n">quantiles</span><span class="o">=</span><span class="n">PREDICTION_QUANTILES</span><span class="p">,</span>
+    <span class="n">model_reuse_enable</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">radiation_column</span><span class="o">=</span><span class="s2">&quot;shortwave_radiation&quot;</span><span class="p">,</span>
+    <span class="n">wind_speed_column</span><span class="o">=</span><span class="s2">&quot;wind_speed_80m&quot;</span><span class="p">,</span>
+    <span class="n">pressure_column</span><span class="o">=</span><span class="s2">&quot;surface_pressure&quot;</span><span class="p">,</span>
+    <span class="n">temperature_column</span><span class="o">=</span><span class="s2">&quot;temperature_2m&quot;</span><span class="p">,</span>
+    <span class="n">relative_humidity_column</span><span class="o">=</span><span class="s2">&quot;relative_humidity_2m&quot;</span><span class="p">,</span>
+    <span class="n">energy_price_column</span><span class="o">=</span><span class="s2">&quot;EPEX_NL&quot;</span><span class="p">,</span>
+    <span class="n">rolling_aggregate_features</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;mean&quot;</span><span class="p">,</span> <span class="s2">&quot;median&quot;</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">,</span> <span class="s2">&quot;min&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="forecaster-factory">
+<h2>Forecaster factory<a class="headerlink" href="#forecaster-factory" title="Link to this heading">#</a></h2>
+<p>The benchmark pipeline calls this function once per target. Return your custom forecaster.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">example_factory</span><span class="p">(</span><span class="n">_context</span><span class="p">:</span> <span class="n">BenchmarkContext</span><span class="p">,</span> <span class="n">_target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ExampleBenchmarkForecaster</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create the example baseline forecaster.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Configured ExampleBenchmarkForecaster instance.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">ExampleBenchmarkForecaster</span><span class="p">(</span><span class="n">predict_quantiles</span><span class="o">=</span><span class="n">PREDICTION_QUANTILES</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="run-benchmark">
+<h2>Run benchmark<a class="headerlink" href="#run-benchmark" title="Link to this heading">#</a></h2>
+<p>Run the custom baseline and GBLinear on all Liander 2024 targets.
+Results are saved to <code class="docutils literal notranslate"><span class="pre">./benchmark_results/&lt;model_name&gt;/</span></code>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="c1"># 1. Run custom baseline on Liander 2024</span>
+    <span class="c1"># create_liander2024_benchmark_runner() sets up everything: data download, configs, metrics</span>
+    <span class="c1"># LocalBenchmarkStorage writes results as parquet files to disk</span>
+    <span class="n">create_liander2024_benchmark_runner</span><span class="p">(</span>
+        <span class="n">storage</span><span class="o">=</span><span class="n">LocalBenchmarkStorage</span><span class="p">(</span><span class="n">base_path</span><span class="o">=</span><span class="n">OUTPUT_PATH</span> <span class="o">/</span> <span class="s2">&quot;ExampleBaseline&quot;</span><span class="p">),</span>
+        <span class="n">callbacks</span><span class="o">=</span><span class="p">[</span><span class="n">StrictExecutionCallback</span><span class="p">()],</span>  <span class="c1"># Fail fast on errors</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+        <span class="n">forecaster_factory</span><span class="o">=</span><span class="n">example_factory</span><span class="p">,</span>  <span class="c1"># Your model factory (called per target)</span>
+        <span class="n">run_name</span><span class="o">=</span><span class="s2">&quot;example_baseline&quot;</span><span class="p">,</span>  <span class="c1"># Label for this run</span>
+        <span class="n">n_processes</span><span class="o">=</span><span class="n">N_PROCESSES</span><span class="p">,</span>  <span class="c1"># Parallel targets</span>
+        <span class="n">filter_args</span><span class="o">=</span><span class="n">BENCHMARK_FILTER</span><span class="p">,</span>  <span class="c1"># None = all categories</span>
+    <span class="p">)</span>
+
+    <span class="c1"># 2. Run GBLinear on Liander 2024</span>
+    <span class="c1"># create_openstef4_preset_backtest_forecaster returns a factory that wraps OpenSTEF models</span>
+    <span class="n">create_liander2024_benchmark_runner</span><span class="p">(</span>
+        <span class="n">storage</span><span class="o">=</span><span class="n">LocalBenchmarkStorage</span><span class="p">(</span><span class="n">base_path</span><span class="o">=</span><span class="n">OUTPUT_PATH</span> <span class="o">/</span> <span class="s2">&quot;GBLinear&quot;</span><span class="p">),</span>
+        <span class="n">callbacks</span><span class="o">=</span><span class="p">[</span><span class="n">StrictExecutionCallback</span><span class="p">()],</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+        <span class="n">forecaster_factory</span><span class="o">=</span><span class="n">create_openstef4_preset_backtest_forecaster</span><span class="p">(</span>
+            <span class="n">workflow_config</span><span class="o">=</span><span class="n">gblinear_config</span><span class="p">,</span>
+            <span class="n">cache_dir</span><span class="o">=</span><span class="n">OUTPUT_PATH</span> <span class="o">/</span> <span class="s2">&quot;cache&quot;</span><span class="p">,</span>
+        <span class="p">),</span>
+        <span class="n">run_name</span><span class="o">=</span><span class="s2">&quot;gblinear&quot;</span><span class="p">,</span>
+        <span class="n">n_processes</span><span class="o">=</span><span class="n">N_PROCESSES</span><span class="p">,</span>
+        <span class="n">filter_args</span><span class="o">=</span><span class="n">BENCHMARK_FILTER</span><span class="p">,</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="custom_benchmark.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Custom Benchmark Configuration</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="run_custom_benchmark.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Run Custom Benchmark</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#setup">Setup</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration">Configuration</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#forecaster-factory">Forecaster factory</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#run-benchmark">Run benchmark</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/OpenSTEF/openstef/edit/main/docs/source/benchmarks/custom/run_liander2024_benchmark.py">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2017-2026 Contributors to the OpenSTEF project.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

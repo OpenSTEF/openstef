@@ -1,0 +1,764 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Deployment &#8212; OpenSTEF 0.0.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=3f5a9049" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=7026087e"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=97f0b27d"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/guides/deployment';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = '_static/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Logging" href="../logging.html" />
+    <link rel="prev" title="Backtesting Quickstart" href="backtesting_tutorial.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.0.0" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/openstef-horizontal-color.svg" class="logo__image only-light" alt="OpenSTEF homepage"/>
+    <img src="../../_static/openstef-horizontal-white.svg" class="logo__image only-dark pst-js-only" alt="OpenSTEF homepage"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../project/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../contribute/index.html">
+    Contributing
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/OpenSTEF/openstef" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.lfenergy.org/projects/openstef/" title="LFE Homepage" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-bolt fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">LFE Homepage</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../project/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../contribute/index.html">
+    Contributing
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/OpenSTEF/openstef" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.lfenergy.org/projects/openstef/" title="LFE Homepage" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-bolt fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">LFE Homepage</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../getting_started/index.html">Getting Started</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/quick_start_tutorial.html">Forecasting Quickstart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/migration.html">Migrating from OpenSTEF 3 to 4</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../concepts/index.html">Concepts</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../concepts/intro_to_energy_forecasting.html">Intro to Energy Forecasting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../concepts/models.html">Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../concepts/metalearning.html">Metalearning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../concepts/beam.html">BEAM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../concepts/component_splitting.html">Component Splitting</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Guides</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="forecasting.html">Forecasting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="feature_engineering_tutorial.html">Feature Engineering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datasets_tutorial.html">Datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="probabilistic_forecasting.html">Probabilistic Forecasting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reliability_fallback.html">Reliability and Fallback</a></li>
+<li class="toctree-l2"><a class="reference internal" href="backtesting_tutorial.html">Backtesting</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Deployment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../logging.html">Logging</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../external_resources.html">External resources</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">User Guide</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Guides</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Deployment</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="deployment">
+<span id="guide-deployment"></span><h1>Deployment<a class="headerlink" href="#deployment" title="Link to this heading">#</a></h1>
+<p>OpenSTEF runs as a Python library call inside whatever execution environment
+your team uses: a single notebook, an orchestrated DAG, or a queue of workers.
+The core API is intentionally narrow: you wrap
+<a class="reference internal" href="../../api/generated/openstef_models.workflows.CustomForecastingWorkflow.html#openstef_models.workflows.CustomForecastingWorkflow" title="openstef_models.workflows.custom_forecasting_workflow.CustomForecastingWorkflow"><code class="xref py py-class docutils literal notranslate"><span class="pre">CustomForecastingWorkflow</span></code></a>’s
+<code class="docutils literal notranslate"><span class="pre">fit()</span></code> and <code class="docutils literal notranslate"><span class="pre">predict()</span></code> in the scheduler, data layer, and storage your
+stack already provides.</p>
+<p>This page describes three deployment patterns that have worked in production,
+plus the integration points OpenSTEF exposes for data, model storage, and
+observability. If you are getting started, the <em>Scheduled Notebooks</em> pattern
+covers small deployments; the <em>DAG</em> and <em>Queued</em> patterns cover the next two
+tiers.</p>
+<section id="deployment-strategies">
+<h2>Deployment Strategies<a class="headerlink" href="#deployment-strategies" title="Link to this heading">#</a></h2>
+<p>The table below summarizes three common approaches, ordered by operational complexity:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 30.0%" />
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Strategy</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Best For</p></th>
+<th class="head"><p>Considerations</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Scheduled notebooks</p></td>
+<td><p>Self-contained notebooks that load data, train/predict, and store results. Run on a timer.</p></td>
+<td><p>Small teams, proof-of-concept, fewer than ~50 forecast targets.</p></td>
+<td><p>Simple but limited visibility into failures.</p></td>
+</tr>
+<tr class="row-odd"><td><p>DAG-based orchestration</p></td>
+<td><p>Separate tasks for data integration, training, and prediction, connected in a directed acyclic graph.</p></td>
+<td><p>Teams needing retry logic, dependency tracking, and audit trails.</p></td>
+<td><p>Requires an orchestration platform and task design.</p></td>
+</tr>
+<tr class="row-even"><td><p>Queued execution</p></td>
+<td><p>Lightweight per-location tasks dispatched to a pool of workers with optimized batch data loading.</p></td>
+<td><p>Large-scale operations with thousands of forecast targets.</p></td>
+<td><p>Highest throughput but most complex to operate.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<section id="scheduled-notebooks">
+<h3>Scheduled Notebooks<a class="headerlink" href="#scheduled-notebooks" title="Link to this heading">#</a></h3>
+<p>The simplest deployment: a notebook (or script) that contains the full cycle of data loading, model training or prediction, and result storage. You schedule it to run periodically using any compute platform that supports timed execution (managed notebook services, cron, CI/CD pipelines).</p>
+<p>A typical notebook structure:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 1. Load data from your source</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">load_my_timeseries</span><span class="p">(</span><span class="n">location_id</span><span class="o">=</span><span class="s2">&quot;substation_A&quot;</span><span class="p">)</span>
+<span class="c1"># 2. Run the OpenSTEF workflow</span>
+<span class="n">forecast</span> <span class="o">=</span> <span class="n">workflow</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="c1"># 3. Store results</span>
+<span class="n">save_forecast_to_database</span><span class="p">(</span><span class="n">forecast</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This approach works well when you have a small number of forecast targets and can tolerate coarse error handling (the whole notebook succeeds or fails).</p>
+</section>
+<section id="dag-based-orchestration">
+<h3>DAG-based Orchestration<a class="headerlink" href="#dag-based-orchestration" title="Link to this heading">#</a></h3>
+<p>When you need visibility into individual pipeline stages, retry logic for transient failures, and clear dependency management, a DAG tool (Airflow, Dagster, Prefect, or similar) is a natural fit.</p>
+<p>A typical DAG separates concerns into discrete tasks:</p>
+<ul class="simple">
+<li><p><strong>Data integration task</strong>: fetches weather forecasts and meter data, validates completeness.</p></li>
+<li><p><strong>Training task</strong>: calls <code class="docutils literal notranslate"><span class="pre">workflow.fit()</span></code> on prepared data, runs on a slower schedule (e.g., daily or weekly).</p></li>
+<li><p><strong>Prediction task</strong>: calls <code class="docutils literal notranslate"><span class="pre">workflow.predict()</span></code> with fresh input data, runs on a fast schedule (e.g., every 15 minutes).</p></li>
+</ul>
+<p>Each task is independently retriable. The DAG tool handles scheduling, logging, and alerting. OpenSTEF remains a library call inside each task.</p>
+</section>
+<section id="queued-execution">
+<h3>Queued Execution<a class="headerlink" href="#queued-execution" title="Link to this heading">#</a></h3>
+<p>For organizations managing thousands of forecast targets (e.g., one per grid connection or transformer), dispatching individual tasks to a worker pool provides the best throughput. A message queue or task broker distributes work; workers pull tasks, run the OpenSTEF workflow, and report results.</p>
+<p>Key optimizations at this scale:</p>
+<ul class="simple">
+<li><p><strong>Batch data loading</strong>: fetch weather data once and distribute it to all workers that need the same region.</p></li>
+<li><p><strong>Model caching</strong>: reuse loaded model artifacts across predictions for the same location within a worker.</p></li>
+<li><p><strong>Graceful degradation</strong>: if a single location fails, other locations continue unaffected. See <a class="reference internal" href="reliability_fallback.html"><span class="doc">Reliability and Fallback</span></a> for fallback strategies.</p></li>
+</ul>
+</section>
+</section>
+<section id="data-integration">
+<h2>Data Integration<a class="headerlink" href="#data-integration" title="Link to this heading">#</a></h2>
+<p>OpenSTEF requires time series input data (load measurements) and, for most models, weather forecast features. Your integration layer fetches them from external sources and assembles a <a class="reference internal" href="../../api/generated/openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeSeriesDataset</span></code></a> before calling the workflow.</p>
+<p>Common weather data sources:</p>
+<ul class="simple">
+<li><p><strong>Open-Meteo</strong> (<a class="reference external" href="https://open-meteo.com">https://open-meteo.com</a>): free, global coverage, multiple weather models. A good default for any deployment.</p></li>
+<li><p><strong>KNMI</strong> (<a class="reference external" href="https://www.knmi.nl">https://www.knmi.nl</a>): high-quality observations and forecasts specific to the Netherlands.</p></li>
+<li><p><strong>ECMWF</strong> (<a class="reference external" href="https://www.ecmwf.int">https://www.ecmwf.int</a>): authoritative global numerical weather predictions, used as the backbone for many regional services.</p></li>
+<li><p><strong>National meteorological services</strong> (DWD for Germany, Météo-France, Met Office in the UK, NOAA in the US, etc.): the right choice when you need regional observations or service-level agreements specific to one country.</p></li>
+</ul>
+<p>Any source that returns a time series compatible with your sample interval works. Your data integration layer is responsible for fetching from these (or other) sources, aligning timestamps, and assembling the dataset that OpenSTEF expects.</p>
+</section>
+<section id="model-storage-with-mlflow">
+<h2>Model Storage with MLflow<a class="headerlink" href="#model-storage-with-mlflow" title="Link to this heading">#</a></h2>
+<p>OpenSTEF supports MLflow as a model registry backend through <code class="xref py py-class docutils literal notranslate"><span class="pre">MLFlowStorageCallback</span></code>. This callback hooks into the workflow lifecycle to automatically store trained models, log metrics, and retrieve previously trained models for reuse.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.integrations.mlflow.mlflow_storage_callback</span><span class="w"> </span><span class="kn">import</span> <span class="n">MLFlowStorageCallback</span>
+
+<span class="n">callback</span> <span class="o">=</span> <span class="n">MLFlowStorageCallback</span><span class="p">(</span>
+    <span class="n">storage</span><span class="o">=</span><span class="n">my_mlflow_storage</span><span class="p">,</span>
+    <span class="n">model_reuse_enable</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">model_reuse_max_age</span><span class="o">=</span><span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">7</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">workflow</span> <span class="o">=</span> <span class="n">CustomForecastingWorkflow</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;substation_A&quot;</span><span class="p">,</span> <span class="n">callbacks</span><span class="o">=</span><span class="p">[</span><span class="n">callback</span><span class="p">]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>The callback handles:</p>
+<ul class="simple">
+<li><p><strong>Model versioning</strong>: each training run produces a new model version in the MLflow registry.</p></li>
+<li><p><strong>Model reuse</strong>: if a recently trained model exists and <code class="docutils literal notranslate"><span class="pre">model_reuse_enable=True</span></code>, the workflow skips retraining.</p></li>
+<li><p><strong>Model selection</strong>: optionally compares new models against previous versions using a configurable metric.</p></li>
+</ul>
+<p>This mechanism works identically across all three deployment strategies. Whether you run in a notebook or a distributed queue, the same callback persists and retrieves models.</p>
+<section id="custom-storage-backends">
+<h3>Custom Storage Backends<a class="headerlink" href="#custom-storage-backends" title="Link to this heading">#</a></h3>
+<p>The callback system is pluggable. If MLflow does not fit your infrastructure, you can implement your own callback by subclassing <code class="xref py py-class docutils literal notranslate"><span class="pre">ForecastingCallback</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">MyStorageCallback</span><span class="p">(</span><span class="n">ForecastingCallback</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_fit_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">result</span><span class="p">):</span>
+        <span class="c1"># Save model artifact to your backend</span>
+        <span class="o">...</span>
+</pre></div>
+</div>
+<p>Register your callback in the workflow’s <code class="docutils literal notranslate"><span class="pre">callbacks</span></code> list. The workflow calls your hooks at each lifecycle stage (<code class="docutils literal notranslate"><span class="pre">on_fit_start</span></code>, <code class="docutils literal notranslate"><span class="pre">on_fit_end</span></code>, <code class="docutils literal notranslate"><span class="pre">on_predict_start</span></code>, <code class="docutils literal notranslate"><span class="pre">on_predict_end</span></code>).</p>
+</section>
+</section>
+<section id="observability">
+<h2>Observability<a class="headerlink" href="#observability" title="Link to this heading">#</a></h2>
+<p>OpenSTEF emits standard Python <code class="docutils literal notranslate"><span class="pre">logging</span></code> records (see <a class="reference internal" href="../logging.html"><span class="doc">Logging</span></a>)
+and no metrics or traces of its own. Anything beyond logs is built on top of
+the callback system you already use for storage:</p>
+<ul class="simple">
+<li><p><strong>Metrics</strong>: emit them from inside a <code class="docutils literal notranslate"><span class="pre">ForecastingCallback</span></code> on
+<code class="docutils literal notranslate"><span class="pre">on_fit_end</span></code> / <code class="docutils literal notranslate"><span class="pre">on_predict_end</span></code>. Push training metrics, prediction
+counts, and fallback activations to whatever sink your stack uses
+(Prometheus, StatsD, OpenTelemetry, an internal HTTP endpoint).</p></li>
+<li><p><strong>Alerts</strong>: track validation failures
+(<a class="reference internal" href="../../api/generated/openstef_core.exceptions.FlatlinerDetectedError.html#openstef_core.exceptions.FlatlinerDetectedError" title="openstef_core.exceptions.FlatlinerDetectedError"><code class="xref py py-class docutils literal notranslate"><span class="pre">FlatlinerDetectedError</span></code></a>,
+<a class="reference internal" href="../../api/generated/openstef_core.exceptions.InsufficientlyCompleteError.html#openstef_core.exceptions.InsufficientlyCompleteError" title="openstef_core.exceptions.InsufficientlyCompleteError"><code class="xref py py-class docutils literal notranslate"><span class="pre">InsufficientlyCompleteError</span></code></a>) in the same
+callback or at the orchestration layer. A spike in either is a strong
+signal of upstream data problems.</p></li>
+<li><p><strong>Traces</strong>: wrap <code class="docutils literal notranslate"><span class="pre">workflow.fit()</span></code> / <code class="docutils literal notranslate"><span class="pre">workflow.predict()</span></code> in your
+tracer’s span. Each call is a discrete unit of work.</p></li>
+<li><p><strong>Log shipping</strong>: configure the standard logger hierarchy described in
+<a class="reference internal" href="../logging.html"><span class="doc">Logging</span></a>. OpenSTEF is library-friendly here; pick the
+formatter and shipper your platform already uses.</p></li>
+</ul>
+</section>
+<section id="extending-openstef">
+<h2>Extending OpenSTEF<a class="headerlink" href="#extending-openstef" title="Link to this heading">#</a></h2>
+<p>OpenSTEF is designed to be composed. If your deployment needs something the library does not provide:</p>
+<ul class="simple">
+<li><p>Write a custom <code class="xref py py-class docutils literal notranslate"><span class="pre">ForecastingCallback</span></code> for monitoring, storage, or validation logic.</p></li>
+<li><p>Implement your own data loading layer that produces the expected dataset format.</p></li>
+<li><p>Add custom preprocessing transforms to the model pipeline (see <a class="reference internal" href="../concepts/models.html"><span class="doc">Models</span></a>).</p></li>
+</ul>
+<p>For how the forecasting workflow itself is structured (model creation, training, prediction), see <a class="reference internal" href="forecasting.html"><span class="doc">Forecasting</span></a>.</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="backtesting_tutorial.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Backtesting Quickstart</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../logging.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Logging</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#deployment-strategies">Deployment Strategies</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#scheduled-notebooks">Scheduled Notebooks</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dag-based-orchestration">DAG-based Orchestration</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#queued-execution">Queued Execution</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#data-integration">Data Integration</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#model-storage-with-mlflow">Model Storage with MLflow</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#custom-storage-backends">Custom Storage Backends</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#observability">Observability</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#extending-openstef">Extending OpenSTEF</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/OpenSTEF/openstef/edit/main/docs/source/user_guide/guides/deployment.rst">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2017-2026 Contributors to the OpenSTEF project.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

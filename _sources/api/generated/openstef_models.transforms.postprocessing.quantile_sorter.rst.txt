@@ -1,0 +1,36 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+
+
+quantile_sorter
+===============
+
+.. currentmodule:: openstef_models.transforms.postprocessing.quantile_sorter
+
+.. automodule:: openstef_models.transforms.postprocessing.quantile_sorter
+   :no-members:
+   :no-inherited-members:
+
+
+
+
+
+
+
+
+
+
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_class_noindex.rst
+
+   QuantileSorter
+
+
+

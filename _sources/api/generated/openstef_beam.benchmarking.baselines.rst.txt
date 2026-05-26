@@ -1,0 +1,39 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+
+
+baselines
+=========
+
+.. currentmodule:: openstef_beam.benchmarking.baselines
+
+.. automodule:: openstef_beam.benchmarking.baselines
+   :no-members:
+   :no-inherited-members:
+
+
+
+
+
+
+
+
+
+Submodules
+----------
+
+
+.. autosummary::
+   :toctree: .
+   :template: module_overview.rst
+
+   openstef_beam.benchmarking.baselines.openstef4
+
+
+
+
+
+
+

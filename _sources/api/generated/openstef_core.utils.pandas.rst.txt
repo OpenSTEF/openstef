@@ -1,0 +1,39 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+
+
+pandas
+======
+
+.. currentmodule:: openstef_core.utils.pandas
+
+.. automodule:: openstef_core.utils.pandas
+   :no-members:
+   :no-inherited-members:
+
+
+
+
+
+
+
+
+
+
+Functions
+---------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_function.rst
+
+   combine_timeseries_indexes
+   nan_aware_weighted_mean
+   normalize_to_unit_sum
+   unsafe_sorted_range_slice_idxs
+
+
+
+

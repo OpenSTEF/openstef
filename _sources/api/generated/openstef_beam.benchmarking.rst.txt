@@ -1,0 +1,85 @@
+﻿.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+
+
+benchmarking
+============
+
+.. currentmodule:: openstef_beam.benchmarking
+
+.. automodule:: openstef_beam.benchmarking
+   :no-members:
+   :no-inherited-members:
+
+
+
+
+
+
+
+
+
+
+Submodules
+----------
+
+
+.. autosummary::
+   :toctree: .
+   :template: module_overview.rst
+
+   openstef_beam.benchmarking.baselines
+   openstef_beam.benchmarking.benchmark_comparison_pipeline
+   openstef_beam.benchmarking.benchmark_pipeline
+   openstef_beam.benchmarking.benchmarks
+   openstef_beam.benchmarking.callbacks
+   openstef_beam.benchmarking.models
+   openstef_beam.benchmarking.storage
+   openstef_beam.benchmarking.target_provider
+
+
+
+
+
+Functions
+---------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_function.rst
+
+   read_evaluation_reports
+
+
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_class.rst
+
+   BenchmarkCallback
+   BenchmarkCallbackManager
+   BenchmarkComparisonPipeline
+   BenchmarkContext
+   BenchmarkPipeline
+   BenchmarkStorage
+   BenchmarkTarget
+   InMemoryBenchmarkStorage
+   LocalBenchmarkStorage
+   S3BenchmarkStorage
+   SimpleTargetProvider
+   StrictExecutionCallback
+   TargetProvider
+   TargetProviderConfig
+
+
+
+
+
+
+
+

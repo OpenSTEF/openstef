@@ -1,0 +1,1281 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>BEAM &#8212; OpenSTEF 0.0.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=3f5a9049" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=7026087e"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=97f0b27d"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.esm.min.mjs";
+
+
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = `pre.mermaid {
+    /* Same as .mermaid-container > pre */
+    display: block;
+    width: 100%;
+}
+
+pre.mermaid > svg {
+    /* Same as .mermaid-container > pre > svg */
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}`;
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = `.mermaid-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.mermaid-container > pre {
+    display: block;
+    width: 100%;
+}
+
+.mermaid-container > pre > svg {
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+
+.mermaid-fullscreen-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    color: #333;
+}
+
+.mermaid-fullscreen-btn:hover {
+    opacity: 100% !important;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-btn.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-btn.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 95vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 9999;
+    padding: 20px;
+    overflow: auto;
+}
+
+.mermaid-fullscreen-modal.dark-theme {
+    background: rgba(0, 0, 0, 0.98);
+}
+
+.mermaid-fullscreen-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen {
+    position: relative;
+    width: 95vw;
+    height: 90vh;
+    max-width: 95vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen.dark-theme {
+    background: #1a1a1a;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.mermaid-container-fullscreen pre.mermaid {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen .mermaid svg {
+    height: 100% !important;
+    width: 100% !important;
+    cursor: grab;
+}
+
+.mermaid-fullscreen-close {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+    font-size: 24px;
+    line-height: 1;
+    color: #333;
+}
+
+.mermaid-fullscreen-close:hover {
+    background: white;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-close.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-close.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal .mermaid-fullscreen-btn {
+    display: none !important;
+}`;
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        all_mermaids.forEach((el) => {
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+        await mermaid.run();
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+
+    if ("False" === "True") {
+        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("");
+            if(all_mermaids.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else if(svgs.size() !== mermaids_to_add_zoom) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else {
+                svgs.each(function() {
+                    var svg = d3.select(this);
+                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+                    var inner = svg.select("g");
+                    var zoom = d3.zoom().on("zoom", function(event) {
+                        inner.attr("transform", event.transform);
+                    });
+                    svg.call(zoom);
+                });
+            }
+        }
+    } else if(all_mermaids.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if ("True" !== "True") return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.style.opacity = '50%';
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scroll, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.sdisplay = 'block';
+
+                if ("False" === "True") {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+const load = async () => {
+    initStyles();
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...JSON.parse(
+                    `{"startOnLoad": false}`
+                ),
+                ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...JSON.parse(
+        `{"startOnLoad": false}`
+    ),
+    ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/concepts/beam';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = '_static/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Component Splitting" href="component_splitting.html" />
+    <link rel="prev" title="Metalearning" href="metalearning.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.0.0" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/openstef-horizontal-color.svg" class="logo__image only-light" alt="OpenSTEF homepage"/>
+    <img src="../../_static/openstef-horizontal-white.svg" class="logo__image only-dark pst-js-only" alt="OpenSTEF homepage"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../project/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../contribute/index.html">
+    Contributing
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/OpenSTEF/openstef" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.lfenergy.org/projects/openstef/" title="LFE Homepage" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-bolt fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">LFE Homepage</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../project/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../contribute/index.html">
+    Contributing
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/OpenSTEF/openstef" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.lfenergy.org/projects/openstef/" title="LFE Homepage" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-bolt fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">LFE Homepage</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../getting_started/index.html">Getting Started</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/quick_start_tutorial.html">Forecasting Quickstart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/migration.html">Migrating from OpenSTEF 3 to 4</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Concepts</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="intro_to_energy_forecasting.html">Intro to Energy Forecasting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models.html">Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="metalearning.html">Metalearning</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">BEAM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="component_splitting.html">Component Splitting</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../guides/index.html">Guides</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../guides/forecasting.html">Forecasting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/feature_engineering_tutorial.html">Feature Engineering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/datasets_tutorial.html">Datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/probabilistic_forecasting.html">Probabilistic Forecasting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/reliability_fallback.html">Reliability and Fallback</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/backtesting_tutorial.html">Backtesting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/deployment.html">Deployment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../logging.html">Logging</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../external_resources.html">External resources</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">User Guide</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Concepts</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">BEAM</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="beam">
+<span id="concept-beam"></span><h1>BEAM<a class="headerlink" href="#beam" title="Link to this heading">#</a></h1>
+<p>Energy forecasting teams need to compare models fairly. A model that appears superior on
+one target or time horizon may underperform on another. Without a systematic framework,
+comparisons become ad-hoc: different evaluation windows, inconsistent data splits, or
+accidental future data leakage can all invalidate results. BEAM (Backtesting, Evaluation,
+Analysis, and Metrics) solves this by providing a reproducible, sequential pipeline for
+model comparison.</p>
+<p>This page explains the architecture and design principles of BEAM. For a hands-on
+walkthrough, see the <a class="reference internal" href="../guides/backtesting_tutorial.html"><span class="doc">Backtesting Quickstart</span></a>.</p>
+<section id="why-systematic-benchmarking-matters">
+<h2>Why Systematic Benchmarking Matters<a class="headerlink" href="#why-systematic-benchmarking-matters" title="Link to this heading">#</a></h2>
+<p>In production energy forecasting, you must answer questions like:</p>
+<ul class="simple">
+<li><p>Does a new model outperform the current one across all targets?</p></li>
+<li><p>How does performance vary by lead time (1-hour ahead vs. day-ahead)?</p></li>
+<li><p>Are improvements consistent across seasonal windows?</p></li>
+</ul>
+<p>Answering these requires three guarantees:</p>
+<ol class="arabic simple">
+<li><p><strong>No future data leakage</strong> during backtesting (the model must never see data it would not have in production).</p></li>
+<li><p><strong>Consistent segmentation</strong> of results by horizon, availability time, and evaluation window.</p></li>
+<li><p><strong>Reproducible analysis</strong> that can be re-run or extended without re-executing expensive training.</p></li>
+</ol>
+<p>BEAM encodes these guarantees into its pipeline structure.</p>
+</section>
+<section id="pipeline-overview">
+<h2>Pipeline Overview<a class="headerlink" href="#pipeline-overview" title="Link to this heading">#</a></h2>
+<p>BEAM is organized as three sequential stages, orchestrated by <a class="reference internal" href="../../api/generated/openstef_beam.benchmarking.BenchmarkPipeline.html#openstef_beam.benchmarking.BenchmarkPipeline" title="openstef_beam.benchmarking.benchmark_pipeline.BenchmarkPipeline"><code class="xref py py-class docutils literal notranslate"><span class="pre">BenchmarkPipeline</span></code></a>:</p>
+<pre  class="mermaid">
+        graph LR
+    TP[TargetProvider] --&gt;|ground truth &amp; predictors| BT[BacktestPipeline]
+    FF[ForecasterFactory] --&gt; BT
+    BT --&gt;|TimeSeriesDataset| EV[EvaluationPipeline]
+    EV --&gt;|EvaluationReport| AN[AnalysisPipeline]
+    TP --&gt;|ground truth| EV
+    VP[VisualizationProviders] --&gt; AN
+    BT --&gt; ST[(BenchmarkStorage)]
+    EV --&gt; ST
+    AN --&gt; ST
+    AN --&gt; AO[AnalysisOutput]
+    classDef primary fill:#00D9C5,stroke:#1E3A5F,stroke-width:2px,color:#000
+    classDef secondary fill:#1E3A5F,stroke:#00D9C5,stroke-width:2px,color:#fff
+    classDef accent fill:#e6f7f5,stroke:#00D9C5,stroke-width:2px,color:#000
+    class BT,EV,AN primary
+    class TP,FF,VP secondary
+    class ST,AO accent
+    </pre><div class="pst-scrollable-table-container"><table class="table" id="id1">
+<caption><span class="caption-text">BEAM Pipeline Stages</span><a class="headerlink" href="#id1" title="Link to this table">#</a></caption>
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 30.0%" />
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Stage</p></th>
+<th class="head"><p>Responsibility</p></th>
+<th class="head"><p>Input</p></th>
+<th class="head"><p>Output</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>BacktestPipeline</p></td>
+<td><p>Simulate production forecasting over historical data</p></td>
+<td><p>Ground truth, predictors, BacktestForecasterMixin</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">TimeSeriesDataset</span></code> of predictions</p></td>
+</tr>
+<tr class="row-odd"><td><p>EvaluationPipeline</p></td>
+<td><p>Segment predictions and compute metrics</p></td>
+<td><p>Predictions, ground truth, metric providers</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">EvaluationReport</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>AnalysisPipeline</p></td>
+<td><p>Generate visualizations at configurable aggregation levels</p></td>
+<td><p>EvaluationReports, VisualizationProviders</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">AnalysisOutput</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>These stages are completely decoupled. You can re-run evaluation with different metrics
+without re-running the backtest, or generate new visualizations without recomputing
+metrics. This decoupling matters because each stage has a different computational cost and
+a different rate of change:</p>
+<ul class="simple">
+<li><p><strong>Backtesting is expensive.</strong> Every backtest requires many forward passes through the
+model, potentially with periodic retraining. You want to run this once and re-use
+the predictions.</p></li>
+<li><p><strong>You may not need backtesting at all.</strong> If you ran backtests with external tooling,
+received shared predictions from a colleague, or already have stored results from a
+previous run, you can feed them directly into evaluation.</p></li>
+<li><p><strong>Evaluation and analysis evolve independently.</strong> As you refine your metric set or
+add new visualization providers, you should not have to wait hours re-running
+expensive model predictions.</p></li>
+</ul>
+</section>
+<section id="backtesting-stage">
+<h2>Backtesting Stage<a class="headerlink" href="#backtesting-stage" title="Link to this heading">#</a></h2>
+<p>The <a class="reference internal" href="../../api/generated/openstef_beam.backtesting.BacktestPipeline.html#openstef_beam.backtesting.BacktestPipeline" title="openstef_beam.backtesting.backtest_pipeline.BacktestPipeline"><code class="xref py py-class docutils literal notranslate"><span class="pre">BacktestPipeline</span></code></a> simulates how a
+model would have performed in production by stepping through historical data sequentially.
+In production, forecasts are generated at regular intervals (e.g., every 6 hours) and
+models are retrained periodically (e.g., weekly). The simulation replicates this schedule
+so that error distributions match what you would observe in a real deployment.</p>
+<img alt="Animation showing BEAM stepping through time - green region marks training data, orange line shows forecast output, red line marks the current horizon." class="align-center" src="../../_images/backtesting_simulation.gif" />
+<p><strong>Preventing future data leakage.</strong> The central design challenge in backtesting is
+ensuring the model never accesses data from the future. Energy data has different arrival
+latencies: weather forecast revisions, late meter readings, and market settlements all
+arrive at different times. BEAM uses
+<code class="xref py py-class docutils literal notranslate"><span class="pre">RestrictedHorizonVersionedTimeSeries</span></code>
+to track not just data values but <em>when each value first became available</em>, restricting
+the model’s view to only data published before the simulated “current time”.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>A <code class="xref py py-class docutils literal notranslate"><span class="pre">BacktestForecasterMixin</span></code>
+is <strong>not</strong> the same as a Forecaster in openstef-models. It is glue code that adapts any
+model to the backtesting interface, receiving only a restricted data view and never
+having direct access to the full dataset.</p>
+</div>
+<p><strong>Event-driven simulation.</strong>
+<code class="xref py py-class docutils literal notranslate"><span class="pre">BacktestEventGenerator</span></code>
+schedules train and predict events according to the configured <code class="docutils literal notranslate"><span class="pre">predict_interval</span></code>
+and <code class="docutils literal notranslate"><span class="pre">train_interval</span></code>. It merges two streams of events in chronological order, with
+train events always executing before predict events at the same timestamp (ensuring the
+model is freshly trained before generating predictions). For each event, the pipeline
+calls <code class="docutils literal notranslate"><span class="pre">fit()</span></code> or <code class="docutils literal notranslate"><span class="pre">predict()</span></code> on the forecaster, always passing a
+<code class="xref py py-class docutils literal notranslate"><span class="pre">RestrictedHorizonVersionedTimeSeries</span></code>
+that enforces the temporal boundary.</p>
+<p>The output is a <a class="reference internal" href="../../api/generated/openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset" title="openstef_core.datasets.TimeSeriesDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeSeriesDataset</span></code></a> containing all
+predictions, each tagged with an <code class="docutils literal notranslate"><span class="pre">available_at</span></code> timestamp indicating when that
+prediction would have been generated in production.</p>
+</section>
+<section id="evaluation-stage">
+<h2>Evaluation Stage<a class="headerlink" href="#evaluation-stage" title="Link to this heading">#</a></h2>
+<p>The <a class="reference internal" href="../../api/generated/openstef_beam.evaluation.EvaluationPipeline.html#openstef_beam.evaluation.EvaluationPipeline" title="openstef_beam.evaluation.EvaluationPipeline"><code class="xref py py-class docutils literal notranslate"><span class="pre">EvaluationPipeline</span></code></a> is entirely separate from
+backtesting. It takes predictions and ground truth, then segments and scores them along
+three dimensions. Each dimension answers a different operational question:</p>
+<ul class="simple">
+<li><p><strong>available_at</strong>: When the prediction was generated (e.g., “day-ahead at 06:00”).
+A model may perform differently when forecasting in the morning versus the evening
+because different information is available at each time.</p></li>
+<li><p><strong>lead_time</strong>: The gap between prediction generation and the target timestamp (e.g.,
+36 hours ahead). Model error typically grows with the forecast horizon, so a “better”
+model might only outperform at short lead times.</p></li>
+<li><p><strong>time_windows</strong>: Rolling evaluation periods (e.g., 21-day windows). Seasonal effects
+and model drift mean that aggregate metrics can hide periods of poor performance.</p></li>
+</ul>
+<p><strong>Configurable metrics.</strong> Metrics are supplied as provider objects. BEAM includes
+providers such as <code class="docutils literal notranslate"><span class="pre">RMAEProvider</span></code> (Relative Mean Absolute Error) and <code class="docutils literal notranslate"><span class="pre">RCRPSProvider</span></code>
+(Relative Continuous Ranked Probability Score) for probabilistic evaluation. You can
+implement custom providers to add domain-specific metrics.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.evaluation</span><span class="w"> </span><span class="kn">import</span> <span class="n">EvaluationConfig</span><span class="p">,</span> <span class="n">EvaluationPipeline</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.evaluation.metric_providers</span><span class="w"> </span><span class="kn">import</span> <span class="n">RMAEProvider</span><span class="p">,</span> <span class="n">RCRPSProvider</span>
+
+<span class="n">eval_pipeline</span> <span class="o">=</span> <span class="n">EvaluationPipeline</span><span class="p">(</span>
+    <span class="n">config</span><span class="o">=</span><span class="n">EvaluationConfig</span><span class="p">(),</span>
+    <span class="n">quantiles</span><span class="o">=</span><span class="n">forecaster</span><span class="o">.</span><span class="n">quantiles</span><span class="p">,</span>
+    <span class="n">window_metric_providers</span><span class="o">=</span><span class="p">[</span><span class="n">RMAEProvider</span><span class="p">(),</span> <span class="n">RCRPSProvider</span><span class="p">()],</span>
+    <span class="n">global_metric_providers</span><span class="o">=</span><span class="p">[</span><span class="n">RMAEProvider</span><span class="p">(),</span> <span class="n">RCRPSProvider</span><span class="p">()],</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>The output is an <a class="reference internal" href="../../api/generated/openstef_beam.evaluation.EvaluationReport.html#openstef_beam.evaluation.EvaluationReport" title="openstef_beam.evaluation.EvaluationReport"><code class="xref py py-class docutils literal notranslate"><span class="pre">EvaluationReport</span></code></a> containing per-subset
+metrics that can be inspected programmatically or passed to the analysis stage.</p>
+</section>
+<section id="analysis-stage">
+<h2>Analysis Stage<a class="headerlink" href="#analysis-stage" title="Link to this heading">#</a></h2>
+<p>The <a class="reference internal" href="../../api/generated/openstef_beam.analysis.AnalysisPipeline.html#openstef_beam.analysis.AnalysisPipeline" title="openstef_beam.analysis.analysis_pipeline.AnalysisPipeline"><code class="xref py py-class docutils literal notranslate"><span class="pre">AnalysisPipeline</span></code></a> transforms
+evaluation reports into HTML visualizations. It operates at configurable aggregation
+levels:</p>
+<div class="pst-scrollable-table-container"><table class="table" id="id2">
+<caption><span class="caption-text">Aggregation Levels</span><a class="headerlink" href="#id2" title="Link to this table">#</a></caption>
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 70.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Level</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>NONE</p></td>
+<td><p>Single run, single target - individual performance analysis</p></td>
+</tr>
+<tr class="row-odd"><td><p>TARGET</p></td>
+<td><p>Single run, per target - cross-target comparison (e.g., RMAE per target)</p></td>
+</tr>
+<tr class="row-even"><td><p>GROUP</p></td>
+<td><p>Single run, multiple targets - cross-group comparison (e.g., RMAE per group)</p></td>
+</tr>
+<tr class="row-odd"><td><p>RUN_AND_NONE</p></td>
+<td><p>Multiple runs, single target - compare model variants on one target</p></td>
+</tr>
+<tr class="row-even"><td><p>RUN_AND_TARGET</p></td>
+<td><p>Multiple runs, per target - compare model variants across targets</p></td>
+</tr>
+<tr class="row-odd"><td><p>RUN_AND_GROUP</p></td>
+<td><p>Multiple runs, multiple targets - full comparison matrix</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Visualization providers (e.g., <code class="docutils literal notranslate"><span class="pre">SummaryTableVisualization</span></code>) are pluggable. Each
+provider receives the relevant subset of evaluation data and produces a self-contained
+HTML fragment.</p>
+</section>
+<section id="benchmarkpipeline-the-orchestrator">
+<h2>BenchmarkPipeline: The Orchestrator<a class="headerlink" href="#benchmarkpipeline-the-orchestrator" title="Link to this heading">#</a></h2>
+<p><a class="reference internal" href="../../api/generated/openstef_beam.benchmarking.BenchmarkPipeline.html#openstef_beam.benchmarking.BenchmarkPipeline" title="openstef_beam.benchmarking.benchmark_pipeline.BenchmarkPipeline"><code class="xref py py-class docutils literal notranslate"><span class="pre">BenchmarkPipeline</span></code></a> ties everything
+together. For each target supplied by a <code class="docutils literal notranslate"><span class="pre">TargetProvider</span></code>, it executes the three stages
+sequentially and persists results via <code class="docutils literal notranslate"><span class="pre">BenchmarkStorage</span></code>.</p>
+<p>Key responsibilities:</p>
+<ul class="simple">
+<li><p><strong>Target iteration</strong>: Acquires targets (with ground truth, predictors, and metric configuration) from a pluggable <code class="docutils literal notranslate"><span class="pre">TargetProvider</span></code>.</p></li>
+<li><p><strong>Forecaster creation</strong>: Uses a factory to instantiate a <code class="docutils literal notranslate"><span class="pre">BacktestForecasterMixin</span></code> per target.</p></li>
+<li><p><strong>Sequential execution</strong>: Runs Backtest, then Evaluation, then Analysis for each target.</p></li>
+<li><p><strong>Parallel processing</strong>: Supports processing multiple targets concurrently for efficiency.</p></li>
+<li><p><strong>Storage management</strong>: Persists predictions, evaluation reports, and analysis outputs through a <code class="docutils literal notranslate"><span class="pre">BenchmarkStorage</span></code> backend (local filesystem, cloud, or in-memory).</p></li>
+</ul>
+<p>Because results are persisted after each stage, you can use
+<a class="reference internal" href="../../api/generated/openstef_beam.benchmarking.BenchmarkComparisonPipeline.html#openstef_beam.benchmarking.BenchmarkComparisonPipeline" title="openstef_beam.benchmarking.benchmark_comparison_pipeline.BenchmarkComparisonPipeline"><code class="xref py py-class docutils literal notranslate"><span class="pre">BenchmarkComparisonPipeline</span></code></a>
+to compare results across multiple benchmark runs without re-executing them.</p>
+<p>The pipeline also supports <strong>incremental execution</strong>: if a target already has stored
+backtest output, that stage is skipped automatically. This means restarting a failed or
+interrupted benchmark does not redo work for targets that completed successfully.</p>
+</section>
+<section id="design-principles">
+<h2>Design Principles<a class="headerlink" href="#design-principles" title="Link to this heading">#</a></h2>
+<p><strong>Separation of concerns</strong>: Each stage has a single responsibility and a well-defined
+interface. This makes it possible to swap metric providers, visualization backends, or
+storage implementations independently.</p>
+<p><strong>Temporal integrity</strong>: The <code class="docutils literal notranslate"><span class="pre">RestrictedHorizonVersionedTimeSeries</span></code> wrapper guarantees
+that no stage can accidentally introduce future information into model training or
+prediction.</p>
+<p><strong>Reproducibility</strong>: Configurations (<code class="docutils literal notranslate"><span class="pre">BacktestConfig</span></code>, <code class="docutils literal notranslate"><span class="pre">EvaluationConfig</span></code>,
+<code class="docutils literal notranslate"><span class="pre">AnalysisConfig</span></code>) are serializable data classes. Storing them alongside results ensures
+any benchmark can be reproduced exactly.</p>
+<p><strong>Scalability</strong>: Parallel target processing and decoupled stages mean that large-scale
+benchmarks (hundreds of targets, multiple models) remain tractable.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="models.html#concept-models"><span class="std std-ref">Models</span></a> for the forecasting models that BEAM evaluates.</p></li>
+<li><p><a class="reference internal" href="metalearning.html#concept-metalearning"><span class="std std-ref">Metalearning</span></a> for how BEAM results inform model selection decisions.</p></li>
+<li><p><a class="reference internal" href="../guides/backtesting_tutorial.html"><span class="doc">Backtesting Quickstart</span></a> for a hands-on walkthrough of setting up and running a backtest.</p></li>
+<li><p><a class="reference internal" href="../../api/beam.html"><span class="doc">BEAM Package (openstef_beam)</span></a> for the full openstef-beam API reference.</p></li>
+</ul>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="metalearning.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Metalearning</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="component_splitting.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Component Splitting</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-systematic-benchmarking-matters">Why Systematic Benchmarking Matters</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pipeline-overview">Pipeline Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#backtesting-stage">Backtesting Stage</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#evaluation-stage">Evaluation Stage</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analysis-stage">Analysis Stage</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#benchmarkpipeline-the-orchestrator">BenchmarkPipeline: The Orchestrator</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#design-principles">Design Principles</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/OpenSTEF/openstef/edit/main/docs/source/user_guide/concepts/beam.rst">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2017-2026 Contributors to the OpenSTEF project.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

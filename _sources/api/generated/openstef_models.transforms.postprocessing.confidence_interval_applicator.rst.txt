@@ -1,0 +1,36 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+
+
+confidence_interval_applicator
+==============================
+
+.. currentmodule:: openstef_models.transforms.postprocessing.confidence_interval_applicator
+
+.. automodule:: openstef_models.transforms.postprocessing.confidence_interval_applicator
+   :no-members:
+   :no-inherited-members:
+
+
+
+
+
+
+
+
+
+
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_class_noindex.rst
+
+   ConfidenceIntervalApplicator
+
+
+

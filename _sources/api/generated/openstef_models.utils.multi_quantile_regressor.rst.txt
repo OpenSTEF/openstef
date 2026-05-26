@@ -1,0 +1,36 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+
+
+multi_quantile_regressor
+========================
+
+.. currentmodule:: openstef_models.utils.multi_quantile_regressor
+
+.. automodule:: openstef_models.utils.multi_quantile_regressor
+   :no-members:
+   :no-inherited-members:
+
+
+
+
+
+
+
+
+
+
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_class_noindex.rst
+
+   MultiQuantileRegressor
+
+
+

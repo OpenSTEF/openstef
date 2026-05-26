@@ -1,0 +1,49 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+
+
+feature_selection
+=================
+
+.. currentmodule:: openstef_models.utils.feature_selection
+
+.. automodule:: openstef_models.utils.feature_selection
+   :no-members:
+   :no-inherited-members:
+
+
+
+
+
+
+
+
+
+
+Functions
+---------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_function.rst
+
+   Exclude
+   ExcludeRegex
+   Include
+   IncludeRegex
+
+
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_class_noindex.rst
+
+   FeatureSelection
+
+
+

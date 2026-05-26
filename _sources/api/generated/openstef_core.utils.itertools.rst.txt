@@ -1,0 +1,38 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+
+
+itertools
+=========
+
+.. currentmodule:: openstef_core.utils.itertools
+
+.. automodule:: openstef_core.utils.itertools
+   :no-members:
+   :no-inherited-members:
+
+
+
+
+
+
+
+
+
+
+Functions
+---------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_function.rst
+
+   groupby
+   is_all_same
+   merge_iterators
+
+
+
+

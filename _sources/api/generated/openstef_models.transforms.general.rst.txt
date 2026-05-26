@@ -1,0 +1,68 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+
+
+general
+=======
+
+.. currentmodule:: openstef_models.transforms.general
+
+.. automodule:: openstef_models.transforms.general
+   :no-members:
+   :no-inherited-members:
+
+
+
+
+
+
+
+
+
+Submodules
+----------
+
+
+.. autosummary::
+   :toctree: .
+   :template: module_overview.rst
+
+   openstef_models.transforms.general.dimensionality_reducer
+   openstef_models.transforms.general.empty_feature_remover
+   openstef_models.transforms.general.flagger
+   openstef_models.transforms.general.imputer
+   openstef_models.transforms.general.nan_dropper
+   openstef_models.transforms.general.outlier_handler
+   openstef_models.transforms.general.sample_weighter
+   openstef_models.transforms.general.scaler
+   openstef_models.transforms.general.selector
+   openstef_models.transforms.general.shifter
+
+
+
+
+
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_class_noindex.rst
+
+   DimensionalityReducer
+   EmptyFeatureRemover
+   Flagger
+   Imputer
+   NaNDropper
+   OutlierHandler
+   SampleWeightConfig
+   SampleWeighter
+   Scaler
+   Selector
+   Shifter
+
+
+

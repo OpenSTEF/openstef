@@ -1,0 +1,49 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+
+
+energy_domain
+=============
+
+.. currentmodule:: openstef_models.transforms.energy_domain
+
+.. automodule:: openstef_models.transforms.energy_domain
+   :no-members:
+   :no-inherited-members:
+
+
+
+
+
+
+
+
+
+Submodules
+----------
+
+
+.. autosummary::
+   :toctree: .
+   :template: module_overview.rst
+
+   openstef_models.transforms.energy_domain.wind_power_feature_adder
+
+
+
+
+
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_class_noindex.rst
+
+   WindPowerFeatureAdder
+
+
+

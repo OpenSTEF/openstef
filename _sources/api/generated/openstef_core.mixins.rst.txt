@@ -1,0 +1,63 @@
+﻿.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+
+
+mixins
+======
+
+.. currentmodule:: openstef_core.mixins
+
+.. automodule:: openstef_core.mixins
+   :no-members:
+   :no-inherited-members:
+
+
+
+
+
+
+
+
+
+
+Submodules
+----------
+
+
+.. autosummary::
+   :toctree: .
+   :template: module_overview.rst
+
+   openstef_core.mixins.param_ranges
+   openstef_core.mixins.predictor
+   openstef_core.mixins.stateful
+   openstef_core.mixins.transform
+
+
+
+
+
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_class.rst
+
+   BatchPredictor
+   HyperParams
+   Predictor
+   Stateful
+   Transform
+   TransformPipeline
+
+
+
+
+
+
+
+

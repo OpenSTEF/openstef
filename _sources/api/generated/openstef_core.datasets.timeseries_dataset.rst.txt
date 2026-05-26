@@ -1,0 +1,46 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+
+
+timeseries_dataset
+==================
+
+.. currentmodule:: openstef_core.datasets.timeseries_dataset
+
+.. automodule:: openstef_core.datasets.timeseries_dataset
+   :no-members:
+   :no-inherited-members:
+
+
+
+
+
+
+
+
+
+
+Functions
+---------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_function.rst
+
+   validate_horizons_present
+
+
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_class_noindex.rst
+
+   TimeSeriesDataset
+
+
+

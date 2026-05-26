@@ -1,0 +1,47 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+
+
+forecasting_workflow
+====================
+
+.. currentmodule:: openstef_models.presets.forecasting_workflow
+
+.. automodule:: openstef_models.presets.forecasting_workflow
+   :no-members:
+   :no-inherited-members:
+
+
+
+
+
+
+
+
+
+
+Functions
+---------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_function.rst
+
+   create_forecasting_workflow
+
+
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_class_noindex.rst
+
+   ForecastingWorkflowConfig
+   LocationConfig
+
+
+

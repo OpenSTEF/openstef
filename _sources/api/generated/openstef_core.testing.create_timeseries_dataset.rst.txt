@@ -1,0 +1,10 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+create_timeseries_dataset
+=========================
+
+.. currentmodule:: openstef_core.testing
+
+.. autofunction:: create_timeseries_dataset

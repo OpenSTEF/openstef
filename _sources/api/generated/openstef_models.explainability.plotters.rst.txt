@@ -1,0 +1,51 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+
+
+plotters
+========
+
+.. currentmodule:: openstef_models.explainability.plotters
+
+.. automodule:: openstef_models.explainability.plotters
+   :no-members:
+   :no-inherited-members:
+
+
+
+
+
+
+
+
+
+Submodules
+----------
+
+
+.. autosummary::
+   :toctree: .
+   :template: module_overview.rst
+
+   openstef_models.explainability.plotters.contributions_plotter
+   openstef_models.explainability.plotters.feature_importance_plotter
+
+
+
+
+
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_class_noindex.rst
+
+   ContributionsPlotter
+   FeatureImportancePlotter
+
+
+

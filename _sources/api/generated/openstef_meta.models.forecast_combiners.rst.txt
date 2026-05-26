@@ -1,0 +1,57 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+
+
+forecast_combiners
+==================
+
+.. currentmodule:: openstef_meta.models.forecast_combiners
+
+.. automodule:: openstef_meta.models.forecast_combiners
+   :no-members:
+   :no-inherited-members:
+
+
+
+
+
+
+
+
+
+Submodules
+----------
+
+
+.. autosummary::
+   :toctree: .
+   :template: module_overview.rst
+
+   openstef_meta.models.forecast_combiners.forecast_combiner
+   openstef_meta.models.forecast_combiners.learned_weights_combiner
+   openstef_meta.models.forecast_combiners.stacking_combiner
+
+
+
+
+
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_class_noindex.rst
+
+   ForecastCombiner
+   LGBMCombinerHyperParams
+   LogisticCombinerHyperParams
+   RFCombinerHyperParams
+   StackingCombiner
+   WeightsCombiner
+   XGBCombinerHyperParams
+
+
+

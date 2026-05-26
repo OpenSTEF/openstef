@@ -1,0 +1,53 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+
+
+weather_domain
+==============
+
+.. currentmodule:: openstef_models.transforms.weather_domain
+
+.. automodule:: openstef_models.transforms.weather_domain
+   :no-members:
+   :no-inherited-members:
+
+
+
+
+
+
+
+
+
+Submodules
+----------
+
+
+.. autosummary::
+   :toctree: .
+   :template: module_overview.rst
+
+   openstef_models.transforms.weather_domain.atmosphere_derived_features_adder
+   openstef_models.transforms.weather_domain.daylight_feature_adder
+   openstef_models.transforms.weather_domain.radiation_derived_features_adder
+
+
+
+
+
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_class_noindex.rst
+
+   AtmosphereDerivedFeaturesAdder
+   DaylightFeatureAdder
+   RadiationDerivedFeaturesAdder
+
+
+

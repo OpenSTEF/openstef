@@ -1,0 +1,14 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+DaylightFeatureAdder
+====================
+
+.. currentmodule:: openstef_models.transforms.weather_domain.daylight_feature_adder
+
+.. autoclass:: DaylightFeatureAdder
+   :show-inheritance:
+   :members:
+   :special-members: __init__
+   :no-index:

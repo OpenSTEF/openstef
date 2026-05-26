@@ -1,0 +1,14 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+OutlierHandler
+==============
+
+.. currentmodule:: openstef_models.transforms.general.outlier_handler
+
+.. autoclass:: OutlierHandler
+   :show-inheritance:
+   :members:
+   :special-members: __init__
+   :no-index:

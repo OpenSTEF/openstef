@@ -1,0 +1,1626 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>openstef_beam.analysis.plots.forecast_time_series_plotter &#8212; OpenSTEF 0.0.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/css/custom.css?v=3f5a9049" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../../_static/documentation_options.js?v=7026087e"></script>
+    <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../../_static/copybutton.js?v=97f0b27d"></script>
+    <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.esm.min.mjs";
+
+
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = `pre.mermaid {
+    /* Same as .mermaid-container > pre */
+    display: block;
+    width: 100%;
+}
+
+pre.mermaid > svg {
+    /* Same as .mermaid-container > pre > svg */
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}`;
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = `.mermaid-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.mermaid-container > pre {
+    display: block;
+    width: 100%;
+}
+
+.mermaid-container > pre > svg {
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+
+.mermaid-fullscreen-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    color: #333;
+}
+
+.mermaid-fullscreen-btn:hover {
+    opacity: 100% !important;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-btn.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-btn.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 95vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 9999;
+    padding: 20px;
+    overflow: auto;
+}
+
+.mermaid-fullscreen-modal.dark-theme {
+    background: rgba(0, 0, 0, 0.98);
+}
+
+.mermaid-fullscreen-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen {
+    position: relative;
+    width: 95vw;
+    height: 90vh;
+    max-width: 95vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen.dark-theme {
+    background: #1a1a1a;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.mermaid-container-fullscreen pre.mermaid {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen .mermaid svg {
+    height: 100% !important;
+    width: 100% !important;
+    cursor: grab;
+}
+
+.mermaid-fullscreen-close {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+    font-size: 24px;
+    line-height: 1;
+    color: #333;
+}
+
+.mermaid-fullscreen-close:hover {
+    background: white;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-close.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-close.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal .mermaid-fullscreen-btn {
+    display: none !important;
+}`;
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        all_mermaids.forEach((el) => {
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+        await mermaid.run();
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+
+    if ("False" === "True") {
+        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("");
+            if(all_mermaids.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else if(svgs.size() !== mermaids_to_add_zoom) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else {
+                svgs.each(function() {
+                    var svg = d3.select(this);
+                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+                    var inner = svg.select("g");
+                    var zoom = d3.zoom().on("zoom", function(event) {
+                        inner.attr("transform", event.transform);
+                    });
+                    svg.call(zoom);
+                });
+            }
+        }
+    } else if(all_mermaids.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if ("True" !== "True") return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.style.opacity = '50%';
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scroll, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.sdisplay = 'block';
+
+                if ("False" === "True") {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+const load = async () => {
+    initStyles();
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...JSON.parse(
+                    `{"startOnLoad": false}`
+                ),
+                ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...JSON.parse(
+        `{"startOnLoad": false}`
+    ),
+    ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/openstef_beam/analysis/plots/forecast_time_series_plotter';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = '_static/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="icon" href="../../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.0.0" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../../_static/openstef-horizontal-color.svg" class="logo__image only-light" alt="OpenSTEF homepage"/>
+    <img src="../../../../_static/openstef-horizontal-white.svg" class="logo__image only-dark pst-js-only" alt="OpenSTEF homepage"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../api/index.html">
+    API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../project/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../contribute/index.html">
+    Contributing
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/OpenSTEF/openstef" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.lfenergy.org/projects/openstef/" title="LFE Homepage" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-bolt fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">LFE Homepage</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../api/index.html">
+    API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../project/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../contribute/index.html">
+    Contributing
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/OpenSTEF/openstef" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.lfenergy.org/projects/openstef/" title="LFE Homepage" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-bolt fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">LFE Homepage</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">openstef_beam.analysis.plots.forecast_time_series_plotter</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for openstef_beam.analysis.plots.forecast_time_series_plotter</h1><div class="highlight"><pre>
+<span></span><span class="c1"># SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project &lt;openstef@lfenergy.org&gt;</span>
+<span class="c1">#</span>
+<span class="c1"># SPDX-License-Identifier: MPL-2.0</span>
+
+<span class="sd">&quot;&quot;&quot;Time series plotting for forecast data visualization.</span>
+
+<span class="sd">This module provides time series plotting capabilities for comparing</span>
+<span class="sd">forecasts, measurements, and uncertainty quantiles across multiple models.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">timedelta</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">ClassVar</span><span class="p">,</span> <span class="n">Self</span><span class="p">,</span> <span class="n">TypedDict</span><span class="p">,</span> <span class="n">cast</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">plotly.express</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">px</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">plotly.graph_objects</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">go</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">Field</span><span class="p">,</span> <span class="n">PrivateAttr</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.base_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseConfig</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ModelData</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;TypedDict for storing model data.&quot;&quot;&quot;</span>
+
+    <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">forecast</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span> <span class="o">|</span> <span class="kc">None</span>
+    <span class="n">quantiles</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">LineData</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;TypedDict for storing line data.&quot;&quot;&quot;</span>
+
+    <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">model_index</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span>
+    <span class="nb">type</span><span class="p">:</span> <span class="nb">str</span>  <span class="c1"># &quot;forecast&quot; or &quot;quantile_50th&quot;</span>
+
+
+<span class="c1"># Add a typed dict for quantile band data</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BandData</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;TypedDict for storing quantile band data.&quot;&quot;&quot;</span>
+
+    <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">model_index</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">lower_quantile</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">upper_quantile</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">lower_data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span>
+    <span class="n">upper_data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">QuantilePolygonStyle</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;TypedDict for storing quantile polygon styling parameters.&quot;&quot;&quot;</span>
+
+    <span class="n">fill_color</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">stroke_color</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">legendgroup</span><span class="p">:</span> <span class="nb">str</span>
+
+
+<div class="viewcode-block" id="ForecastTimeSeriesPlotter">
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.analysis.plots.forecast_time_series_plotter.ForecastTimeSeriesPlotter.html#openstef_beam.analysis.plots.ForecastTimeSeriesPlotter">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ForecastTimeSeriesPlotter</span><span class="p">(</span><span class="n">BaseConfig</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Creates interactive time series charts comparing forecasts, measurements, and uncertainty bands.</span>
+
+<span class="sd">    This plotter visualizes forecast performance over time by overlaying multiple models&#39;</span>
+<span class="sd">    predictions, actual measurements, and uncertainty quantiles on a single chart. The</span>
+<span class="sd">    resulting interactive plots help answer questions like:</span>
+
+<span class="sd">    - How do different models&#39; forecasts compare to actual values over time?</span>
+<span class="sd">    - Which model provides the most accurate short-term vs long-term predictions?</span>
+<span class="sd">    - How well do uncertainty bands capture actual forecast errors?</span>
+<span class="sd">    - Are there seasonal or temporal patterns in model performance?</span>
+
+<span class="sd">    The plots include:</span>
+
+<span class="sd">    - Line charts for measurements (actual values) and model forecasts</span>
+<span class="sd">    - Shaded confidence bands showing forecast uncertainty (quantiles)</span>
+<span class="sd">    - Color-coded models for easy visual comparison</span>
+<span class="sd">    - Interactive hover information and zooming capabilities</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        Basic usage comparing forecast to measurements</span>
+
+<span class="sd">        &gt;&gt;&gt; from openstef_core.datasets import TimeSeriesDataset</span>
+<span class="sd">        &gt;&gt;&gt; import pandas as pd</span>
+<span class="sd">        &gt;&gt;&gt; from datetime import timedelta</span>
+<span class="sd">        &gt;&gt;&gt; # Create sample data</span>
+<span class="sd">        &gt;&gt;&gt; dates = pd.date_range(&#39;2024-01-01&#39;, periods=10, freq=&#39;h&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; measurements = pd.Series(data=range(10), index=dates, name=&quot;measurements&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; forecast = pd.Series(data=[x + 1 for x in range(10)], index=dates, name=&quot;forecast&quot;)</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; # Create and configure plotter</span>
+<span class="sd">        &gt;&gt;&gt; plotter = ForecastTimeSeriesPlotter()</span>
+<span class="sd">        &gt;&gt;&gt; _ = plotter.add_measurements(measurements)</span>
+<span class="sd">        &gt;&gt;&gt; _ = plotter.add_model(&quot;XGBoost&quot;, forecast=forecast)</span>
+<span class="sd">        &gt;&gt;&gt; fig = plotter.plot(title=&quot;Energy Forecast Comparison&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; type(fig).__name__</span>
+<span class="sd">        &#39;Figure&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">MEDIAN_QUANTILE</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mf">50.0</span>
+
+    <span class="n">COLOR_SCHEME</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;blue&quot;</span><span class="p">:</span> <span class="s2">&quot;Blues&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;green&quot;</span><span class="p">:</span> <span class="s2">&quot;Greens&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;purple&quot;</span><span class="p">:</span> <span class="s2">&quot;Purples&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;orange&quot;</span><span class="p">:</span> <span class="s2">&quot;Oranges&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;magenta&quot;</span><span class="p">:</span> <span class="s2">&quot;Magenta&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;grey&quot;</span><span class="p">:</span> <span class="s2">&quot;Greys&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">colors</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">COLOR_SCHEME</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="n">colormaps</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">COLOR_SCHEME</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+
+    <span class="n">colormap_range</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">)</span>
+
+    <span class="n">fill_opacity</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span>
+
+    <span class="n">stroke_opacity</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.8</span>
+    <span class="n">stroke_width</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.5</span>
+
+    <span class="n">sample_interval</span><span class="p">:</span> <span class="n">timedelta</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="mi">15</span><span class="p">),</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Expected interval between consecutive samples in the time series data.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">connect_gaps</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;If True, connects data points across missing timestamps with lines. &quot;</span>
+            <span class="s2">&quot;If False, leaves gaps where data is missing (no interpolation).&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">_measurements</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">PrivateAttr</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">_models_data</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ModelData</span><span class="p">]</span> <span class="o">=</span> <span class="n">PrivateAttr</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">[</span><span class="n">ModelData</span><span class="p">])</span>
+    <span class="n">_limits</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="n">PrivateAttr</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]])</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_insert_gaps_for_missing_timestamps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">series</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">sample_interval</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Insert NaN values where there are temporal gaps larger than the expected sample interval.</span>
+
+<span class="sd">        This ensures that connectgaps=False works properly by creating actual NaN values</span>
+<span class="sd">        for missing timestamps, rather than just having missing timestamps.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            series: The time series data</span>
+<span class="sd">            sample_interval: Expected interval between consecutive samples</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Series with NaN values inserted at gap locations</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">connect_gaps</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">series</span>
+
+        <span class="c1"># Create a complete time index from start to end with the expected frequency</span>
+        <span class="n">start_time</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">,</span> <span class="n">series</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">end_time</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">,</span> <span class="n">series</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="c1"># Create complete index with the sample interval</span>
+        <span class="n">complete_index</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">date_range</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">start_time</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">end_time</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="n">sample_interval</span><span class="p">)</span>
+
+        <span class="c1"># Reindex the series to the complete index, automatically filling missing values with NaN</span>
+        <span class="k">return</span> <span class="n">series</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">complete_index</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ForecastTimeSeriesPlotter.add_measurements">
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.analysis.plots.forecast_time_series_plotter.ForecastTimeSeriesPlotter.html#openstef_beam.analysis.plots.ForecastTimeSeriesPlotter.add_measurements">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_measurements</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">measurements</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add measurements (realized values) to the plot.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            measurements: A Pandas Series containing the realized values.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            ForecastTimeSeriesPlotter: The current instance for method chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_measurements</span> <span class="o">=</span> <span class="n">measurements</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+<div class="viewcode-block" id="ForecastTimeSeriesPlotter.add_model">
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.analysis.plots.forecast_time_series_plotter.ForecastTimeSeriesPlotter.html#openstef_beam.analysis.plots.ForecastTimeSeriesPlotter.add_model">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_model</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">forecast</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">quantiles</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ForecastTimeSeriesPlotter&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a model&#39;s forecast and/or quantile data to the plot.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            model_name: The name of the model.</span>
+<span class="sd">            forecast: A pd.Series containing the forecasted values.</span>
+<span class="sd">            quantiles: A pd.DataFrame containing quantile data.</span>
+<span class="sd">                Column names should follow the format &#39;quantile_P{percentile:02d}&#39;,</span>
+<span class="sd">                e.g., &#39;quantile_P10&#39;, &#39;quantile_P90&#39;.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            ForecastTimeSeriesPlotter: The current instance for method chaining.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If neither forecast nor quantiles are provided, or if quantile</span>
+<span class="sd">                column names don&#39;t follow the expected format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">forecast</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">quantiles</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;At least one of forecast or quantiles must be provided.&quot;</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="c1"># Validate quantile columns if provided</span>
+        <span class="k">if</span> <span class="n">quantiles</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">quantiles</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">col</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;quantile_P&quot;</span><span class="p">):</span>
+                    <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Column &#39;</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">&#39; does not follow the expected format &#39;quantile_P</span><span class="se">{{</span><span class="s2">percentile:02d</span><span class="se">}}</span><span class="s2">&#39;.&quot;</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="n">model_data</span><span class="p">:</span> <span class="n">ModelData</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="n">model_name</span><span class="p">,</span>
+            <span class="s2">&quot;forecast&quot;</span><span class="p">:</span> <span class="n">forecast</span><span class="p">,</span>
+            <span class="s2">&quot;quantiles&quot;</span><span class="p">:</span> <span class="n">quantiles</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_models_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">model_data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+<div class="viewcode-block" id="ForecastTimeSeriesPlotter.add_limit">
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.analysis.plots.forecast_time_series_plotter.ForecastTimeSeriesPlotter.html#openstef_beam.analysis.plots.ForecastTimeSeriesPlotter.add_limit">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_limit</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ForecastTimeSeriesPlotter&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a horizontal limit line to the plot.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            value (float): The y-value where the limit line should be drawn.</span>
+<span class="sd">            name (str, optional): The name of the limit to be displayed in the legend.</span>
+<span class="sd">                If not provided, will be named &quot;Limit N&quot; where N is the index.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            ForecastTimeSeriesPlotter: The current instance for method chaining.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Limit </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_limits</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_limits</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+            <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="n">value</span><span class="p">,</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+        <span class="p">})</span>
+
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_color_by_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">colormap</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Maps a normalized value to a color using the specified colormap.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            value (float): A value between 0 and 1 to be mapped to a color.</span>
+<span class="sd">            colormap (str): The colormap to use.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: A color in the rgba format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">rescaled</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">colormap_range</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">value</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">colormap_range</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">colormap_range</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">rescaled</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">rescaled</span><span class="p">))</span>
+
+        <span class="n">color_result</span> <span class="o">=</span> <span class="n">px</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">sample_colorscale</span><span class="p">(</span><span class="n">colorscale</span><span class="o">=</span><span class="n">colormap</span><span class="p">,</span> <span class="n">samplepoints</span><span class="o">=</span><span class="p">[</span><span class="n">rescaled</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># type: ignore[reportUnknownMemberType]</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">color_result</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_quantile_colors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quantile</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">colormap</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate fill and stroke colors for a given quantile using a colorscale.</span>
+
+<span class="sd">        Colors are determined based on the distance from the median (50th percentile).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            quantile (float): The quantile value (0-100) to generate colors for.</span>
+<span class="sd">            colormap (str): The colorscale to use.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Tuple[str, str]: A tuple containing (fill_color, stroke_color).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">fill_value</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="nb">abs</span><span class="p">(</span><span class="n">quantile</span> <span class="o">-</span> <span class="mf">50.0</span><span class="p">)</span> <span class="o">/</span> <span class="mf">50.0</span>
+        <span class="n">stroke_value</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="nb">abs</span><span class="p">(</span><span class="n">quantile</span> <span class="o">+</span> <span class="mf">5.0</span> <span class="o">-</span> <span class="mf">50.0</span><span class="p">)</span> <span class="o">/</span> <span class="mf">50.0</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_color_by_value</span><span class="p">(</span><span class="n">fill_value</span><span class="p">,</span> <span class="n">colormap</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_color_by_value</span><span class="p">(</span><span class="n">stroke_value</span><span class="p">,</span> <span class="n">colormap</span><span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_quantile_band</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">figure</span><span class="p">:</span> <span class="n">go</span><span class="o">.</span><span class="n">Figure</span><span class="p">,</span>
+        <span class="n">lower_quantile_data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
+        <span class="n">lower_quantile</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">upper_quantile_data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
+        <span class="n">upper_quantile</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">model_index</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a quantile band to the plotly figure.</span>
+
+<span class="sd">        Creates a filled polygon representing the area between lower and upper quantiles,</span>
+<span class="sd">        and adds it to the provided figure along with hover information.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            figure (go.Figure): The plotly figure to add the quantile band to.</span>
+<span class="sd">            lower_quantile_data (pd.Series): Series with data for the lower quantile.</span>
+<span class="sd">            lower_quantile (float): The percentile value of the lower quantile.</span>
+<span class="sd">            upper_quantile_data (pd.Series): Series with data for the upper quantile.</span>
+<span class="sd">            upper_quantile (float): The percentile value of the upper quantile.</span>
+<span class="sd">            model_name (str): The name of the model for which the quantile band is being added.</span>
+<span class="sd">            model_index (int): The index of the model in the models_data list.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Get colors and legendgroup</span>
+        <span class="n">colormap</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">colormaps</span><span class="p">[</span><span class="n">model_index</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">colormaps</span><span class="p">)]</span>
+        <span class="n">fill_color</span><span class="p">,</span> <span class="n">stroke_color</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_quantile_colors</span><span class="p">(</span><span class="n">lower_quantile</span><span class="p">,</span> <span class="n">colormap</span><span class="p">)</span>
+        <span class="n">legendgroup</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">model_name</span><span class="si">}</span><span class="s2">_quantile_</span><span class="si">{</span><span class="n">lower_quantile</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">upper_quantile</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">connect_gaps</span><span class="p">:</span>
+            <span class="c1"># Original behavior - create single polygon from raw data</span>
+            <span class="n">band</span> <span class="o">=</span> <span class="n">BandData</span><span class="p">(</span>
+                <span class="n">model_name</span><span class="o">=</span><span class="n">model_name</span><span class="p">,</span>
+                <span class="n">model_index</span><span class="o">=</span><span class="n">model_index</span><span class="p">,</span>
+                <span class="n">lower_quantile</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">lower_quantile</span><span class="p">),</span>
+                <span class="n">upper_quantile</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">upper_quantile</span><span class="p">),</span>
+                <span class="n">lower_data</span><span class="o">=</span><span class="n">lower_quantile_data</span><span class="p">,</span>
+                <span class="n">upper_data</span><span class="o">=</span><span class="n">upper_quantile_data</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">style</span> <span class="o">=</span> <span class="n">QuantilePolygonStyle</span><span class="p">(</span>
+                <span class="n">fill_color</span><span class="o">=</span><span class="n">fill_color</span><span class="p">,</span>
+                <span class="n">stroke_color</span><span class="o">=</span><span class="n">stroke_color</span><span class="p">,</span>
+                <span class="n">legendgroup</span><span class="o">=</span><span class="n">legendgroup</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add_single_quantile_polygon</span><span class="p">(</span><span class="n">figure</span><span class="p">,</span> <span class="n">band</span><span class="p">,</span> <span class="n">style</span><span class="p">)</span>
+            <span class="c1"># Use raw data for hover</span>
+            <span class="n">processed_lower_data</span> <span class="o">=</span> <span class="n">lower_quantile_data</span>
+            <span class="n">processed_upper_data</span> <span class="o">=</span> <span class="n">upper_quantile_data</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Process data to insert gaps, then create segmented polygons</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lower_quantile_data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">estimated_interval</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;pd.Series[pd.Timestamp]&quot;</span><span class="p">,</span> <span class="n">lower_quantile_data</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">to_series</span><span class="p">())</span><span class="o">.</span><span class="n">diff</span><span class="p">()</span><span class="o">.</span><span class="n">median</span><span class="p">()</span>
+                <span class="p">)</span>
+                <span class="n">processed_lower_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_insert_gaps_for_missing_timestamps</span><span class="p">(</span><span class="n">lower_quantile_data</span><span class="p">,</span> <span class="n">estimated_interval</span><span class="p">)</span>
+                <span class="n">processed_upper_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_insert_gaps_for_missing_timestamps</span><span class="p">(</span><span class="n">upper_quantile_data</span><span class="p">,</span> <span class="n">estimated_interval</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">processed_lower_data</span> <span class="o">=</span> <span class="n">lower_quantile_data</span>
+                <span class="n">processed_upper_data</span> <span class="o">=</span> <span class="n">upper_quantile_data</span>
+
+            <span class="c1"># Create segmented polygons for each continuous section</span>
+            <span class="n">band</span> <span class="o">=</span> <span class="n">BandData</span><span class="p">(</span>
+                <span class="n">model_name</span><span class="o">=</span><span class="n">model_name</span><span class="p">,</span>
+                <span class="n">model_index</span><span class="o">=</span><span class="n">model_index</span><span class="p">,</span>
+                <span class="n">lower_quantile</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">lower_quantile</span><span class="p">),</span>
+                <span class="n">upper_quantile</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">upper_quantile</span><span class="p">),</span>
+                <span class="n">lower_data</span><span class="o">=</span><span class="n">processed_lower_data</span><span class="p">,</span>
+                <span class="n">upper_data</span><span class="o">=</span><span class="n">processed_upper_data</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">style</span> <span class="o">=</span> <span class="n">QuantilePolygonStyle</span><span class="p">(</span>
+                <span class="n">fill_color</span><span class="o">=</span><span class="n">fill_color</span><span class="p">,</span>
+                <span class="n">stroke_color</span><span class="o">=</span><span class="n">stroke_color</span><span class="p">,</span>
+                <span class="n">legendgroup</span><span class="o">=</span><span class="n">legendgroup</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add_segmented_quantile_polygons</span><span class="p">(</span><span class="n">figure</span><span class="p">,</span> <span class="n">band</span><span class="p">,</span> <span class="n">style</span><span class="p">)</span>
+
+        <span class="c1"># Add hover line for quantile values</span>
+        <span class="n">x_data</span> <span class="o">=</span> <span class="n">processed_lower_data</span><span class="o">.</span><span class="n">index</span>
+        <span class="n">y_lower</span> <span class="o">=</span> <span class="n">processed_lower_data</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+        <span class="n">y_upper</span> <span class="o">=</span> <span class="n">processed_upper_data</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+
+        <span class="n">figure</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span>  <span class="c1"># type: ignore[reportUnknownMemberType]</span>
+            <span class="n">go</span><span class="o">.</span><span class="n">Scatter</span><span class="p">(</span>
+                <span class="n">x</span><span class="o">=</span><span class="n">x_data</span><span class="p">,</span>
+                <span class="n">y</span><span class="o">=</span><span class="n">y_lower</span><span class="p">,</span>
+                <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;lines&quot;</span><span class="p">,</span>
+                <span class="n">line</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">stroke_width</span><span class="p">,</span>
+                    <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;rgba</span><span class="si">{</span><span class="n">stroke_color</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">stroke_opacity</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
+                <span class="p">},</span>
+                <span class="n">customdata</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">((</span><span class="n">y_lower</span><span class="p">,</span> <span class="n">y_upper</span><span class="p">)),</span>
+                <span class="n">hovertemplate</span><span class="o">=</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">lower_quantile</span><span class="si">}</span><span class="s2">%: %</span><span class="se">{{</span><span class="s2">customdata[0]:,.4s</span><span class="se">}}</span><span class="s2">&lt;br&gt;&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">upper_quantile</span><span class="si">}</span><span class="s2">%: %</span><span class="se">{{</span><span class="s2">customdata[1]:,.4s</span><span class="se">}}</span><span class="s2">&quot;</span>
+                    <span class="s2">&quot;&lt;extra&gt;&lt;/extra&gt;&quot;</span>
+                <span class="p">),</span>
+                <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">model_name</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">lower_quantile</span><span class="si">}</span><span class="s2">%-</span><span class="si">{</span><span class="n">upper_quantile</span><span class="si">}</span><span class="s2">% Hover Info&quot;</span><span class="p">,</span>
+                <span class="n">showlegend</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">legendgroup</span><span class="o">=</span><span class="n">legendgroup</span><span class="p">,</span>
+                <span class="n">connectgaps</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">connect_gaps</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_prepare_quantile_bands</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">BandData</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Prepare quantile band data for plotting.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List of BandData dictionaries with quantile band information.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">bands</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">BandData</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">model_index</span><span class="p">,</span> <span class="n">model_data</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_models_data</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">model_data</span><span class="p">[</span><span class="s2">&quot;quantiles&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="n">model_name</span> <span class="o">=</span> <span class="n">model_data</span><span class="p">[</span><span class="s2">&quot;model_name&quot;</span><span class="p">]</span>
+            <span class="n">quantiles</span> <span class="o">=</span> <span class="n">model_data</span><span class="p">[</span><span class="s2">&quot;quantiles&quot;</span><span class="p">]</span>
+
+            <span class="c1"># Extract and sort quantile percentages</span>
+            <span class="n">quantile_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">quantiles</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;quantile_P&quot;</span><span class="p">)]</span>
+            <span class="n">percentiles</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">col</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;P&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">quantile_cols</span><span class="p">])</span>
+
+            <span class="c1"># Create band data from widest to narrowest</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">percentiles</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span><span class="p">):</span>
+                <span class="n">lower_quantile</span><span class="p">,</span> <span class="n">upper_quantile</span> <span class="o">=</span> <span class="n">percentiles</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">percentiles</span><span class="p">[</span><span class="o">-</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
+                <span class="k">if</span> <span class="nb">float</span><span class="p">(</span><span class="n">lower_quantile</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">MEDIAN_QUANTILE</span><span class="p">:</span>
+                    <span class="k">continue</span>
+
+                <span class="c1"># type: ignore construct a BandData-compatible dict</span>
+                <span class="n">bands</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                    <span class="s2">&quot;model_name&quot;</span><span class="p">:</span> <span class="n">model_name</span><span class="p">,</span>
+                    <span class="s2">&quot;model_index&quot;</span><span class="p">:</span> <span class="n">model_index</span><span class="p">,</span>
+                    <span class="s2">&quot;lower_quantile&quot;</span><span class="p">:</span> <span class="n">lower_quantile</span><span class="p">,</span>
+                    <span class="s2">&quot;upper_quantile&quot;</span><span class="p">:</span> <span class="n">upper_quantile</span><span class="p">,</span>
+                    <span class="s2">&quot;lower_data&quot;</span><span class="p">:</span> <span class="n">quantiles</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;quantile_P</span><span class="si">{</span><span class="n">lower_quantile</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;upper_data&quot;</span><span class="p">:</span> <span class="n">quantiles</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;quantile_P</span><span class="si">{</span><span class="n">upper_quantile</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">],</span>
+                <span class="p">})</span>
+        <span class="k">return</span> <span class="n">bands</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_prepare_forecast_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">LineData</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Prepare forecast line data for plotting.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List of LineData dictionaries with forecast line information.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">lines</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">LineData</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">model_index</span><span class="p">,</span> <span class="n">model_data</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_models_data</span><span class="p">):</span>
+            <span class="n">model_name</span> <span class="o">=</span> <span class="n">model_data</span><span class="p">[</span><span class="s2">&quot;model_name&quot;</span><span class="p">]</span>
+            <span class="n">forecast</span> <span class="o">=</span> <span class="n">model_data</span><span class="p">[</span><span class="s2">&quot;forecast&quot;</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">forecast</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">LineData</span><span class="p">(</span>
+                        <span class="n">model_name</span><span class="o">=</span><span class="n">model_name</span><span class="p">,</span>
+                        <span class="n">model_index</span><span class="o">=</span><span class="n">model_index</span><span class="p">,</span>
+                        <span class="n">data</span><span class="o">=</span><span class="n">forecast</span><span class="p">,</span>
+                        <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;forecast&quot;</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+        <span class="k">return</span> <span class="n">lines</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_prepare_quantile_50th_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">LineData</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Prepare 50th quantile line data for plotting (only when no forecast is provided).</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            List of LineData dictionaries with 50th quantile line information.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">lines</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">LineData</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">model_index</span><span class="p">,</span> <span class="n">model_data</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_models_data</span><span class="p">):</span>
+            <span class="n">model_name</span> <span class="o">=</span> <span class="n">model_data</span><span class="p">[</span><span class="s2">&quot;model_name&quot;</span><span class="p">]</span>
+            <span class="n">quantiles</span> <span class="o">=</span> <span class="n">model_data</span><span class="p">[</span><span class="s2">&quot;quantiles&quot;</span><span class="p">]</span>
+            <span class="n">forecast</span> <span class="o">=</span> <span class="n">model_data</span><span class="p">[</span><span class="s2">&quot;forecast&quot;</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">quantiles</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">forecast</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">median_col</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;quantile_P</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">MEDIAN_QUANTILE</span><span class="p">)</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="k">if</span> <span class="n">median_col</span> <span class="ow">in</span> <span class="n">quantiles</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                    <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="n">LineData</span><span class="p">(</span>
+                            <span class="n">model_name</span><span class="o">=</span><span class="n">model_name</span><span class="p">,</span>
+                            <span class="n">model_index</span><span class="o">=</span><span class="n">model_index</span><span class="p">,</span>
+                            <span class="n">data</span><span class="o">=</span><span class="n">quantiles</span><span class="p">[</span><span class="n">median_col</span><span class="p">],</span>
+                            <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;quantile_50th&quot;</span><span class="p">,</span>
+                        <span class="p">)</span>
+                    <span class="p">)</span>
+        <span class="k">return</span> <span class="n">lines</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_quantile_bands_to_figure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">figure</span><span class="p">:</span> <span class="n">go</span><span class="o">.</span><span class="n">Figure</span><span class="p">,</span> <span class="n">bands</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">BandData</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add quantile bands to the figure.&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">band</span> <span class="ow">in</span> <span class="n">bands</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add_quantile_band</span><span class="p">(</span>
+                <span class="n">figure</span><span class="o">=</span><span class="n">figure</span><span class="p">,</span>
+                <span class="n">lower_quantile_data</span><span class="o">=</span><span class="n">band</span><span class="p">[</span><span class="s2">&quot;lower_data&quot;</span><span class="p">],</span>
+                <span class="n">lower_quantile</span><span class="o">=</span><span class="n">band</span><span class="p">[</span><span class="s2">&quot;lower_quantile&quot;</span><span class="p">],</span>
+                <span class="n">upper_quantile_data</span><span class="o">=</span><span class="n">band</span><span class="p">[</span><span class="s2">&quot;upper_data&quot;</span><span class="p">],</span>
+                <span class="n">upper_quantile</span><span class="o">=</span><span class="n">band</span><span class="p">[</span><span class="s2">&quot;upper_quantile&quot;</span><span class="p">],</span>
+                <span class="n">model_name</span><span class="o">=</span><span class="n">band</span><span class="p">[</span><span class="s2">&quot;model_name&quot;</span><span class="p">],</span>
+                <span class="n">model_index</span><span class="o">=</span><span class="n">band</span><span class="p">[</span><span class="s2">&quot;model_index&quot;</span><span class="p">],</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_lines_to_figure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">figure</span><span class="p">:</span> <span class="n">go</span><span class="o">.</span><span class="n">Figure</span><span class="p">,</span> <span class="n">lines</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">LineData</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add forecast and quantile lines to the figure.&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+            <span class="n">color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">colors</span><span class="p">[</span><span class="n">line</span><span class="p">[</span><span class="s2">&quot;model_index&quot;</span><span class="p">]</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">colors</span><span class="p">)]</span>  <span class="c1"># type: ignore[assignment]</span>
+
+            <span class="k">if</span> <span class="n">line</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;forecast&quot;</span><span class="p">:</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">line</span><span class="p">[</span><span class="s1">&#39;model_name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> Forecast (50th)&quot;</span>
+                <span class="n">hover_label</span> <span class="o">=</span> <span class="s2">&quot;Forecast (50th)&quot;</span>
+            <span class="k">else</span><span class="p">:</span>  <span class="c1"># quantile_50th</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">line</span><span class="p">[</span><span class="s1">&#39;model_name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> Quantile (50th)&quot;</span>
+                <span class="n">hover_label</span> <span class="o">=</span> <span class="s2">&quot;Quantile (50th)&quot;</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">connect_gaps</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="c1"># Use data as-is (either connect_gaps=True or single data point)</span>
+                <span class="n">x_data</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">index</span>
+                <span class="n">y_data</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Process data to insert gaps for missing timestamps</span>
+                <span class="n">estimated_interval</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;pd.Series[pd.Timestamp]&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">to_series</span><span class="p">())</span><span class="o">.</span><span class="n">diff</span><span class="p">()</span><span class="o">.</span><span class="n">median</span><span class="p">()</span>
+                <span class="n">processed_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_insert_gaps_for_missing_timestamps</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">],</span> <span class="n">estimated_interval</span><span class="p">)</span>
+                <span class="n">x_data</span> <span class="o">=</span> <span class="n">processed_data</span><span class="o">.</span><span class="n">index</span>
+                <span class="n">y_data</span> <span class="o">=</span> <span class="n">processed_data</span>
+
+            <span class="n">figure</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span>  <span class="c1"># type: ignore[reportUnknownMemberType]</span>
+                <span class="n">go</span><span class="o">.</span><span class="n">Scatter</span><span class="p">(</span>
+                    <span class="n">x</span><span class="o">=</span><span class="n">x_data</span><span class="p">,</span>
+                    <span class="n">y</span><span class="o">=</span><span class="n">y_data</span><span class="p">,</span>
+                    <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;lines&quot;</span><span class="p">,</span>
+                    <span class="n">line</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="n">color</span><span class="p">,</span> <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">stroke_width</span><span class="p">},</span>
+                    <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                    <span class="n">customdata</span><span class="o">=</span><span class="n">y_data</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                    <span class="n">hovertemplate</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">hover_label</span><span class="si">}</span><span class="s2">: %</span><span class="se">{{</span><span class="s2">customdata:,.4s</span><span class="se">}}</span><span class="s2">&lt;extra&gt;&lt;/extra&gt;&quot;</span><span class="p">,</span>
+                    <span class="n">connectgaps</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">connect_gaps</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_measurements_to_figure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">figure</span><span class="p">:</span> <span class="n">go</span><span class="o">.</span><span class="n">Figure</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add measurements to the figure.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_measurements</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">connect_gaps</span><span class="p">:</span>
+                <span class="c1"># Original behavior - use data as-is</span>
+                <span class="n">measurements_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_measurements</span>
+                <span class="n">x_data</span> <span class="o">=</span> <span class="n">measurements_data</span><span class="o">.</span><span class="n">index</span>
+                <span class="n">y_data</span> <span class="o">=</span> <span class="n">measurements_data</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Process data to insert gaps for missing timestamps</span>
+                <span class="n">measurements_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_measurements</span>
+                <span class="n">processed_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_insert_gaps_for_missing_timestamps</span><span class="p">(</span>
+                    <span class="n">measurements_data</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sample_interval</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="n">x_data</span> <span class="o">=</span> <span class="n">processed_data</span><span class="o">.</span><span class="n">index</span>
+                <span class="n">y_data</span> <span class="o">=</span> <span class="n">processed_data</span>
+
+            <span class="n">figure</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span>  <span class="c1"># type: ignore[reportUnknownMemberType]</span>
+                <span class="n">go</span><span class="o">.</span><span class="n">Scatter</span><span class="p">(</span>
+                    <span class="n">x</span><span class="o">=</span><span class="n">x_data</span><span class="p">,</span>
+                    <span class="n">y</span><span class="o">=</span><span class="n">y_data</span><span class="p">,</span>
+                    <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;lines&quot;</span><span class="p">,</span>
+                    <span class="n">line</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">stroke_width</span><span class="p">},</span>
+                    <span class="n">customdata</span><span class="o">=</span><span class="n">y_data</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                    <span class="n">hovertemplate</span><span class="o">=</span><span class="s2">&quot;Realized: %</span><span class="si">{customdata:,.4s}</span><span class="s2">&lt;extra&gt;&lt;/extra&gt;&quot;</span><span class="p">,</span>
+                    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Realized&quot;</span><span class="p">,</span>
+                    <span class="n">connectgaps</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">connect_gaps</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_limits_to_figure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">figure</span><span class="p">:</span> <span class="n">go</span><span class="o">.</span><span class="n">Figure</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add horizontal limit lines to the figure.&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">limit</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_limits</span><span class="p">:</span>
+            <span class="n">figure</span><span class="o">.</span><span class="n">add_hline</span><span class="p">(</span>  <span class="c1"># type: ignore[reportUnknownMemberType]</span>
+                <span class="n">y</span><span class="o">=</span><span class="n">limit</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">],</span>
+                <span class="n">line_dash</span><span class="o">=</span><span class="s2">&quot;dot&quot;</span><span class="p">,</span>
+                <span class="n">annotation_text</span><span class="o">=</span><span class="n">limit</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span>
+                <span class="n">annotation_position</span><span class="o">=</span><span class="s2">&quot;top right&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_configure_figure_layout</span><span class="p">(</span><span class="n">figure</span><span class="p">:</span> <span class="n">go</span><span class="o">.</span><span class="n">Figure</span><span class="p">,</span> <span class="n">title</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Configure the figure layout and styling.&quot;&quot;&quot;</span>
+        <span class="n">figure</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span>  <span class="c1"># type: ignore[reportUnknownMemberType]</span>
+            <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span>
+            <span class="n">xaxis_title</span><span class="o">=</span><span class="s2">&quot;Datetime [UTC]&quot;</span><span class="p">,</span>
+            <span class="n">yaxis_title</span><span class="o">=</span><span class="s2">&quot;Load [W]&quot;</span><span class="p">,</span>
+            <span class="n">template</span><span class="o">=</span><span class="s2">&quot;plotly_white&quot;</span><span class="p">,</span>
+            <span class="n">hovermode</span><span class="o">=</span><span class="s2">&quot;x unified&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="ForecastTimeSeriesPlotter.plot">
+<a class="viewcode-back" href="../../../../api/generated/openstef_beam.analysis.plots.forecast_time_series_plotter.ForecastTimeSeriesPlotter.html#openstef_beam.analysis.plots.ForecastTimeSeriesPlotter.plot">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Time Series Plots&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">go</span><span class="o">.</span><span class="n">Figure</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Plot the time series data with measurements, forecasts, and quantiles.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            title (str): Title of the plot.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            plotly.graph_objects.Figure: The time series plot.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: If no data has been added to the plotter.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_models_data</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_measurements</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;No data has been added. Use add_measurements or add_model first.&quot;</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="c1"># Prepare data for plotting</span>
+        <span class="n">quantile_bands</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">BandData</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_quantile_bands</span><span class="p">()</span>
+        <span class="n">forecast_lines</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">LineData</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_forecast_lines</span><span class="p">()</span>
+        <span class="n">quantile_50th_lines</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">LineData</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_quantile_50th_lines</span><span class="p">()</span>
+
+        <span class="c1"># Create figure and add traces in the correct order</span>
+        <span class="n">figure</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">Figure</span><span class="p">()</span>
+
+        <span class="c1"># Layer 1: Quantile bands (background)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_quantile_bands_to_figure</span><span class="p">(</span><span class="n">figure</span><span class="p">,</span> <span class="n">quantile_bands</span><span class="p">)</span>
+
+        <span class="c1"># Layer 2: Forecast lines and 50th quantile lines (middle)</span>
+        <span class="n">all_lines</span> <span class="o">=</span> <span class="n">forecast_lines</span> <span class="o">+</span> <span class="n">quantile_50th_lines</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_lines_to_figure</span><span class="p">(</span><span class="n">figure</span><span class="p">,</span> <span class="n">all_lines</span><span class="p">)</span>
+
+        <span class="c1"># Layer 3: Measurements (foreground)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_measurements_to_figure</span><span class="p">(</span><span class="n">figure</span><span class="p">)</span>
+
+        <span class="c1"># Add limits and configure layout</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_limits_to_figure</span><span class="p">(</span><span class="n">figure</span><span class="p">)</span>
+        <span class="n">ForecastTimeSeriesPlotter</span><span class="o">.</span><span class="n">_configure_figure_layout</span><span class="p">(</span><span class="n">figure</span><span class="p">,</span> <span class="n">title</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">figure</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_single_quantile_polygon</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">figure</span><span class="p">:</span> <span class="n">go</span><span class="o">.</span><span class="n">Figure</span><span class="p">,</span>
+        <span class="n">band</span><span class="p">:</span> <span class="n">BandData</span><span class="p">,</span>
+        <span class="n">style</span><span class="p">:</span> <span class="n">QuantilePolygonStyle</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a single quantile polygon for the original connect_gaps=True behavior.&quot;&quot;&quot;</span>
+        <span class="c1"># Create polygon shape for the quantile band in counterclockwise order</span>
+        <span class="n">index_list</span> <span class="o">=</span> <span class="n">band</span><span class="p">[</span><span class="s2">&quot;lower_data&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">to_list</span><span class="p">()</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">index_list</span> <span class="o">+</span> <span class="n">index_list</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">band</span><span class="p">[</span><span class="s2">&quot;lower_data&quot;</span><span class="p">])</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">band</span><span class="p">[</span><span class="s2">&quot;upper_data&quot;</span><span class="p">][::</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="n">figure</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span>  <span class="c1"># type: ignore[reportUnknownMemberType]</span>
+            <span class="n">go</span><span class="o">.</span><span class="n">Scatter</span><span class="p">(</span>
+                <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span>
+                <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span>
+                <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;lines&quot;</span><span class="p">,</span>
+                <span class="n">fill</span><span class="o">=</span><span class="s2">&quot;toself&quot;</span><span class="p">,</span>
+                <span class="n">fillcolor</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;rgba</span><span class="si">{</span><span class="n">style</span><span class="p">[</span><span class="s1">&#39;fill_color&#39;</span><span class="p">][</span><span class="mi">3</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">fill_opacity</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
+                <span class="n">line</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;rgba</span><span class="si">{</span><span class="n">style</span><span class="p">[</span><span class="s1">&#39;stroke_color&#39;</span><span class="p">][</span><span class="mi">3</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">stroke_opacity</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">stroke_width</span><span class="p">,</span>
+                <span class="p">},</span>
+                <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">band</span><span class="p">[</span><span class="s1">&#39;model_name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">band</span><span class="p">[</span><span class="s1">&#39;lower_quantile&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">%-</span><span class="si">{</span><span class="n">band</span><span class="p">[</span><span class="s1">&#39;upper_quantile&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">,</span>
+                <span class="n">showlegend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">hoverinfo</span><span class="o">=</span><span class="s2">&quot;skip&quot;</span><span class="p">,</span>
+                <span class="n">legendgroup</span><span class="o">=</span><span class="n">style</span><span class="p">[</span><span class="s2">&quot;legendgroup&quot;</span><span class="p">],</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_segmented_quantile_polygons</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">figure</span><span class="p">:</span> <span class="n">go</span><span class="o">.</span><span class="n">Figure</span><span class="p">,</span>
+        <span class="n">band</span><span class="p">:</span> <span class="n">BandData</span><span class="p">,</span>
+        <span class="n">style</span><span class="p">:</span> <span class="n">QuantilePolygonStyle</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add segmented quantile polygons that respect gaps (NaN values).&quot;&quot;&quot;</span>
+        <span class="c1"># Find continuous segments (non-NaN data)</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="o">~</span><span class="p">(</span><span class="n">band</span><span class="p">[</span><span class="s2">&quot;lower_data&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span> <span class="o">|</span> <span class="n">band</span><span class="p">[</span><span class="s2">&quot;upper_data&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">())</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">mask</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+            <span class="k">return</span>  <span class="c1"># No valid data</span>
+
+        <span class="c1"># Find start and end indices of continuous segments</span>
+        <span class="c1"># diff() finds transitions: True-&gt;False (-1) and False-&gt;True (1)</span>
+        <span class="n">mask_array</span> <span class="o">=</span> <span class="n">mask</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>  <span class="c1"># type: ignore</span>
+        <span class="n">transitions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(([</span><span class="kc">False</span><span class="p">],</span> <span class="n">mask_array</span><span class="p">,</span> <span class="p">[</span><span class="kc">False</span><span class="p">]))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">))</span>
+        <span class="n">segment_starts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">transitions</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># Where transitions from False to True</span>
+        <span class="n">segment_ends</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">transitions</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>  <span class="c1"># Where transitions from True to False</span>
+        <span class="n">segments</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">segment_starts</span><span class="p">,</span> <span class="n">segment_ends</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+
+        <span class="c1"># Create separate polygon for each continuous segment</span>
+        <span class="k">for</span> <span class="n">seg_idx</span><span class="p">,</span> <span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">segments</span><span class="p">):</span>  <span class="c1"># type: ignore[misc]</span>
+            <span class="n">lower_segment</span> <span class="o">=</span> <span class="n">band</span><span class="p">[</span><span class="s2">&quot;lower_data&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">start</span> <span class="p">:</span> <span class="n">end</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="n">upper_segment</span> <span class="o">=</span> <span class="n">band</span><span class="p">[</span><span class="s2">&quot;upper_data&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">start</span> <span class="p">:</span> <span class="n">end</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+
+            <span class="c1"># Create polygon for this segment</span>
+            <span class="n">index_list</span> <span class="o">=</span> <span class="n">lower_segment</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">to_list</span><span class="p">()</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">index_list</span> <span class="o">+</span> <span class="n">index_list</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">lower_segment</span><span class="p">)</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">upper_segment</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+            <span class="c1"># Only show legend for the first segment</span>
+            <span class="n">show_legend</span> <span class="o">=</span> <span class="n">seg_idx</span> <span class="o">==</span> <span class="mi">0</span>
+
+            <span class="n">figure</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span>  <span class="c1"># type: ignore[reportUnknownMemberType]</span>
+                <span class="n">go</span><span class="o">.</span><span class="n">Scatter</span><span class="p">(</span>
+                    <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span>
+                    <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span>
+                    <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;lines&quot;</span><span class="p">,</span>
+                    <span class="n">fill</span><span class="o">=</span><span class="s2">&quot;toself&quot;</span><span class="p">,</span>
+                    <span class="n">fillcolor</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;rgba</span><span class="si">{</span><span class="n">style</span><span class="p">[</span><span class="s1">&#39;fill_color&#39;</span><span class="p">][</span><span class="mi">3</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">fill_opacity</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
+                    <span class="n">line</span><span class="o">=</span><span class="p">{</span>
+                        <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;rgba</span><span class="si">{</span><span class="n">style</span><span class="p">[</span><span class="s1">&#39;stroke_color&#39;</span><span class="p">][</span><span class="mi">3</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">stroke_opacity</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">stroke_width</span><span class="p">,</span>
+                    <span class="p">},</span>
+                    <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">band</span><span class="p">[</span><span class="s1">&#39;model_name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">band</span><span class="p">[</span><span class="s1">&#39;lower_quantile&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">%-</span><span class="si">{</span><span class="n">band</span><span class="p">[</span><span class="s1">&#39;upper_quantile&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">,</span>
+                    <span class="n">showlegend</span><span class="o">=</span><span class="n">show_legend</span><span class="p">,</span>
+                    <span class="n">hoverinfo</span><span class="o">=</span><span class="s2">&quot;skip&quot;</span><span class="p">,</span>
+                    <span class="n">legendgroup</span><span class="o">=</span><span class="n">style</span><span class="p">[</span><span class="s2">&quot;legendgroup&quot;</span><span class="p">],</span>
+                <span class="p">)</span>
+            <span class="p">)</span></div>
+
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ForecastTimeSeriesPlotter&quot;</span><span class="p">]</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2017-2026 Contributors to the OpenSTEF project.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

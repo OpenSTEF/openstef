@@ -1,0 +1,50 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+
+
+data_split
+==========
+
+.. currentmodule:: openstef_models.utils.data_split
+
+.. automodule:: openstef_models.utils.data_split
+   :no-members:
+   :no-inherited-members:
+
+
+
+
+
+
+
+
+
+
+Functions
+---------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_function.rst
+
+   chronological_train_test_split
+   split_by_date
+   split_by_dates
+   stratified_train_test_split
+   train_val_test_split
+
+
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_class_noindex.rst
+
+   DataSplitter
+
+
+

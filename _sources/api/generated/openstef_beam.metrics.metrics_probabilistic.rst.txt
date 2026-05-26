@@ -1,0 +1,40 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+
+
+metrics_probabilistic
+=====================
+
+.. currentmodule:: openstef_beam.metrics.metrics_probabilistic
+
+.. automodule:: openstef_beam.metrics.metrics_probabilistic
+   :no-members:
+   :no-inherited-members:
+
+
+
+
+
+
+
+
+
+
+Functions
+---------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_function.rst
+
+   crps
+   mean_absolute_calibration_error
+   mean_pinball_loss
+   observed_probability
+   rcrps
+
+
+
+

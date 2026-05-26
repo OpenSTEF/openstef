@@ -1,0 +1,53 @@
+﻿.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+
+
+utils
+=====
+
+.. currentmodule:: openstef_models.utils
+
+.. automodule:: openstef_models.utils
+   :no-members:
+   :no-inherited-members:
+
+
+
+
+
+
+
+
+
+
+Submodules
+----------
+
+
+
+.. autosummary::
+   :toctree: .
+   :template: module_overview.rst
+
+   data_split
+   evaluation_functions
+   feature_selection
+   loss_functions
+   multi_quantile_regressor
+   xgboost
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,46 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+
+
+metric_providers
+================
+
+.. currentmodule:: openstef_beam.evaluation.metric_providers
+
+.. automodule:: openstef_beam.evaluation.metric_providers
+   :no-members:
+   :no-inherited-members:
+
+
+
+
+
+
+
+
+
+
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_class_noindex.rst
+
+   MAPEProvider
+   MeanAbsoluteCalibrationErrorProvider
+   MetricProvider
+   ObservedProbabilityProvider
+   PeakMetricProvider
+   R2Provider
+   RCRPSProvider
+   RIQDProvider
+   RMAEPeakHoursProvider
+   RMAEProvider
+   RelativePinballLossProvider
+
+
+

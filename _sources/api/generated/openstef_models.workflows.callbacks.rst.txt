@@ -1,0 +1,51 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+
+
+callbacks
+=========
+
+.. currentmodule:: openstef_models.workflows.callbacks
+
+.. automodule:: openstef_models.workflows.callbacks
+   :no-members:
+   :no-inherited-members:
+
+
+
+
+
+
+
+
+
+Submodules
+----------
+
+
+.. autosummary::
+   :toctree: .
+   :template: module_overview.rst
+
+   openstef_models.workflows.callbacks.data_save
+   openstef_models.workflows.callbacks.model_performance_callback
+
+
+
+
+
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_class_noindex.rst
+
+   DataSaveCallback
+   ModelPerformanceCallback
+
+
+

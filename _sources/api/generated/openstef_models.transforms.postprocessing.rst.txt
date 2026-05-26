@@ -1,0 +1,53 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+
+
+postprocessing
+==============
+
+.. currentmodule:: openstef_models.transforms.postprocessing
+
+.. automodule:: openstef_models.transforms.postprocessing
+   :no-members:
+   :no-inherited-members:
+
+
+
+
+
+
+
+
+
+Submodules
+----------
+
+
+.. autosummary::
+   :toctree: .
+   :template: module_overview.rst
+
+   openstef_models.transforms.postprocessing.confidence_interval_applicator
+   openstef_models.transforms.postprocessing.isotonic_quantile_calibrator
+   openstef_models.transforms.postprocessing.quantile_sorter
+
+
+
+
+
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_class_noindex.rst
+
+   ConfidenceIntervalApplicator
+   IsotonicQuantileCalibrator
+   QuantileSorter
+
+
+

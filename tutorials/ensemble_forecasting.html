@@ -1,0 +1,1035 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Ensemble Forecasting &#8212; OpenSTEF 0.0.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=3f5a9049" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=7026087e"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=97f0b27d"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'tutorials/ensemble_forecasting';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = '_static/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Hyperparameter Tuning with Optuna" href="hyperparameter_tuning_with_optuna.html" />
+    <link rel="prev" title="Feature Engineering for Energy Forecasting" href="feature_engineering.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.0.0" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/openstef-horizontal-color.svg" class="logo__image only-light" alt="OpenSTEF homepage"/>
+    <img src="../_static/openstef-horizontal-white.svg" class="logo__image only-dark pst-js-only" alt="OpenSTEF homepage"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api/index.html">
+    API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../project/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contribute/index.html">
+    Contributing
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/OpenSTEF/openstef" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.lfenergy.org/projects/openstef/" title="LFE Homepage" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-bolt fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">LFE Homepage</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api/index.html">
+    API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../project/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contribute/index.html">
+    Contributing
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/OpenSTEF/openstef" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.lfenergy.org/projects/openstef/" title="LFE Homepage" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-bolt fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">LFE Homepage</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="forecasting_quickstart.html">Forecasting Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="backtesting_quickstart.html">Backtesting Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">Understanding Datasets</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Model Training</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="custom_pipeline.html">Custom Pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="feature_engineering.html">Feature Engineering</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Ensemble Forecasting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hyperparameter_tuning_with_optuna.html">Hyperparameter Tuning</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Evaluation &amp; Analysis</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="model_explainability.html">Model Explainability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quantile_calibration.html">Quantile Calibration</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Benchmarks</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../benchmarks/README.html">Benchmarking Guide</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../benchmarks/liander2024/README.html">Liander 2024</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks/liander2024/run_xgboost_gblinear_benchmark.html">XGBoost &amp; GBLinear</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks/liander2024/run_ensemble_benchmark.html">Ensemble Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks/liander2024/compare_benchmark_runs.html">Compare Results</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../benchmarks/custom/README.html">Build Your Own</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks/custom/custom_forecaster.html">Implement a Custom Forecaster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks/custom/custom_benchmark.html">Configure a Custom Benchmark</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks/custom/run_liander2024_benchmark.html">Run on Liander 2024 Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks/custom/run_custom_benchmark.html">Run on Your Own Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks/custom/evaluate_existing_forecasts.html">Evaluate Existing Forecasts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks/custom/compare_benchmark_runs.html">Compare Multiple Runs</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../examples.html" class="nav-link">Examples</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Ensemble Forecasting</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="ensemble-forecasting">
+<h1>Ensemble Forecasting<a class="headerlink" href="#ensemble-forecasting" title="Link to this heading">#</a></h1>
+<p>OpenSTEF supports ensemble models that combine multiple base forecasters
+into a single prediction.  A <strong>combiner</strong> learns which base model performs
+best under different conditions and weights their outputs accordingly.</p>
+<p><strong>What you’ll learn:</strong></p>
+<ul class="simple">
+<li><p>Why combining tree-based and linear models improves forecasts</p></li>
+<li><p>How to configure and train an ensemble with <a class="reference external" href="https://openstef.github.io/openstef/api/generated/openstef_meta.presets.EnsembleForecastingWorkflowConfig.html"><code class="docutils literal notranslate"><span class="pre">EnsembleForecastingWorkflowConfig</span></code></a></p></li>
+<li><p>How to inspect combiner behavior (which model does it prefer?)</p></li>
+<li><p>How ensemble predictions compare to individual base models</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This tutorial uses a small dataset for fast execution.
+See <code class="docutils literal notranslate"><span class="pre">examples/benchmarks/</span></code> for production-scale ensemble runs.</p>
+</div>
+<p><strong>Key API references:</strong>
+<a class="reference external" href="https://openstef.github.io/openstef/api/generated/openstef_meta.presets.EnsembleForecastingWorkflowConfig.html"><code class="docutils literal notranslate"><span class="pre">EnsembleForecastingWorkflowConfig</span></code></a>
+· <a class="reference external" href="https://openstef.github.io/openstef/api/generated/openstef_meta.presets.create_ensemble_forecasting_workflow.html"><code class="docutils literal notranslate"><span class="pre">create_ensemble_forecasting_workflow</span></code></a>
+· <a class="reference external" href="https://openstef.github.io/openstef/api/generated/openstef_models.presets.ForecastingWorkflowConfig.html"><code class="docutils literal notranslate"><span class="pre">ForecastingWorkflowConfig</span></code></a></p>
+<section id="why-ensemble-forecasting">
+<h2>Why ensemble forecasting?<a class="headerlink" href="#why-ensemble-forecasting" title="Link to this heading">#</a></h2>
+<p>Different model types have complementary strengths:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Model</p></th>
+<th class="head"><p>Strengths</p></th>
+<th class="head"><p>Weaknesses</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Tree-based</strong> (LightGBM, XGBoost)</p></td>
+<td><p>Captures complex non-linear patterns, handles feature interactions well</p></td>
+<td><p>Poor extrapolation — struggles with unseen peaks, seasonal shifts, or values outside training range</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Linear</strong> (GBLinear)</p></td>
+<td><p>Extrapolates naturally to new ranges, captures seasonal/solar trends</p></td>
+<td><p>Cannot model non-linear interactions</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>In energy forecasting, load peaks during extreme weather or seasonal
+transitions often fall outside the training distribution.  A tree-based
+model underestimates these peaks while a linear model captures the trend
+but misses finer patterns.  An <strong>ensemble</strong> combines both: the combiner
+learns <em>when</em> each model is more reliable and weights accordingly.</p>
+</section>
+<section id="how-it-works">
+<h2>How it works<a class="headerlink" href="#how-it-works" title="Link to this heading">#</a></h2>
+<p>An ensemble workflow has three layers:</p>
+<ol class="arabic simple">
+<li><p><strong>Common preprocessing</strong> — shared feature engineering (lags, holidays,
+cyclic features, scaling) applied once to raw data.</p></li>
+<li><p><strong>Base forecasters</strong> — multiple models each trained on the preprocessed
+data, with optional per-model transforms (e.g. GBLinear gets fewer lags
+to avoid collinearity).</p></li>
+<li><p><strong>Combiner</strong> — learns to aggregate base forecaster outputs.  Two modes:</p>
+<ul class="simple">
+<li><p><em>Learned weights</em>: a classifier predicts which base model will perform
+best for each sample, then weights predictions accordingly.</p></li>
+<li><p><em>Stacking</em>: a meta-regressor trained on base model outputs per quantile.</p></li>
+</ul>
+</li>
+</ol>
+</section>
+<section id="load-the-dataset">
+<h2>Load the dataset<a class="headerlink" href="#load-the-dataset" title="Link to this heading">#</a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.testing</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_liander_dataset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">LeadTime</span><span class="p">,</span> <span class="n">Q</span>
+
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">load_liander_dataset</span><span class="p">()</span>
+
+<span class="n">train_start</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="s2">&quot;2024-03-01T00:00:00Z&quot;</span><span class="p">)</span>
+<span class="n">train_end</span> <span class="o">=</span> <span class="n">train_start</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">45</span><span class="p">)</span>
+<span class="n">forecast_end</span> <span class="o">=</span> <span class="n">train_end</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+
+<span class="n">train_dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">filter_by_range</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">train_start</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">train_end</span><span class="p">)</span>
+<span class="n">predict_dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">filter_by_range</span><span class="p">(</span>
+    <span class="n">start</span><span class="o">=</span><span class="n">train_end</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">14</span><span class="p">),</span>
+    <span class="n">end</span><span class="o">=</span><span class="n">forecast_end</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Training:  </span><span class="si">{</span><span class="n">train_dataset</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> rows&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Predict:   </span><span class="si">{</span><span class="n">predict_dataset</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> rows&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Training:  4,320 rows
+Predict:   2,016 rows
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="configure-the-ensemble">
+<h2>Configure the ensemble<a class="headerlink" href="#configure-the-ensemble" title="Link to this heading">#</a></h2>
+<p><a class="reference external" href="https://openstef.github.io/openstef/api/generated/openstef_meta.presets.EnsembleForecastingWorkflowConfig.html"><code class="docutils literal notranslate"><span class="pre">EnsembleForecastingWorkflowConfig</span></code></a> sets up the full pipeline.
+Key parameters:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">base_models</span></code> — which forecasters to include</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ensemble_type</span></code> — how to combine them (<code class="docutils literal notranslate"><span class="pre">&quot;learned_weights&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;stacking&quot;</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">combiner_model</span></code> — the algorithm used by the combiner</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">openstef_meta.presets</span><span class="w"> </span><span class="kn">import</span> <span class="n">EnsembleForecastingWorkflowConfig</span><span class="p">,</span> <span class="n">create_ensemble_forecasting_workflow</span>
+
+<span class="n">ensemble_config</span> <span class="o">=</span> <span class="n">EnsembleForecastingWorkflowConfig</span><span class="p">(</span>
+    <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;ensemble_demo&quot;</span><span class="p">,</span>
+    <span class="c1"># Ensemble architecture</span>
+    <span class="n">ensemble_type</span><span class="o">=</span><span class="s2">&quot;learned_weights&quot;</span><span class="p">,</span>
+    <span class="n">base_models</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;lgbm&quot;</span><span class="p">,</span> <span class="s2">&quot;gblinear&quot;</span><span class="p">],</span>
+    <span class="n">combiner_model</span><span class="o">=</span><span class="s2">&quot;lgbm&quot;</span><span class="p">,</span>
+    <span class="c1"># Forecast settings</span>
+    <span class="n">horizons</span><span class="o">=</span><span class="p">[</span><span class="n">LeadTime</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;PT36H&quot;</span><span class="p">)],</span>
+    <span class="n">quantiles</span><span class="o">=</span><span class="p">[</span><span class="n">Q</span><span class="p">(</span><span class="mf">0.5</span><span class="p">),</span> <span class="n">Q</span><span class="p">(</span><span class="mf">0.1</span><span class="p">),</span> <span class="n">Q</span><span class="p">(</span><span class="mf">0.9</span><span class="p">)],</span>
+    <span class="c1"># Data columns</span>
+    <span class="n">target_column</span><span class="o">=</span><span class="s2">&quot;load&quot;</span><span class="p">,</span>
+    <span class="n">temperature_column</span><span class="o">=</span><span class="s2">&quot;temperature_2m&quot;</span><span class="p">,</span>
+    <span class="n">relative_humidity_column</span><span class="o">=</span><span class="s2">&quot;relative_humidity_2m&quot;</span><span class="p">,</span>
+    <span class="n">wind_speed_column</span><span class="o">=</span><span class="s2">&quot;wind_speed_10m&quot;</span><span class="p">,</span>
+    <span class="n">radiation_column</span><span class="o">=</span><span class="s2">&quot;shortwave_radiation&quot;</span><span class="p">,</span>
+    <span class="n">pressure_column</span><span class="o">=</span><span class="s2">&quot;surface_pressure&quot;</span><span class="p">,</span>
+    <span class="c1"># Disable MLFlow for tutorial</span>
+    <span class="n">mlflow_storage</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Base models:    </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">ensemble_config</span><span class="o">.</span><span class="n">base_models</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Ensemble type:  </span><span class="si">{</span><span class="n">ensemble_config</span><span class="o">.</span><span class="n">ensemble_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Combiner:       </span><span class="si">{</span><span class="n">ensemble_config</span><span class="o">.</span><span class="n">combiner_model</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Base models:    [&#39;lgbm&#39;, &#39;gblinear&#39;]
+Ensemble type:  learned_weights
+Combiner:       lgbm
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="create-and-train-the-ensemble-workflow">
+<h2>Create and train the ensemble workflow<a class="headerlink" href="#create-and-train-the-ensemble-workflow" title="Link to this heading">#</a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">workflow</span> <span class="o">=</span> <span class="n">create_ensemble_forecasting_workflow</span><span class="p">(</span><span class="n">ensemble_config</span><span class="p">)</span>
+<span class="n">fit_result</span> <span class="o">=</span> <span class="n">workflow</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Ensemble trained successfully&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Per-model validation R2:&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">child_result</span> <span class="ow">in</span> <span class="n">fit_result</span><span class="o">.</span><span class="n">component_fit_results</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="n">r2</span> <span class="o">=</span> <span class="n">child_result</span><span class="o">.</span><span class="n">metrics_val</span><span class="o">.</span><span class="n">get_metric</span><span class="p">(</span><span class="n">quantile</span><span class="o">=</span><span class="n">Q</span><span class="p">(</span><span class="mf">0.5</span><span class="p">),</span> <span class="n">metric_name</span><span class="o">=</span><span class="s2">&quot;R2&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">name</span><span class="si">:</span><span class="s2">12s</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">r2</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># Get combiner (ensemble-level) R2</span>
+<span class="n">ensemble_r2</span> <span class="o">=</span> <span class="n">fit_result</span><span class="o">.</span><span class="n">metrics_val</span><span class="o">.</span><span class="n">get_metric</span><span class="p">(</span><span class="n">quantile</span><span class="o">=</span><span class="n">Q</span><span class="p">(</span><span class="mf">0.5</span><span class="p">),</span> <span class="n">metric_name</span><span class="o">=</span><span class="s2">&quot;R2&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="s1">&#39;ensemble&#39;</span><span class="si">:</span><span class="s2">12s</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">ensemble_r2</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-05-26 14:44:05,481][WARNING] No aggregation functions specified. Skipping fit.
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-05-26 14:44:05,482][WARNING] No aggregation functions specified. Returning original data.
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-05-26 14:44:05,627][WARNING] No aggregation functions specified. Returning original data.
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-05-26 14:44:05,793][WARNING] No aggregation functions specified. Returning original data.
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-05-26 14:44:06,294][WARNING] No aggregation functions specified. Returning original data.
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Ensemble trained successfully
+
+Per-model validation R2:
+  lgbm        : 0.7956
+  gblinear    : 0.8042
+  ensemble    : 0.8337
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="generate-forecasts">
+<h2>Generate forecasts<a class="headerlink" href="#generate-forecasts" title="Link to this heading">#</a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">forecast</span> <span class="o">=</span> <span class="n">workflow</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">predict_dataset</span><span class="p">,</span> <span class="n">forecast_start</span><span class="o">=</span><span class="n">train_end</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Forecast rows: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">forecast</span><span class="o">.</span><span class="n">data</span><span class="p">)</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Quantiles: </span><span class="si">{</span><span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">q</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">q</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">forecast</span><span class="o">.</span><span class="n">quantiles</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-05-26 14:44:07,394][WARNING] No aggregation functions specified. Returning original data.
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-05-26 14:44:07,502][WARNING] No aggregation functions specified. Returning original data.
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Forecast rows: 672
+Quantiles: [0.5, 0.1, 0.9]
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="compare-ensemble-vs-individual-base-models">
+<h2>Compare: ensemble vs individual base models<a class="headerlink" href="#compare-ensemble-vs-individual-base-models" title="Link to this heading">#</a></h2>
+<p>To show the benefit of ensembling, let’s also train each base model
+individually and compare their forecasts.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.presets</span><span class="w"> </span><span class="kn">import</span> <span class="n">ForecastingWorkflowConfig</span><span class="p">,</span> <span class="n">create_forecasting_workflow</span>
+
+<span class="n">individual_forecasts</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">model_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;lgbm&quot;</span><span class="p">,</span> <span class="s2">&quot;gblinear&quot;</span><span class="p">]:</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">ForecastingWorkflowConfig</span><span class="p">(</span>
+        <span class="n">model_id</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">model_type</span><span class="si">}</span><span class="s2">_solo&quot;</span><span class="p">,</span>
+        <span class="n">model</span><span class="o">=</span><span class="n">model_type</span><span class="p">,</span>
+        <span class="n">horizons</span><span class="o">=</span><span class="p">[</span><span class="n">LeadTime</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;PT36H&quot;</span><span class="p">)],</span>
+        <span class="n">quantiles</span><span class="o">=</span><span class="p">[</span><span class="n">Q</span><span class="p">(</span><span class="mf">0.5</span><span class="p">),</span> <span class="n">Q</span><span class="p">(</span><span class="mf">0.1</span><span class="p">),</span> <span class="n">Q</span><span class="p">(</span><span class="mf">0.9</span><span class="p">)],</span>
+        <span class="n">target_column</span><span class="o">=</span><span class="s2">&quot;load&quot;</span><span class="p">,</span>
+        <span class="n">temperature_column</span><span class="o">=</span><span class="s2">&quot;temperature_2m&quot;</span><span class="p">,</span>
+        <span class="n">relative_humidity_column</span><span class="o">=</span><span class="s2">&quot;relative_humidity_2m&quot;</span><span class="p">,</span>
+        <span class="n">wind_speed_column</span><span class="o">=</span><span class="s2">&quot;wind_speed_10m&quot;</span><span class="p">,</span>
+        <span class="n">radiation_column</span><span class="o">=</span><span class="s2">&quot;shortwave_radiation&quot;</span><span class="p">,</span>
+        <span class="n">pressure_column</span><span class="o">=</span><span class="s2">&quot;surface_pressure&quot;</span><span class="p">,</span>
+        <span class="n">mlflow_storage</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">verbosity</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">wf</span> <span class="o">=</span> <span class="n">create_forecasting_workflow</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+    <span class="n">wf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">)</span>
+    <span class="n">individual_forecasts</span><span class="p">[</span><span class="n">model_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">wf</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">predict_dataset</span><span class="p">,</span> <span class="n">forecast_start</span><span class="o">=</span><span class="n">train_end</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="visualize-the-comparison">
+<h2>Visualize the comparison<a class="headerlink" href="#visualize-the-comparison" title="Link to this heading">#</a></h2>
+<div class="cell tag_hide-input docutils container">
+<details class="admonition hide above-input">
+<summary aria-label="Toggle hidden content">
+<p class="collapsed admonition-title">Show code cell source</p>
+<p class="expanded admonition-title">Hide code cell source</p>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.analysis.plots</span><span class="w"> </span><span class="kn">import</span> <span class="n">ForecastTimeSeriesPlotter</span>
+
+<span class="n">plotter</span> <span class="o">=</span> <span class="n">ForecastTimeSeriesPlotter</span><span class="p">()</span>
+<span class="n">plotter</span><span class="o">.</span><span class="n">add_measurements</span><span class="p">(</span><span class="n">measurements</span><span class="o">=</span><span class="n">predict_dataset</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;load&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">train_end</span><span class="p">:])</span>
+
+<span class="c1"># Add individual models</span>
+<span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">fc</span> <span class="ow">in</span> <span class="n">individual_forecasts</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="n">plotter</span><span class="o">.</span><span class="n">add_model</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">forecast</span><span class="o">=</span><span class="n">fc</span><span class="o">.</span><span class="n">median_series</span><span class="p">,</span> <span class="n">quantiles</span><span class="o">=</span><span class="n">fc</span><span class="o">.</span><span class="n">quantiles_data</span><span class="p">)</span>
+
+<span class="c1"># Add ensemble</span>
+<span class="n">plotter</span><span class="o">.</span><span class="n">add_model</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;Ensemble&quot;</span><span class="p">,</span> <span class="n">forecast</span><span class="o">=</span><span class="n">forecast</span><span class="o">.</span><span class="n">median_series</span><span class="p">,</span> <span class="n">quantiles</span><span class="o">=</span><span class="n">forecast</span><span class="o">.</span><span class="n">quantiles_data</span><span class="p">)</span>
+
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plotter</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Ensemble vs Individual Models&quot;</span><span class="p">,</span>
+    <span class="n">xaxis_title</span><span class="o">=</span><span class="s2">&quot;Time&quot;</span><span class="p">,</span>
+    <span class="n">yaxis_title</span><span class="o">=</span><span class="s2">&quot;MW&quot;</span><span class="p">,</span>
+    <span class="n">height</span><span class="o">=</span><span class="mi">450</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</details>
+<div class="cell_output docutils container">
+<img alt="../_images/1ef9ce65d37a2dabf847e0557667ec1095a9661fa8ccb5b70a56509e8a92342a.png" src="../_images/1ef9ce65d37a2dabf847e0557667ec1095a9661fa8ccb5b70a56509e8a92342a.png" />
+</div>
+</div>
+</section>
+<section id="combiner-insights">
+<h2>Combiner insights<a class="headerlink" href="#combiner-insights" title="Link to this heading">#</a></h2>
+<p>The learned-weights combiner trains a classifier that predicts — for each
+timestep — which base model will be most accurate.  It then uses those
+predicted probabilities as mixing weights.</p>
+<p>We can inspect this behavior at two levels:</p>
+<ol class="arabic simple">
+<li><p><strong>Global feature importances</strong> — which input signals the classifier
+relies on most when deciding between models.</p></li>
+<li><p><strong>Per-timestamp selection weights</strong> — the actual mixing probabilities
+assigned to each model during forecasting.</p></li>
+</ol>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">plotly.graph_objects</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">go</span>
+
+<span class="n">ensemble_model</span> <span class="o">=</span> <span class="n">workflow</span><span class="o">.</span><span class="n">model</span>
+<span class="n">combiner</span> <span class="o">=</span> <span class="n">ensemble_model</span><span class="o">.</span><span class="n">combiner</span>
+
+<span class="c1"># Global importances: shows how much the classifier attends to each base</span>
+<span class="c1"># model&#39;s prediction value when deciding which model to trust.</span>
+<span class="n">importances</span> <span class="o">=</span> <span class="n">combiner</span><span class="o">.</span><span class="n">feature_importances</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Combiner feature importances (per quantile):&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">importances</span><span class="o">.</span><span class="n">to_string</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Combiner feature importances (per quantile):
+          quantile_P50  quantile_P10  quantile_P90
+lgbm          0.488333      0.468333      0.516667
+gblinear      0.511667      0.531667      0.483333
+</pre></div>
+</div>
+</div>
+</div>
+<p>With two base models, the feature importance tells us how much the
+combiner’s internal classifier <em>uses</em> each model’s prediction to decide
+who should contribute more.  A higher importance means the classifier pays
+more attention to that model’s output when making the selection decision.</p>
+<p>More informative is the <strong>per-timestamp weight</strong> — the actual probability
+the combiner assigns to each model at each point in time during forecasting.</p>
+<div class="cell tag_hide-input docutils container">
+<details class="admonition hide above-input">
+<summary aria-label="Toggle hidden content">
+<p class="collapsed admonition-title">Show code cell source</p>
+<p class="expanded admonition-title">Hide code cell source</p>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Reproduce the internal flow to extract per-timestamp weights</span>
+<span class="n">ensemble_dataset</span> <span class="o">=</span> <span class="n">ensemble_model</span><span class="o">.</span><span class="n">_predict_forecasters</span><span class="p">(</span><span class="n">predict_dataset</span><span class="p">,</span> <span class="n">forecast_start</span><span class="o">=</span><span class="n">train_end</span><span class="p">)</span>
+<span class="n">base_preds</span> <span class="o">=</span> <span class="n">ensemble_dataset</span><span class="o">.</span><span class="n">get_base_predictions_for_quantile</span><span class="p">(</span><span class="n">Q</span><span class="p">(</span><span class="mf">0.5</span><span class="p">))</span>
+<span class="n">input_data</span> <span class="o">=</span> <span class="n">base_preds</span><span class="o">.</span><span class="n">input_data</span><span class="p">()</span>
+<span class="n">weights</span> <span class="o">=</span> <span class="n">combiner</span><span class="o">.</span><span class="n">_predict_weights</span><span class="p">(</span><span class="n">input_data</span><span class="p">,</span> <span class="n">Q</span><span class="p">(</span><span class="mf">0.5</span><span class="p">))</span>
+
+<span class="n">fig</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">Figure</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">weights</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span><span class="n">go</span><span class="o">.</span><span class="n">Scatter</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">weights</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">weights</span><span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;lines&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">col</span><span class="p">,</span> <span class="n">stackgroup</span><span class="o">=</span><span class="s2">&quot;one&quot;</span><span class="p">))</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Combiner Model Selection Weights Over Time (q50)&quot;</span><span class="p">,</span>
+    <span class="n">xaxis_title</span><span class="o">=</span><span class="s2">&quot;Time&quot;</span><span class="p">,</span>
+    <span class="n">yaxis_title</span><span class="o">=</span><span class="s2">&quot;Weight (probability)&quot;</span><span class="p">,</span>
+    <span class="n">yaxis_range</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+    <span class="n">height</span><span class="o">=</span><span class="mi">350</span><span class="p">,</span>
+    <span class="n">legend_title</span><span class="o">=</span><span class="s2">&quot;Base model&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</details>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-05-26 14:44:12,189][WARNING] No aggregation functions specified. Returning original data.
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-05-26 14:44:12,296][WARNING] No aggregation functions specified. Returning original data.
+</pre></div>
+</div>
+<img alt="../_images/7a4c77235b99584c43f2f8ac9336b0f20b1e109eafccdd4d805a38c9bcca7916.png" src="../_images/7a4c77235b99584c43f2f8ac9336b0f20b1e109eafccdd4d805a38c9bcca7916.png" />
+</div>
+</div>
+<p>The stacked area chart reveals <em>when</em> the combiner trusts each model.
+Typical patterns:</p>
+<ul class="simple">
+<li><p><strong>gblinear dominates at peaks/troughs</strong> — its linear extrapolation
+handles values near or beyond the training range better.</p></li>
+<li><p><strong>lgbm dominates during stable periods</strong> — its tree-based flexibility
+captures non-linear patterns (time-of-day effects, weather interactions)
+more accurately when extrapolation is not needed.</p></li>
+</ul>
+<p>This adaptive selection is the core advantage of ensembling: neither model
+alone achieves the accuracy of the dynamically-weighted combination.</p>
+</section>
+<section id="metrics-comparison">
+<h2>Metrics comparison<a class="headerlink" href="#metrics-comparison" title="Link to this heading">#</a></h2>
+<p>Let’s quantify the ensemble advantage with relative MAE (rMAE) on the
+forecast period.  rMAE normalizes the MAE by the range of actuals, making it
+easier to compare across datasets with different scales.  We use the
+implementation from <code class="docutils literal notranslate"><span class="pre">openstef_beam.metrics</span></code>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">rmae</span>
+
+<span class="n">actuals</span> <span class="o">=</span> <span class="n">predict_dataset</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;load&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">train_end</span><span class="p">:</span><span class="n">forecast_end</span><span class="p">]</span>
+
+<span class="n">models</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;lgbm&quot;</span><span class="p">:</span> <span class="n">individual_forecasts</span><span class="p">[</span><span class="s2">&quot;lgbm&quot;</span><span class="p">],</span> <span class="s2">&quot;gblinear&quot;</span><span class="p">:</span> <span class="n">individual_forecasts</span><span class="p">[</span><span class="s2">&quot;gblinear&quot;</span><span class="p">],</span> <span class="s2">&quot;Ensemble&quot;</span><span class="p">:</span> <span class="n">forecast</span><span class="p">}</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;Model&#39;</span><span class="si">:</span><span class="s2">&lt;12</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s1">&#39;rMAE&#39;</span><span class="si">:</span><span class="s2">&gt;8</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;&#39;</span><span class="si">:</span><span class="s2">-&lt;12</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="s1">&#39;&#39;</span><span class="si">:</span><span class="s2">-^8</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">fc</span> <span class="ow">in</span> <span class="n">models</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="n">common</span> <span class="o">=</span> <span class="n">actuals</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">fc</span><span class="o">.</span><span class="n">median_series</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">:</span><span class="s2">&lt;12</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">rmae</span><span class="p">(</span><span class="n">actuals</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">common</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span><span class="w"> </span><span class="n">fc</span><span class="o">.</span><span class="n">median_series</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">common</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">())</span><span class="si">:</span><span class="s2">&gt;8.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Model            rMAE
+------------ --------
+lgbm           0.1080
+gblinear       0.0976
+Ensemble       0.0927
+</pre></div>
+</div>
+</div>
+</div>
+<p>The ensemble consistently achieves the lowest rMAE by combining the
+strengths of both models.  In production with longer training windows and
+more diverse base models (e.g. adding XGBoost or a neural forecaster),
+the improvement typically grows larger.  To validate ensemble gains over
+longer periods, run a full <a class="reference internal" href="backtesting_quickstart.html"><span class="doc">Backtesting Quickstart</span></a>.</p>
+</section>
+<section id="next-steps">
+<h2>Next steps<a class="headerlink" href="#next-steps" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="hyperparameter_tuning_with_optuna.html"><span class="doc">Hyperparameter Tuning with Optuna</span></a> — tune each base model’s
+parameters before combining them.</p></li>
+<li><p><a class="reference internal" href="quantile_calibration.html"><span class="doc">Quantile Calibration</span></a> — calibrate the ensemble’s uncertainty
+estimates for more reliable confidence intervals.</p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="feature_engineering.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Feature Engineering for Energy Forecasting</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="hyperparameter_tuning_with_optuna.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Hyperparameter Tuning with Optuna</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-ensemble-forecasting">Why ensemble forecasting?</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-it-works">How it works</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#load-the-dataset">Load the dataset</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#configure-the-ensemble">Configure the ensemble</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#create-and-train-the-ensemble-workflow">Create and train the ensemble workflow</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#generate-forecasts">Generate forecasts</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compare-ensemble-vs-individual-base-models">Compare: ensemble vs individual base models</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#visualize-the-comparison">Visualize the comparison</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#combiner-insights">Combiner insights</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#metrics-comparison">Metrics comparison</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#next-steps">Next steps</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/OpenSTEF/openstef/edit/main/docs/source/tutorials/ensemble_forecasting.py">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2017-2026 Contributors to the OpenSTEF project.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

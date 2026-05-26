@@ -1,0 +1,36 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+
+
+flatline_checker
+================
+
+.. currentmodule:: openstef_models.transforms.validation.flatline_checker
+
+.. automodule:: openstef_models.transforms.validation.flatline_checker
+   :no-members:
+   :no-inherited-members:
+
+
+
+
+
+
+
+
+
+
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_class_noindex.rst
+
+   FlatlineChecker
+
+
+

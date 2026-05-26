@@ -1,0 +1,36 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+
+
+joblib_model_serializer
+=======================
+
+.. currentmodule:: openstef_models.integrations.joblib.joblib_model_serializer
+
+.. automodule:: openstef_models.integrations.joblib.joblib_model_serializer
+   :no-members:
+   :no-inherited-members:
+
+
+
+
+
+
+
+
+
+
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_class_noindex.rst
+
+   JoblibModelSerializer
+
+
+

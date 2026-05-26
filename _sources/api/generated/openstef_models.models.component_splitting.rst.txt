@@ -1,0 +1,52 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+
+
+component_splitting
+===================
+
+.. currentmodule:: openstef_models.models.component_splitting
+
+.. automodule:: openstef_models.models.component_splitting
+   :no-members:
+   :no-inherited-members:
+
+
+
+
+
+
+
+
+
+Submodules
+----------
+
+
+.. autosummary::
+   :toctree: .
+   :template: module_overview.rst
+
+   openstef_models.models.component_splitting.component_splitter
+   openstef_models.models.component_splitting.constant_component_splitter
+   openstef_models.models.component_splitting.linear_component_splitter
+
+
+
+
+
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_class_noindex.rst
+
+   ComponentSplitter
+   ComponentSplitterConfig
+
+
+
