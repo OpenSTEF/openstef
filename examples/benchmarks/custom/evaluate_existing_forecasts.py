@@ -23,9 +23,9 @@
 # score them with BEAM's metrics and visualizations."*
 #
 # **See also:**
-# - [BenchmarkPipeline](https://openstef.github.io/openstef/v4/api/generated/openstef_beam.benchmarking.BenchmarkPipeline.html) — auto-detects existing predictions and skips backtesting
+# - [BenchmarkPipeline](https://openstef.github.io/openstef/api/generated/openstef_beam.benchmarking.BenchmarkPipeline.html) — auto-detects existing predictions and skips backtesting
 # - [Custom Benchmark configuration](./custom_benchmark.ipynb) — defines which targets and metrics to use
-# - [Quantile naming convention](https://openstef.github.io/openstef/v4/api/generated/openstef_core.types.Quantile.html) — `Quantile(x).format()` → column names
+# - [Quantile naming convention](https://openstef.github.io/openstef/api/generated/openstef_core.types.Quantile.html) — `Quantile(x).format()` → column names
 #
 # ## Expected directory layout
 #

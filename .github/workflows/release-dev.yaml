@@ -8,7 +8,7 @@ concurrency:
 
 on:
   push:
-    branches: ['release/v4.0.0']
+    branches: ['main']
 
 permissions:
   contents: read

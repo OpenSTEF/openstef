@@ -26,7 +26,7 @@
 #
 # 1. Loads results from multiple model runs (each stored in its own directory)
 # 2. Computes metrics across all targets using
-#    [`BenchmarkComparisonPipeline`](https://openstef.github.io/openstef/v4/api/generated/openstef_beam.benchmarking.BenchmarkComparisonPipeline.html)
+#    [`BenchmarkComparisonPipeline`](https://openstef.github.io/openstef/api/generated/openstef_beam.benchmarking.BenchmarkComparisonPipeline.html)
 # 3. Produces comparison visualizations (boxplots, ranking tables, per-target breakdowns)
 
 # %% tags=["remove-cell"]

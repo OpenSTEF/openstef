@@ -10,7 +10,7 @@ Thank you for your interest in contributing to OpenSTEF! 🚀
 
 ## Quick Start
 
-1. **Read our contributing guide**: [openstef.github.io/openstef/v4/contribute](https://openstef.github.io/openstef/v4/contribute/index.html)
+1. **Read our contributing guide**: [openstef.github.io/openstef/contribute](https://openstef.github.io/openstef/contribute/index.html)
 2. **Install dependencies**: `uv sync --group dev`
 3. **Make your changes** and ensure all checks pass: `uv run poe all --check`
 4. **Submit a pull request**
@@ -25,14 +25,14 @@ For information about:
 - 🧪 **Testing standards** - Writing and running tests
 - 📋 **Style guide** - Code formatting and quality standards
 
-**Visit our full contributing guide: [openstef.github.io/openstef/v4/contribute](https://openstef.github.io/openstef/v4/contribute/index.html)**
+**Visit our full contributing guide: [openstef.github.io/openstef/contribute](https://openstef.github.io/openstef/contribute/index.html)**
 
 ## Getting Help
 
 - 💬 **Slack**: [LF Energy workspace](https://slack.lfenergy.org/) (#openstef channel)
 - 🐛 **Issues**: [GitHub Issues](https://github.com/OpenSTEF/openstef/issues)
 - 📧 **Email**: openstef@lfenergy.org
-- 📖 **Support**: [Support page](https://openstef.github.io/openstef/v4/project/support.html)
+- 📖 **Support**: [Support page](https://openstef.github.io/openstef/project/support.html)
 
 ## Good First Issues
 

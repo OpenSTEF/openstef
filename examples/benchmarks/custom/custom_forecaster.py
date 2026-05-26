@@ -16,7 +16,7 @@
 # %% [markdown]
 # # Custom Forecaster Template
 #
-# Implements [`BacktestForecasterMixin`](https://openstef.github.io/openstef/v4/api/generated/openstef_beam.backtesting.BacktestForecasterMixin.html)
+# Implements [`BacktestForecasterMixin`](https://openstef.github.io/openstef/api/generated/openstef_beam.backtesting.BacktestForecasterMixin.html)
 # — the interface BEAM needs to run any model in its backtesting/benchmarking pipeline.
 #
 # **User story:** *"I want to benchmark my own model."*
@@ -24,8 +24,8 @@
 # Copy this file and modify `fit()` and `predict()` to wrap your model.
 #
 # **See also:**
-# - [BacktestForecasterConfig](https://openstef.github.io/openstef/v4/api/generated/openstef_beam.backtesting.BacktestForecasterConfig.html) — scheduling settings
-# - [RestrictedHorizonVersionedTimeSeries](https://openstef.github.io/openstef/v4/api/generated/openstef_beam.backtesting.RestrictedHorizonVersionedTimeSeries.html) — the data view passed to `fit()` and `predict()`
+# - [BacktestForecasterConfig](https://openstef.github.io/openstef/api/generated/openstef_beam.backtesting.BacktestForecasterConfig.html) — scheduling settings
+# - [RestrictedHorizonVersionedTimeSeries](https://openstef.github.io/openstef/api/generated/openstef_beam.backtesting.RestrictedHorizonVersionedTimeSeries.html) — the data view passed to `fit()` and `predict()`
 # - [Backtesting quickstart tutorial](../../tutorials/backtesting_quickstart.ipynb) — introduction to backtesting concepts
 
 # %% tags=["remove-cell"]
@@ -56,7 +56,7 @@ from openstef_core.types import Q, Quantile
 # ## The `BacktestForecasterMixin` interface
 #
 # Your forecaster must implement:
-# - `config` — a [`BacktestForecasterConfig`](https://openstef.github.io/openstef/v4/api/generated/openstef_beam.backtesting.BacktestForecasterConfig.html) that tells BEAM how to schedule training and prediction
+# - `config` — a [`BacktestForecasterConfig`](https://openstef.github.io/openstef/api/generated/openstef_beam.backtesting.BacktestForecasterConfig.html) that tells BEAM how to schedule training and prediction
 # - `quantiles` — which probabilistic bands to produce (e.g. `[Q(0.05), Q(0.5), Q(0.95)]`)
 # - `fit(data)` — train your model on restricted-horizon data (no lookahead)
 # - `predict(data)` → `TimeSeriesDataset | None` — produce a forecast
