@@ -63,9 +63,9 @@ logger = setup_notebook_logging(
 # ```
 #
 # **Key API references:**
-# [`HyperparameterTuner`](https://openstef.github.io/openstef/v4/api/generated/openstef_models.integrations.optuna.HyperparameterTuner.html)
-# · [`XGBoostHyperParams`](https://openstef.github.io/openstef/v4/api/generated/openstef_models.models.forecasting.html)
-# · [`FloatRange`](https://openstef.github.io/openstef/v4/api/generated/openstef_core.mixins.param_ranges.FloatRange.html) / [`IntRange`](https://openstef.github.io/openstef/v4/api/generated/openstef_core.mixins.param_ranges.IntRange.html)
+# [`HyperparameterTuner`](https://openstef.github.io/openstef/api/generated/openstef_models.integrations.optuna.HyperparameterTuner.html)
+# · [`XGBoostHyperParams`](https://openstef.github.io/openstef/api/generated/openstef_models.models.forecasting.html)
+# · [`FloatRange`](https://openstef.github.io/openstef/api/generated/openstef_core.mixins.param_ranges.FloatRange.html) / [`IntRange`](https://openstef.github.io/openstef/api/generated/openstef_core.mixins.param_ranges.IntRange.html)
 
 # %% [markdown]
 # ## Load the dataset
@@ -192,7 +192,7 @@ for name, param in space.items():
 # Score (rCRPS)** is a better choice — it evaluates the full quantile
 # distribution, not just the median.
 #
-# To use rCRPS, add [`RCRPSProvider`](https://openstef.github.io/openstef/v4/api/generated/openstef_beam.evaluation.metric_providers.RCRPSProvider.html) to the config's `evaluation_metrics`
+# To use rCRPS, add [`RCRPSProvider`](https://openstef.github.io/openstef/api/generated/openstef_beam.evaluation.metric_providers.RCRPSProvider.html) to the config's `evaluation_metrics`
 # and set `metric_name="rCRPS"` with `direction="minimize"` (lower is better):
 
 # %%
@@ -230,7 +230,7 @@ assert baseline_r2 is not None and baseline_r2 > 0.0
 # ## Run the Optuna study
 #
 # `HyperparameterTuner.fit_with_tuning()` runs the study and trains a final
-# workflow using [`create_forecasting_workflow`](https://openstef.github.io/openstef/v4/api/generated/openstef_models.presets.create_forecasting_workflow.html) on the full training set with the best hyperparameters.
+# workflow using [`create_forecasting_workflow`](https://openstef.github.io/openstef/api/generated/openstef_models.presets.create_forecasting_workflow.html) on the full training set with the best hyperparameters.
 # The first trial always evaluates the default values so the search starts
 # from a known baseline.
 

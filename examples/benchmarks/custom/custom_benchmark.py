@@ -26,10 +26,10 @@
 # knobs: backtest schedule, evaluation windows, analysis visualizations.
 #
 # **See also:**
-# - [TargetProvider](https://openstef.github.io/openstef/v4/api/generated/openstef_beam.benchmarking.TargetProvider.html) — abstract interface
-# - [SimpleTargetProvider](https://openstef.github.io/openstef/v4/api/generated/openstef_beam.benchmarking.target_provider.SimpleTargetProvider.html) — file-based implementation (what we extend here)
-# - [BenchmarkPipeline](https://openstef.github.io/openstef/v4/api/generated/openstef_beam.benchmarking.BenchmarkPipeline.html) — the orchestrator
-# - [EvaluationConfig](https://openstef.github.io/openstef/v4/api/generated/openstef_beam.evaluation.EvaluationConfig.html) — how predictions are sliced and scored
+# - [TargetProvider](https://openstef.github.io/openstef/api/generated/openstef_beam.benchmarking.TargetProvider.html) — abstract interface
+# - [SimpleTargetProvider](https://openstef.github.io/openstef/api/generated/openstef_beam.benchmarking.target_provider.SimpleTargetProvider.html) — file-based implementation (what we extend here)
+# - [BenchmarkPipeline](https://openstef.github.io/openstef/api/generated/openstef_beam.benchmarking.BenchmarkPipeline.html) — the orchestrator
+# - [EvaluationConfig](https://openstef.github.io/openstef/api/generated/openstef_beam.evaluation.EvaluationConfig.html) — how predictions are sliced and scored
 # - [Custom Forecaster template](./custom_forecaster.ipynb) — implement your model here
 
 # %% tags=["remove-cell"]
@@ -82,9 +82,9 @@ type MyCategory = Literal["solar_park", "wind_park"]
 # %% [markdown]
 # ## Target Provider
 #
-# The [`TargetProvider`](https://openstef.github.io/openstef/v4/api/generated/openstef_beam.benchmarking.TargetProvider.html)
+# The [`TargetProvider`](https://openstef.github.io/openstef/api/generated/openstef_beam.benchmarking.TargetProvider.html)
 # tells BEAM where your data lives and which metrics to compute.
-# Here we extend [`SimpleTargetProvider`](https://openstef.github.io/openstef/v4/api/generated/openstef_beam.benchmarking.target_provider.SimpleTargetProvider.html)
+# Here we extend [`SimpleTargetProvider`](https://openstef.github.io/openstef/api/generated/openstef_beam.benchmarking.target_provider.SimpleTargetProvider.html)
 # which handles file-based datasets with a targets YAML + parquet files.
 #
 # **CUSTOMIZE HERE:** Change path templates, category types, and metric selection.
@@ -196,8 +196,8 @@ ANALYSIS_CONFIG = AnalysisConfig(
 # ## Pipeline Assembly
 #
 # Wire everything together: backtest schedule, evaluation config, analysis, and target provider.
-# See [`BacktestConfig`](https://openstef.github.io/openstef/v4/api/generated/openstef_beam.backtesting.BacktestConfig.html)
-# and [`EvaluationConfig`](https://openstef.github.io/openstef/v4/api/generated/openstef_beam.evaluation.EvaluationConfig.html)
+# See [`BacktestConfig`](https://openstef.github.io/openstef/api/generated/openstef_beam.backtesting.BacktestConfig.html)
+# and [`EvaluationConfig`](https://openstef.github.io/openstef/api/generated/openstef_beam.evaluation.EvaluationConfig.html)
 # for all available options.
 #
 # **CUSTOMIZE HERE:** Adjust `predict_interval`, `train_interval`, evaluation windows, and lead times.

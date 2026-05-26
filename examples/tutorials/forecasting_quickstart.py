@@ -39,10 +39,10 @@
 # ```
 #
 # **Key API references:**
-# [`ForecastingWorkflowConfig`](https://openstef.github.io/openstef/v4/api/generated/openstef_models.presets.ForecastingWorkflowConfig.html)
-# [`create_forecasting_workflow`](https://openstef.github.io/openstef/v4/api/generated/openstef_models.presets.create_forecasting_workflow.html)
-# · [`LeadTime`](https://openstef.github.io/openstef/v4/api/generated/openstef_core.types.LeadTime.html)
-# · [`Q`](https://openstef.github.io/openstef/v4/api/generated/openstef_core.types.Quantile.html)
+# [`ForecastingWorkflowConfig`](https://openstef.github.io/openstef/api/generated/openstef_models.presets.ForecastingWorkflowConfig.html)
+# [`create_forecasting_workflow`](https://openstef.github.io/openstef/api/generated/openstef_models.presets.create_forecasting_workflow.html)
+# · [`LeadTime`](https://openstef.github.io/openstef/api/generated/openstef_core.types.LeadTime.html)
+# · [`Q`](https://openstef.github.io/openstef/api/generated/openstef_core.types.Quantile.html)
 
 # %% tags=["remove-cell"]
 import warnings
@@ -118,8 +118,8 @@ fig.show()
 # %% [markdown]
 # ## Configure the workflow
 #
-# [`ForecastingWorkflowConfig`](https://openstef.github.io/openstef/v4/api/generated/openstef_models.presets.ForecastingWorkflowConfig.html) bundles all settings — model type, horizons, quantiles,
-# and feature columns — into a single object.  [`create_forecasting_workflow`](https://openstef.github.io/openstef/v4/api/generated/openstef_models.presets.create_forecasting_workflow.html) turns
+# [`ForecastingWorkflowConfig`](https://openstef.github.io/openstef/api/generated/openstef_models.presets.ForecastingWorkflowConfig.html) bundles all settings — model type, horizons, quantiles,
+# and feature columns — into a single object.  [`create_forecasting_workflow`](https://openstef.github.io/openstef/api/generated/openstef_models.presets.create_forecasting_workflow.html) turns
 # it into a ready-to-use pipeline with preprocessing, training, and postprocessing.
 #
 # We pick **GBLinear** (gradient-boosted linear model) for its speed and
@@ -173,7 +173,7 @@ assert result.metrics_full is not None, "Full metrics should be present"
 # %% [markdown]
 # ## Generate forecasts
 #
-# The trained workflow produces a [`ForecastDataset`](https://openstef.github.io/openstef/v4/api/generated/openstef_core.datasets.ForecastDataset.html) with point predictions and
+# The trained workflow produces a [`ForecastDataset`](https://openstef.github.io/openstef/api/generated/openstef_core.datasets.ForecastDataset.html) with point predictions and
 # quantile bands.  The P10-P90 interval covers 80 % of expected outcomes.
 # To improve the reliability of these quantile estimates, see
 # {doc}`/tutorials/quantile_calibration`.
@@ -194,7 +194,7 @@ assert forecast.quantiles is not None, "Quantile data should be present"
 # %% [markdown]
 # ## Visualize the results
 #
-# [`ForecastTimeSeriesPlotter`](https://openstef.github.io/openstef/v4/api/generated/openstef_beam.analysis.plots.ForecastTimeSeriesPlotter.html) overlays measurements and predictions with shaded
+# [`ForecastTimeSeriesPlotter`](https://openstef.github.io/openstef/api/generated/openstef_beam.analysis.plots.ForecastTimeSeriesPlotter.html) overlays measurements and predictions with shaded
 # confidence bands in a single interactive chart.
 
 # %% tags=["hide-input"]

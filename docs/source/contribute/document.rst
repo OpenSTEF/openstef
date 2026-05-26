@@ -128,11 +128,11 @@ compliance; copy from an existing file when adding a new figure.
 CI deployment
 -------------
 
-The ``Deploy V4 Documentation`` workflow in
+The ``Deploy Documentation`` workflow in
 ``.github/workflows/docs.yaml`` builds the docs on every push to
-``release/v4.0.0`` and publishes them to the ``gh-pages`` branch under
-``/v4/``. CI uses the same ``poe docs`` invocation as local development,
-so a build that is clean locally should also be clean in CI.
+``main`` and publishes them to the root of the ``gh-pages`` branch.
+CI uses the same ``poe docs`` invocation as local development, so a
+build that is clean locally should also be clean in CI.
 
 Writing docstrings
 ==================

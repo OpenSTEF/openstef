@@ -62,7 +62,7 @@ Using [uv](https://docs.astral.sh/uv/) (recommended for development):
 uv add openstef
 ```
 
-For the complete installation guide including troubleshooting, see the [Installation Documentation](https://openstef.github.io/openstef/v4/user_guide/installation.html).
+For the complete installation guide including troubleshooting, see the [Installation Documentation](https://openstef.github.io/openstef/user_guide/installation.html).
 
 ## Examples
 
@@ -71,7 +71,7 @@ Tutorials and usage examples are available in the [`examples/`](examples/) folde
 - Forecasting quickstart
 - Feature engineering
 
-Additional tutorials are available in the [online documentation](https://openstef.github.io/openstef/v4/user_guide/tutorials.html).
+Additional tutorials are available in the [online documentation](https://openstef.github.io/openstef/user_guide/tutorials.html).
 
 ## License
 
@@ -82,7 +82,7 @@ This project includes third-party libraries licensed under their respective Open
 
 We welcome contributions to OpenSTEF 4.0! 
 
-**[Read our Contributing Guide](https://openstef.github.io/openstef/v4/contribute/)** - documentation for contributors including:
+**[Read our Contributing Guide](https://openstef.github.io/openstef/contribute/)** - documentation for contributors including:
 
 - How to report bugs and suggest features
 - Documentation improvements and examples
@@ -101,7 +101,7 @@ uv sync --dev
 uv run poe all
 ```
 
-**Code of Conduct**: We follow the [Contributor Code of Conduct](https://openstef.github.io/openstef/v4/contribute/code_of_conduct.html) to ensure a welcoming environment for all contributors.
+**Code of Conduct**: We follow the [Contributor Code of Conduct](https://openstef.github.io/openstef/contribute/code_of_conduct.html) to ensure a welcoming environment for all contributors.
 ## Citations
 
 If you use OpenSTEF in your research or publications, please cite the project. Refer to the [CITATION.cff](CITATION.cff) file in this repository for the preferred citation format, or use:
@@ -114,4 +114,4 @@ If you use OpenSTEF in your research or publications, please cite the project. R
 - **Email:** openstef@lfenergy.org
 - **Community meeting:** [OpenSTEF four-weekly community meeting](https://lf-energy.atlassian.net/wiki/spaces/OS/pages/32278358/OpenSTEF+four-weekly+community+meeting)
 - **Issues:** [GitHub Issue Tracker](https://github.com/OpenSTEF/openstef/issues)
-- **Support Guide:** [How to get help](https://openstef.github.io/openstef/v4/project/support.html)
+- **Support Guide:** [How to get help](https://openstef.github.io/openstef/project/support.html)

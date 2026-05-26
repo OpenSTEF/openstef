@@ -52,7 +52,7 @@ logger = setup_notebook_logging(
 #
 # **What you will learn:**
 #
-# - How to set up a backtesting pipeline with [`BacktestPipeline`](https://openstef.github.io/openstef/v4/api/generated/openstef_beam.backtesting.BacktestPipeline.html)
+# - How to set up a backtesting pipeline with [`BacktestPipeline`](https://openstef.github.io/openstef/api/generated/openstef_beam.backtesting.BacktestPipeline.html)
 # - How to configure prediction and retraining schedules
 # - How to evaluate backtest results with standardized metrics
 #
@@ -64,10 +64,10 @@ logger = setup_notebook_logging(
 # ```
 #
 # **Key API references:**
-# [`BacktestPipeline`](https://openstef.github.io/openstef/v4/api/generated/openstef_beam.backtesting.BacktestPipeline.html)
-# · [`BacktestConfig`](https://openstef.github.io/openstef/v4/api/generated/openstef_beam.backtesting.BacktestConfig.html)
-# · [`BacktestForecasterConfig`](https://openstef.github.io/openstef/v4/api/generated/openstef_beam.backtesting.backtest_forecaster.BacktestForecasterConfig.html)
-# · [`EvaluationConfig`](https://openstef.github.io/openstef/v4/api/generated/openstef_beam.evaluation.EvaluationConfig.html)
+# [`BacktestPipeline`](https://openstef.github.io/openstef/api/generated/openstef_beam.backtesting.BacktestPipeline.html)
+# · [`BacktestConfig`](https://openstef.github.io/openstef/api/generated/openstef_beam.backtesting.BacktestConfig.html)
+# · [`BacktestForecasterConfig`](https://openstef.github.io/openstef/api/generated/openstef_beam.backtesting.backtest_forecaster.BacktestForecasterConfig.html)
+# · [`EvaluationConfig`](https://openstef.github.io/openstef/api/generated/openstef_beam.evaluation.EvaluationConfig.html)
 
 # %% [markdown]
 # ## How backtesting works
@@ -89,7 +89,7 @@ logger = setup_notebook_logging(
 # Backtesting requires **versioned** data — each data point carries an
 # `available_at` timestamp indicating when it became known.  This prevents
 # the model from accidentally using future information.
-# [`VersionedTimeSeriesDataset`](https://openstef.github.io/openstef/v4/api/generated/openstef_core.datasets.VersionedTimeSeriesDataset.html)
+# [`VersionedTimeSeriesDataset`](https://openstef.github.io/openstef/api/generated/openstef_core.datasets.VersionedTimeSeriesDataset.html)
 # provides this out of the box.
 
 # %%
@@ -118,7 +118,7 @@ print(f"Predictors:   {len(predictors.index):,} timestamps, {len(predictors.feat
 # %% [markdown]
 # ## Configure the forecaster
 #
-# We wrap a standard [`ForecastingWorkflowConfig`](https://openstef.github.io/openstef/v4/api/generated/openstef_models.presets.ForecastingWorkflowConfig.html) in an
+# We wrap a standard [`ForecastingWorkflowConfig`](https://openstef.github.io/openstef/api/generated/openstef_models.presets.ForecastingWorkflowConfig.html) in an
 # `OpenSTEF4BacktestForecaster` which implements the backtesting interface
 # (fit/predict with temporal constraints).
 
@@ -205,13 +205,13 @@ assert predictions.data.shape[0] > 100, f"Expected >100 prediction rows, got {pr
 # %% [markdown]
 # ## Evaluate the results
 #
-# The [`EvaluationPipeline`](https://openstef.github.io/openstef/v4/api/generated/openstef_beam.evaluation.EvaluationPipeline.html) computes metrics over configurable time windows.
+# The [`EvaluationPipeline`](https://openstef.github.io/openstef/api/generated/openstef_beam.evaluation.EvaluationPipeline.html) computes metrics over configurable time windows.
 # It filters predictions by lead time to produce meaningful comparisons
 # (e.g., day-ahead forecasts only).
 #
-# We use [rMAE](https://openstef.github.io/openstef/v4/api/generated/openstef_beam.evaluation.metric_providers.RMAEProvider.html) (relative Mean Absolute Error) and [rCRPS](https://openstef.github.io/openstef/v4/api/generated/openstef_beam.evaluation.metric_providers.RCRPSProvider.html) (relative Continuous
+# We use [rMAE](https://openstef.github.io/openstef/api/generated/openstef_beam.evaluation.metric_providers.RMAEProvider.html) (relative Mean Absolute Error) and [rCRPS](https://openstef.github.io/openstef/api/generated/openstef_beam.evaluation.metric_providers.RCRPSProvider.html) (relative Continuous
 # Ranked Probability Score) — both normalized by mean absolute actuals.
-# See the full list of [available metrics](https://openstef.github.io/openstef/v4/api/generated/openstef_beam.evaluation.metric_providers.html).
+# See the full list of [available metrics](https://openstef.github.io/openstef/api/generated/openstef_beam.evaluation.metric_providers.html).
 # If your scores are suboptimal, {doc}`/tutorials/hyperparameter_tuning_with_optuna`
 # shows how to optimize model parameters before re-running the backtest.
 
@@ -254,7 +254,7 @@ for subset_report in report.subset_reports:
 # %% [markdown]
 # ## Visualize predictions vs actuals
 #
-# The evaluation report contains a properly filtered [`ForecastDataset`](https://openstef.github.io/openstef/v4/api/generated/openstef_core.datasets.ForecastDataset.html) for
+# The evaluation report contains a properly filtered [`ForecastDataset`](https://openstef.github.io/openstef/api/generated/openstef_core.datasets.ForecastDataset.html) for
 # each lead-time subset.  We use this directly for visualization — it
 # shows only day-ahead predictions aligned with their corresponding actuals.
 

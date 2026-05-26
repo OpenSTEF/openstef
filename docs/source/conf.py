@@ -208,7 +208,7 @@ if "dev" in version or "+" in version or version == "0.0.0":
     json_url = "_static/versions.json"
 else:
     version_match = ".".join(version.split(".")[:2])
-    json_url = "https://openstef.github.io/docs/_static/versions.json"
+    json_url = "https://openstef.github.io/openstef/_static/versions.json"
 
 
 # Citations
@@ -367,7 +367,7 @@ html_context = {
     # Edit page source
     "github_user": "OpenSTEF",
     "github_repo": "openstef",
-    "github_version": "release/v4.0.0",
+    "github_version": "main",
     "doc_path": "docs/source",
 }
 
