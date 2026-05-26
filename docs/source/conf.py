@@ -44,6 +44,17 @@ extensions = [
     "sphinx.ext.autosummary",
     "sphinx.ext.doctest",
     "sphinx.ext.intersphinx",
+]
+
+# Intersphinx targets — resolve external references in inherited docstrings.
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3", None),
+    "numpy": ("https://numpy.org/doc/stable", None),
+    "pandas": ("https://pandas.pydata.org/docs", None),
+    "sklearn": ("https://scikit-learn.org/stable", None),
+}
+
+extensions += [
     "sphinx_autodoc_typehints",
     "sphinx.ext.mathjax",
     "sphinx.ext.napoleon",
@@ -66,7 +77,7 @@ templates_path = ["_templates"]
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ["conf.py", "**/*.ipynb", "_figures/*"]
+exclude_patterns = ["conf.py", "**/*.ipynb", "_figures/*", "**/__init__.py"]
 
 # Specify how to identify the prompt when copying code snippets
 copybutton_prompt_text = r">>> |\.\.\. "
@@ -79,9 +90,17 @@ autosummary_generate = True
 autosummary_generate_overwrite = True
 autosummary_imported_members = False
 
-# Suppress benign import_cycle warnings from recursive autosummary (modules are
-# listed in both the parent's :recursive: directive and the template's toctree)
-suppress_warnings = ["autosummary.import_cycle"]
+# Suppress benign warnings:
+#   - autosummary.import_cycle: modules listed in both parent's :recursive: and
+#     template's toctree (harmless, the rendered output is correct)
+#   - ref.python: classes re-exported at package level have two targets (e.g.,
+#     ``openstef_core.datasets.TimeSeriesDataset`` and
+#     ``openstef_core.datasets.timeseries_dataset.TimeSeriesDataset``); Sphinx
+#     deterministically picks one and the link resolves correctly
+suppress_warnings = [
+    "autosummary.import_cycle",
+    "ref.python",
+]
 
 
 autosummary_context = {
@@ -92,10 +111,12 @@ autosummary_context = {
 autosummary_mock_imports = []
 
 # Autodoc settings for better docstring rendering
+# Note: :special-members: __init__ is set per-directive in _templates/custom_class.rst
+# rather than globally, so it doesn't trigger "missing attribute __init__" warnings
+# when autodoc processes module documents.
 autodoc_default_options = {
     "members": True,
     "member-order": "bysource",
-    "special-members": "__init__",
     "undoc-members": False,  # Only document explicitly defined members
     "exclude-members": "__weakref__",
     "imported-members": False,
@@ -122,7 +143,22 @@ typehints_use_signature_return = True  # Include return type in signature
 always_document_param_types = True  # Always show param types even without docstring
 
 # Autosummary configuration for better API reference (scikit-learn style)
-autosummary_filename_map = {}
+# Disambiguate module-name vs class-name stub filenames on case-insensitive
+# filesystems (macOS HFS+/APFS default). Without this, ``foo.bar`` (module)
+# and ``foo.Bar`` (class) collide, and the module stub silently fails to
+# generate, causing "stub file not found" warnings. We add a ``.module``
+# suffix to the module stub so both can coexist.
+autosummary_filename_map = {
+    "openstef_beam.evaluation.models.window": "openstef_beam.evaluation.models.window.module",
+    "openstef_core.mixins.predictor": "openstef_core.mixins.predictor.module",
+    "openstef_core.mixins.stateful": "openstef_core.mixins.stateful.module",
+    "openstef_core.mixins.transform": "openstef_core.mixins.transform.module",
+    "openstef_models.transforms.general.flagger": "openstef_models.transforms.general.flagger.module",
+    "openstef_models.transforms.general.imputer": "openstef_models.transforms.general.imputer.module",
+    "openstef_models.transforms.general.scaler": "openstef_models.transforms.general.scaler.module",
+    "openstef_models.transforms.general.selector": "openstef_models.transforms.general.selector.module",
+    "openstef_models.transforms.general.shifter": "openstef_models.transforms.general.shifter.module",
+}
 autosummary_ignore_module_all = False
 
 # Napoleon settings for Google-style docstrings (similar to scikit-learn)

@@ -19,6 +19,7 @@ dependencies = [
   "kaleido>=1.0.0",
   "matplotlib>=3.10.5",
   "optuna>=4.7",
+  "huggingface-hub>=1.2.2",
   "openstef-models",
   "openstef-core",
   "pydata-sphinx-theme>=0.16.1",

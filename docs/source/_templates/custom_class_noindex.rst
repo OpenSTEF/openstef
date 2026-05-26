@@ -11,3 +11,4 @@
    :show-inheritance:
    :members:
    :special-members: __init__
+   :no-index:

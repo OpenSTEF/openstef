@@ -2975,6 +2975,7 @@ name = "openstef-docs"
 version = "0.0.0"
 source = { editable = "docs" }
 dependencies = [
+    { name = "huggingface-hub" },
     { name = "ipython" },
     { name = "jupyter-cache" },
     { name = "jupytext" },
@@ -3000,6 +3001,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
+    { name = "huggingface-hub", specifier = ">=1.2.2" },
     { name = "ipython", specifier = ">=9.4.0" },
     { name = "jupyter-cache", specifier = ">=1.0.0" },
     { name = "jupytext", specifier = ">=1.16.0" },

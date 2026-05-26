@@ -61,7 +61,7 @@ Classes
 
 .. autosummary::
    :toctree: .
-   :template: custom_class.rst
+   :template: custom_class_noindex.rst
 {% for item in classes %}
    {{ item }}
 {%- endfor %}
