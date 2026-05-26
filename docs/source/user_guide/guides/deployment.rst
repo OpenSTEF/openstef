@@ -7,16 +7,18 @@
 Deployment
 ==========
 
-OpenSTEF is a pure machine learning library. It has no built-in scheduler, no orchestration engine, no database layer, and no web server. You bring your own infrastructure and wrap OpenSTEF's training and prediction workflows in whatever execution environment suits your organization.
+OpenSTEF runs as a Python library call inside whatever execution environment
+your team uses: a single notebook, an orchestrated DAG, or a queue of workers.
+The core API is intentionally narrow: you wrap
+:class:`~openstef_models.workflows.custom_forecasting_workflow.CustomForecastingWorkflow`'s
+``fit()`` and ``predict()`` in the scheduler, data layer, and storage your
+stack already provides.
 
-This page explains the three most common deployment strategies, how to handle model storage, and where to integrate external data sources.
-
-Why Deployment is Your Responsibility
--------------------------------------
-
-OpenSTEF's core API is intentionally narrow: you call :class:`~openstef_models.workflows.custom_forecasting_workflow.CustomForecastingWorkflow` with data, and it returns forecasts or a trained model. Everything else (scheduling, data retrieval, result storage, alerting) lives outside the library.
-
-This design means OpenSTEF works in any environment that can run Python, from a single notebook to a distributed task queue. The trade-off is that you must build the integration layer yourself.
+This page describes three deployment patterns that have worked in production,
+plus the integration points OpenSTEF exposes for data, model storage, and
+observability. If you are getting started, the *Scheduled Notebooks* pattern
+covers small deployments; the *DAG* and *Queued* patterns cover the next two
+tiers.
 
 Deployment Strategies
 ---------------------
@@ -86,17 +88,19 @@ Key optimizations at this scale:
 - **Model caching**: reuse loaded model artifacts across predictions for the same location within a worker.
 - **Graceful degradation**: if a single location fails, other locations continue unaffected. See :doc:`/user_guide/guides/reliability_fallback` for fallback strategies.
 
-Data Sources
-------------
+Data Integration
+----------------
 
-OpenSTEF requires time series input data (load measurements) and, for most models, weather forecast features. The library does not fetch data; you provide it as a :class:`~openstef_core.datasets.timeseries_dataset.TimeSeriesDataset`.
+OpenSTEF requires time series input data (load measurements) and, for most models, weather forecast features. Your integration layer fetches them from external sources and assembles a :class:`~openstef_core.datasets.timeseries_dataset.TimeSeriesDataset` before calling the workflow.
 
 Common weather data sources:
 
 - **Open-Meteo** (https://open-meteo.com): free, global coverage, multiple weather models. A good default for any deployment.
 - **KNMI** (https://www.knmi.nl): high-quality observations and forecasts specific to the Netherlands.
+- **ECMWF** (https://www.ecmwf.int): authoritative global numerical weather predictions, used as the backbone for many regional services.
+- **National meteorological services** (DWD for Germany, Météo-France, Met Office in the UK, NOAA in the US, etc.): the right choice when you need regional observations or service-level agreements specific to one country.
 
-Your data integration layer is responsible for fetching from these (or other) sources, aligning timestamps, and assembling the dataset that OpenSTEF expects.
+Any source that returns a time series compatible with your sample interval works. Your data integration layer is responsible for fetching from these (or other) sources, aligning timestamps, and assembling the dataset that OpenSTEF expects.
 
 Model Storage with MLflow
 -------------------------
@@ -138,17 +142,35 @@ The callback system is pluggable. If MLflow does not fit your infrastructure, yo
 
 Register your callback in the workflow's ``callbacks`` list. The workflow calls your hooks at each lifecycle stage (``on_fit_start``, ``on_fit_end``, ``on_predict_start``, ``on_predict_end``).
 
-Modularity and Extensibility
------------------------------
+Observability
+-------------
 
-OpenSTEF is designed to be composed, not configured. If your deployment needs something the library does not provide:
+OpenSTEF emits standard Python ``logging`` records (see :doc:`/user_guide/logging`)
+and no metrics or traces of its own. Anything beyond logs is built on top of
+the callback system you already use for storage:
+
+- **Metrics**: emit them from inside a ``ForecastingCallback`` on
+  ``on_fit_end`` / ``on_predict_end``. Push training metrics, prediction
+  counts, and fallback activations to whatever sink your stack uses
+  (Prometheus, StatsD, OpenTelemetry, an internal HTTP endpoint).
+- **Alerts**: track validation failures
+  (:class:`~openstef_core.exceptions.FlatlinerDetectedError`,
+  :class:`~openstef_core.exceptions.InsufficientlyCompleteError`) in the same
+  callback or at the orchestration layer. A spike in either is a strong
+  signal of upstream data problems.
+- **Traces**: wrap ``workflow.fit()`` / ``workflow.predict()`` in your
+  tracer's span. Each call is a discrete unit of work.
+- **Log shipping**: configure the standard logger hierarchy described in
+  :doc:`/user_guide/logging`. OpenSTEF is library-friendly here; pick the
+  formatter and shipper your platform already uses.
+
+Extending OpenSTEF
+------------------
+
+OpenSTEF is designed to be composed. If your deployment needs something the library does not provide:
 
 - Write a custom :class:`~openstef_models.workflows.custom_forecasting_workflow.ForecastingCallback` for monitoring, storage, or validation logic.
 - Implement your own data loading layer that produces the expected dataset format.
 - Add custom preprocessing transforms to the model pipeline (see :doc:`/user_guide/concepts/models`).
 
-Contributions to the project are welcome. If you build an integration that others would benefit from, consider opening a pull request.
-
-.. note::
-
-   For details on how to structure the forecasting workflow itself (model creation, training, prediction), see :doc:`/user_guide/guides/forecasting`. This page focuses on the infrastructure surrounding those calls.
+For how the forecasting workflow itself is structured (model creation, training, prediction), see :doc:`/user_guide/guides/forecasting`.

@@ -212,7 +212,7 @@ assert predictions.data.shape[0] > 100, f"Expected >100 prediction rows, got {pr
 # We use [rMAE](https://openstef.github.io/openstef/v4/api/generated/openstef_beam.evaluation.metric_providers.RMAEProvider.html) (relative Mean Absolute Error) and [rCRPS](https://openstef.github.io/openstef/v4/api/generated/openstef_beam.evaluation.metric_providers.RCRPSProvider.html) (relative Continuous
 # Ranked Probability Score) — both normalized by mean absolute actuals.
 # See the full list of [available metrics](https://openstef.github.io/openstef/v4/api/generated/openstef_beam.evaluation.metric_providers.html).
-# If your scores are suboptimal, {doc}`hyperparameter_tuning_with_optuna`
+# If your scores are suboptimal, {doc}`/tutorials/hyperparameter_tuning_with_optuna`
 # shows how to optimize model parameters before re-running the backtest.
 
 # %%
@@ -313,6 +313,6 @@ fig.show()
 # %% [markdown]
 # ## Next steps
 #
-# - {doc}`hyperparameter_tuning_with_optuna` — optimize model parameters,
+# - {doc}`/tutorials/hyperparameter_tuning_with_optuna` — optimize model parameters,
 #   then re-run the backtest to measure improvement.
-# - {doc}`ensemble_forecasting` — backtest an ensemble of diverse models.
+# - {doc}`/tutorials/ensemble_forecasting` — backtest an ensemble of diverse models.

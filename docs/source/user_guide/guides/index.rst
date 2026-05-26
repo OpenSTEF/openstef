@@ -45,7 +45,7 @@ Step-by-step instructions for common OpenSTEF tasks.
         Handle missing data, detect flatlining, and configure fallback strategies.
 
     .. grid-item-card:: :fa:`clock-rotate-left` Backtesting
-        :link: backtesting
+        :link: backtesting_tutorial
         :link-type: doc
 
         Evaluate model performance on historical data with rolling windows.
@@ -71,6 +71,6 @@ Step-by-step instructions for common OpenSTEF tasks.
     Datasets <datasets_tutorial>
     probabilistic_forecasting
     reliability_fallback
-    backtesting
+    Backtesting <backtesting_tutorial>
     deployment
     /user_guide/logging

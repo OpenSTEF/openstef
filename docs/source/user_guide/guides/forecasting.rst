@@ -153,4 +153,4 @@ For a complete walkthrough with real data, see :doc:`/tutorials/forecasting_quic
    - :ref:`concept_models` for details on available model types and the containment hierarchy.
    - :doc:`/user_guide/guides/probabilistic_forecasting` for quantile forecasts and calibration.
    - :doc:`/user_guide/guides/deployment` for integrating forecasting into production systems.
-   - :ref:`guide_backtesting` for systematic model comparison using BEAM.
+   - :doc:`/user_guide/guides/backtesting_tutorial` for a hands-on backtest walkthrough; see also :ref:`concept_beam` for the broader framework.

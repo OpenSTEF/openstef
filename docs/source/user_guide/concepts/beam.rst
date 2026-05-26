@@ -15,7 +15,7 @@ Analysis, and Metrics) solves this by providing a reproducible, sequential pipel
 model comparison.
 
 This page explains the architecture and design principles of BEAM. For a hands-on
-walkthrough, see :ref:`guide_backtesting`.
+walkthrough, see the :doc:`/user_guide/guides/backtesting_tutorial`.
 
 Why Systematic Benchmarking Matters
 -----------------------------------
@@ -231,5 +231,5 @@ benchmarks (hundreds of targets, multiple models) remain tractable.
 
    - :ref:`concept_models` for the forecasting models that BEAM evaluates.
    - :ref:`concept_metalearning` for how BEAM results inform model selection decisions.
-   - :ref:`guide_backtesting` for a practical guide to setting up and running benchmarks.
+   - :doc:`/user_guide/guides/backtesting_tutorial` for a hands-on walkthrough of setting up and running a backtest.
    - :doc:`/api/beam` for the full openstef-beam API reference.

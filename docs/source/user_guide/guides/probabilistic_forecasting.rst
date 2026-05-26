@@ -7,9 +7,45 @@
 Probabilistic Forecasting
 =========================
 
-A point forecast tells you what is most likely to happen, but it does not tell you how wrong it might be. If your model predicts 100 MW of load, reality could be anywhere from 80 to 120 MW. Grid operators need that range of possible outcomes to make sound decisions about reserve planning, congestion management, and market bidding. Probabilistic forecasting quantifies this uncertainty by producing multiple quantile predictions that describe the full distribution of possible outcomes.
+A point forecast tells you what is most likely to happen, but it does not tell
+you how wrong it might be. If your model predicts 100 MW of load, reality could
+be anywhere from 80 to 120 MW. Grid operators need that range of possible
+outcomes to make sound decisions about reserve planning, congestion management,
+and market bidding. Probabilistic forecasting quantifies this uncertainty by
+producing multiple quantile predictions that describe the full distribution of
+possible outcomes.
 
-This page explains how OpenSTEF produces calibrated probabilistic forecasts and why calibration matters for operational use.
+This page explains how OpenSTEF produces calibrated probabilistic forecasts and
+why calibration matters for operational use. For a runnable end-to-end example
+with diagnostic plots, see :doc:`/tutorials/quantile_calibration`.
+
+What You Get Back
+-----------------
+
+When you configure quantiles on a workflow, ``predict()`` returns a
+:class:`~openstef_core.datasets.ForecastDataset` whose ``data`` DataFrame
+contains:
+
+- One ``quantile_PXX`` column per requested quantile level (e.g.,
+  ``quantile_P10``, ``quantile_P50``, ``quantile_P90``).
+- The median (P50) doubles as the point forecast.
+- All quantiles share the same datetime index and horizon metadata as the
+  input.
+
+Quantiles are sorted at postprocessing time
+(:class:`~openstef_models.transforms.postprocessing.quantile_sorter.QuantileSorter`),
+so you can rely on ``quantile_P10 <= quantile_P50 <= quantile_P90`` row-by-row.
+
+.. figure:: /images/guides/probabilistic_fan_chart.svg
+   :alt: A probabilistic forecast showing the median load prediction with
+         nested confidence bands at P5-P95, P10-P90, and P30-P70.
+   :align: center
+
+   A real GBLinear forecast with seven quantiles. The dark band is the
+   inter-quartile range (P30-P70); the lighter bands widen out to the
+   90% and 95% prediction intervals. Width varies with the time of day:
+   uncertainty is higher around the morning ramp than during the
+   overnight trough.
 
 Why Quantiles, Not Confidence Intervals
 ----------------------------------------
@@ -21,6 +57,38 @@ This is important for energy forecasting because:
 - Solar generation uncertainty is highly asymmetric (bounded at zero, skewed by cloud cover)
 - Wind power distributions are non-Gaussian due to the cubic relationship between wind speed and power
 - Load uncertainty varies by time of day and season
+
+Why Not Full Probability Distributions?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+A natural question is why OpenSTEF outputs a discrete set of quantiles rather
+than a parametric distribution (e.g., a Gaussian with predicted mean and
+variance). The choice is deliberate, for three reasons:
+
+1. **Most production-grade gradient-boosting models do not output
+   distributions natively.** XGBoost and LightGBM are tree ensembles; they
+   produce point estimates. They can be adapted to predict at a configured set
+   of quantile levels (via pinball loss or built-in quantile objectives), but
+   they cannot emit a continuous density. Coercing them into a parametric
+   distribution would require either an inappropriate normality assumption or
+   a separate two-stage model that estimates mean and spread.
+2. **There is no standard distribution shape for energy load or generation.**
+   Solar generation is bounded at zero with a heavy tail on sunny days; wind
+   power has a cubic relationship to wind speed; aggregated load looks
+   roughly normal but mixes regimes. Picking a single parametric family would
+   force a poor fit somewhere. Quantiles are non-parametric and adapt to
+   whatever shape the data has.
+3. **Operational decisions are usually quantile-based anyway.** Reserve
+   procurement, congestion bidding, and risk-of-imbalance calculations
+   consume specific percentiles directly. A grid operator asks "what is the
+   95th percentile of expected load?", not "what is the variance of a fitted
+   normal?". Quantiles cut out a lossy intermediate step.
+
+If you do need a continuous distribution downstream, you can always
+interpolate between the quantiles OpenSTEF returns (linear interpolation
+between adjacent quantiles, extrapolating beyond P5/P95 if needed). The
+reverse, recovering a non-parametric shape from a fitted distribution, is
+much harder.
 
 Configuring Quantile Forecasts
 ------------------------------
@@ -43,30 +111,41 @@ The median quantile (P50) serves as the point forecast. The outer quantiles defi
 How Each Model Produces Quantiles
 ---------------------------------
 
-Different model backends use different strategies to estimate quantiles:
+Different backends use different strategies to estimate quantiles. All of them
+train a single model that produces all requested quantiles simultaneously,
+rather than fitting one model per quantile. This is more efficient and helps
+maintain consistency between levels.
 
 .. list-table::
    :header-rows: 1
-   :widths: 20 40 40
+   :widths: 20 30 30 20
 
    * - Model
-     - Quantile Method
-     - Key Detail
-   * - XGBoost
+     - Quantile method
+     - Pick when
+     - Key detail
+   * - **XGBoost**
      - Custom pinball loss objective
-     - Multi-output: trains all quantiles jointly using gradient/hessian of pinball loss (or smoothed arctan variant)
-   * - GBLinear
+     - Non-linear targets where you want full control over the loss (e.g.,
+       smoothed arctan variant for sharper gradients).
+     - Multi-output: trains all quantiles jointly using gradient/hessian of
+       pinball loss.
+   * - **GBLinear**
      - ``reg:quantileerror`` objective
-     - XGBoost's built-in quantile regression for linear boosters
-   * - LightGBM
+     - Fast iteration on linear-tractable problems, or as a robust baseline.
+     - Uses XGBoost's built-in quantile regression for linear boosters.
+   * - **LightGBM**
      - ``MultiQuantileRegressor``
-     - Native multi-quantile support in LightGBM
+     - Large feature sets where LightGBM's training speed pays off.
+     - Native multi-quantile support inside LightGBM.
 
-All approaches train a single model that produces all requested quantiles simultaneously, rather than fitting separate models per quantile. This is more efficient and helps maintain consistency between quantile levels.
+.. warning::
 
-.. note::
-
-   The XGBoost pinball loss implementation includes a non-degenerate hessian approximation required for proper tree splitting. The ``max_delta_step`` hyperparameter must satisfy ``0.5 * max_delta_step <= min(quantile, 1 - quantile)`` for stable convergence.
+   The XGBoost pinball loss includes a non-degenerate hessian approximation
+   that gradient boosting needs for proper tree splitting. Set
+   ``max_delta_step`` such that
+   ``0.5 * max_delta_step <= min(quantile, 1 - quantile)`` across your
+   configured quantiles, otherwise training can diverge.
 
 The Calibration Problem
 -----------------------
@@ -78,6 +157,19 @@ Raw quantile models often produce predictions where the stated coverage does not
 - Feature interactions that affect uncertainty differently than the mean
 
 For operational use, calibration matters enormously. If a grid operator uses P95 to set reserves, they need that bound to actually contain 95% of outcomes. Systematic miscalibration leads to either over-procurement (wasting money) or under-procurement (risking reliability).
+
+.. figure:: /images/guides/calibration_plot.svg
+   :alt: A calibration plot showing forecasted versus observed probability
+         for seven quantile levels. Points off the diagonal indicate
+         miscalibration.
+   :align: center
+   :width: 70%
+
+   Calibration check: for each requested quantile (x-axis), the y-axis shows
+   the fraction of actual observations that fell below it. A perfectly
+   calibrated model lands on the dashed diagonal. Deviations above the
+   diagonal mean the model is *over-predicting* (predicted P50 actually
+   covers 60% of outcomes); below means *under-predicting*.
 
 Isotonic Quantile Calibration
 -----------------------------
@@ -127,11 +219,11 @@ Key metrics for probabilistic forecast quality include:
 - **Sharpness**: the width of prediction intervals (narrower is better, given proper calibration)
 - **Pinball loss**: the proper scoring rule for quantile forecasts, penalizing both miscalibration and lack of sharpness
 
-See :doc:`/user_guide/guides/backtesting` for how to evaluate forecast quality on historical data.
+See :doc:`/user_guide/guides/backtesting_tutorial` for how to evaluate forecast quality on historical data.
 
 .. seealso::
 
    - :doc:`/user_guide/guides/forecasting` for the overall forecasting workflow (fitting, predicting, model selection).
    - :doc:`/user_guide/concepts/models` for understanding how different model types compare.
-   - :doc:`/user_guide/guides/backtesting` for evaluating forecast performance systematically.
+   - :doc:`/user_guide/guides/backtesting_tutorial` for evaluating forecast performance systematically.
    - :doc:`/user_guide/guides/reliability_fallback` for operational concerns like fallback behavior when data is missing.

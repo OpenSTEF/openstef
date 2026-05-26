@@ -93,7 +93,7 @@ Learn
         * :doc:`user_guide/concepts/intro_to_energy_forecasting`
         * :doc:`user_guide/concepts/models`
         * :doc:`user_guide/guides/probabilistic_forecasting`
-        * :doc:`user_guide/guides/backtesting`
+        * :doc:`user_guide/concepts/beam`
         * :doc:`user_guide/concepts/component_splitting`
 
 
