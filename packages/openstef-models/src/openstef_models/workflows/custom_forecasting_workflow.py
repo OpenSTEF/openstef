@@ -39,7 +39,7 @@ class ForecastingCallback(
     to override the specific events they care about.
 
     Example:
-        Creating a logging callback:
+        Creating a logging callback
 
         >>> class LoggingCallback(ForecastingCallback):
         ...     def on_fit_start(self, pipeline, dataset):
@@ -68,7 +68,7 @@ class CustomForecastingWorkflow(BaseModel):
         - Storage operations (if configured) maintain model persistence
 
     Example:
-        Basic workflow with callbacks:
+        Basic workflow with callbacks
 
         >>> import pandas as pd
         >>> import numpy as np
@@ -108,7 +108,7 @@ class CustomForecastingWorkflow(BaseModel):
         >>> len(forecasts.data) > 0
         True
 
-        Loading from storage with fallback:
+        Loading from storage with fallback
 
         >>> workflow = ForecastingWorkflow.from_storage(
         ...     model_id="production_model_v1",

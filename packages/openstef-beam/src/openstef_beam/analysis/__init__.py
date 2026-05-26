@@ -10,6 +10,7 @@ which models to deploy. It automatically generates the visualizations most relev
 for energy forecasting operations.
 
 What you get:
+
     - Performance charts: See how models compare across different metrics
     - Time series plots: Visualize predictions vs actual load over time
     - Error analysis: Understand when and why models make mistakes

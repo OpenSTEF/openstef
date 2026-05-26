@@ -10,6 +10,7 @@ probabilistic forecasts predict a range of possible outcomes with their likeliho
 how accurate these probability estimates are and how well-calibrated they are.
 
 Key concepts:
+
     - Calibration: Do 90% prediction intervals actually contain the true value 90% of the time?
     - Sharpness: How narrow are the prediction intervals (more precise is better)?
     - Proper scoring: Metrics that reward honest probability estimates over gaming the system.
@@ -48,7 +49,7 @@ def crps(
         better forecast quality.
 
     Example:
-        Evaluate quantile forecasts for energy load:
+        Evaluate quantile forecasts for energy load
 
         >>> import numpy as np
         >>> y_true = np.array([100, 120, 110])
@@ -105,7 +106,7 @@ def rcrps(
         quantiles is zero.
 
     Example:
-        Compare forecast quality across different scales:
+        Compare forecast quality across different scales
 
         >>> import numpy as np
         >>> # High load period
@@ -149,7 +150,7 @@ def observed_probability(
         the fraction of observations that fall below the predicted values.
 
     Example:
-        Check calibration of median forecasts:
+        Check calibration of median forecasts
 
         >>> import numpy as np
         >>> y_true = np.array([95, 105, 100, 110, 90])
@@ -190,7 +191,7 @@ def mean_absolute_calibration_error(
         Values closer to 0 indicate better calibration.
 
     Example:
-        Evaluate calibration of quantile forecasts:
+        Evaluate calibration of quantile forecasts
 
         >>> import numpy as np
         >>> y_true = np.array([95, 105, 100, 110, 90, 115, 85, 120])

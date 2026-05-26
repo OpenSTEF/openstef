@@ -10,6 +10,7 @@ This module automates the entire process: training models, running backtests, ca
 metrics, generating reports, and storing results for comparison.
 
 The complete workflow:
+
     - Model training: Train different forecasting approaches on each target
     - Backtesting: Test all models under realistic conditions
     - Evaluation: Calculate performance metrics across different scenarios

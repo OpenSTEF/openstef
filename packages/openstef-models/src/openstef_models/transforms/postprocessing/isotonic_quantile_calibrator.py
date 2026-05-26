@@ -32,18 +32,22 @@ class IsotonicQuantileCalibrator(BaseModel, Transform[ForecastDataset, ForecastD
     calibrated values, ensuring that predicted quantiles match observed empirical
     quantiles in the validation data.
 
-    How it works:
-        1. **Learning phase (fit)**:
-           - For each quantile (e.g., P10, P50, P90):
-             * Sorts predictions and actual values together
-             * Optionally estimates local quantiles using adaptive windowing
-             * Fits isotonic regression that maps predictions to actuals
-             * Enforces monotonicity: higher predictions → higher calibrated values
+    **How it works:**
 
-        2. **Prediction phase (transform)**:
-           - Applies learned isotonic mapping to each quantile
-           - Out-of-bounds predictions are handled per configuration
-           - Preserves monotonic ordering across quantiles
+    1. *Learning phase* (:meth:`fit`):
+
+       For each quantile (e.g., P10, P50, P90):
+
+       - Sorts predictions and actual values together
+       - Optionally estimates local quantiles using adaptive windowing
+       - Fits isotonic regression that maps predictions to actuals
+       - Enforces monotonicity: higher predictions → higher calibrated values
+
+    2. *Prediction phase* (:meth:`transform`):
+
+       - Applies learned isotonic mapping to each quantile
+       - Out-of-bounds predictions are handled per configuration
+       - Preserves monotonic ordering across quantiles
 
     Args:
         quantiles: Quantiles to calibrate (e.g., [0.1, 0.5, 0.9]).

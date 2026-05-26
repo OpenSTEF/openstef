@@ -25,6 +25,7 @@ class Window(PydanticStringPrimitive):
     """Represents a time window with lag, size, and stride parameters.
 
     Used for defining sliding windows for time series analysis with:
+
     - lag: How far back from the reference point to start the window
     - size: The duration of the window
     - stride: How much to advance for the next window

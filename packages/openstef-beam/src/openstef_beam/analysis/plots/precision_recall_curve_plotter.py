@@ -22,11 +22,13 @@ class PrecisionRecallCurvePlotter:
     by visualizing the trade-off between precision and recall for each model.
 
     The plots help answer:
+
     - Which model provides the best precision-recall trade-off?
     - How does performance vary across different quantile thresholds?
     - What quantile levels achieve optimal model performance?
 
     The resulting curves show:
+
     - Precision vs recall curves for each model
     - Interactive hover data showing quantile values
     - Comparative model performance visualization
@@ -35,7 +37,7 @@ class PrecisionRecallCurvePlotter:
     while specific points help identify optimal operating thresholds.
 
     Example:
-        Comparing model performance across quantiles:
+        Comparing model performance across quantiles
 
         >>> from openstef_core.types import Quantile
         >>> plotter = PrecisionRecallCurvePlotter()

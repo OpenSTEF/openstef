@@ -51,7 +51,7 @@ class MetricProvider(BaseConfig):
     for individual quantiles. The base class handles the iteration and organization.
 
     Example:
-        Creating a custom metric provider:
+        Creating a custom metric provider
 
         >>> from openstef_beam.evaluation.metric_providers import MetricProvider
         >>> from openstef_core.types import Quantile

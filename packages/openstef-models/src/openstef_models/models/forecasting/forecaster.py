@@ -9,6 +9,7 @@ These mixins establish contracts that ensure consistent behavior across differen
 while supporting both single and multi-horizon forecasting scenarios.
 
 Key concepts:
+
 - **Horizon**: The lead time for predictions, accounting for data availability and versioning cutoffs
 - **Quantiles**: Probability levels for uncertainty estimation
 - **State**: Serializable model parameters that enable saving/loading trained models
@@ -51,7 +52,7 @@ class Forecaster(BaseConfig, BatchPredictor[ForecastInputDataset, ForecastDatase
         - predict_batch() only called when supports_batching returns True
 
     Example:
-        Creating a forecaster with multiple horizons:
+        Creating a forecaster with multiple horizons
 
         >>> from openstef_core.types import LeadTime, Quantile
         >>> from openstef_models.models.forecasting.flatliner_forecaster import FlatlinerForecaster

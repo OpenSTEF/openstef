@@ -24,7 +24,7 @@ def timedelta_to_isoformat(td: timedelta) -> str:
         ISO 8601 duration string representation (e.g., 'PT15M' for 15 minutes).
 
     Example:
-        Convert a 15-minute interval:
+        Convert a 15-minute interval
 
         >>> from datetime import timedelta
         >>> td = timedelta(minutes=15)
@@ -44,7 +44,7 @@ def timedelta_from_isoformat(s: str) -> timedelta:
         Python timedelta object representing the duration.
 
     Example:
-        Parse a 15-minute interval:
+        Parse a 15-minute interval
 
         >>> td = timedelta_from_isoformat('PT15M')
         >>> td.total_seconds()

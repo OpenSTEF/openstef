@@ -9,6 +9,7 @@ These metrics measure how close predicted values are to actual values, with spec
 attention to peak load events that are critical for energy system operations.
 
 Key focus areas:
+
     - Scale-invariant errors: Compare accuracy across different load levels
     - Peak detection: Identify when load will exceed operational thresholds
     - Operational effectiveness: Ensure predictions support actionable decisions
@@ -36,7 +37,8 @@ def completeness(
         The completeness as a float in range [0, 1], where 1.0 means no missing data.
 
     Example:
-        Basic usage with energy load data:
+        Basic usage with energy load data
+
         >>> import numpy as np
         >>> y = np.array([100, 120, np.nan, 130, 105])
         >>> completeness(y)
@@ -75,7 +77,8 @@ def mae(
         The Mean Absolute Error as a float.
 
     Example:
-        Basic usage with energy load data:
+        Basic usage with energy load data
+
         >>> import numpy as np
         >>> y_true = np.array([100, 120, 110, 130, 105])
         >>> y_pred = np.array([98, 122, 108, 132, 107])
@@ -133,7 +136,7 @@ def rmae(
         between quantiles is zero.
 
     Example:
-        Basic usage with energy load data:
+        Basic usage with energy load data
 
         >>> import numpy as np
         >>> y_true = np.array([100, 120, 110, 130, 105])
@@ -142,7 +145,7 @@ def rmae(
         >>> round(error, 3)
         0.096
 
-        With custom quantiles and weights:
+        With custom quantiles and weights
 
         >>> weights = np.array([1, 2, 1, 2, 1])
         >>> error = rmae(y_true, y_pred, lower_quantile=0.1,
@@ -195,7 +198,7 @@ def mape(
         extremely large values if y_true contains values close to zero.
 
     Example:
-        Basic usage with energy load data:
+        Basic usage with energy load data
 
         >>> import numpy as np
         >>> y_true = np.array([100, 120, 110, 130, 105])
@@ -204,7 +207,7 @@ def mape(
         >>> round(error, 4)
         0.0225
 
-        With perfect predictions:
+        With perfect predictions
 
         >>> perfect_pred = np.array([100, 120, 110, 130, 105])
         >>> mape(y_true, perfect_pred)
@@ -278,7 +281,7 @@ def confusion_matrix(
         and effectiveness metrics.
 
     Example:
-        Peak detection for energy load data:
+        Peak detection for energy load data
 
         >>> import numpy as np
         >>> y_true = np.array([100, 150, 80, 200, 90])  # 150 and 200 are peaks
@@ -357,7 +360,7 @@ def precision_recall(
         PrecisionRecall containing precision and recall values, each in range [0, 1].
 
     Example:
-        Calculate standard precision and recall:
+        Calculate standard precision and recall
 
         >>> import numpy as np
         >>> y_true = np.array([100, 150, 80, 200, 90])
@@ -412,14 +415,14 @@ def fbeta(
         precision and recall are zero.
 
     Example:
-        Calculate F2 score (favoring recall):
+        Calculate F2 score (favoring recall)
 
         >>> pr = PrecisionRecall(precision=0.8, recall=0.9)
         >>> score = fbeta(pr, beta=2.0)
         >>> round(score, 3)
         0.878
 
-        Calculate F1 score (balanced):
+        Calculate F1 score (balanced)
 
         >>> score = fbeta(pr, beta=1.0)
         >>> round(score, 3)
@@ -464,7 +467,7 @@ def riqd(
             range is zero.
 
     Example:
-        Basic usage with energy load data:
+        Basic usage with energy load data
 
         >>> import numpy as np
         >>> y_true = np.array([100, 120, 110, 130, 105])
@@ -522,7 +525,7 @@ def r2(
         predicts the mean of y_true would get an R² score of 0.0.
 
     Example:
-        Basic usage with energy load data:
+        Basic usage with energy load data
 
         >>> import numpy as np
         >>> y_true = np.array([100, 120, 110, 130, 105])
@@ -531,13 +534,13 @@ def r2(
         >>> round(score, 3)
         0.929
 
-        Perfect predictions give R² = 1.0:
+        Perfect predictions give R² = 1.0
 
         >>> perfect_pred = np.array([100, 120, 110, 130, 105])
         >>> r2(y_true, perfect_pred)
         1.0
 
-        With sample weights:
+        With sample weights
 
         >>> weights = np.array([1, 2, 1, 2, 1])
         >>> score = r2(y_true, y_pred, sample_weights=weights)
@@ -582,7 +585,7 @@ def relative_pinball_loss(
         is zero.
 
     Example:
-        Basic usage for 10th percentile predictions:
+        Basic usage for 10th percentile predictions
 
         >>> import numpy as np
         >>> y_true = np.array([100, 120, 110, 130, 105])

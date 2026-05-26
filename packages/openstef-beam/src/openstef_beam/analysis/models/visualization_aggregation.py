@@ -21,6 +21,7 @@ class AnalysisAggregation(StrEnum):
     compared in visualizations, enabling different analytical perspectives.
 
     Members:
+
     - NONE ("none"): Single run, single target - individual performance analysis
     - TARGET ("target"): Single run, per target - cross-target comparison (e.g., RMAE per target)
     - GROUP ("group"): Single run, multiple targets - cross-group comparison (e.g., RMAE per group)

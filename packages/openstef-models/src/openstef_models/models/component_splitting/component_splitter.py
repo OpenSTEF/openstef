@@ -44,6 +44,7 @@ class ComponentSplitter(Predictor[TimeSeriesDataset, EnergyComponentDataset]):
     split it into different energy components (solar, wind, etc.).
 
     Implementers must provide:
+
     - Configuration access via the config property
     - Fitting logic (may be no-op for simple splitters)
     - Prediction logic to perform the actual splitting

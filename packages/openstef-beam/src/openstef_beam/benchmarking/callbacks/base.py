@@ -9,6 +9,7 @@ custom monitoring, logging, result processing, and external integrations.
 Callbacks receive notifications at key points in the benchmark lifecycle.
 
 The callback system enables:
+
 - Progress monitoring and reporting
 - Custom logging and metrics collection
 - Integration with external systems (databases, monitoring tools)
@@ -35,12 +36,13 @@ class BenchmarkCallback:
     at key execution points and can influence the benchmark flow.
 
     Callback methods can return boolean values to control execution flow:
-    - Returning False from start methods (on_benchmark_start, on_target_start, etc.)
-      will skip that phase of execution
-    - Complete methods are purely informational and don't affect flow control
+
+    - Returning ``False`` from start methods (:meth:`on_benchmark_start`,
+      :meth:`on_target_start`, etc.) will skip that phase of execution.
+    - Complete methods are purely informational and don't affect flow control.
 
     Example:
-        Creating a custom progress monitoring callback:
+        Creating a custom progress monitoring callback
 
         >>> from openstef_beam.benchmarking.callbacks import BenchmarkCallback
         >>> import logging
@@ -64,7 +66,7 @@ class BenchmarkCallback:
         ...     def on_error(self, runner, target, error):
         ...         self.logger.error(f"Error processing {target.name}: {error}")
 
-        Early termination based on conditions:
+        Early termination based on conditions
 
         >>> class QualityGateCallback(BenchmarkCallback):
         ...     def __init__(self, max_mae_threshold=100.0):

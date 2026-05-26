@@ -26,6 +26,7 @@ class GroupedTargetMetricVisualization(VisualizationProvider):
     quantile-based metrics (quantile losses) for performance comparisons.
 
     Key features:
+
     - Bar charts for individual target comparisons
     - Box plots for grouped target analysis
     - Support for selector-based metrics (e.g., show metric at best-performing quantile)
@@ -33,13 +34,14 @@ class GroupedTargetMetricVisualization(VisualizationProvider):
     - Interactive tooltips with detailed metric values
 
     Use cases:
+
     - Identify which targets are hardest to predict
     - Compare model performance across target categories
     - Analyze performance variations within target groups
     - Evaluate model consistency across different scenarios
 
     Example:
-        Comparing RMAE across targets for different models:
+        Comparing RMAE across targets for different models
 
         >>> from openstef_beam.analysis import AnalysisConfig
         >>> from openstef_beam.analysis.visualizations import GroupedTargetMetricVisualization

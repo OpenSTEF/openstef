@@ -34,7 +34,7 @@ class ComponentSplittingModel(BaseModel, ComponentSplitter):
         - Output components must sum to match input source values
 
     Example:
-        Basic component splitting setup:
+        Basic component splitting setup
 
         >>> from openstef_models.models.component_splitting.constant_component_splitter import (
         ...     ConstantComponentSplitter, ConstantComponentSplitterConfig

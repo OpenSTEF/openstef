@@ -10,6 +10,7 @@ happening in real-time. Models are retrained periodically, just like in actual d
 and predictions are made with only past data available.
 
 Why this matters:
+
     - Prevents data leakage: No cheating with future information
     - Realistic performance: Results match what you'd see in production
     - Operational constraints: Simulates real training schedules and data availability

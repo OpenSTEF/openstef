@@ -32,13 +32,14 @@ class QuantileCalibrationBoxVisualization(VisualizationProvider):
     but overrides the plotting methods to create boxplots.
 
     Boxplots are particularly useful for:
+
     - Comparing calibration across multiple targets
     - Showing distribution of calibration errors
     - Identifying outlier targets or systematic biases
     - Evaluating consistency of uncertainty estimates
 
     Example:
-        Basic usage in analysis pipeline:
+        Basic usage in analysis pipeline
 
         >>> from openstef_beam.analysis import AnalysisConfig
         >>> from openstef_beam.analysis.visualizations import QuantileCalibrationBoxVisualization

@@ -70,13 +70,14 @@ class ForecastTimeSeriesPlotter(BaseConfig):
     - Are there seasonal or temporal patterns in model performance?
 
     The plots include:
+
     - Line charts for measurements (actual values) and model forecasts
     - Shaded confidence bands showing forecast uncertainty (quantiles)
     - Color-coded models for easy visual comparison
     - Interactive hover information and zooming capabilities
 
     Example:
-        Basic usage comparing forecast to measurements:
+        Basic usage comparing forecast to measurements
 
         >>> from openstef_core.datasets import TimeSeriesDataset
         >>> import pandas as pd

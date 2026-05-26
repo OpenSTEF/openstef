@@ -56,19 +56,21 @@ class BacktestForecasterMixin:
     with proper timestamp and availability metadata.
 
     Key responsibilities:
+
     - Train models on historical time series data with proper context windows
     - Generate probabilistic forecasts across specified quantiles
     - Handle missing data gracefully and return None when predictions aren't possible
     - Provide consistent output formatting for downstream evaluation
 
     Implementation requirements:
+
     - Must implement quantiles property to specify which quantiles are predicted
     - Must implement predict() method for core forecasting logic
     - Should implement fit() method for model training (optional for some models)
     - Output predictions must include quantile columns formatted as [quantile_PXX]
 
     Example:
-        Basic implementation for a simple forecasting model:
+        Basic implementation for a simple forecasting model
 
         >>> from openstef_beam.backtesting.backtest_forecaster import BacktestForecasterMixin
         >>> from openstef_core.types import Quantile
@@ -97,7 +99,7 @@ class BacktestForecasterMixin:
 
     Integration with benchmarking:
         Forecaster implementations are typically created by factory functions
-        that customize the model for specific targets:
+        that customize the model for specific targets
 
         >>> def create_forecaster(context, target):
         ...     config = BacktestForecasterConfig(
@@ -112,6 +114,7 @@ class BacktestForecasterMixin:
         >>> # benchmark.run(forecaster_factory=create_forecaster)
 
     Guarantees:
+
     - Returns None when prediction cannot be performed reliably
     - Provides properly formatted prediction output with timestamp metadata
     - Handles edge cases and missing data gracefully
@@ -152,6 +155,7 @@ class BacktestForecasterMixin:
         """Predicts a versioned time series with the model.
 
         Guarantees:
+
             - Returns None if _handle_predict returns None
             - Adds 'timestamp' column from index and 'available_at' from horizon
             - Contains quantile columns formatted as [quantile_PXX]

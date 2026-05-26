@@ -24,13 +24,14 @@ class WindowedMetricPlotter:
     seasonal variations, and long-term trends in forecast accuracy.
 
     The plots show:
+
     - Performance metrics over time for each model
     - Rolling averages to smooth out short-term fluctuations
     - Comparative analysis across multiple models
     - Trend identification for performance monitoring
 
     Example:
-        Basic usage for RMSE over time:
+        Basic usage for RMSE over time
 
         >>> from datetime import datetime
         >>> plotter = WindowedMetricPlotter()

@@ -32,29 +32,29 @@ class FlatlineChecker(BaseConfig, TimeSeriesTransform):
     This class can detect both zero and non-zero flatliners, depending on configuration.
 
     Example:
-    >>> from datetime import timedelta
-    >>> import numpy as np
-    >>> import pandas as pd
-    >>> from openstef_core.datasets import TimeSeriesDataset
-    >>> from openstef_models.transforms.validation import (
-    ...     FlatlineChecker,
-    ... )
-    >>> data = pd.DataFrame(
-    ...     {
-    ...         "load": [100, 110, 110, 110],
-    ...     },
-    ...     index=pd.date_range("2025-01-01", periods=4, freq="1h"),
-    ... )
-    >>> dataset = TimeSeriesDataset(data, timedelta(hours=1))
-    >>> transform = FlatlineChecker(
-    ...     flatliner_threshold=timedelta(hours=2),
-    ...     detect_non_zero_flatliner=True,
-    ...     relative_tolerance=1e-5
-    ... )
-    >>> try:
-    ...     transformed_data = transform.fit_transform(dataset)
-    ... except FlatlinerDetectedError as e:
-    ...     pass
+        >>> from datetime import timedelta
+        >>> import numpy as np
+        >>> import pandas as pd
+        >>> from openstef_core.datasets import TimeSeriesDataset
+        >>> from openstef_models.transforms.validation import (
+        ...     FlatlineChecker,
+        ... )
+        >>> data = pd.DataFrame(
+        ...     {
+        ...         "load": [100, 110, 110, 110],
+        ...     },
+        ...     index=pd.date_range("2025-01-01", periods=4, freq="1h"),
+        ... )
+        >>> dataset = TimeSeriesDataset(data, timedelta(hours=1))
+        >>> transform = FlatlineChecker(
+        ...     flatliner_threshold=timedelta(hours=2),
+        ...     detect_non_zero_flatliner=True,
+        ...     relative_tolerance=1e-5
+        ... )
+        >>> try:
+        ...     transformed_data = transform.fit_transform(dataset)
+        ... except FlatlinerDetectedError as e:
+        ...     pass
     """
 
     load_column: str = Field(

@@ -30,7 +30,7 @@ class TimeSeriesTransform(Transform[TimeSeriesDataset, TimeSeriesDataset]):
     the fit method if the transformation requires learning parameters from data.
 
     Example:
-        Implement a simple scaling transform:
+        Implement a simple scaling transform
 
         >>> class ScaleTransform(TimeSeriesTransform):
         ...     def __init__(self):
