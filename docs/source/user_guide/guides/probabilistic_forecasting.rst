@@ -1,3 +1,5 @@
+.. _guide_probabilistic_forecasting:
+
 Probabilistic Forecasting
 =========================
 

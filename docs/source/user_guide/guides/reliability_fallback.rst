@@ -1,3 +1,5 @@
+.. _guide_reliability_fallback:
+
 Reliability and Fallback
 ========================
 
