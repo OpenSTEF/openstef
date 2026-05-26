@@ -1,0 +1,117 @@
+# SPDX-FileCopyrightText: 2026 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+# SPDX-License-Identifier: MPL-2.0
+
+# Dependabot configuration for the OpenSTEF uv workspace.
+#
+# Goals:
+#  - Reduce PR volume (was ~1 PR per package per advisory) by grouping
+#    patch+minor bumps into daily bundles.
+#  - Keep security visible and fast: separate `applies-to: security-updates`
+#    groups land within ~24h on the daily cadence rather than waiting
+#    up to a week.
+#  - Major bumps stay individual — they often need code changes.
+#
+# Block layout:
+#  - Block 1: published packages (root + packages/*). Splits runtime
+#    (`project.dependencies`) from dev (`dependency-groups.dev`).
+#  - Block 2: internal tooling (docs/, examples/). These workspace
+#    members put sphinx/jupyter under `dependencies`, so the
+#    production/development filter doesn't separate them usefully —
+#    everything in these roots is treated as docs/example tooling.
+#  - Block 3: GitHub Actions, single grouped daily PR.
+
+version: 2
+
+updates:
+  # ---------------------------------------------------------------------
+  # Block 1 — Published packages (runtime + dev tooling at root)
+  # ---------------------------------------------------------------------
+  - package-ecosystem: pip
+    directories:
+      - "/"
+      - "/packages/openstef-beam"
+      - "/packages/openstef-core"
+      - "/packages/openstef-meta"
+      - "/packages/openstef-models"
+    schedule:
+      interval: daily
+      time: "06:00"
+      timezone: Europe/Amsterdam
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: "chore(deps)"
+      prefix-development: "chore(deps-dev)"
+      include: scope
+    labels:
+      - dependencies
+      - python:uv
+    groups:
+      python-security:
+        applies-to: security-updates
+        update-types:
+          - patch
+          - minor
+      python-runtime:
+        applies-to: version-updates
+        dependency-type: production
+        update-types:
+          - patch
+          - minor
+      python-dev:
+        applies-to: version-updates
+        dependency-type: development
+        update-types:
+          - patch
+          - minor
+
+  # ---------------------------------------------------------------------
+  # Block 2 — Internal tooling: docs and examples
+  # ---------------------------------------------------------------------
+  - package-ecosystem: pip
+    directories:
+      - "/docs"
+      - "/examples"
+    schedule:
+      interval: daily
+      time: "06:00"
+      timezone: Europe/Amsterdam
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore(deps-docs)"
+      include: scope
+    labels:
+      - dependencies
+      - python:uv
+      - documentation
+    groups:
+      python-tooling-security:
+        applies-to: security-updates
+        update-types:
+          - patch
+          - minor
+      python-tooling:
+        applies-to: version-updates
+        update-types:
+          - patch
+          - minor
+
+  # ---------------------------------------------------------------------
+  # Block 3 — GitHub Actions
+  # ---------------------------------------------------------------------
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: daily
+      time: "06:00"
+      timezone: Europe/Amsterdam
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore(ci)"
+      include: scope
+    labels:
+      - dependencies
+      - github-actions
+    groups:
+      actions-all:
+        patterns:
+          - "*"
