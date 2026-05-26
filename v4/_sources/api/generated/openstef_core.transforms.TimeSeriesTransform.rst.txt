@@ -10,3 +10,4 @@ TimeSeriesTransform
 .. autoclass:: TimeSeriesTransform
    :show-inheritance:
    :members:
+   :special-members: __init__

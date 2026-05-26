@@ -492,10 +492,10 @@ which provides several benefits:
 
 .. note::
    
-   OpenSTEF also provides a more advanced logging system through the main ``openstef`` package 
-   with support for structured logging. However, individual packages (``openstef-models``, 
-    ``openstef-beam``, ``openstef-core``, etc.) use standard Python logging with ``NullHandler`` by default to 
-   give users complete control over logging configuration. See the :doc:`../user_guide/logging` 
+   OpenSTEF also provides a more advanced logging system through the main ``openstef`` package
+   with support for structured logging. However, individual packages (``openstef-models``,
+   ``openstef-beam``, ``openstef-core``, etc.) use standard Python logging with ``NullHandler`` by default to
+   give users complete control over logging configuration. See the :doc:`../user_guide/logging`
    guide for details on both approaches.
 
 Logging levels and usage

@@ -10,3 +10,4 @@ EnsembleForecastDataset
 .. autoclass:: EnsembleForecastDataset
    :show-inheritance:
    :members:
+   :special-members: __init__

@@ -35,7 +35,7 @@
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=01a4ee56" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=3f5a9049" />
   
   <!-- So that users can add custom icons -->
   <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -180,23 +180,6 @@
   </a>
 </li>
 
-            <li class="nav-item dropdown">
-                <button class="btn dropdown-toggle nav-item" type="button"
-                data-bs-toggle="dropdown" aria-expanded="false"
-                aria-controls="pst-nav-more-links">
-                    More
-                </button>
-                <ul id="pst-nav-more-links" class="dropdown-menu">
-                    
-<li class=" ">
-  <a class="nav-link dropdown-item nav-internal" href="../changelog.html">
-    Changelog
-  </a>
-</li>
-
-                </ul>
-            </li>
-            
   </ul>
 </nav></div>
       
@@ -329,13 +312,6 @@
 <li class="nav-item current active">
   <a class="nav-link nav-internal" href="index.html">
     Contributing
-  </a>
-</li>
-
-
-<li class="nav-item ">
-  <a class="nav-link nav-internal" href="../changelog.html">
-    Changelog
   </a>
 </li>
 
@@ -523,6 +499,67 @@ poe<span class="w"> </span>docs-clean
 <p>Building documentation requires additional dependencies that are included in the
 development environment. Make sure you’ve run <code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">sync</span> <span class="pre">--group</span> <span class="pre">dev</span></code> first.</p>
 </div>
+</section>
+<section id="how-the-documentation-pipeline-works">
+<h2>How the documentation pipeline works<a class="headerlink" href="#how-the-documentation-pipeline-works" title="Link to this heading">#</a></h2>
+<p>A <code class="docutils literal notranslate"><span class="pre">poe</span> <span class="pre">docs</span></code> invocation chains several stages. Knowing where each one lives
+helps when something goes wrong or when you want to extend the build.</p>
+<section id="tutorial-and-benchmark-sync">
+<h3>Tutorial and benchmark sync<a class="headerlink" href="#tutorial-and-benchmark-sync" title="Link to this heading">#</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">examples/tutorials/</span></code> and <code class="docutils literal notranslate"><span class="pre">examples/benchmarks/</span></code> directories are the
+canonical home for runnable notebooks. Before Sphinx starts,
+<code class="xref py py-mod docutils literal notranslate"><span class="pre">docs.sync_sources</span></code> copies them into <code class="docutils literal notranslate"><span class="pre">docs/source/tutorials/</span></code> and
+<code class="docutils literal notranslate"><span class="pre">docs/source/benchmarks/</span></code> so Sphinx can pick them up. The script also embeds
+a few tutorials into the user-guide nav (for example,
+<code class="docutils literal notranslate"><span class="pre">examples/tutorials/feature_engineering.py</span></code> is also synced to
+<code class="docutils literal notranslate"><span class="pre">docs/source/user_guide/guides/feature_engineering_tutorial.py</span></code>). The sync
+runs automatically during every build via <code class="docutils literal notranslate"><span class="pre">conf.py</span></code>’s <code class="docutils literal notranslate"><span class="pre">setup()</span></code> hook.</p>
+</section>
+<section id="notebook-rendering-with-myst-nb">
+<h3>Notebook rendering with myst-nb<a class="headerlink" href="#notebook-rendering-with-myst-nb" title="Link to this heading">#</a></h3>
+<p>Tutorial <code class="docutils literal notranslate"><span class="pre">.py</span></code> files are paired with <code class="docutils literal notranslate"><span class="pre">.ipynb</span></code> companions via
+<a class="reference external" href="https://jupytext.readthedocs.io/">jupytext</a>. During the build,
+<a class="reference external" href="https://myst-nb.readthedocs.io/">myst-nb</a> executes the notebooks and
+embeds the outputs into the rendered pages. Execution results are cached
+under <code class="docutils literal notranslate"><span class="pre">docs/build/.jupyter_cache</span></code>, so unchanged notebooks are not re-run
+on subsequent builds. Benchmarks under <code class="docutils literal notranslate"><span class="pre">benchmarks/*/*</span></code> are explicitly
+excluded from execution (they are too expensive to run on every build) and
+appear with the outputs that were saved when the notebook was last run by
+hand.</p>
+</section>
+<section id="autosummary-stub-caching">
+<h3>Autosummary stub caching<a class="headerlink" href="#autosummary-stub-caching" title="Link to this heading">#</a></h3>
+<p>API reference pages are generated from package source code by
+<code class="xref py py-mod docutils literal notranslate"><span class="pre">sphinx.ext.autosummary</span></code>. Running it across hundreds of modules is slow,
+so the custom <code class="xref py py-mod docutils literal notranslate"><span class="pre">docs.autosummary_cache</span></code> extension tracks <code class="docutils literal notranslate"><span class="pre">.py</span></code> source
+mtimes against a stamp file (<code class="docutils literal notranslate"><span class="pre">docs/build/.autosummary_stamp</span></code>) and skips
+stub generation when nothing has changed. Delete the stamp file or any
+<code class="docutils literal notranslate"><span class="pre">packages/*/src</span></code> source file to force a refresh.</p>
+</section>
+<section id="concept-and-guide-figures">
+<h3>Concept and guide figures<a class="headerlink" href="#concept-and-guide-figures" title="Link to this heading">#</a></h3>
+<p>Static figures used by concept and guide pages live in
+<code class="docutils literal notranslate"><span class="pre">docs/source/_figures/</span></code>. These are stand-alone scripts
+(<code class="docutils literal notranslate"><span class="pre">generate_concept_figures.py</span></code>, <code class="docutils literal notranslate"><span class="pre">generate_guide_figures.py</span></code>) that train
+real models on the Liander dataset and write SVG/GIF outputs into
+<code class="docutils literal notranslate"><span class="pre">docs/source/images/</span></code>. They are <strong>not</strong> run by the normal docs build;
+the <code class="docutils literal notranslate"><span class="pre">_figures/</span></code> directory is excluded via <code class="docutils literal notranslate"><span class="pre">exclude_patterns</span></code> in
+<code class="docutils literal notranslate"><span class="pre">conf.py</span></code>. Regenerate by hand when you change the figures:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>docs/source/_figures/generate_concept_figures.py
+uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>docs/source/_figures/generate_guide_figures.py
+</pre></div>
+</div>
+<p>Each generated SVG/GIF needs a sibling <code class="docutils literal notranslate"><span class="pre">.license</span></code> sidecar for REUSE
+compliance; copy from an existing file when adding a new figure.</p>
+</section>
+<section id="ci-deployment">
+<h3>CI deployment<a class="headerlink" href="#ci-deployment" title="Link to this heading">#</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">Deploy</span> <span class="pre">V4</span> <span class="pre">Documentation</span></code> workflow in
+<code class="docutils literal notranslate"><span class="pre">.github/workflows/docs.yaml</span></code> builds the docs on every push to
+<code class="docutils literal notranslate"><span class="pre">release/v4.0.0</span></code> and publishes them to the <code class="docutils literal notranslate"><span class="pre">gh-pages</span></code> branch under
+<code class="docutils literal notranslate"><span class="pre">/v4/</span></code>. CI uses the same <code class="docutils literal notranslate"><span class="pre">poe</span> <span class="pre">docs</span></code> invocation as local development,
+so a build that is clean locally should also be clean in CI.</p>
+</section>
 </section>
 <section id="writing-docstrings">
 <h2>Writing docstrings<a class="headerlink" href="#writing-docstrings" title="Link to this heading">#</a></h2>
@@ -853,7 +890,7 @@ files: a <code class="docutils literal notranslate"><span class="pre">.py</span>
 <section id="key-rules">
 <h3>Key rules<a class="headerlink" href="#key-rules" title="Link to this heading">#</a></h3>
 <ul class="simple">
-<li><p><strong>Edit the</strong> <code class="docutils literal notranslate"><span class="pre">.py</span></code> <strong>file</strong>, not the <code class="docutils literal notranslate"><span class="pre">.ipynb</span></code> — the script is the single source of truth.</p></li>
+<li><p><strong>Edit the</strong> <code class="docutils literal notranslate"><span class="pre">.py</span></code> <strong>file</strong>, not the <code class="docutils literal notranslate"><span class="pre">.ipynb</span></code>; the script is the single source of truth.</p></li>
 <li><p><strong>Never commit notebook outputs.</strong> The <code class="docutils literal notranslate"><span class="pre">.ipynb</span></code> on <code class="docutils literal notranslate"><span class="pre">main</span></code> must be output-free.</p></li>
 <li><p>Notebooks are rendered into the docs via <a class="reference external" href="https://myst-nb.readthedocs.io/">myst-nb</a> with
 cached execution (<code class="docutils literal notranslate"><span class="pre">nb_execution_mode</span> <span class="pre">=</span> <span class="pre">&quot;cache&quot;</span></code>).</p></li>
@@ -944,6 +981,14 @@ jupytext<span class="w"> </span>--set-formats<span class="w"> </span><span class
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#building-the-documentation">Building the documentation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-the-documentation-pipeline-works">How the documentation pipeline works</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tutorial-and-benchmark-sync">Tutorial and benchmark sync</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#notebook-rendering-with-myst-nb">Notebook rendering with myst-nb</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#autosummary-stub-caching">Autosummary stub caching</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#concept-and-guide-figures">Concept and guide figures</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ci-deployment">CI deployment</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#writing-docstrings">Writing docstrings</a><ul class="visible nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-docstring-structure">Basic docstring structure</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#docstring-sections">Docstring sections</a></li>
@@ -1023,7 +1068,7 @@ jupytext<span class="w"> </span>--set-formats<span class="w"> </span><span class
 
   <p class="copyright">
     
-      © Copyright 2017-2025 Contributors to the OpenSTEF project.
+      © Copyright 2017-2026 Contributors to the OpenSTEF project.
       <br/>
     
   </p>

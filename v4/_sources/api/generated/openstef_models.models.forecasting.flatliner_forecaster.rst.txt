@@ -1,0 +1,36 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+
+
+flatliner_forecaster
+====================
+
+.. currentmodule:: openstef_models.models.forecasting.flatliner_forecaster
+
+.. automodule:: openstef_models.models.forecasting.flatliner_forecaster
+   :no-members:
+   :no-inherited-members:
+
+
+
+
+
+
+
+
+
+
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_class_noindex.rst
+
+   FlatlinerForecaster
+
+
+

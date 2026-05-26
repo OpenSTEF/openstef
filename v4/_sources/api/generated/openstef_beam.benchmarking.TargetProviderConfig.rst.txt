@@ -10,3 +10,4 @@ TargetProviderConfig
 .. autoclass:: TargetProviderConfig
    :show-inheritance:
    :members:
+   :special-members: __init__

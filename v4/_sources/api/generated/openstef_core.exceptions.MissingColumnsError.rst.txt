@@ -10,3 +10,4 @@ MissingColumnsError
 .. autoclass:: MissingColumnsError
    :show-inheritance:
    :members:
+   :special-members: __init__

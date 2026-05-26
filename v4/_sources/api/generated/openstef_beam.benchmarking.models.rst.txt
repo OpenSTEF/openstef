@@ -19,12 +19,29 @@ models
 
 
 
+
+
+Submodules
+----------
+
+
+.. autosummary::
+   :toctree: .
+   :template: module_overview.rst
+
+   openstef_beam.benchmarking.models.benchmark_target
+
+
+
+
+
+
 Classes
 -------
 
 .. autosummary::
    :toctree: .
-   :template: custom_class.rst
+   :template: custom_class_noindex.rst
 
    BenchmarkTarget
 

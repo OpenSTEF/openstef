@@ -10,3 +10,4 @@ CustomComponentSplitWorkflow
 .. autoclass:: CustomComponentSplitWorkflow
    :show-inheritance:
    :members:
+   :special-members: __init__

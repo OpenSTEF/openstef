@@ -18,6 +18,10 @@ target_provider
 
 
 
+
+
+
+
 Functions
 ---------
 
@@ -34,10 +38,9 @@ Classes
 
 .. autosummary::
    :toctree: .
-   :template: custom_class.rst
+   :template: custom_class_noindex.rst
 
    SimpleTargetProvider
-   SimpleTargetProvider[BenchmarkTarget, list[Liander2024Category]]
    TargetProvider
    TargetProviderConfig
 

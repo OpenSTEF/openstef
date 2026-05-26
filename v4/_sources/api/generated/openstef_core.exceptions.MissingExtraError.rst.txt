@@ -10,3 +10,4 @@ MissingExtraError
 .. autoclass:: MissingExtraError
    :show-inheritance:
    :members:
+   :special-members: __init__

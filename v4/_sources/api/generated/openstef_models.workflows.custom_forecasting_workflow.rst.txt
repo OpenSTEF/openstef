@@ -19,12 +19,16 @@ custom_forecasting_workflow
 
 
 
+
+
+
+
 Classes
 -------
 
 .. autosummary::
    :toctree: .
-   :template: custom_class.rst
+   :template: custom_class_noindex.rst
 
    CustomForecastingWorkflow
    ForecastingCallback

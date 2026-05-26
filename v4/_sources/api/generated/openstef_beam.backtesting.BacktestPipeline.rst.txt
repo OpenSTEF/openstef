@@ -10,3 +10,4 @@ BacktestPipeline
 .. autoclass:: BacktestPipeline
    :show-inheritance:
    :members:
+   :special-members: __init__

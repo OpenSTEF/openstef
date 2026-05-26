@@ -1,0 +1,48 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+
+
+lags_adder
+==========
+
+.. currentmodule:: openstef_models.transforms.time_domain.lags_adder
+
+.. automodule:: openstef_models.transforms.time_domain.lags_adder
+   :no-members:
+   :no-inherited-members:
+
+
+
+
+
+
+
+
+
+
+Functions
+---------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_function.rst
+
+   generate_autocorr_lags
+   generate_day_lags
+   generate_minute_lags
+
+
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_class_noindex.rst
+
+   LagsAdder
+
+
+

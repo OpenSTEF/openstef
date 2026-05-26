@@ -10,3 +10,4 @@ AnalysisOutput
 .. autoclass:: AnalysisOutput
    :show-inheritance:
    :members:
+   :special-members: __init__

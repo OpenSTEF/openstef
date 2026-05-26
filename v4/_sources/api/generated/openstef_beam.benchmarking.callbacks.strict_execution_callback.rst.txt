@@ -1,0 +1,36 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+
+
+strict_execution_callback
+=========================
+
+.. currentmodule:: openstef_beam.benchmarking.callbacks.strict_execution_callback
+
+.. automodule:: openstef_beam.benchmarking.callbacks.strict_execution_callback
+   :no-members:
+   :no-inherited-members:
+
+
+
+
+
+
+
+
+
+
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_class_noindex.rst
+
+   StrictExecutionCallback
+
+
+

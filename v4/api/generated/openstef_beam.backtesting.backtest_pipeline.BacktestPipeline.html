@@ -35,7 +35,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
-    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=01a4ee56" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=3f5a9049" />
   
   <!-- So that users can add custom icons -->
   <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -180,23 +180,6 @@
   </a>
 </li>
 
-            <li class="nav-item dropdown">
-                <button class="btn dropdown-toggle nav-item" type="button"
-                data-bs-toggle="dropdown" aria-expanded="false"
-                aria-controls="pst-nav-more-links">
-                    More
-                </button>
-                <ul id="pst-nav-more-links" class="dropdown-menu">
-                    
-<li class=" ">
-  <a class="nav-link dropdown-item nav-internal" href="../../changelog.html">
-    Changelog
-  </a>
-</li>
-
-                </ul>
-            </li>
-            
   </ul>
 </nav></div>
       
@@ -329,13 +312,6 @@
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../contribute/index.html">
     Contributing
-  </a>
-</li>
-
-
-<li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../changelog.html">
-    Changelog
   </a>
 </li>
 
@@ -507,18 +483,18 @@
 <li class="toctree-l4"><a class="reference internal" href="openstef_core.mixins.param_ranges.ModelTuningInfo.html">ModelTuningInfo</a></li>
 </ul>
 </details></li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="openstef_core.mixins.predictor.html">predictor</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="openstef_core.mixins.predictor.module.html">predictor</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="openstef_core.mixins.predictor.BatchPredictor.html">BatchPredictor</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_core.mixins.predictor.HyperParams.html">HyperParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_core.mixins.predictor.Predictor.html">Predictor</a></li>
 </ul>
 </details></li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="openstef_core.mixins.stateful.html">stateful</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="openstef_core.mixins.stateful.module.html">stateful</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="openstef_core.mixins.stateful.Stateful.html">Stateful</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_core.mixins.stateful.VersionedState.html">VersionedState</a></li>
 </ul>
 </details></li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="openstef_core.mixins.transform.html">transform</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="openstef_core.mixins.transform.module.html">transform</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="openstef_core.mixins.transform.Transform.html">Transform</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_core.mixins.transform.TransformPipeline.html">TransformPipeline</a></li>
 </ul>
@@ -565,6 +541,9 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../models.html">Models Package (<code class="xref py py-mod docutils literal notranslate"><span class="pre">openstef_models</span></code>)</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="openstef_models.models.html">models</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_models.models.component_splitting.html">component_splitting</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.models.component_splitting.component_splitter.html">component_splitter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.models.component_splitting.constant_component_splitter.html">constant_component_splitter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.models.component_splitting.linear_component_splitter.html">linear_component_splitter</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.models.component_splitting.ComponentSplitter.html">ComponentSplitter</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.models.component_splitting.ComponentSplitterConfig.html">ComponentSplitterConfig</a></li>
 </ul>
@@ -573,7 +552,18 @@
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.models.component_splitting_model.ComponentSplittingModel.html">ComponentSplittingModel</a></li>
 </ul>
 </details></li>
-<li class="toctree-l3"><a class="reference internal" href="openstef_models.models.forecasting.html">forecasting</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="openstef_models.models.forecasting.html">forecasting</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.models.forecasting.base_case_forecaster.html">base_case_forecaster</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.models.forecasting.constant_quantile_forecaster.html">constant_quantile_forecaster</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.models.forecasting.flatliner_forecaster.html">flatliner_forecaster</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.models.forecasting.forecaster.html">forecaster</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.models.forecasting.gblinear_forecaster.html">gblinear_forecaster</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.models.forecasting.lgbm_forecaster.html">lgbm_forecaster</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.models.forecasting.lgbmlinear_forecaster.html">lgbmlinear_forecaster</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.models.forecasting.median_forecaster.html">median_forecaster</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.models.forecasting.xgboost_forecaster.html">xgboost_forecaster</a></li>
+</ul>
+</details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_models.models.forecasting_model.html">forecasting_model</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.models.forecasting_model.restore_target.html">restore_target</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.models.forecasting_model.BaseForecastingModel.html">BaseForecastingModel</a></li>
@@ -588,6 +578,8 @@
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="openstef_models.workflows.html">workflows</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_models.workflows.callbacks.html">callbacks</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.workflows.callbacks.data_save.html">data_save</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.workflows.callbacks.model_performance_callback.html">model_performance_callback</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.workflows.callbacks.DataSaveCallback.html">DataSaveCallback</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.workflows.callbacks.ModelPerformanceCallback.html">ModelPerformanceCallback</a></li>
 </ul>
@@ -624,6 +616,8 @@
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_models.explainability.plotters.html">plotters</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.explainability.plotters.contributions_plotter.html">contributions_plotter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.explainability.plotters.feature_importance_plotter.html">feature_importance_plotter</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.explainability.plotters.ContributionsPlotter.html">ContributionsPlotter</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.explainability.plotters.FeatureImportancePlotter.html">FeatureImportancePlotter</a></li>
 </ul>
@@ -650,15 +644,19 @@
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="openstef_models.integrations.html">integrations</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_models.integrations.joblib.html">joblib</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.integrations.joblib.joblib_model_serializer.html">joblib_model_serializer</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.integrations.joblib.JoblibModelSerializer.html">JoblibModelSerializer</a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_models.integrations.mlflow.html">mlflow</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.integrations.mlflow.mlflow_storage.html">mlflow_storage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.integrations.mlflow.mlflow_storage_callback.html">mlflow_storage_callback</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.integrations.mlflow.MLFlowStorage.html">MLFlowStorage</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.integrations.mlflow.MLFlowStorageCallback.html">MLFlowStorageCallback</a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_models.integrations.optuna.html">optuna</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.integrations.optuna.tuner.html">tuner</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.integrations.optuna.HyperparameterTuner.html">HyperparameterTuner</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.integrations.optuna.TuningResult.html">TuningResult</a></li>
 </ul>
@@ -667,16 +665,30 @@
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="openstef_models.transforms.html">transforms</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_models.transforms.postprocessing.html">postprocessing</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.postprocessing.confidence_interval_applicator.html">confidence_interval_applicator</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.postprocessing.isotonic_quantile_calibrator.html">isotonic_quantile_calibrator</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.postprocessing.quantile_sorter.html">quantile_sorter</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.postprocessing.ConfidenceIntervalApplicator.html">ConfidenceIntervalApplicator</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.postprocessing.IsotonicQuantileCalibrator.html">IsotonicQuantileCalibrator</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.postprocessing.QuantileSorter.html">QuantileSorter</a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_models.transforms.energy_domain.html">energy_domain</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.energy_domain.wind_power_feature_adder.html">wind_power_feature_adder</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.energy_domain.WindPowerFeatureAdder.html">WindPowerFeatureAdder</a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_models.transforms.general.html">general</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.general.dimensionality_reducer.html">dimensionality_reducer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.general.empty_feature_remover.html">empty_feature_remover</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.general.flagger.module.html">flagger</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.general.imputer.module.html">imputer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.general.nan_dropper.html">nan_dropper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.general.outlier_handler.html">outlier_handler</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.general.sample_weighter.html">sample_weighter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.general.scaler.module.html">scaler</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.general.selector.module.html">selector</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.general.shifter.module.html">shifter</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.general.DimensionalityReducer.html">DimensionalityReducer</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.general.EmptyFeatureRemover.html">EmptyFeatureRemover</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.general.Flagger.html">Flagger</a></li>
@@ -691,6 +703,12 @@
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_models.transforms.time_domain.html">time_domain</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.time_domain.cyclic_features_adder.html">cyclic_features_adder</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.time_domain.datetime_features_adder.html">datetime_features_adder</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.time_domain.holiday_features_adder.html">holiday_features_adder</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.time_domain.lags_adder.html">lags_adder</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.time_domain.rolling_aggregates_adder.html">rolling_aggregates_adder</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.time_domain.versioned_lags_adder.html">versioned_lags_adder</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.time_domain.CyclicFeaturesAdder.html">CyclicFeaturesAdder</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.time_domain.DatetimeFeaturesAdder.html">DatetimeFeaturesAdder</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.time_domain.HolidayFeatureAdder.html">HolidayFeatureAdder</a></li>
@@ -700,12 +718,18 @@
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_models.transforms.validation.html">validation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.validation.completeness_checker.html">completeness_checker</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.validation.flatline_checker.html">flatline_checker</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.validation.input_consistency_checker.html">input_consistency_checker</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.validation.CompletenessChecker.html">CompletenessChecker</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.validation.FlatlineChecker.html">FlatlineChecker</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.validation.InputConsistencyChecker.html">InputConsistencyChecker</a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_models.transforms.weather_domain.html">weather_domain</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.weather_domain.atmosphere_derived_features_adder.html">atmosphere_derived_features_adder</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.weather_domain.daylight_feature_adder.html">daylight_feature_adder</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.weather_domain.radiation_derived_features_adder.html">radiation_derived_features_adder</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.weather_domain.AtmosphereDerivedFeaturesAdder.html">AtmosphereDerivedFeaturesAdder</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.weather_domain.DaylightFeatureAdder.html">DaylightFeatureAdder</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.weather_domain.RadiationDerivedFeaturesAdder.html">RadiationDerivedFeaturesAdder</a></li>
@@ -813,6 +837,8 @@
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_beam.backtesting.backtest_forecaster.html">backtest_forecaster</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.backtesting.backtest_forecaster.dummy_forecaster.html">dummy_forecaster</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.backtesting.backtest_forecaster.mixins.html">mixins</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.backtesting.backtest_forecaster.BacktestBatchForecasterMixin.html">BacktestBatchForecasterMixin</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.backtesting.backtest_forecaster.BacktestForecasterConfig.html">BacktestForecasterConfig</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.backtesting.backtest_forecaster.BacktestForecasterMixin.html">BacktestForecasterMixin</a></li>
@@ -830,6 +856,9 @@
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_beam.analysis.models.html">models</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.analysis.models.target_metadata.html">target_metadata</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.analysis.models.visualization_aggregation.html">visualization_aggregation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.analysis.models.visualization_output.html">visualization_output</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.analysis.models.AnalysisAggregation.html">AnalysisAggregation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.analysis.models.AnalysisOutput.html">AnalysisOutput</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.analysis.models.AnalysisScope.html">AnalysisScope</a></li>
@@ -838,6 +867,13 @@
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_beam.analysis.plots.html">plots</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.analysis.plots.forecast_time_series_plotter.html">forecast_time_series_plotter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.analysis.plots.grouped_target_metric_plotter.html">grouped_target_metric_plotter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.analysis.plots.precision_recall_curve_plotter.html">precision_recall_curve_plotter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.analysis.plots.quantile_calibration_box_plotter.html">quantile_calibration_box_plotter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.analysis.plots.quantile_probability_plotter.html">quantile_probability_plotter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.analysis.plots.summary_table_plotter.html">summary_table_plotter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.analysis.plots.windowed_metric_plotter.html">windowed_metric_plotter</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.analysis.plots.ForecastTimeSeriesPlotter.html">ForecastTimeSeriesPlotter</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.analysis.plots.GroupedTargetMetricPlotter.html">GroupedTargetMetricPlotter</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.analysis.plots.PrecisionRecallCurvePlotter.html">PrecisionRecallCurvePlotter</a></li>
@@ -848,6 +884,14 @@
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_beam.analysis.visualizations.html">visualizations</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.analysis.visualizations.base.html">base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.analysis.visualizations.grouped_target_metric_visualization.html">grouped_target_metric_visualization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.analysis.visualizations.precision_recall_curve_visualization.html">precision_recall_curve_visualization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.analysis.visualizations.quantile_calibration_box_visualization.html">quantile_calibration_box_visualization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.analysis.visualizations.quantile_probability_visualization.html">quantile_probability_visualization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.analysis.visualizations.summary_table_visualization.html">summary_table_visualization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.analysis.visualizations.timeseries_visualization.html">timeseries_visualization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.analysis.visualizations.windowed_metric_visualization.html">windowed_metric_visualization</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.analysis.visualizations.GroupedTargetMetricVisualization.html">GroupedTargetMetricVisualization</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.analysis.visualizations.PrecisionRecallCurveVisualization.html">PrecisionRecallCurveVisualization</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.analysis.visualizations.QuantileCalibrationBoxVisualization.html">QuantileCalibrationBoxVisualization</a></li>
@@ -872,6 +916,9 @@
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_beam.evaluation.models.html">models</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.models.report.html">report</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.models.subset.html">subset</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.models.window.module.html">window</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.models.EvaluationReport.html">EvaluationReport</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.models.EvaluationSubsetReport.html">EvaluationSubsetReport</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.models.SubsetMetric.html">SubsetMetric</a></li>
@@ -906,7 +953,10 @@
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="openstef_beam.benchmarking.html">benchmarking</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="openstef_beam.benchmarking.baselines.html">baselines</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="openstef_beam.benchmarking.baselines.html">baselines</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.benchmarking.baselines.openstef4.html">openstef4</a></li>
+</ul>
+</details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_beam.benchmarking.benchmark_comparison_pipeline.html">benchmark_comparison_pipeline</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.benchmarking.benchmark_comparison_pipeline.BenchmarkComparisonPipeline.html">BenchmarkComparisonPipeline</a></li>
 </ul>
@@ -918,20 +968,27 @@
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_beam.benchmarking.benchmarks.html">benchmarks</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.benchmarking.benchmarks.liander2024.html">liander2024</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.benchmarking.benchmarks.create_liander2024_benchmark_runner.html">create_liander2024_benchmark_runner</a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_beam.benchmarking.callbacks.html">callbacks</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.benchmarking.callbacks.base.html">base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.benchmarking.callbacks.strict_execution_callback.html">strict_execution_callback</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.benchmarking.callbacks.BenchmarkCallback.html">BenchmarkCallback</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.benchmarking.callbacks.BenchmarkCallbackManager.html">BenchmarkCallbackManager</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.benchmarking.callbacks.StrictExecutionCallback.html">StrictExecutionCallback</a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_beam.benchmarking.models.html">models</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.benchmarking.models.benchmark_target.html">benchmark_target</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.benchmarking.models.BenchmarkTarget.html">BenchmarkTarget</a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_beam.benchmarking.storage.html">storage</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.benchmarking.storage.base.html">base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.benchmarking.storage.local_storage.html">local_storage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.benchmarking.storage.s3_storage.html">s3_storage</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.benchmarking.storage.BenchmarkStorage.html">BenchmarkStorage</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.benchmarking.storage.InMemoryBenchmarkStorage.html">InMemoryBenchmarkStorage</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.benchmarking.storage.LocalBenchmarkStorage.html">LocalBenchmarkStorage</a></li>
@@ -973,6 +1030,9 @@
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_meta.models.forecast_combiners.html">forecast_combiners</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef_meta.models.forecast_combiners.forecast_combiner.html">forecast_combiner</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_meta.models.forecast_combiners.learned_weights_combiner.html">learned_weights_combiner</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_meta.models.forecast_combiners.stacking_combiner.html">stacking_combiner</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_meta.models.forecast_combiners.ForecastCombiner.html">ForecastCombiner</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_meta.models.forecast_combiners.LGBMCombinerHyperParams.html">LGBMCombinerHyperParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_meta.models.forecast_combiners.LogisticCombinerHyperParams.html">LogisticCombinerHyperParams</a></li>
@@ -1076,9 +1136,9 @@
   <section id="backtestpipeline">
 <h1>BacktestPipeline<a class="headerlink" href="#backtestpipeline" title="Link to this heading">#</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="openstef_beam.backtesting.backtest_pipeline.BacktestPipeline">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef_beam.backtesting.backtest_pipeline.</span></span><span class="sig-name descname"><span class="pre">BacktestPipeline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="openstef_beam.backtesting.backtest_pipeline.BacktestConfig.html#openstef_beam.backtesting.backtest_pipeline.BacktestConfig" title="openstef_beam.backtesting.backtest_pipeline.BacktestConfig"><span class="pre">BacktestConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecaster</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="openstef_beam.backtesting.backtest_forecaster.BacktestForecasterMixin.html#openstef_beam.backtesting.backtest_forecaster.BacktestForecasterMixin" title="openstef_beam.backtesting.backtest_forecaster.mixins.BacktestForecasterMixin"><span class="pre">BacktestForecasterMixin</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/openstef_beam/backtesting/backtest_pipeline.html#BacktestPipeline"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_beam.backtesting.backtest_pipeline.BacktestPipeline" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dt class="sig sig-object py">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef_beam.backtesting.backtest_pipeline.</span></span><span class="sig-name descname"><span class="pre">BacktestPipeline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="openstef_beam.backtesting.BacktestConfig.html#openstef_beam.backtesting.BacktestConfig" title="openstef_beam.backtesting.backtest_pipeline.BacktestConfig"><span class="pre">BacktestConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecaster</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BacktestForecasterMixin</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/openstef_beam/backtesting/backtest_pipeline.html#BacktestPipeline"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Pipeline for conducting realistic backtesting of energy forecasting models.</p>
 <p>This class orchestrates the backtesting process by simulating the operational
 environment where forecasts are generated at regular intervals with limited
@@ -1104,54 +1164,54 @@ forecasting system.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>config</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="openstef_beam.backtesting.backtest_pipeline.BacktestConfig.html#openstef_beam.backtesting.backtest_pipeline.BacktestConfig" title="openstef_beam.backtesting.backtest_pipeline.BacktestConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">BacktestConfig</span></code></a></span>)</p></li>
-<li><p><strong>forecaster</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="openstef_beam.backtesting.backtest_forecaster.BacktestForecasterMixin.html#openstef_beam.backtesting.backtest_forecaster.BacktestForecasterMixin" title="openstef_beam.backtesting.backtest_forecaster.mixins.BacktestForecasterMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">BacktestForecasterMixin</span></code></a></span>)</p></li>
+<li><p><strong>config</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="openstef_beam.backtesting.BacktestConfig.html#openstef_beam.backtesting.BacktestConfig" title="openstef_beam.backtesting.backtest_pipeline.BacktestConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">BacktestConfig</span></code></a></span>)</p></li>
+<li><p><strong>forecaster</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">BacktestForecasterMixin</span></code></span>)</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="openstef_beam.backtesting.backtest_pipeline.BacktestPipeline.start">
-<span class="sig-name descname"><span class="pre">start</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code></em><a class="headerlink" href="#openstef_beam.backtesting.backtest_pipeline.BacktestPipeline.start" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">start</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code></a></em></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="openstef_beam.backtesting.backtest_pipeline.BacktestPipeline.end">
-<span class="sig-name descname"><span class="pre">end</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code></em><a class="headerlink" href="#openstef_beam.backtesting.backtest_pipeline.BacktestPipeline.end" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">end</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code></a></em></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="openstef_beam.backtesting.backtest_pipeline.BacktestPipeline.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="openstef_beam.backtesting.backtest_pipeline.BacktestConfig.html#openstef_beam.backtesting.backtest_pipeline.BacktestConfig" title="openstef_beam.backtesting.backtest_pipeline.BacktestConfig"><span class="pre">BacktestConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecaster</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="openstef_beam.backtesting.backtest_forecaster.BacktestForecasterMixin.html#openstef_beam.backtesting.backtest_forecaster.BacktestForecasterMixin" title="openstef_beam.backtesting.backtest_forecaster.mixins.BacktestForecasterMixin"><span class="pre">BacktestForecasterMixin</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/openstef_beam/backtesting/backtest_pipeline.html#BacktestPipeline.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_beam.backtesting.backtest_pipeline.BacktestPipeline.__init__" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="openstef_beam.backtesting.BacktestConfig.html#openstef_beam.backtesting.BacktestConfig" title="openstef_beam.backtesting.backtest_pipeline.BacktestConfig"><span class="pre">BacktestConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecaster</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BacktestForecasterMixin</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/openstef_beam/backtesting/backtest_pipeline.html#BacktestPipeline.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>Initialize the backtesting pipeline.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>config</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="openstef_beam.backtesting.backtest_pipeline.BacktestConfig.html#openstef_beam.backtesting.backtest_pipeline.BacktestConfig" title="openstef_beam.backtesting.backtest_pipeline.BacktestConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">BacktestConfig</span></code></a></span>) – Backtesting configuration including prediction and training intervals.</p></li>
-<li><p><strong>forecaster</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="openstef_beam.backtesting.backtest_forecaster.BacktestForecasterMixin.html#openstef_beam.backtesting.backtest_forecaster.BacktestForecasterMixin" title="openstef_beam.backtesting.backtest_forecaster.mixins.BacktestForecasterMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">BacktestForecasterMixin</span></code></a></span>) – Model implementing the required forecasting interface.</p></li>
+<li><p><strong>config</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="openstef_beam.backtesting.BacktestConfig.html#openstef_beam.backtesting.BacktestConfig" title="openstef_beam.backtesting.backtest_pipeline.BacktestConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">BacktestConfig</span></code></a></span>) – Backtesting configuration including prediction and training intervals.</p></li>
+<li><p><strong>forecaster</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">BacktestForecasterMixin</span></code></span>) – Model implementing the required forecasting interface.</p></li>
 <li><p><strong>config</strong></p></li>
 <li><p><strong>forecaster</strong></p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>ValueError</strong> – If the prediction sample intervals don’t match between
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If the prediction sample intervals don’t match between
     config and forecaster.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="openstef_beam.backtesting.backtest_pipeline.BacktestPipeline.config">
-<span class="sig-name descname"><span class="pre">config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="openstef_beam.backtesting.backtest_pipeline.BacktestConfig.html#openstef_beam.backtesting.backtest_pipeline.BacktestConfig" title="openstef_beam.backtesting.backtest_pipeline.BacktestConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">BacktestConfig</span></code></a></em><a class="headerlink" href="#openstef_beam.backtesting.backtest_pipeline.BacktestPipeline.config" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="openstef_beam.backtesting.BacktestConfig.html#openstef_beam.backtesting.BacktestConfig" title="openstef_beam.backtesting.backtest_pipeline.BacktestConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">BacktestConfig</span></code></a></em></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="openstef_beam.backtesting.backtest_pipeline.BacktestPipeline.forecaster">
-<span class="sig-name descname"><span class="pre">forecaster</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="openstef_beam.backtesting.backtest_forecaster.BacktestForecasterMixin.html#openstef_beam.backtesting.backtest_forecaster.BacktestForecasterMixin" title="openstef_beam.backtesting.backtest_forecaster.mixins.BacktestForecasterMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">BacktestForecasterMixin</span></code></a></em><a class="headerlink" href="#openstef_beam.backtesting.backtest_pipeline.BacktestPipeline.forecaster" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">forecaster</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">BacktestForecasterMixin</span></code></em></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="openstef_beam.backtesting.backtest_pipeline.BacktestPipeline.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ground_truth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="openstef_core.datasets.versioned_timeseries_dataset.VersionedTimeSeriesDataset.html#openstef_core.datasets.versioned_timeseries_dataset.VersionedTimeSeriesDataset" title="openstef_core.datasets.versioned_timeseries_dataset.VersionedTimeSeriesDataset"><span class="pre">VersionedTimeSeriesDataset</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">predictors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="openstef_core.datasets.versioned_timeseries_dataset.VersionedTimeSeriesDataset.html#openstef_core.datasets.versioned_timeseries_dataset.VersionedTimeSeriesDataset" title="openstef_core.datasets.versioned_timeseries_dataset.VersionedTimeSeriesDataset"><span class="pre">VersionedTimeSeriesDataset</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">datetime</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">datetime</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_progress</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset.html#openstef_core.datasets.timeseries_dataset.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><span class="pre">TimeSeriesDataset</span></a></span></span><a class="reference internal" href="../../_modules/openstef_beam/backtesting/backtest_pipeline.html#BacktestPipeline.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_beam.backtesting.backtest_pipeline.BacktestPipeline.run" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ground_truth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="openstef_core.datasets.VersionedTimeSeriesDataset.html#openstef_core.datasets.VersionedTimeSeriesDataset" title="openstef_core.datasets.versioned_timeseries_dataset.VersionedTimeSeriesDataset"><span class="pre">VersionedTimeSeriesDataset</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">predictors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="openstef_core.datasets.VersionedTimeSeriesDataset.html#openstef_core.datasets.VersionedTimeSeriesDataset" title="openstef_core.datasets.versioned_timeseries_dataset.VersionedTimeSeriesDataset"><span class="pre">VersionedTimeSeriesDataset</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.14)"><span class="pre">datetime</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.14)"><span class="pre">datetime</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_progress</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><span class="pre">TimeSeriesDataset</span></a></span></span><a class="reference internal" href="../../_modules/openstef_beam/backtesting/backtest_pipeline.html#BacktestPipeline.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>Execute the backtesting simulation and return predictions.</p>
 <p>Runs the complete backtesting process by generating events, processing
 training and prediction operations in chronological order, and collecting
@@ -1159,11 +1219,11 @@ all predictions into a single versioned dataset.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>ground_truth</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="openstef_core.datasets.versioned_timeseries_dataset.VersionedTimeSeriesDataset.html#openstef_core.datasets.versioned_timeseries_dataset.VersionedTimeSeriesDataset" title="openstef_core.datasets.versioned_timeseries_dataset.VersionedTimeSeriesDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">VersionedTimeSeriesDataset</span></code></a></span>) – Historical target values with timestamps.</p></li>
-<li><p><strong>predictors</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="openstef_core.datasets.versioned_timeseries_dataset.VersionedTimeSeriesDataset.html#openstef_core.datasets.versioned_timeseries_dataset.VersionedTimeSeriesDataset" title="openstef_core.datasets.versioned_timeseries_dataset.VersionedTimeSeriesDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">VersionedTimeSeriesDataset</span></code></a></span>) – Feature data for model predictions.</p></li>
-<li><p><strong>start</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Start datetime for backtesting. Uses data minimum if None.</p></li>
-<li><p><strong>end</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – End datetime for backtesting. Uses data maximum if None.</p></li>
-<li><p><strong>show_progress</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to display progress bar during execution.</p></li>
+<li><p><strong>ground_truth</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="openstef_core.datasets.VersionedTimeSeriesDataset.html#openstef_core.datasets.VersionedTimeSeriesDataset" title="openstef_core.datasets.versioned_timeseries_dataset.VersionedTimeSeriesDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">VersionedTimeSeriesDataset</span></code></a></span>) – Historical target values with timestamps.</p></li>
+<li><p><strong>predictors</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="openstef_core.datasets.VersionedTimeSeriesDataset.html#openstef_core.datasets.VersionedTimeSeriesDataset" title="openstef_core.datasets.versioned_timeseries_dataset.VersionedTimeSeriesDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">VersionedTimeSeriesDataset</span></code></a></span>) – Feature data for model predictions.</p></li>
+<li><p><strong>start</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – Start datetime for backtesting. Uses data minimum if None.</p></li>
+<li><p><strong>end</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – End datetime for backtesting. Uses data maximum if None.</p></li>
+<li><p><strong>show_progress</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span>) – Whether to display progress bar during execution.</p></li>
 <li><p><strong>ground_truth</strong></p></li>
 <li><p><strong>predictors</strong></p></li>
 <li><p><strong>start</strong></p></li>
@@ -1176,7 +1236,7 @@ all predictions into a single versioned dataset.</p>
 and availability information. Empty dataset if no predictions made.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset.html#openstef_core.datasets.timeseries_dataset.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeSeriesDataset</span></code></a></span></p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeSeriesDataset</span></code></a></span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1225,26 +1285,6 @@ and availability information. Empty dataset if no predictions made.</p>
 
 
   <div class="sidebar-secondary-item">
-<div
-    id="pst-page-navigation-heading-2"
-    class="page-toc tocsection onthispage">
-    <i class="fa-solid fa-list"></i> On this page
-  </div>
-  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
-    <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.backtesting.backtest_pipeline.BacktestPipeline"><code class="docutils literal notranslate"><span class="pre">BacktestPipeline</span></code></a><ul class="visible nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.backtesting.backtest_pipeline.BacktestPipeline.start"><code class="docutils literal notranslate"><span class="pre">BacktestPipeline.start</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.backtesting.backtest_pipeline.BacktestPipeline.end"><code class="docutils literal notranslate"><span class="pre">BacktestPipeline.end</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.backtesting.backtest_pipeline.BacktestPipeline.__init__"><code class="docutils literal notranslate"><span class="pre">BacktestPipeline.__init__()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.backtesting.backtest_pipeline.BacktestPipeline.config"><code class="docutils literal notranslate"><span class="pre">BacktestPipeline.config</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.backtesting.backtest_pipeline.BacktestPipeline.forecaster"><code class="docutils literal notranslate"><span class="pre">BacktestPipeline.forecaster</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_beam.backtesting.backtest_pipeline.BacktestPipeline.run"><code class="docutils literal notranslate"><span class="pre">BacktestPipeline.run()</span></code></a></li>
-</ul>
-</li>
-</ul>
-  </nav></div>
-
-  <div class="sidebar-secondary-item">
 
   
   <div class="tocsection editthispage">
@@ -1285,7 +1325,7 @@ and availability information. Empty dataset if no predictions made.</p>
 
   <p class="copyright">
     
-      © Copyright 2017-2025 Contributors to the OpenSTEF project.
+      © Copyright 2017-2026 Contributors to the OpenSTEF project.
       <br/>
     
   </p>

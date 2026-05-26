@@ -10,3 +10,4 @@ SimpleTargetProvider
 .. autoclass:: SimpleTargetProvider
    :show-inheritance:
    :members:
+   :special-members: __init__

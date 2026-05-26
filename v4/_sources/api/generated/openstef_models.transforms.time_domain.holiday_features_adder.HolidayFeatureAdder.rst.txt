@@ -1,0 +1,14 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+HolidayFeatureAdder
+===================
+
+.. currentmodule:: openstef_models.transforms.time_domain.holiday_features_adder
+
+.. autoclass:: HolidayFeatureAdder
+   :show-inheritance:
+   :members:
+   :special-members: __init__
+   :no-index:

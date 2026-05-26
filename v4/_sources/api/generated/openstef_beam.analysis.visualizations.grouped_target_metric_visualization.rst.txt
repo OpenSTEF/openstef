@@ -1,0 +1,36 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+
+
+grouped_target_metric_visualization
+===================================
+
+.. currentmodule:: openstef_beam.analysis.visualizations.grouped_target_metric_visualization
+
+.. automodule:: openstef_beam.analysis.visualizations.grouped_target_metric_visualization
+   :no-members:
+   :no-inherited-members:
+
+
+
+
+
+
+
+
+
+
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_class_noindex.rst
+
+   GroupedTargetMetricVisualization
+
+
+

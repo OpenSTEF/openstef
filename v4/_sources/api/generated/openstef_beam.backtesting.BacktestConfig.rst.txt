@@ -10,3 +10,4 @@ BacktestConfig
 .. autoclass:: BacktestConfig
    :show-inheritance:
    :members:
+   :special-members: __init__

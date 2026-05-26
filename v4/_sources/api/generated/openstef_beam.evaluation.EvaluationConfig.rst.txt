@@ -10,3 +10,4 @@ EvaluationConfig
 .. autoclass:: EvaluationConfig
    :show-inheritance:
    :members:
+   :special-members: __init__

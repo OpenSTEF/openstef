@@ -10,3 +10,4 @@ HyperParams
 .. autoclass:: HyperParams
    :show-inheritance:
    :members:
+   :special-members: __init__

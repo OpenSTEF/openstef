@@ -10,3 +10,5 @@ HolidayFeatureAdder
 .. autoclass:: HolidayFeatureAdder
    :show-inheritance:
    :members:
+   :special-members: __init__
+   :no-index:

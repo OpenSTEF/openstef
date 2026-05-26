@@ -10,3 +10,5 @@ R2Provider
 .. autoclass:: R2Provider
    :show-inheritance:
    :members:
+   :special-members: __init__
+   :no-index:

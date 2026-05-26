@@ -10,3 +10,4 @@ VersionedTimeSeriesDataset
 .. autoclass:: VersionedTimeSeriesDataset
    :show-inheritance:
    :members:
+   :special-members: __init__

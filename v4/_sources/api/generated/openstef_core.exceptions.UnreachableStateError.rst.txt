@@ -10,3 +10,4 @@ UnreachableStateError
 .. autoclass:: UnreachableStateError
    :show-inheritance:
    :members:
+   :special-members: __init__

@@ -10,3 +10,4 @@ ExplainableForecaster
 .. autoclass:: ExplainableForecaster
    :show-inheritance:
    :members:
+   :special-members: __init__

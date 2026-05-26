@@ -10,3 +10,4 @@ StrictExecutionCallback
 .. autoclass:: StrictExecutionCallback
    :show-inheritance:
    :members:
+   :special-members: __init__

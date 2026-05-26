@@ -18,6 +18,10 @@ forecasting_workflow
 
 
 
+
+
+
+
 Functions
 ---------
 
@@ -34,7 +38,7 @@ Classes
 
 .. autosummary::
    :toctree: .
-   :template: custom_class.rst
+   :template: custom_class_noindex.rst
 
    EnsembleForecastingWorkflowConfig
 

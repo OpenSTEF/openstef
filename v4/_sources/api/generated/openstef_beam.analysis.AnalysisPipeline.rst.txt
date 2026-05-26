@@ -10,3 +10,4 @@ AnalysisPipeline
 .. autoclass:: AnalysisPipeline
    :show-inheritance:
    :members:
+   :special-members: __init__

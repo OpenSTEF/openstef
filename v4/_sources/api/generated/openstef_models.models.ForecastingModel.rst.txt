@@ -10,3 +10,4 @@ ForecastingModel
 .. autoclass:: ForecastingModel
    :show-inheritance:
    :members:
+   :special-members: __init__

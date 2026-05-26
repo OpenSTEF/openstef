@@ -1,0 +1,36 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+
+
+mlflow_storage_callback
+=======================
+
+.. currentmodule:: openstef_models.integrations.mlflow.mlflow_storage_callback
+
+.. automodule:: openstef_models.integrations.mlflow.mlflow_storage_callback
+   :no-members:
+   :no-inherited-members:
+
+
+
+
+
+
+
+
+
+
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_class_noindex.rst
+
+   MLFlowStorageCallback
+
+
+

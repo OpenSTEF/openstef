@@ -1,0 +1,38 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+
+
+mixins
+======
+
+.. currentmodule:: openstef_beam.backtesting.backtest_forecaster.mixins
+
+.. automodule:: openstef_beam.backtesting.backtest_forecaster.mixins
+   :no-members:
+   :no-inherited-members:
+
+
+
+
+
+
+
+
+
+
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_class_noindex.rst
+
+   BacktestBatchForecasterMixin
+   BacktestForecasterConfig
+   BacktestForecasterMixin
+
+
+

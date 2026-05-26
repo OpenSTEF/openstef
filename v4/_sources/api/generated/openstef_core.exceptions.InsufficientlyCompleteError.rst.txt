@@ -10,3 +10,4 @@ InsufficientlyCompleteError
 .. autoclass:: InsufficientlyCompleteError
    :show-inheritance:
    :members:
+   :special-members: __init__

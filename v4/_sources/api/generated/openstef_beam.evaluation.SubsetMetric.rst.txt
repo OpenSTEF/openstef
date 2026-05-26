@@ -10,3 +10,4 @@ SubsetMetric
 .. autoclass:: SubsetMetric
    :show-inheritance:
    :members:
+   :special-members: __init__

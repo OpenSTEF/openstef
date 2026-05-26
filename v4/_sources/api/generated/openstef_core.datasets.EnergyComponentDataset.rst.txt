@@ -10,3 +10,4 @@ EnergyComponentDataset
 .. autoclass:: EnergyComponentDataset
    :show-inheritance:
    :members:
+   :special-members: __init__

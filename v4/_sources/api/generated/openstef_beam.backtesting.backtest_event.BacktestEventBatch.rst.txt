@@ -10,3 +10,5 @@ BacktestEventBatch
 .. autoclass:: BacktestEventBatch
    :show-inheritance:
    :members:
+   :special-members: __init__
+   :no-index:

@@ -35,7 +35,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
-    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=01a4ee56" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=3f5a9049" />
   
   <!-- So that users can add custom icons -->
   <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -180,23 +180,6 @@
   </a>
 </li>
 
-            <li class="nav-item dropdown">
-                <button class="btn dropdown-toggle nav-item" type="button"
-                data-bs-toggle="dropdown" aria-expanded="false"
-                aria-controls="pst-nav-more-links">
-                    More
-                </button>
-                <ul id="pst-nav-more-links" class="dropdown-menu">
-                    
-<li class=" ">
-  <a class="nav-link dropdown-item nav-internal" href="../../changelog.html">
-    Changelog
-  </a>
-</li>
-
-                </ul>
-            </li>
-            
   </ul>
 </nav></div>
       
@@ -332,13 +315,6 @@
   </a>
 </li>
 
-
-<li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../changelog.html">
-    Changelog
-  </a>
-</li>
-
   </ul>
 </nav></div>
           
@@ -398,13 +374,13 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../getting_started/index.html">Getting Started</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../getting_started/installation.html">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../getting_started/quick_start_tutorial.html">Forecasting Quickstart</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../getting_started/migration.html">Migrating from OpenSTEF 3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/migration.html">Migrating from OpenSTEF 3 to 4</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../concepts/index.html">Concepts</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../concepts/intro_to_energy_forecasting.html">Intro to Energy Forecasting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../concepts/models.html">Models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../concepts/metalearning.html">Metalearning &amp; Ensembles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../concepts/metalearning.html">Metalearning</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../concepts/beam.html">BEAM</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../concepts/component_splitting.html">Component Splitting</a></li>
 </ul>
@@ -414,8 +390,8 @@
 <li class="toctree-l2"><a class="reference internal" href="feature_engineering_tutorial.html">Feature Engineering</a></li>
 <li class="toctree-l2"><a class="reference internal" href="datasets_tutorial.html">Datasets</a></li>
 <li class="toctree-l2"><a class="reference internal" href="probabilistic_forecasting.html">Probabilistic Forecasting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="reliability_fallback.html">Reliability &amp; Fallback</a></li>
-<li class="toctree-l2"><a class="reference internal" href="backtesting.html">Backtesting &amp; Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reliability_fallback.html">Reliability and Fallback</a></li>
+<li class="toctree-l2"><a class="reference internal" href="backtesting_tutorial.html">Backtesting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="deployment.html">Deployment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../logging.html">Logging</a></li>
 </ul>
@@ -511,7 +487,7 @@
 <span class="fa fa-database"></span> Datasets</div>
 <p class="sd-card-text">Prepare and validate input data for training and prediction.</p>
 </div>
-<span class="sd-stretched-link sd-hide-link-text">datasets</span></div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="datasets_tutorial.html"><span class="doc">Understanding Time Series Datasets</span></a></div>
 </div>
 <div class="sd-col sd-d-flex-row docutils">
 <div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
@@ -529,7 +505,7 @@
 <span class="fa fa-shield-halved"></span> Reliability &amp; Fallback</div>
 <p class="sd-card-text">Handle missing data, detect flatlining, and configure fallback strategies.</p>
 </div>
-<a class="sd-stretched-link sd-hide-link-text reference internal" href="reliability_fallback.html"><span class="doc">Reliability &amp; Fallback</span></a></div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="reliability_fallback.html"><span class="doc">Reliability and Fallback</span></a></div>
 </div>
 <div class="sd-col sd-d-flex-row docutils">
 <div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
@@ -538,7 +514,7 @@
 <span class="fa fa-clock-rotate-left"></span> Backtesting</div>
 <p class="sd-card-text">Evaluate model performance on historical data with rolling windows.</p>
 </div>
-<a class="sd-stretched-link sd-hide-link-text reference internal" href="backtesting.html"><span class="doc">Backtesting &amp; Evaluation</span></a></div>
+<a class="sd-stretched-link sd-hide-link-text reference internal" href="backtesting_tutorial.html"><span class="doc">Backtesting Quickstart</span></a></div>
 </div>
 <div class="sd-col sd-d-flex-row docutils">
 <div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
@@ -644,7 +620,7 @@
 
   <p class="copyright">
     
-      © Copyright 2017-2025 Contributors to the OpenSTEF project.
+      © Copyright 2017-2026 Contributors to the OpenSTEF project.
       <br/>
     
   </p>

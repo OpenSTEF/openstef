@@ -19,12 +19,30 @@ mlflow
 
 
 
+
+
+Submodules
+----------
+
+
+.. autosummary::
+   :toctree: .
+   :template: module_overview.rst
+
+   openstef_models.integrations.mlflow.mlflow_storage
+   openstef_models.integrations.mlflow.mlflow_storage_callback
+
+
+
+
+
+
 Classes
 -------
 
 .. autosummary::
    :toctree: .
-   :template: custom_class.rst
+   :template: custom_class_noindex.rst
 
    MLFlowStorage
    MLFlowStorageCallback

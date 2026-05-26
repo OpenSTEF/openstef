@@ -1,0 +1,10 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+sanitize_holiday_name
+=====================
+
+.. currentmodule:: openstef_models.transforms.time_domain.holiday_features_adder
+
+.. autofunction:: sanitize_holiday_name

@@ -19,12 +19,31 @@ weather_domain
 
 
 
+
+
+Submodules
+----------
+
+
+.. autosummary::
+   :toctree: .
+   :template: module_overview.rst
+
+   openstef_models.transforms.weather_domain.atmosphere_derived_features_adder
+   openstef_models.transforms.weather_domain.daylight_feature_adder
+   openstef_models.transforms.weather_domain.radiation_derived_features_adder
+
+
+
+
+
+
 Classes
 -------
 
 .. autosummary::
    :toctree: .
-   :template: custom_class.rst
+   :template: custom_class_noindex.rst
 
    AtmosphereDerivedFeaturesAdder
    DaylightFeatureAdder

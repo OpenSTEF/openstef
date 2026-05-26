@@ -19,12 +19,38 @@ general
 
 
 
+
+
+Submodules
+----------
+
+
+.. autosummary::
+   :toctree: .
+   :template: module_overview.rst
+
+   openstef_models.transforms.general.dimensionality_reducer
+   openstef_models.transforms.general.empty_feature_remover
+   openstef_models.transforms.general.flagger
+   openstef_models.transforms.general.imputer
+   openstef_models.transforms.general.nan_dropper
+   openstef_models.transforms.general.outlier_handler
+   openstef_models.transforms.general.sample_weighter
+   openstef_models.transforms.general.scaler
+   openstef_models.transforms.general.selector
+   openstef_models.transforms.general.shifter
+
+
+
+
+
+
 Classes
 -------
 
 .. autosummary::
    :toctree: .
-   :template: custom_class.rst
+   :template: custom_class_noindex.rst
 
    DimensionalityReducer
    EmptyFeatureRemover

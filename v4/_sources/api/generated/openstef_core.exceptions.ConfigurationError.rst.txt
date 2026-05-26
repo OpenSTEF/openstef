@@ -10,3 +10,4 @@ ConfigurationError
 .. autoclass:: ConfigurationError
    :show-inheritance:
    :members:
+   :special-members: __init__

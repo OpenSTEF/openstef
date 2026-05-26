@@ -39,6 +39,8 @@ OpenSTEF 4.0 follows a modular design with specialized packages:
      - Core ML models, feature engineering, and data processing
    * - ``openstef-beam``
      - Backtesting, Evaluation, Analysis, and Metrics (BEAM)
+   * - ``openstef-meta``
+     - Meta-models for combining and stacking forecasts (ensembles, weighted blends)
 
 Quick Installation
 ==================
@@ -289,10 +291,10 @@ If you encounter import errors, ensure you're using the correct package names:
 .. code-block:: python
 
     # Correct imports
-    from openstef_models import forecasting
-    from openstef_beam import evaluation
+    from openstef_models.presets import ForecastingWorkflowConfig
+    from openstef_beam.evaluation import EvaluationPipeline
 
-    # Not: from openstef.models import forecasting
+    # Not: from openstef.models import ...
 
 **Memory Issues**
 
@@ -326,7 +328,7 @@ macOS
 -----
 
 * Most installations work out of the box
-* For Apple Silicon (M1/M2), ensure you're using compatible wheel distributions
+* For Apple Silicon, ensure you're using compatible wheel distributions
 
 Linux
 -----
@@ -338,12 +340,12 @@ Linux
 Next Steps
 ==========
 
-After installation:
+.. seealso::
 
-1. Read the :doc:`quick_start` guide
-2. Explore the :doc:`/examples` for hands-on examples
-3. Check the :doc:`/api/index` for detailed documentation
-4. Review :doc:`/user_guide/concepts/index` to understand OpenSTEF's capabilities
+   - :doc:`quick_start_tutorial` to get started with your first forecast.
+   - :doc:`/examples` for hands-on examples.
+   - :doc:`/api/index` for detailed API documentation.
+   - :doc:`/user_guide/concepts/index` to understand OpenSTEF's capabilities.
 
 Staying Updated
 ===============

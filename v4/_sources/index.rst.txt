@@ -16,7 +16,6 @@
    API <api/index>
    Community <project/index>
    Contributing <contribute/index>
-   changelog
 
 ##################################
 OpenSTEF 4.0.0 documentation
@@ -93,7 +92,7 @@ Learn
         * :doc:`user_guide/concepts/intro_to_energy_forecasting`
         * :doc:`user_guide/concepts/models`
         * :doc:`user_guide/guides/probabilistic_forecasting`
-        * :doc:`user_guide/guides/backtesting`
+        * :doc:`user_guide/concepts/beam`
         * :doc:`user_guide/concepts/component_splitting`
 
 
@@ -132,8 +131,8 @@ What's new
        Learn about new features and API changes.
 
     .. grid-item::
-        
-        * :doc:`changelog`
+
+        * `Release notes on GitHub <https://github.com/OpenSTEF/openstef/releases>`_
 
 Contribute
 ==========

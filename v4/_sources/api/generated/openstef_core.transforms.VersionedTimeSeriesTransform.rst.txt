@@ -10,3 +10,4 @@ VersionedTimeSeriesTransform
 .. autoclass:: VersionedTimeSeriesTransform
    :show-inheritance:
    :members:
+   :special-members: __init__

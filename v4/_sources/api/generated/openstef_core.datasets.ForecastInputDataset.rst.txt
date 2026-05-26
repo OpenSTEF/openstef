@@ -10,3 +10,4 @@ ForecastInputDataset
 .. autoclass:: ForecastInputDataset
    :show-inheritance:
    :members:
+   :special-members: __init__

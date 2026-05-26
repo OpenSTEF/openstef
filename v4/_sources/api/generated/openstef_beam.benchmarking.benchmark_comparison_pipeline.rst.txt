@@ -19,12 +19,16 @@ benchmark_comparison_pipeline
 
 
 
+
+
+
+
 Classes
 -------
 
 .. autosummary::
    :toctree: .
-   :template: custom_class.rst
+   :template: custom_class_noindex.rst
 
    BenchmarkComparisonPipeline
 

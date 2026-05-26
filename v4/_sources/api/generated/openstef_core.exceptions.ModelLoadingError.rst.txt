@@ -10,3 +10,4 @@ ModelLoadingError
 .. autoclass:: ModelLoadingError
    :show-inheritance:
    :members:
+   :special-members: __init__

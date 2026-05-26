@@ -10,3 +10,4 @@ BaseModel
 .. autoclass:: BaseModel
    :show-inheritance:
    :members:
+   :special-members: __init__

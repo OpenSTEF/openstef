@@ -19,12 +19,29 @@ energy_domain
 
 
 
+
+
+Submodules
+----------
+
+
+.. autosummary::
+   :toctree: .
+   :template: module_overview.rst
+
+   openstef_models.transforms.energy_domain.wind_power_feature_adder
+
+
+
+
+
+
 Classes
 -------
 
 .. autosummary::
    :toctree: .
-   :template: custom_class.rst
+   :template: custom_class_noindex.rst
 
    WindPowerFeatureAdder
 

@@ -10,3 +10,5 @@ WindowedMetricVisualization
 .. autoclass:: WindowedMetricVisualization
    :show-inheritance:
    :members:
+   :special-members: __init__
+   :no-index:

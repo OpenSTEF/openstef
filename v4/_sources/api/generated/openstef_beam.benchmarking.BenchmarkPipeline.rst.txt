@@ -10,3 +10,4 @@ BenchmarkPipeline
 .. autoclass:: BenchmarkPipeline
    :show-inheritance:
    :members:
+   :special-members: __init__

@@ -10,3 +10,4 @@ ModelSerializer
 .. autoclass:: ModelSerializer
    :show-inheritance:
    :members:
+   :special-members: __init__

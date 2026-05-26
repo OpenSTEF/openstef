@@ -19,12 +19,16 @@ custom_component_split_workflow
 
 
 
+
+
+
+
 Classes
 -------
 
 .. autosummary::
    :toctree: .
-   :template: custom_class.rst
+   :template: custom_class_noindex.rst
 
    ComponentSplitCallback
    CustomComponentSplitWorkflow

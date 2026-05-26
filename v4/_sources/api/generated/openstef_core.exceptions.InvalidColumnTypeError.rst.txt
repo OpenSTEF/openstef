@@ -10,3 +10,4 @@ InvalidColumnTypeError
 .. autoclass:: InvalidColumnTypeError
    :show-inheritance:
    :members:
+   :special-members: __init__

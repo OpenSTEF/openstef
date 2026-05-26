@@ -19,12 +19,34 @@ time_domain
 
 
 
+
+
+Submodules
+----------
+
+
+.. autosummary::
+   :toctree: .
+   :template: module_overview.rst
+
+   openstef_models.transforms.time_domain.cyclic_features_adder
+   openstef_models.transforms.time_domain.datetime_features_adder
+   openstef_models.transforms.time_domain.holiday_features_adder
+   openstef_models.transforms.time_domain.lags_adder
+   openstef_models.transforms.time_domain.rolling_aggregates_adder
+   openstef_models.transforms.time_domain.versioned_lags_adder
+
+
+
+
+
+
 Classes
 -------
 
 .. autosummary::
    :toctree: .
-   :template: custom_class.rst
+   :template: custom_class_noindex.rst
 
    CyclicFeaturesAdder
    DatetimeFeaturesAdder

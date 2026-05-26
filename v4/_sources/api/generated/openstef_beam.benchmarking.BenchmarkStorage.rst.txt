@@ -10,3 +10,4 @@ BenchmarkStorage
 .. autoclass:: BenchmarkStorage
    :show-inheritance:
    :members:
+   :special-members: __init__

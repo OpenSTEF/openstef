@@ -10,3 +10,4 @@ NotFittedError
 .. autoclass:: NotFittedError
    :show-inheritance:
    :members:
+   :special-members: __init__

@@ -35,7 +35,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
-    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=01a4ee56" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=3f5a9049" />
   
   <!-- So that users can add custom icons -->
   <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -180,23 +180,6 @@
   </a>
 </li>
 
-            <li class="nav-item dropdown">
-                <button class="btn dropdown-toggle nav-item" type="button"
-                data-bs-toggle="dropdown" aria-expanded="false"
-                aria-controls="pst-nav-more-links">
-                    More
-                </button>
-                <ul id="pst-nav-more-links" class="dropdown-menu">
-                    
-<li class=" ">
-  <a class="nav-link dropdown-item nav-internal" href="../../changelog.html">
-    Changelog
-  </a>
-</li>
-
-                </ul>
-            </li>
-            
   </ul>
 </nav></div>
       
@@ -332,13 +315,6 @@
   </a>
 </li>
 
-
-<li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../changelog.html">
-    Changelog
-  </a>
-</li>
-
   </ul>
 </nav></div>
           
@@ -398,13 +374,13 @@
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Getting Started</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="quick_start_tutorial.html">Forecasting Quickstart</a></li>
-<li class="toctree-l2"><a class="reference internal" href="migration.html">Migrating from OpenSTEF 3</a></li>
+<li class="toctree-l2"><a class="reference internal" href="migration.html">Migrating from OpenSTEF 3 to 4</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../concepts/index.html">Concepts</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../concepts/intro_to_energy_forecasting.html">Intro to Energy Forecasting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../concepts/models.html">Models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../concepts/metalearning.html">Metalearning &amp; Ensembles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../concepts/metalearning.html">Metalearning</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../concepts/beam.html">BEAM</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../concepts/component_splitting.html">Component Splitting</a></li>
 </ul>
@@ -414,8 +390,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../guides/feature_engineering_tutorial.html">Feature Engineering</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/datasets_tutorial.html">Datasets</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/probabilistic_forecasting.html">Probabilistic Forecasting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/reliability_fallback.html">Reliability &amp; Fallback</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/backtesting.html">Backtesting &amp; Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/reliability_fallback.html">Reliability and Fallback</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/backtesting_tutorial.html">Backtesting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/deployment.html">Deployment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../logging.html">Logging</a></li>
 </ul>
@@ -525,6 +501,9 @@ If you need Python 3.10/3.11 support, consider using OpenSTEF 3.x.</p>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">openstef-beam</span></code></p></td>
 <td><p>Backtesting, Evaluation, Analysis, and Metrics (BEAM)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">openstef-meta</span></code></p></td>
+<td><p>Meta-models for combining and stacking forecasts (ensembles, weighted blends)</p></td>
 </tr>
 </tbody>
 </table>
@@ -773,10 +752,10 @@ conda<span class="w"> </span>install<span class="w"> </span>openstef
 <p><strong>Import Errors</strong></p>
 <p>If you encounter import errors, ensure you’re using the correct package names:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Correct imports</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models</span><span class="w"> </span><span class="kn">import</span> <span class="n">forecasting</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam</span><span class="w"> </span><span class="kn">import</span> <span class="n">evaluation</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.presets</span><span class="w"> </span><span class="kn">import</span> <span class="n">ForecastingWorkflowConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.evaluation</span><span class="w"> </span><span class="kn">import</span> <span class="n">EvaluationPipeline</span>
 
-<span class="c1"># Not: from openstef.models import forecasting</span>
+<span class="c1"># Not: from openstef.models import ...</span>
 </pre></div>
 </div>
 <p><strong>Memory Issues</strong></p>
@@ -812,7 +791,7 @@ conda<span class="w"> </span>install<span class="w"> </span>openstef
 <h3>macOS<a class="headerlink" href="#macos" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Most installations work out of the box</p></li>
-<li><p>For Apple Silicon (M1/M2), ensure you’re using compatible wheel distributions</p></li>
+<li><p>For Apple Silicon, ensure you’re using compatible wheel distributions</p></li>
 </ul>
 </section>
 <section id="linux">
@@ -826,13 +805,15 @@ conda<span class="w"> </span>install<span class="w"> </span>openstef
 </section>
 <section id="next-steps">
 <h2>Next Steps<a class="headerlink" href="#next-steps" title="Link to this heading">#</a></h2>
-<p>After installation:</p>
-<ol class="arabic simple">
-<li><p>Read the <span class="xref std std-doc">quick_start</span> guide</p></li>
-<li><p>Explore the <a class="reference internal" href="../../examples.html"><span class="doc">Examples</span></a> for hands-on examples</p></li>
-<li><p>Check the <a class="reference internal" href="../../api/index.html"><span class="doc">API Reference</span></a> for detailed documentation</p></li>
-<li><p>Review <a class="reference internal" href="../concepts/index.html"><span class="doc">Concepts</span></a> to understand OpenSTEF’s capabilities</p></li>
-</ol>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="quick_start_tutorial.html"><span class="doc">Forecasting Quickstart</span></a> to get started with your first forecast.</p></li>
+<li><p><a class="reference internal" href="../../examples.html"><span class="doc">Examples</span></a> for hands-on examples.</p></li>
+<li><p><a class="reference internal" href="../../api/index.html"><span class="doc">API Reference</span></a> for detailed API documentation.</p></li>
+<li><p><a class="reference internal" href="../concepts/index.html"><span class="doc">Concepts</span></a> to understand OpenSTEF’s capabilities.</p></li>
+</ul>
+</div>
 </section>
 <section id="staying-updated">
 <h2>Staying Updated<a class="headerlink" href="#staying-updated" title="Link to this heading">#</a></h2>
@@ -1005,7 +986,7 @@ pixi<span class="w"> </span>upgrade<span class="w"> </span>openstef
 
   <p class="copyright">
     
-      © Copyright 2017-2025 Contributors to the OpenSTEF project.
+      © Copyright 2017-2026 Contributors to the OpenSTEF project.
       <br/>
     
   </p>

@@ -34,7 +34,7 @@
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
     <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
-    <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=01a4ee56" />
+    <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=3f5a9049" />
   
   <!-- So that users can add custom icons -->
   <script src="_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -48,6 +48,442 @@
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="_static/copybutton.js?v=97f0b27d"></script>
     <script src="_static/design-tabs.js?v=f930bc37"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.esm.min.mjs";
+
+
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = `pre.mermaid {
+    /* Same as .mermaid-container > pre */
+    display: block;
+    width: 100%;
+}
+
+pre.mermaid > svg {
+    /* Same as .mermaid-container > pre > svg */
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}`;
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = `.mermaid-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.mermaid-container > pre {
+    display: block;
+    width: 100%;
+}
+
+.mermaid-container > pre > svg {
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+
+.mermaid-fullscreen-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    color: #333;
+}
+
+.mermaid-fullscreen-btn:hover {
+    opacity: 100% !important;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-btn.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-btn.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 95vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 9999;
+    padding: 20px;
+    overflow: auto;
+}
+
+.mermaid-fullscreen-modal.dark-theme {
+    background: rgba(0, 0, 0, 0.98);
+}
+
+.mermaid-fullscreen-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen {
+    position: relative;
+    width: 95vw;
+    height: 90vh;
+    max-width: 95vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen.dark-theme {
+    background: #1a1a1a;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.mermaid-container-fullscreen pre.mermaid {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen .mermaid svg {
+    height: 100% !important;
+    width: 100% !important;
+    cursor: grab;
+}
+
+.mermaid-fullscreen-close {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+    font-size: 24px;
+    line-height: 1;
+    color: #333;
+}
+
+.mermaid-fullscreen-close:hover {
+    background: white;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-close.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-close.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal .mermaid-fullscreen-btn {
+    display: none !important;
+}`;
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        all_mermaids.forEach((el) => {
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+        await mermaid.run();
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+
+    if ("False" === "True") {
+        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("");
+            if(all_mermaids.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else if(svgs.size() !== mermaids_to_add_zoom) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else {
+                svgs.each(function() {
+                    var svg = d3.select(this);
+                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+                    var inner = svg.select("g");
+                    var zoom = d3.zoom().on("zoom", function(event) {
+                        inner.attr("transform", event.transform);
+                    });
+                    svg.call(zoom);
+                });
+            }
+        }
+    } else if(all_mermaids.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if ("True" !== "True") return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.style.opacity = '50%';
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scroll, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.sdisplay = 'block';
+
+                if ("False" === "True") {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+const load = async () => {
+    initStyles();
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...JSON.parse(
+                    `{"startOnLoad": false}`
+                ),
+                ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...JSON.parse(
+        `{"startOnLoad": false}`
+    ),
+    ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'py-modindex';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
@@ -180,23 +616,6 @@
   </a>
 </li>
 
-            <li class="nav-item dropdown">
-                <button class="btn dropdown-toggle nav-item" type="button"
-                data-bs-toggle="dropdown" aria-expanded="false"
-                aria-controls="pst-nav-more-links">
-                    More
-                </button>
-                <ul id="pst-nav-more-links" class="dropdown-menu">
-                    
-<li class=" ">
-  <a class="nav-link dropdown-item nav-internal" href="changelog.html">
-    Changelog
-  </a>
-</li>
-
-                </ul>
-            </li>
-            
   </ul>
 </nav></div>
       
@@ -330,13 +749,6 @@
   </a>
 </li>
 
-
-<li class="nav-item ">
-  <a class="nav-link nav-internal" href="changelog.html">
-    Changelog
-  </a>
-</li>
-
   </ul>
 </nav></div>
           
@@ -455,12 +867,102 @@
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_beam.analysis.models.target_metadata.html#module-openstef_beam.analysis.models.target_metadata"><code class="xref">openstef_beam.analysis.models.target_metadata</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_beam.analysis.models.visualization_aggregation.html#module-openstef_beam.analysis.models.visualization_aggregation"><code class="xref">openstef_beam.analysis.models.visualization_aggregation</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_beam.analysis.models.visualization_output.html#module-openstef_beam.analysis.models.visualization_output"><code class="xref">openstef_beam.analysis.models.visualization_output</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
        <a href="api/generated/openstef_beam.analysis.plots.html#module-openstef_beam.analysis.plots"><code class="xref">openstef_beam.analysis.plots</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_beam.analysis.plots.forecast_time_series_plotter.html#module-openstef_beam.analysis.plots.forecast_time_series_plotter"><code class="xref">openstef_beam.analysis.plots.forecast_time_series_plotter</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_beam.analysis.plots.grouped_target_metric_plotter.html#module-openstef_beam.analysis.plots.grouped_target_metric_plotter"><code class="xref">openstef_beam.analysis.plots.grouped_target_metric_plotter</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_beam.analysis.plots.precision_recall_curve_plotter.html#module-openstef_beam.analysis.plots.precision_recall_curve_plotter"><code class="xref">openstef_beam.analysis.plots.precision_recall_curve_plotter</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_beam.analysis.plots.quantile_calibration_box_plotter.html#module-openstef_beam.analysis.plots.quantile_calibration_box_plotter"><code class="xref">openstef_beam.analysis.plots.quantile_calibration_box_plotter</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_beam.analysis.plots.quantile_probability_plotter.html#module-openstef_beam.analysis.plots.quantile_probability_plotter"><code class="xref">openstef_beam.analysis.plots.quantile_probability_plotter</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_beam.analysis.plots.summary_table_plotter.html#module-openstef_beam.analysis.plots.summary_table_plotter"><code class="xref">openstef_beam.analysis.plots.summary_table_plotter</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_beam.analysis.plots.windowed_metric_plotter.html#module-openstef_beam.analysis.plots.windowed_metric_plotter"><code class="xref">openstef_beam.analysis.plots.windowed_metric_plotter</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
        <a href="api/generated/openstef_beam.analysis.visualizations.html#module-openstef_beam.analysis.visualizations"><code class="xref">openstef_beam.analysis.visualizations</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_beam.analysis.visualizations.base.html#module-openstef_beam.analysis.visualizations.base"><code class="xref">openstef_beam.analysis.visualizations.base</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_beam.analysis.visualizations.grouped_target_metric_visualization.html#module-openstef_beam.analysis.visualizations.grouped_target_metric_visualization"><code class="xref">openstef_beam.analysis.visualizations.grouped_target_metric_visualization</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_beam.analysis.visualizations.precision_recall_curve_visualization.html#module-openstef_beam.analysis.visualizations.precision_recall_curve_visualization"><code class="xref">openstef_beam.analysis.visualizations.precision_recall_curve_visualization</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_beam.analysis.visualizations.quantile_calibration_box_visualization.html#module-openstef_beam.analysis.visualizations.quantile_calibration_box_visualization"><code class="xref">openstef_beam.analysis.visualizations.quantile_calibration_box_visualization</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_beam.analysis.visualizations.quantile_probability_visualization.html#module-openstef_beam.analysis.visualizations.quantile_probability_visualization"><code class="xref">openstef_beam.analysis.visualizations.quantile_probability_visualization</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_beam.analysis.visualizations.summary_table_visualization.html#module-openstef_beam.analysis.visualizations.summary_table_visualization"><code class="xref">openstef_beam.analysis.visualizations.summary_table_visualization</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_beam.analysis.visualizations.timeseries_visualization.html#module-openstef_beam.analysis.visualizations.timeseries_visualization"><code class="xref">openstef_beam.analysis.visualizations.timeseries_visualization</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_beam.analysis.visualizations.windowed_metric_visualization.html#module-openstef_beam.analysis.visualizations.windowed_metric_visualization"><code class="xref">openstef_beam.analysis.visualizations.windowed_metric_visualization</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
@@ -490,6 +992,16 @@
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_beam.backtesting.backtest_forecaster.dummy_forecaster.html#module-openstef_beam.backtesting.backtest_forecaster.dummy_forecaster"><code class="xref">openstef_beam.backtesting.backtest_forecaster.dummy_forecaster</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_beam.backtesting.backtest_forecaster.mixins.html#module-openstef_beam.backtesting.backtest_forecaster.mixins"><code class="xref">openstef_beam.backtesting.backtest_forecaster.mixins</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
        <a href="api/generated/openstef_beam.backtesting.backtest_pipeline.html#module-openstef_beam.backtesting.backtest_pipeline"><code class="xref">openstef_beam.backtesting.backtest_pipeline</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
@@ -510,6 +1022,11 @@
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_beam.benchmarking.baselines.openstef4.html#module-openstef_beam.benchmarking.baselines.openstef4"><code class="xref">openstef_beam.benchmarking.baselines.openstef4</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
        <a href="api/generated/openstef_beam.benchmarking.benchmark_comparison_pipeline.html#module-openstef_beam.benchmarking.benchmark_comparison_pipeline"><code class="xref">openstef_beam.benchmarking.benchmark_comparison_pipeline</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
@@ -525,7 +1042,22 @@
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_beam.benchmarking.benchmarks.liander2024.html#module-openstef_beam.benchmarking.benchmarks.liander2024"><code class="xref">openstef_beam.benchmarking.benchmarks.liander2024</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
        <a href="api/generated/openstef_beam.benchmarking.callbacks.html#module-openstef_beam.benchmarking.callbacks"><code class="xref">openstef_beam.benchmarking.callbacks</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_beam.benchmarking.callbacks.base.html#module-openstef_beam.benchmarking.callbacks.base"><code class="xref">openstef_beam.benchmarking.callbacks.base</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_beam.benchmarking.callbacks.strict_execution_callback.html#module-openstef_beam.benchmarking.callbacks.strict_execution_callback"><code class="xref">openstef_beam.benchmarking.callbacks.strict_execution_callback</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
@@ -535,7 +1067,27 @@
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_beam.benchmarking.models.benchmark_target.html#module-openstef_beam.benchmarking.models.benchmark_target"><code class="xref">openstef_beam.benchmarking.models.benchmark_target</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
        <a href="api/generated/openstef_beam.benchmarking.storage.html#module-openstef_beam.benchmarking.storage"><code class="xref">openstef_beam.benchmarking.storage</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_beam.benchmarking.storage.base.html#module-openstef_beam.benchmarking.storage.base"><code class="xref">openstef_beam.benchmarking.storage.base</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_beam.benchmarking.storage.local_storage.html#module-openstef_beam.benchmarking.storage.local_storage"><code class="xref">openstef_beam.benchmarking.storage.local_storage</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_beam.benchmarking.storage.s3_storage.html#module-openstef_beam.benchmarking.storage.s3_storage"><code class="xref">openstef_beam.benchmarking.storage.s3_storage</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
@@ -561,6 +1113,21 @@
        <td></td>
        <td>&#160;&#160;&#160;
        <a href="api/generated/openstef_beam.evaluation.models.html#module-openstef_beam.evaluation.models"><code class="xref">openstef_beam.evaluation.models</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_beam.evaluation.models.report.html#module-openstef_beam.evaluation.models.report"><code class="xref">openstef_beam.evaluation.models.report</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_beam.evaluation.models.subset.html#module-openstef_beam.evaluation.models.subset"><code class="xref">openstef_beam.evaluation.models.subset</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_beam.evaluation.models.window.module.html#module-openstef_beam.evaluation.models.window"><code class="xref">openstef_beam.evaluation.models.window</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
@@ -641,17 +1208,17 @@
      <tr class="cg-2">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="api/generated/openstef_core.mixins.predictor.html#module-openstef_core.mixins.predictor"><code class="xref">openstef_core.mixins.predictor</code></a></td><td>
+       <a href="api/generated/openstef_core.mixins.predictor.module.html#module-openstef_core.mixins.predictor"><code class="xref">openstef_core.mixins.predictor</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-2">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="api/generated/openstef_core.mixins.stateful.html#module-openstef_core.mixins.stateful"><code class="xref">openstef_core.mixins.stateful</code></a></td><td>
+       <a href="api/generated/openstef_core.mixins.stateful.module.html#module-openstef_core.mixins.stateful"><code class="xref">openstef_core.mixins.stateful</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-2">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="api/generated/openstef_core.mixins.transform.html#module-openstef_core.mixins.transform"><code class="xref">openstef_core.mixins.transform</code></a></td><td>
+       <a href="api/generated/openstef_core.mixins.transform.module.html#module-openstef_core.mixins.transform"><code class="xref">openstef_core.mixins.transform</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-2">
        <td></td>
@@ -732,6 +1299,21 @@
      <tr class="cg-3">
        <td></td>
        <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_meta.models.forecast_combiners.forecast_combiner.html#module-openstef_meta.models.forecast_combiners.forecast_combiner"><code class="xref">openstef_meta.models.forecast_combiners.forecast_combiner</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-3">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_meta.models.forecast_combiners.learned_weights_combiner.html#module-openstef_meta.models.forecast_combiners.learned_weights_combiner"><code class="xref">openstef_meta.models.forecast_combiners.learned_weights_combiner</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-3">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_meta.models.forecast_combiners.stacking_combiner.html#module-openstef_meta.models.forecast_combiners.stacking_combiner"><code class="xref">openstef_meta.models.forecast_combiners.stacking_combiner</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-3">
+       <td></td>
+       <td>&#160;&#160;&#160;
        <a href="api/generated/openstef_meta.presets.html#module-openstef_meta.presets"><code class="xref">openstef_meta.presets</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-3">
@@ -773,6 +1355,16 @@
      <tr class="cg-4">
        <td></td>
        <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_models.explainability.plotters.contributions_plotter.html#module-openstef_models.explainability.plotters.contributions_plotter"><code class="xref">openstef_models.explainability.plotters.contributions_plotter</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-4">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_models.explainability.plotters.feature_importance_plotter.html#module-openstef_models.explainability.plotters.feature_importance_plotter"><code class="xref">openstef_models.explainability.plotters.feature_importance_plotter</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-4">
+       <td></td>
+       <td>&#160;&#160;&#160;
        <a href="api/generated/openstef_models.integrations.html#module-openstef_models.integrations"><code class="xref">openstef_models.integrations</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-4">
@@ -783,12 +1375,32 @@
      <tr class="cg-4">
        <td></td>
        <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_models.integrations.joblib.joblib_model_serializer.html#module-openstef_models.integrations.joblib.joblib_model_serializer"><code class="xref">openstef_models.integrations.joblib.joblib_model_serializer</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-4">
+       <td></td>
+       <td>&#160;&#160;&#160;
        <a href="api/generated/openstef_models.integrations.mlflow.html#module-openstef_models.integrations.mlflow"><code class="xref">openstef_models.integrations.mlflow</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-4">
        <td></td>
        <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_models.integrations.mlflow.mlflow_storage.html#module-openstef_models.integrations.mlflow.mlflow_storage"><code class="xref">openstef_models.integrations.mlflow.mlflow_storage</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-4">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_models.integrations.mlflow.mlflow_storage_callback.html#module-openstef_models.integrations.mlflow.mlflow_storage_callback"><code class="xref">openstef_models.integrations.mlflow.mlflow_storage_callback</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-4">
+       <td></td>
+       <td>&#160;&#160;&#160;
        <a href="api/generated/openstef_models.integrations.optuna.html#module-openstef_models.integrations.optuna"><code class="xref">openstef_models.integrations.optuna</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-4">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_models.integrations.optuna.tuner.html#module-openstef_models.integrations.optuna.tuner"><code class="xref">openstef_models.integrations.optuna.tuner</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-4">
        <td></td>
@@ -818,12 +1430,72 @@
      <tr class="cg-4">
        <td></td>
        <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_models.models.component_splitting.component_splitter.html#module-openstef_models.models.component_splitting.component_splitter"><code class="xref">openstef_models.models.component_splitting.component_splitter</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-4">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_models.models.component_splitting.constant_component_splitter.html#module-openstef_models.models.component_splitting.constant_component_splitter"><code class="xref">openstef_models.models.component_splitting.constant_component_splitter</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-4">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_models.models.component_splitting.linear_component_splitter.html#module-openstef_models.models.component_splitting.linear_component_splitter"><code class="xref">openstef_models.models.component_splitting.linear_component_splitter</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-4">
+       <td></td>
+       <td>&#160;&#160;&#160;
        <a href="api/generated/openstef_models.models.component_splitting_model.html#module-openstef_models.models.component_splitting_model"><code class="xref">openstef_models.models.component_splitting_model</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-4">
        <td></td>
        <td>&#160;&#160;&#160;
        <a href="api/generated/openstef_models.models.forecasting.html#module-openstef_models.models.forecasting"><code class="xref">openstef_models.models.forecasting</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-4">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_models.models.forecasting.base_case_forecaster.html#module-openstef_models.models.forecasting.base_case_forecaster"><code class="xref">openstef_models.models.forecasting.base_case_forecaster</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-4">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_models.models.forecasting.constant_quantile_forecaster.html#module-openstef_models.models.forecasting.constant_quantile_forecaster"><code class="xref">openstef_models.models.forecasting.constant_quantile_forecaster</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-4">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_models.models.forecasting.flatliner_forecaster.html#module-openstef_models.models.forecasting.flatliner_forecaster"><code class="xref">openstef_models.models.forecasting.flatliner_forecaster</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-4">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_models.models.forecasting.forecaster.html#module-openstef_models.models.forecasting.forecaster"><code class="xref">openstef_models.models.forecasting.forecaster</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-4">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_models.models.forecasting.gblinear_forecaster.html#module-openstef_models.models.forecasting.gblinear_forecaster"><code class="xref">openstef_models.models.forecasting.gblinear_forecaster</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-4">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_models.models.forecasting.lgbm_forecaster.html#module-openstef_models.models.forecasting.lgbm_forecaster"><code class="xref">openstef_models.models.forecasting.lgbm_forecaster</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-4">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_models.models.forecasting.lgbmlinear_forecaster.html#module-openstef_models.models.forecasting.lgbmlinear_forecaster"><code class="xref">openstef_models.models.forecasting.lgbmlinear_forecaster</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-4">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_models.models.forecasting.median_forecaster.html#module-openstef_models.models.forecasting.median_forecaster"><code class="xref">openstef_models.models.forecasting.median_forecaster</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-4">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_models.models.forecasting.xgboost_forecaster.html#module-openstef_models.models.forecasting.xgboost_forecaster"><code class="xref">openstef_models.models.forecasting.xgboost_forecaster</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-4">
        <td></td>
@@ -853,7 +1525,62 @@
      <tr class="cg-4">
        <td></td>
        <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_models.transforms.energy_domain.wind_power_feature_adder.html#module-openstef_models.transforms.energy_domain.wind_power_feature_adder"><code class="xref">openstef_models.transforms.energy_domain.wind_power_feature_adder</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-4">
+       <td></td>
+       <td>&#160;&#160;&#160;
        <a href="api/generated/openstef_models.transforms.general.html#module-openstef_models.transforms.general"><code class="xref">openstef_models.transforms.general</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-4">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_models.transforms.general.dimensionality_reducer.html#module-openstef_models.transforms.general.dimensionality_reducer"><code class="xref">openstef_models.transforms.general.dimensionality_reducer</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-4">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_models.transforms.general.empty_feature_remover.html#module-openstef_models.transforms.general.empty_feature_remover"><code class="xref">openstef_models.transforms.general.empty_feature_remover</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-4">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_models.transforms.general.flagger.module.html#module-openstef_models.transforms.general.flagger"><code class="xref">openstef_models.transforms.general.flagger</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-4">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_models.transforms.general.imputer.module.html#module-openstef_models.transforms.general.imputer"><code class="xref">openstef_models.transforms.general.imputer</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-4">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_models.transforms.general.nan_dropper.html#module-openstef_models.transforms.general.nan_dropper"><code class="xref">openstef_models.transforms.general.nan_dropper</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-4">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_models.transforms.general.outlier_handler.html#module-openstef_models.transforms.general.outlier_handler"><code class="xref">openstef_models.transforms.general.outlier_handler</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-4">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_models.transforms.general.sample_weighter.html#module-openstef_models.transforms.general.sample_weighter"><code class="xref">openstef_models.transforms.general.sample_weighter</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-4">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_models.transforms.general.scaler.module.html#module-openstef_models.transforms.general.scaler"><code class="xref">openstef_models.transforms.general.scaler</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-4">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_models.transforms.general.selector.module.html#module-openstef_models.transforms.general.selector"><code class="xref">openstef_models.transforms.general.selector</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-4">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_models.transforms.general.shifter.module.html#module-openstef_models.transforms.general.shifter"><code class="xref">openstef_models.transforms.general.shifter</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-4">
        <td></td>
@@ -863,7 +1590,52 @@
      <tr class="cg-4">
        <td></td>
        <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_models.transforms.postprocessing.confidence_interval_applicator.html#module-openstef_models.transforms.postprocessing.confidence_interval_applicator"><code class="xref">openstef_models.transforms.postprocessing.confidence_interval_applicator</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-4">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_models.transforms.postprocessing.isotonic_quantile_calibrator.html#module-openstef_models.transforms.postprocessing.isotonic_quantile_calibrator"><code class="xref">openstef_models.transforms.postprocessing.isotonic_quantile_calibrator</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-4">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_models.transforms.postprocessing.quantile_sorter.html#module-openstef_models.transforms.postprocessing.quantile_sorter"><code class="xref">openstef_models.transforms.postprocessing.quantile_sorter</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-4">
+       <td></td>
+       <td>&#160;&#160;&#160;
        <a href="api/generated/openstef_models.transforms.time_domain.html#module-openstef_models.transforms.time_domain"><code class="xref">openstef_models.transforms.time_domain</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-4">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_models.transforms.time_domain.cyclic_features_adder.html#module-openstef_models.transforms.time_domain.cyclic_features_adder"><code class="xref">openstef_models.transforms.time_domain.cyclic_features_adder</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-4">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_models.transforms.time_domain.datetime_features_adder.html#module-openstef_models.transforms.time_domain.datetime_features_adder"><code class="xref">openstef_models.transforms.time_domain.datetime_features_adder</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-4">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_models.transforms.time_domain.holiday_features_adder.html#module-openstef_models.transforms.time_domain.holiday_features_adder"><code class="xref">openstef_models.transforms.time_domain.holiday_features_adder</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-4">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_models.transforms.time_domain.lags_adder.html#module-openstef_models.transforms.time_domain.lags_adder"><code class="xref">openstef_models.transforms.time_domain.lags_adder</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-4">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_models.transforms.time_domain.rolling_aggregates_adder.html#module-openstef_models.transforms.time_domain.rolling_aggregates_adder"><code class="xref">openstef_models.transforms.time_domain.rolling_aggregates_adder</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-4">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_models.transforms.time_domain.versioned_lags_adder.html#module-openstef_models.transforms.time_domain.versioned_lags_adder"><code class="xref">openstef_models.transforms.time_domain.versioned_lags_adder</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-4">
        <td></td>
@@ -873,7 +1645,37 @@
      <tr class="cg-4">
        <td></td>
        <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_models.transforms.validation.completeness_checker.html#module-openstef_models.transforms.validation.completeness_checker"><code class="xref">openstef_models.transforms.validation.completeness_checker</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-4">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_models.transforms.validation.flatline_checker.html#module-openstef_models.transforms.validation.flatline_checker"><code class="xref">openstef_models.transforms.validation.flatline_checker</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-4">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_models.transforms.validation.input_consistency_checker.html#module-openstef_models.transforms.validation.input_consistency_checker"><code class="xref">openstef_models.transforms.validation.input_consistency_checker</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-4">
+       <td></td>
+       <td>&#160;&#160;&#160;
        <a href="api/generated/openstef_models.transforms.weather_domain.html#module-openstef_models.transforms.weather_domain"><code class="xref">openstef_models.transforms.weather_domain</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-4">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_models.transforms.weather_domain.atmosphere_derived_features_adder.html#module-openstef_models.transforms.weather_domain.atmosphere_derived_features_adder"><code class="xref">openstef_models.transforms.weather_domain.atmosphere_derived_features_adder</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-4">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_models.transforms.weather_domain.daylight_feature_adder.html#module-openstef_models.transforms.weather_domain.daylight_feature_adder"><code class="xref">openstef_models.transforms.weather_domain.daylight_feature_adder</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-4">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_models.transforms.weather_domain.radiation_derived_features_adder.html#module-openstef_models.transforms.weather_domain.radiation_derived_features_adder"><code class="xref">openstef_models.transforms.weather_domain.radiation_derived_features_adder</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-4">
        <td></td>
@@ -919,6 +1721,16 @@
        <td></td>
        <td>&#160;&#160;&#160;
        <a href="api/generated/openstef_models.workflows.callbacks.html#module-openstef_models.workflows.callbacks"><code class="xref">openstef_models.workflows.callbacks</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-4">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_models.workflows.callbacks.data_save.html#module-openstef_models.workflows.callbacks.data_save"><code class="xref">openstef_models.workflows.callbacks.data_save</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-4">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/generated/openstef_models.workflows.callbacks.model_performance_callback.html#module-openstef_models.workflows.callbacks.model_performance_callback"><code class="xref">openstef_models.workflows.callbacks.model_performance_callback</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-4">
        <td></td>
@@ -972,7 +1784,7 @@
 
   <p class="copyright">
     
-      © Copyright 2017-2025 Contributors to the OpenSTEF project.
+      © Copyright 2017-2026 Contributors to the OpenSTEF project.
       <br/>
     
   </p>

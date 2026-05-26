@@ -10,3 +10,4 @@ AvailableAt
 .. autoclass:: AvailableAt
    :show-inheritance:
    :members:
+   :special-members: __init__

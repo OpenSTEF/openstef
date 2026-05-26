@@ -10,3 +10,4 @@ VisualizationOutput
 .. autoclass:: VisualizationOutput
    :show-inheritance:
    :members:
+   :special-members: __init__

@@ -1,0 +1,36 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+
+
+isotonic_quantile_calibrator
+============================
+
+.. currentmodule:: openstef_models.transforms.postprocessing.isotonic_quantile_calibrator
+
+.. automodule:: openstef_models.transforms.postprocessing.isotonic_quantile_calibrator
+   :no-members:
+   :no-inherited-members:
+
+
+
+
+
+
+
+
+
+
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_class_noindex.rst
+
+   IsotonicQuantileCalibrator
+
+
+

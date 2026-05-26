@@ -10,3 +10,4 @@ PrecisionRecall
 .. autoclass:: PrecisionRecall
    :show-inheritance:
    :members:
+   :special-members: __init__

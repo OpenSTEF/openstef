@@ -10,3 +10,4 @@ InMemoryBenchmarkStorage
 .. autoclass:: InMemoryBenchmarkStorage
    :show-inheritance:
    :members:
+   :special-members: __init__

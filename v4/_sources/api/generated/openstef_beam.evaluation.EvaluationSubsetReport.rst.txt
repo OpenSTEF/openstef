@@ -10,3 +10,4 @@ EvaluationSubsetReport
 .. autoclass:: EvaluationSubsetReport
    :show-inheritance:
    :members:
+   :special-members: __init__

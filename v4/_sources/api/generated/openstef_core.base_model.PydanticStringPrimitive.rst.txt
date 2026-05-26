@@ -10,3 +10,4 @@ PydanticStringPrimitive
 .. autoclass:: PydanticStringPrimitive
    :show-inheritance:
    :members:
+   :special-members: __init__

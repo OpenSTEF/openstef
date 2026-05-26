@@ -10,3 +10,5 @@ ComponentSplittingModel
 .. autoclass:: ComponentSplittingModel
    :show-inheritance:
    :members:
+   :special-members: __init__
+   :no-index:

@@ -10,3 +10,4 @@ CustomForecastingWorkflow
 .. autoclass:: CustomForecastingWorkflow
    :show-inheritance:
    :members:
+   :special-members: __init__

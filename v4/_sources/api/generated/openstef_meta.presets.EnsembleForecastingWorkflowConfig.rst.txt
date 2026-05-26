@@ -10,3 +10,4 @@ EnsembleForecastingWorkflowConfig
 .. autoclass:: EnsembleForecastingWorkflowConfig
    :show-inheritance:
    :members:
+   :special-members: __init__

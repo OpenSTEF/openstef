@@ -10,3 +10,4 @@ IsSamePandas
 .. autoclass:: IsSamePandas
    :show-inheritance:
    :members:
+   :special-members: __init__

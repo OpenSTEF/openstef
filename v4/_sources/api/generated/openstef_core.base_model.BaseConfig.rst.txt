@@ -10,3 +10,4 @@ BaseConfig
 .. autoclass:: BaseConfig
    :show-inheritance:
    :members:
+   :special-members: __init__

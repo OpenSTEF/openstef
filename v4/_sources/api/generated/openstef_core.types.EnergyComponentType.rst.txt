@@ -10,3 +10,4 @@ EnergyComponentType
 .. autoclass:: EnergyComponentType
    :show-inheritance:
    :members:
+   :special-members: __init__

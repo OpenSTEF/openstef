@@ -19,12 +19,31 @@ storage
 
 
 
+
+
+Submodules
+----------
+
+
+.. autosummary::
+   :toctree: .
+   :template: module_overview.rst
+
+   openstef_beam.benchmarking.storage.base
+   openstef_beam.benchmarking.storage.local_storage
+   openstef_beam.benchmarking.storage.s3_storage
+
+
+
+
+
+
 Classes
 -------
 
 .. autosummary::
    :toctree: .
-   :template: custom_class.rst
+   :template: custom_class_noindex.rst
 
    BenchmarkStorage
    InMemoryBenchmarkStorage

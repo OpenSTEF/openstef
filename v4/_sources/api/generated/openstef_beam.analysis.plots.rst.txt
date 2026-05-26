@@ -19,12 +19,35 @@ plots
 
 
 
+
+
+Submodules
+----------
+
+
+.. autosummary::
+   :toctree: .
+   :template: module_overview.rst
+
+   openstef_beam.analysis.plots.forecast_time_series_plotter
+   openstef_beam.analysis.plots.grouped_target_metric_plotter
+   openstef_beam.analysis.plots.precision_recall_curve_plotter
+   openstef_beam.analysis.plots.quantile_calibration_box_plotter
+   openstef_beam.analysis.plots.quantile_probability_plotter
+   openstef_beam.analysis.plots.summary_table_plotter
+   openstef_beam.analysis.plots.windowed_metric_plotter
+
+
+
+
+
+
 Classes
 -------
 
 .. autosummary::
    :toctree: .
-   :template: custom_class.rst
+   :template: custom_class_noindex.rst
 
    ForecastTimeSeriesPlotter
    GroupedTargetMetricPlotter

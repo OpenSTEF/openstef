@@ -35,7 +35,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
-    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=01a4ee56" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=3f5a9049" />
   
   <!-- So that users can add custom icons -->
   <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -180,23 +180,6 @@
   </a>
 </li>
 
-            <li class="nav-item dropdown">
-                <button class="btn dropdown-toggle nav-item" type="button"
-                data-bs-toggle="dropdown" aria-expanded="false"
-                aria-controls="pst-nav-more-links">
-                    More
-                </button>
-                <ul id="pst-nav-more-links" class="dropdown-menu">
-                    
-<li class=" ">
-  <a class="nav-link dropdown-item nav-internal" href="../../changelog.html">
-    Changelog
-  </a>
-</li>
-
-                </ul>
-            </li>
-            
   </ul>
 </nav></div>
       
@@ -329,13 +312,6 @@
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../../contribute/index.html">
     Contributing
-  </a>
-</li>
-
-
-<li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../changelog.html">
-    Changelog
   </a>
 </li>
 
@@ -507,18 +483,18 @@
 <li class="toctree-l4"><a class="reference internal" href="openstef_core.mixins.param_ranges.ModelTuningInfo.html">ModelTuningInfo</a></li>
 </ul>
 </details></li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="openstef_core.mixins.predictor.html">predictor</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="openstef_core.mixins.predictor.module.html">predictor</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="openstef_core.mixins.predictor.BatchPredictor.html">BatchPredictor</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_core.mixins.predictor.HyperParams.html">HyperParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_core.mixins.predictor.Predictor.html">Predictor</a></li>
 </ul>
 </details></li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="openstef_core.mixins.stateful.html">stateful</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="openstef_core.mixins.stateful.module.html">stateful</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="openstef_core.mixins.stateful.Stateful.html">Stateful</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_core.mixins.stateful.VersionedState.html">VersionedState</a></li>
 </ul>
 </details></li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="openstef_core.mixins.transform.html">transform</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="openstef_core.mixins.transform.module.html">transform</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="openstef_core.mixins.transform.Transform.html">Transform</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_core.mixins.transform.TransformPipeline.html">TransformPipeline</a></li>
 </ul>
@@ -565,6 +541,9 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../models.html">Models Package (<code class="xref py py-mod docutils literal notranslate"><span class="pre">openstef_models</span></code>)</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="openstef_models.models.html">models</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_models.models.component_splitting.html">component_splitting</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.models.component_splitting.component_splitter.html">component_splitter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.models.component_splitting.constant_component_splitter.html">constant_component_splitter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.models.component_splitting.linear_component_splitter.html">linear_component_splitter</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.models.component_splitting.ComponentSplitter.html">ComponentSplitter</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.models.component_splitting.ComponentSplitterConfig.html">ComponentSplitterConfig</a></li>
 </ul>
@@ -573,7 +552,18 @@
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.models.component_splitting_model.ComponentSplittingModel.html">ComponentSplittingModel</a></li>
 </ul>
 </details></li>
-<li class="toctree-l3"><a class="reference internal" href="openstef_models.models.forecasting.html">forecasting</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="openstef_models.models.forecasting.html">forecasting</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.models.forecasting.base_case_forecaster.html">base_case_forecaster</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.models.forecasting.constant_quantile_forecaster.html">constant_quantile_forecaster</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.models.forecasting.flatliner_forecaster.html">flatliner_forecaster</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.models.forecasting.forecaster.html">forecaster</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.models.forecasting.gblinear_forecaster.html">gblinear_forecaster</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.models.forecasting.lgbm_forecaster.html">lgbm_forecaster</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.models.forecasting.lgbmlinear_forecaster.html">lgbmlinear_forecaster</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.models.forecasting.median_forecaster.html">median_forecaster</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.models.forecasting.xgboost_forecaster.html">xgboost_forecaster</a></li>
+</ul>
+</details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_models.models.forecasting_model.html">forecasting_model</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.models.forecasting_model.restore_target.html">restore_target</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.models.forecasting_model.BaseForecastingModel.html">BaseForecastingModel</a></li>
@@ -588,6 +578,8 @@
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="openstef_models.workflows.html">workflows</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_models.workflows.callbacks.html">callbacks</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.workflows.callbacks.data_save.html">data_save</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.workflows.callbacks.model_performance_callback.html">model_performance_callback</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.workflows.callbacks.DataSaveCallback.html">DataSaveCallback</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.workflows.callbacks.ModelPerformanceCallback.html">ModelPerformanceCallback</a></li>
 </ul>
@@ -624,6 +616,8 @@
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_models.explainability.plotters.html">plotters</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.explainability.plotters.contributions_plotter.html">contributions_plotter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.explainability.plotters.feature_importance_plotter.html">feature_importance_plotter</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.explainability.plotters.ContributionsPlotter.html">ContributionsPlotter</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.explainability.plotters.FeatureImportancePlotter.html">FeatureImportancePlotter</a></li>
 </ul>
@@ -650,15 +644,19 @@
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="openstef_models.integrations.html">integrations</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_models.integrations.joblib.html">joblib</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.integrations.joblib.joblib_model_serializer.html">joblib_model_serializer</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.integrations.joblib.JoblibModelSerializer.html">JoblibModelSerializer</a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_models.integrations.mlflow.html">mlflow</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.integrations.mlflow.mlflow_storage.html">mlflow_storage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.integrations.mlflow.mlflow_storage_callback.html">mlflow_storage_callback</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.integrations.mlflow.MLFlowStorage.html">MLFlowStorage</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.integrations.mlflow.MLFlowStorageCallback.html">MLFlowStorageCallback</a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_models.integrations.optuna.html">optuna</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.integrations.optuna.tuner.html">tuner</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.integrations.optuna.HyperparameterTuner.html">HyperparameterTuner</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.integrations.optuna.TuningResult.html">TuningResult</a></li>
 </ul>
@@ -667,16 +665,30 @@
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="openstef_models.transforms.html">transforms</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_models.transforms.postprocessing.html">postprocessing</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.postprocessing.confidence_interval_applicator.html">confidence_interval_applicator</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.postprocessing.isotonic_quantile_calibrator.html">isotonic_quantile_calibrator</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.postprocessing.quantile_sorter.html">quantile_sorter</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.postprocessing.ConfidenceIntervalApplicator.html">ConfidenceIntervalApplicator</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.postprocessing.IsotonicQuantileCalibrator.html">IsotonicQuantileCalibrator</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.postprocessing.QuantileSorter.html">QuantileSorter</a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_models.transforms.energy_domain.html">energy_domain</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.energy_domain.wind_power_feature_adder.html">wind_power_feature_adder</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.energy_domain.WindPowerFeatureAdder.html">WindPowerFeatureAdder</a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_models.transforms.general.html">general</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.general.dimensionality_reducer.html">dimensionality_reducer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.general.empty_feature_remover.html">empty_feature_remover</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.general.flagger.module.html">flagger</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.general.imputer.module.html">imputer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.general.nan_dropper.html">nan_dropper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.general.outlier_handler.html">outlier_handler</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.general.sample_weighter.html">sample_weighter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.general.scaler.module.html">scaler</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.general.selector.module.html">selector</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.general.shifter.module.html">shifter</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.general.DimensionalityReducer.html">DimensionalityReducer</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.general.EmptyFeatureRemover.html">EmptyFeatureRemover</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.general.Flagger.html">Flagger</a></li>
@@ -691,6 +703,12 @@
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_models.transforms.time_domain.html">time_domain</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.time_domain.cyclic_features_adder.html">cyclic_features_adder</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.time_domain.datetime_features_adder.html">datetime_features_adder</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.time_domain.holiday_features_adder.html">holiday_features_adder</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.time_domain.lags_adder.html">lags_adder</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.time_domain.rolling_aggregates_adder.html">rolling_aggregates_adder</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.time_domain.versioned_lags_adder.html">versioned_lags_adder</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.time_domain.CyclicFeaturesAdder.html">CyclicFeaturesAdder</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.time_domain.DatetimeFeaturesAdder.html">DatetimeFeaturesAdder</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.time_domain.HolidayFeatureAdder.html">HolidayFeatureAdder</a></li>
@@ -700,12 +718,18 @@
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_models.transforms.validation.html">validation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.validation.completeness_checker.html">completeness_checker</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.validation.flatline_checker.html">flatline_checker</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.validation.input_consistency_checker.html">input_consistency_checker</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.validation.CompletenessChecker.html">CompletenessChecker</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.validation.FlatlineChecker.html">FlatlineChecker</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.validation.InputConsistencyChecker.html">InputConsistencyChecker</a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_models.transforms.weather_domain.html">weather_domain</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.weather_domain.atmosphere_derived_features_adder.html">atmosphere_derived_features_adder</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.weather_domain.daylight_feature_adder.html">daylight_feature_adder</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.weather_domain.radiation_derived_features_adder.html">radiation_derived_features_adder</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.weather_domain.AtmosphereDerivedFeaturesAdder.html">AtmosphereDerivedFeaturesAdder</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.weather_domain.DaylightFeatureAdder.html">DaylightFeatureAdder</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.weather_domain.RadiationDerivedFeaturesAdder.html">RadiationDerivedFeaturesAdder</a></li>
@@ -813,6 +837,8 @@
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_beam.backtesting.backtest_forecaster.html">backtest_forecaster</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.backtesting.backtest_forecaster.dummy_forecaster.html">dummy_forecaster</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.backtesting.backtest_forecaster.mixins.html">mixins</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.backtesting.backtest_forecaster.BacktestBatchForecasterMixin.html">BacktestBatchForecasterMixin</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.backtesting.backtest_forecaster.BacktestForecasterConfig.html">BacktestForecasterConfig</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.backtesting.backtest_forecaster.BacktestForecasterMixin.html">BacktestForecasterMixin</a></li>
@@ -830,6 +856,9 @@
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_beam.analysis.models.html">models</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.analysis.models.target_metadata.html">target_metadata</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.analysis.models.visualization_aggregation.html">visualization_aggregation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.analysis.models.visualization_output.html">visualization_output</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.analysis.models.AnalysisAggregation.html">AnalysisAggregation</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.analysis.models.AnalysisOutput.html">AnalysisOutput</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.analysis.models.AnalysisScope.html">AnalysisScope</a></li>
@@ -838,6 +867,13 @@
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_beam.analysis.plots.html">plots</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.analysis.plots.forecast_time_series_plotter.html">forecast_time_series_plotter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.analysis.plots.grouped_target_metric_plotter.html">grouped_target_metric_plotter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.analysis.plots.precision_recall_curve_plotter.html">precision_recall_curve_plotter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.analysis.plots.quantile_calibration_box_plotter.html">quantile_calibration_box_plotter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.analysis.plots.quantile_probability_plotter.html">quantile_probability_plotter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.analysis.plots.summary_table_plotter.html">summary_table_plotter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.analysis.plots.windowed_metric_plotter.html">windowed_metric_plotter</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.analysis.plots.ForecastTimeSeriesPlotter.html">ForecastTimeSeriesPlotter</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.analysis.plots.GroupedTargetMetricPlotter.html">GroupedTargetMetricPlotter</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.analysis.plots.PrecisionRecallCurvePlotter.html">PrecisionRecallCurvePlotter</a></li>
@@ -848,6 +884,14 @@
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_beam.analysis.visualizations.html">visualizations</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.analysis.visualizations.base.html">base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.analysis.visualizations.grouped_target_metric_visualization.html">grouped_target_metric_visualization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.analysis.visualizations.precision_recall_curve_visualization.html">precision_recall_curve_visualization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.analysis.visualizations.quantile_calibration_box_visualization.html">quantile_calibration_box_visualization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.analysis.visualizations.quantile_probability_visualization.html">quantile_probability_visualization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.analysis.visualizations.summary_table_visualization.html">summary_table_visualization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.analysis.visualizations.timeseries_visualization.html">timeseries_visualization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.analysis.visualizations.windowed_metric_visualization.html">windowed_metric_visualization</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.analysis.visualizations.GroupedTargetMetricVisualization.html">GroupedTargetMetricVisualization</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.analysis.visualizations.PrecisionRecallCurveVisualization.html">PrecisionRecallCurveVisualization</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.analysis.visualizations.QuantileCalibrationBoxVisualization.html">QuantileCalibrationBoxVisualization</a></li>
@@ -872,6 +916,9 @@
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_beam.evaluation.models.html">models</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.models.report.html">report</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.models.subset.html">subset</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.models.window.module.html">window</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.models.EvaluationReport.html">EvaluationReport</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.models.EvaluationSubsetReport.html">EvaluationSubsetReport</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.models.SubsetMetric.html">SubsetMetric</a></li>
@@ -906,7 +953,10 @@
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="openstef_beam.benchmarking.html">benchmarking</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="openstef_beam.benchmarking.baselines.html">baselines</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="openstef_beam.benchmarking.baselines.html">baselines</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.benchmarking.baselines.openstef4.html">openstef4</a></li>
+</ul>
+</details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_beam.benchmarking.benchmark_comparison_pipeline.html">benchmark_comparison_pipeline</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.benchmarking.benchmark_comparison_pipeline.BenchmarkComparisonPipeline.html">BenchmarkComparisonPipeline</a></li>
 </ul>
@@ -918,20 +968,27 @@
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_beam.benchmarking.benchmarks.html">benchmarks</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.benchmarking.benchmarks.liander2024.html">liander2024</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.benchmarking.benchmarks.create_liander2024_benchmark_runner.html">create_liander2024_benchmark_runner</a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_beam.benchmarking.callbacks.html">callbacks</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.benchmarking.callbacks.base.html">base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.benchmarking.callbacks.strict_execution_callback.html">strict_execution_callback</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.benchmarking.callbacks.BenchmarkCallback.html">BenchmarkCallback</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.benchmarking.callbacks.BenchmarkCallbackManager.html">BenchmarkCallbackManager</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.benchmarking.callbacks.StrictExecutionCallback.html">StrictExecutionCallback</a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_beam.benchmarking.models.html">models</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.benchmarking.models.benchmark_target.html">benchmark_target</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.benchmarking.models.BenchmarkTarget.html">BenchmarkTarget</a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_beam.benchmarking.storage.html">storage</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.benchmarking.storage.base.html">base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.benchmarking.storage.local_storage.html">local_storage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.benchmarking.storage.s3_storage.html">s3_storage</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.benchmarking.storage.BenchmarkStorage.html">BenchmarkStorage</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.benchmarking.storage.InMemoryBenchmarkStorage.html">InMemoryBenchmarkStorage</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.benchmarking.storage.LocalBenchmarkStorage.html">LocalBenchmarkStorage</a></li>
@@ -973,6 +1030,9 @@
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_meta.models.forecast_combiners.html">forecast_combiners</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef_meta.models.forecast_combiners.forecast_combiner.html">forecast_combiner</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_meta.models.forecast_combiners.learned_weights_combiner.html">learned_weights_combiner</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_meta.models.forecast_combiners.stacking_combiner.html">stacking_combiner</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_meta.models.forecast_combiners.ForecastCombiner.html">ForecastCombiner</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_meta.models.forecast_combiners.LGBMCombinerHyperParams.html">LGBMCombinerHyperParams</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_meta.models.forecast_combiners.LogisticCombinerHyperParams.html">LogisticCombinerHyperParams</a></li>
@@ -1074,8 +1134,8 @@
 <h1>VersionedTimeSeriesDataset<a class="headerlink" href="#versionedtimeseriesdataset" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="openstef_core.datasets.VersionedTimeSeriesDataset">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef_core.datasets.</span></span><span class="sig-name descname"><span class="pre">VersionedTimeSeriesDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_parts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset.html#openstef_core.datasets.timeseries_dataset.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><span class="pre">TimeSeriesDataset</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DatetimeIndex</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/versioned_timeseries_dataset.html#VersionedTimeSeriesDataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.VersionedTimeSeriesDataset" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="openstef_core.datasets.mixins.TimeSeriesMixin.html#openstef_core.datasets.mixins.TimeSeriesMixin" title="openstef_core.datasets.mixins.TimeSeriesMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeSeriesMixin</span></code></a>, <a class="reference internal" href="openstef_core.datasets.mixins.DatasetMixin.html#openstef_core.datasets.mixins.DatasetMixin" title="openstef_core.datasets.mixins.DatasetMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">DatasetMixin</span></code></a></p>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef_core.datasets.</span></span><span class="sig-name descname"><span class="pre">VersionedTimeSeriesDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_parts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><span class="pre">TimeSeriesDataset</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DatetimeIndex</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/versioned_timeseries_dataset.html#VersionedTimeSeriesDataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.VersionedTimeSeriesDataset" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TimeSeriesMixin</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DatasetMixin</span></code></p>
 <p>A versioned time series dataset composed of multiple data parts.</p>
 <p>This class combines multiple TimeSeriesDataset instances into a unified
 dataset that tracks data availability over time. It provides methods to filter
@@ -1093,7 +1153,7 @@ delays actual DataFrame concatenation until select_version() is called.</p>
 </dd>
 </dl>
 <p class="rubric">Example</p>
-<p>Create a versioned dataset by combining multiple data parts:</p>
+<p>Create a versioned dataset by combining multiple data parts</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
 <span class="gp">&gt;&gt;&gt;</span>
@@ -1119,21 +1179,21 @@ composition of data sources with different coverage periods.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data_parts</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<a class="reference internal" href="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset.html#openstef_core.datasets.timeseries_dataset.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeSeriesDataset</span></code></a>]</span>)</p></li>
-<li><p><strong>index</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">DatetimeIndex</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>)</p></li>
+<li><p><strong>data_parts</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference internal" href="openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeSeriesDataset</span></code></a>]</span>)</p></li>
+<li><p><strong>index</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">DatetimeIndex</span></code> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>)</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="openstef_core.datasets.VersionedTimeSeriesDataset.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_parts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset.html#openstef_core.datasets.timeseries_dataset.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><span class="pre">TimeSeriesDataset</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DatetimeIndex</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/versioned_timeseries_dataset.html#VersionedTimeSeriesDataset.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.VersionedTimeSeriesDataset.__init__" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_parts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><span class="pre">TimeSeriesDataset</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DatetimeIndex</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/versioned_timeseries_dataset.html#VersionedTimeSeriesDataset.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.VersionedTimeSeriesDataset.__init__" title="Link to this definition">#</a></dt>
 <dd><p>Initialize a versioned time series dataset from multiple parts.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data_parts</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<a class="reference internal" href="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset.html#openstef_core.datasets.timeseries_dataset.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeSeriesDataset</span></code></a>]</span>) – List of TimeSeriesDataset instances to combine. Must have
+<li><p><strong>data_parts</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference internal" href="openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeSeriesDataset</span></code></a>]</span>) – List of TimeSeriesDataset instances to combine. Must have
 identical sample intervals and disjoint feature sets.</p></li>
-<li><p><strong>index</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">DatetimeIndex</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Optional explicit index for the combined dataset. If not provided,
+<li><p><strong>index</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">DatetimeIndex</span></code> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – Optional explicit index for the combined dataset. If not provided,
 the union of all part indices will be used.</p></li>
 <li><p><strong>data_parts</strong></p></li>
 <li><p><strong>index</strong></p></li>
@@ -1147,7 +1207,7 @@ the union of all part indices will be used.</p></li>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_core.datasets.VersionedTimeSeriesDataset.data_parts">
-<span class="sig-name descname"><span class="pre">data_parts</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code><span class="pre">[</span><a class="reference internal" href="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset.html#openstef_core.datasets.timeseries_dataset.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeSeriesDataset</span></code></a><span class="pre">]</span></em><a class="headerlink" href="#openstef_core.datasets.VersionedTimeSeriesDataset.data_parts" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">data_parts</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a><span class="pre">[</span><a class="reference internal" href="openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeSeriesDataset</span></code></a><span class="pre">]</span></em><a class="headerlink" href="#openstef_core.datasets.VersionedTimeSeriesDataset.data_parts" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
@@ -1163,7 +1223,7 @@ the union of all part indices will be used.</p></li>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="openstef_core.datasets.VersionedTimeSeriesDataset.sample_interval">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sample_interval</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">timedelta</span></em><a class="headerlink" href="#openstef_core.datasets.VersionedTimeSeriesDataset.sample_interval" title="Link to this definition">#</a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sample_interval</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.timedelta" title="(in Python v3.14)"><span class="pre">timedelta</span></a></em><a class="headerlink" href="#openstef_core.datasets.VersionedTimeSeriesDataset.sample_interval" title="Link to this definition">#</a></dt>
 <dd><p>Get the fixed time interval between consecutive data points.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -1174,7 +1234,7 @@ the union of all part indices will be used.</p></li>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="openstef_core.datasets.VersionedTimeSeriesDataset.feature_names">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">feature_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#openstef_core.datasets.VersionedTimeSeriesDataset.feature_names" title="Link to this definition">#</a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">feature_names</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#openstef_core.datasets.VersionedTimeSeriesDataset.feature_names" title="Link to this definition">#</a></dt>
 <dd><p>Get the names of all available features in the dataset.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -1186,7 +1246,7 @@ available_at, or horizon.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="openstef_core.datasets.VersionedTimeSeriesDataset.is_versioned">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_versioned</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#openstef_core.datasets.VersionedTimeSeriesDataset.is_versioned" title="Link to this definition">#</a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_versioned</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></em><a class="headerlink" href="#openstef_core.datasets.VersionedTimeSeriesDataset.is_versioned" title="Link to this definition">#</a></dt>
 <dd><p>Check if the dataset tracks data availability over time.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -1198,13 +1258,13 @@ or available_at columns), False for regular time series.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="openstef_core.datasets.VersionedTimeSeriesDataset.filter_by_range">
-<span class="sig-name descname"><span class="pre">filter_by_range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">datetime</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">datetime</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Self</span></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/versioned_timeseries_dataset.html#VersionedTimeSeriesDataset.filter_by_range"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.VersionedTimeSeriesDataset.filter_by_range" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">filter_by_range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.14)"><span class="pre">datetime</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">end</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.14)"><span class="pre">datetime</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Self" title="(in Python v3.14)"><span class="pre">Self</span></a></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/versioned_timeseries_dataset.html#VersionedTimeSeriesDataset.filter_by_range"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.VersionedTimeSeriesDataset.filter_by_range" title="Link to this definition">#</a></dt>
 <dd><p>Filter the dataset to include only data within the specified time range.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>start</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Inclusive start time of the range. If None, no start boundary applied.</p></li>
-<li><p><strong>end</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Exclusive end time of the range. If None, no end boundary applied.</p></li>
+<li><p><strong>start</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – Inclusive start time of the range. If None, no start boundary applied.</p></li>
+<li><p><strong>end</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – Exclusive end time of the range. If None, no end boundary applied.</p></li>
 <li><p><strong>start</strong></p></li>
 <li><p><strong>end</strong></p></li>
 </ul>
@@ -1220,12 +1280,12 @@ or available_at columns), False for regular time series.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="openstef_core.datasets.VersionedTimeSeriesDataset.filter_by_available_before">
-<span class="sig-name descname"><span class="pre">filter_by_available_before</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">available_before</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">datetime</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Self</span></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/versioned_timeseries_dataset.html#VersionedTimeSeriesDataset.filter_by_available_before"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.VersionedTimeSeriesDataset.filter_by_available_before" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">filter_by_available_before</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">available_before</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.14)"><span class="pre">datetime</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Self" title="(in Python v3.14)"><span class="pre">Self</span></a></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/versioned_timeseries_dataset.html#VersionedTimeSeriesDataset.filter_by_available_before"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.VersionedTimeSeriesDataset.filter_by_available_before" title="Link to this definition">#</a></dt>
 <dd><p>Filter to include only data available before the specified timestamp.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>available_before</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code></span>) – Cutoff time for data availability.</p></li>
+<li><p><strong>available_before</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code></a></span>) – Cutoff time for data availability.</p></li>
 <li><p><strong>available_before</strong></p></li>
 </ul>
 </dd>
@@ -1240,7 +1300,7 @@ or available_at columns), False for regular time series.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="openstef_core.datasets.VersionedTimeSeriesDataset.filter_by_available_at">
-<span class="sig-name descname"><span class="pre">filter_by_available_at</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">available_at</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="openstef_core.types.AvailableAt.html#openstef_core.types.AvailableAt" title="openstef_core.types.AvailableAt"><span class="pre">AvailableAt</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Self</span></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/versioned_timeseries_dataset.html#VersionedTimeSeriesDataset.filter_by_available_at"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.VersionedTimeSeriesDataset.filter_by_available_at" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">filter_by_available_at</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">available_at</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="openstef_core.types.AvailableAt.html#openstef_core.types.AvailableAt" title="openstef_core.types.AvailableAt"><span class="pre">AvailableAt</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Self" title="(in Python v3.14)"><span class="pre">Self</span></a></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/versioned_timeseries_dataset.html#VersionedTimeSeriesDataset.filter_by_available_at"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.VersionedTimeSeriesDataset.filter_by_available_at" title="Link to this definition">#</a></dt>
 <dd><p>Filter based on realistic daily data availability constraints.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1260,7 +1320,7 @@ or available_at columns), False for regular time series.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="openstef_core.datasets.VersionedTimeSeriesDataset.filter_by_lead_time">
-<span class="sig-name descname"><span class="pre">filter_by_lead_time</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lead_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="openstef_core.types.LeadTime.html#openstef_core.types.LeadTime" title="openstef_core.types.LeadTime"><span class="pre">LeadTime</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Self</span></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/versioned_timeseries_dataset.html#VersionedTimeSeriesDataset.filter_by_lead_time"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.VersionedTimeSeriesDataset.filter_by_lead_time" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">filter_by_lead_time</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lead_time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="openstef_core.types.LeadTime.html#openstef_core.types.LeadTime" title="openstef_core.types.LeadTime"><span class="pre">LeadTime</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Self" title="(in Python v3.14)"><span class="pre">Self</span></a></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/versioned_timeseries_dataset.html#VersionedTimeSeriesDataset.filter_by_lead_time"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.VersionedTimeSeriesDataset.filter_by_lead_time" title="Link to this definition">#</a></dt>
 <dd><p>Filter to include only data available at or longer than the specified lead time.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1280,13 +1340,13 @@ or available_at columns), False for regular time series.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="openstef_core.datasets.VersionedTimeSeriesDataset.select_version">
-<span class="sig-name descname"><span class="pre">select_version</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset.html#openstef_core.datasets.timeseries_dataset.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><span class="pre">TimeSeriesDataset</span></a></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/versioned_timeseries_dataset.html#VersionedTimeSeriesDataset.select_version"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.VersionedTimeSeriesDataset.select_version" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">select_version</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><span class="pre">TimeSeriesDataset</span></a></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/versioned_timeseries_dataset.html#VersionedTimeSeriesDataset.select_version"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.VersionedTimeSeriesDataset.select_version" title="Link to this definition">#</a></dt>
 <dd><p>Select a specific version of the dataset based on data availability.</p>
 <p>Creates a point-in-time snapshot by selecting the latest available version
 for each timestamp. Essential for preventing lookahead bias in backtesting.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset.html#openstef_core.datasets.timeseries_dataset.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeSeriesDataset</span></code></a></span></p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeSeriesDataset</span></code></a></span></p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>TimeSeriesDataset containing the selected version of the data.</p>
@@ -1296,14 +1356,14 @@ for each timestamp. Essential for preventing lookahead bias in backtesting.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="openstef_core.datasets.VersionedTimeSeriesDataset.to_parquet">
-<span class="sig-name descname"><span class="pre">to_parquet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">Path</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">PathType</span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">path_type</span></span><span class="o"><span class="pre">=</span></span><span class="pre">file</span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/versioned_timeseries_dataset.html#VersionedTimeSeriesDataset.to_parquet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.VersionedTimeSeriesDataset.to_parquet" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">to_parquet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Annotated" title="(in Python v3.14)"><span class="pre">Annotated</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">Path</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">PathType</span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">path_type</span></span><span class="o"><span class="pre">=</span></span><span class="pre">file</span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/versioned_timeseries_dataset.html#VersionedTimeSeriesDataset.to_parquet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.VersionedTimeSeriesDataset.to_parquet" title="Link to this definition">#</a></dt>
 <dd><p>Save the dataset to a parquet file.</p>
 <p>Stores both the dataset’s data and all necessary metadata for complete
 reconstruction. Metadata should be stored in the parquet file’s attrs
 dictionary.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>path</strong> (<em>Annotated</em><em>[</em><em>Path</em><em>, </em><em>PathType</em><em>(</em><em>path_type=file</em><em>)</em><em>]</em>) – File path where the dataset should be saved.</p>
+<dd class="field-odd"><p><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Annotated" title="(in Python v3.14)"><em>Annotated</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><em>Path</em></a><em>, </em><em>PathType</em><em>(</em><em>path_type=file</em><em>)</em><em>]</em>) – File path where the dataset should be saved.</p>
 </dd>
 </dl>
 <div class="admonition seealso">
@@ -1312,30 +1372,30 @@ dictionary.</p>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>path</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></span>)</p>
+<dd class="field-odd"><p><strong>path</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a></span>)</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="openstef_core.datasets.VersionedTimeSeriesDataset.read_parquet">
-<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">read_parquet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Annotated</span><span class="p"><span class="pre">[</span></span><span class="pre">Path</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">PathType</span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">path_type</span></span><span class="o"><span class="pre">=</span></span><span class="pre">file</span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_interval</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">timedelta</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp_column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'timestamp'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">available_at_column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'available_at'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">horizon_column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'horizon'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Self</span></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/versioned_timeseries_dataset.html#VersionedTimeSeriesDataset.read_parquet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.VersionedTimeSeriesDataset.read_parquet" title="Link to this definition">#</a></dt>
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">read_parquet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Annotated" title="(in Python v3.14)"><span class="pre">Annotated</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">Path</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">PathType</span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">path_type</span></span><span class="o"><span class="pre">=</span></span><span class="pre">file</span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_interval</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.timedelta" title="(in Python v3.14)"><span class="pre">timedelta</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp_column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'timestamp'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">available_at_column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'available_at'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">horizon_column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'horizon'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Self" title="(in Python v3.14)"><span class="pre">Self</span></a></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/versioned_timeseries_dataset.html#VersionedTimeSeriesDataset.read_parquet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.VersionedTimeSeriesDataset.read_parquet" title="Link to this definition">#</a></dt>
 <dd><p>Load a dataset from a parquet file.</p>
 <p>Reconstructs a dataset from a parquet file created with to_parquet,
 including all data and metadata. Should handle missing metadata
 gracefully with sensible defaults.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>path</strong> (<em>Annotated</em><em>[</em><em>Path</em><em>, </em><em>PathType</em><em>(</em><em>path_type=file</em><em>)</em><em>]</em>) – Path to the parquet file to load.</p>
+<dd class="field-odd"><p><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Annotated" title="(in Python v3.14)"><em>Annotated</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><em>Path</em></a><em>, </em><em>PathType</em><em>(</em><em>path_type=file</em><em>)</em><em>]</em>) – Path to the parquet file to load.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>New dataset instance reconstructed from the file.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><em>Self</em></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Self" title="(in Python v3.14)"><em>Self</em></a></p>
 </dd>
 </dl>
 <div class="admonition seealso">
@@ -1345,11 +1405,11 @@ gracefully with sensible defaults.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>path</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></span>)</p></li>
-<li><p><strong>sample_interval</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">timedelta</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>)</p></li>
-<li><p><strong>timestamp_column</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>)</p></li>
-<li><p><strong>available_at_column</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>)</p></li>
-<li><p><strong>horizon_column</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>)</p></li>
+<li><p><strong>path</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a></span>)</p></li>
+<li><p><strong>sample_interval</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.timedelta" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">timedelta</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>)</p></li>
+<li><p><strong>timestamp_column</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>)</p></li>
+<li><p><strong>available_at_column</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>)</p></li>
+<li><p><strong>horizon_column</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -1360,7 +1420,7 @@ gracefully with sensible defaults.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="openstef_core.datasets.VersionedTimeSeriesDataset.concat">
-<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">concat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datasets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">Self</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcatMode</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Self</span></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/versioned_timeseries_dataset.html#VersionedTimeSeriesDataset.concat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.VersionedTimeSeriesDataset.concat" title="Link to this definition">#</a></dt>
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">concat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datasets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence" title="(in Python v3.14)"><span class="pre">Sequence</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Self" title="(in Python v3.14)"><span class="pre">Self</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ConcatMode</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Self" title="(in Python v3.14)"><span class="pre">Self</span></a></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/versioned_timeseries_dataset.html#VersionedTimeSeriesDataset.concat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.VersionedTimeSeriesDataset.concat" title="Link to this definition">#</a></dt>
 <dd><p>Concatenate multiple versioned datasets into a single dataset.</p>
 <p>Combines multiple VersionedTimeSeriesDataset instances using the specified
 concatenation mode. Supports different strategies for handling overlapping
@@ -1372,7 +1432,7 @@ or merging historical data with recent updates.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>datasets</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Self</span></code>]</span>) – Sequence of VersionedTimeSeriesDataset instances to concatenate.
+<li><p><strong>datasets</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Self</span></code>]</span>) – Sequence of VersionedTimeSeriesDataset instances to concatenate.
 Must contain at least one dataset.</p></li>
 <li><p><strong>mode</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">TypeAliasType</span></code></span>) – Concatenation mode determining how to handle overlapping indices:
 - “left”: Use indices from the first dataset only
@@ -1396,7 +1456,7 @@ Must contain at least one dataset.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="openstef_core.datasets.VersionedTimeSeriesDataset.from_dataframe">
-<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dataframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_interval</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">timedelta</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp_column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'timestamp'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">available_at_column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'available_at'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Self</span></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/versioned_timeseries_dataset.html#VersionedTimeSeriesDataset.from_dataframe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.VersionedTimeSeriesDataset.from_dataframe" title="Link to this definition">#</a></dt>
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dataframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_interval</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.timedelta" title="(in Python v3.14)"><span class="pre">timedelta</span></a></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp_column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'timestamp'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">available_at_column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'available_at'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Self" title="(in Python v3.14)"><span class="pre">Self</span></a></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/versioned_timeseries_dataset.html#VersionedTimeSeriesDataset.from_dataframe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.VersionedTimeSeriesDataset.from_dataframe" title="Link to this definition">#</a></dt>
 <dd><p>Create a VersionedTimeSeriesDataset from a single DataFrame.</p>
 <p>Convenience constructor for creating a versioned dataset from a single
 DataFrame containing all features.</p>
@@ -1405,10 +1465,10 @@ DataFrame containing all features.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>data</strong> (<em>DataFrame</em>) – DataFrame containing versioned time series data with timestamp
 and available_at columns.</p></li>
-<li><p><strong>sample_interval</strong> (<em>timedelta</em>) – The regular interval between consecutive data points.</p></li>
-<li><p><strong>available_at_column</strong> (<em>str</em>) – Name of the column indicating when data became available.
+<li><p><strong>sample_interval</strong> (<a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.timedelta" title="(in Python v3.14)"><em>timedelta</em></a>) – The regular interval between consecutive data points.</p></li>
+<li><p><strong>available_at_column</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the column indicating when data became available.
 Default is ‘available_at’.</p></li>
-<li><p><strong>timestamp_column</strong> (<em>str</em>) – Name of the column indicating the timestamps of the data.
+<li><p><strong>timestamp_column</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – Name of the column indicating the timestamps of the data.
 Default is ‘timestamp’.</p></li>
 </ul>
 </dd>
@@ -1416,11 +1476,11 @@ Default is ‘timestamp’.</p></li>
 <dd class="field-even"><p>New VersionedTimeSeriesDataset instance containing the data.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><em>Self</em></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Self" title="(in Python v3.14)"><em>Self</em></a></p>
 </dd>
 </dl>
 <p class="rubric">Example</p>
-<p>Create dataset from a single DataFrame:</p>
+<p>Create dataset from a single DataFrame</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
@@ -1445,9 +1505,9 @@ for simple cases.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>data</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></span>)</p></li>
-<li><p><strong>sample_interval</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">timedelta</span></code></span>)</p></li>
-<li><p><strong>timestamp_column</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>)</p></li>
-<li><p><strong>available_at_column</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>)</p></li>
+<li><p><strong>sample_interval</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.timedelta" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">timedelta</span></code></a></span>)</p></li>
+<li><p><strong>timestamp_column</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>)</p></li>
+<li><p><strong>available_at_column</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -1458,7 +1518,7 @@ for simple cases.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="openstef_core.datasets.VersionedTimeSeriesDataset.to_horizons">
-<span class="sig-name descname"><span class="pre">to_horizons</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">horizons</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="openstef_core.types.LeadTime.html#openstef_core.types.LeadTime" title="openstef_core.types.LeadTime"><span class="pre">LeadTime</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset.html#openstef_core.datasets.timeseries_dataset.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><span class="pre">TimeSeriesDataset</span></a></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/versioned_timeseries_dataset.html#VersionedTimeSeriesDataset.to_horizons"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.VersionedTimeSeriesDataset.to_horizons" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">to_horizons</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">horizons</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="openstef_core.types.LeadTime.html#openstef_core.types.LeadTime" title="openstef_core.types.LeadTime"><span class="pre">LeadTime</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><span class="pre">TimeSeriesDataset</span></a></span></span><a class="reference internal" href="../../_modules/openstef_core/datasets/versioned_timeseries_dataset.html#VersionedTimeSeriesDataset.to_horizons"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_core.datasets.VersionedTimeSeriesDataset.to_horizons" title="Link to this definition">#</a></dt>
 <dd><p>Convert versioned dataset to horizon-based format for multiple lead times.</p>
 <p>Selects data for each specified horizon, adds a horizon column, and combines
 into a single TimeSeriesDataset. Useful for creating multi-horizon training data.</p>
@@ -1467,10 +1527,10 @@ into a single TimeSeriesDataset. Useful for creating multi-horizon training data
 <dd class="field-odd"><p>TimeSeriesDataset with horizon column indicating forecast lead time.</p>
 </dd>
 <dt class="field-even">Parameters<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>horizons</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<a class="reference internal" href="openstef_core.types.LeadTime.html#openstef_core.types.LeadTime" title="openstef_core.types.LeadTime"><code class="xref py py-class docutils literal notranslate"><span class="pre">LeadTime</span></code></a>]</span>)</p>
+<dd class="field-even"><p><strong>horizons</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference internal" href="openstef_core.types.LeadTime.html#openstef_core.types.LeadTime" title="openstef_core.types.LeadTime"><code class="xref py py-class docutils literal notranslate"><span class="pre">LeadTime</span></code></a>]</span>)</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset.html#openstef_core.datasets.timeseries_dataset.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeSeriesDataset</span></code></a></span></p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeSeriesDataset</span></code></a></span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1589,7 +1649,7 @@ into a single TimeSeriesDataset. Useful for creating multi-horizon training data
 
   <p class="copyright">
     
-      © Copyright 2017-2025 Contributors to the OpenSTEF project.
+      © Copyright 2017-2026 Contributors to the OpenSTEF project.
       <br/>
     
   </p>

@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Migrating from OpenSTEF 3 &#8212; OpenSTEF 0.0.0 documentation</title>
+    <title>Migrating from OpenSTEF 3 to 4 &#8212; OpenSTEF 0.0.0 documentation</title>
   
   
   
@@ -35,7 +35,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
-    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=01a4ee56" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=3f5a9049" />
   
   <!-- So that users can add custom icons -->
   <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
@@ -180,23 +180,6 @@
   </a>
 </li>
 
-            <li class="nav-item dropdown">
-                <button class="btn dropdown-toggle nav-item" type="button"
-                data-bs-toggle="dropdown" aria-expanded="false"
-                aria-controls="pst-nav-more-links">
-                    More
-                </button>
-                <ul id="pst-nav-more-links" class="dropdown-menu">
-                    
-<li class=" ">
-  <a class="nav-link dropdown-item nav-internal" href="../../changelog.html">
-    Changelog
-  </a>
-</li>
-
-                </ul>
-            </li>
-            
   </ul>
 </nav></div>
       
@@ -332,13 +315,6 @@
   </a>
 </li>
 
-
-<li class="nav-item ">
-  <a class="nav-link nav-internal" href="../../changelog.html">
-    Changelog
-  </a>
-</li>
-
   </ul>
 </nav></div>
           
@@ -398,13 +374,13 @@
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Getting Started</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="quick_start_tutorial.html">Forecasting Quickstart</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">Migrating from OpenSTEF 3</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Migrating from OpenSTEF 3 to 4</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../concepts/index.html">Concepts</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../concepts/intro_to_energy_forecasting.html">Intro to Energy Forecasting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../concepts/models.html">Models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../concepts/metalearning.html">Metalearning &amp; Ensembles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../concepts/metalearning.html">Metalearning</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../concepts/beam.html">BEAM</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../concepts/component_splitting.html">Component Splitting</a></li>
 </ul>
@@ -414,8 +390,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../guides/feature_engineering_tutorial.html">Feature Engineering</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/datasets_tutorial.html">Datasets</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/probabilistic_forecasting.html">Probabilistic Forecasting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/reliability_fallback.html">Reliability &amp; Fallback</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../guides/backtesting.html">Backtesting &amp; Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/reliability_fallback.html">Reliability and Fallback</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/backtesting_tutorial.html">Backtesting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/deployment.html">Deployment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../logging.html">Logging</a></li>
 </ul>
@@ -467,7 +443,7 @@
     
     <li class="breadcrumb-item"><a href="index.html" class="nav-link">Getting Started</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Migrating from OpenSTEF 3</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Migrating from OpenSTEF 3 to 4</span></li>
   </ul>
 </nav>
 </div>
@@ -484,17 +460,368 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="migrating-from-openstef-3">
-<span id="migration"></span><h1>Migrating from OpenSTEF 3<a class="headerlink" href="#migrating-from-openstef-3" title="Link to this heading">#</a></h1>
-<div class="admonition-placeholder admonition">
-<p class="admonition-title">Placeholder</p>
-<p>Content to be written. This guide will cover:</p>
-<ul class="simple">
-<li><p>Key architectural changes in OpenSTEF 4.0</p></li>
-<li><p>API changes and replacements</p></li>
-<li><p>Step-by-step migration instructions</p></li>
-</ul>
+  <section id="migrating-from-openstef-3-to-4">
+<h1>Migrating from OpenSTEF 3 to 4<a class="headerlink" href="#migrating-from-openstef-3-to-4" title="Link to this heading">#</a></h1>
+<p>This page guides users of the legacy <code class="docutils literal notranslate"><span class="pre">openstef</span></code> v3 package through the conceptual
+and practical changes in OpenSTEF v4. If you are starting fresh, skip this page and
+begin with <a class="reference internal" href="installation.html"><span class="doc">Installation</span></a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>V4 is a ground-up redesign. While the forecasting <em>goals</em> are the same, the API
+surface is intentionally different. Plan for a rewrite of integration code, not a
+find-and-replace.</p>
 </div>
+<section id="package-structure">
+<h2>Package Structure<a class="headerlink" href="#package-structure" title="Link to this heading">#</a></h2>
+<p>V4 splits functionality into focused, independently installable packages. You can
+use the models without any database dependency, and each package can be tested in
+isolation.</p>
+<p>In v3 these were all bundled in a single <code class="docutils literal notranslate"><span class="pre">openstef</span></code> package:</p>
+<div class="pst-scrollable-table-container"><table class="table" id="id1">
+<caption><span class="caption-text">Package Mapping</span><a class="headerlink" href="#id1" title="Link to this table">#</a></caption>
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 30.0%" />
+<col style="width: 40.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>V3</p></th>
+<th class="head"><p>V4</p></th>
+<th class="head"><p>Responsibility</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">openstef</span></code> (core ML)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">openstef-models</span></code></p></td>
+<td><p>Model training, prediction, feature engineering</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">openstef</span></code> (data classes)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">openstef-core</span></code></p></td>
+<td><p>Types, datasets, validation, testing utilities</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">openstef</span></code> (evaluation)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">openstef-beam</span></code></p></td>
+<td><p>Backtesting, evaluation, experiment tracking</p></td>
+</tr>
+<tr class="row-odd"><td><p>(not available)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">openstef-meta</span></code></p></td>
+<td><p>Ensemble forecasting, metalearning</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">openstef-dbc</span></code></p></td>
+<td><p><em>No equivalent</em></p></td>
+<td><p>See <a class="reference internal" href="#migration-dbc"><span class="std std-ref">Reference Implementation</span></a> below</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="configuration">
+<h2>Configuration<a class="headerlink" href="#configuration" title="Link to this heading">#</a></h2>
+<p>V4’s <a class="reference internal" href="../../api/generated/openstef_models.presets.ForecastingWorkflowConfig.html#openstef_models.presets.ForecastingWorkflowConfig" title="openstef_models.presets.ForecastingWorkflowConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">ForecastingWorkflowConfig</span></code></a> validates all fields
+at construction time. Model types are constrained literals, durations use <code class="docutils literal notranslate"><span class="pre">timedelta</span></code>,
+and hyperparameters are typed per-model objects. This replaces v3’s
+<code class="docutils literal notranslate"><span class="pre">PredictionJobDataClass</span></code> which used free-form strings and untyped dicts.</p>
+<p><strong>Before (V3):</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">openstef.data_classes.prediction_job</span><span class="w"> </span><span class="kn">import</span> <span class="n">PredictionJobDataClass</span>
+
+<span class="n">pj</span> <span class="o">=</span> <span class="n">PredictionJobDataClass</span><span class="p">(</span>
+    <span class="nb">id</span><span class="o">=</span><span class="mi">287</span><span class="p">,</span>
+    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;xgb&quot;</span><span class="p">,</span>
+    <span class="n">resolution_minutes</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span>
+    <span class="n">forecast_type</span><span class="o">=</span><span class="s2">&quot;demand&quot;</span><span class="p">,</span>
+    <span class="n">quantiles</span><span class="o">=</span><span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">70</span><span class="p">,</span> <span class="mi">90</span><span class="p">],</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>After (V4):</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.presets</span><span class="w"> </span><span class="kn">import</span> <span class="n">ForecastingWorkflowConfig</span>
+
+<span class="n">config</span> <span class="o">=</span> <span class="n">ForecastingWorkflowConfig</span><span class="p">(</span>
+    <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;loc_287&quot;</span><span class="p">,</span>
+    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;xgboost&quot;</span><span class="p">,</span>
+    <span class="n">sample_interval</span><span class="o">=</span><span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="mi">15</span><span class="p">),</span>
+    <span class="n">quantiles</span><span class="o">=</span><span class="p">[</span><span class="n">Q</span><span class="p">(</span><span class="mf">0.1</span><span class="p">),</span> <span class="n">Q</span><span class="p">(</span><span class="mf">0.3</span><span class="p">),</span> <span class="n">Q</span><span class="p">(</span><span class="mf">0.5</span><span class="p">),</span> <span class="n">Q</span><span class="p">(</span><span class="mf">0.7</span><span class="p">),</span> <span class="n">Q</span><span class="p">(</span><span class="mf">0.9</span><span class="p">)],</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Key improvements:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../../api/generated/openstef_models.presets.ForecastingWorkflowConfig.html#openstef_models.presets.ForecastingWorkflowConfig" title="openstef_models.presets.ForecastingWorkflowConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">ForecastingWorkflowConfig</span></code></a> uses Pydantic v2 with
+strict validation. Configuration errors surface immediately at construction time.</p></li>
+<li><p>Model types, quantiles, and durations use constrained types with IDE autocompletion.</p></li>
+<li><p>Location, horizon, and hyperparameter settings are structured sub-objects with their
+own validation and defaults.</p></li>
+</ul>
+<div class="pst-scrollable-table-container"><table class="table" id="id2">
+<caption><span class="caption-text">Field Mapping</span><a class="headerlink" href="#id2" title="Link to this table">#</a></caption>
+<colgroup>
+<col style="width: 35.0%" />
+<col style="width: 35.0%" />
+<col style="width: 30.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>V3 (<code class="docutils literal notranslate"><span class="pre">PredictionJobDataClass</span></code>)</p></th>
+<th class="head"><p>V4 (<code class="docutils literal notranslate"><span class="pre">ForecastingWorkflowConfig</span></code>)</p></th>
+<th class="head"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">id</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">model_id</span></code></p></td>
+<td><p>Now <code class="docutils literal notranslate"><span class="pre">ModelIdentifier</span></code> type</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">model</span></code> (free string)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">model</span></code> (Literal)</p></td>
+<td><p>Validated; see Model Types below</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">model_kwargs</span></code> (dict)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">xgboost_hyperparams</span></code> / <code class="docutils literal notranslate"><span class="pre">gblinear_hyperparams</span></code> / etc.</p></td>
+<td><p>Per-model typed config objects</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">resolution_minutes</span></code> (int)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">sample_interval</span></code> (timedelta)</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">horizon_minutes</span></code> (int)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">horizons</span></code> (list[LeadTime])</p></td>
+<td><p>Supports multiple horizons</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">lat</span></code> / <code class="docutils literal notranslate"><span class="pre">lon</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">location.coordinate</span></code></p></td>
+<td><p>Structured LocationConfig sub-object</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">name</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">location.name</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">quantiles</span></code> (list[float])</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">quantiles</span></code> (list[Quantile])</p></td>
+<td><p>Always set; default <code class="docutils literal notranslate"><span class="pre">[0.5]</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">completeness_threshold</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">completeness_threshold</span></code></p></td>
+<td><p>Same name and semantics</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">flatliner_threshold_minutes</span></code> (int)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">flatliner_threshold</span></code> (timedelta)</p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">detect_non_zero_flatliner</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">detect_non_zero_flatliner</span></code></p></td>
+<td><p>Unchanged</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">predict_non_zero_flatliner</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">predict_nonzero_flatliner</span></code></p></td>
+<td><p>Slight rename (no underscore in “nonzero”)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rolling_aggregate_features</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">rolling_aggregate_features</span></code></p></td>
+<td><p>Unchanged</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">forecast_type</span></code></p></td>
+<td><p>Removed</p></td>
+<td><p>Handled by model choice + transforms</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">electricity_bidding_zone</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">location.country_code</span></code></p></td>
+<td><p>Simplified</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">train_split_func</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">data_splitter</span></code></p></td>
+<td><p>Structured config</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">depends_on</span></code></p></td>
+<td><p>Removed</p></td>
+<td><p>User manages orchestration</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pipelines_to_run</span></code></p></td>
+<td><p>Removed</p></td>
+<td><p>Call workflow methods directly</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">default_modelspecs</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">selected_features</span></code></p></td>
+<td><p>Feature selection via enum</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>See the <a class="reference internal" href="../../api/generated/openstef_models.presets.ForecastingWorkflowConfig.html#openstef_models.presets.ForecastingWorkflowConfig" title="openstef_models.presets.ForecastingWorkflowConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">ForecastingWorkflowConfig</span></code></a> API reference for
+the full list of fields and defaults.</p>
+</section>
+<section id="data-handling">
+<h2>Data Handling<a class="headerlink" href="#data-handling" title="Link to this heading">#</a></h2>
+<p>V4 introduces <a class="reference internal" href="../../api/generated/openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeSeriesDataset</span></code></a>,
+which carries the data <strong>and</strong> its metadata together. In v3, metadata like sample
+interval and column roles lived separately in the prediction job.</p>
+<p>Benefits of <code class="docutils literal notranslate"><span class="pre">TimeSeriesDataset</span></code>:</p>
+<ul class="simple">
+<li><p><strong>Sample interval</strong> – validated on construction, ensuring consistent resampling.</p></li>
+<li><p><strong>Availability windows</strong> – tracks when each observation became available (critical
+for correct backtesting without lookahead).</p></li>
+<li><p><strong>Versioning</strong> – supports horizon-aware or <code class="docutils literal notranslate"><span class="pre">available_at</span></code>-aware slicing.</p></li>
+</ul>
+<p><strong>Before (V3):</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="n">input_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;data.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">,</span> <span class="n">parse_dates</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">train_model_pipeline</span><span class="p">(</span><span class="n">pj</span><span class="p">,</span> <span class="n">input_data</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>After (V4):</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">TimeSeriesDataset</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;data.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">,</span> <span class="n">parse_dates</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">TimeSeriesDataset</span><span class="p">(</span>
+    <span class="n">data</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
+    <span class="n">sample_interval</span><span class="o">=</span><span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="mi">15</span><span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>The dataset is then passed to workflows which can introspect its properties without
+external configuration.</p>
+</section>
+<section id="workflows">
+<h2>Workflows<a class="headerlink" href="#workflows" title="Link to this heading">#</a></h2>
+<p>V4 unifies the v3 concepts of “tasks” (database-coupled orchestration) and
+“pipelines” (ML logic) into a single concept: <strong>Workflows</strong>. A workflow encapsulates
+the full train/predict cycle without assuming any particular storage backend.</p>
+<div class="pst-scrollable-table-container"><table class="table" id="id3">
+<caption><span class="caption-text">API Mapping</span><a class="headerlink" href="#id3" title="Link to this table">#</a></caption>
+<colgroup>
+<col style="width: 50.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>V3</p></th>
+<th class="head"><p>V4</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">train_model_pipeline(pj,</span> <span class="pre">data)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">workflow.fit(dataset)</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">create_forecast(pj,</span> <span class="pre">data)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">workflow.predict(dataset)</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>Task (fetch -&gt; pipeline -&gt; store)</p></td>
+<td><p>User code + workflow (you own I/O)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>A <strong>Preset</strong> is a factory that builds a fully configured workflow from a config object:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.presets</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_forecasting_workflow</span><span class="p">,</span> <span class="n">ForecastingWorkflowConfig</span>
+
+<span class="n">config</span> <span class="o">=</span> <span class="n">ForecastingWorkflowConfig</span><span class="p">(</span>
+    <span class="n">model_id</span><span class="o">=</span><span class="s2">&quot;loc_287&quot;</span><span class="p">,</span>
+    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;xgboost&quot;</span><span class="p">,</span>
+    <span class="n">sample_interval</span><span class="o">=</span><span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="mi">15</span><span class="p">),</span>
+    <span class="n">quantiles</span><span class="o">=</span><span class="p">[</span><span class="n">Q</span><span class="p">(</span><span class="mf">0.1</span><span class="p">),</span> <span class="n">Q</span><span class="p">(</span><span class="mf">0.5</span><span class="p">),</span> <span class="n">Q</span><span class="p">(</span><span class="mf">0.9</span><span class="p">)],</span>
+<span class="p">)</span>
+
+<span class="n">workflow</span> <span class="o">=</span> <span class="n">create_forecasting_workflow</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+
+<span class="c1"># Training</span>
+<span class="n">workflow</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+
+<span class="c1"># Prediction</span>
+<span class="n">forecast</span> <span class="o">=</span> <span class="n">workflow</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="../../api/generated/openstef_models.presets.create_forecasting_workflow.html#openstef_models.presets.create_forecasting_workflow" title="openstef_models.presets.create_forecasting_workflow"><code class="xref py py-func docutils literal notranslate"><span class="pre">create_forecasting_workflow()</span></code></a> assembles preprocessing,
+the forecaster, postprocessing, and callbacks into a
+<code class="xref py py-class docutils literal notranslate"><span class="pre">CustomForecastingWorkflow</span></code>.</p>
+<p>For ensemble approaches, <code class="docutils literal notranslate"><span class="pre">openstef-meta</span></code> provides
+<a class="reference internal" href="../../api/generated/openstef_meta.presets.forecasting_workflow.create_ensemble_forecasting_workflow.html#openstef_meta.presets.forecasting_workflow.create_ensemble_forecasting_workflow" title="openstef_meta.presets.forecasting_workflow.create_ensemble_forecasting_workflow"><code class="xref py py-func docutils literal notranslate"><span class="pre">create_ensemble_forecasting_workflow()</span></code></a>.</p>
+<p>See <a class="reference internal" href="../guides/forecasting.html"><span class="doc">Forecasting</span></a> for a complete walkthrough.</p>
+</section>
+<section id="model-types">
+<h2>Model Types<a class="headerlink" href="#model-types" title="Link to this heading">#</a></h2>
+<p>Model identifiers changed for clarity. Quantile variants are no longer separate model
+types; configure quantiles via the <code class="docutils literal notranslate"><span class="pre">quantiles</span></code> field instead.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 30.0%" />
+<col style="width: 40.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>V3</p></th>
+<th class="head"><p>V4</p></th>
+<th class="head"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;xgb&quot;</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;xgboost&quot;</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;xgb_quantile&quot;</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;xgboost&quot;</span></code></p></td>
+<td><p>Quantiles now in config, not model name</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;xgb_multioutput_quantile&quot;</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;xgboost&quot;</span></code></p></td>
+<td><p>Same</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;lgb&quot;</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;lgbm&quot;</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;linear&quot;</span></code></p></td>
+<td><p>Removed</p></td>
+<td><p>Use <code class="docutils literal notranslate"><span class="pre">&quot;gblinear&quot;</span></code> instead</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;linear_quantile&quot;</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;gblinear&quot;</span></code></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;gblinear_quantile&quot;</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;gblinear&quot;</span></code></p></td>
+<td><p>Quantiles now in config</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;flatliner&quot;</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;flatliner&quot;</span></code></p></td>
+<td><p>Unchanged</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;median&quot;</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;median&quot;</span></code></p></td>
+<td><p>Unchanged</p></td>
+</tr>
+<tr class="row-odd"><td><p>(new)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;constant_quantile&quot;</span></code></p></td>
+<td><p>Fallback model for low-data situations</p></td>
+</tr>
+<tr class="row-even"><td><p>(new)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&quot;lgbmlinear&quot;</span></code></p></td>
+<td><p>LightGBM with linear learner</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="reference-implementation">
+<span id="migration-dbc"></span><h2>Reference Implementation<a class="headerlink" href="#reference-implementation" title="Link to this heading">#</a></h2>
+<p>In v3, <code class="docutils literal notranslate"><span class="pre">openstef-dbc</span></code> provided scheduling, database integration, and orchestration.
+V4 focuses on the core ML libraries and leaves integration to the user.</p>
+<p>The <a class="reference external" href="https://github.com/OpenSTEF/openstef-reference">openstef-reference</a> repository
+demonstrates how a complete v3 system was deployed (scheduling, data
+integration, and storage). For v4 deployment patterns, see
+<a class="reference internal" href="../guides/deployment.html"><span class="doc">Deployment</span></a> instead.</p>
+<p>If your v3 code relied on <code class="docutils literal notranslate"><span class="pre">openstef-dbc</span></code>:</p>
+<ol class="arabic simple">
+<li><p><strong>Data ingestion</strong> – write an adapter that loads data into
+<a class="reference internal" href="../../api/generated/openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeSeriesDataset</span></code></a>.</p></li>
+<li><p><strong>Result storage</strong> – extract forecasts from the workflow output and write them to
+your database of choice.</p></li>
+<li><p><strong>Configuration storage</strong> – serialize
+<a class="reference internal" href="../../api/generated/openstef_models.presets.ForecastingWorkflowConfig.html#openstef_models.presets.ForecastingWorkflowConfig" title="openstef_models.presets.ForecastingWorkflowConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">ForecastingWorkflowConfig</span></code></a> to/from your config
+store (JSON, YAML, database row).</p></li>
+</ol>
+</section>
 </section>
 
 
@@ -537,6 +864,23 @@
 
 
   <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#package-structure">Package Structure</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration">Configuration</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#data-handling">Data Handling</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#workflows">Workflows</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#model-types">Model Types</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#reference-implementation">Reference Implementation</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
 
   
   <div class="tocsection editthispage">
@@ -577,7 +921,7 @@
 
   <p class="copyright">
     
-      © Copyright 2017-2025 Contributors to the OpenSTEF project.
+      © Copyright 2017-2026 Contributors to the OpenSTEF project.
       <br/>
     
   </p>

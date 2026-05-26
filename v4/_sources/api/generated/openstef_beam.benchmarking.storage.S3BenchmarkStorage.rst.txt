@@ -10,3 +10,5 @@ S3BenchmarkStorage
 .. autoclass:: S3BenchmarkStorage
    :show-inheritance:
    :members:
+   :special-members: __init__
+   :no-index:

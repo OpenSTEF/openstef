@@ -10,3 +10,5 @@ QuantileProbabilityVisualization
 .. autoclass:: QuantileProbabilityVisualization
    :show-inheritance:
    :members:
+   :special-members: __init__
+   :no-index:

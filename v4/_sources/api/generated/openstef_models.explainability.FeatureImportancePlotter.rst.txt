@@ -10,3 +10,4 @@ FeatureImportancePlotter
 .. autoclass:: FeatureImportancePlotter
    :show-inheritance:
    :members:
+   :special-members: __init__

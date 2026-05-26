@@ -10,3 +10,4 @@ Window
 .. autoclass:: Window
    :show-inheritance:
    :members:
+   :special-members: __init__

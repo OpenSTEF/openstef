@@ -10,3 +10,4 @@ BenchmarkTarget
 .. autoclass:: BenchmarkTarget
    :show-inheritance:
    :members:
+   :special-members: __init__

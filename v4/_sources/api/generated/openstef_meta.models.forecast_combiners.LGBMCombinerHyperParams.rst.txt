@@ -10,3 +10,5 @@ LGBMCombinerHyperParams
 .. autoclass:: LGBMCombinerHyperParams
    :show-inheritance:
    :members:
+   :special-members: __init__
+   :no-index:

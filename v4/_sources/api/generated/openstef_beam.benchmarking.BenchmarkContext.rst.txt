@@ -10,3 +10,4 @@ BenchmarkContext
 .. autoclass:: BenchmarkContext
    :show-inheritance:
    :members:
+   :special-members: __init__

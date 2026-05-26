@@ -19,12 +19,31 @@ models
 
 
 
+
+
+Submodules
+----------
+
+
+.. autosummary::
+   :toctree: .
+   :template: module_overview.rst
+
+   openstef_beam.evaluation.models.report
+   openstef_beam.evaluation.models.subset
+   openstef_beam.evaluation.models.window
+
+
+
+
+
+
 Classes
 -------
 
 .. autosummary::
    :toctree: .
-   :template: custom_class.rst
+   :template: custom_class_noindex.rst
 
    EvaluationReport
    EvaluationSubsetReport

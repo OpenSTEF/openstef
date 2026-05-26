@@ -10,3 +10,4 @@ AnalysisScope
 .. autoclass:: AnalysisScope
    :show-inheritance:
    :members:
+   :special-members: __init__

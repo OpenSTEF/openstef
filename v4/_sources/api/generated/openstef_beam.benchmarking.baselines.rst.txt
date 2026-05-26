@@ -15,3 +15,25 @@ baselines
 
 
 
+
+
+
+
+
+
+Submodules
+----------
+
+
+.. autosummary::
+   :toctree: .
+   :template: module_overview.rst
+
+   openstef_beam.benchmarking.baselines.openstef4
+
+
+
+
+
+
+
