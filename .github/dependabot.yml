@@ -5,9 +5,10 @@
 #
 # Goals:
 #  - Reduce PR volume (was ~1 PR per package per advisory) by grouping
-#    patch+minor bumps weekly.
-#  - Keep security visible: separate `applies-to: security-updates`
-#    groups so they don't get buried in dev bundles.
+#    patch+minor bumps into daily bundles.
+#  - Keep security visible and fast: separate `applies-to: security-updates`
+#    groups land within ~24h on the daily cadence rather than waiting
+#    up to a week.
 #  - Major bumps stay individual — they often need code changes.
 #
 # Block layout:
@@ -17,7 +18,7 @@
 #    members put sphinx/jupyter under `dependencies`, so the
 #    production/development filter doesn't separate them usefully —
 #    everything in these roots is treated as docs/example tooling.
-#  - Block 3: GitHub Actions, single grouped weekly PR.
+#  - Block 3: GitHub Actions, single grouped daily PR.
 
 version: 2
 
@@ -33,8 +34,7 @@ updates:
       - "/packages/openstef-meta"
       - "/packages/openstef-models"
     schedule:
-      interval: weekly
-      day: monday
+      interval: daily
       time: "06:00"
       timezone: Europe/Amsterdam
     open-pull-requests-limit: 10
@@ -72,8 +72,7 @@ updates:
       - "/docs"
       - "/examples"
     schedule:
-      interval: weekly
-      day: monday
+      interval: daily
       time: "06:00"
       timezone: Europe/Amsterdam
     open-pull-requests-limit: 5
@@ -102,8 +101,7 @@ updates:
   - package-ecosystem: github-actions
     directory: "/"
     schedule:
-      interval: weekly
-      day: monday
+      interval: daily
       time: "06:00"
       timezone: Europe/Amsterdam
     open-pull-requests-limit: 5
