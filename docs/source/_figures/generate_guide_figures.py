@@ -37,6 +37,12 @@ from pathlib import Path
 OUTPUT_DIR = Path(__file__).resolve().parent.parent / "images" / "guides"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
+# Axis labels reused across figures.
+AXIS_TIME = "Time"
+AXIS_LOAD_MW = "Load (MW)"
+AXIS_DATETIME_UTC = "Datetime [UTC]"
+AXIS_LOAD_BRACKETS = "Load [MW]"
+
 # %% [markdown]
 # ## Figure 1: Quantile fan chart (probabilistic forecast output)
 #
@@ -98,8 +104,8 @@ plotter.add_model(
 fig = plotter.plot()
 fig.update_layout(
     title="Probabilistic forecast: median plus seven quantile bands",
-    xaxis_title="Time",
-    yaxis_title="Load (MW)",
+    xaxis_title=AXIS_TIME,
+    yaxis_title=AXIS_LOAD_MW,
     height=400,
     width=900,
 )
@@ -253,8 +259,8 @@ ax.text(
 ax.set_xlim(window_start, window_end)
 ax.xaxis.set_major_formatter(mdates.DateFormatter("%b %d"))
 ax.xaxis.set_major_locator(mdates.DayLocator(interval=1))
-ax.set_xlabel("Datetime [UTC]")
-ax.set_ylabel("Load [MW]")
+ax.set_xlabel(AXIS_DATETIME_UTC)
+ax.set_ylabel(AXIS_LOAD_BRACKETS)
 ax.set_title(
     "Flatline scenario: primary model versus FlatlinerForecaster",
     fontsize=11, fontweight="bold",

@@ -36,6 +36,12 @@ from pathlib import Path
 OUTPUT_DIR = Path(__file__).resolve().parent.parent / "images" / "concepts"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
+# Axis labels reused across figures.
+AXIS_TIME = "Time"
+AXIS_LOAD_MW = "Load (MW)"
+AXIS_DATETIME_UTC = "Datetime [UTC]"
+AXIS_LOAD_BRACKETS = "Load [MW]"
+
 # %% [markdown]
 # ## Figure 1: Weekly Load Profile
 #
@@ -58,8 +64,8 @@ plotter.add_measurements(measurements=week_data)
 fig = plotter.plot()
 fig.update_layout(
     title="Substation Load Profile: One Week at 15-Minute Resolution",
-    xaxis_title="Time",
-    yaxis_title="Load (MW)",
+    xaxis_title=AXIS_TIME,
+    yaxis_title=AXIS_LOAD_MW,
     height=400,
     width=900,
 )
@@ -122,8 +128,8 @@ plotter.add_model(
 fig = plotter.plot()
 fig.update_layout(
     title="7-Day Forecast with Confidence Bands (GBLinear, 36h horizon)",
-    xaxis_title="Time",
-    yaxis_title="Load (MW)",
+    xaxis_title=AXIS_TIME,
+    yaxis_title=AXIS_LOAD_MW,
     height=400,
     width=900,
 )
@@ -180,8 +186,8 @@ fig.update_layout(
     showlegend=False,
 )
 fig.update_yaxes(title_text="Generation (norm.)", row=1, col=1)
-fig.update_yaxes(title_text="Load (MW)", row=2, col=1)
-fig.update_xaxes(title_text="Time", row=2, col=1)
+fig.update_yaxes(title_text=AXIS_LOAD_MW, row=2, col=1)
+fig.update_xaxes(title_text=AXIS_TIME, row=2, col=1)
 
 fig.write_image(str(OUTPUT_DIR / "aggregation_comparison.svg"))
 print(f"Saved: {OUTPUT_DIR / 'aggregation_comparison.svg'}")
@@ -320,8 +326,8 @@ def draw_frame(frame_idx):
     ax.set_ylim(y_min - y_pad, y_max + y_pad)
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%b %d"))
     ax.xaxis.set_major_locator(mdates.DayLocator(interval=4))
-    ax.set_xlabel("Datetime [UTC]")
-    ax.set_ylabel("Load [MW]")
+    ax.set_xlabel(AXIS_DATETIME_UTC)
+    ax.set_ylabel(AXIS_LOAD_BRACKETS)
     ax.set_title("BEAM Backtesting: Event-Driven Simulation", fontsize=11, fontweight="bold")
 
     # Legend
