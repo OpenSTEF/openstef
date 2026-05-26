@@ -30,7 +30,7 @@ from sync_sources import sync as _sync_sources  # noqa: E402
 from autosummary_helpers import DiscoverSubmodules  # noqa: E402
 
 project = "OpenSTEF"
-copyright = "2017-2025 Contributors to the OpenSTEF project"
+copyright = "2017-2026 Contributors to the OpenSTEF project"
 author = "Contributors to the OpenSTEF project"
 
 # -- General configuration ---------------------------------------------------

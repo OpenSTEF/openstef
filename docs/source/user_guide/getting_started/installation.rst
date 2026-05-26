@@ -39,6 +39,8 @@ OpenSTEF 4.0 follows a modular design with specialized packages:
      - Core ML models, feature engineering, and data processing
    * - ``openstef-beam``
      - Backtesting, Evaluation, Analysis, and Metrics (BEAM)
+   * - ``openstef-meta``
+     - Meta-models for combining and stacking forecasts (ensembles, weighted blends)
 
 Quick Installation
 ==================
@@ -326,7 +328,7 @@ macOS
 -----
 
 * Most installations work out of the box
-* For Apple Silicon (M1/M2), ensure you're using compatible wheel distributions
+* For Apple Silicon, ensure you're using compatible wheel distributions
 
 Linux
 -----

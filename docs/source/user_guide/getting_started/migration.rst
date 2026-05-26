@@ -305,8 +305,9 @@ In v3, ``openstef-dbc`` provided scheduling, database integration, and orchestra
 V4 focuses on the core ML libraries and leaves integration to the user.
 
 The `openstef-reference <https://github.com/OpenSTEF/openstef-reference>`_ repository
-demonstrates how to build a complete system with scheduling, data integration, and
-storage around the v4 libraries.
+demonstrates how a complete v3 system was deployed (scheduling, data
+integration, and storage). For v4 deployment patterns, see
+:doc:`/user_guide/guides/deployment` instead.
 
 If your v3 code relied on ``openstef-dbc``:
 

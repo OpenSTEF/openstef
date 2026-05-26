@@ -16,7 +16,7 @@ This project is licensed under the Mozilla Public License, version 2.0 - see LIC
 License agreement
 =================
 
-.. dropdown:: License agreement for OpenSTEF and later
+.. dropdown:: License agreement for OpenSTEF
    :open:
    :class-container: sdd
 

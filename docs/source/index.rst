@@ -16,7 +16,6 @@
    API <api/index>
    Community <project/index>
    Contributing <contribute/index>
-   changelog
 
 ##################################
 OpenSTEF 4.0.0 documentation
@@ -132,8 +131,8 @@ What's new
        Learn about new features and API changes.
 
     .. grid-item::
-        
-        * :doc:`changelog`
+
+        * `Release notes on GitHub <https://github.com/OpenSTEF/openstef/releases>`_
 
 Contribute
 ==========
