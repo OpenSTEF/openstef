@@ -35,3 +35,4 @@ If you found a bug or would like to request a feature, please `open an issue <ht
 During the four-weekly community meetings, we discuss progress, refine open issues, and explore collaboration possibilities. This meeting is open for anyone that is interested. More details and meeting links can be found in the `community meetings documentation <https://wiki.lfenergy.org/display/OS/Biweekly+Refinement>`_.
 
 .. include:: support.rst
+   :start-after: .. _support:

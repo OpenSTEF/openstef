@@ -340,7 +340,7 @@ Next Steps
 
 .. seealso::
 
-   - :doc:`quick_start` to get started with your first forecast.
+   - :doc:`quick_start_tutorial` to get started with your first forecast.
    - :doc:`/examples` for hands-on examples.
    - :doc:`/api/index` for detailed API documentation.
    - :doc:`/user_guide/concepts/index` to understand OpenSTEF's capabilities.

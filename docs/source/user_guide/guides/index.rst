@@ -27,7 +27,7 @@ Step-by-step instructions for common OpenSTEF tasks.
         Create, select, and manage features for your models.
 
     .. grid-item-card:: :fa:`database` Datasets
-        :link: datasets
+        :link: datasets_tutorial
         :link-type: doc
 
         Prepare and validate input data for training and prediction.
