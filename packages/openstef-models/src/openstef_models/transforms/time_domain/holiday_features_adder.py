@@ -147,8 +147,7 @@ def get_holiday_names(
     return sorted([
         sanitize_holiday_name(holiday_name)
         for holiday_name in set(country_holidays.values())
-        if sanitize_holiday_name(holiday_name)
-        and sanitize_holiday_name(holiday_name) not in reserved_features
+        if sanitize_holiday_name(holiday_name) and sanitize_holiday_name(holiday_name) not in reserved_features
     ])
 
 
