@@ -7,8 +7,12 @@
 #  - Reduce PR volume (was ~1 PR per package per advisory) by grouping
 #    patch+minor bumps into daily bundles.
 #  - Keep security visible and fast: separate `applies-to: security-updates`
-#    groups land within ~24h on the daily cadence rather than waiting
-#    up to a week.
+#    groups land within ~24h on the daily cadence. `cooldown` does NOT
+#    apply to security updates, so CVE fixes are never throttled.
+#  - Supply-chain hardening via `cooldown`: a brand-new release waits a
+#    few days before Dependabot proposes a bump, which gives the
+#    community time to surface malicious or broken releases (e.g.
+#    xz-utils 2024, tj-actions/changed-files 2025).
 #  - Major bumps stay individual — they often need code changes.
 #
 # Block layout:
@@ -26,7 +30,7 @@ updates:
   # ---------------------------------------------------------------------
   # Block 1 — Published packages (runtime + dev tooling at root)
   # ---------------------------------------------------------------------
-  - package-ecosystem: pip
+  - package-ecosystem: uv
     directories:
       - "/"
       - "/packages/openstef-beam"
@@ -45,6 +49,13 @@ updates:
     labels:
       - dependencies
       - python:uv
+    # Cooldown applies to version-updates only. Security-updates bypass
+    # it entirely so CVE patches are never delayed.
+    cooldown:
+      default-days: 3
+      semver-patch-days: 2
+      semver-minor-days: 5
+      semver-major-days: 7
     groups:
       python-security:
         applies-to: security-updates
@@ -67,7 +78,7 @@ updates:
   # ---------------------------------------------------------------------
   # Block 2 — Internal tooling: docs and examples
   # ---------------------------------------------------------------------
-  - package-ecosystem: pip
+  - package-ecosystem: uv
     directories:
       - "/docs"
       - "/examples"
@@ -83,6 +94,11 @@ updates:
       - dependencies
       - python:uv
       - documentation
+    cooldown:
+      default-days: 3
+      semver-patch-days: 2
+      semver-minor-days: 5
+      semver-major-days: 7
     groups:
       python-tooling-security:
         applies-to: security-updates
@@ -111,6 +127,14 @@ updates:
     labels:
       - dependencies
       - github-actions
+    # Actions are SHA-pinned but cooldown still helps catch incidents
+    # like tj-actions/changed-files (March 2025) where a compromised
+    # action was published and detected within days.
+    cooldown:
+      default-days: 3
+      semver-patch-days: 2
+      semver-minor-days: 5
+      semver-major-days: 7
     groups:
       actions-all:
         patterns:
