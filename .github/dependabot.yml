@@ -62,4 +62,5 @@ updates:
       semver-minor-days: 5
       semver-major-days: 7
     groups:
-      actions-all: {}
+      actions-all:
+        patterns: ["*"]
