@@ -58,7 +58,7 @@ class ConstantComponentSplitter(ComponentSplitter):
     provided ratios.
 
     Example:
-        Basic usage with known solar/wind distribution:
+        Basic usage with known solar/wind distribution
 
         >>> from openstef_core.types import EnergyComponentType
         >>> config = ConstantComponentSplitterConfig(
@@ -72,7 +72,7 @@ class ConstantComponentSplitter(ComponentSplitter):
         >>> splitter = ConstantComponentSplitter(config)
         >>> components = splitter.predict(time_series_data) # doctest: +SKIP
 
-        Using predefined configurations:
+        Using predefined configurations
 
         >>> solar_splitter = ConstantComponentSplitter.known_solar_park()
         >>> wind_splitter = ConstantComponentSplitter.known_wind_farm()

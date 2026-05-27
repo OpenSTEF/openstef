@@ -34,7 +34,7 @@ class LGBMLinearHyperParams(HyperParams):
     """LGBMLinear hyperparameters for gradient boosting tree models with linear leaves.
 
     Example:
-        Creating custom hyperparameters for deep trees with regularization:
+        Creating custom hyperparameters for deep trees with regularization
 
         >>> hyperparams = LGBMLinearHyperParams(
         ...     n_estimators=200,
@@ -143,7 +143,7 @@ class LGBMLinearForecaster(Forecaster, ExplainableForecaster, ContributionsMixin
         - Input features must match training data structure during prediction
 
     Example:
-        Basic forecasting workflow:
+        Basic forecasting workflow
 
         >>> from datetime import timedelta
         >>> from openstef_core.types import LeadTime, Quantile

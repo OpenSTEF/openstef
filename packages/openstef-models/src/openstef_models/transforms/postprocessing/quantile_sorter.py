@@ -29,7 +29,7 @@ class QuantileSorter(Transform[ForecastDataset, ForecastDataset]):
     The transform is stateless and requires no fitting.
 
     Example:
-        Basic usage with a forecast dataset:
+        Basic usage with a forecast dataset
 
         >>> import pandas as pd
         >>> from datetime import timedelta

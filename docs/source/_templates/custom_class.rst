@@ -10,3 +10,4 @@
 .. autoclass:: {{ objname }}
    :show-inheritance:
    :members:
+   :special-members: __init__

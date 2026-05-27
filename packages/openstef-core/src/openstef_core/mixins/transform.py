@@ -36,7 +36,7 @@ class Transform[I, O](Stateful):
     and the state management methods from Stateful.
 
     Example:
-        Implementing a simple scaling transform:
+        Implementing a simple scaling transform
 
         >>> from openstef_core.datasets import TimeSeriesDataset
         >>> class ScaleTransform(Transform[TimeSeriesDataset, TimeSeriesDataset]):
@@ -115,7 +115,7 @@ class TransformPipeline[T](BaseModel, Transform[T, T]):
         - Pipeline is considered fitted only when all transforms are fitted
 
     Example:
-        Creating and using a transformation pipeline:
+        Creating and using a transformation pipeline
 
         >>> from openstef_core.datasets import TimeSeriesDataset
         >>> # Create an empty pipeline

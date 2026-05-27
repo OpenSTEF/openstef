@@ -37,7 +37,7 @@ class Predictor[I, O](Stateful):
     and the state management methods from Stateful.
 
     Example:
-        Implementing a simple linear predictor:
+        Implementing a simple linear predictor
 
         >>> class LinearPredictor(Predictor[list[float], float]):
         ...     def __init__(self):
@@ -129,7 +129,7 @@ class BatchPredictor[I, O](Predictor[I, O]):
     the predict_batch method appropriately.
 
     Example:
-        Implementing a batch linear predictor:
+        Implementing a batch linear predictor
 
         >>> class BatchLinearPredictor(BatchPredictor[list[float], float]):
         ...     def __init__(self):

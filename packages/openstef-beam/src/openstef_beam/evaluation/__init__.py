@@ -10,6 +10,7 @@ filtering for specific conditions (like weekends or peak hours), and organizing
 everything into clear reports.
 
 What it handles:
+
     - Time windows: Compare performance across days, weeks, seasons
     - Lead times: Evaluate how accuracy changes from 1-hour to 48-hour forecasts
     - Data filtering: Focus on specific conditions (peaks, weekdays, etc.)

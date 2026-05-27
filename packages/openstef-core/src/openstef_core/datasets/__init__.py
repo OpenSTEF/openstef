@@ -9,6 +9,7 @@ It includes both simple time series datasets and versioned datasets that track d
 over time, enabling realistic backtesting and training and forecasting.
 
 The module supports:
+
     - Regular time series with consistent sampling intervals
     - Versioned time series that track when data became available
     - Validated datasets with domain-specific constraints

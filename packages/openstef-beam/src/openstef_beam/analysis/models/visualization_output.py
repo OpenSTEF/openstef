@@ -26,7 +26,7 @@ class VisualizationOutput:
     HTML content for static displays.
 
     Example:
-        Creating a visualization from a Plotly figure:
+        Creating a visualization from a Plotly figure
 
         >>> import plotly.graph_objects as go
         >>> fig = go.Figure(data=go.Scatter(x=[1, 2, 3], y=[4, 5, 6]))

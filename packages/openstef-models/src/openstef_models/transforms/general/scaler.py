@@ -32,6 +32,7 @@ class Scaler(BaseConfig, TimeSeriesTransform):
     """Transform that scales time series data using various scikit-learn scaling methods.
 
     Available methods include:
+
         - MinMaxScaler: Scales features based on min/max of training set (between 0 and 1).
         - MaxAbs: Scales features by their maximum absolute value (between -1 and 1).
         - Standard: Standardizes features by removing the mean and scaling to unit variance (0 mean, 1 std).

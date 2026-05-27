@@ -60,15 +60,15 @@ logger = setup_notebook_logging(
 # ```
 #
 # **Key API references:**
-# [`IsotonicQuantileCalibrator`](https://openstef.github.io/openstef/v4/api/generated/openstef_models.transforms.postprocessing.IsotonicQuantileCalibrator.html)
-# · [`ForecastingWorkflowConfig`](https://openstef.github.io/openstef/v4/api/generated/openstef_models.presets.ForecastingWorkflowConfig.html)
+# [`IsotonicQuantileCalibrator`](https://openstef.github.io/openstef/api/generated/openstef_models.transforms.postprocessing.IsotonicQuantileCalibrator.html)
+# · [`ForecastingWorkflowConfig`](https://openstef.github.io/openstef/api/generated/openstef_models.presets.ForecastingWorkflowConfig.html)
 
 # %% [markdown]
 # ## Load data and train an uncalibrated model
 #
 # We start with the same GBLinear setup as the {doc}`forecasting_quickstart` and
 # measure how well its predicted quantiles match observed coverage.
-# The [`ForecastingWorkflowConfig`](https://openstef.github.io/openstef/v4/api/generated/openstef_models.presets.ForecastingWorkflowConfig.html)
+# The [`ForecastingWorkflowConfig`](https://openstef.github.io/openstef/api/generated/openstef_models.presets.ForecastingWorkflowConfig.html)
 # defines the model architecture and quantile levels.
 
 # %%
@@ -148,7 +148,7 @@ print(calibration_df.to_string(index=False))
 # %% [markdown]
 # ## Add isotonic calibration
 #
-# [`IsotonicQuantileCalibrator`](https://openstef.github.io/openstef/v4/api/generated/openstef_models.transforms.postprocessing.IsotonicQuantileCalibrator.html) is a postprocessing transform that learns a
+# [`IsotonicQuantileCalibrator`](https://openstef.github.io/openstef/api/generated/openstef_models.transforms.postprocessing.IsotonicQuantileCalibrator.html) is a postprocessing transform that learns a
 # monotonic mapping from predicted quantiles to observed quantile levels.
 # During training it fits on the validation split; during prediction it
 # corrects each quantile value.

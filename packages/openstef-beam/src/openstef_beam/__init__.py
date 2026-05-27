@@ -23,6 +23,7 @@ individual models to comparing multiple approaches across different energy targe
 predictions, critical for operational planning in energy systems.
 
 Use BEAM to:
+
     - Test models under realistic operational constraints
     - Compare forecasting approaches with versioned data integrity
     - Generate flexible reports tailored to your metrics and visualizations

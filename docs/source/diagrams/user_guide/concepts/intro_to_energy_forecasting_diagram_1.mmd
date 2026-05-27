@@ -1,0 +1,11 @@
+graph LR
+    A[15 min] --> B[1 hour] --> C[4 hours] --> D[24 hours] --> E[48 hours] --> F[7 days]
+    A -.->|"Real-time balancing"| G[Immediate Response]
+    B -.->|"Congestion mitigation"| H[Short-term Ops]
+    D -.->|"Transport planning"| I[Day-ahead Planning]
+    F -.->|"Capacity coordination"| J[Week-ahead Planning]
+    classDef primary fill:#00D9C5,stroke:#1E3A5F,stroke-width:2px,color:#000
+    classDef secondary fill:#1E3A5F,stroke:#00D9C5,stroke-width:2px,color:#fff
+    classDef accent fill:#e6f7f5,stroke:#00D9C5,stroke-width:2px,color:#000
+    class A,B,C,D,E,F primary
+    class G,H,I,J secondary

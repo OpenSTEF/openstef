@@ -34,12 +34,14 @@ class SummaryTableVisualization(VisualizationProvider):
     formatted overviews for reports and documentation.
 
     What you'll see:
+
     - Sortable columns showing metrics with mean, min, max, and median aggregations
     - Color-coded formatting for easy comparison
     - Automatic organization by quantiles (when applicable) and targets
     - Export-ready HTML format
 
     Aggregation behavior:
+
     - Single target: Simple metric table with quantile breakdown
     - Multiple targets: Comparative statistics across targets
     - Multiple runs: Model comparison with aggregated performance

@@ -35,7 +35,7 @@ class LeadTime(PydanticStringPrimitive):
     string representation for timedeltas in ISO 8601 format.
 
     Example:
-        Creating and using lead times:
+        Creating and using lead times
 
         >>> from datetime import timedelta
         >>> lt = LeadTime(timedelta(hours=6))
@@ -303,7 +303,7 @@ class Quantile(float):
     ``format()`` / ``parse()`` and ``to_percentile()`` / ``from_percentile()``.
 
     Example:
-        Creating and using quantiles:
+        Creating and using quantiles
 
         >>> q50 = Quantile(0.5)  # Median
         >>> q50.format()

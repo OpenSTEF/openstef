@@ -29,7 +29,7 @@ class GroupedTargetMetricPlotter:
     for different analysis needs.
 
     Example:
-        Basic usage comparing RMSE across targets:
+        Basic usage comparing RMSE across targets
 
         >>> plotter = GroupedTargetMetricPlotter()
         >>> _ = plotter.add_model("XGBoost",
@@ -42,7 +42,7 @@ class GroupedTargetMetricPlotter:
         >>> type(fig).__name__
         'Figure'
 
-        With target grouping:
+        With target grouping
 
         >>> plotter2 = GroupedTargetMetricPlotter()
         >>> _ = plotter2.add_model("XGBoost",

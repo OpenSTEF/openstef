@@ -27,7 +27,8 @@ class LocalBenchmarkStorage(BenchmarkStorage):
     structured directory hierarchy on the local file system. Supports conditional
     skipping of existing files to avoid redundant processing.
 
-    Directory structure:
+    Directory structure::
+
         base_path/
         ├── backtest/
         │   └── group_name/

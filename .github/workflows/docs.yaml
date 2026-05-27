@@ -2,11 +2,11 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-name: Deploy V4 Documentation
+name: Deploy Documentation
 
 on:
   push:
-    branches: [ release/v4.0.0 ]
+    branches: [ main ]
   workflow_dispatch:
 
 permissions:
@@ -15,18 +15,18 @@ permissions:
   id-token: write
 
 jobs:
-  deploy-v4-docs:
-    name: Build and Deploy V4 Documentation
+  deploy-docs:
+    name: Build and Deploy Documentation
     runs-on: ubuntu-latest
-    
+
     steps:
-      - name: Checkout release/v4.0.0 branch
+      - name: Checkout main
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           show-progress: false
       
       - name: Install uv
-        uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
+        uses: astral-sh/setup-uv@d0d8abe699bfb85fec6de9f7adb5ae17292296ff # v6
         with:
           activate-environment: true
           enable-cache: true
@@ -44,29 +44,38 @@ jobs:
           path: gh-pages-repo
           show-progress: false
       
-      - name: Update v4 documentation
+      - name: Update documentation
         run: |
-          # Create or update the v4 directory
-          mkdir -p gh-pages-repo/v4
-          
-          # Remove old v4 content and copy new content
-          rm -rf gh-pages-repo/v4/*
-          cp -r docs/build/html/* gh-pages-repo/v4/
+          # One-shot: archive the existing v3 site into /v3/ if not already done.
+          # Detected by absence of /v3/ and presence of index.html at the root.
+          if [ ! -d gh-pages-repo/v3 ] && [ -f gh-pages-repo/index.html ]; then
+            echo "Archiving existing v3 documentation to gh-pages-repo/v3/"
+            mkdir -p gh-pages-repo/v3
+            find gh-pages-repo -maxdepth 1 -mindepth 1 \
+              ! -name v3 ! -name v4 ! -name .git ! -name .nojekyll \
+              -exec mv {} gh-pages-repo/v3/ \;
+          fi
+
+          # Clear root (but preserve /v3/, /v4/, .git, .nojekyll) and deploy.
+          find gh-pages-repo -maxdepth 1 -mindepth 1 \
+            ! -name v3 ! -name v4 ! -name .git ! -name .nojekyll \
+            -exec rm -rf {} +
+          cp -r docs/build/html/. gh-pages-repo/
 
       - name: Configure git, stage, and commit changes
         run: |
             cd gh-pages-repo
-            
+
             # Configure git
             git config --local user.email "action@github.com"
             git config --local user.name "GitHub Action"
-            
+
             # Stage changes
-            git add v4/
-            
+            git add -A
+
             # Check if there are staged changes and commit if so
             if ! git diff --staged --quiet; then
-                git commit -m "Deploy v4.0.0 documentation from $(echo $GITHUB_SHA | cut -c1-7)"
+                git commit -m "Deploy documentation from $(echo $GITHUB_SHA | cut -c1-7)"
                 echo "✅ Changes committed successfully"
             else
                 echo "ℹ️ No changes to commit"

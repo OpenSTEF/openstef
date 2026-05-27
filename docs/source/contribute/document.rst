@@ -62,8 +62,77 @@ The built documentation will be available at ``docs/build/html/index.html``.
 
 .. note::
 
-    Building documentation requires additional dependencies that are included in the 
+    Building documentation requires additional dependencies that are included in the
     development environment. Make sure you've run ``uv sync --group dev`` first.
+
+How the documentation pipeline works
+====================================
+
+A ``poe docs`` invocation chains several stages. Knowing where each one lives
+helps when something goes wrong or when you want to extend the build.
+
+Tutorial and benchmark sync
+---------------------------
+
+The ``examples/tutorials/`` and ``examples/benchmarks/`` directories are the
+canonical home for runnable notebooks. Before Sphinx starts,
+:mod:`docs.sync_sources` copies them into ``docs/source/tutorials/`` and
+``docs/source/benchmarks/`` so Sphinx can pick them up. The script also embeds
+a few tutorials into the user-guide nav (for example,
+``examples/tutorials/feature_engineering.py`` is also synced to
+``docs/source/user_guide/guides/feature_engineering_tutorial.py``). The sync
+runs automatically during every build via ``conf.py``'s ``setup()`` hook.
+
+Notebook rendering with myst-nb
+-------------------------------
+
+Tutorial ``.py`` files are paired with ``.ipynb`` companions via
+`jupytext <https://jupytext.readthedocs.io/>`_. During the build,
+`myst-nb <https://myst-nb.readthedocs.io/>`_ executes the notebooks and
+embeds the outputs into the rendered pages. Execution results are cached
+under ``docs/build/.jupyter_cache``, so unchanged notebooks are not re-run
+on subsequent builds. Benchmarks under ``benchmarks/*/*`` are explicitly
+excluded from execution (they are too expensive to run on every build) and
+appear with the outputs that were saved when the notebook was last run by
+hand.
+
+Autosummary stub caching
+------------------------
+
+API reference pages are generated from package source code by
+:mod:`sphinx.ext.autosummary`. Running it across hundreds of modules is slow,
+so the custom :mod:`docs.autosummary_cache` extension tracks ``.py`` source
+mtimes against a stamp file (``docs/build/.autosummary_stamp``) and skips
+stub generation when nothing has changed. Delete the stamp file or any
+``packages/*/src`` source file to force a refresh.
+
+Concept and guide figures
+-------------------------
+
+Static figures used by concept and guide pages live in
+``docs/source/_figures/``. These are stand-alone scripts
+(``generate_concept_figures.py``, ``generate_guide_figures.py``) that train
+real models on the Liander dataset and write SVG/GIF outputs into
+``docs/source/images/``. They are **not** run by the normal docs build;
+the ``_figures/`` directory is excluded via ``exclude_patterns`` in
+``conf.py``. Regenerate by hand when you change the figures:
+
+.. code-block:: bash
+
+    uv run python docs/source/_figures/generate_concept_figures.py
+    uv run python docs/source/_figures/generate_guide_figures.py
+
+Each generated SVG/GIF needs a sibling ``.license`` sidecar for REUSE
+compliance; copy from an existing file when adding a new figure.
+
+CI deployment
+-------------
+
+The ``Deploy Documentation`` workflow in
+``.github/workflows/docs.yaml`` builds the docs on every push to
+``main`` and publishes them to the root of the ``gh-pages`` branch.
+CI uses the same ``poe docs`` invocation as local development, so a
+build that is clean locally should also be clean in CI.
 
 Writing docstrings
 ==================
@@ -399,7 +468,7 @@ files: a ``.py`` (percent format) source of truth and a ``.ipynb`` companion kep
 Key rules
 ---------
 
-* **Edit the** ``.py`` **file**, not the ``.ipynb`` — the script is the single source of truth.
+* **Edit the** ``.py`` **file**, not the ``.ipynb``; the script is the single source of truth.
 * **Never commit notebook outputs.** The ``.ipynb`` on ``main`` must be output-free.
 * Notebooks are rendered into the docs via `myst-nb <https://myst-nb.readthedocs.io/>`_ with
   cached execution (``nb_execution_mode = "cache"``).

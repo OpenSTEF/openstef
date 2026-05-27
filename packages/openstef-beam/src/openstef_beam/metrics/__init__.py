@@ -10,6 +10,7 @@ with particular focus on the operational challenges of energy systems like peak 
 and scale differences between high and low load periods.
 
 What you can measure:
+
     - Forecast accuracy: How close are predictions to actual values?
     - Peak detection: Can the model identify congestion events?
     - Uncertainty quality: For probabilistic forecasts, are confidence intervals reliable?

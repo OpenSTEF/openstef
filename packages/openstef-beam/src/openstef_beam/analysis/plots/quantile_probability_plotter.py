@@ -27,6 +27,7 @@ class QuantileProbabilityPlotter:
     - How well-calibrated are different quantile predictions?
 
     The plots show:
+
     - Scatter plots of forecasted vs observed probabilities
     - Perfect calibration diagonal line for reference
     - Model-specific calibration curves
@@ -36,7 +37,7 @@ class QuantileProbabilityPlotter:
     systematic deviations indicate bias in uncertainty estimation.
 
     Example:
-        Validating forecast calibration:
+        Validating forecast calibration
 
         >>> from openstef_core.types import Quantile
         >>> plotter = QuantileProbabilityPlotter()

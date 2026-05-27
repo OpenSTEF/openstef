@@ -27,24 +27,24 @@ class CompletenessChecker(BaseConfig, TimeSeriesTransform):
     completeness calculation.
 
     Example:
-    >>> from datetime import datetime, timedelta
-    >>> import numpy as np
-    >>> import pandas as pd
-    >>> from openstef_core.datasets import TimeSeriesDataset
-    >>> from openstef_models.transforms.validation import (
-    ...     CompletenessChecker,
-    ... )
-    >>> data = pd.DataFrame({
-    ...     'radiation': [100, np.nan, np.nan, np.nan],
-    ...     'temperature': [20, np.nan, 24, np.nan],
-    ...     'wind_speed': [np.nan, np.nan, np.nan, np.nan],
-    ... },
-    ... index=pd.date_range("2025-01-01", periods=4, freq="15min"))
-    >>> dataset = TimeSeriesDataset(data, timedelta(minutes=15))
-    >>> transform = CompletenessChecker()
-    >>> transform.transform(dataset)
-    Traceback (most recent call last):
-    openstef_core.exceptions.InsufficientlyCompleteError: The dataset is not sufficiently complete. Completeness: 0.25
+        >>> from datetime import datetime, timedelta
+        >>> import numpy as np
+        >>> import pandas as pd
+        >>> from openstef_core.datasets import TimeSeriesDataset
+        >>> from openstef_models.transforms.validation import (
+        ...     CompletenessChecker,
+        ... )
+        >>> data = pd.DataFrame({
+        ...     'radiation': [100, np.nan, np.nan, np.nan],
+        ...     'temperature': [20, np.nan, 24, np.nan],
+        ...     'wind_speed': [np.nan, np.nan, np.nan, np.nan],
+        ... },
+        ... index=pd.date_range("2025-01-01", periods=4, freq="15min"))
+        >>> dataset = TimeSeriesDataset(data, timedelta(minutes=15))
+        >>> transform = CompletenessChecker()
+        >>> transform.transform(dataset)  # doctest: +ELLIPSIS
+        Traceback (most recent call last):
+        openstef_core.exceptions.InsufficientlyCompleteError: ...not sufficiently complete...
     """
 
     columns: list[str] | None = Field(

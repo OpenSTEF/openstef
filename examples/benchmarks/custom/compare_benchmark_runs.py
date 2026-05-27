@@ -17,7 +17,7 @@
 # # Compare Benchmark Runs
 #
 # Generate side-by-side comparison plots from multiple benchmark runs.
-# Uses [`BenchmarkComparisonPipeline`](https://openstef.github.io/openstef/v4/api/generated/openstef_beam.benchmarking.BenchmarkComparisonPipeline.html)
+# Uses [`BenchmarkComparisonPipeline`](https://openstef.github.io/openstef/api/generated/openstef_beam.benchmarking.BenchmarkComparisonPipeline.html)
 # to produce global, per-group, and per-target HTML visualizations.
 #
 # **Prerequisites:** Run at least two models first (e.g. via `run_liander2024_benchmark.py`).

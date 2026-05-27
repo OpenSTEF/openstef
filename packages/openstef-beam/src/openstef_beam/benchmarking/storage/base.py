@@ -31,6 +31,7 @@ class BenchmarkStorage(ABC):
     retrieval of data, maintaining the temporal versioning semantics of forecasts.
 
     Storage responsibilities:
+
     - Backtest outputs: Time series predictions with temporal versioning (forecasts
       made at different times for the same target period, becoming more accurate
       closer to the actual time)
@@ -38,13 +39,14 @@ class BenchmarkStorage(ABC):
     - Analysis outputs: Visualizations and comparative analysis artifacts
 
     Implementation requirements:
+
     - Consistent data storage and retrieval patterns
     - Preserve temporal versioning information in the stored data
     - Handle data organization schemes appropriate for the storage backend
     - Provide reliable error handling for missing or corrupted data
 
     Example:
-        Using storage in a benchmark pipeline:
+        Using storage in a benchmark pipeline
 
         >>> from openstef_beam.benchmarking.storage import LocalBenchmarkStorage
         >>> from openstef_beam.benchmarking.storage.local_storage import LocalBenchmarkStorage

@@ -1,0 +1,24 @@
+graph TD
+    subgraph FIT["FIT PATH"]
+        A[Historical TimeSeries] --> B[Preprocessing Pipeline]
+        B --> C[ForecastInputDataset]
+        C --> D[Forecaster fit]
+        D --> E[Trained Model]
+        E --> F[Callbacks]
+    end
+    subgraph PREDICT["PREDICT PATH"]
+        G[New TimeSeries] --> H[Preprocessing Pipeline]
+        H --> I[ForecastInputDataset]
+        I --> J[Forecaster predict]
+        J --> K[Postprocessing Pipeline]
+        K --> L[Final ForecastDataset]
+        L --> M[Callbacks]
+    end
+    classDef primary fill:#00D9C5,stroke:#1E3A5F,stroke-width:2px,color:#000
+    classDef secondary fill:#1E3A5F,stroke:#00D9C5,stroke-width:2px,color:#fff
+    classDef accent fill:#e6f7f5,stroke:#00D9C5,stroke-width:2px,color:#000
+    class A,G primary
+    class B,H,K secondary
+    class C,I,D,J accent
+    class E,L primary
+    class F,M secondary

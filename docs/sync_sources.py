@@ -38,6 +38,9 @@ EMBED_MAP = {
     EXAMPLES / "tutorials" / "datasets.py": (
         DOCS_SOURCE / "user_guide" / "guides" / "datasets_tutorial.py"
     ),
+    EXAMPLES / "tutorials" / "backtesting_quickstart.py": (
+        DOCS_SOURCE / "user_guide" / "guides" / "backtesting_tutorial.py"
+    ),
 }
 
 

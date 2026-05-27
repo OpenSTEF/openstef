@@ -7,8 +7,8 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  # push: # Disabled until release of v4.0.0
-  #   branches: ['main']
+  push:
+    branches: ['main']
   pull_request:
     types: [opened, synchronize, reopened, closed]
 

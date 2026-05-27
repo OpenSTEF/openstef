@@ -27,9 +27,10 @@ ROOT_DIR = Path(__file__).resolve().parent.parent.parent
 # Make docs/ importable so we can use sync_sources
 sys.path.insert(0, str(ROOT_DIR / "docs"))
 from sync_sources import sync as _sync_sources  # noqa: E402
+from autosummary_helpers import DiscoverSubmodules  # noqa: E402
 
 project = "OpenSTEF"
-copyright = "2017-2025 Contributors to the OpenSTEF project"
+copyright = "2017-2026 Contributors to the OpenSTEF project"
 author = "Contributors to the OpenSTEF project"
 
 # -- General configuration ---------------------------------------------------
@@ -38,10 +39,22 @@ author = "Contributors to the OpenSTEF project"
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = [
+    "autosummary_cache",
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
     "sphinx.ext.doctest",
     "sphinx.ext.intersphinx",
+]
+
+# Intersphinx targets — resolve external references in inherited docstrings.
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3", None),
+    "numpy": ("https://numpy.org/doc/stable", None),
+    "pandas": ("https://pandas.pydata.org/docs", None),
+    "sklearn": ("https://scikit-learn.org/stable", None),
+}
+
+extensions += [
     "sphinx_autodoc_typehints",
     "sphinx.ext.mathjax",
     "sphinx.ext.napoleon",
@@ -50,7 +63,13 @@ extensions = [
     "sphinx_design",
     "sphinx_copybutton",
     "matplotlib.sphinxext.plot_directive",
+    "sphinxcontrib.mermaid",
 ]
+
+# Mermaid configuration
+mermaid_version = "10.6.1"
+mermaid_init_js = "mermaid.initialize({startOnLoad:true});"
+mermaid_d3_zoom = False
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -58,7 +77,7 @@ templates_path = ["_templates"]
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ["conf.py", "**/*.ipynb"]
+exclude_patterns = ["conf.py", "**/*.ipynb", "_figures/*", "**/__init__.py"]
 
 # Specify how to identify the prompt when copying code snippets
 copybutton_prompt_text = r">>> |\.\.\. "
@@ -71,41 +90,33 @@ autosummary_generate = True
 autosummary_generate_overwrite = True
 autosummary_imported_members = False
 
-# Suppress benign import_cycle warnings from recursive autosummary (modules are
-# listed in both the parent's :recursive: directive and the template's toctree)
-suppress_warnings = ["autosummary.import_cycle"]
-
-
-def _discover_submodules(fullname: str) -> list[str]:
-    """Discover child modules/packages of *fullname* via pkgutil.
-
-    Returns an empty list when *fullname* is not a package (has no ``__path__``)
-    or when the import fails (e.g. missing optional dependency).
-    """
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        try:
-            mod = importlib.import_module(fullname)
-        except Exception:  # noqa: BLE001
-            return []
-    pkg_path = getattr(mod, "__path__", None)
-    if pkg_path is None:
-        return []
-    return sorted(name for _, name, _ispkg in pkgutil.iter_modules(pkg_path))
+# Suppress benign warnings:
+#   - autosummary.import_cycle: modules listed in both parent's :recursive: and
+#     template's toctree (harmless, the rendered output is correct)
+#   - ref.python: classes re-exported at package level have two targets (e.g.,
+#     ``openstef_core.datasets.TimeSeriesDataset`` and
+#     ``openstef_core.datasets.timeseries_dataset.TimeSeriesDataset``); Sphinx
+#     deterministically picks one and the link resolves correctly
+suppress_warnings = [
+    "autosummary.import_cycle",
+    "ref.python",
+]
 
 
 autosummary_context = {
-    "discover_submodules": _discover_submodules,
+    "discover_submodules": DiscoverSubmodules(),
 }
 
 # Don't generate separate pages for class members
 autosummary_mock_imports = []
 
 # Autodoc settings for better docstring rendering
+# Note: :special-members: __init__ is set per-directive in _templates/custom_class.rst
+# rather than globally, so it doesn't trigger "missing attribute __init__" warnings
+# when autodoc processes module documents.
 autodoc_default_options = {
     "members": True,
     "member-order": "bysource",
-    "special-members": "__init__",
     "undoc-members": False,  # Only document explicitly defined members
     "exclude-members": "__weakref__",
     "imported-members": False,
@@ -132,7 +143,22 @@ typehints_use_signature_return = True  # Include return type in signature
 always_document_param_types = True  # Always show param types even without docstring
 
 # Autosummary configuration for better API reference (scikit-learn style)
-autosummary_filename_map = {}
+# Disambiguate module-name vs class-name stub filenames on case-insensitive
+# filesystems (macOS HFS+/APFS default). Without this, ``foo.bar`` (module)
+# and ``foo.Bar`` (class) collide, and the module stub silently fails to
+# generate, causing "stub file not found" warnings. We add a ``.module``
+# suffix to the module stub so both can coexist.
+autosummary_filename_map = {
+    "openstef_beam.evaluation.models.window": "openstef_beam.evaluation.models.window.module",
+    "openstef_core.mixins.predictor": "openstef_core.mixins.predictor.module",
+    "openstef_core.mixins.stateful": "openstef_core.mixins.stateful.module",
+    "openstef_core.mixins.transform": "openstef_core.mixins.transform.module",
+    "openstef_models.transforms.general.flagger": "openstef_models.transforms.general.flagger.module",
+    "openstef_models.transforms.general.imputer": "openstef_models.transforms.general.imputer.module",
+    "openstef_models.transforms.general.scaler": "openstef_models.transforms.general.scaler.module",
+    "openstef_models.transforms.general.selector": "openstef_models.transforms.general.selector.module",
+    "openstef_models.transforms.general.shifter": "openstef_models.transforms.general.shifter.module",
+}
 autosummary_ignore_module_all = False
 
 # Napoleon settings for Google-style docstrings (similar to scikit-learn)
@@ -182,7 +208,7 @@ if "dev" in version or "+" in version or version == "0.0.0":
     json_url = "_static/versions.json"
 else:
     version_match = ".".join(version.split(".")[:2])
-    json_url = "https://openstef.github.io/docs/_static/versions.json"
+    json_url = "https://openstef.github.io/openstef/_static/versions.json"
 
 
 # Citations
@@ -341,7 +367,7 @@ html_context = {
     # Edit page source
     "github_user": "OpenSTEF",
     "github_repo": "openstef",
-    "github_version": "release/v4.0.0",
+    "github_version": "main",
     "doc_path": "docs/source",
 }
 
