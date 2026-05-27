@@ -25,9 +25,7 @@ from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.transforms import TimeSeriesTransform
 
-# Holiday names (after sanitization) that collide with features
-# produced by DatetimeFeaturesAdder and must be excluded.
-_RESERVED_DATETIME_FEATURES: frozenset[str] = frozenset({"sunday", "week_day", "weekend_day"})
+_DEFAULT_RESERVED_DATETIME_FEATURES: frozenset[str] = frozenset({"sunday", "week_day", "weekend_day"})
 
 
 class HolidayFeatureAdder(BaseConfig, TimeSeriesTransform):
@@ -64,6 +62,10 @@ class HolidayFeatureAdder(BaseConfig, TimeSeriesTransform):
     """
 
     country_code: CountryAlpha2 = Field(description="Country code for holiday calculation.")
+    reserved_datetime_features: frozenset[str] = Field(
+        default=_DEFAULT_RESERVED_DATETIME_FEATURES,
+        description="Holiday names (after sanitization) that collide with other features and must be excluded.",
+    )
 
     @override
     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
@@ -77,8 +79,12 @@ class HolidayFeatureAdder(BaseConfig, TimeSeriesTransform):
         """
         index = data.index
         # Get holidays for the date range (pre-cleaned)
-        holiday_names = get_holiday_names(country_code=self.country_code)
-        holidays_df = get_holidays(index=index, country=self.country_code)
+        holiday_names = get_holiday_names(
+            country_code=self.country_code, reserved_features=self.reserved_datetime_features
+        )
+        holidays_df = get_holidays(
+            index=index, country=self.country_code, reserved_features=self.reserved_datetime_features
+        )
 
         # Merge dates with holidays
         merged = (
@@ -99,7 +105,10 @@ class HolidayFeatureAdder(BaseConfig, TimeSeriesTransform):
 
     @override
     def features_added(self) -> list[str]:
-        return ["is_holiday", *[f"is_{name}" for name in get_holiday_names(self.country_code)]]
+        return [
+            "is_holiday",
+            *[f"is_{name}" for name in get_holiday_names(self.country_code, self.reserved_datetime_features)],
+        ]
 
 
 def sanitize_holiday_name(holiday_name: str) -> str:
@@ -119,7 +128,9 @@ def sanitize_holiday_name(holiday_name: str) -> str:
 
 
 @lru_cache(maxsize=5)
-def get_holiday_names(country_code: CountryAlpha2) -> list[str]:
+def get_holiday_names(
+    country_code: CountryAlpha2, reserved_features: frozenset[str] = _DEFAULT_RESERVED_DATETIME_FEATURES
+) -> list[str]:
     """Get list of original holiday names for the country.
 
     Returns:
@@ -136,16 +147,21 @@ def get_holiday_names(country_code: CountryAlpha2) -> list[str]:
         sanitize_holiday_name(holiday_name)
         for holiday_name in set(country_holidays.values())
         if sanitize_holiday_name(holiday_name)
-        and sanitize_holiday_name(holiday_name) not in _RESERVED_DATETIME_FEATURES
+        and sanitize_holiday_name(holiday_name) not in reserved_features
     ])
 
 
-def get_holidays(index: pd.DatetimeIndex, country: CountryAlpha2) -> pd.DataFrame:
+def get_holidays(
+    index: pd.DatetimeIndex,
+    country: CountryAlpha2,
+    reserved_features: frozenset[str] = _DEFAULT_RESERVED_DATETIME_FEATURES,
+) -> pd.DataFrame:
     """Get holidays for the dataset's date range as a cleaned DataFrame.
 
     Args:
         index: DatetimeIndex of the dataset.
         country: Country code for holiday calculation.
+        reserved_features: Holiday names to exclude from results.
 
     Returns:
         DataFrame with columns: date, holiday_name, sanitized_name.
@@ -154,7 +170,7 @@ def get_holidays(index: pd.DatetimeIndex, country: CountryAlpha2) -> pd.DataFram
     """
     years = range(int(index.year.min()), int(index.year.max()) + 1)
     country_holidays = holidays.country_holidays(str(country), categories=["public"], years=years, language="en_US")
-    all_country_holiday_names = get_holiday_names(country)
+    all_country_holiday_names = get_holiday_names(country, reserved_features)
 
     if not country_holidays:
         return pd.DataFrame(columns=["date", "holiday_name", "sanitized_name"])
