@@ -3,36 +3,18 @@
 
 # Dependabot configuration for the OpenSTEF uv workspace.
 #
-# Goals:
-#  - Reduce PR volume (was ~1 PR per package per advisory) by grouping
-#    patch+minor bumps into daily bundles.
-#  - Keep security visible and fast: separate `applies-to: security-updates`
-#    groups land within ~24h on the daily cadence. `cooldown` does NOT
-#    apply to security updates, so CVE fixes are never throttled.
-#  - Supply-chain hardening via `cooldown`: a brand-new release waits a
-#    few days before Dependabot proposes a bump, which gives the
-#    community time to surface malicious or broken releases (e.g.
-#    xz-utils 2024, tj-actions/changed-files 2025).
-#  - Major bumps stay individual — they often need code changes.
-#
-# Block layout:
-#  - Block 1: published packages (root + packages/*). Splits runtime
-#    (`project.dependencies`) from dev (`dependency-groups.dev`).
-#  - Block 2: internal tooling (docs/, examples/). These workspace
-#    members put sphinx/jupyter under `dependencies`, so the
-#    production/development filter doesn't separate them usefully —
-#    everything in these roots is treated as docs/example tooling.
-#  - Block 3: GitHub Actions, single grouped daily PR.
+#  - Patch/minor updates are grouped into daily PRs; majors stay individual.
+#  - Cooldown delays brand-new releases by a few days as supply-chain protection.
+#  - Security advisories are in their own group, exempt from cooldown.
 
 version: 2
 
 updates:
-  # ---------------------------------------------------------------------
-  # Block 1 — Published packages (runtime + dev tooling at root)
-  # ---------------------------------------------------------------------
   - package-ecosystem: uv
     directories:
       - "/"
+      - "/docs"
+      - "/examples"
       - "/packages/openstef-beam"
       - "/packages/openstef-core"
       - "/packages/openstef-meta"
@@ -44,13 +26,10 @@ updates:
     open-pull-requests-limit: 10
     commit-message:
       prefix: "chore(deps)"
-      prefix-development: "chore(deps-dev)"
       include: scope
     labels:
       - dependencies
       - python:uv
-    # Cooldown applies to version-updates only. Security-updates bypass
-    # it entirely so CVE patches are never delayed.
     cooldown:
       default-days: 3
       semver-patch-days: 2
@@ -59,61 +38,11 @@ updates:
     groups:
       python-security:
         applies-to: security-updates
-        update-types:
-          - patch
-          - minor
-      python-runtime:
+        update-types: [patch, minor]
+      python-versions:
         applies-to: version-updates
-        dependency-type: production
-        update-types:
-          - patch
-          - minor
-      python-dev:
-        applies-to: version-updates
-        dependency-type: development
-        update-types:
-          - patch
-          - minor
+        update-types: [patch, minor]
 
-  # ---------------------------------------------------------------------
-  # Block 2 — Internal tooling: docs and examples
-  # ---------------------------------------------------------------------
-  - package-ecosystem: uv
-    directories:
-      - "/docs"
-      - "/examples"
-    schedule:
-      interval: daily
-      time: "06:00"
-      timezone: Europe/Amsterdam
-    open-pull-requests-limit: 5
-    commit-message:
-      prefix: "chore(deps-docs)"
-      include: scope
-    labels:
-      - dependencies
-      - python:uv
-      - documentation
-    cooldown:
-      default-days: 3
-      semver-patch-days: 2
-      semver-minor-days: 5
-      semver-major-days: 7
-    groups:
-      python-tooling-security:
-        applies-to: security-updates
-        update-types:
-          - patch
-          - minor
-      python-tooling:
-        applies-to: version-updates
-        update-types:
-          - patch
-          - minor
-
-  # ---------------------------------------------------------------------
-  # Block 3 — GitHub Actions
-  # ---------------------------------------------------------------------
   - package-ecosystem: github-actions
     directory: "/"
     schedule:
@@ -127,15 +56,10 @@ updates:
     labels:
       - dependencies
       - github-actions
-    # Actions are SHA-pinned but cooldown still helps catch incidents
-    # like tj-actions/changed-files (March 2025) where a compromised
-    # action was published and detected within days.
     cooldown:
       default-days: 3
       semver-patch-days: 2
       semver-minor-days: 5
       semver-major-days: 7
     groups:
-      actions-all:
-        patterns:
-          - "*"
+      actions-all: {}
