@@ -17,7 +17,7 @@ dependencies = [
   "sphinx-pyproject>=0.3.0",
   "ipython>=9.4.0",
   "kaleido>=1.0.0",
-  "matplotlib>=3.10.5",
+  "matplotlib>=3.10.9",
   "optuna>=4.7",
   "huggingface-hub>=1.2.2",
   "openstef-models",
