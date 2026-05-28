@@ -153,3 +153,38 @@ def test_holiday_feature_adder_transform(start_date: str, periods: int, expected
     # Verify specific holiday feature naming (from hardcoded list)
     expected_features = {"is_christmas_day", "is_new_year_s_day", "is_king_s_day"}
     assert expected_features.issubset(result.data.columns)
+
+
+def test_holiday_names_exclude_reserved_datetime_features():
+    """Test that holiday names colliding with DatetimeFeaturesAdder are excluded.
+
+    Sweden treats Sunday as a public holiday, which would produce an 'is_sunday'
+    feature that clashes with DatetimeFeaturesAdder. Verify it is filtered out.
+    """
+    # Act
+    se_holidays = get_holiday_names(CountryAlpha2("SE"))
+
+    # Assert
+    assert "sunday" not in se_holidays, "Reserved name 'sunday' should be excluded from holiday names"
+
+
+def test_holiday_feature_adder_no_is_sunday_for_sweden():
+    """Test that HolidayFeatureAdder does not produce is_sunday for Sweden.
+
+    This prevents duplicate column errors when combined with DatetimeFeaturesAdder
+    in the preprocessing pipeline.
+    """
+    # Arrange — include a Sunday in the range
+    data = pd.DataFrame(
+        {"load": [100.0] * 7},
+        index=pd.date_range("2025-06-16", periods=7, freq="D"),  # Mon to Sun
+    )
+    dataset = TimeSeriesDataset(data, timedelta(days=1))
+    transform = HolidayFeatureAdder(country_code=CountryAlpha2("SE"))
+
+    # Act
+    result = transform.transform(dataset)
+
+    # Assert
+    assert "is_sunday" not in result.data.columns
+    assert "is_holiday" in result.data.columns
