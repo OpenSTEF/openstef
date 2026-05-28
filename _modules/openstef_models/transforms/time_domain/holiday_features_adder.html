@@ -879,6 +879,8 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">TimeSeriesDataset</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">TimeSeriesTransform</span>
 
+<span class="n">_DEFAULT_RESERVED_DATETIME_FEATURES</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="s2">&quot;sunday&quot;</span><span class="p">,</span> <span class="s2">&quot;week_day&quot;</span><span class="p">,</span> <span class="s2">&quot;weekend_day&quot;</span><span class="p">})</span>
+
 
 <div class="viewcode-block" id="HolidayFeatureAdder">
 <a class="viewcode-back" href="../../../../api/generated/openstef_models.transforms.time_domain.holiday_features_adder.HolidayFeatureAdder.html#openstef_models.transforms.time_domain.HolidayFeatureAdder">[docs]</a>
@@ -917,6 +919,10 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">country_code</span><span class="p">:</span> <span class="n">CountryAlpha2</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Country code for holiday calculation.&quot;</span><span class="p">)</span>
+    <span class="n">reserved_datetime_features</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">_DEFAULT_RESERVED_DATETIME_FEATURES</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Holiday names (after sanitization) that collide with other features and must be excluded.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
 
 <div class="viewcode-block" id="HolidayFeatureAdder.transform">
 <a class="viewcode-back" href="../../../../api/generated/openstef_models.transforms.time_domain.holiday_features_adder.HolidayFeatureAdder.html#openstef_models.transforms.time_domain.HolidayFeatureAdder.transform">[docs]</a>
@@ -932,8 +938,12 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">index</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">index</span>
         <span class="c1"># Get holidays for the date range (pre-cleaned)</span>
-        <span class="n">holiday_names</span> <span class="o">=</span> <span class="n">get_holiday_names</span><span class="p">(</span><span class="n">country_code</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">country_code</span><span class="p">)</span>
-        <span class="n">holidays_df</span> <span class="o">=</span> <span class="n">get_holidays</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="n">index</span><span class="p">,</span> <span class="n">country</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">country_code</span><span class="p">)</span>
+        <span class="n">holiday_names</span> <span class="o">=</span> <span class="n">get_holiday_names</span><span class="p">(</span>
+            <span class="n">country_code</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">country_code</span><span class="p">,</span> <span class="n">reserved_features</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">reserved_datetime_features</span>
+        <span class="p">)</span>
+        <span class="n">holidays_df</span> <span class="o">=</span> <span class="n">get_holidays</span><span class="p">(</span>
+            <span class="n">index</span><span class="o">=</span><span class="n">index</span><span class="p">,</span> <span class="n">country</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">country_code</span><span class="p">,</span> <span class="n">reserved_features</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">reserved_datetime_features</span>
+        <span class="p">)</span>
 
         <span class="c1"># Merge dates with holidays</span>
         <span class="n">merged</span> <span class="o">=</span> <span class="p">(</span>
@@ -957,7 +967,10 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../../api/generated/openstef_models.transforms.time_domain.holiday_features_adder.HolidayFeatureAdder.html#openstef_models.transforms.time_domain.HolidayFeatureAdder.features_added">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">features_added</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;is_holiday&quot;</span><span class="p">,</span> <span class="o">*</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;is_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">get_holiday_names</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">country_code</span><span class="p">)]]</span></div>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="s2">&quot;is_holiday&quot;</span><span class="p">,</span>
+            <span class="o">*</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;is_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">get_holiday_names</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">country_code</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">reserved_datetime_features</span><span class="p">)],</span>
+        <span class="p">]</span></div>
 </div>
 
 
@@ -984,7 +997,9 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="get_holiday_names">
 <a class="viewcode-back" href="../../../../api/generated/openstef_models.transforms.time_domain.holiday_features_adder.get_holiday_names.html#openstef_models.transforms.time_domain.get_holiday_names">[docs]</a>
 <span class="nd">@lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">get_holiday_names</span><span class="p">(</span><span class="n">country_code</span><span class="p">:</span> <span class="n">CountryAlpha2</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_holiday_names</span><span class="p">(</span>
+    <span class="n">country_code</span><span class="p">:</span> <span class="n">CountryAlpha2</span><span class="p">,</span> <span class="n">reserved_features</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">_DEFAULT_RESERVED_DATETIME_FEATURES</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Get list of original holiday names for the country.</span>
 
 <span class="sd">    Returns:</span>
@@ -1000,19 +1015,24 @@ window.runMermaid = runMermaid;</script>
     <span class="k">return</span> <span class="nb">sorted</span><span class="p">([</span>
         <span class="n">sanitize_holiday_name</span><span class="p">(</span><span class="n">holiday_name</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">holiday_name</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">country_holidays</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
-        <span class="k">if</span> <span class="n">sanitize_holiday_name</span><span class="p">(</span><span class="n">holiday_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">sanitize_holiday_name</span><span class="p">(</span><span class="n">holiday_name</span><span class="p">)</span> <span class="ow">and</span> <span class="n">sanitize_holiday_name</span><span class="p">(</span><span class="n">holiday_name</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">reserved_features</span>
     <span class="p">])</span></div>
 
 
 
 <div class="viewcode-block" id="get_holidays">
 <a class="viewcode-back" href="../../../../api/generated/openstef_models.transforms.time_domain.holiday_features_adder.get_holidays.html#openstef_models.transforms.time_domain.get_holidays">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">get_holidays</span><span class="p">(</span><span class="n">index</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">,</span> <span class="n">country</span><span class="p">:</span> <span class="n">CountryAlpha2</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_holidays</span><span class="p">(</span>
+    <span class="n">index</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">,</span>
+    <span class="n">country</span><span class="p">:</span> <span class="n">CountryAlpha2</span><span class="p">,</span>
+    <span class="n">reserved_features</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">_DEFAULT_RESERVED_DATETIME_FEATURES</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Get holidays for the dataset&#39;s date range as a cleaned DataFrame.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        index: DatetimeIndex of the dataset.</span>
 <span class="sd">        country: Country code for holiday calculation.</span>
+<span class="sd">        reserved_features: Holiday names to exclude from results.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        DataFrame with columns: date, holiday_name, sanitized_name.</span>
@@ -1021,7 +1041,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">years</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">index</span><span class="o">.</span><span class="n">year</span><span class="o">.</span><span class="n">min</span><span class="p">()),</span> <span class="nb">int</span><span class="p">(</span><span class="n">index</span><span class="o">.</span><span class="n">year</span><span class="o">.</span><span class="n">max</span><span class="p">())</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
     <span class="n">country_holidays</span> <span class="o">=</span> <span class="n">holidays</span><span class="o">.</span><span class="n">country_holidays</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">country</span><span class="p">),</span> <span class="n">categories</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;public&quot;</span><span class="p">],</span> <span class="n">years</span><span class="o">=</span><span class="n">years</span><span class="p">,</span> <span class="n">language</span><span class="o">=</span><span class="s2">&quot;en_US&quot;</span><span class="p">)</span>
-    <span class="n">all_country_holiday_names</span> <span class="o">=</span> <span class="n">get_holiday_names</span><span class="p">(</span><span class="n">country</span><span class="p">)</span>
+    <span class="n">all_country_holiday_names</span> <span class="o">=</span> <span class="n">get_holiday_names</span><span class="p">(</span><span class="n">country</span><span class="p">,</span> <span class="n">reserved_features</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">country_holidays</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="s2">&quot;holiday_name&quot;</span><span class="p">,</span> <span class="s2">&quot;sanitized_name&quot;</span><span class="p">])</span>
