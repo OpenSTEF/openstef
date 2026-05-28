@@ -32,7 +32,7 @@ dependencies = [
   "openstef",
   "sphinx-autobuild>=2024.10.3",
   "sphinx-autodoc-typehints>=3.2.0",
-  "myst-nb>=1.2.0",
+  "myst-nb>=1.4.0",
   "jupyter-cache>=1.0.0",
   "jupytext>=1.16.0",
   "sphinxcontrib-mermaid>=0.9.2",
