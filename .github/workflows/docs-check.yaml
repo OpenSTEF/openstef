@@ -1,0 +1,62 @@
+# SPDX-FileCopyrightText: 2026 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+# SPDX-License-Identifier: MPL-2.0
+
+# Builds the documentation on PRs WITHOUT deploying it, so that changes which
+# break the docs build (e.g. a dependency bump that breaks notebook execution
+# or static figure export) are caught before they reach main, where the
+# Deploy Documentation workflow would otherwise fail.
+#
+# The build executes the tutorials, so it is slow. It therefore only runs when
+# a PR touches inputs that can affect the build (dependencies, docs sources,
+# example notebooks), and can also be triggered manually from the Actions tab.
+
+name: Docs Build Check
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  pull_request:
+    paths:
+      - "uv.lock"
+      - "**/pyproject.toml"
+      - "docs/**"
+      - "examples/**"
+      - ".github/workflows/docs-check.yaml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-docs:
+    name: Build Documentation (no deploy)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          show-progress: false
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
+        with:
+          activate-environment: true
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv sync --frozen --no-install-project --all-groups --all-extras
+
+      - name: Build Sphinx documentation
+        run: poe docs
+
+      - name: Upload built docs
+        if: ${{ always() }}
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        with:
+          name: docs-html
+          path: docs/build/html
+          retention-days: 7
+          if-no-files-found: ignore
