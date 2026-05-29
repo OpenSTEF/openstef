@@ -4,6 +4,8 @@
 # Dependabot configuration for the OpenSTEF uv workspace.
 #
 #  - Patch/minor updates are grouped into daily PRs; majors stay individual.
+#  - lockfile-only: updates touch uv.lock only, never widen pyproject.toml
+#    constraints, so no "update X requirement from A to B" PRs.
 #  - Cooldown delays brand-new releases by a few days as supply-chain protection.
 #  - Security advisories are in their own group, exempt from cooldown.
 
@@ -24,6 +26,7 @@ updates:
       time: "06:00"
       timezone: Europe/Amsterdam
     open-pull-requests-limit: 10
+    versioning-strategy: lockfile-only
     commit-message:
       prefix: "chore(deps)"
       include: scope
