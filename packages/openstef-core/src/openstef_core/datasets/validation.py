@@ -8,8 +8,6 @@ This module provides functions to validate dataset compatibility and integrity,
 particularly for operations that combine multiple datasets.
 """
 
-import functools
-import operator
 from collections import Counter
 from collections.abc import Iterable, Sequence
 from datetime import timedelta
@@ -53,7 +51,7 @@ def validate_disjoint_columns(datasets: Iterable[TimeSeriesMixin]) -> list[str]:
     Raises:
         TimeSeriesValidationError: If any feature name appears in multiple datasets.
     """
-    all_features: list[str] = functools.reduce(operator.iadd, [d.feature_names for d in datasets], [])
+    all_features: list[str] = [feature for d in datasets for feature in d.feature_names]
     if len(all_features) != len(set(all_features)):
         duplicate_features = [item for item, count in Counter(all_features).items() if count > 1]
         raise TimeSeriesValidationError("Datasets have overlapping feature names: " + ", ".join(duplicate_features))

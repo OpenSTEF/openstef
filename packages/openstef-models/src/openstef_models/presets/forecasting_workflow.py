@@ -240,9 +240,11 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
         ge=1,
     )
     sample_weight_config: SampleWeightConfig = Field(
-        default_factory=lambda data: SampleWeightConfig(weight_exponent=1.0)
-        if data.get("model") == "gblinear"
-        else SampleWeightConfig(weight_exponent=0.0),
+        default_factory=lambda data: (
+            SampleWeightConfig(weight_exponent=1.0)
+            if data.get("model") == "gblinear"
+            else SampleWeightConfig(weight_exponent=0.0)
+        ),
         description="Sample weighting configuration. Controls how training samples are weighted. "
         "Defaults to weight_exponent=1.0 for gblinear, 0.0 (uniform) for other models.",
     )

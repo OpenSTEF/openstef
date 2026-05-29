@@ -396,7 +396,7 @@ class ForecastTimeSeriesPlotter(BaseConfig):
             # Create band data from widest to narrowest
             for i in range(len(percentiles) // 2):
                 lower_quantile, upper_quantile = percentiles[i], percentiles[-(i + 1)]
-                if float(lower_quantile) == self.MEDIAN_QUANTILE:
+                if lower_quantile == int(self.MEDIAN_QUANTILE):
                     continue
 
                 # type: ignore construct a BandData-compatible dict

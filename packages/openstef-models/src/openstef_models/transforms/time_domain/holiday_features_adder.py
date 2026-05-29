@@ -89,7 +89,8 @@ class HolidayFeatureAdder(BaseConfig, TimeSeriesTransform):
 
         # Merge dates with holidays
         merged = (
-            pd.Series(data=index.date, index=index)
+            pd
+            .Series(data=index.date, index=index)
             .to_frame("date")
             .merge(holidays_df[["date", "sanitized_name"]], on="date", how="left")
             .set_index(index)

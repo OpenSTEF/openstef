@@ -190,7 +190,7 @@ class VersionedTimeSeriesDataset(TimeSeriesMixin, DatasetMixin):
 
             parts: list[TimeSeriesDataset] = [
                 TimeSeriesDataset(
-                    data=df.loc[df.part_id == i, part_info["columns"]],
+                    data=cast("pd.DataFrame", df.loc[df.part_id == i, part_info["columns"]]),
                     sample_interval=timedelta_from_isoformat(part_info.get("sample_interval", "PT1H")),
                 )
                 for i, part_info in enumerate(parts_metadata)

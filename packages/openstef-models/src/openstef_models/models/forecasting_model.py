@@ -580,7 +580,7 @@ def restore_target[T: TimeSeriesDataset](
     target_series = original_dataset.select_features([target_column]).select_version().data[target_column]
 
     def _transform_restore_target(df: pd.DataFrame) -> pd.DataFrame:
-        original_values = df.index.map(target_series)  # pyright: ignore[reportUnknownMemberType]
+        original_values = df.index.map(target_series)  # pyright: ignore[reportUnknownMemberType, reportArgumentType]
         restored = pd.Series(original_values, index=df.index, name=target_column)
 
         # Preserve NaN values introduced by the OutlierHandler for the target column.

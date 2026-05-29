@@ -14,6 +14,7 @@ components like solar, wind, or other energy sources. No training is required
 since ratios are predefined by the user.
 """
 
+import math
 from typing import Self, override
 
 import pandas as pd
@@ -39,7 +40,7 @@ class ConstantComponentSplitterConfig(ComponentSplitterConfig):
     @field_validator("component_ratios")
     @classmethod
     def _validate_component_ratios(cls, value: dict[EnergyComponentType, float]) -> dict[EnergyComponentType, float]:
-        if sum(value.values()) != 1.0:
+        if not math.isclose(sum(value.values()), 1.0):
             raise ValueError("Component ratios must sum to 1.0.")
 
         return value
