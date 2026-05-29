@@ -604,9 +604,11 @@ class ForecastTimeSeriesPlotter(BaseConfig):
         style: QuantilePolygonStyle,
     ) -> None:
         """Add a single quantile polygon for the original connect_gaps=True behavior."""
-        # Create polygon shape for the quantile band in counterclockwise order
-        index_list = band["lower_data"].index.to_list()
-        x = index_list + index_list[::-1]
+        # Create polygon shape for the quantile band in counterclockwise order.
+        # Keep x as a pandas Index (not a Python list): a list of Timestamps is
+        # not JSON-serializable by kaleido during static image export.
+        index = band["lower_data"].index
+        x = index.append(index[::-1])
         y = list(band["lower_data"]) + list(band["upper_data"][::-1])
 
         figure.add_trace(  # type: ignore[reportUnknownMemberType]
@@ -653,9 +655,11 @@ class ForecastTimeSeriesPlotter(BaseConfig):
             lower_segment = band["lower_data"].iloc[start : end + 1]
             upper_segment = band["upper_data"].iloc[start : end + 1]
 
-            # Create polygon for this segment
-            index_list = lower_segment.index.to_list()
-            x = index_list + index_list[::-1]
+            # Create polygon for this segment. Keep x as a pandas Index (see note
+            # in _add_single_quantile_polygon): a list of Timestamps is not
+            # JSON-serializable by kaleido during static image export.
+            index = lower_segment.index
+            x = index.append(index[::-1])
             y = list(lower_segment) + list(upper_segment[::-1])
 
             # Only show legend for the first segment
