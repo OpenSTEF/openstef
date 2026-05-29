@@ -33,12 +33,15 @@ from openstef_core.types import Q
             2.0,
             id="crps_offset_deterministic",
         ),
-        # Uniform distribution forecast (0-10 range)
+        # Uniform distribution forecast (0-10 range). Quantile levels 0.0 and 1.0
+        # are excluded: scoringrules >=0.10 rejects degenerate levels, and they
+        # contribute zero pinball loss anyway, so dropping them only changes the
+        # normalization (9 interior levels) giving 8/9.
         pytest.param(
             np.array([5.0]),
-            np.array([np.linspace(0, 10, 11)]),
-            np.linspace(0, 1, 11),
-            8 / 11,
+            np.array([np.linspace(0, 10, 11)[1:-1]]),
+            np.linspace(0, 1, 11)[1:-1],
+            8 / 9,
             id="crps_uniform_distribution",
         ),
         # Two-point distribution (equally likely at 2 and 4)
@@ -66,7 +69,7 @@ def test_crps(y_true: Sequence[float], y_pred: Sequence[float], quantiles: Seque
         # Normalized CRPS with non-zero range,
         pytest.param(
             [0.0, 10.0],  # Range = 10;
-            [[5.0]],  # Single quantile forecast at 5.0
+            [[5.0], [5.0]],  # Single quantile forecast at 5.0, one row per observation
             [0.5],
             0.0,
             1.0,
@@ -88,7 +91,7 @@ def test_crps(y_true: Sequence[float], y_pred: Sequence[float], quantiles: Seque
         # Non-zero range with explicit sample weights
         pytest.param(
             [0.0, 10.0, 20.0],  # Range = 20;
-            [[5.0]],  # Single quantile forecast at 5.0
+            [[5.0], [5.0], [5.0]],  # Single quantile forecast at 5.0, one row per observation
             [0.5],
             0.0,
             1.0,
@@ -99,7 +102,7 @@ def test_crps(y_true: Sequence[float], y_pred: Sequence[float], quantiles: Seque
         # Custom sample weights (explicit array matching previous config)
         pytest.param(
             [0.0, 10.0, 20.0],  # Range = 20;
-            [[5.0]],  # Single quantile forecast at 5.0
+            [[5.0], [5.0], [5.0]],  # Single quantile forecast at 5.0, one row per observation
             [0.5],
             0.0,
             1.0,

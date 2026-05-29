@@ -280,7 +280,7 @@ def generate_minute_lags(min_horizon: timedelta) -> list[timedelta]:
     base_lags = pd.Index(hourly_lags).union(pd.Index(subhourly_lags))
 
     # Filter: only lags that are far enough in the past (>= forecast horizon)
-    valid_lags = cast(pd.TimedeltaIndex, base_lags[base_lags >= min_horizon])
+    valid_lags = cast(pd.TimedeltaIndex, base_lags[base_lags >= min_horizon])  # pyright: ignore[reportOperatorIssue]
 
     # Convert to Python timedelta list (no duplicates possible)
     return list(valid_lags.to_pytimedelta())

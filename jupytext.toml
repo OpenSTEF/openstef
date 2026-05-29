@@ -1,0 +1,7 @@
+# SPDX-FileCopyrightText: 2026 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+# SPDX-License-Identifier: MPL-2.0
+
+# Don't write the jupytext version into paired-file headers, so upgrading
+# jupytext no longer rewrites the `jupytext_version:` line in every notebook
+# (which otherwise shows up as churn and fails notebooks-check until re-synced).
+notebook_metadata_filter = "-jupytext.text_representation.jupytext_version"

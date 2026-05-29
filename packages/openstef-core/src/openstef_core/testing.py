@@ -169,9 +169,6 @@ def load_liander_dataset(
     Downloads load measurements, weather forecasts, electricity prices, and standard load
     profiles from HuggingFace Hub, then combines them via left join.
 
-    Raises:
-        ImportError: When ``huggingface-hub`` is not installed.
-
     Args:
         target: Sub-path within the repo identifying the installation (e.g. ``"mv_feeder/OS Gorredijk"``).
         repo_id: HuggingFace dataset repository ID.
@@ -180,6 +177,9 @@ def load_liander_dataset(
 
     Returns:
         Combined dataset with all features aligned by timestamp.
+
+    Raises:
+        ImportError: When ``huggingface-hub`` is not installed.
     """
     try:
         from huggingface_hub import hf_hub_download  # pyright: ignore[reportUnknownVariableType]  # noqa: PLC0415

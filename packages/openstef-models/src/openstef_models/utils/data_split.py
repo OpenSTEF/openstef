@@ -90,7 +90,7 @@ def chronological_train_test_split[T: TimeSeriesDataset](
     if not 0.0 <= test_fraction <= 1.0:
         raise ValueError("test_fraction must be between 0 and 1.")
 
-    if test_fraction == 0.0:
+    if test_fraction == 0.0:  # noqa: RUF069 - exact sentinel; validated >= 0.0 above and 0.0 is exactly representable
         # No test set
         return dataset, dataset._copy_with_data(dataset.data.iloc[0:0])  # noqa: SLF001 - allow protected access, invariants are maintained
 
@@ -166,7 +166,7 @@ def stratified_train_test_split[T: TimeSeriesDataset](
     _, test_other_days = _sample_dates_for_split(dates=other_days, test_fraction=test_fraction, rng=rng)
 
     # Combine all train and test dates
-    test_dates = cast(pd.DatetimeIndex, test_max_days.union(test_min_days).union(test_other_days))
+    test_dates = test_max_days.union(test_min_days).union(test_other_days)
 
     return split_by_dates(dataset=dataset, dates_test=test_dates)
 

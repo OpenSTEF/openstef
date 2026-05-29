@@ -59,7 +59,8 @@ class SummaryTablePlotter:
         """
         # Apply basic styling to the HTML table
         return (
-            self.data.style.set_table_attributes('class="dataframe"')
+            self.data.style
+            .set_table_attributes('class="dataframe"')
             .set_properties(**{"text-align": "left", "padding": "5px", "border": "1px solid #ddd"})  # type: ignore[arg-type]
             .set_table_styles([
                 {
