@@ -17,7 +17,10 @@ dependencies = [
 
 optional-dependencies.tutorials = [
   "jupyter>=1.1.1",
-  "kaleido",
+  # Constrained to v0.2.x; kaleido >=1.0 cannot serialize pandas Timestamp
+  # via orjson, 0.4.x breaks the plotly scope API, and 0.2.1.post1 ships only
+  # a linux/armv7 wheel. See OpenSTEF/openstef#938.
+  "kaleido>=0.2.1,<0.3,!=0.2.1.post1",
   "openstef-core[benchmark]",
 ]
 

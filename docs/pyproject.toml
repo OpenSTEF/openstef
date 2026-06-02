@@ -16,7 +16,13 @@ requires-python = ">=3.12,<4.0"
 dependencies = [
   "sphinx-pyproject>=0.3.0",
   "ipython>=9.4.0",
-  "kaleido>=1.0.0",
+  # Constrained to v0.2.x because kaleido >=1.0 fails to JSON-serialize
+  # pandas Timestamp values in figure specs (orjson default raises TypeError),
+  # 0.4.x is incompatible with the current plotly scope API, and 0.2.1.post1
+  # only ships a linux/armv7 wheel. v0 is deprecated upstream but functional.
+  # See OpenSTEF/openstef#938; lift the constraint once kaleido v1 handles
+  # pandas Timestamp natively.
+  "kaleido>=0.2.1,<0.3,!=0.2.1.post1",
   "matplotlib>=3.10.5",
   "optuna>=4.7",
   "huggingface-hub>=1.2.2",
