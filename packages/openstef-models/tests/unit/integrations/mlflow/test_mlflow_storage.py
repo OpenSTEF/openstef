@@ -82,6 +82,25 @@ def test_create_run__experiment_prefix(tmp_path: Path, model_id: str):
     assert experiment.name == f"prod_{model_id}"  # type: ignore
 
 
+def test_create_run__artifact_location(tmp_path: Path, model_id: str):
+    """Test that artifact_location is applied to newly created experiments."""
+    # Arrange
+    artifact_uri = (tmp_path / "store").as_uri()
+    storage = MLFlowStorage(
+        tracking_uri=f"sqlite:///{tmp_path / 'mlflow.db'}",
+        local_artifacts_path=tmp_path / "artifacts",
+        artifact_location=artifact_uri,
+    )
+
+    # Act
+    run = storage.create_run(model_id=model_id)
+    experiment_id = cast(str, run.info.experiment_id)  # type: ignore
+
+    # Assert
+    experiment = storage._client.get_experiment(experiment_id)
+    assert experiment.artifact_location.startswith(artifact_uri)  # type: ignore
+
+
 def test_create_run__reuses_experiment(storage: MLFlowStorage, model_id: str):
     """Test that multiple runs for same model_id share the same experiment."""
     # Arrange
