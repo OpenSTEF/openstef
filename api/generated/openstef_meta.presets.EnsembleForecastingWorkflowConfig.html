@@ -27,8 +27,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
-<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+  <link href="../../_static/styles/theme.css?digest=0790524f97105ba85085" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=0790524f97105ba85085" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
@@ -38,25 +38,26 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=3f5a9049" />
   
   <!-- So that users can add custom icons -->
-  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <script defer src="../../_static/scripts/fontawesome.js?digest=0790524f97105ba85085"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
-<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=0790524f97105ba85085" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=0790524f97105ba85085" />
 
     <script src="../../_static/documentation_options.js?v=7026087e"></script>
-    <script src="../../_static/doctools.js?v=9bcbadda"></script>
-    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../_static/copybutton.js?v=97f0b27d"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'api/generated/openstef_meta.presets.EnsembleForecastingWorkflowConfig';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_version = '0.18.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = '_static/versions.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="icon" href="../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -65,20 +66,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="0.0.0" />
+  
+    
+    <script src="../../_static/searchtools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script src="../../searchindex.js"></script>
+  
   </head>
-  
-  
-  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
-
+  <body data-default-mode="">
   
   
   <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
   
   <div id="pst-scroll-pixel-helper"></div>
   
   <button type="button" class="btn rounded-pill" id="pst-back-to-top">
     <i class="fa-solid fa-arrow-up"></i>Back to top</button>
-
+  
+  
+  
   
   <dialog id="pst-search-dialog">
     
@@ -104,7 +111,7 @@
 </div>
 
   
-    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
 <div class="bd-header__inner bd-page-width">
   <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
     <span class="fa-solid fa-bars"></span>
@@ -201,11 +208,18 @@
       
         <div class="navbar-item">
 
-<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
-  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
-  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
-  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
-</button></div>
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
       
         <div class="navbar-item"><ul class="navbar-icon-links"
     aria-label="Icon Links">
@@ -218,8 +232,7 @@
           
           
           
-          <a href="https://github.com/OpenSTEF/openstef" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
-            <span class="sr-only">GitHub</span></a>
+          <a href="https://github.com/OpenSTEF/openstef" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
         </li>
         <li class="nav-item">
           
@@ -230,8 +243,7 @@
           
           
           
-          <a href="https://www.lfenergy.org/projects/openstef/" title="LFE Homepage" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-bolt fa-lg" aria-hidden="true"></i>
-            <span class="sr-only">LFE Homepage</span></a>
+          <a href="https://www.lfenergy.org/projects/openstef/" title="LFE Homepage" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-bolt fa-lg" aria-hidden="true"></i><span class="visually-hidden">LFE Homepage</span></a>
         </li>
 </ul></div>
       
@@ -327,11 +339,18 @@
         
           <div class="navbar-item">
 
-<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
-  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
-  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
-  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
-</button></div>
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
         
           <div class="navbar-item"><ul class="navbar-icon-links"
     aria-label="Icon Links">
@@ -344,8 +363,7 @@
           
           
           
-          <a href="https://github.com/OpenSTEF/openstef" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
-            <span class="sr-only">GitHub</span></a>
+          <a href="https://github.com/OpenSTEF/openstef" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
         </li>
         <li class="nav-item">
           
@@ -356,8 +374,7 @@
           
           
           
-          <a href="https://www.lfenergy.org/projects/openstef/" title="LFE Homepage" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-bolt fa-lg" aria-hidden="true"></i>
-            <span class="sr-only">LFE Homepage</span></a>
+          <a href="https://www.lfenergy.org/projects/openstef/" title="LFE Homepage" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-bolt fa-lg" aria-hidden="true"></i><span class="visually-hidden">LFE Homepage</span></a>
         </li>
 </ul></div>
         
@@ -366,7 +383,14 @@
   </div>
   
     <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar"><svg class="pst-icon svg-inline--fa" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
         <div class="sidebar-primary-item">
+
 <nav class="bd-docs-nav bd-links"
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
@@ -1134,7 +1158,7 @@
 <h1>EnsembleForecastingWorkflowConfig<a class="headerlink" href="#ensembleforecastingworkflowconfig" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="openstef_meta.presets.EnsembleForecastingWorkflowConfig">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openstef_meta.presets.</span></span><span class="sig-name descname"><span class="pre">EnsembleForecastingWorkflowConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/openstef_meta/presets/forecasting_workflow.html#EnsembleForecastingWorkflowConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">openstef_meta.presets.</span></span><span class="sig-name descname"><span class="pre">EnsembleForecastingWorkflowConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/openstef_meta/presets/forecasting_workflow.html#EnsembleForecastingWorkflowConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="openstef_core.base_model.BaseConfig.html#openstef_core.base_model.BaseConfig" title="openstef_core.base_model.BaseConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseConfig</span></code></a></p>
 <p>Configuration for ensemble forecasting workflows.</p>
 <dl class="field-list simple">
@@ -1144,328 +1168,328 @@
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_meta.presets.EnsembleForecastingWorkflowConfig.kind">
-<span class="sig-name descname"><span class="pre">kind</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code></a><span class="pre">[</span><code class="docutils literal notranslate"><span class="pre">'ensemble'</span></code><span class="pre">]</span></em><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.kind" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">kind</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><span class="pre">Literal</span></a><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'ensemble'</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.kind" title="Link to this definition">#</a></dt>
 <dd><p>Discriminator tag for config type.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_meta.presets.EnsembleForecastingWorkflowConfig.model_id">
-<span class="sig-name descname"><span class="pre">model_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">TypeAliasType</span></code></em><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.model_id" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">model_id</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ModelIdentifier</span></span><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.model_id" title="Link to this definition">#</a></dt>
 <dd><p>Unique identifier for the forecasting model.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_meta.presets.EnsembleForecastingWorkflowConfig.run_name">
-<span class="sig-name descname"><span class="pre">run_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> <span class="pre">|</span> <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></em><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.run_name" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">run_name</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.run_name" title="Link to this definition">#</a></dt>
 <dd><p>Optional name for this workflow run, can be used for versioning.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_meta.presets.EnsembleForecastingWorkflowConfig.ensemble_type">
-<span class="sig-name descname"><span class="pre">ensemble_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code></a><span class="pre">[</span><code class="docutils literal notranslate"><span class="pre">'learned_weights'</span></code><span class="pre">,</span> <code class="docutils literal notranslate"><span class="pre">'stacking'</span></code><span class="pre">,</span> <code class="docutils literal notranslate"><span class="pre">'rules'</span></code><span class="pre">]</span></em><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.ensemble_type" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">ensemble_type</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><span class="pre">Literal</span></a><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'learned_weights'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'stacking'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'rules'</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.ensemble_type" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_meta.presets.EnsembleForecastingWorkflowConfig.base_models">
-<span class="sig-name descname"><span class="pre">base_models</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code></a><span class="pre">[</span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code></a><span class="pre">[</span><code class="docutils literal notranslate"><span class="pre">'lgbm'</span></code><span class="pre">,</span> <code class="docutils literal notranslate"><span class="pre">'gblinear'</span></code><span class="pre">,</span> <code class="docutils literal notranslate"><span class="pre">'xgboost'</span></code><span class="pre">,</span> <code class="docutils literal notranslate"><span class="pre">'lgbm_linear'</span></code><span class="pre">]]</span></em><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.base_models" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">base_models</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence" title="(in Python v3.14)"><span class="pre">Sequence</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><span class="pre">Literal</span></a><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'lgbm'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'gblinear'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'xgboost'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'lgbm_linear'</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.base_models" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_meta.presets.EnsembleForecastingWorkflowConfig.combiner_model">
-<span class="sig-name descname"><span class="pre">combiner_model</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code></a><span class="pre">[</span><code class="docutils literal notranslate"><span class="pre">'lgbm'</span></code><span class="pre">,</span> <code class="docutils literal notranslate"><span class="pre">'rf'</span></code><span class="pre">,</span> <code class="docutils literal notranslate"><span class="pre">'xgboost'</span></code><span class="pre">,</span> <code class="docutils literal notranslate"><span class="pre">'logistic'</span></code><span class="pre">,</span> <code class="docutils literal notranslate"><span class="pre">'gblinear'</span></code><span class="pre">]</span></em><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.combiner_model" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">combiner_model</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><span class="pre">Literal</span></a><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'lgbm'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'rf'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'xgboost'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'logistic'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'gblinear'</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.combiner_model" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_meta.presets.EnsembleForecastingWorkflowConfig.quantiles">
-<span class="sig-name descname"><span class="pre">quantiles</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a><span class="pre">[</span><a class="reference internal" href="openstef_core.types.Quantile.html#openstef_core.types.Quantile" title="openstef_core.types.Quantile"><code class="xref py py-class docutils literal notranslate"><span class="pre">Quantile</span></code></a><span class="pre">]</span></em><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.quantiles" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">quantiles</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="openstef_core.types.Quantile.html#openstef_core.types.Quantile" title="openstef_core.types.Quantile"><span class="pre">Quantile</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.quantiles" title="Link to this definition">#</a></dt>
 <dd><p>List of quantiles to predict for probabilistic forecasting.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_meta.presets.EnsembleForecastingWorkflowConfig.sample_interval">
-<span class="sig-name descname"><span class="pre">sample_interval</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.timedelta" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">timedelta</span></code></a></em><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.sample_interval" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">sample_interval</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.timedelta" title="(in Python v3.14)"><span class="pre">timedelta</span></a></span><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.sample_interval" title="Link to this definition">#</a></dt>
 <dd><p>Time interval between consecutive data samples.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_meta.presets.EnsembleForecastingWorkflowConfig.horizons">
-<span class="sig-name descname"><span class="pre">horizons</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a><span class="pre">[</span><a class="reference internal" href="openstef_core.types.LeadTime.html#openstef_core.types.LeadTime" title="openstef_core.types.LeadTime"><code class="xref py py-class docutils literal notranslate"><span class="pre">LeadTime</span></code></a><span class="pre">]</span></em><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.horizons" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">horizons</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="openstef_core.types.LeadTime.html#openstef_core.types.LeadTime" title="openstef_core.types.LeadTime"><span class="pre">LeadTime</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.horizons" title="Link to this definition">#</a></dt>
 <dd><p>List of forecast horizons to predict.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_meta.presets.EnsembleForecastingWorkflowConfig.location">
-<span class="sig-name descname"><span class="pre">location</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">LocationConfig</span></code></em><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.location" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">location</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">LocationConfig</span></span><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.location" title="Link to this definition">#</a></dt>
 <dd><p>Location information for the forecasting workflow.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_meta.presets.EnsembleForecastingWorkflowConfig.xgboost_hyperparams">
-<span class="sig-name descname"><span class="pre">xgboost_hyperparams</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">XGBoostHyperParams</span></code></em><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.xgboost_hyperparams" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">xgboost_hyperparams</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">XGBoostHyperParams</span></span><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.xgboost_hyperparams" title="Link to this definition">#</a></dt>
 <dd><p>Hyperparameters for XGBoost forecaster.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_meta.presets.EnsembleForecastingWorkflowConfig.gblinear_hyperparams">
-<span class="sig-name descname"><span class="pre">gblinear_hyperparams</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">GBLinearHyperParams</span></code></em><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.gblinear_hyperparams" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">gblinear_hyperparams</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">GBLinearHyperParams</span></span><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.gblinear_hyperparams" title="Link to this definition">#</a></dt>
 <dd><p>Hyperparameters for GBLinear forecaster.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_meta.presets.EnsembleForecastingWorkflowConfig.lgbm_hyperparams">
-<span class="sig-name descname"><span class="pre">lgbm_hyperparams</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">LGBMHyperParams</span></code></em><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.lgbm_hyperparams" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">lgbm_hyperparams</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">LGBMHyperParams</span></span><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.lgbm_hyperparams" title="Link to this definition">#</a></dt>
 <dd><p>Hyperparameters for LightGBM forecaster.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_meta.presets.EnsembleForecastingWorkflowConfig.lgbmlinear_hyperparams">
-<span class="sig-name descname"><span class="pre">lgbmlinear_hyperparams</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">LGBMLinearHyperParams</span></code></em><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.lgbmlinear_hyperparams" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">lgbmlinear_hyperparams</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">LGBMLinearHyperParams</span></span><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.lgbmlinear_hyperparams" title="Link to this definition">#</a></dt>
 <dd><p>Hyperparameters for LightGBM forecaster.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_meta.presets.EnsembleForecastingWorkflowConfig.combiner_lgbm_hyperparams">
-<span class="sig-name descname"><span class="pre">combiner_lgbm_hyperparams</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">LGBMCombinerHyperParams</span></code></em><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.combiner_lgbm_hyperparams" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">combiner_lgbm_hyperparams</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">LGBMCombinerHyperParams</span></span><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.combiner_lgbm_hyperparams" title="Link to this definition">#</a></dt>
 <dd><p>Hyperparameters for LightGBM combiner.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_meta.presets.EnsembleForecastingWorkflowConfig.combiner_rf_hyperparams">
-<span class="sig-name descname"><span class="pre">combiner_rf_hyperparams</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">RFCombinerHyperParams</span></code></em><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.combiner_rf_hyperparams" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">combiner_rf_hyperparams</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">RFCombinerHyperParams</span></span><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.combiner_rf_hyperparams" title="Link to this definition">#</a></dt>
 <dd><p>Hyperparameters for Random Forest combiner.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_meta.presets.EnsembleForecastingWorkflowConfig.combiner_xgboost_hyperparams">
-<span class="sig-name descname"><span class="pre">combiner_xgboost_hyperparams</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">XGBCombinerHyperParams</span></code></em><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.combiner_xgboost_hyperparams" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">combiner_xgboost_hyperparams</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">XGBCombinerHyperParams</span></span><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.combiner_xgboost_hyperparams" title="Link to this definition">#</a></dt>
 <dd><p>Hyperparameters for XGBoost combiner.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_meta.presets.EnsembleForecastingWorkflowConfig.combiner_logistic_hyperparams">
-<span class="sig-name descname"><span class="pre">combiner_logistic_hyperparams</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">LogisticCombinerHyperParams</span></code></em><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.combiner_logistic_hyperparams" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">combiner_logistic_hyperparams</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">LogisticCombinerHyperParams</span></span><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.combiner_logistic_hyperparams" title="Link to this definition">#</a></dt>
 <dd><p>Hyperparameters for Logistic Regression combiner.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_meta.presets.EnsembleForecastingWorkflowConfig.combiner_stacking_lgbm_hyperparams">
-<span class="sig-name descname"><span class="pre">combiner_stacking_lgbm_hyperparams</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">LGBMHyperParams</span></code></em><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.combiner_stacking_lgbm_hyperparams" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">combiner_stacking_lgbm_hyperparams</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">LGBMHyperParams</span></span><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.combiner_stacking_lgbm_hyperparams" title="Link to this definition">#</a></dt>
 <dd><p>Hyperparameters for LightGBM stacking combiner.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_meta.presets.EnsembleForecastingWorkflowConfig.combiner_stacking_gblinear_hyperparams">
-<span class="sig-name descname"><span class="pre">combiner_stacking_gblinear_hyperparams</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">GBLinearHyperParams</span></code></em><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.combiner_stacking_gblinear_hyperparams" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">combiner_stacking_gblinear_hyperparams</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">GBLinearHyperParams</span></span><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.combiner_stacking_gblinear_hyperparams" title="Link to this definition">#</a></dt>
 <dd><p>Hyperparameters for GBLinear stacking combiner.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_meta.presets.EnsembleForecastingWorkflowConfig.target_column">
-<span class="sig-name descname"><span class="pre">target_column</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></em><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.target_column" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">target_column</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.target_column" title="Link to this definition">#</a></dt>
 <dd><p>Name of the target variable column in datasets.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_meta.presets.EnsembleForecastingWorkflowConfig.energy_price_column">
-<span class="sig-name descname"><span class="pre">energy_price_column</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></em><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.energy_price_column" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">energy_price_column</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.energy_price_column" title="Link to this definition">#</a></dt>
 <dd><p>Name of the energy price column in datasets.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_meta.presets.EnsembleForecastingWorkflowConfig.radiation_column">
-<span class="sig-name descname"><span class="pre">radiation_column</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></em><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.radiation_column" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">radiation_column</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.radiation_column" title="Link to this definition">#</a></dt>
 <dd><p>Name of the radiation column in datasets.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_meta.presets.EnsembleForecastingWorkflowConfig.wind_speed_column">
-<span class="sig-name descname"><span class="pre">wind_speed_column</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></em><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.wind_speed_column" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">wind_speed_column</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.wind_speed_column" title="Link to this definition">#</a></dt>
 <dd><p>Name of the wind speed column in datasets.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_meta.presets.EnsembleForecastingWorkflowConfig.pressure_column">
-<span class="sig-name descname"><span class="pre">pressure_column</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></em><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.pressure_column" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">pressure_column</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.pressure_column" title="Link to this definition">#</a></dt>
 <dd><p>Name of the pressure column in datasets.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_meta.presets.EnsembleForecastingWorkflowConfig.temperature_column">
-<span class="sig-name descname"><span class="pre">temperature_column</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></em><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.temperature_column" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">temperature_column</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.temperature_column" title="Link to this definition">#</a></dt>
 <dd><p>Name of the temperature column in datasets.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_meta.presets.EnsembleForecastingWorkflowConfig.relative_humidity_column">
-<span class="sig-name descname"><span class="pre">relative_humidity_column</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></em><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.relative_humidity_column" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">relative_humidity_column</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.relative_humidity_column" title="Link to this definition">#</a></dt>
 <dd><p>Name of the relative humidity column in datasets.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_meta.presets.EnsembleForecastingWorkflowConfig.selected_features">
-<span class="sig-name descname"><span class="pre">selected_features</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">FeatureSelection</span></code></em><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.selected_features" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">selected_features</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">FeatureSelection</span></span><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.selected_features" title="Link to this definition">#</a></dt>
 <dd><p>Feature selection for which features to include/exclude.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_meta.presets.EnsembleForecastingWorkflowConfig.predict_history">
-<span class="sig-name descname"><span class="pre">predict_history</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.timedelta" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">timedelta</span></code></a></em><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.predict_history" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">predict_history</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.timedelta" title="(in Python v3.14)"><span class="pre">timedelta</span></a></span><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.predict_history" title="Link to this definition">#</a></dt>
 <dd><p>Amount of historical data available at prediction time.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_meta.presets.EnsembleForecastingWorkflowConfig.cutoff_history">
-<span class="sig-name descname"><span class="pre">cutoff_history</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.timedelta" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">timedelta</span></code></a></em><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.cutoff_history" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">cutoff_history</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.timedelta" title="(in Python v3.14)"><span class="pre">timedelta</span></a></span><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.cutoff_history" title="Link to this definition">#</a></dt>
 <dd><p>Amount of historical data to exclude from training and prediction due to incomplete features from lag-based preprocessing. When using lag transforms (e.g., lag-14), the first N days contain NaN values. Set this to match your maximum lag duration (e.g., timedelta(days=14)). Default of 0 assumes no invalid rows are created by preprocessing. Note: should be same as predict_history if you are using lags. We default to disabled to keep the same behaviour as openstef 3.0.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_meta.presets.EnsembleForecastingWorkflowConfig.completeness_threshold">
-<span class="sig-name descname"><span class="pre">completeness_threshold</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></em><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.completeness_threshold" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">completeness_threshold</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.completeness_threshold" title="Link to this definition">#</a></dt>
 <dd><p>Minimum fraction of data that should be available for making a regular forecast.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_meta.presets.EnsembleForecastingWorkflowConfig.flatliner_threshold">
-<span class="sig-name descname"><span class="pre">flatliner_threshold</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.timedelta" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">timedelta</span></code></a></em><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.flatliner_threshold" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">flatliner_threshold</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.timedelta" title="(in Python v3.14)"><span class="pre">timedelta</span></a></span><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.flatliner_threshold" title="Link to this definition">#</a></dt>
 <dd><p>Number of minutes that the load has to be constant to detect a flatliner.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_meta.presets.EnsembleForecastingWorkflowConfig.detect_non_zero_flatliner">
-<span class="sig-name descname"><span class="pre">detect_non_zero_flatliner</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></em><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.detect_non_zero_flatliner" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">detect_non_zero_flatliner</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.detect_non_zero_flatliner" title="Link to this definition">#</a></dt>
 <dd><p>If True, flatliners are also detected on non-zero values (median of the load).</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_meta.presets.EnsembleForecastingWorkflowConfig.predict_nonzero_flatliner">
-<span class="sig-name descname"><span class="pre">predict_nonzero_flatliner</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></em><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.predict_nonzero_flatliner" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">predict_nonzero_flatliner</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.predict_nonzero_flatliner" title="Link to this definition">#</a></dt>
 <dd><p>If True, predict the median of load measurements instead of zero (only for flatliner model).</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_meta.presets.EnsembleForecastingWorkflowConfig.shifters">
-<span class="sig-name descname"><span class="pre">shifters</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">Shifter</span></code><span class="pre">]</span></em><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.shifters" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">shifters</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><span class="pre">Shifter</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.shifters" title="Link to this definition">#</a></dt>
 <dd><p>List of feature shifts to align aggregation intervals. Each Shifter can target different features with different aggregation periods.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_meta.presets.EnsembleForecastingWorkflowConfig.rolling_aggregate_features">
-<span class="sig-name descname"><span class="pre">rolling_aggregate_features</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">TypeAliasType</span></code><span class="pre">]</span></em><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.rolling_aggregate_features" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">rolling_aggregate_features</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><span class="pre">AggregationFunction</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.rolling_aggregate_features" title="Link to this definition">#</a></dt>
 <dd><p>If not None, rolling aggregate(s) of load will be used as features in the model.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_meta.presets.EnsembleForecastingWorkflowConfig.clip_features">
-<span class="sig-name descname"><span class="pre">clip_features</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">FeatureSelection</span></code></em><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.clip_features" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">clip_features</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">FeatureSelection</span></span><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.clip_features" title="Link to this definition">#</a></dt>
 <dd><p>Feature selection for which features to clip to their learned range.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_meta.presets.EnsembleForecastingWorkflowConfig.nan_on_outlier_features">
-<span class="sig-name descname"><span class="pre">nan_on_outlier_features</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">FeatureSelection</span></code></em><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.nan_on_outlier_features" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">nan_on_outlier_features</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">FeatureSelection</span></span><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.nan_on_outlier_features" title="Link to this definition">#</a></dt>
 <dd><p>Feature selection for which features to replace out-of-range values with NaN. Defaults to no features (disabled).</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_meta.presets.EnsembleForecastingWorkflowConfig.max_day_lags">
-<span class="sig-name descname"><span class="pre">max_day_lags</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></em><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.max_day_lags" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">max_day_lags</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.max_day_lags" title="Link to this definition">#</a></dt>
 <dd><p>Maximum number of days to look back for day-based lags. Default is 14 days (two weekly cycles). Set to 7 for a single weekly cycle.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_meta.presets.EnsembleForecastingWorkflowConfig.forecaster_sample_weights">
-<span class="sig-name descname"><span class="pre">forecaster_sample_weights</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a><span class="pre">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">SampleWeightConfig</span></code><span class="pre">]</span></em><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.forecaster_sample_weights" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">forecaster_sample_weights</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">SampleWeightConfig</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.forecaster_sample_weights" title="Link to this definition">#</a></dt>
 <dd><p>Per-forecaster sample weighting configuration. Use weight_exponent=0 to produce uniform weights.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_meta.presets.EnsembleForecastingWorkflowConfig.combiner_sample_weight">
-<span class="sig-name descname"><span class="pre">combiner_sample_weight</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">SampleWeightConfig</span></code></em><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.combiner_sample_weight" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">combiner_sample_weight</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">SampleWeightConfig</span></span><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.combiner_sample_weight" title="Link to this definition">#</a></dt>
 <dd><p>Sample weighting configuration for the forecast combiner. Defaults to weight_exponent=0 (uniform weights).</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_meta.presets.EnsembleForecastingWorkflowConfig.data_splitter">
-<span class="sig-name descname"><span class="pre">data_splitter</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">DataSplitter</span></code></em><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.data_splitter" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">data_splitter</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">DataSplitter</span></span><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.data_splitter" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for splitting data into training, validation, and test sets.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_meta.presets.EnsembleForecastingWorkflowConfig.evaluation_metrics">
-<span class="sig-name descname"><span class="pre">evaluation_metrics</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">MetricProvider</span></code><span class="pre">]</span></em><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.evaluation_metrics" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">evaluation_metrics</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><span class="pre">MetricProvider</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.evaluation_metrics" title="Link to this definition">#</a></dt>
 <dd><p>List of metric providers for evaluating model score.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_meta.presets.EnsembleForecastingWorkflowConfig.mlflow_storage">
-<span class="sig-name descname"><span class="pre">mlflow_storage</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">MLFlowStorage</span></code> <span class="pre">|</span> <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></em><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.mlflow_storage" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">mlflow_storage</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">MLFlowStorage</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.mlflow_storage" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for MLflow experiment tracking and model storage.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_meta.presets.EnsembleForecastingWorkflowConfig.model_reuse_enable">
-<span class="sig-name descname"><span class="pre">model_reuse_enable</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></em><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.model_reuse_enable" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">model_reuse_enable</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.model_reuse_enable" title="Link to this definition">#</a></dt>
 <dd><p>Whether to enable reuse of previously trained models.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_meta.presets.EnsembleForecastingWorkflowConfig.model_reuse_max_age">
-<span class="sig-name descname"><span class="pre">model_reuse_max_age</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.timedelta" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">timedelta</span></code></a></em><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.model_reuse_max_age" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">model_reuse_max_age</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.timedelta" title="(in Python v3.14)"><span class="pre">timedelta</span></a></span><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.model_reuse_max_age" title="Link to this definition">#</a></dt>
 <dd><p>Maximum age of a model to be considered for reuse.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_meta.presets.EnsembleForecastingWorkflowConfig.model_selection_enable">
-<span class="sig-name descname"><span class="pre">model_selection_enable</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></em><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.model_selection_enable" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">model_selection_enable</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.model_selection_enable" title="Link to this definition">#</a></dt>
 <dd><p>Whether to enable automatic model selection based on performance.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_meta.presets.EnsembleForecastingWorkflowConfig.model_selection_metric">
-<span class="sig-name descname"><span class="pre">model_selection_metric</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a><span class="pre">[</span><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code><span class="pre">[</span><a class="reference internal" href="openstef_core.types.Quantile.html#openstef_core.types.Quantile" title="openstef_core.types.Quantile"><code class="xref py py-class docutils literal notranslate"><span class="pre">Quantile</span></code></a><span class="pre">,</span> <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code></a><span class="pre">[</span><code class="docutils literal notranslate"><span class="pre">'global'</span></code><span class="pre">]],</span> <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">TypeAliasType</span></code><span class="pre">]</span></em><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.model_selection_metric" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">model_selection_metric</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="openstef_core.types.Quantile.html#openstef_core.types.Quantile" title="openstef_core.types.Quantile"><span class="pre">Quantile</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><span class="pre">Literal</span></a><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'global'</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">MetricDirection</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.model_selection_metric" title="Link to this definition">#</a></dt>
 <dd><p>Metric to monitor for model performance when retraining.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_meta.presets.EnsembleForecastingWorkflowConfig.model_selection_old_model_penalty">
-<span class="sig-name descname"><span class="pre">model_selection_old_model_penalty</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></em><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.model_selection_old_model_penalty" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">model_selection_old_model_penalty</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.model_selection_old_model_penalty" title="Link to this definition">#</a></dt>
 <dd><p>Penalty to apply to the old model’s metric to bias selection towards newer models.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_meta.presets.EnsembleForecastingWorkflowConfig.model_performance_callback_enabled">
-<span class="sig-name descname"><span class="pre">model_performance_callback_enabled</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></em><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.model_performance_callback_enabled" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">model_performance_callback_enabled</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.model_performance_callback_enabled" title="Link to this definition">#</a></dt>
 <dd><p>Whether to enable the ModelPerformanceCallback that evaluates model performance at the end of fitting.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_meta.presets.EnsembleForecastingWorkflowConfig.model_performance_callback_metric_threshold">
-<span class="sig-name descname"><span class="pre">model_performance_callback_metric_threshold</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a><span class="pre">[</span><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code><span class="pre">[</span><a class="reference internal" href="openstef_core.types.Quantile.html#openstef_core.types.Quantile" title="openstef_core.types.Quantile"><code class="xref py py-class docutils literal notranslate"><span class="pre">Quantile</span></code></a><span class="pre">,</span> <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code></a><span class="pre">[</span><code class="docutils literal notranslate"><span class="pre">'global'</span></code><span class="pre">]],</span> <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">TypeAliasType</span></code><span class="pre">,</span> <a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a><span class="pre">]</span></em><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.model_performance_callback_metric_threshold" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">model_performance_callback_metric_threshold</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="openstef_core.types.Quantile.html#openstef_core.types.Quantile" title="openstef_core.types.Quantile"><span class="pre">Quantile</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><span class="pre">Literal</span></a><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'global'</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">MetricDirection</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.model_performance_callback_metric_threshold" title="Link to this definition">#</a></dt>
 <dd><p>Metric to monitor for model performance threshold at the end of fitting. </p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_meta.presets.EnsembleForecastingWorkflowConfig.verbosity">
-<span class="sig-name descname"><span class="pre">verbosity</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code></a><span class="pre">[</span><code class="docutils literal notranslate"><span class="pre">0</span></code><span class="pre">,</span> <code class="docutils literal notranslate"><span class="pre">1</span></code><span class="pre">,</span> <code class="docutils literal notranslate"><span class="pre">2</span></code><span class="pre">,</span> <code class="docutils literal notranslate"><span class="pre">3</span></code><span class="pre">,</span> <code class="docutils literal notranslate"><span class="pre">True</span></code><span class="pre">]</span></em><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.verbosity" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">verbosity</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><span class="pre">Literal</span></a><span class="p"><span class="pre">[</span></span><span class="m"><span class="pre">0</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="m"><span class="pre">1</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="m"><span class="pre">2</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="m"><span class="pre">3</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">True</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.verbosity" title="Link to this definition">#</a></dt>
 <dd><p>Verbosity level. 0=silent, 1=warning, 2=info, 3=debug</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_meta.presets.EnsembleForecastingWorkflowConfig.tags">
-<span class="sig-name descname"><span class="pre">tags</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a><span class="pre">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a><span class="pre">,</span> <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a><span class="pre">]</span></em><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.tags" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">tags</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.tags" title="Link to this definition">#</a></dt>
 <dd><p>Optional metadata tags for the model.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_meta.presets.EnsembleForecastingWorkflowConfig.experiment_tags">
-<span class="sig-name descname"><span class="pre">experiment_tags</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a><span class="pre">[</span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a><span class="pre">,</span> <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a><span class="pre">]</span></em><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.experiment_tags" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">experiment_tags</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.experiment_tags" title="Link to this definition">#</a></dt>
 <dd><p>Optional metadata tags for experiment tracking.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_meta.presets.EnsembleForecastingWorkflowConfig.model_config">
-<span class="sig-name descname"><span class="pre">model_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar[ConfigDict]</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'arbitrary_types_allowed':</span> <span class="pre">False,</span> <span class="pre">'extra':</span> <span class="pre">'ignore',</span> <span class="pre">'protected_namespaces':</span> <span class="pre">()}</span></em><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.model_config" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">model_config</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.ClassVar" title="(in Python v3.14)"><span class="pre">ClassVar</span></a><span class="p"><span class="pre">[</span></span><span class="pre">ConfigDict</span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'arbitrary_types_allowed':</span> <span class="pre">False,</span> <span class="pre">'extra':</span> <span class="pre">'ignore',</span> <span class="pre">'protected_namespaces':</span> <span class="pre">()}</span></span><a class="headerlink" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.model_config" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
 </dd></dl>
 
@@ -1518,9 +1542,9 @@
     class="page-toc tocsection onthispage">
     <i class="fa-solid fa-list"></i> On this page
   </div>
-  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
-    <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig"><code class="docutils literal notranslate"><span class="pre">EnsembleForecastingWorkflowConfig</span></code></a><ul class="visible nav section-nav flex-column">
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig"><code class="docutils literal notranslate"><span class="pre">EnsembleForecastingWorkflowConfig</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.kind"><code class="docutils literal notranslate"><span class="pre">EnsembleForecastingWorkflowConfig.kind</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.model_id"><code class="docutils literal notranslate"><span class="pre">EnsembleForecastingWorkflowConfig.model_id</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_meta.presets.EnsembleForecastingWorkflowConfig.run_name"><code class="docutils literal notranslate"><span class="pre">EnsembleForecastingWorkflowConfig.run_name</span></code></a></li>
@@ -1610,8 +1634,8 @@
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
-<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+  <script defer src="../../_static/scripts/bootstrap.js?digest=0790524f97105ba85085"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=0790524f97105ba85085"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -1631,7 +1655,7 @@
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     <br/>
   </p>
 </div>
@@ -1645,7 +1669,7 @@
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.18.0.
 </p></div>
       
     </div>

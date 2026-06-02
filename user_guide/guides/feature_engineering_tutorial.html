@@ -27,8 +27,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
-<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+  <link href="../../_static/styles/theme.css?digest=0790524f97105ba85085" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=0790524f97105ba85085" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
@@ -38,25 +38,26 @@
     <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=3f5a9049" />
   
   <!-- So that users can add custom icons -->
-  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <script defer src="../../_static/scripts/fontawesome.js?digest=0790524f97105ba85085"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
-<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=0790524f97105ba85085" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=0790524f97105ba85085" />
 
     <script src="../../_static/documentation_options.js?v=7026087e"></script>
-    <script src="../../_static/doctools.js?v=9bcbadda"></script>
-    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../_static/copybutton.js?v=97f0b27d"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/guides/feature_engineering_tutorial';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_version = '0.18.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = '_static/versions.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="icon" href="../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -65,20 +66,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="0.0.0" />
+  
+    
+    <script src="../../_static/searchtools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script src="../../searchindex.js"></script>
+  
   </head>
-  
-  
-  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
-
+  <body data-default-mode="">
   
   
   <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
   
   <div id="pst-scroll-pixel-helper"></div>
   
   <button type="button" class="btn rounded-pill" id="pst-back-to-top">
     <i class="fa-solid fa-arrow-up"></i>Back to top</button>
-
+  
+  
+  
   
   <dialog id="pst-search-dialog">
     
@@ -104,7 +111,7 @@
 </div>
 
   
-    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
 <div class="bd-header__inner bd-page-width">
   <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
     <span class="fa-solid fa-bars"></span>
@@ -201,11 +208,18 @@
       
         <div class="navbar-item">
 
-<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
-  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
-  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
-  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
-</button></div>
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
       
         <div class="navbar-item"><ul class="navbar-icon-links"
     aria-label="Icon Links">
@@ -218,8 +232,7 @@
           
           
           
-          <a href="https://github.com/OpenSTEF/openstef" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
-            <span class="sr-only">GitHub</span></a>
+          <a href="https://github.com/OpenSTEF/openstef" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
         </li>
         <li class="nav-item">
           
@@ -230,8 +243,7 @@
           
           
           
-          <a href="https://www.lfenergy.org/projects/openstef/" title="LFE Homepage" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-bolt fa-lg" aria-hidden="true"></i>
-            <span class="sr-only">LFE Homepage</span></a>
+          <a href="https://www.lfenergy.org/projects/openstef/" title="LFE Homepage" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-bolt fa-lg" aria-hidden="true"></i><span class="visually-hidden">LFE Homepage</span></a>
         </li>
 </ul></div>
       
@@ -327,11 +339,18 @@
         
           <div class="navbar-item">
 
-<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
-  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
-  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
-  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
-</button></div>
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
         
           <div class="navbar-item"><ul class="navbar-icon-links"
     aria-label="Icon Links">
@@ -344,8 +363,7 @@
           
           
           
-          <a href="https://github.com/OpenSTEF/openstef" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
-            <span class="sr-only">GitHub</span></a>
+          <a href="https://github.com/OpenSTEF/openstef" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
         </li>
         <li class="nav-item">
           
@@ -356,8 +374,7 @@
           
           
           
-          <a href="https://www.lfenergy.org/projects/openstef/" title="LFE Homepage" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-bolt fa-lg" aria-hidden="true"></i>
-            <span class="sr-only">LFE Homepage</span></a>
+          <a href="https://www.lfenergy.org/projects/openstef/" title="LFE Homepage" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-bolt fa-lg" aria-hidden="true"></i><span class="visually-hidden">LFE Homepage</span></a>
         </li>
 </ul></div>
         
@@ -366,7 +383,14 @@
   </div>
   
     <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar"><svg class="pst-icon svg-inline--fa" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
         <div class="sidebar-primary-item">
+
 <nav class="bd-docs-nav bd-links"
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
@@ -584,7 +608,7 @@ Sample interval: 0:15:00
 </div>
 </details>
 <div class="cell_output docutils container">
-<img alt="../../_images/74f296a30b2b6ae5ded8ba8445a5416e61dbccd1a330a93b712434c109ed88a8.png" src="../../_images/74f296a30b2b6ae5ded8ba8445a5416e61dbccd1a330a93b712434c109ed88a8.png" />
+<img alt="../../_images/2809237962bb9593fefec42a50a43347757debcd0f1a9650bc9dda541b0ac042.png" src="../../_images/2809237962bb9593fefec42a50a43347757debcd0f1a9650bc9dda541b0ac042.png" />
 </div>
 </div>
 </section>
@@ -650,7 +674,7 @@ both tree-based and linear models capture daily patterns with fewer parameters.<
 </div>
 </details>
 <div class="cell_output docutils container">
-<img alt="../../_images/ca58a919efc9111e20ab59b234430aa5be2a0e78a9bfc34469b7452149886124.png" src="../../_images/ca58a919efc9111e20ab59b234430aa5be2a0e78a9bfc34469b7452149886124.png" />
+<img alt="../../_images/4e8eadb163c9cb95afaccf3ebcf5e62ba7d7f1ad8d76744705c7bae44ee0b9d9.png" src="../../_images/4e8eadb163c9cb95afaccf3ebcf5e62ba7d7f1ad8d76744705c7bae44ee0b9d9.png" />
 </div>
 </div>
 <p>The sine/cosine curves align with the load’s daily rhythm — they peak and
@@ -720,7 +744,7 @@ Friday and overpredict.</p>
 </div>
 </details>
 <div class="cell_output docutils container">
-<img alt="../../_images/aec4f10a73b19fea8bb0d55f14c339ae773d8cb7c86f98a46fc8e683b0f74e5c.png" src="../../_images/aec4f10a73b19fea8bb0d55f14c339ae773d8cb7c86f98a46fc8e683b0f74e5c.png" />
+<img alt="../../_images/03cc69f53f49fadf94228a5909e737c8ea707dad01b719aef6cfd95f97adf3ab.png" src="../../_images/03cc69f53f49fadf94228a5909e737c8ea707dad01b719aef6cfd95f97adf3ab.png" />
 </div>
 </div>
 </section>
@@ -798,7 +822,7 @@ automatically selects valid lags for each horizon.</p>
 </div>
 </details>
 <div class="cell_output docutils container">
-<img alt="../../_images/f3fc473b92786101c7194bcb9f027b97e68fab87c8e346244f6cca2074b7b87b.png" src="../../_images/f3fc473b92786101c7194bcb9f027b97e68fab87c8e346244f6cca2074b7b87b.png" />
+<img alt="../../_images/2f196f42790afb27e5d4c1c96ca1e96f0f47e87e53c038527f291c54611348fc.png" src="../../_images/2f196f42790afb27e5d4c1c96ca1e96f0f47e87e53c038527f291c54611348fc.png" />
 </div>
 </div>
 </section>
@@ -867,7 +891,7 @@ helps the model detect gradual shifts (e.g., temperature-driven HVAC ramp-ups).<
 </div>
 </details>
 <div class="cell_output docutils container">
-<img alt="../../_images/ffeca4467b378f7096fa99eead8f9c8ffbe432d6a78108412dd4ed980ed6b256.png" src="../../_images/ffeca4467b378f7096fa99eead8f9c8ffbe432d6a78108412dd4ed980ed6b256.png" />
+<img alt="../../_images/dcfe4ff742a1632bd0cb825252fc1cc1a9150d76f7f036e8fd629a296d0fed80.png" src="../../_images/dcfe4ff742a1632bd0cb825252fc1cc1a9150d76f7f036e8fd629a296d0fed80.png" />
 </div>
 </div>
 </section>
@@ -1079,7 +1103,7 @@ actually available at prediction time, preventing data leakage.</p>
 </div>
 </details>
 <div class="cell_output docutils container">
-<img alt="../../_images/4fd67ab8f458dc7df837375a65323fd598320ee2a1542be2df2a77af5bcd8e2c.png" src="../../_images/4fd67ab8f458dc7df837375a65323fd598320ee2a1542be2df2a77af5bcd8e2c.png" />
+<img alt="../../_images/e79fdfc2f3ce7ea156542f87be66846723e0018d2d4f1a30d22757d4361a4184.png" src="../../_images/e79fdfc2f3ce7ea156542f87be66846723e0018d2d4f1a30d22757d4361a4184.png" />
 </div>
 </div>
 </section>
@@ -1134,7 +1158,7 @@ In spring, daylight changes ~3 min/day — a meaningful trend even within a mont
 </div>
 </details>
 <div class="cell_output docutils container">
-<img alt="../../_images/d4ee16075888fa4d830dd41dadf4ef038b2330179de972bc231d8593b5b7fc83.png" src="../../_images/d4ee16075888fa4d830dd41dadf4ef038b2330179de972bc231d8593b5b7fc83.png" />
+<img alt="../../_images/77529aa9bcefbee1e490558478217d658c543276ef21ac8d9dfbed8f87323665.png" src="../../_images/77529aa9bcefbee1e490558478217d658c543276ef21ac8d9dfbed8f87323665.png" />
 </div>
 </div>
 </section>
@@ -1289,7 +1313,7 @@ than horizontal in winter.</p>
 </div>
 </details>
 <div class="cell_output docutils container">
-<img alt="../../_images/d69d41b55266a8c81e73580917fbe05770e5a9bca1288eb673d818aa22e32647.png" src="../../_images/d69d41b55266a8c81e73580917fbe05770e5a9bca1288eb673d818aa22e32647.png" />
+<img alt="../../_images/c8068b232a249612f43978eba83ce08530ab99800c804641b2ba0fff91e03a61.png" src="../../_images/c8068b232a249612f43978eba83ce08530ab99800c804641b2ba0fff91e03a61.png" />
 </div>
 </div>
 </section>
@@ -1357,7 +1381,7 @@ This transform encodes that physics directly.</p>
 </div>
 </details>
 <div class="cell_output docutils container">
-<img alt="../../_images/b50807ddc6257818bcb354a6b9ebd396e1438828fbbc66d14751ae25fa1f0938.png" src="../../_images/b50807ddc6257818bcb354a6b9ebd396e1438828fbbc66d14751ae25fa1f0938.png" />
+<img alt="../../_images/311885e5c62a04268ac4a0624b299e8edb20f2593abb628380e15109ffeb5605.png" src="../../_images/311885e5c62a04268ac4a0624b299e8edb20f2593abb628380e15109ffeb5605.png" />
 </div>
 </div>
 </section>
@@ -1560,7 +1584,7 @@ the periods that matter most operationally.</p>
 </div>
 </details>
 <div class="cell_output docutils container">
-<img alt="../../_images/598125b1ada8e91b28885298f8d9d399d39f08e46c871b3fac78597093148690.png" src="../../_images/598125b1ada8e91b28885298f8d9d399d39f08e46c871b3fac78597093148690.png" />
+<img alt="../../_images/3afcc530fade249ff5ecb1a680d6f38c2cfa25ea9d02a6334a6b58aecbe8e82f.png" src="../../_images/3afcc530fade249ff5ecb1a680d6f38c2cfa25ea9d02a6334a6b58aecbe8e82f.png" />
 </div>
 </div>
 </section>
@@ -1696,7 +1720,7 @@ Use them at the start of a pipeline to fail fast.</p>
 </div>
 </details>
 <div class="cell_output docutils container">
-<img alt="../../_images/cda513777c837e6a8369c96a08caab968c27090b640d3e1553710e4cc78ac705.png" src="../../_images/cda513777c837e6a8369c96a08caab968c27090b640d3e1553710e4cc78ac705.png" />
+<img alt="../../_images/201db9156d32d83adfcf13ad75b0db352f52dd110543f32e130ccafd04385aa3.png" src="../../_images/201db9156d32d83adfcf13ad75b0db352f52dd110543f32e130ccafd04385aa3.png" />
 </div>
 </div>
 </section>
@@ -1767,7 +1791,7 @@ teaches the model that constant load is normal → bad forecasts.</p>
 </div>
 </details>
 <div class="cell_output docutils container">
-<img alt="../../_images/38bc72741072207d34a37aa4dc4d96250c72b878518566a405a8bbc4ae24441b.png" src="../../_images/38bc72741072207d34a37aa4dc4d96250c72b878518566a405a8bbc4ae24441b.png" />
+<img alt="../../_images/7c8a345a8a467670956db84cd6ea891c5b4120c46e7673fdb6a3acbba4cb5536.png" src="../../_images/7c8a345a8a467670956db84cd6ea891c5b4120c46e7673fdb6a3acbba4cb5536.png" />
 </div>
 </div>
 </section>
@@ -1939,7 +1963,7 @@ for use in any OpenSTEF workflow.</p>
 </div>
 </details>
 <div class="cell_output docutils container">
-<img alt="../../_images/67806563f7eb86ea20fc1a226b2a3f7c00b1c18f68f2b4b3ad89a7e0f5b4b46c.png" src="../../_images/67806563f7eb86ea20fc1a226b2a3f7c00b1c18f68f2b4b3ad89a7e0f5b4b46c.png" />
+<img alt="../../_images/7032448136c5936c8c53966e4556a0cf68881cbf46c8bb053dae0564e4e4c781.png" src="../../_images/7032448136c5936c8c53966e4556a0cf68881cbf46c8bb053dae0564e4e4c781.png" />
 </div>
 </div>
 </section>
@@ -2223,10 +2247,10 @@ timestamp
     class="page-toc tocsection onthispage">
     <i class="fa-solid fa-list"></i> On this page
   </div>
-  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
-    <ul class="visible nav section-nav flex-column">
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#load-sample-data">Load sample data</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#time-domain-transforms">1. Time Domain Transforms</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#time-domain-transforms">1. Time Domain Transforms</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cyclicfeaturesadder"><code class="xref py py-class docutils literal notranslate"><span class="pre">CyclicFeaturesAdder</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#holidayfeatureadder"><code class="xref py py-class docutils literal notranslate"><span class="pre">HolidayFeatureAdder</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#lagsadder"><code class="xref py py-class docutils literal notranslate"><span class="pre">LagsAdder</span></code></a></li>
@@ -2235,17 +2259,17 @@ timestamp
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#versionedlagsadder"><code class="xref py py-class docutils literal notranslate"><span class="pre">VersionedLagsAdder</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#weather-domain-transforms">2. Weather Domain Transforms</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#weather-domain-transforms">2. Weather Domain Transforms</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#daylightfeatureadder"><code class="xref py py-class docutils literal notranslate"><span class="pre">DaylightFeatureAdder</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#atmospherederivedfeaturesadder"><code class="xref py py-class docutils literal notranslate"><span class="pre">AtmosphereDerivedFeaturesAdder</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#radiationderivedfeaturesadder"><code class="xref py py-class docutils literal notranslate"><span class="pre">RadiationDerivedFeaturesAdder</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#energy-domain-transforms">3. Energy Domain Transforms</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#energy-domain-transforms">3. Energy Domain Transforms</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#windpowerfeatureadder"><code class="xref py py-class docutils literal notranslate"><span class="pre">WindPowerFeatureAdder</span></code></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#general-transforms-data-cleaning-preparation">4. General Transforms (Data Cleaning &amp; Preparation)</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#general-transforms-data-cleaning-preparation">4. General Transforms (Data Cleaning &amp; Preparation)</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#imputer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Imputer</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#scaler"><code class="xref py py-class docutils literal notranslate"><span class="pre">Scaler</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#outlierhandler"><code class="xref py py-class docutils literal notranslate"><span class="pre">OutlierHandler</span></code></a></li>
@@ -2253,7 +2277,7 @@ timestamp
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#other-general-transforms">Other general transforms</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#validation-transforms">5. Validation Transforms</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#validation-transforms">5. Validation Transforms</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#completenesschecker"><code class="xref py py-class docutils literal notranslate"><span class="pre">CompletenessChecker</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#flatlinechecker"><code class="xref py py-class docutils literal notranslate"><span class="pre">FlatlineChecker</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#inputconsistencychecker"><code class="xref py py-class docutils literal notranslate"><span class="pre">InputConsistencyChecker</span></code></a></li>
@@ -2261,7 +2285,7 @@ timestamp
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#postprocessing-transforms">6. Postprocessing Transforms</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#building-your-own-transform">7. Building Your Own Transform</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#composing-a-full-pipeline">8. Composing a Full Pipeline</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#composing-a-full-pipeline">8. Composing a Full Pipeline</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#preprocessing-pipeline">Preprocessing pipeline</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#postprocessing-pipeline">Postprocessing pipeline</a></li>
 </ul>
@@ -2299,8 +2323,8 @@ timestamp
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
-<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+  <script defer src="../../_static/scripts/bootstrap.js?digest=0790524f97105ba85085"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=0790524f97105ba85085"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -2320,7 +2344,7 @@ timestamp
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     <br/>
   </p>
 </div>
@@ -2334,7 +2358,7 @@ timestamp
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.18.0.
 </p></div>
       
     </div>
