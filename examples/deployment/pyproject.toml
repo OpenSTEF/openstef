@@ -1,0 +1,103 @@
+# SPDX-FileCopyrightText: 2026 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+#
+# SPDX-License-Identifier: MPL-2.0
+
+[build-system]
+build-backend = "hatchling.build"
+
+requires = [ "hatchling" ]
+
+[project]
+name = "openstef-deployment-examples"
+version = "0.0.0"
+description = "Runnable deployment examples for OpenSTEF (Dagster, Airflow, Celery)"
+readme = "README.md"
+requires-python = ">=3.12,<4.0"
+dependencies = [
+  "openstef-core[benchmark]",
+  "openstef-models[xgb-cpu]",
+  "pydantic-settings>=2.14,<3",
+]
+
+optional-dependencies.airflow = [ "apache-airflow>=2.10" ]
+optional-dependencies.celery = [
+  "celery[redis]>=5.4",
+  "flower>=2",
+]
+optional-dependencies.dagster = [
+  "dagster>=1.9",
+  "dagster-webserver>=1.9",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = [
+  "src/common",
+  "src/dagster_app",
+  "src/airflow_app",
+  "src/celery_app",
+]
+
+# Run-the-example tasks, co-located with the example. The root pyproject pulls these in via
+# `[tool.poe] include`, so `uv run poe deploy-*` works from the repo root (where POE_ROOT,
+# and therefore the paths below, resolve). Each framework has the same three commands:
+# `-ui` (launch the web UI), `-train`, and `-forecast`.
+
+[tool.poe.tasks.deploy-dagster-ui]
+help = "Dagster (UI): the Dagster web UI at http://localhost:3000"
+env.OPENSTEF_DEPLOY_DATA_DIR = "${POE_ROOT}/examples/deployment/openstef_deployment_runs"
+cmd = "uv run --no-sync --package openstef-deployment-examples dagster dev -m dagster_app.definitions"
+
+[tool.poe.tasks.deploy-dagster-train]
+help = "Dagster (CLI): train every target (materialize the trained_model asset)"
+env.OPENSTEF_DEPLOY_DATA_DIR = "${POE_ROOT}/examples/deployment/openstef_deployment_runs"
+cmd = "uv run --no-sync --package openstef-deployment-examples python -m dagster_app.run train"
+
+[tool.poe.tasks.deploy-dagster-forecast]
+help = "Dagster (CLI): forecast every target (materialize the forecast asset)"
+env.OPENSTEF_DEPLOY_DATA_DIR = "${POE_ROOT}/examples/deployment/openstef_deployment_runs"
+cmd = "uv run --no-sync --package openstef-deployment-examples python -m dagster_app.run forecast"
+
+[tool.poe.tasks.deploy-airflow-ui]
+help = "Airflow (UI): all-in-one webserver + scheduler at http://localhost:8080"
+env.OPENSTEF_DEPLOY_DATA_DIR = "${POE_ROOT}/examples/deployment/openstef_deployment_runs"
+env.AIRFLOW_HOME = "${POE_ROOT}/examples/deployment/openstef_deployment_runs/airflow"
+env.AIRFLOW__CORE__DAGS_FOLDER = "${POE_ROOT}/examples/deployment/src/airflow_app/dags"
+env.AIRFLOW__CORE__LOAD_EXAMPLES = "False"
+cmd = "uv run --no-sync --package openstef-deployment-examples airflow standalone"
+
+[tool.poe.tasks.deploy-airflow-train]
+help = "Airflow (CLI): run the training DAG once (no scheduler)"
+env.OPENSTEF_DEPLOY_DATA_DIR = "${POE_ROOT}/examples/deployment/openstef_deployment_runs"
+env.AIRFLOW_HOME = "${POE_ROOT}/examples/deployment/openstef_deployment_runs/airflow"
+env.AIRFLOW__CORE__DAGS_FOLDER = "${POE_ROOT}/examples/deployment/src/airflow_app/dags"
+env.AIRFLOW__CORE__LOAD_EXAMPLES = "False"
+sequence = [
+  { cmd = "uv run --no-sync --package openstef-deployment-examples airflow db migrate" },
+  { cmd = "uv run --no-sync --package openstef-deployment-examples airflow dags test openstef_train 2024-04-15" },
+]
+
+[tool.poe.tasks.deploy-airflow-forecast]
+help = "Airflow (CLI): run the forecast DAG once (no scheduler)"
+env.OPENSTEF_DEPLOY_DATA_DIR = "${POE_ROOT}/examples/deployment/openstef_deployment_runs"
+env.AIRFLOW_HOME = "${POE_ROOT}/examples/deployment/openstef_deployment_runs/airflow"
+env.AIRFLOW__CORE__DAGS_FOLDER = "${POE_ROOT}/examples/deployment/src/airflow_app/dags"
+env.AIRFLOW__CORE__LOAD_EXAMPLES = "False"
+sequence = [
+  { cmd = "uv run --no-sync --package openstef-deployment-examples airflow db migrate" },
+  { cmd = "uv run --no-sync --package openstef-deployment-examples airflow dags test openstef_forecast 2024-04-15" },
+]
+
+[tool.poe.tasks.deploy-celery-ui]
+help = "Celery (UI): the Flower monitoring dashboard at http://localhost:5555"
+env.OPENSTEF_DEPLOY_DATA_DIR = "${POE_ROOT}/examples/deployment/openstef_deployment_runs"
+cmd = "uv run --no-sync --package openstef-deployment-examples celery -A celery_app.app flower"
+
+[tool.poe.tasks.deploy-celery-train]
+help = "Celery (CLI): train every target (eager, in-process, no broker)"
+env.OPENSTEF_DEPLOY_DATA_DIR = "${POE_ROOT}/examples/deployment/openstef_deployment_runs"
+cmd = "uv run --no-sync --package openstef-deployment-examples python -m celery_app.run train"
+
+[tool.poe.tasks.deploy-celery-forecast]
+help = "Celery (CLI): forecast every target (eager, in-process, no broker)"
+env.OPENSTEF_DEPLOY_DATA_DIR = "${POE_ROOT}/examples/deployment/openstef_deployment_runs"
+cmd = "uv run --no-sync --package openstef-deployment-examples python -m celery_app.run forecast"
