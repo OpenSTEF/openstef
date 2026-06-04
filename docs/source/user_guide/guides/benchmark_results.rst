@@ -100,6 +100,21 @@ the time, so up-weighting their large, hard-to-predict peaks raises the relative
    For a single, intuitive accuracy number prefer **rCRPS**. When your use case is
    congestion management or peak shaving, lead with **rCRPS (sample-weighted)**.
 
+.. _metric_rmae:
+
+rMAE
+^^^^
+
+**Relative Mean Absolute Error** measures the accuracy of the **median (P50) forecast**
+alone, normalized by the same operating-range denominator as rCRPS:
+
+.. math::
+
+   \text{rMAE} = \frac{\text{MAE}_{P50}}{P_{99}(y) - P_{1}(y)}
+
+Use this when you care about point-forecast accuracy at the median rather than the
+full probabilistic distribution.
+
 
 .. _benchmark_tables:
 
@@ -107,9 +122,9 @@ Results by Model and Target Group
 ---------------------------------
 
 Rows are models; columns are the benchmark's target groups plus the **Global** average
-across all 55 targets. Each cell is the **mean rCRPS over the targets in that group**
-(each target weighted equally). **Lower is better**; the best model per column is in
-bold.
+across all 55 targets. Each cell is the **mean metric value over the targets in that
+group** (each target weighted equally). **Lower is better**; the best model per
+column is in bold.
 
 .. list-table:: rCRPS — unweighted (lower is better)
    :header-rows: 1
@@ -178,6 +193,40 @@ bold.
      - **0.067**
      - **0.069**
      - **0.096**
+
+.. list-table:: rMAE — median point forecast (lower is better)
+   :header-rows: 1
+   :stub-columns: 1
+   :widths: 18 12 12 16 14 12 12
+
+   * - Model
+     - Global
+     - MV feeder
+     - Station inst.
+     - Transformer
+     - Solar park
+     - Wind park
+   * - XGBoost
+     - 0.084
+     - 0.067
+     - 0.079
+     - 0.095
+     - 0.067
+     - 0.111
+   * - GBLinear
+     - 0.084
+     - 0.067
+     - 0.079
+     - 0.094
+     - 0.070
+     - 0.110
+   * - Ensemble
+     - **0.078**
+     - **0.063**
+     - **0.074**
+     - **0.089**
+     - **0.062**
+     - **0.103**
 
 
 How These Numbers Were Produced
