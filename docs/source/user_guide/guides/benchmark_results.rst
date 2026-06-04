@@ -102,10 +102,10 @@ the time, so up-weighting their large, hard-to-predict peaks raises the relative
 
 .. _metric_rmae:
 
-rMAE
-^^^^
+rMAE (P50)
+^^^^^^^^^^
 
-**Relative Mean Absolute Error** measures the accuracy of the **median (P50) forecast**
+**Relative Mean Absolute Error at P50** measures the accuracy of the **median (P50) forecast**
 alone, normalized by the same operating-range denominator as rCRPS:
 
 .. math::
@@ -194,7 +194,7 @@ column is in bold.
      - **0.069**
      - **0.096**
 
-.. list-table:: rMAE — median point forecast (lower is better)
+.. list-table:: rMAE (P50) — median point forecast (lower is better)
    :header-rows: 1
    :stub-columns: 1
    :widths: 18 12 12 16 14 12 12
