@@ -655,7 +655,7 @@ covers 60% of outcomes); below means <em>under-predicting</em>.</span><a class="
 <p>The calibrator works as follows:</p>
 <ol class="arabic simple">
 <li><p>During training, it observes the model’s predicted quantile values on a validation split alongside actual outcomes</p></li>
-<li><p>For each quantile level, it fits a scikit-learn <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.isotonic.IsotonicRegression.html#sklearn.isotonic.IsotonicRegression" title="(in scikit-learn v1.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">IsotonicRegression</span></code></a> that maps predicted values to calibrated values</p></li>
+<li><p>For each quantile level, it fits a scikit-learn <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.isotonic.IsotonicRegression.html#sklearn.isotonic.IsotonicRegression" title="(in scikit-learn v1.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">IsotonicRegression</span></code></a> that maps predicted values to calibrated values</p></li>
 <li><p>During prediction, each quantile column is passed through its learned isotonic mapping</p></li>
 </ol>
 <p>Isotonic regression is ideal for this task because it is monotone by construction: if the raw model predicts a higher value, the calibrated output will also be higher (or equal). This preserves the ordering of quantiles, ensuring that P90 is always greater than or equal to P50, which is always greater than or equal to P10.</p>
