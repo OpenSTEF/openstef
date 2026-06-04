@@ -13,11 +13,17 @@ before committing to one. Use it together with the :ref:`Model Selection Guide
 <concept_models>` (which explains *why* each model behaves the way it does) and
 :doc:`BEAM </user_guide/concepts/beam>` (which explains *how* these numbers are produced).
 
-.. note::
+.. warning::
 
-   These numbers are a point-in-time snapshot and may change as models, defaults, and
-   the benchmark evolve. To reproduce or extend them, run the notebooks under
-   :doc:`Liander 2024 </benchmarks/liander2024/README>`, then compare runs.
+   **These numbers are dataset-bound.** The Liander 2024 benchmark is derived from
+   Dutch grid operational data and uses a specific set of features, weather data
+   providers, and signal types. Performance depends heavily on signal quality and the
+   quality of your input data — your results may be better or worse.
+
+   To understand how models perform on *your* use case, create your own benchmark
+   with your own data (see :doc:`Build Your Own </benchmarks/custom/README>`).
+   You can reproduce these exact numbers by running the benchmark notebooks under
+   :doc:`Liander 2024 </benchmarks/liander2024/README>`.
 
 
 At a Glance
@@ -126,7 +132,7 @@ across all 55 targets. Each cell is the **mean metric value over the targets in 
 group** (each target weighted equally). **Lower is better**; the best model per
 column is in bold.
 
-.. list-table:: rCRPS — unweighted (lower is better)
+.. list-table:: rCRPS - unweighted (lower is better)
    :header-rows: 1
    :stub-columns: 1
    :widths: 18 12 12 16 14 12 12
@@ -160,7 +166,7 @@ column is in bold.
      - **0.037**
      - **0.066**
 
-.. list-table:: rCRPS — sample-weighted / peak-focused (lower is better)
+.. list-table:: rCRPS - sample-weighted / peak-focused (lower is better)
    :header-rows: 1
    :stub-columns: 1
    :widths: 18 12 12 16 14 12 12
@@ -194,7 +200,7 @@ column is in bold.
      - **0.069**
      - **0.096**
 
-.. list-table:: rMAE (P50) — median point forecast (lower is better)
+.. list-table:: rMAE (P50) - median point forecast (lower is better)
    :header-rows: 1
    :stub-columns: 1
    :widths: 18 12 12 16 14 12 12
