@@ -96,6 +96,11 @@ All forecasters in OpenSTEF support **quantile forecasting**, producing probabil
 predictions at configurable quantiles. The exceptions are the Median and
 Base Case forecasters, which produce only a single quantile.
 
+.. seealso::
+
+   For measured accuracy of these models on a public benchmark, see
+   :ref:`Benchmark Results <benchmark_results>`.
+
 .. list-table:: Forecaster Comparison
    :header-rows: 1
    :widths: 15 33 32 10 10

@@ -50,6 +50,12 @@ Step-by-step instructions for common OpenSTEF tasks.
 
         Evaluate model performance on historical data with rolling windows.
 
+    .. grid-item-card:: :fa:`ranking-star` Benchmark Results
+        :link: benchmark_results
+        :link-type: doc
+
+        Reference accuracy of each model on the public Liander 2024 benchmark.
+
     .. grid-item-card:: :fa:`server` Deployment
         :link: deployment
         :link-type: doc
@@ -72,5 +78,6 @@ Step-by-step instructions for common OpenSTEF tasks.
     probabilistic_forecasting
     reliability_fallback
     Backtesting <backtesting_tutorial>
+    Benchmark Results <benchmark_results>
     deployment
     /user_guide/logging
