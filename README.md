@@ -17,7 +17,7 @@ SPDX-License-Identifier: MPL-2.0
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/5585/badge)](https://bestpractices.coreinfrastructure.org/projects/5585)
 [![License: MPL-2.0](https://img.shields.io/badge/License-MPL%202.0-brightgreen.svg)](LICENSE.md)
 [![Python 3.12+](https://img.shields.io/badge/python-3.12%2B-blue.svg)](https://www.python.org/downloads/)
-[![Release](https://img.shields.io/badge/release-v4.0.0-blue.svg)](https://github.com/paula-passet/openstef_Sia/releases/tag/release/v4.0.0)
+![GitHub Release](https://img.shields.io/github/v/release/:user/:repo)
 
 ## What is OpenSTEF
 
