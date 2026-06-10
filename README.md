@@ -6,7 +6,7 @@ SPDX-License-Identifier: MPL-2.0
 
 <p align="center">
   <a href="https://www.lfenergy.org/projects/openstef/">
-    <img src="https://raw.githubusercontent.com/OpenSTEF/openstef/main/docs/source/_static/logo.png" alt="OpenSTEF Logo" width="400">
+    <img src="https://raw.githubusercontent.com/OpenSTEF/openstef/main/docs/source/logos/openstef-horizontal-color.svg" alt="OpenSTEF Logo" width="400">
   </a>
 </p>
 
