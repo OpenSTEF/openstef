@@ -161,17 +161,6 @@ class FeatureSelection(BaseConfig):
             exclude_regex=_union(self.exclude_regex, other.exclude_regex),
         )
 
-    @override
-    def __setstate__(self, state: Any) -> None:  # TODO(#799): delete after stable release
-        if "include_regex" not in state["__dict__"]:
-            state["__dict__"]["include_regex"] = None
-            cast(set[str], state["__pydantic_fields_set__"]).add("include_regex")
-        if "exclude_regex" not in state["__dict__"]:
-            state["__dict__"]["exclude_regex"] = None
-            cast(set[str], state["__pydantic_fields_set__"]).add("exclude_regex")
-
-        return super().__setstate__(state)
-
 
 FeatureSelection.ALL = FeatureSelection(include=None, include_regex=None, exclude=None, exclude_regex=None)
 FeatureSelection.NONE = FeatureSelection(include=set(), include_regex=set(), exclude=None, exclude_regex=None)
