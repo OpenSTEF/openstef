@@ -69,6 +69,13 @@ class MLFlowStorage(BaseConfig):
     local_artifacts_path: Path = Field(
         default=Path("./mlflow_artifacts_local"), description="Local path for storing MLflow artifacts before upload."
     )
+    artifact_location: str | None = Field(
+        default=None,
+        description="Artifact storage location for newly created experiments. Defaults to MLflow's "
+        "own default (a ``./mlruns`` directory relative to the working directory). Set this to an "
+        "absolute URI (e.g. ``file:///abs/path`` or ``s3://bucket/prefix``) to keep artifacts "
+        "self-contained — useful with a database tracking backend such as ``sqlite:///...``.",
+    )
     experiment_name_prefix: str = Field(default="", description="Prefix for MLflow experiment names.")
     # Artifact subdirectories
     data_path: str = Field(default="data", description="Subdirectory for storing training data artifacts.")
@@ -119,6 +126,7 @@ class MLFlowStorage(BaseConfig):
         if experiment is None:
             experiment_id = self._client.create_experiment(
                 name=f"{self.experiment_name_prefix}{model_id}",
+                artifact_location=self.artifact_location,
                 tags=experiment_tags,
             )
         else:

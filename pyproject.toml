@@ -98,6 +98,7 @@ microsoft-python-type-stubs = { git = "git+https://github.com/microsoft/python-t
 members = [
   "docs",
   "examples",
+  "examples/deployment",
   "packages/openstef-beam",
   "packages/openstef-core",
   "packages/openstef-meta",
@@ -142,6 +143,18 @@ lint.per-file-ignores."./examples/benchmarks/liander2024/*" = [
   "E501",   # Long lines in markdown cells (API doc URLs)
   "ERA001", # Jupytext YAML frontmatter looks like commented-out code
   "T201",   # Benchmarks may use print for demonstration
+]
+lint.per-file-ignores."./examples/deployment/**/*.py" = [
+  "AIR311", # The example targets the installed Airflow 2.x TaskFlow API (airflow.decorators)
+  "D103",   # Orchestrator ops / tasks / inline helpers are self-describing in examples
+  "D104",   # Deployment package __init__ files are import markers, not documented surfaces
+  "DOC201", # Examples favour prose docstrings over explicit Returns sections
+  "TC001",  # Keep imports inline (not under TYPE_CHECKING) for copy-paste readability
+  "TC002",
+  "TC003",
+]
+lint.per-file-ignores."./examples/deployment/tests/*.py" = [
+  "S101", # Tests use assert
 ]
 lint.per-file-ignores."./examples/tutorials/*" = [
   "D100",    # Notebooks don't need module docstrings
@@ -209,7 +222,7 @@ indent = 2
 max_supported_python = "3.13"
 
 [tool.pytest.ini_options]
-testpaths = [ "packages/*/tests", "tests" ]
+testpaths = [ "packages/*/tests", "examples/deployment/tests", "tests" ]
 python_files = [ "test_*.py", "*_test.py" ]
 addopts = [
   "--import-mode=importlib", # modern way to import tests
@@ -258,6 +271,8 @@ include = [
 ]
 exclude = [
   "examples/tutorials/**/*.py",
+  "**/.venv/**",                    # never type-check files inside a virtualenv (e.g. a member's local .venv)
+  "**/openstef_deployment_runs/**", # deployment example run artifacts
 ]
 
 typeCheckingMode = "strict"
@@ -265,6 +280,11 @@ reportPrivateImportUsage = false
 reportMissingTypeStubs = false
 reportPrivateUsage = false
 reportUnusedExpression = false
+
+[tool.poe]
+# Run-the-example tasks (deploy-*) are defined in the deployment example's pyproject,
+# co-located with the example; included here so `uv run poe deploy-*` works from the root.
+include = [ "examples/deployment/pyproject.toml" ]
 
 [tool.poe.tasks.lint]
 help = "Lint code (with ruff)"

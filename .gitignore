@@ -135,6 +135,9 @@ benchmark_results*/
 # Local dataset files
 liander_dataset/
 
+# Deployment example run artifacts (MLflow store, forecasts, dataset, Celery/Airflow state)
+openstef_deployment_runs/
+
 # Mlflow
 /mlflow
 /mlflow_artifacts_local

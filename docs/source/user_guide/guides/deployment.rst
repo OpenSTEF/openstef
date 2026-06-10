@@ -20,6 +20,23 @@ observability. If you are getting started, the *Scheduled Notebooks* pattern
 covers small deployments; the *DAG* and *Queued* patterns cover the next two
 tiers.
 
+.. admonition:: Runnable examples
+   :class: tip
+
+   The `examples/deployment <https://github.com/OpenSTEF/openstef/tree/main/examples/deployment>`_
+   directory contains self-contained, runnable versions of the *DAG* and *Queued*
+   patterns for three popular orchestrators. They simulate data integration with the
+   Liander benchmark dataset, so they run with no external infrastructure:
+
+   - `Dagster <https://github.com/OpenSTEF/openstef/tree/main/examples/deployment/src/dagster_app>`_ and
+     `Airflow <https://github.com/OpenSTEF/openstef/tree/main/examples/deployment/src/airflow_app>`_ —
+     the *DAG-based orchestration* pattern (separate train/predict tasks). Run with
+     ``uv run poe deploy-dagster-ui`` or ``uv run poe deploy-airflow-ui``.
+   - `Celery <https://github.com/OpenSTEF/openstef/tree/main/examples/deployment/src/celery_app>`_ —
+     the *Queued execution* pattern (fan-out over many targets). Run with
+     ``uv run poe deploy-celery-train`` then ``uv run poe deploy-celery-forecast``
+     (eager mode, no broker required).
+
 Deployment Strategies
 ---------------------
 
