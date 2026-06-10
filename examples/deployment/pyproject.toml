@@ -63,8 +63,12 @@ env.OPENSTEF_DEPLOY_DATA_DIR = "${POE_ROOT}/examples/deployment/openstef_deploym
 env.AIRFLOW_HOME = "${POE_ROOT}/examples/deployment/openstef_deployment_runs/airflow"
 env.AIRFLOW__CORE__DAGS_FOLDER = "${POE_ROOT}/examples/deployment/src/airflow_app/dags"
 env.AIRFLOW__CORE__LOAD_EXAMPLES = "False"
-env.PYTHONWARNINGS = "ignore::airflow.exceptions.RemovedInAirflow3Warning"
-# gthread uses threads rather than fork, which avoids the macOS gunicorn SIGSEGV entirely.
+# OBJC_DISABLE_INITIALIZE_FORK_SAFETY: prevents gunicorn worker SIGSEGV on macOS (fork + C extensions).
+# AIRFLOW__METRICS__TIMER_UNIT_CONSISTENCY: enables the Airflow 3 metrics behaviour, removing the
+# RemovedInAirflow3Warning that would otherwise appear on every log line.
+# gthread: thread-based worker (vs. default sync/fork) — extra robustness on macOS.
+env.OBJC_DISABLE_INITIALIZE_FORK_SAFETY = "YES"
+env.AIRFLOW__METRICS__TIMER_UNIT_CONSISTENCY = "true"
 env.AIRFLOW__WEBSERVER__WORKER_CLASS = "gthread"
 env.AIRFLOW__WEBSERVER__WORKERS = "2"
 cmd = "uv run --no-sync --package openstef-deployment-examples airflow standalone"
@@ -75,7 +79,7 @@ env.OPENSTEF_DEPLOY_DATA_DIR = "${POE_ROOT}/examples/deployment/openstef_deploym
 env.AIRFLOW_HOME = "${POE_ROOT}/examples/deployment/openstef_deployment_runs/airflow"
 env.AIRFLOW__CORE__DAGS_FOLDER = "${POE_ROOT}/examples/deployment/src/airflow_app/dags"
 env.AIRFLOW__CORE__LOAD_EXAMPLES = "False"
-env.PYTHONWARNINGS = "ignore::airflow.exceptions.RemovedInAirflow3Warning"
+env.AIRFLOW__METRICS__TIMER_UNIT_CONSISTENCY = "true"
 sequence = [
   { cmd = "uv run --no-sync --package openstef-deployment-examples airflow db migrate" },
   { cmd = "uv run --no-sync --package openstef-deployment-examples airflow dags test openstef_train 2024-04-15" },
@@ -87,7 +91,7 @@ env.OPENSTEF_DEPLOY_DATA_DIR = "${POE_ROOT}/examples/deployment/openstef_deploym
 env.AIRFLOW_HOME = "${POE_ROOT}/examples/deployment/openstef_deployment_runs/airflow"
 env.AIRFLOW__CORE__DAGS_FOLDER = "${POE_ROOT}/examples/deployment/src/airflow_app/dags"
 env.AIRFLOW__CORE__LOAD_EXAMPLES = "False"
-env.PYTHONWARNINGS = "ignore::airflow.exceptions.RemovedInAirflow3Warning"
+env.AIRFLOW__METRICS__TIMER_UNIT_CONSISTENCY = "true"
 sequence = [
   { cmd = "uv run --no-sync --package openstef-deployment-examples airflow db migrate" },
   { cmd = "uv run --no-sync --package openstef-deployment-examples airflow dags test openstef_forecast 2024-04-15" },
