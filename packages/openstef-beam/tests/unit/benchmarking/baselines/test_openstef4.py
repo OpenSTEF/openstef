@@ -15,15 +15,20 @@ from openstef_core.datasets import VersionedTimeSeriesDataset
 from openstef_core.testing import create_synthetic_forecasting_dataset
 from openstef_core.types import LeadTime, Q
 from openstef_models.presets import ForecastingWorkflowConfig
+from openstef_models.integrations.mlflow import MLFlowStorage
 
 
 @pytest.fixture
-def xgboost_config() -> ForecastingWorkflowConfig:
+def xgboost_config(tmp_path: Path) -> ForecastingWorkflowConfig:
     return ForecastingWorkflowConfig(
         model_id="test_xgb",
         model="xgboost",
         horizons=[LeadTime.from_string("PT24H")],
         quantiles=[Q(0.5)],
+        mlflow_storage=MLFlowStorage(
+            tracking_uri=str(tmp_path / "mlflow"),
+            local_artifacts_path=tmp_path / "mlflow_artifacts_local",
+        ),
     )
 
 
@@ -125,6 +130,10 @@ def test_fit_retains_previous_model_on_insufficient_data(
         horizons=[LeadTime.from_string("PT24H")],
         quantiles=[Q(0.5)],
         model_reuse_enable=False,
+        mlflow_storage=MLFlowStorage(
+            tracking_uri=str(tmp_path / "test_insufficient" / "mlflow"),
+            local_artifacts_path=tmp_path / "test_insufficient" / "mlflow_artifacts_local",
+        ),
     )
     factory = create_openstef4_preset_backtest_forecaster(
         workflow_config=config,
