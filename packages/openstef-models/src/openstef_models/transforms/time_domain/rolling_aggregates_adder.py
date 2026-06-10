@@ -6,7 +6,7 @@
 
 import logging
 from datetime import timedelta
-from typing import Any, Literal, override
+from typing import Literal, override
 
 import pandas as pd
 from pydantic import Field, PrivateAttr

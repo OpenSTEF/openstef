@@ -9,7 +9,7 @@ emphasizing high-value periods for improved model performance on peak loads.
 """
 
 import logging
-from typing import Any, Literal, cast, override
+from typing import Literal, override
 
 import numpy as np
 from pydantic import Field, PrivateAttr
