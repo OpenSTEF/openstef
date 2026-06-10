@@ -63,14 +63,13 @@ env.OPENSTEF_DEPLOY_DATA_DIR = "${POE_ROOT}/examples/deployment/openstef_deploym
 env.AIRFLOW_HOME = "${POE_ROOT}/examples/deployment/openstef_deployment_runs/airflow"
 env.AIRFLOW__CORE__DAGS_FOLDER = "${POE_ROOT}/examples/deployment/src/airflow_app/dags"
 env.AIRFLOW__CORE__LOAD_EXAMPLES = "False"
-# OBJC_DISABLE_INITIALIZE_FORK_SAFETY: prevents gunicorn worker SIGSEGV on macOS (fork + C extensions).
 # AIRFLOW__METRICS__TIMER_UNIT_CONSISTENCY: enables the Airflow 3 metrics behaviour, removing the
 # RemovedInAirflow3Warning that would otherwise appear on every log line.
-# gthread: thread-based worker (vs. default sync/fork) — extra robustness on macOS.
-env.OBJC_DISABLE_INITIALIZE_FORK_SAFETY = "YES"
+# PYTHONPATH: loads sitecustomize.py which patches setproctitle to a no-op on macOS.
+# Airflow's gunicorn config calls setproctitle in post_worker_init; on macOS 26 this crashes
+# via CFBundleGetFunctionPointerForName/_os_log_preferences_refresh in a forked child.
 env.AIRFLOW__METRICS__TIMER_UNIT_CONSISTENCY = "true"
-env.AIRFLOW__WEBSERVER__WORKER_CLASS = "gthread"
-env.AIRFLOW__WEBSERVER__WORKERS = "2"
+env.PYTHONPATH = "${POE_ROOT}/examples/deployment/src/airflow_app"
 cmd = "uv run --no-sync --package openstef-deployment-examples airflow standalone"
 
 [tool.poe.tasks.deploy-airflow-train]
