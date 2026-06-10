@@ -62,7 +62,7 @@ Using [uv](https://docs.astral.sh/uv/) (recommended for development):
 uv add openstef
 ```
 
-For the complete installation guide including troubleshooting, see the [Installation Documentation](https://openstef.github.io/openstef/user_guide/installation.html).
+For the complete installation guide including troubleshooting, see the [Installation Documentation](https://openstef.github.io/openstef/user_guide/getting_started/installation.html).
 
 ## Examples
 
@@ -71,7 +71,7 @@ Tutorials and usage examples are available in the [`examples/`](examples/) folde
 - Forecasting quickstart
 - Feature engineering
 
-Additional tutorials are available in the [online documentation](https://openstef.github.io/openstef/user_guide/tutorials.html).
+Additional tutorials are available in the [online documentation](https://openstef.github.io/openstef/examples.html).
 
 ## License
 
