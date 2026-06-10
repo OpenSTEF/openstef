@@ -196,30 +196,6 @@ class SampleWeighter(BaseConfig, TimeSeriesTransform):
     def features_added(self) -> list[str]:
         return [self.sample_weight_column]
 
-    @override
-    def __setstate__(self, state: dict[str, Any]) -> None:  # TODO(#799): delete after stable release
-        d = state["__dict__"]
-        fields_set = cast(set[str], state["__pydantic_fields_set__"])
-
-        # Migrate flat fields into nested SampleWeightConfig
-        if "config" not in d:
-            config_fields: dict[str, Any] = {}
-            for key in (
-                "method",
-                "weight_scale_percentile",
-                "weight_exponent",
-                "n_bins",
-                "dampening_exponent",
-                "weight_floor",
-            ):
-                if key in d:
-                    config_fields[key] = d.pop(key)
-                    fields_set.discard(key)
-            d["config"] = SampleWeightConfig(**config_fields)
-            fields_set.add("config")
-
-        return super().__setstate__(state)
-
 
 def exponential_sample_weight(
     x: np.ndarray,
