@@ -64,8 +64,9 @@ env.AIRFLOW_HOME = "${POE_ROOT}/examples/deployment/openstef_deployment_runs/air
 env.AIRFLOW__CORE__DAGS_FOLDER = "${POE_ROOT}/examples/deployment/src/airflow_app/dags"
 env.AIRFLOW__CORE__LOAD_EXAMPLES = "False"
 env.PYTHONWARNINGS = "ignore::airflow.exceptions.RemovedInAirflow3Warning"
-# Prevents gunicorn worker SIGSEGV on macOS caused by fork-safety checks in the ObjC runtime.
-env.OBJC_DISABLE_INITIALIZE_FORK_SAFETY = "YES"
+# gthread uses threads rather than fork, which avoids the macOS gunicorn SIGSEGV entirely.
+env.AIRFLOW__WEBSERVER__WORKER_CLASS = "gthread"
+env.AIRFLOW__WEBSERVER__WORKERS = "2"
 cmd = "uv run --no-sync --package openstef-deployment-examples airflow standalone"
 
 [tool.poe.tasks.deploy-airflow-train]
