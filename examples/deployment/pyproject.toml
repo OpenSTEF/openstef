@@ -22,7 +22,6 @@ dependencies = [
 optional-dependencies.airflow = [ "apache-airflow>=2.10,<3" ]
 optional-dependencies.celery = [
   "celery[redis]>=5.4",
-  "flower>=2",
 ]
 optional-dependencies.dagster = [
   "dagster>=1.9",
@@ -95,11 +94,6 @@ sequence = [
   { cmd = "uv run --no-sync --package openstef-deployment-examples airflow db migrate" },
   { cmd = "uv run --no-sync --package openstef-deployment-examples airflow dags test openstef_forecast 2024-04-15" },
 ]
-
-[tool.poe.tasks.deploy-celery-ui]
-help = "Celery (UI): the Flower monitoring dashboard at http://localhost:5555"
-env.OPENSTEF_DEPLOY_DATA_DIR = "${POE_ROOT}/examples/deployment/openstef_deployment_runs"
-cmd = "uv run --no-sync --package openstef-deployment-examples celery -A celery_app.app flower"
 
 [tool.poe.tasks.deploy-celery-train]
 help = "Celery (CLI): train every target (eager, in-process, no broker)"

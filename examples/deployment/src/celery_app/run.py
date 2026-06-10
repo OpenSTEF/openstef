@@ -10,7 +10,7 @@
 Run with ``python -m celery_app.run train`` or ``python -m celery_app.run forecast``. These
 execute the tasks in-process — no broker or worker required — which is the simplest way to
 try the example. To exercise the real queue instead, start a worker
-(``celery -A celery_app.app worker --pool solo``) and watch it with the Flower UI.
+(``celery -A celery_app.app worker --pool solo``).
 """
 
 from __future__ import annotations

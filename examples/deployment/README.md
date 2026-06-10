@@ -64,20 +64,19 @@ locally with **no external infrastructure** (no database, broker, or message que
 | --- | --- | --- | --- |
 | Dagster | `uv run poe deploy-dagster-ui` | `uv run poe deploy-dagster-train` | `uv run poe deploy-dagster-forecast` |
 | Airflow | `uv run poe deploy-airflow-ui` | `uv run poe deploy-airflow-train` | `uv run poe deploy-airflow-forecast` |
-| Celery | `uv run poe deploy-celery-ui` | `uv run poe deploy-celery-train` | `uv run poe deploy-celery-forecast` |
+| Celery | — | `uv run poe deploy-celery-train` | `uv run poe deploy-celery-forecast` |
 
-The web UIs serve at http://localhost:3000 (Dagster), :8080 (Airflow), and :5555 (Celery/Flower).
+The web UIs serve at http://localhost:3000 (Dagster) and :8080 (Airflow).
 Run **train before forecast** — the forecast loads the model training persisted.
 
 ### Celery has no broker dependency
 
-The Celery example defaults to a **filesystem broker** under the data directory, so a worker,
-beat schedule, and Flower all run with no server. The `-train` / `-forecast` tasks run eagerly
-in-process (simplest). To exercise the real queue, start a worker and watch it in Flower:
+The Celery example defaults to a **filesystem broker** under the data directory, so a worker
+and beat schedule run with no server. The `-train` / `-forecast` tasks run eagerly in-process
+(simplest). To exercise the real queue, start a worker:
 
 ```bash
-uv run --extra celery celery -A celery_app.app worker --pool solo   # in one terminal
-uv run poe deploy-celery-ui                                          # Flower, in another
+uv run --extra celery celery -A celery_app.app worker --pool solo
 ```
 
 For production scale, point the broker at Redis with no code change:
@@ -87,9 +86,7 @@ export OPENSTEF_DEPLOY_BROKER_URL=redis://localhost:6379/0
 export OPENSTEF_DEPLOY_RESULT_BACKEND=redis://localhost:6379/1
 ```
 
-> **Notes:** Flower's live worker/task monitoring needs a broker that supports remote control
-> (e.g. Redis); over the filesystem broker the dashboard runs but shows limited live data.
-> `deploy-airflow-ui` includes [`sitecustomize.py`](src/airflow_app/sitecustomize.py) via
+> **Notes:** `deploy-airflow-ui` includes [`sitecustomize.py`](src/airflow_app/sitecustomize.py) via
 > `PYTHONPATH` to patch `setproctitle` to a no-op on macOS. On macOS 26 (Tahoe), Airflow's
 > gunicorn config calls `setproctitle` in each forked worker process; the underlying
 > `CFBundleGetFunctionPointerForName` call is not fork-safe on macOS 26 and triggers SIGSEGV.

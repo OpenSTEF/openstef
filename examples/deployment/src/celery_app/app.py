@@ -9,9 +9,9 @@
 """Celery application for the OpenSTEF queued-execution example.
 
 **Local by default, no server required.** The broker and result backend default to a
-filesystem queue under the data directory, so a worker, beat schedule, and the Flower UI all
-run on your machine out of the box. For production scale, point the broker at Redis (or
-another broker) — no code change, just environment variables::
+filesystem queue under the data directory, so a worker and beat schedule run on your machine
+out of the box. For production scale, point the broker at Redis (or another broker) — no code
+change, just environment variables::
 
     export OPENSTEF_DEPLOY_BROKER_URL=redis://localhost:6379/0
     export OPENSTEF_DEPLOY_RESULT_BACKEND=redis://localhost:6379/1
@@ -20,7 +20,6 @@ Run it::
 
     uv run poe deploy-celery-train      # train every target (eager, in-process, no worker)
     uv run poe deploy-celery-forecast   # forecast every target (eager)
-    uv run poe deploy-celery-ui         # the Flower monitoring UI
 
     # the real queue: a worker pulling from the local filesystem broker
     uv run --extra celery celery -A celery_app.app worker --pool solo
