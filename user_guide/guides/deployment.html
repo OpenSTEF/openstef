@@ -498,6 +498,23 @@ plus the integration points OpenSTEF exposes for data, model storage, and
 observability. If you are getting started, the <em>Scheduled Notebooks</em> pattern
 covers small deployments; the <em>DAG</em> and <em>Queued</em> patterns cover the next two
 tiers.</p>
+<div class="tip admonition">
+<p class="admonition-title">Runnable examples</p>
+<p>The <a class="reference external" href="https://github.com/OpenSTEF/openstef/tree/main/examples/deployment">examples/deployment</a>
+directory contains self-contained, runnable versions of the <em>DAG</em> and <em>Queued</em>
+patterns for three popular orchestrators. They simulate data integration with the
+Liander benchmark dataset, so they run with no external infrastructure:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/OpenSTEF/openstef/tree/main/examples/deployment/src/dagster_app">Dagster</a> and
+<a class="reference external" href="https://github.com/OpenSTEF/openstef/tree/main/examples/deployment/src/airflow_app">Airflow</a> —
+the <em>DAG-based orchestration</em> pattern (separate train/predict tasks). Run with
+<code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">run</span> <span class="pre">poe</span> <span class="pre">deploy-dagster-ui</span></code> or <code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">run</span> <span class="pre">poe</span> <span class="pre">deploy-airflow-ui</span></code>.</p></li>
+<li><p><a class="reference external" href="https://github.com/OpenSTEF/openstef/tree/main/examples/deployment/src/celery_app">Celery</a> —
+the <em>Queued execution</em> pattern (fan-out over many targets). Run with
+<code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">run</span> <span class="pre">poe</span> <span class="pre">deploy-celery-train</span></code> then <code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">run</span> <span class="pre">poe</span> <span class="pre">deploy-celery-forecast</span></code>
+(eager mode, no broker required).</p></li>
+</ul>
+</div>
 <section id="deployment-strategies">
 <h2>Deployment Strategies<a class="headerlink" href="#deployment-strategies" title="Link to this heading">#</a></h2>
 <p>The table below summarizes three common approaches, ordered by operational complexity:</p>

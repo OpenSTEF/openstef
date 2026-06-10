@@ -945,6 +945,13 @@ window.runMermaid = runMermaid;</script>
     <span class="n">local_artifacts_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
         <span class="n">default</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;./mlflow_artifacts_local&quot;</span><span class="p">),</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Local path for storing MLflow artifacts before upload.&quot;</span>
     <span class="p">)</span>
+    <span class="n">artifact_location</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Artifact storage location for newly created experiments. Defaults to MLflow&#39;s &quot;</span>
+        <span class="s2">&quot;own default (a ``./mlruns`` directory relative to the working directory). Set this to an &quot;</span>
+        <span class="s2">&quot;absolute URI (e.g. ``file:///abs/path`` or ``s3://bucket/prefix``) to keep artifacts &quot;</span>
+        <span class="s2">&quot;self-contained — useful with a database tracking backend such as ``sqlite:///...``.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
     <span class="n">experiment_name_prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Prefix for MLflow experiment names.&quot;</span><span class="p">)</span>
     <span class="c1"># Artifact subdirectories</span>
     <span class="n">data_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Subdirectory for storing training data artifacts.&quot;</span><span class="p">)</span>
@@ -1000,6 +1007,7 @@ window.runMermaid = runMermaid;</script>
         <span class="k">if</span> <span class="n">experiment</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">experiment_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">create_experiment</span><span class="p">(</span>
                 <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">experiment_name_prefix</span><span class="si">}{</span><span class="n">model_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">artifact_location</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">artifact_location</span><span class="p">,</span>
                 <span class="n">tags</span><span class="o">=</span><span class="n">experiment_tags</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
