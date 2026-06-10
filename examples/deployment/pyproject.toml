@@ -19,7 +19,7 @@ dependencies = [
   "pydantic-settings>=2.14,<3",
 ]
 
-optional-dependencies.airflow = [ "apache-airflow>=2.10" ]
+optional-dependencies.airflow = [ "apache-airflow>=2.10,<3" ]
 optional-dependencies.celery = [
   "celery[redis]>=5.4",
   "flower>=2",
@@ -63,6 +63,9 @@ env.OPENSTEF_DEPLOY_DATA_DIR = "${POE_ROOT}/examples/deployment/openstef_deploym
 env.AIRFLOW_HOME = "${POE_ROOT}/examples/deployment/openstef_deployment_runs/airflow"
 env.AIRFLOW__CORE__DAGS_FOLDER = "${POE_ROOT}/examples/deployment/src/airflow_app/dags"
 env.AIRFLOW__CORE__LOAD_EXAMPLES = "False"
+env.PYTHONWARNINGS = "ignore::airflow.exceptions.RemovedInAirflow3Warning"
+# Prevents gunicorn worker SIGSEGV on macOS caused by fork-safety checks in the ObjC runtime.
+env.OBJC_DISABLE_INITIALIZE_FORK_SAFETY = "YES"
 cmd = "uv run --no-sync --package openstef-deployment-examples airflow standalone"
 
 [tool.poe.tasks.deploy-airflow-train]
@@ -71,6 +74,7 @@ env.OPENSTEF_DEPLOY_DATA_DIR = "${POE_ROOT}/examples/deployment/openstef_deploym
 env.AIRFLOW_HOME = "${POE_ROOT}/examples/deployment/openstef_deployment_runs/airflow"
 env.AIRFLOW__CORE__DAGS_FOLDER = "${POE_ROOT}/examples/deployment/src/airflow_app/dags"
 env.AIRFLOW__CORE__LOAD_EXAMPLES = "False"
+env.PYTHONWARNINGS = "ignore::airflow.exceptions.RemovedInAirflow3Warning"
 sequence = [
   { cmd = "uv run --no-sync --package openstef-deployment-examples airflow db migrate" },
   { cmd = "uv run --no-sync --package openstef-deployment-examples airflow dags test openstef_train 2024-04-15" },
@@ -82,6 +86,7 @@ env.OPENSTEF_DEPLOY_DATA_DIR = "${POE_ROOT}/examples/deployment/openstef_deploym
 env.AIRFLOW_HOME = "${POE_ROOT}/examples/deployment/openstef_deployment_runs/airflow"
 env.AIRFLOW__CORE__DAGS_FOLDER = "${POE_ROOT}/examples/deployment/src/airflow_app/dags"
 env.AIRFLOW__CORE__LOAD_EXAMPLES = "False"
+env.PYTHONWARNINGS = "ignore::airflow.exceptions.RemovedInAirflow3Warning"
 sequence = [
   { cmd = "uv run --no-sync --package openstef-deployment-examples airflow db migrate" },
   { cmd = "uv run --no-sync --package openstef-deployment-examples airflow dags test openstef_forecast 2024-04-15" },

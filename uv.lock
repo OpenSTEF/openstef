@@ -4174,7 +4174,7 @@ dagster = [
 
 [package.metadata]
 requires-dist = [
-    { name = "apache-airflow", marker = "extra == 'airflow'", specifier = ">=2.10" },
+    { name = "apache-airflow", marker = "extra == 'airflow'", specifier = ">=2.10,<3" },
     { name = "celery", extras = ["redis"], marker = "extra == 'celery'", specifier = ">=5.4" },
     { name = "dagster", marker = "extra == 'dagster'", specifier = ">=1.9" },
     { name = "dagster-webserver", marker = "extra == 'dagster'", specifier = ">=1.9" },

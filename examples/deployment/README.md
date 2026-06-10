@@ -88,9 +88,9 @@ export OPENSTEF_DEPLOY_RESULT_BACKEND=redis://localhost:6379/1
 ```
 
 > **Notes:** Flower's live worker/task monitoring needs a broker that supports remote control
-> (e.g. Redis); over the filesystem broker the dashboard runs but shows limited live data. On
-> macOS the Airflow *web UI* (`deploy-airflow-ui`) can crash its gunicorn workers due to a known
-> fork-safety issue — the Airflow **CLI** tasks are unaffected. Both work on Linux/CI.
+> (e.g. Redis); over the filesystem broker the dashboard runs but shows limited live data.
+> `deploy-airflow-ui` sets `OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES` to prevent a gunicorn
+> worker SIGSEGV on macOS; this is harmless on Linux.
 
 See each subpackage's module docstring for more, including the real Redis broker, Celery beat,
 and the Airflow/Dagster schedulers.
