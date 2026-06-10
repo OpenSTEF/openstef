@@ -31,10 +31,11 @@ tiers.
    - `Dagster <https://github.com/OpenSTEF/openstef/tree/main/examples/deployment/src/dagster_app>`_ and
      `Airflow <https://github.com/OpenSTEF/openstef/tree/main/examples/deployment/src/airflow_app>`_ —
      the *DAG-based orchestration* pattern (separate train/predict tasks). Run with
-     ``uv run poe deploy-dagster`` or ``uv run poe deploy-airflow-forecast``.
+     ``uv run poe deploy-dagster-ui`` or ``uv run poe deploy-airflow-ui``.
    - `Celery <https://github.com/OpenSTEF/openstef/tree/main/examples/deployment/src/celery_app>`_ —
      the *Queued execution* pattern (fan-out over many targets). Run with
-     ``uv run poe deploy-celery`` (eager mode, no broker required).
+     ``uv run poe deploy-celery-train`` then ``uv run poe deploy-celery-forecast``
+     (eager mode, no broker required).
 
 Deployment Strategies
 ---------------------
