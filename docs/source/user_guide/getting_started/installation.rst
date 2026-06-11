@@ -331,7 +331,7 @@ macOS
 * For Apple Silicon:
 
   - Ensure you're using compatible wheel distributions
-  - ``xgboost`` on requires ``libomp``. If you encounter errors related to OpenMP or XGBoost, install the OpenMP library via Homebrew: ``brew install libomp``
+  - If you encounter errors related to OpenMP or XGBoost, install the OpenMP library via Homebrew: ``brew install libomp``
 
 Linux
 -----
