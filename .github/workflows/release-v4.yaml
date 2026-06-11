@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+# SPDX-FileCopyrightText: 2026 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 # SPDX-License-Identifier: MPL-2.0
 
 name: Release V4
@@ -79,5 +79,10 @@ jobs:
         run: poe build
       - name: Publish packages
         run: uv publish --trusted-publishing always
+      - name: Upload release assets
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@da05d552573ad5aba039eaac05058a918a7bf631 # v2.2.2
+        with:
+          files: dist/*
       - name: Summary
         run: echo "Published version ${{ steps.ver.outputs.version }}"
