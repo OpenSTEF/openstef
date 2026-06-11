@@ -328,7 +328,7 @@ macOS
 -----
 
 * Most installations work out of the box
-* For Apple Silicon, ensure you're using compatible wheel distributions
+* For Apple Silicon, if you encounter errors related to OpenMP or XGBoost, install the OpenMP library via Homebrew: ``brew install libomp``
 
 Linux
 -----
