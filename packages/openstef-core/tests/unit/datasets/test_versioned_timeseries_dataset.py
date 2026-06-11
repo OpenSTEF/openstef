@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesDataset
+from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesDataset, validate_horizons_present
 from openstef_core.exceptions import TimeSeriesValidationError
 from openstef_core.testing import create_timeseries_dataset
 from openstef_core.types import AvailableAt, LeadTime
@@ -343,3 +343,55 @@ def test_parquet_roundtrip(tmp_path: Path):
             orig_part.data,
             check_freq=False,
         )
+
+
+def test_validate_horizons_present_raises_when_requested_horizon_missing():
+    """validate_horizons_present flags horizons absent from the dataset.
+
+    Regression test: the check previously compared the requested horizons
+    against themselves, so a missing horizon was never detected.
+    """
+    # Arrange - a horizon-versioned dataset that provides PT1H, PT2H and PT24H
+    timestamps = pd.date_range("2025-01-01T10:00:00", periods=4, freq="1h")
+    index = pd.DatetimeIndex(timestamps.tolist() * 3, name="timestamp")
+    available_ats = pd.to_datetime(
+        [ts - pd.Timedelta(hours=1) for ts in timestamps]
+        + [ts - pd.Timedelta(hours=2) for ts in timestamps]
+        + [ts - pd.Timedelta(hours=24) for ts in timestamps]
+    )
+    dataset = VersionedTimeSeriesDataset([
+        create_timeseries_dataset(
+            index=index,
+            available_ats=available_ats,
+            feature=[float(i) for i in range(12)],
+            sample_interval=timedelta(hours=1),
+        )
+    ])
+    present = [
+        LeadTime.from_string("PT1H"),
+        LeadTime.from_string("PT2H"),
+        LeadTime.from_string("PT24H"),
+    ]
+    horizon_dataset = dataset.to_horizons(present)
+    assert horizon_dataset.horizons is not None
+    assert set(horizon_dataset.horizons) == set(present)
+
+    # Act / Assert - a horizon the dataset does not provide is reported as missing
+    missing = LeadTime.from_string("PT48H")
+    with pytest.raises(TimeSeriesValidationError, match="Missing forecast horizons"):
+        validate_horizons_present(horizon_dataset, [present[0], missing])
+
+    # Act / Assert - requesting only horizons that exist does not raise
+    validate_horizons_present(horizon_dataset, [present[0]])
+    validate_horizons_present(horizon_dataset, present)
+
+
+def test_validate_horizons_present_allows_single_horizon_for_non_versioned_dataset():
+    """A non-versioned dataset (horizons is None) can satisfy a single-horizon request."""
+    dataset = create_timeseries_dataset(
+        index=pd.date_range("2025-01-01T10:00:00", periods=4, freq="1h"),
+        feature=[1.0, 2.0, 3.0, 4.0],
+        sample_interval=timedelta(hours=1),
+    )
+    assert dataset.horizons is None
+    validate_horizons_present(dataset, [LeadTime.from_string("PT1H")])

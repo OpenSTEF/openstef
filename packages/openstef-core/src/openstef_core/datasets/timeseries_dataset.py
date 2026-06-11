@@ -512,8 +512,8 @@ def validate_horizons_present(dataset: TimeSeriesDataset, horizons: list[LeadTim
     if dataset.horizons is None and len(horizons) == 1:
         return  # Non-versioned dataset can satisfy single-horizon requests
 
-    required_horizons = set(horizons or [])
-    missing_horizons = [h for h in horizons if h not in required_horizons]
+    available_horizons = set(dataset.horizons or [])
+    missing_horizons = [h for h in horizons if h not in available_horizons]
     if missing_horizons:
         raise TimeSeriesValidationError("Missing forecast horizons: " + ", ".join(map(str, missing_horizons)))
 
