@@ -4,7 +4,7 @@
 
 """Tests for validated dataset classes."""
 
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 
 import numpy as np
 import pandas as pd
@@ -112,7 +112,7 @@ def test_input_data__expected_columns(basic_input_dataset: ForecastInputDataset)
 def test_input_data__start_filters_rows(basic_input_dataset: ForecastInputDataset):
     """Rows before start are excluded when start is provided."""
     # Arrange
-    start = datetime(2025, 1, 1, 3, 0)
+    start = datetime(2025, 1, 1, 3, 0, tzinfo=UTC)
 
     # Act
     result = basic_input_dataset.input_data(start=start)
@@ -170,7 +170,7 @@ def test_input_data__horizon_combined_with_start(basic_input_dataset: ForecastIn
     # Arrange
     # forecast_start = 2025-01-01T00:00, start = T+2h, horizon = 4h → end = T+4h
     # expected rows: T+2h, T+3h, T+4h → 3 rows
-    start = datetime(2025, 1, 1, 2, 0)
+    start = datetime(2025, 1, 1, 2, 0, tzinfo=UTC)
     horizon = LeadTime(timedelta(hours=4))
 
     # Act
@@ -262,7 +262,7 @@ def test_forecast_dataset__median_series_missing_raises(forecast_index: pd.Datet
 
     # Act & Assert
     with pytest.raises(MissingColumnsError):
-        ds.median_series
+        _ = ds.median_series
 
 
 def test_forecast_dataset__target_series_none_when_absent(forecast_dataset: ForecastDataset):
@@ -429,5 +429,5 @@ def test_ensemble_forecast_dataset__column_missing_separator_raises(forecast_ind
     )
 
     # Act & Assert
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match=r"Column missing separator"):
         EnsembleForecastDataset(data=data, sample_interval=timedelta(hours=1))
