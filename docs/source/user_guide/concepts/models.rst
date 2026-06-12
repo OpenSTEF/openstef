@@ -39,6 +39,24 @@ a Forecaster - it is solely responsible for the mathematical prediction step.
 All forecasters implement the :class:`~openstef_models.models.forecasting.forecaster.Forecaster` interface with ``fit()`` and ``predict()``
 methods.
 
+.. rubric:: Output horizon guarantee
+
+Every forecaster obeys the following guarantee:
+
+  **A forecaster's** ``predict()`` **only returns timestamps in the interval**
+  ``[forecast_start, forecast_start + max_horizon]``.
+
+Rows in the input dataset that fall beyond ``max_horizon`` are silently discarded
+before the model runs. This is implemented by passing
+``horizon=self.max_horizon`` to
+:meth:`~openstef_core.datasets.validated_datasets.ForecastInputDataset.input_data`
+inside every ``predict()`` implementation.
+
+The consequence is that you can safely pass a :class:`~openstef_core.datasets.ForecastInputDataset` containing
+more data than the forecaster needs (e.g. a full day of context) without worrying
+that the forecaster will produce spurious predictions far into the future. Its
+output is always bounded by ``max_horizon``.
+
 Transforms
 ^^^^^^^^^^
 
