@@ -1,8 +1,8 @@
 ---
-name: OpenSTEF 4.0 Project Story
+name: OpenSTEF 4 Project Story
 about: Describe this issue template's purpose here.
-title: "[OpenSTEF 4.0] "
-labels: OpenSTEF 4.0
+title: "[OpenSTEF 4] "
+labels: OpenSTEF 4
 assignees: ''
 
 ---
@@ -14,8 +14,8 @@ So that I
 🌍 Background
 
 > [!IMPORTANT]
-> Changes should be done by forking [OpenSTEF 4.0.0 tracking branch](https://github.com/OpenSTEF/openstef/tree/release/v4.0.0) (`release/v4.0.0`) and then make a PR back onto `release/v4.0.0` branch.
-> Please read the [contributing guide](https://openstef.github.io/openstef/v4/contribute/index.html) before you start.
+> Changes should be done by forking [main branch](https://github.com/OpenSTEF/openstef/tree/main) (`main`) and then make a PR back onto `main` branch.
+> Please read the [contributing guide](https://openstef.github.io/openstef/contribute/index.html) before you start.
 
 ❗Priority (What if we don't do this?/Are there any deadlines? etc.)
 
@@ -44,4 +44,3 @@ N/A
 N/A
 
 Other information:
-
