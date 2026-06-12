@@ -130,6 +130,7 @@ class TransformPipeline[T](BaseModel, Transform[T, T]):
         description="Sequence of transforms to apply in sequence. If empty, the pipeline is a nop.",
     )
 
+    @override
     def __reduce__(self) -> tuple[Callable[[], "TransformPipeline[Any]"], tuple[()], Any]:
         """Support pickling of generic TransformPipeline instances.
 

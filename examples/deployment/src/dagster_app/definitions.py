@@ -43,7 +43,7 @@ def input_data(context: dg.AssetExecutionContext) -> TimeSeriesDataset:
 
 
 @dg.asset(partitions_def=target_partitions, description="Train a model for one target and log it to MLflow.")
-def trained_model(context: dg.AssetExecutionContext, input_data: TimeSeriesDataset) -> dg.MaterializeResult:
+def trained_model(context: dg.AssetExecutionContext, input_data: TimeSeriesDataset) -> dg.MaterializeResult:  # ty: ignore[missing-type-argument]
     target = targets_by_key[context.partition_key]
     pipeline.build_workflow(target, settings=settings).fit(pipeline.training_view(input_data, settings=settings))
     return dg.MaterializeResult(metadata={"target": target, "model_id": context.partition_key})
@@ -54,7 +54,7 @@ def trained_model(context: dg.AssetExecutionContext, input_data: TimeSeriesDatas
     deps=[trained_model],
     description="Forecast one target and publish the result.",
 )
-def forecast(context: dg.AssetExecutionContext, input_data: TimeSeriesDataset) -> dg.MaterializeResult:
+def forecast(context: dg.AssetExecutionContext, input_data: TimeSeriesDataset) -> dg.MaterializeResult:  # ty: ignore[missing-type-argument]
     target = targets_by_key[context.partition_key]
     # A fresh workflow loads the model the trained_model asset persisted to MLflow.
     workflow = pipeline.build_workflow(target, settings=settings)

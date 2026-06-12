@@ -196,6 +196,7 @@ class LGBMForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
     def hparams(self) -> LGBMHyperParams:
         return self.hyperparams
 
+    @override
     def model_post_init(self, _context: object, /) -> None:
         """Initialize the underlying LightGBM model from configuration.
 
@@ -294,6 +295,7 @@ class LGBMForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
             target_column=data.target_column,
         )
 
+    @override
     def predict_contributions(self, data: ForecastInputDataset) -> TimeSeriesDataset:
         """Compute SHAP feature contributions for the median quantile.
 

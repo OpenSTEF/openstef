@@ -5,6 +5,7 @@
 """Tests for batch prediction functionality in backtesting pipeline."""
 
 from datetime import datetime, time, timedelta
+from typing import override
 
 import pandas as pd
 import pytest
@@ -46,9 +47,11 @@ class MockModel(BacktestBatchForecasterMixin, BacktestForecasterMixin):
         self.predict_calls: list[datetime] = []
         self.predict_batch_calls: list[int] = []
 
+    @override
     def fit(self, data: RestrictedHorizonVersionedTimeSeries) -> None:
         self.fit_calls.append(data.horizon)
 
+    @override
     def predict(self, data: RestrictedHorizonVersionedTimeSeries) -> TimeSeriesDataset:
         self.predict_calls.append(data.horizon)
         # Return mock prediction as TimeSeriesDataset
@@ -58,6 +61,7 @@ class MockModel(BacktestBatchForecasterMixin, BacktestForecasterMixin):
             sample_interval=self.config.predict_sample_interval,
         )
 
+    @override
     def predict_batch(self, batch: list[RestrictedHorizonVersionedTimeSeries]) -> list[TimeSeriesDataset]:
         self.predict_batch_calls.append(len(batch))
         results: list[TimeSeriesDataset] = []

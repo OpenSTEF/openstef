@@ -11,7 +11,7 @@ operate on arbitrary config instances or Pydantic models / adapters.
 """
 
 from pathlib import Path
-from typing import Annotated, Any, Self
+from typing import Annotated, Any, Self, override
 
 import yaml
 from pydantic import BaseModel as PydanticBaseModel
@@ -112,6 +112,7 @@ def read_yaml_config[T: BaseConfig, U](path: Path, class_type: type[T] | TypeAda
 class PydanticStringPrimitive:
     """Base class for Pydantic-compatible types with string serialization."""
 
+    @override
     def __str__(self) -> str:
         """Convert to string representation."""
         raise NotImplementedError("Subclasses must implement __str__")
@@ -172,6 +173,7 @@ class PydanticStringPrimitive:
         """
         return {"type": "string"}
 
+    @override
     def __eq__(self, other: object) -> bool:
         """Check equality based on string representation.
 
@@ -182,6 +184,7 @@ class PydanticStringPrimitive:
             return NotImplemented
         return str(self) == str(other)
 
+    @override
     def __hash__(self) -> int:
         """Return hash based on string representation."""
         return hash(str(self))

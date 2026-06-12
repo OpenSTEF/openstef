@@ -273,6 +273,7 @@ class SimpleTargetProvider[T: BenchmarkTarget, F](TargetProvider[T, F]):
     def _get_measurements_path_for_target(self, target: T) -> Path:
         return self.data_dir / str(target.group_name) / self.measurements_path_template.format(name=target.name)
 
+    @override
     def get_measurements_for_target(self, target: T) -> VersionedTimeSeriesDataset:
         """Load ground truth measurements from target-specific Parquet file.
 
@@ -284,6 +285,7 @@ class SimpleTargetProvider[T: BenchmarkTarget, F](TargetProvider[T, F]):
             sample_interval=self.data_sample_interval,
         ).filter_by_range(start=target.train_start, end=target.benchmark_end)
 
+    @override
     def get_predictors_for_target(self, target: T) -> VersionedTimeSeriesDataset:
         """Combine weather, profiles, and prices into aligned predictor dataset.
 

@@ -183,6 +183,7 @@ class SummaryTableVisualization(VisualizationProvider):
         plotter = SummaryTablePlotter(dataframe)
         return VisualizationOutput(name=self.name, html=plotter.plot())
 
+    @override
     def create_by_group(self, reports: dict[GroupName, list[ReportTuple]]) -> VisualizationOutput:
         """Create summary table with aggregated metrics by group.
 
@@ -246,6 +247,7 @@ class SummaryTableVisualization(VisualizationProvider):
         plotter = SummaryTablePlotter(dataframe)
         return VisualizationOutput(name=self.name, html=plotter.plot())
 
+    @override
     def create_by_run_and_target(
         self,
         reports: dict[RunName, list[ReportTuple]],
@@ -262,6 +264,7 @@ class SummaryTableVisualization(VisualizationProvider):
             reports=reports,
         )
 
+    @override
     def create_by_run_and_group(
         self, reports: dict[tuple[RunName, GroupName], list[ReportTuple]]
     ) -> VisualizationOutput:

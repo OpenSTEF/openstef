@@ -8,7 +8,7 @@ predictions from multiple base forecasters.
 """
 
 from abc import ABC, abstractmethod
-from typing import Self
+from typing import Self, override
 
 from pydantic import ConfigDict, Field
 
@@ -78,10 +78,12 @@ class ForecastCombiner(BaseConfig, Predictor[EnsembleForecastDataset, ForecastDa
 
     @property
     @abstractmethod
+    @override
     def is_fitted(self) -> bool:
         """Whether the combiner has been fitted."""
 
     @abstractmethod
+    @override
     def fit(
         self,
         data: EnsembleForecastDataset,
@@ -97,6 +99,7 @@ class ForecastCombiner(BaseConfig, Predictor[EnsembleForecastDataset, ForecastDa
         """
 
     @abstractmethod
+    @override
     def predict(
         self,
         data: EnsembleForecastDataset,

@@ -186,6 +186,7 @@ class GBLinearForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
     def hparams(self) -> GBLinearHyperParams:
         return self.hyperparams
 
+    @override
     def model_post_init(self, _context: object, /) -> None:
         """Initialize the underlying XGBoost gblinear model from configuration."""
         self._gblinear_model = xgb.XGBRegressor(
@@ -290,6 +291,7 @@ class GBLinearForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
             target_column=data.target_column,
         )
 
+    @override
     def predict_contributions(self, data: ForecastInputDataset) -> TimeSeriesDataset:
         """Compute SHAP feature contributions for the median quantile.
 

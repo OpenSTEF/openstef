@@ -49,6 +49,7 @@ class StackingCombiner(ForecastCombiner):
     def hparams(self) -> HyperParams:
         return self.meta_forecaster.hparams
 
+    @override
     def model_post_init(self, _context: object, /) -> None:
         """Clone the template forecaster once per quantile."""
         models: dict[Quantile, Forecaster] = {}

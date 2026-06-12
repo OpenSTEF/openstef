@@ -275,6 +275,11 @@ exclude = [
   "**/openstef_deployment_runs/**", # deployment example run artifacts
 ]
 
+[tool.ty.rules]
+all = "error"
+possibly-missing-attribute = "ignore" # ignored because large number of false positives, captured by ruff
+possibly-missing-import = "ignore"    # ignored because large number of false positives, captured by ruff(I002)
+
 [tool.poe]
 # Run-the-example tasks (deploy-*) are defined in the deployment example's pyproject,
 # co-located with the example; included here so `uv run poe deploy-*` works from the root.

@@ -5,7 +5,7 @@
 """Tests for Analysis pipeline module."""
 
 from datetime import timedelta
-from typing import Any
+from typing import Any, override
 
 import pandas as pd
 import pytest
@@ -31,9 +31,11 @@ class MockVisualizationProvider(VisualizationProvider):
         object.__setattr__(self, "create_calls", [])
 
     @property
+    @override
     def supported_aggregations(self) -> set[AnalysisAggregation]:
         return self._supported_aggregations
 
+    @override
     def create(
         self, reports: list[tuple[TargetMetadata, EvaluationSubsetReport]], aggregation: AnalysisAggregation
     ) -> VisualizationOutput:

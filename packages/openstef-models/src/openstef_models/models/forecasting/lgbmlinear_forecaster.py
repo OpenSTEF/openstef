@@ -197,6 +197,7 @@ class LGBMLinearForecaster(Forecaster, ExplainableForecaster, ContributionsMixin
     def hparams(self) -> LGBMLinearHyperParams:
         return self.hyperparams
 
+    @override
     def model_post_init(self, _context: object, /) -> None:
         """Initialize the underlying LightGBM linear model from configuration.
 

@@ -7,7 +7,7 @@
 from collections import defaultdict
 from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any, Literal, NamedTuple, cast
+from typing import Any, Literal, NamedTuple, cast, override
 
 from pydantic import ConfigDict, Field, SkipValidation
 
@@ -65,7 +65,8 @@ class TuningResult[ConfigT: BaseConfig]:
     study: optuna.Study
     workflow: CustomForecastingWorkflow
 
-    def __repr__(self) -> str:  # noqa: D105  # self-explanatory
+    @override
+    def __repr__(self) -> str:  # self-explanatory
         n = len(self.study.best_params)
         return f"TuningResult({n} params tuned)" if n else "TuningResult(no tuning)"
 

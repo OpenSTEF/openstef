@@ -9,6 +9,7 @@ reports are grouped and compared in visualizations.
 """
 
 from enum import StrEnum
+from typing import override
 
 from openstef_beam.analysis.models.target_metadata import GroupName, RunName, TargetName
 from openstef_core.base_model import BaseConfig
@@ -49,6 +50,7 @@ class AnalysisScope(BaseConfig):
     run_name: RunName | None = None
     aggregation: AnalysisAggregation
 
+    @override
     def __hash__(self) -> int:
         """Enable using AnalysisScope as a dictionary key.
 

@@ -182,6 +182,7 @@ class WeightsCombiner(ForecastCombiner):
     _feature_names: list[str] = PrivateAttr(default_factory=list[str])
     _models: dict[Quantile, ClassifierMixin] = PrivateAttr(default_factory=dict[Quantile, ClassifierMixin])
 
+    @override
     def model_post_init(self, _context: object, /) -> None:
         """Validate hyperparams and initialize per-quantile classifiers.
 

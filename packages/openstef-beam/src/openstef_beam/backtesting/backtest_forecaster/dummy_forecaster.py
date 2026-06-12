@@ -9,6 +9,7 @@ without requiring actual model training or prediction logic.
 """
 
 from datetime import timedelta
+from typing import override
 
 from openstef_beam.backtesting.backtest_forecaster.mixins import BacktestForecasterConfig, BacktestForecasterMixin
 from openstef_beam.backtesting.restricted_horizon_timeseries import RestrictedHorizonVersionedTimeSeries
@@ -54,10 +55,12 @@ class DummyForecaster(BacktestForecasterMixin):
         self.predict_quantiles = predict_quantiles or [Q(0.05), Q(0.1), Q(0.3), Q(0.5), Q(0.7), Q(0.9), Q(0.95)]
 
     @property
+    @override
     def quantiles(self) -> list[Quantile]:
         """Return the list of quantiles for predictions."""
         return self.predict_quantiles
 
+    @override
     def predict(self, data: RestrictedHorizonVersionedTimeSeries) -> TimeSeriesDataset | None:
         """Placeholder prediction method that raises NotImplementedError.
 
