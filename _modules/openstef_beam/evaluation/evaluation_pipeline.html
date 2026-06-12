@@ -1110,7 +1110,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">target_column</span><span class="o">=</span><span class="n">target_column</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="c1"># Drop nans from ground truth to ensure clean join with predictions</span>
-        <span class="n">ground_truth_data</span> <span class="o">=</span> <span class="n">ground_truth_data</span><span class="o">.</span><span class="n">pipe_pandas</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">dropna</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+        <span class="n">ground_truth_data</span> <span class="o">=</span> <span class="n">ground_truth_data</span><span class="o">.</span><span class="n">pipe_pandas</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">dropna</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">available_at</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">available_ats</span><span class="p">:</span>
             <span class="n">predictions_filtered</span> <span class="o">=</span> <span class="n">predictions</span><span class="o">.</span><span class="n">filter_by_available_at</span><span class="p">(</span><span class="n">available_at</span><span class="o">=</span><span class="n">available_at</span><span class="p">)</span><span class="o">.</span><span class="n">select_version</span><span class="p">()</span>

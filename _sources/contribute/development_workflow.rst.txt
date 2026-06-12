@@ -59,7 +59,8 @@ Essential commands
     poe lint --check      # Lint without fixing
     poe format            # Format code with ruff
     poe format --check    # Check formatting without changing files
-    poe type              # Type check with pyright
+    poe type              # Type check with ty
+    poe type-tests        # Run type checks on test files
     poe tests             # Run tests with pytest
     poe doctests          # Run docstring examples
     poe reuse             # Check license compliance
@@ -220,7 +221,7 @@ This command runs:
 * **REUSE compliance** - Ensures all files have proper license headers
 * **Linting** - Checks code style and potential issues with ruff
 * **Formatting** - Verifies code formatting with ruff
-* **Type checking** - Validates type hints with pyright  
+* **Type checking** - Validates type hints with ty  
 * **Tests** - Runs the full test suite
 * **Doctests** - Verifies all code examples in docstrings work
 

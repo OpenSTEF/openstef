@@ -1125,7 +1125,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">result</span><span class="p">:</span> <span class="n">HyperParams</span> <span class="o">=</span> <span class="n">handler</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">instance_ranges</span> <span class="ow">and</span> <span class="n">result</span><span class="o">.</span><span class="n">__pydantic_private__</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">result</span><span class="o">.</span><span class="n">_instance_ranges</span> <span class="o">=</span> <span class="n">instance_ranges</span>
-        <span class="k">return</span> <span class="n">result</span>  <span class="c1"># type: ignore[return-value]</span>
+        <span class="k">return</span> <span class="n">result</span>  <span class="c1"># ty: ignore[invalid-return-type]</span>
 
 <div class="viewcode-block" id="HyperParams.get_search_space">
 <a class="viewcode-back" href="../../../api/generated/openstef_core.mixins.predictor.HyperParams.html#openstef_core.mixins.HyperParams.get_search_space">[docs]</a>

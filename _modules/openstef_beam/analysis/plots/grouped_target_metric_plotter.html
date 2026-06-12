@@ -1034,7 +1034,7 @@ window.runMermaid = runMermaid;</script>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_groups</span><span class="p">:</span>
             <span class="c1"># Create boxplot grouped by target groups</span>
-            <span class="n">fig</span> <span class="o">=</span> <span class="n">px</span><span class="o">.</span><span class="n">box</span><span class="p">(</span>  <span class="c1"># type: ignore[reportUnknownMemberType]</span>
+            <span class="n">fig</span> <span class="o">=</span> <span class="n">px</span><span class="o">.</span><span class="n">box</span><span class="p">(</span>
                 <span class="n">models_df</span><span class="p">,</span>
                 <span class="n">x</span><span class="o">=</span><span class="s2">&quot;target_group&quot;</span><span class="p">,</span>
                 <span class="n">y</span><span class="o">=</span><span class="s2">&quot;metric_value&quot;</span><span class="p">,</span>
@@ -1043,9 +1043,9 @@ window.runMermaid = runMermaid;</script>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Create grouped bar chart with individual targets</span>
-            <span class="n">fig</span> <span class="o">=</span> <span class="n">px</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">models_df</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s2">&quot;target&quot;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s2">&quot;metric_value&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;model&quot;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span> <span class="n">barmode</span><span class="o">=</span><span class="s2">&quot;group&quot;</span><span class="p">)</span>  <span class="c1"># type: ignore[reportUnknownMemberType]</span>
+            <span class="n">fig</span> <span class="o">=</span> <span class="n">px</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">models_df</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s2">&quot;target&quot;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s2">&quot;metric_value&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;model&quot;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span> <span class="n">barmode</span><span class="o">=</span><span class="s2">&quot;group&quot;</span><span class="p">)</span>
 
-        <span class="n">fig</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span>  <span class="c1"># type: ignore[reportUnknownMemberType]</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span>
             <span class="n">xaxis_title</span><span class="o">=</span><span class="s2">&quot;Target group&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_groups</span> <span class="k">else</span> <span class="s2">&quot;Target&quot;</span><span class="p">,</span>
             <span class="n">yaxis_title</span><span class="o">=</span><span class="n">metric_name</span><span class="p">,</span>
             <span class="n">legend_title</span><span class="o">=</span><span class="s2">&quot;Models&quot;</span><span class="p">,</span>

@@ -985,7 +985,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_config</span> <span class="o">=</span> <span class="n">config</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="n">joblib</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">linear_model_path</span><span class="p">)</span>  <span class="c1"># type: ignore[reportUnknownMemberType]</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="n">joblib</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">linear_model_path</span><span class="p">)</span></div>
 
 
     <span class="nd">@property</span>
@@ -1033,7 +1033,7 @@ window.runMermaid = runMermaid;</script>
         <span class="p">)</span>
 
         <span class="c1"># Drop rows with NaN values</span>
-        <span class="n">input_df</span> <span class="o">=</span> <span class="n">input_df</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>  <span class="c1"># pyright: ignore[reportUnknownMemberType]</span>
+        <span class="n">input_df</span> <span class="o">=</span> <span class="n">input_df</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">input_df</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
             <span class="n">error_msg</span> <span class="o">=</span> <span class="s2">&quot;No valid data available for component splitting after dropping NaNs&quot;</span>

@@ -926,6 +926,7 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="Window.__str__">
 <a class="viewcode-back" href="../../../../api/generated/openstef_beam.evaluation.models.window.Window.html#openstef_beam.evaluation.Window.__str__">[docs]</a>
+    <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Converts to string in &#39;(lag=X,size=Y,stride=Z)&#39; format.</span>
 
@@ -943,6 +944,7 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="Window.from_string">
 <a class="viewcode-back" href="../../../../api/generated/openstef_beam.evaluation.models.window.Window.html#openstef_beam.evaluation.Window.from_string">[docs]</a>
     <span class="nd">@classmethod</span>
+    <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">from_string</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates an instance from a string in &#39;(lag=X,size=Y,stride=Z)&#39; format.</span>
 
@@ -979,7 +981,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            Validated Window instance.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-            <span class="n">minimum_coverage</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;minimum_coverage&quot;</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
+            <span class="n">minimum_coverage</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;minimum_coverage&quot;</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)))</span>
             <span class="n">lag</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">stride</span> <span class="o">=</span> <span class="n">TypeAdapter</span><span class="p">(</span><span class="nb">tuple</span><span class="p">[</span><span class="n">timedelta</span><span class="p">,</span> <span class="n">timedelta</span><span class="p">,</span> <span class="n">timedelta</span><span class="p">])</span><span class="o">.</span><span class="n">validate_python</span><span class="p">((</span>
                 <span class="n">v</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;lag&quot;</span><span class="p">),</span>
                 <span class="n">v</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;size&quot;</span><span class="p">),</span>

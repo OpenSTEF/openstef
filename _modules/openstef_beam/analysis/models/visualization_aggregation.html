@@ -880,6 +880,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">StrEnum</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">override</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.analysis.models.target_metadata</span><span class="w"> </span><span class="kn">import</span> <span class="n">GroupName</span><span class="p">,</span> <span class="n">RunName</span><span class="p">,</span> <span class="n">TargetName</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.base_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseConfig</span>
@@ -927,6 +928,7 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="AnalysisScope.__hash__">
 <a class="viewcode-back" href="../../../../api/generated/openstef_beam.analysis.models.visualization_aggregation.AnalysisScope.html#openstef_beam.analysis.AnalysisScope.__hash__">[docs]</a>
+    <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Enable using AnalysisScope as a dictionary key.</span>
 

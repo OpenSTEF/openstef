@@ -988,7 +988,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">feature_data</span> <span class="o">=</span> <span class="n">transformed_data</span><span class="p">[</span><span class="n">features</span><span class="p">]</span>
 
         <span class="c1"># Place values on the shifted time axis, interpolate back onto the original grid</span>
-        <span class="n">shifted_df</span> <span class="o">=</span> <span class="n">feature_data</span><span class="o">.</span><span class="n">set_axis</span><span class="p">(</span><span class="n">shifted_index</span><span class="p">)</span>  <span class="c1"># pyright: ignore[reportUnknownMemberType]</span>
+        <span class="n">shifted_df</span> <span class="o">=</span> <span class="n">feature_data</span><span class="o">.</span><span class="n">set_axis</span><span class="p">(</span><span class="n">shifted_index</span><span class="p">)</span>
         <span class="n">combined_df</span> <span class="o">=</span> <span class="n">shifted_df</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">combined_index</span><span class="p">)</span>
 
         <span class="n">limit_area</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fill_edges</span> <span class="k">else</span> <span class="s2">&quot;inside&quot;</span>
@@ -996,7 +996,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">realigned</span> <span class="o">=</span> <span class="n">realigned</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">original_index</span><span class="p">)</span>
 
         <span class="c1"># Restore pre-existing NaN at their shifted positions (nearest-neighbor mapping)</span>
-        <span class="n">nan_mask_shifted</span> <span class="o">=</span> <span class="n">feature_data</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">set_axis</span><span class="p">(</span><span class="n">shifted_index</span><span class="p">)</span>  <span class="c1"># pyright: ignore[reportUnknownMemberType]</span>
+        <span class="n">nan_mask_shifted</span> <span class="o">=</span> <span class="n">feature_data</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">set_axis</span><span class="p">(</span><span class="n">shifted_index</span><span class="p">)</span>
         <span class="n">realigned</span><span class="p">[</span><span class="n">nan_mask_shifted</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">original_index</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;nearest&quot;</span><span class="p">)]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
 
         <span class="n">transformed_data</span><span class="p">[</span><span class="n">features</span><span class="p">]</span> <span class="o">=</span> <span class="n">realigned</span>

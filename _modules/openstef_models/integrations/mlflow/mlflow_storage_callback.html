@@ -1078,7 +1078,7 @@ window.runMermaid = runMermaid;</script>
             <span class="p">)</span>
             <span class="k">return</span>
 
-        <span class="n">context</span><span class="o">.</span><span class="n">workflow</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">old_model</span>  <span class="c1"># pyright: ignore[reportAttributeAccessIssue]</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">workflow</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">old_model</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
             <span class="s2">&quot;Loaded model from MLflow run </span><span class="si">%s</span><span class="s2"> for model </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="n">run_id</span><span class="p">,</span>
@@ -1094,7 +1094,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">run_id</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_tags_compatible</span><span class="p">(</span>
-            <span class="n">run_tags</span><span class="o">=</span><span class="n">run</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">tags</span><span class="p">,</span>  <span class="c1"># pyright: ignore[reportUnknownMemberType, reportUnknownArgumentType]</span>
+            <span class="n">run_tags</span><span class="o">=</span><span class="n">run</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">tags</span><span class="p">,</span>
             <span class="n">new_tags</span><span class="o">=</span><span class="n">workflow</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">tags</span><span class="p">,</span>
             <span class="n">run_id</span><span class="o">=</span><span class="n">run_id</span><span class="p">,</span>
         <span class="p">):</span>
@@ -1118,9 +1118,9 @@ window.runMermaid = runMermaid;</script>
             <span class="k">return</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_is_new_model_better</span><span class="p">(</span><span class="n">old_metrics</span><span class="o">=</span><span class="n">old_metrics</span><span class="p">,</span> <span class="n">new_metrics</span><span class="o">=</span><span class="n">new_metrics</span><span class="p">):</span>
-            <span class="n">workflow</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">new_model</span>  <span class="c1"># pyright: ignore[reportAttributeAccessIssue]</span>
+            <span class="n">workflow</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">new_model</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">workflow</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">old_model</span>  <span class="c1"># pyright: ignore[reportAttributeAccessIssue]</span>
+            <span class="n">workflow</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">old_model</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
                 <span class="s2">&quot;New model did not improve </span><span class="si">%s</span><span class="s2"> metric from previous run </span><span class="si">%s</span><span class="s2">, reusing old model&quot;</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">model_selection_metric</span><span class="p">,</span>
@@ -1135,7 +1135,7 @@ window.runMermaid = runMermaid;</script>
                 <span class="k">continue</span>
             <span class="n">suffix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">name</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
             <span class="n">fig</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">plot_feature_importances</span><span class="p">()</span>
-            <span class="n">fig</span><span class="o">.</span><span class="n">write_html</span><span class="p">(</span><span class="n">data_path</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;feature_importances</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s2">.html&quot;</span><span class="p">)</span>  <span class="c1"># pyright: ignore[reportUnknownMemberType]</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">write_html</span><span class="p">(</span><span class="n">data_path</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;feature_importances</span><span class="si">{</span><span class="n">suffix</span><span class="si">}</span><span class="s2">.html&quot;</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_find_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">run_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Run</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Find an MLflow run by model_id and optional run_name.</span>

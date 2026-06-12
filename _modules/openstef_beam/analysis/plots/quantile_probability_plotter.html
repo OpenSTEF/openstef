@@ -999,7 +999,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">models_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">model_df_list</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="c1"># Create the calibration plot</span>
-        <span class="n">fig</span> <span class="o">=</span> <span class="n">px</span><span class="o">.</span><span class="n">line</span><span class="p">(</span>  <span class="c1"># type: ignore[reportUnknownMemberType]</span>
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">px</span><span class="o">.</span><span class="n">line</span><span class="p">(</span>
             <span class="n">models_df</span><span class="p">,</span>
             <span class="n">x</span><span class="o">=</span><span class="s2">&quot;forecasted_prob&quot;</span><span class="p">,</span>
             <span class="n">y</span><span class="o">=</span><span class="s2">&quot;observed_prob&quot;</span><span class="p">,</span>
@@ -1009,7 +1009,7 @@ window.runMermaid = runMermaid;</script>
         <span class="p">)</span>
 
         <span class="c1"># Add the perfect calibration line (y=x)</span>
-        <span class="n">fig</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span>  <span class="c1"># type: ignore[reportUnknownMemberType]</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span>
             <span class="n">go</span><span class="o">.</span><span class="n">Scattergl</span><span class="p">(</span>
                 <span class="n">x</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
                 <span class="n">y</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
@@ -1020,7 +1020,7 @@ window.runMermaid = runMermaid;</script>
             <span class="p">)</span>
         <span class="p">)</span>
 
-        <span class="n">fig</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span>  <span class="c1"># type: ignore[reportUnknownMemberType]</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span>
             <span class="n">xaxis_title</span><span class="o">=</span><span class="s2">&quot;Forecasted Probability&quot;</span><span class="p">,</span>
             <span class="n">yaxis_title</span><span class="o">=</span><span class="s2">&quot;Observed Probability&quot;</span><span class="p">,</span>
             <span class="n">xaxis</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;range&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]},</span>

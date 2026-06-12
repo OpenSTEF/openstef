@@ -1030,7 +1030,7 @@ window.runMermaid = runMermaid;</script>
         <span class="c1"># Fill missing values with fallback lag if needed</span>
         <span class="k">if</span> <span class="n">prediction</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
             <span class="n">prediction_fallback</span> <span class="o">=</span> <span class="n">target_series</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hyperparams</span><span class="o">.</span><span class="n">fallback_lag</span><span class="p">)</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">forecast_index</span><span class="p">)</span>
-            <span class="n">prediction</span> <span class="o">=</span> <span class="n">prediction</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">prediction_fallback</span><span class="p">)</span>  <span class="c1"># pyright: ignore[reportUnknownMemberType]</span>
+            <span class="n">prediction</span> <span class="o">=</span> <span class="n">prediction</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">prediction_fallback</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">ForecastDataset</span><span class="p">(</span>
             <span class="n">data</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>

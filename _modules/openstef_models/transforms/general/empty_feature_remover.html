@@ -953,7 +953,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">description</span><span class="o">=</span><span class="s2">&quot;The placeholder for missing values that should be considered empty&quot;</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="n">_remove_columns</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">PrivateAttr</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">set</span><span class="p">)</span>  <span class="c1"># pyright: ignore[reportUnknownVariableType]</span>
+    <span class="n">_remove_columns</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">PrivateAttr</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">set</span><span class="p">)</span>
     <span class="n">_is_fitted</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">PrivateAttr</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
     <span class="nd">@property</span>
@@ -989,7 +989,7 @@ window.runMermaid = runMermaid;</script>
             <span class="k">raise</span> <span class="n">NotFittedError</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
 
         <span class="c1"># Remove empty columns</span>
-        <span class="n">result_data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="o">~</span><span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_remove_columns</span><span class="p">)]</span>  <span class="c1"># pyright: ignore[reportUnknownMemberType]</span>
+        <span class="n">result_data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="o">~</span><span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_remove_columns</span><span class="p">)]</span>
 
         <span class="k">return</span> <span class="n">TimeSeriesDataset</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">result_data</span><span class="p">,</span> <span class="n">sample_interval</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">sample_interval</span><span class="p">)</span></div>
 

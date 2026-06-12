@@ -880,9 +880,9 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">plotly.graph_objects</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">go</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">plotly.subplots</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_subplots</span>  <span class="c1"># pyright: ignore[reportUnknownVariableType]</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">plotly.subplots</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_subplots</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">TimeSeriesDataset</span>  <span class="c1"># noqa: TC001  # runtime needed for pyright</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">TimeSeriesDataset</span>  <span class="c1"># noqa: TC001</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
@@ -952,7 +952,7 @@ window.runMermaid = runMermaid;</script>
                 <span class="n">vertical_spacing</span><span class="o">=</span><span class="mf">0.03</span><span class="p">,</span>
             <span class="p">)</span>
 
-            <span class="n">fig</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span>  <span class="c1"># pyright: ignore[reportUnknownMemberType]</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span>
                 <span class="n">go</span><span class="o">.</span><span class="n">Scatter</span><span class="p">(</span>
                     <span class="n">x</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
                     <span class="n">y</span><span class="o">=</span><span class="n">prediction</span><span class="p">,</span>
@@ -964,9 +964,9 @@ window.runMermaid = runMermaid;</script>
                 <span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                 <span class="n">col</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="n">fig</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span><span class="n">heatmap</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">col</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># pyright: ignore[reportUnknownMemberType]</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span><span class="n">heatmap</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">col</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
-            <span class="n">fig</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span>  <span class="c1"># pyright: ignore[reportUnknownMemberType]</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span>
                 <span class="n">yaxis_title</span><span class="o">=</span><span class="s2">&quot;Prediction&quot;</span><span class="p">,</span>
                 <span class="n">yaxis2_title</span><span class="o">=</span><span class="s2">&quot;Feature&quot;</span><span class="p">,</span>
                 <span class="n">xaxis2_title</span><span class="o">=</span><span class="s2">&quot;Time&quot;</span><span class="p">,</span>
@@ -1028,7 +1028,7 @@ window.runMermaid = runMermaid;</script>
 
         <span class="k">for</span> <span class="n">feat</span> <span class="ow">in</span> <span class="n">top</span><span class="p">:</span>
             <span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">feat</span><span class="p">)</span>
-            <span class="n">values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">feat</span><span class="p">]))</span>  <span class="c1"># pyright: ignore[reportArgumentType]</span>
+            <span class="n">values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">feat</span><span class="p">]))</span>
             <span class="n">measures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;relative&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">remaining</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
@@ -1094,7 +1094,7 @@ window.runMermaid = runMermaid;</script>
 
         <span class="k">return</span> <span class="n">go</span><span class="o">.</span><span class="n">Figure</span><span class="p">(</span>
             <span class="n">go</span><span class="o">.</span><span class="n">Bar</span><span class="p">(</span>
-                <span class="n">x</span><span class="o">=</span><span class="n">mean_abs</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>  <span class="c1"># pyright: ignore[reportArgumentType]</span>
+                <span class="n">x</span><span class="o">=</span><span class="n">mean_abs</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
                 <span class="n">y</span><span class="o">=</span><span class="n">mean_abs</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
                 <span class="n">orientation</span><span class="o">=</span><span class="s2">&quot;h&quot;</span><span class="p">,</span>
                 <span class="n">marker_color</span><span class="o">=</span><span class="s2">&quot;#1f77b4&quot;</span><span class="p">,</span>

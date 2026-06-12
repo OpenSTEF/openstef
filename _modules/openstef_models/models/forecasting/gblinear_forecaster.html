@@ -1067,6 +1067,7 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="GBLinearForecaster.model_post_init">
 <a class="viewcode-back" href="../../../../api/generated/openstef_models.models.forecasting.gblinear_forecaster.GBLinearForecaster.html#openstef_models.models.forecasting.gblinear_forecaster.GBLinearForecaster.model_post_init">[docs]</a>
+    <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">model_post_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_context</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the underlying XGBoost gblinear model from configuration.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_gblinear_model</span> <span class="o">=</span> <span class="n">xgb</span><span class="o">.</span><span class="n">XGBRegressor</span><span class="p">(</span>
@@ -1180,6 +1181,7 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="GBLinearForecaster.predict_contributions">
 <a class="viewcode-back" href="../../../../api/generated/openstef_models.models.forecasting.gblinear_forecaster.GBLinearForecaster.html#openstef_models.models.forecasting.gblinear_forecaster.GBLinearForecaster.predict_contributions">[docs]</a>
+    <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">predict_contributions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">ForecastInputDataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TimeSeriesDataset</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute SHAP feature contributions for the median quantile.</span>
 

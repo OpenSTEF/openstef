@@ -604,7 +604,7 @@ level.</p>
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Calibration before isotonic correction:
 quantile  expected  observed     error
      P10       0.1  0.002976 -0.097024
-     P50       0.5  0.400298 -0.099702
+     P50       0.5  0.401786 -0.098214
      P90       0.9  0.846726 -0.053274
 </pre></div>
 </div>
@@ -663,9 +663,9 @@ appended to its postprocessing pipeline.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>quantile  expected  observed (before)  observed (after)  error (before)  error (after)
-     P10       0.1           0.002976          0.071429       -0.097024      -0.028571
-     P50       0.5           0.400298          0.477679       -0.099702      -0.022321
-     P90       0.9           0.846726          0.875000       -0.053274      -0.025000
+     P10       0.1           0.002976          0.069940       -0.097024      -0.030060
+     P50       0.5           0.401786          0.479167       -0.098214      -0.020833
+     P90       0.9           0.846726          0.879464       -0.053274      -0.020536
 </pre></div>
 </div>
 </div>
@@ -679,7 +679,7 @@ appended to its postprocessing pipeline.</p>
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">Figure</span><span class="p">()</span>
 
-<span class="n">fig</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span>  <span class="c1"># pyright: ignore[reportUnknownMemberType]</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span>
     <span class="n">go</span><span class="o">.</span><span class="n">Scatter</span><span class="p">(</span>
         <span class="n">x</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
         <span class="n">y</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
@@ -689,7 +689,7 @@ appended to its postprocessing pipeline.</p>
     <span class="p">)</span>
 <span class="p">)</span>
 
-<span class="n">fig</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span>  <span class="c1"># pyright: ignore[reportUnknownMemberType]</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span>
     <span class="n">go</span><span class="o">.</span><span class="n">Scatter</span><span class="p">(</span>
         <span class="n">x</span><span class="o">=</span><span class="n">expected</span><span class="p">,</span>
         <span class="n">y</span><span class="o">=</span><span class="n">observed_uncal</span><span class="p">,</span>
@@ -700,7 +700,7 @@ appended to its postprocessing pipeline.</p>
     <span class="p">)</span>
 <span class="p">)</span>
 
-<span class="n">fig</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span>  <span class="c1"># pyright: ignore[reportUnknownMemberType]</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span>
     <span class="n">go</span><span class="o">.</span><span class="n">Scatter</span><span class="p">(</span>
         <span class="n">x</span><span class="o">=</span><span class="n">expected</span><span class="p">,</span>
         <span class="n">y</span><span class="o">=</span><span class="n">observed_cal</span><span class="p">,</span>
@@ -711,7 +711,7 @@ appended to its postprocessing pipeline.</p>
     <span class="p">)</span>
 <span class="p">)</span>
 
-<span class="n">fig</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span>  <span class="c1"># pyright: ignore[reportUnknownMemberType]</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span>
     <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Quantile calibration: expected vs observed coverage&quot;</span><span class="p">,</span>
     <span class="n">xaxis_title</span><span class="o">=</span><span class="s2">&quot;Expected quantile level&quot;</span><span class="p">,</span>
     <span class="n">yaxis_title</span><span class="o">=</span><span class="s2">&quot;Observed coverage&quot;</span><span class="p">,</span>
@@ -726,7 +726,7 @@ appended to its postprocessing pipeline.</p>
 </div>
 </details>
 <div class="cell_output docutils container">
-<img alt="../_images/62b6f6c1b03af8d9bbdbf46211f993db2a950670271b6ddb6cf531df0249def6.png" src="../_images/62b6f6c1b03af8d9bbdbf46211f993db2a950670271b6ddb6cf531df0249def6.png" />
+<img alt="../_images/089bcf311ed13b56a11b65cc076a4f058e9f1b558c65df28b52ea8bfccdf1c76.png" src="../_images/089bcf311ed13b56a11b65cc076a4f058e9f1b558c65df28b52ea8bfccdf1c76.png" />
 </div>
 </div>
 <p>Points closer to the diagonal indicate better calibration.  The isotonic

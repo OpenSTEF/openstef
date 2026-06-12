@@ -1077,6 +1077,7 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="LGBMForecaster.model_post_init">
 <a class="viewcode-back" href="../../../../api/generated/openstef_models.models.forecasting.lgbm_forecaster.LGBMForecaster.html#openstef_models.models.forecasting.lgbm_forecaster.LGBMForecaster.model_post_init">[docs]</a>
+    <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">model_post_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_context</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the underlying LightGBM model from configuration.</span>
 
@@ -1115,7 +1116,7 @@ window.runMermaid = runMermaid;</script>
         <span class="p">}</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_lgbm_model</span> <span class="o">=</span> <span class="n">MultiQuantileRegressor</span><span class="p">(</span>
-            <span class="n">base_learner</span><span class="o">=</span><span class="n">LGBMRegressor</span><span class="p">,</span>  <span class="c1"># type: ignore</span>
+            <span class="n">base_learner</span><span class="o">=</span><span class="n">LGBMRegressor</span><span class="p">,</span>
             <span class="n">quantile_param</span><span class="o">=</span><span class="s2">&quot;alpha&quot;</span><span class="p">,</span>
             <span class="n">hyperparams</span><span class="o">=</span><span class="n">lgbm_params</span><span class="p">,</span>
             <span class="n">quantiles</span><span class="o">=</span><span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">q</span><span class="p">)</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">quantiles</span><span class="p">],</span>
@@ -1184,6 +1185,7 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="LGBMForecaster.predict_contributions">
 <a class="viewcode-back" href="../../../../api/generated/openstef_models.models.forecasting.lgbm_forecaster.LGBMForecaster.html#openstef_models.models.forecasting.lgbm_forecaster.LGBMForecaster.predict_contributions">[docs]</a>
+    <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">predict_contributions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">ForecastInputDataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TimeSeriesDataset</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute SHAP feature contributions for the median quantile.</span>
 
@@ -1207,7 +1209,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">model</span><span class="p">:</span> <span class="n">LGBMRegressor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lgbm_model</span><span class="o">.</span><span class="n">models</span><span class="p">[</span><span class="n">median_idx</span><span class="p">]</span>  <span class="c1"># type: ignore</span>
 
         <span class="c1"># Get SHAP contributions from median quantile model (includes bias as last column)</span>
-        <span class="n">contribs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">input_data</span><span class="p">,</span> <span class="n">pred_contrib</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># type: ignore</span>
+        <span class="n">contribs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">input_data</span><span class="p">,</span> <span class="n">pred_contrib</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="o">*</span><span class="n">input_data</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="s2">&quot;bias&quot;</span><span class="p">]</span>
         <span class="n">contribs_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">contribs</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">input_data</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">)</span>

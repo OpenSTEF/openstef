@@ -1008,7 +1008,7 @@ window.runMermaid = runMermaid;</script>
 
         <span class="n">models_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">model_df_list</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-        <span class="n">fig</span> <span class="o">=</span> <span class="n">px</span><span class="o">.</span><span class="n">line</span><span class="p">(</span>  <span class="c1"># type: ignore - needs stubs</span>
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">px</span><span class="o">.</span><span class="n">line</span><span class="p">(</span>
             <span class="n">models_df</span><span class="p">,</span>
             <span class="n">x</span><span class="o">=</span><span class="s2">&quot;recall&quot;</span><span class="p">,</span>
             <span class="n">y</span><span class="o">=</span><span class="s2">&quot;precision&quot;</span><span class="p">,</span>
@@ -1018,7 +1018,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span>
         <span class="p">)</span>
 
-        <span class="n">fig</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span>  <span class="c1"># type: ignore - needs stubs</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span>
             <span class="n">xaxis_title</span><span class="o">=</span><span class="s2">&quot;Recall&quot;</span><span class="p">,</span>
             <span class="n">yaxis_title</span><span class="o">=</span><span class="s2">&quot;Precision&quot;</span><span class="p">,</span>
             <span class="n">xaxis</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;range&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]},</span>

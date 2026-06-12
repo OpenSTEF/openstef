@@ -941,7 +941,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        True</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">included_features</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;dni&quot;</span><span class="p">,</span> <span class="s2">&quot;gti&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+    <span class="n">included_features</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;dni&quot;</span><span class="p">,</span> <span class="s2">&quot;gti&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>  <span class="c1"># ty: ignore[invalid-assignment]</span>
         <span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="p">[</span>
             <span class="s2">&quot;dni&quot;</span><span class="p">,</span>
             <span class="s2">&quot;gti&quot;</span><span class="p">,</span>
@@ -1000,17 +1000,17 @@ window.runMermaid = runMermaid;</script>
             <span class="n">tz</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tz</span><span class="p">),</span>
         <span class="p">)</span>
 
-        <span class="n">solar_position</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">=</span> <span class="n">pvlib</span><span class="o">.</span><span class="n">solarposition</span><span class="o">.</span><span class="n">get_solarposition</span><span class="p">(</span>  <span class="c1"># type: ignore[reportUnknownMemberType]</span>
+        <span class="n">solar_position</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">=</span> <span class="n">pvlib</span><span class="o">.</span><span class="n">solarposition</span><span class="o">.</span><span class="n">get_solarposition</span><span class="p">(</span>
             <span class="n">time</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
             <span class="n">latitude</span><span class="o">=</span><span class="n">location</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
             <span class="n">longitude</span><span class="o">=</span><span class="n">location</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
         <span class="p">)</span>
 
-        <span class="n">clearsky_radiation</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">=</span> <span class="n">location</span><span class="o">.</span><span class="n">get_clearsky</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>  <span class="c1"># type: ignore[reportUnknownMemberType]</span>
+        <span class="n">clearsky_radiation</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">=</span> <span class="n">location</span><span class="o">.</span><span class="n">get_clearsky</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
 
         <span class="n">dni</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span>
             <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
-            <span class="n">pvlib</span><span class="o">.</span><span class="n">irradiance</span><span class="o">.</span><span class="n">dni</span><span class="p">(</span>  <span class="c1"># type: ignore[reportUnknownMemberType]</span>
+            <span class="n">pvlib</span><span class="o">.</span><span class="n">irradiance</span><span class="o">.</span><span class="n">dni</span><span class="p">(</span>
                 <span class="n">ghi</span><span class="o">=</span><span class="n">ghi</span><span class="p">,</span>
                 <span class="n">dhi</span><span class="o">=</span><span class="n">clearsky_radiation</span><span class="p">[</span><span class="s2">&quot;dhi&quot;</span><span class="p">],</span>
                 <span class="n">zenith</span><span class="o">=</span><span class="n">solar_position</span><span class="p">[</span><span class="s2">&quot;apparent_zenith&quot;</span><span class="p">],</span>
@@ -1023,7 +1023,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">result</span><span class="p">[</span><span class="s2">&quot;dni&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dni</span>
 
         <span class="k">if</span> <span class="s2">&quot;gti&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">included_features</span><span class="p">:</span>
-            <span class="n">result</span><span class="p">[</span><span class="s2">&quot;gti&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pvlib</span><span class="o">.</span><span class="n">irradiance</span><span class="o">.</span><span class="n">get_total_irradiance</span><span class="p">(</span>  <span class="c1"># type: ignore[reportUnknownMemberType]</span>
+            <span class="n">result</span><span class="p">[</span><span class="s2">&quot;gti&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pvlib</span><span class="o">.</span><span class="n">irradiance</span><span class="o">.</span><span class="n">get_total_irradiance</span><span class="p">(</span>
                 <span class="n">surface_tilt</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">surface_tilt</span><span class="p">,</span>
                 <span class="n">surface_azimuth</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">surface_azimuth</span><span class="p">,</span>
                 <span class="n">solar_zenith</span><span class="o">=</span><span class="n">solar_position</span><span class="p">[</span><span class="s2">&quot;apparent_zenith&quot;</span><span class="p">],</span>

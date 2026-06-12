@@ -973,7 +973,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">            Boolean indicating whether or not there is a flatliner ongoing for the given data.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">last_valid_index</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">last_valid_index</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">last_valid_index</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># type: ignore[reportUnnecessaryComparison]  # None if no valid data</span>
+        <span class="k">if</span> <span class="n">last_valid_index</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span>
         <span class="n">latest_measurement_time</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">,</span> <span class="n">last_valid_index</span><span class="p">)</span>
         <span class="n">start_time</span> <span class="o">=</span> <span class="n">latest_measurement_time</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">flatliner_threshold</span>

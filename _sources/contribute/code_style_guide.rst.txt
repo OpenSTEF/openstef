@@ -240,7 +240,7 @@ Validate type hints using our development tools:
 
 .. code-block:: bash
 
-    # Type check with pyright
+    # Type check with ty
     poe type
 
     # Full validation including type checks
@@ -935,7 +935,7 @@ Our development tools automatically enforce quality standards:
     # Individual checks
     poe lint --check       # Ruff linting
     poe format --check     # Code formatting  
-    poe type               # Type checking with pyright
+    poe type               # Type checking with ty
     poe tests              # Run test suite
     poe doctests           # Test docstring examples
 

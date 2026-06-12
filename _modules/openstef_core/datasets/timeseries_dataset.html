@@ -1197,7 +1197,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        Returns:</span>
 <span class="sd">            New dataset containing only rows with timestamps in the mask.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">data_filtered</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">mask</span><span class="p">)]</span>  <span class="c1"># pyright: ignore[reportUnknownMemberType]</span>
+        <span class="n">data_filtered</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">mask</span><span class="p">)]</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_copy_with_data</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data_filtered</span><span class="p">)</span></div>
 
@@ -1216,7 +1216,7 @@ window.runMermaid = runMermaid;</script>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">horizons</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span>
 
-        <span class="n">data_selected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">lead_time_series</span> <span class="o">==</span> <span class="n">horizon</span><span class="o">.</span><span class="n">value</span><span class="p">]</span>
+        <span class="n">data_selected</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">lead_time_series</span> <span class="o">==</span> <span class="n">horizon</span><span class="o">.</span><span class="n">value</span><span class="p">])</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_copy_with_data</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data_selected</span><span class="p">)</span></div>
 
 
@@ -1303,7 +1303,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">available_at_column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;available_at&quot;</span><span class="p">,</span>
         <span class="n">horizon_column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;horizon&quot;</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">)</span>  <span class="c1"># pyright: ignore[reportUnknownMemberType]</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">timestamp_column</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">TimeSeriesValidationError</span><span class="p">(</span>

@@ -934,7 +934,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        [&#39;temperature&#39;, &#39;pressure&#39;, &#39;relative_humidity&#39;, &#39;dewpoint&#39;, &#39;air_density&#39;]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">included_features</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">AirRelatedFeatureName</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+    <span class="n">included_features</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">AirRelatedFeatureName</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>  <span class="c1"># ty: ignore[invalid-assignment]</span>
         <span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;saturation_vapour_pressure&quot;</span><span class="p">,</span> <span class="s2">&quot;vapour_pressure&quot;</span><span class="p">,</span> <span class="s2">&quot;dewpoint&quot;</span><span class="p">,</span> <span class="s2">&quot;air_density&quot;</span><span class="p">],</span>
         <span class="n">description</span><span class="o">=</span><span class="s2">&quot;List of air related features to include.&quot;</span><span class="p">,</span>
     <span class="p">)</span>

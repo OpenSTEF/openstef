@@ -1006,7 +1006,7 @@ window.runMermaid = runMermaid;</script>
 
             <span class="n">training_start</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
                 <span class="n">current_time</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">forecaster_config</span><span class="o">.</span><span class="n">training_context_length</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">to_pydatetime</span><span class="p">(),</span>  <span class="c1"># type: ignore[reportUnknownMemberType]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">to_pydatetime</span><span class="p">(),</span>
             <span class="p">)</span>
             <span class="n">training_end</span> <span class="o">=</span> <span class="n">current_time</span>
             <span class="k">if</span> <span class="n">training_start</span> <span class="o">==</span> <span class="n">training_end</span><span class="p">:</span>

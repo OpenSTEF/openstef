@@ -944,7 +944,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">original_row_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
 
         <span class="c1"># Drop rows containing NaN in selected columns</span>
-        <span class="n">transformed_data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="n">features</span><span class="p">)</span>  <span class="c1"># pyright: ignore[reportUnknownMemberType]</span>
+        <span class="n">transformed_data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="n">features</span><span class="p">)</span>
         <span class="n">dropped_count</span> <span class="o">=</span> <span class="n">original_row_count</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">transformed_data</span><span class="p">)</span>
 
         <span class="c1"># Log warning if substantial percentage of rows was dropped</span>
