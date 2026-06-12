@@ -11,7 +11,7 @@ pinball loss. All functions support sample weighting for flexible training.
 
 from collections.abc import Callable
 from functools import partial
-from typing import Any, Literal
+from typing import Any, Literal, cast
 
 import numpy as np
 import numpy.typing as npt
@@ -244,7 +244,7 @@ def get_objective_function(
     [npt.NDArray[np.floating], npt.NDArray[np.floating]], tuple[npt.NDArray[np.floating], npt.NDArray[np.floating]]
 ]:
     fn = partial(OBJECTIVE_MAP[function_type], quantiles=quantiles, **kwargs)
-    fn.__name__ = function_type  # pyright: ignore[reportAttributeAccessIssue]
+    cast(Any, fn).__name__ = function_type
     return fn
 
 

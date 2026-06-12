@@ -86,6 +86,6 @@ def test_plot(sample_datetime_series: list[datetime]):
 
     # Assert
     assert isinstance(fig, go.Figure)
-    assert plot_title in fig.layout.title.text  # type: ignore - needs stubs
-    assert window_size in fig.layout.title.text  # type: ignore - needs stubs
-    assert metric_name in fig.layout.yaxis.title.text  # type: ignore - needs stubs
+    assert plot_title in fig.layout.title.text
+    assert window_size in fig.layout.title.text
+    assert metric_name in fig.layout.yaxis.title.text

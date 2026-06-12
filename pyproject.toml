@@ -76,6 +76,7 @@ dev = [
   "reuse>=5.0.2",
   "ruff>=0.12.8",
   "scipy-stubs>=1.16.2.4",
+  "ty>=0.0.48",
 ]
 
 [tool.hatch.build.targets.wheel]
@@ -261,7 +262,7 @@ omit = [
   "packages/*/src/examples/*",
 ]
 
-[tool.pyright]
+[tool.ty.src]
 include = [
   "tools/**/*.py",
   "examples/**/*.py",
@@ -274,12 +275,6 @@ exclude = [
   "**/.venv/**",                    # never type-check files inside a virtualenv (e.g. a member's local .venv)
   "**/openstef_deployment_runs/**", # deployment example run artifacts
 ]
-
-typeCheckingMode = "strict"
-reportPrivateImportUsage = false
-reportMissingTypeStubs = false
-reportPrivateUsage = false
-reportUnusedExpression = false
 
 [tool.poe]
 # Run-the-example tasks (deploy-*) are defined in the deployment example's pyproject,
@@ -309,12 +304,12 @@ help = "Asserts that dependencies are locked"
 cmd = "uv lock --check"
 
 [tool.poe.tasks.type]
-help = "Check typing (with pyright)"
-cmd = "pyright tools examples packages/*/src packages/*/examples"
+help = "Check typing (with ty)"
+cmd = "ty check tools examples packages/*/src"
 
 [tool.poe.tasks.type-tests]
-help = "Check typing (with pyright)"
-cmd = "pyright packages/*/tests"
+help = "Check typing (with ty)"
+cmd = "ty check packages/*/tests"
 
 [tool.poe.tasks.tests]
 help = "Run pytest with xdist, marker filtering, and coverage"

@@ -70,7 +70,7 @@ class RollingAggregatesAdder(BaseConfig, TimeSeriesTransform):
         default=timedelta(hours=24),
         description="Rolling window size for the aggregation.",
     )
-    aggregation_functions: list[AggregationFunction] = Field(
+    aggregation_functions: list[AggregationFunction] = Field(    # ty: ignore[invalid-assignment] 
         default_factory=lambda: ["median", "min", "max"],
         description="Aggregation functions to compute over the rolling window.",
     )
@@ -147,7 +147,7 @@ class RollingAggregatesAdder(BaseConfig, TimeSeriesTransform):
 
         for col in column_mapping.values():
             if col in self._last_valid_aggregates:
-                rolling_df[col] = rolling_df[col].fillna(self._last_valid_aggregates[col])  # pyright: ignore[reportUnknownMemberType]
+                rolling_df[col] = rolling_df[col].fillna(self._last_valid_aggregates[col])
 
             if rolling_df[col].isna().any():
                 self._logger.warning("Column '%s' has NaN values after fallback.", col)

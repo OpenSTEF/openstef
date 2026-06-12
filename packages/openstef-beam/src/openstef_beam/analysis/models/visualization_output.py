@@ -59,7 +59,7 @@ class VisualizationOutput:
             ValueError: If neither figure nor HTML content is available.
         """
         if self.figure is not None:
-            self.figure.write_html(file_path, include_plotlyjs="cdn", **kwargs)  # type: ignore[reportUnknownMemberType]
+            self.figure.write_html(file_path, include_plotlyjs="cdn", **kwargs)
         elif self.html is not None:
             file_path.write_text(self.html, encoding="utf-8")
         else:

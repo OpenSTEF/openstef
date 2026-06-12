@@ -8,8 +8,12 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+from typing import cast
+
+from pydantic_extra_types.coordinate import Latitude, Longitude
+
 from openstef_beam.backtesting.restricted_horizon_timeseries import RestrictedHorizonVersionedTimeSeries
-from openstef_beam.benchmarking.baselines.openstef4 import create_openstef4_preset_backtest_forecaster
+from openstef_beam.benchmarking.baselines.openstef4 import OpenSTEF4BacktestForecaster, create_openstef4_preset_backtest_forecaster
 from openstef_beam.benchmarking.benchmark_pipeline import BenchmarkContext, BenchmarkTarget
 from openstef_core.datasets import VersionedTimeSeriesDataset
 from openstef_core.testing import create_synthetic_forecasting_dataset
@@ -33,8 +37,8 @@ def benchmark_target() -> BenchmarkTarget:
     return BenchmarkTarget(
         name="target_1",
         description="test",
-        latitude=52.0,
-        longitude=5.0,
+        latitude=Latitude(52.0),
+        longitude=Longitude(5.0),
         limit=100.0,
         benchmark_start=now - timedelta(days=365),
         benchmark_end=now,
@@ -68,7 +72,7 @@ def test_fit_does_not_mutate_template(
         workflow_config=xgboost_config,
         cache_dir=tmp_path / "test_no_mutate",
     )
-    forecaster = factory(BenchmarkContext(run_name="run"), benchmark_target)
+    forecaster = cast(OpenSTEF4BacktestForecaster, factory(BenchmarkContext(run_name="run"), benchmark_target))
     template_model_id_before = id(forecaster.workflow_template.model)
 
     horizon = datetime(2024, 5, 25, tzinfo=UTC)
@@ -99,7 +103,7 @@ def test_fit_then_predict_returns_forecast(
         workflow_config=xgboost_config,
         cache_dir=tmp_path / "test_e2e",
     )
-    forecaster = factory(BenchmarkContext(run_name="e2e"), benchmark_target)
+    forecaster = cast(OpenSTEF4BacktestForecaster, factory(BenchmarkContext(run_name="e2e"), benchmark_target))
     horizon = datetime(2024, 5, 25, tzinfo=UTC)
     rhvts = RestrictedHorizonVersionedTimeSeries(dataset=training_data, horizon=horizon)
 
@@ -130,7 +134,7 @@ def test_fit_retains_previous_model_on_insufficient_data(
         workflow_config=config,
         cache_dir=tmp_path / "test_insufficient",
     )
-    forecaster = factory(BenchmarkContext(run_name="insufficient"), benchmark_target)
+    forecaster = cast(OpenSTEF4BacktestForecaster, factory(BenchmarkContext(run_name="insufficient"), benchmark_target))
 
     # First fit succeeds — establishes a baseline model
     horizon_good = datetime(2024, 5, 25, tzinfo=UTC)
@@ -171,7 +175,7 @@ def test_predict_returns_none_when_never_fitted(
         workflow_config=xgboost_config,
         cache_dir=tmp_path / "test_no_fit",
     )
-    forecaster = factory(BenchmarkContext(run_name="no_fit"), benchmark_target)
+    forecaster = cast(OpenSTEF4BacktestForecaster, factory(BenchmarkContext(run_name="no_fit"), benchmark_target))
     horizon = datetime(2024, 5, 25, tzinfo=UTC)
     rhvts = RestrictedHorizonVersionedTimeSeries(dataset=training_data, horizon=horizon)
 

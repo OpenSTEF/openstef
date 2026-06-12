@@ -9,7 +9,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import plotly.graph_objects as go
-from plotly.subplots import make_subplots  # pyright: ignore[reportUnknownVariableType]
+from plotly.subplots import make_subplots
 
 from openstef_core.datasets import TimeSeriesDataset  # noqa: TC001  # runtime needed for pyright
 
@@ -77,7 +77,7 @@ class ContributionsPlotter:
                 vertical_spacing=0.03,
             )
 
-            fig.add_trace(  # pyright: ignore[reportUnknownMemberType]
+            fig.add_trace(
                 go.Scatter(
                     x=df.index,
                     y=prediction,
@@ -89,9 +89,9 @@ class ContributionsPlotter:
                 row=1,
                 col=1,
             )
-            fig.add_trace(heatmap, row=2, col=1)  # pyright: ignore[reportUnknownMemberType]
+            fig.add_trace(heatmap, row=2, col=1)
 
-            fig.update_layout(  # pyright: ignore[reportUnknownMemberType]
+            fig.update_layout(
                 yaxis_title="Prediction",
                 yaxis2_title="Feature",
                 xaxis2_title="Time",
@@ -150,7 +150,7 @@ class ContributionsPlotter:
 
         for feat in top:
             names.append(feat)
-            values.append(float(row[feat]))  # pyright: ignore[reportArgumentType]
+            values.append(float(row[feat]))
             measures.append("relative")
 
         if len(remaining) > 0:
@@ -213,7 +213,7 @@ class ContributionsPlotter:
 
         return go.Figure(
             go.Bar(
-                x=mean_abs.values,  # pyright: ignore[reportArgumentType]
+                x=mean_abs.values,
                 y=mean_abs.index.tolist(),
                 orientation="h",
                 marker_color="#1f77b4",

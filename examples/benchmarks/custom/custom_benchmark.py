@@ -59,7 +59,7 @@ from datetime import timedelta
 from pathlib import Path
 from typing import Literal, override
 
-from huggingface_hub import snapshot_download  # pyright: ignore[reportUnknownVariableType]
+from huggingface_hub import snapshot_download
 from pydantic import Field
 
 from openstef_beam.analysis import AnalysisConfig

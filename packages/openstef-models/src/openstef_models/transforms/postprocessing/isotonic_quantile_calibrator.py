@@ -139,8 +139,8 @@ class IsotonicQuantileCalibrator(BaseModel, Transform[ForecastDataset, ForecastD
                 raise ValueError(missing_column_message)
 
             # Get predictions and actuals
-            predictions = data.data[column_name].to_numpy()  # type: ignore
-            actuals = data.target_series.to_numpy()  # type: ignore
+            predictions = data.data[column_name].to_numpy()
+            actuals = data.target_series.to_numpy()
 
             # Remove NaN values (required for IsotonicRegression)
             mask = ~(np.isnan(predictions) | np.isnan(actuals))
@@ -221,7 +221,7 @@ class IsotonicQuantileCalibrator(BaseModel, Transform[ForecastDataset, ForecastD
         predictions = data.data.copy(deep=False)
         for column_name, calibrator in self._calibrators.items():
             if column_name in predictions.columns:
-                predictions[column_name] = calibrator.predict(predictions[column_name].to_numpy())  # type: ignore
+                predictions[column_name] = calibrator.predict(predictions[column_name].to_numpy())
 
         return data._copy_with_data(data=predictions)  # noqa: SLF001 - safe - invariant preserved
 

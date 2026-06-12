@@ -57,7 +57,7 @@ def normalize_to_unit_sum(df: pd.DataFrame) -> pd.DataFrame:
         DataFrame with the same shape, each column normalized to unit sum.
     """
     abs_values = df.abs()
-    totals = abs_values.sum(axis=0).replace(to_replace=0, value=1.0)  # pyright: ignore[reportUnknownMemberType]
+    totals = abs_values.sum(axis=0).replace(to_replace=0, value=1.0)
     return abs_values / totals
 
 
@@ -82,7 +82,7 @@ def combine_timeseries_indexes(indexes: Sequence[pd.DatetimeIndex]) -> pd.Dateti
         functools.partial(pd.DatetimeIndex.union, sort=False),
     )
     index_raw = functools.reduce(union_fn, indexes)
-    return index_raw.unique().sort_values(ascending=True)  # pyright: ignore[reportUnknownVariableType, reportUnknownMemberType]
+    return index_raw.unique().sort_values(ascending=True)
 
 
 def nan_aware_weighted_mean(values: pd.DataFrame, weights: pd.DataFrame) -> "pd.Series[float]":
@@ -100,6 +100,6 @@ def nan_aware_weighted_mean(values: pd.DataFrame, weights: pd.DataFrame) -> "pd.
         Series with the weighted mean for each row.
     """
     valid_weights = weights.where(values.notna(), 0)
-    available = cast("pd.Series[float]", valid_weights.sum(axis=1).replace(0, 1))  # pyright: ignore[reportUnknownMemberType]
-    weighted_sum = cast("pd.Series[float]", values.fillna(0).mul(valid_weights).sum(axis=1))  # pyright: ignore[reportUnknownMemberType]
+    available = cast("pd.Series[float]", valid_weights.sum(axis=1).replace(0, 1))
+    weighted_sum = cast("pd.Series[float]", values.fillna(0).mul(valid_weights).sum(axis=1))
     return weighted_sum / available

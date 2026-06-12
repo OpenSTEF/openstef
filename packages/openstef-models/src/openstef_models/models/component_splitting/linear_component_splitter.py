@@ -101,7 +101,7 @@ class LinearComponentSplitter(ComponentSplitter):
         """
         super().__init__()
         self._config = config
-        self._model = joblib.load(self.config.linear_model_path)  # type: ignore[reportUnknownMemberType]
+        self._model = joblib.load(self.config.linear_model_path)
 
     @property
     @override
@@ -148,7 +148,7 @@ class LinearComponentSplitter(ComponentSplitter):
         )
 
         # Drop rows with NaN values
-        input_df = input_df.dropna()  # pyright: ignore[reportUnknownMemberType]
+        input_df = input_df.dropna()
 
         if input_df.empty:
             error_msg = "No valid data available for component splitting after dropping NaNs"

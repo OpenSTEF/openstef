@@ -92,7 +92,7 @@ class DimensionalityReducer(BaseConfig, TimeSeriesTransform):
     @override
     def fit(self, data: TimeSeriesDataset) -> None:
         features = self.selection.resolve(data.feature_names)
-        self._dimensionality_reducer.fit(data.data[features])  # type: ignore[reportUnknownMemberType]
+        self._dimensionality_reducer.fit(data.data[features])
         self._is_fitted = True
 
     @override
@@ -101,7 +101,7 @@ class DimensionalityReducer(BaseConfig, TimeSeriesTransform):
         if not self._is_fitted:
             raise NotFittedError(self.__class__.__name__)
 
-        transformed_data: np.ndarray = self._dimensionality_reducer.transform(data.data[features])  # type: ignore[reportUnknownMemberType]
+        transformed_data: np.ndarray = self._dimensionality_reducer.transform(data.data[features])
         transformed_data_pd = pd.DataFrame(
             data=transformed_data,
             index=data.data.index,

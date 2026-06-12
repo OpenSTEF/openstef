@@ -194,7 +194,7 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
             )
             return
 
-        context.workflow.model = old_model  # pyright: ignore[reportAttributeAccessIssue]
+        context.workflow.model = old_model
         self._logger.info(
             "Loaded model from MLflow run %s for model %s",
             run_id,
@@ -209,7 +209,7 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
         run_id = cast(str, run.info.run_id)
 
         if not self._check_tags_compatible(
-            run_tags=run.data.tags,  # pyright: ignore[reportUnknownMemberType, reportUnknownArgumentType]
+            run_tags=run.data.tags,
             new_tags=workflow.model.tags,
             run_id=run_id,
         ):
@@ -233,9 +233,9 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
             return
 
         if self._check_is_new_model_better(old_metrics=old_metrics, new_metrics=new_metrics):
-            workflow.model = new_model  # pyright: ignore[reportAttributeAccessIssue]
+            workflow.model = new_model
         else:
-            workflow.model = old_model  # pyright: ignore[reportAttributeAccessIssue]
+            workflow.model = old_model
             self._logger.info(
                 "New model did not improve %s metric from previous run %s, reusing old model",
                 self.model_selection_metric,
@@ -250,7 +250,7 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
                 continue
             suffix = f"_{name}" if name else ""
             fig = component.plot_feature_importances()
-            fig.write_html(data_path / f"feature_importances{suffix}.html")  # pyright: ignore[reportUnknownMemberType]
+            fig.write_html(data_path / f"feature_importances{suffix}.html")
 
     def _find_run(self, model_id: str, run_name: str | None) -> Run | None:
         """Find an MLflow run by model_id and optional run_name.

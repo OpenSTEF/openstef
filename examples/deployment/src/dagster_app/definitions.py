@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-# pyright: reportUnknownMemberType=false, reportMissingTypeArgument=false, reportUnknownParameterType=false
+
 # Dagster's asset decorators and the generic MaterializeResult are not fully typed; silence that
 # noise. Real type checking stays on for everything else in this file.
 

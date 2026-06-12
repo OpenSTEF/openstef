@@ -192,7 +192,7 @@ def test_isotonic_calibrator_does_not_capture_non_monotonic():
     coverage_after = _compute_coverage(test_data.target_series, calibrated.data["quantile_P90"])
 
     # Key observation: isotonic regression enforces monotonicity
-    calibrated_predictions = calibrated.data["quantile_P90"].to_numpy()  # pyright: ignore[reportUnknownMemberType]
+    calibrated_predictions = calibrated.data["quantile_P90"].to_numpy()
     assert np.all(np.diff(calibrated_predictions) >= 0)
 
     # Coverage not more than 75% improvement after calibration

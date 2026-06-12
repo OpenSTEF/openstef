@@ -35,7 +35,7 @@ def test_initialization(base_config: LGBMForecaster):
 
     # Assert
     assert isinstance(forecaster, LGBMForecaster)
-    assert forecaster.hyperparams.n_estimators == 100  # type: ignore
+    assert forecaster.hyperparams.n_estimators == 100
 
 
 def test_quantile_lgbm_forecaster__fit_predict(

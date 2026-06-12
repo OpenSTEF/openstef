@@ -137,7 +137,7 @@ class BaseForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDatas
         "Default of 0 assumes no invalid rows are created by preprocessing.",
     )
 
-    evaluation_metrics: list[MetricProvider] = Field(
+    evaluation_metrics: list[MetricProvider] = Field(  # ty: ignore[invalid-assignment]
         default_factory=lambda: [R2Provider(), ObservedProbabilityProvider()],
         description="List of metric providers for evaluating model score.",
     )
@@ -330,7 +330,7 @@ class BaseForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDatas
         if prediction.target_series is None:
             raise ValueError("Prediction dataset must contain target series for scoring.")
 
-        prediction = prediction.pipe_pandas(pd.DataFrame.dropna, subset=[self.target_column])  # pyright: ignore[reportUnknownArgumentType, reportUnknownMemberType]
+        prediction = prediction.pipe_pandas(pd.DataFrame.dropna, subset=[self.target_column])
 
         pipeline = EvaluationPipeline(
             config=EvaluationConfig(available_ats=[], lead_times=[self.max_horizon]),
@@ -482,7 +482,7 @@ class ForecastingModel(BaseForecastingModel):
         """
         validate_horizons_present(data, self.forecaster.horizons)
 
-        target_dropna = partial(pd.DataFrame.dropna, subset=[self.target_column])  # pyright: ignore[reportUnknownMemberType]
+        target_dropna = partial(pd.DataFrame.dropna, subset=[self.target_column])
         if data.pipe_pandas(target_dropna).data.empty:
             msg = (
                 f"No training data available after dropping NaN targets in column '{self.target_column}'. "
@@ -580,7 +580,7 @@ def restore_target[T: TimeSeriesDataset](
     target_series = original_dataset.select_features([target_column]).select_version().data[target_column]
 
     def _transform_restore_target(df: pd.DataFrame) -> pd.DataFrame:
-        original_values = df.index.map(target_series)  # pyright: ignore[reportUnknownMemberType, reportArgumentType]
+        original_values = df.index.map(target_series)  # ty: ignore[invalid-argument-type]
         restored = pd.Series(original_values, index=df.index, name=target_column)
 
         # Preserve NaN values introduced by the OutlierHandler for the target column.

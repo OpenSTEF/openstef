@@ -102,7 +102,7 @@ def test_plot_with_custom_title():
     fig = plotter.plot(title=custom_title)
 
     # Assert
-    assert fig.layout.title.text == custom_title  # pyright: ignore[reportUnknownMemberType, reportAttributeAccessIssue]
+    assert fig.layout.title.text == custom_title
 
 
 def test_plot_with_multiple_models():
@@ -116,9 +116,9 @@ def test_plot_with_multiple_models():
 
     # Assert
     # The figure should have 3 traces: 2 models + perfect calibration line
-    assert len(fig.data) == 3  # pyright: ignore[reportArgumentType, reportUnknownArgumentType, reportUnknownMemberType]
+    assert len(fig.data) == 3
 
     # Check that both models are represented in the plot
-    model_names = [trace.name for trace in cast(Any, fig.data) if trace.name != "Perfect probability"]  # pyright: ignore[reportUnknownMemberType]
+    model_names = [trace.name for trace in cast(Any, fig.data) if trace.name != "Perfect probability"]
     assert "model1" in model_names
     assert "model2" in model_names

@@ -13,7 +13,7 @@ def test_float_range_frozen():
 
     # Act / Assert
     with pytest.raises(AttributeError):
-        fr.low = 5.0  # type: ignore[misc]
+        fr.low = 5.0  # ty: ignore[invalid-assignment]
 
 
 def test_float_range_validates_low_gt_high():

@@ -194,7 +194,7 @@ class WeightsCombiner(ForecastCombiner):
 
         self._models = {
             # One classifier per quantile — optimal forecaster may differ across quantile levels
-            q: self.hyperparams.get_classifier()  # type: ignore[union-attr]
+            q: self.hyperparams.get_classifier()  # ty: ignore[call-non-callable]
             for q in self.quantiles
         }
 
@@ -227,7 +227,7 @@ class WeightsCombiner(ForecastCombiner):
             encoded_labels = self._label_encoder.transform(labels)
 
             weights = compute_sample_weight("balanced", encoded_labels) * combined_data.sample_weight_series
-            self._models[q].fit(X=input_data, y=encoded_labels, sample_weight=weights)  # pyright: ignore[reportUnknownMemberType, reportAttributeAccessIssue]
+            self._models[q].fit(X=input_data, y=encoded_labels, sample_weight=weights)  # ty: ignore[unresolved-attribute]
             feature_names = list(input_data.columns)
 
         self._feature_names = feature_names
@@ -267,9 +267,9 @@ class WeightsCombiner(ForecastCombiner):
             weights_array = pd.DataFrame(0, index=base_predictions.index, columns=self._label_encoder.classes_)
             weights_array[self._label_encoder.classes_[0]] = 1.0
         else:
-            weights_array = model.predict_proba(base_predictions)  # type: ignore[union-attr]
+            weights_array = model.predict_proba(base_predictions)  # ty: ignore[unresolved-attribute]
 
-        return pd.DataFrame(weights_array, index=base_predictions.index, columns=self._label_encoder.classes_)  # type: ignore[arg-type]
+        return pd.DataFrame(weights_array, index=base_predictions.index, columns=self._label_encoder.classes_)
 
     @staticmethod
     def _prepare_input_data(
@@ -295,7 +295,7 @@ class WeightsCombiner(ForecastCombiner):
 
         if self.hard_selection:
             # Convert soft probabilities to hard selection: max weight → 1.0, ties distributed equally
-            is_max: pd.DataFrame = weights.eq(weights.max(axis=1), axis=0)  # pyright: ignore[reportUnknownMemberType]
+            is_max: pd.DataFrame = weights.eq(weights.max(axis=1), axis=0)
             weights = is_max.div(weights.sum(axis=1), axis=0)
 
         # Reindex weights to predictions so that rows without additional_features
@@ -376,9 +376,9 @@ class WeightsCombiner(ForecastCombiner):
         importances: dict[str, np.ndarray] = {}
         for q, model in self._models.items():
             if hasattr(model, "feature_importances_"):
-                raw = np.array(model.feature_importances_, dtype=float)  # pyright: ignore[reportUnknownMemberType, reportUnknownArgumentType, reportAttributeAccessIssue]
+                raw = np.array(model.feature_importances_, dtype=float)
             elif hasattr(model, "coef_"):
-                raw = np.abs(np.array(model.coef_, dtype=float)).mean(axis=0)  # pyright: ignore[reportUnknownMemberType, reportUnknownArgumentType, reportAttributeAccessIssue]
+                raw = np.abs(np.array(model.coef_, dtype=float)).mean(axis=0)
             else:
                 raw = np.ones(len(self._feature_names), dtype=float)
 

@@ -110,7 +110,7 @@ class Shifter(BaseConfig, TimeSeriesTransform):
         feature_data = transformed_data[features]
 
         # Place values on the shifted time axis, interpolate back onto the original grid
-        shifted_df = feature_data.set_axis(shifted_index)  # pyright: ignore[reportUnknownMemberType]
+        shifted_df = feature_data.set_axis(shifted_index)
         combined_df = shifted_df.reindex(combined_index)
 
         limit_area = None if self.fill_edges else "inside"
@@ -118,7 +118,7 @@ class Shifter(BaseConfig, TimeSeriesTransform):
         realigned = realigned.reindex(original_index)
 
         # Restore pre-existing NaN at their shifted positions (nearest-neighbor mapping)
-        nan_mask_shifted = feature_data.isna().set_axis(shifted_index)  # pyright: ignore[reportUnknownMemberType]
+        nan_mask_shifted = feature_data.isna().set_axis(shifted_index)
         realigned[nan_mask_shifted.reindex(original_index, method="nearest")] = np.nan
 
         transformed_data[features] = realigned

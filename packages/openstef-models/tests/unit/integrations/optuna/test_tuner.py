@@ -4,7 +4,7 @@
 
 """Unit tests for the Optuna hyperparameter tuning integration."""
 
-from typing import Any
+from typing import Any, cast
 from unittest.mock import MagicMock
 
 import optuna
@@ -145,7 +145,7 @@ def test_reconstruct_best_config__single_model_applies_best_params() -> None:
     study.best_params = {"n_estimators": 300}
 
     # Act
-    best_config = tuner._reconstruct_best_config(config, [info], study)
+    best_config = cast(ForecastingWorkflowConfig, tuner._reconstruct_best_config(config, [info], study))
 
     # Assert
     assert best_config.xgboost_hyperparams.n_estimators == 300
@@ -168,14 +168,14 @@ def test_reconstruct_best_config__multi_model_parses_dotted_trial_keys() -> None
         search_space={"n_estimators": IntRange(50, 500, tune=True)},
     )
     study = MagicMock(spec=optuna.Study)
-    study.best_params = {"xgboost_hyperparams.n_estimators": 300, "gblinear_hyperparams.n_estimators": 150}
+    study.best_params = {"xgboost_hyperparams.n_estimators": 300, "gblinear_hyperparams.n_steps": 150}
 
     # Act
-    best_config = tuner._reconstruct_best_config(config, [info_xgb, info_gblinear], study)
+    best_config = cast(ForecastingWorkflowConfig, tuner._reconstruct_best_config(config, [info_xgb, info_gblinear], study))
 
     # Assert
     assert best_config.xgboost_hyperparams.n_estimators == 300
-    assert best_config.gblinear_hyperparams.n_estimators == 150
+    assert best_config.gblinear_hyperparams.n_steps == 150
 
 
 # HyperparameterTuner.tune / fit_with_tuning
@@ -194,7 +194,7 @@ def test_hyperparameter_tuner__tune_raises_when_no_tunable_hyperparams() -> None
 def test_hyperparameter_tuner__tune_returns_best_config_and_study() -> None:
     """HyperparameterTuner.tune() returns a best_config and completed study."""
     # Arrange
-    config = _config(xgboost_hyperparams=XGBoostHyperParams(n_estimators=IntRange(50, 500, tune=True)))
+    config = _config(xgboost_hyperparams=XGBoostHyperParams(n_estimators=IntRange(50, 500, tune=True)))  # ty: ignore[invalid-argument-type]
     tuner = _make_tuner(config=config)
 
     # Act
@@ -211,7 +211,7 @@ def test_hyperparameter_tuner__tune_returns_best_config_and_study() -> None:
 def test_hyperparameter_tuner__fit_with_tuning_returns_tuning_result() -> None:
     """HyperparameterTuner.fit_with_tuning() returns a TuningResult with best config and study."""
     # Arrange
-    config = _config(xgboost_hyperparams=XGBoostHyperParams(n_estimators=IntRange(50, 500, tune=True)))
+    config = _config(xgboost_hyperparams=XGBoostHyperParams(n_estimators=IntRange(50, 500, tune=True)))  # ty: ignore[invalid-argument-type]
     create_workflow = MagicMock(return_value=_make_mock_workflow())
     tuner = _make_tuner(config=config, create_workflow=create_workflow)
 
@@ -229,7 +229,7 @@ def test_hyperparameter_tuner__fit_with_tuning_returns_tuning_result() -> None:
 def test_hyperparameter_tuner__tune_enqueues_openstef_defaults_as_first_trial() -> None:
     """tune() enqueues the config defaults before Optuna samples additional trials."""
     # Arrange
-    config = _config(xgboost_hyperparams=XGBoostHyperParams(n_estimators=IntRange(50, 500, tune=True)))
+    config = _config(xgboost_hyperparams=XGBoostHyperParams(n_estimators=IntRange(50, 500, tune=True)))  # ty: ignore[invalid-argument-type]
     tuner = _make_tuner(config=config)
 
     # Act

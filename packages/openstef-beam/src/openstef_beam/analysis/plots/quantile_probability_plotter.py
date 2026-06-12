@@ -118,7 +118,7 @@ class QuantileProbabilityPlotter:
         models_df = pd.concat(model_df_list, ignore_index=True)
 
         # Create the calibration plot
-        fig = px.line(  # type: ignore[reportUnknownMemberType]
+        fig = px.line(
             models_df,
             x="forecasted_prob",
             y="observed_prob",
@@ -128,7 +128,7 @@ class QuantileProbabilityPlotter:
         )
 
         # Add the perfect calibration line (y=x)
-        fig.add_trace(  # type: ignore[reportUnknownMemberType]
+        fig.add_trace(
             go.Scattergl(
                 x=[0, 1],
                 y=[0, 1],
@@ -139,7 +139,7 @@ class QuantileProbabilityPlotter:
             )
         )
 
-        fig.update_layout(  # type: ignore[reportUnknownMemberType]
+        fig.update_layout(
             xaxis_title="Forecasted Probability",
             yaxis_title="Observed Probability",
             xaxis={"range": [0, 1]},

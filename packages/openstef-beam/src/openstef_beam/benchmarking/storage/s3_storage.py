@@ -158,13 +158,13 @@ class S3BenchmarkStorage(BenchmarkStorage):
                 "Syncing directory to S3",
                 extra={"local_path": str(local_path), "s3_path": s3_path, "artifact_name": artifact_name},
             )
-            self.fs.put(str(local_path), s3_path, recursive=True)  # type: ignore[reportUnknownMemberType]
+            self.fs.put(str(local_path), s3_path, recursive=True)
         else:
             _logger.info(
                 "Syncing file to S3",
                 extra={"local_path": str(local_path), "s3_path": s3_path, "artifact_name": artifact_name},
             )
-            self.fs.put(str(local_path), s3_path)  # type: ignore[reportUnknownMemberType]
+            self.fs.put(str(local_path), s3_path)
 
     def _get_s3_path(self, local_path: Path) -> str:
         """Construct the S3 path for a given local path.

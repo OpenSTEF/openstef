@@ -105,7 +105,7 @@ def test_align_datetime_invalid_mode():
 
     # Act / Assert
     with pytest.raises(ValueError, match="Unknown alignment mode: invalid"):
-        align_datetime(timestamp, interval, "invalid")  # pyright: ignore[reportArgumentType]
+        align_datetime(timestamp, interval, "invalid")  # ty: ignore[invalid-argument-type]
 
 
 @pytest.mark.parametrize(

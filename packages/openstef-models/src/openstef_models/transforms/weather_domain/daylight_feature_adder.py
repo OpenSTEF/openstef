@@ -58,7 +58,7 @@ class DaylightFeatureAdder(BaseConfig, TimeSeriesTransform):
             raise MissingExtraError("pvlib", package="openstef-models") from e
 
         location = pvlib.location.Location(self.coordinate.latitude, self.coordinate.longitude, tz=str(data.index.tz))
-        clearsky_radiation: pd.DataFrame = location.get_clearsky(data.index)  # type: ignore[reportUnknownMemberType]
+        clearsky_radiation: pd.DataFrame = location.get_clearsky(data.index)
         daylight_continuous = clearsky_radiation[["ghi"]].rename(columns={"ghi": "daylight_continuous"})
 
         return TimeSeriesDataset(

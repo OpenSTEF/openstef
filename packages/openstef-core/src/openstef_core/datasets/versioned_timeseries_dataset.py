@@ -182,7 +182,7 @@ class VersionedTimeSeriesDataset(TimeSeriesMixin, DatasetMixin):
         available_at_column: str = "available_at",
         horizon_column: str = "horizon",
     ) -> Self:
-        df = pd.read_parquet(path=path)  # type: ignore
+        df = pd.read_parquet(path=path)
         if "parts" in df.attrs:
             parts_metadata = json.loads(df.attrs.get("parts", "{}")).get("parts", [])
             if len(parts_metadata) == 0:
@@ -251,10 +251,7 @@ class VersionedTimeSeriesDataset(TimeSeriesMixin, DatasetMixin):
             index = functools.reduce(lambda x, y: x.intersection(y), [part.index.unique() for part in data_parts])
 
         return cls(
-            data_parts=[
-                TimeSeriesDataset(data=part.data.loc[part.index.isin(index)])  # pyright: ignore[reportUnknownMemberType]
-                for part in data_parts
-            ],
+            data_parts=[TimeSeriesDataset(data=part.data.loc[part.index.isin(index)]) for part in data_parts],
             index=index,
         )
 

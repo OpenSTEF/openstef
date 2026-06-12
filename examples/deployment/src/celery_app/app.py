@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-# pyright: reportUnknownMemberType=false
+
 # Celery's config object is dynamically typed; silence the resulting "unknown member"
 # noise. Real type checking stays on for everything else in this file.
 

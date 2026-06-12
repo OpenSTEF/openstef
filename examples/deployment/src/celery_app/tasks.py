@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-# pyright: reportUnknownMemberType=false, reportFunctionMemberAccess=false
+
 # Celery's task decorator returns a loosely typed object, so `.s` / `.delay` and the
 # config are not statically known. Disable that noise; real type checking stays on.
 

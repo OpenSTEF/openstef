@@ -21,8 +21,8 @@ def test_hyperparams_range_extracted_from_kwargs():
     """TuningRange values are extracted; field keeps its class default."""
     # Arrange / Act
     hp = SampleHP(
-        lr=FloatRange(low=0.001, high=0.5, tune=True),
-        depth=IntRange(tune=True),
+        lr=FloatRange(low=0.001, high=0.5, tune=True),  # ty: ignore[invalid-argument-type]
+        depth=IntRange(tune=True),  # ty: ignore[invalid-argument-type]
     )
 
     # Assert — field values are the class defaults
@@ -34,7 +34,7 @@ def test_hyperparams_mixed_range_and_plain_value():
     """Can pass a range for one field and a plain value for another."""
     # Arrange / Act
     hp = SampleHP(
-        lr=FloatRange(low=0.001, high=0.5, tune=True),
+        lr=FloatRange(low=0.001, high=0.5, tune=True),  # ty: ignore[invalid-argument-type]
         depth=10,  # plain override
     )
 
@@ -47,8 +47,8 @@ def test_get_search_space_returns_only_tune_true():
     """Only fields with tune=True appear in the search space."""
     # Arrange
     hp = SampleHP(
-        lr=FloatRange(low=0.001, high=0.5, tune=True),
-        depth=IntRange(tune=False),  # explicit tune=False
+        lr=FloatRange(low=0.001, high=0.5, tune=True),  # ty: ignore[invalid-argument-type]
+        depth=IntRange(tune=False),  # explicit tune=False  # ty: ignore[invalid-argument-type]
     )
 
     # Act
@@ -62,14 +62,14 @@ def test_get_search_space_returns_only_tune_true():
 def test_get_search_space_resolves_none_bounds():
     """None bounds on instance range are resolved from class-level Annotated metadata."""
     # Arrange
-    hp = SampleHP(depth=IntRange(low=None, high=None, tune=True))
+    hp = SampleHP(depth=IntRange(low=None, high=None, tune=True))  # ty: ignore[invalid-argument-type]
 
     # Act
     space = hp.get_search_space()
 
     # Assert — resolved from class-level IntRange(1, 15)
-    assert space["depth"].low == 1
-    assert space["depth"].high == 15
+    assert space["depth"].low == 1  # ty: ignore[unresolved-attribute]
+    assert space["depth"].high == 15  # ty: ignore[unresolved-attribute]
 
 
 def test_get_search_space_with_class_level_tune():
@@ -86,16 +86,16 @@ def test_get_search_space_with_class_level_tune():
 
     # Assert
     assert "lr" in space
-    assert space["lr"].low == pytest.approx(0.01)
+    assert space["lr"].low == pytest.approx(0.01)  # ty: ignore[unresolved-attribute]
 
 
 def test_get_search_space_include_filter():
     """include parameter restricts output to requested fields."""
     # Arrange
     hp = SampleHP(
-        lr=FloatRange(tune=True),
-        depth=IntRange(tune=True),
-        method=CategoricalRange(choices=("hist",), tune=True),
+        lr=FloatRange(tune=True),  # ty: ignore[invalid-argument-type]
+        depth=IntRange(tune=True),  # ty: ignore[invalid-argument-type]
+        method=CategoricalRange(choices=("hist",), tune=True),  # ty: ignore[invalid-argument-type]
     )
 
     # Act
@@ -108,7 +108,7 @@ def test_get_search_space_include_filter():
 def test_get_search_space_include_raises_on_missing():
     """include with a non-existent field raises KeyError."""
     # Arrange
-    hp = SampleHP(lr=FloatRange(tune=True))
+    hp = SampleHP(lr=FloatRange(tune=True))  # ty: ignore[invalid-argument-type]
 
     # Act / Assert
     with pytest.raises(KeyError, match="nonexistent"):

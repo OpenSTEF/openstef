@@ -18,6 +18,7 @@ from openstef_beam.benchmarking.storage import LocalBenchmarkStorage
 from openstef_beam.evaluation import EvaluationReport, EvaluationSubsetReport, Filtering, SubsetMetric
 from openstef_core.datasets import ForecastDataset, TimeSeriesDataset
 from openstef_core.types import AvailableAt, LeadTime
+from pydantic_extra_types.coordinate import Latitude, Longitude
 
 
 def assert_directory_and_file_exist(expected_path: Path) -> None:
@@ -44,8 +45,8 @@ def target() -> BenchmarkTarget:
     return BenchmarkTarget(
         name="test_target",
         description="Test target",
-        latitude=0.0,
-        longitude=0.0,
+        latitude=Latitude(0.0),
+        longitude=Longitude(0.0),
         limit=100.0,
         train_start=pd.Timestamp("2022-12-25"),
         benchmark_start=pd.Timestamp("2023-01-01"),

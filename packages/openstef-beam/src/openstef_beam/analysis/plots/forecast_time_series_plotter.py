@@ -250,7 +250,7 @@ class ForecastTimeSeriesPlotter(BaseConfig):
         rescaled = self.colormap_range[0] + value * (self.colormap_range[1] - self.colormap_range[0])
         rescaled = min(1.0, max(0.0, rescaled))
 
-        color_result = px.colors.sample_colorscale(colorscale=colormap, samplepoints=[rescaled])[0]  # type: ignore[reportUnknownMemberType]
+        color_result = px.colors.sample_colorscale(colorscale=colormap, samplepoints=[rescaled])[0]
         return str(color_result)  # type: ignore[arg-type]
 
     def _get_quantile_colors(self, quantile: float, colormap: str) -> tuple[str, str]:
@@ -350,10 +350,10 @@ class ForecastTimeSeriesPlotter(BaseConfig):
 
         # Add hover line for quantile values
         x_data = processed_lower_data.index
-        y_lower = processed_lower_data.to_numpy(dtype=np.float32)  # type: ignore
-        y_upper = processed_upper_data.to_numpy(dtype=np.float32)  # type: ignore
+        y_lower = processed_lower_data.to_numpy(dtype=np.float32)
+        y_upper = processed_upper_data.to_numpy(dtype=np.float32)
 
-        figure.add_trace(  # type: ignore[reportUnknownMemberType]
+        figure.add_trace(
             go.Scatter(
                 x=x_data,
                 y=y_lower,
@@ -399,7 +399,6 @@ class ForecastTimeSeriesPlotter(BaseConfig):
                 if lower_quantile == int(self.MEDIAN_QUANTILE):
                     continue
 
-                # type: ignore construct a BandData-compatible dict
                 bands.append({
                     "model_name": model_name,
                     "model_index": model_index,
@@ -493,7 +492,7 @@ class ForecastTimeSeriesPlotter(BaseConfig):
                 x_data = processed_data.index
                 y_data = processed_data
 
-            figure.add_trace(  # type: ignore[reportUnknownMemberType]
+            figure.add_trace(
                 go.Scatter(
                     x=x_data,
                     y=y_data,
@@ -523,7 +522,7 @@ class ForecastTimeSeriesPlotter(BaseConfig):
                 x_data = processed_data.index
                 y_data = processed_data
 
-            figure.add_trace(  # type: ignore[reportUnknownMemberType]
+            figure.add_trace(
                 go.Scatter(
                     x=x_data,
                     y=y_data,
@@ -539,7 +538,7 @@ class ForecastTimeSeriesPlotter(BaseConfig):
     def _add_limits_to_figure(self, figure: go.Figure) -> None:
         """Add horizontal limit lines to the figure."""
         for limit in self._limits:
-            figure.add_hline(  # type: ignore[reportUnknownMemberType]
+            figure.add_hline(
                 y=limit["value"],
                 line_dash="dot",
                 annotation_text=limit["name"],
@@ -549,7 +548,7 @@ class ForecastTimeSeriesPlotter(BaseConfig):
     @staticmethod
     def _configure_figure_layout(figure: go.Figure, title: str) -> None:
         """Configure the figure layout and styling."""
-        figure.update_layout(  # type: ignore[reportUnknownMemberType]
+        figure.update_layout(
             title=title,
             xaxis_title="Datetime [UTC]",
             yaxis_title="Load [W]",
@@ -611,7 +610,7 @@ class ForecastTimeSeriesPlotter(BaseConfig):
         x = index.append(index[::-1])
         y = list(band["lower_data"]) + list(band["upper_data"][::-1])
 
-        figure.add_trace(  # type: ignore[reportUnknownMemberType]
+        figure.add_trace(
             go.Scatter(
                 x=x,
                 y=y,
@@ -644,7 +643,7 @@ class ForecastTimeSeriesPlotter(BaseConfig):
 
         # Find start and end indices of continuous segments
         # diff() finds transitions: True->False (-1) and False->True (1)
-        mask_array = mask.to_numpy()  # type: ignore
+        mask_array = mask.to_numpy()
         transitions = np.diff(np.concatenate(([False], mask_array, [False])).astype(int))
         segment_starts = np.where(transitions == 1)[0]  # Where transitions from False to True
         segment_ends = np.where(transitions == -1)[0] - 1  # Where transitions from True to False
@@ -665,7 +664,7 @@ class ForecastTimeSeriesPlotter(BaseConfig):
             # Only show legend for the first segment
             show_legend = seg_idx == 0
 
-            figure.add_trace(  # type: ignore[reportUnknownMemberType]
+            figure.add_trace(
                 go.Scatter(
                     x=x,
                     y=y,

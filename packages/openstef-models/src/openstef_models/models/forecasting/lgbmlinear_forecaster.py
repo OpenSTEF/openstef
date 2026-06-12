@@ -235,7 +235,7 @@ class LGBMLinearForecaster(Forecaster, ExplainableForecaster, ContributionsMixin
         }
 
         self._lgbmlinear_model = MultiQuantileRegressor(
-            base_learner=LGBMRegressor,  # type: ignore
+            base_learner=LGBMRegressor,
             quantile_param="alpha",
             hyperparams=lgbmlinear_params,
             quantiles=[float(q) for q in self.quantiles],
@@ -319,7 +319,7 @@ class LGBMLinearForecaster(Forecaster, ExplainableForecaster, ContributionsMixin
         model: LGBMRegressor = self._lgbmlinear_model.models[median_idx]  # type: ignore
 
         # Get SHAP contributions from median quantile model (includes bias as last column)
-        contribs: np.ndarray = model.predict(input_data, pred_contrib=True)  # type: ignore
+        contribs: np.ndarray = model.predict(input_data, pred_contrib=True)
 
         columns = [*input_data.columns, "bias"]
         contribs_df = pd.DataFrame(contribs, index=input_data.index, columns=columns)

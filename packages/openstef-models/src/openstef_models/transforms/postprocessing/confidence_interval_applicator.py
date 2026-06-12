@@ -141,7 +141,7 @@ class ConfidenceIntervalApplicator(BaseModel, Transform[ForecastDataset, Forecas
         # quantile = median + z_score * std (normal distribution assumption)
         data = forecast.data.copy(deep=False)
         for quantile in quantiles:
-            data[quantile.format()] = forecast.median_series + stats.norm.ppf(quantile) * stdev_series  # pyright: ignore[reportUnknownMemberType]
+            data[quantile.format()] = forecast.median_series + stats.norm.ppf(quantile) * stdev_series
 
         return forecast._copy_with_data(data=data)  # noqa: SLF001 - safe - invariant preserved
 
@@ -171,7 +171,7 @@ def _calculate_hourly_std(errors: pd.Series) -> pd.Series:
     # Group errors by hour (0-23) and compute std for each hour
     return (
         errors
-        .groupby(cast(pd.DatetimeIndex, errors.index).hour)  # pyright: ignore[reportUnknownMemberType]
+        .groupby(cast(pd.DatetimeIndex, errors.index).hour)
         .std()
         .reindex(range(24))
         .rename("stdev")
@@ -199,8 +199,8 @@ def _apply_interpolated_stdev(
     time_ahead_hours = (index - forecast_start).total_seconds() / 3600.0
 
     # Vectorized lookup: get all near/far stdev values at once
-    stdev_near = stdev_pivot.loc[index.hour, str(horizon_near)].to_numpy()  # type: ignore
-    stdev_far = stdev_pivot.loc[index.hour, str(horizon_far)].to_numpy()  # type: ignore
+    stdev_near = stdev_pivot.loc[index.hour, str(horizon_near)].to_numpy()
+    stdev_far = stdev_pivot.loc[index.hour, str(horizon_far)].to_numpy()
 
     interpolated = _interpolate_stdev_exponential_decay(
         time_ahead=time_ahead_hours.to_numpy(),

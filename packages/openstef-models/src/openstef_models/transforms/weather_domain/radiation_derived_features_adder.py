@@ -68,7 +68,7 @@ class RadiationDerivedFeaturesAdder(BaseConfig, TimeSeriesTransform):
         True
     """
 
-    included_features: list[Literal["dni", "gti"]] = Field(
+    included_features: list[Literal["dni", "gti"]] = Field(  # ty: ignore[invalid-assignment]
         default_factory=lambda: [
             "dni",
             "gti",
@@ -125,17 +125,17 @@ class RadiationDerivedFeaturesAdder(BaseConfig, TimeSeriesTransform):
             tz=str(data.index.tz),
         )
 
-        solar_position: pd.DataFrame = pvlib.solarposition.get_solarposition(  # type: ignore[reportUnknownMemberType]
+        solar_position: pd.DataFrame = pvlib.solarposition.get_solarposition(
             time=data.index,
             latitude=location.latitude,
             longitude=location.longitude,
         )
 
-        clearsky_radiation: pd.DataFrame = location.get_clearsky(data.index)  # type: ignore[reportUnknownMemberType]
+        clearsky_radiation: pd.DataFrame = location.get_clearsky(data.index)
 
         dni = cast(
             pd.Series,
-            pvlib.irradiance.dni(  # type: ignore[reportUnknownMemberType]
+            pvlib.irradiance.dni(
                 ghi=ghi,
                 dhi=clearsky_radiation["dhi"],
                 zenith=solar_position["apparent_zenith"],
@@ -148,7 +148,7 @@ class RadiationDerivedFeaturesAdder(BaseConfig, TimeSeriesTransform):
             result["dni"] = dni
 
         if "gti" in self.included_features:
-            result["gti"] = pvlib.irradiance.get_total_irradiance(  # type: ignore[reportUnknownMemberType]
+            result["gti"] = pvlib.irradiance.get_total_irradiance(
                 surface_tilt=self.surface_tilt,
                 surface_azimuth=self.surface_azimuth,
                 solar_zenith=solar_position["apparent_zenith"],

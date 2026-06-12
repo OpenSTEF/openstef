@@ -16,6 +16,7 @@ from openstef_beam.benchmarking.target_provider import (
     filter_away_flatline_chunks,
 )
 from openstef_core.datasets import VersionedTimeSeriesDataset
+from pydantic_extra_types.coordinate import Latitude, Longitude
 
 
 @pytest.mark.parametrize(
@@ -39,8 +40,8 @@ def test_temporal_validation(
         BenchmarkTarget(
             name="test_target",
             description="Test target",
-            latitude=52.0,
-            longitude=5.0,
+            latitude=Latitude(52.0),
+            longitude=Longitude(5.0),
             limit=100.0,
             benchmark_start=benchmark_start,
             benchmark_end=benchmark_end,
@@ -51,8 +52,8 @@ def test_temporal_validation(
             BenchmarkTarget(
                 name="test_target",
                 description="Test target",
-                latitude=52.0,
-                longitude=5.0,
+                latitude=Latitude(52.0),
+                longitude=Longitude(5.0),
                 limit=100.0,
                 benchmark_start=benchmark_start,
                 benchmark_end=benchmark_end,
@@ -66,8 +67,8 @@ def test_target() -> BenchmarkTarget:
     return BenchmarkTarget(
         name="location2",
         description="Test location 2",
-        latitude=53.0,
-        longitude=6.0,
+        latitude=Latitude(53.0),
+        longitude=Longitude(6.0),
         limit=200.0,
         benchmark_start=datetime.fromisoformat("2023-01-15"),
         benchmark_end=datetime.fromisoformat("2023-02-15"),

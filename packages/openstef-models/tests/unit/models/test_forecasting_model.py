@@ -38,7 +38,7 @@ class TunableSimpleForecaster(SimpleForecaster):
 
     def __init__(self, *, quantiles: list[Quantile], horizons: list[LeadTime], supports_batching: bool = False) -> None:
         super().__init__(quantiles=quantiles, horizons=horizons, supports_batching=supports_batching)
-        self._hparams = TunableTestHyperParams(depth=IntRange(1, 5, tune=True))  # pyright: ignore[reportArgumentType]
+        self._hparams = TunableTestHyperParams(depth=IntRange(1, 5, tune=True))  # ty: ignore[invalid-argument-type]
 
     @property
     @override

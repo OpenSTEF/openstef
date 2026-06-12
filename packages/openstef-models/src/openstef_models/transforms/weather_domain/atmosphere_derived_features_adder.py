@@ -61,7 +61,7 @@ class AtmosphereDerivedFeaturesAdder(BaseConfig, TimeSeriesTransform):
         ['temperature', 'pressure', 'relative_humidity', 'dewpoint', 'air_density']
     """
 
-    included_features: list[AirRelatedFeatureName] = Field(
+    included_features: list[AirRelatedFeatureName] = Field(    # ty: ignore[invalid-assignment]
         default_factory=lambda: ["saturation_vapour_pressure", "vapour_pressure", "dewpoint", "air_density"],
         description="List of air related features to include.",
     )

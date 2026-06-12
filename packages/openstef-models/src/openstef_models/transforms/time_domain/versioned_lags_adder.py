@@ -10,7 +10,7 @@ forecasting where temporal dependencies matter but data availability varies.
 """
 
 from datetime import timedelta
-from typing import cast, override
+from typing import override
 
 import pandas as pd
 from pydantic import Field
@@ -125,11 +125,15 @@ class VersionedLagsAdder(BaseConfig, VersionedTimeSeriesTransform):
 def _transform_to_lag(data: TimeSeriesDataset, feature: str, lag: timedelta) -> TimeSeriesDataset:
     # Shift timestamps forward by the lag duration
     data_df = data.data.rename(columns={feature: f"{feature}_lag_{timedelta_to_isoformat(lag)}"})
-    data_df.index = cast(pd.Series, data_df.index) - lag  # pyright: ignore[reportArgumentType]
+    shifted_index = data_df.index - lag
+    data_df.index = shifted_index
 
     # Lagging adds a lot of new timepoints outside the original range.
     # We filter to only keep timepoints within the original timestamp range.
-    mask: pd.Series = (data_df.index >= data.data.index.min()) & (data_df.index <= data.data.index.max())
+    mask = pd.Series(
+        (data_df.index >= data.data.index.min()) & (data_df.index <= data.data.index.max()),
+        index=data_df.index,
+    )
     data_df = data_df[mask]
 
     return TimeSeriesDataset(

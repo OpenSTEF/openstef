@@ -84,7 +84,7 @@ class StackingCombiner(ForecastCombiner):
         for q in self.quantiles:
             input_data = self._prepare_input(data, q, additional_features)
 
-            target_dropna = partial(pd.DataFrame.dropna, subset=[input_data.target_column])  # pyright: ignore[reportUnknownMemberType]
+            target_dropna = partial(pd.DataFrame.dropna, subset=[input_data.target_column])
             input_data = input_data.pipe_pandas(target_dropna)
 
             self._models[q].fit(data=input_data, data_val=None)

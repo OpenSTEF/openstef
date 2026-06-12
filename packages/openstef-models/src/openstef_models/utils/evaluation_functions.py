@@ -5,7 +5,7 @@
 
 from collections.abc import Callable
 from functools import partial
-from typing import Any, Literal
+from typing import Any, Literal, cast
 
 import numpy as np
 
@@ -23,7 +23,7 @@ def get_evaluation_function(
     function_type: EvaluationFunctionType, quantiles: list[Quantile] | None = None, **kwargs: Any
 ) -> Callable[[np.ndarray, np.ndarray], float]:
     eval_metric = partial(EVALUATION_MAP[function_type], quantiles=quantiles, **kwargs)
-    eval_metric.__name__ = function_type  # pyright: ignore[reportAttributeAccessIssue]
+    cast(Any, eval_metric).__name__ = function_type
     return eval_metric
 
 

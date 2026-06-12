@@ -162,7 +162,7 @@ config = ForecastingWorkflowConfig(
     pressure_column="surface_pressure",
     xgboost_hyperparams=XGBoostHyperParams(
         # Tuned — custom bounds
-        learning_rate=FloatRange(0.01, 0.3, log=True, tune=True),  # pyright: ignore[reportCallIssue]
+        learning_rate=FloatRange(0.01, 0.3, log=True, tune=True),
         n_estimators=IntRange(50, 300, tune=True),
         # Tuned — inherits class-level bounds [1, 15]
         max_depth=IntRange(tune=True),

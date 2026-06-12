@@ -130,7 +130,7 @@ class BacktestEventGenerator(BaseModel):
 
             training_start = max(
                 current_time - self.forecaster_config.training_context_length,
-                self.index.min().to_pydatetime(),  # type: ignore[reportUnknownMemberType]
+                self.index.min().to_pydatetime(),
             )
             training_end = current_time
             if training_start == training_end:

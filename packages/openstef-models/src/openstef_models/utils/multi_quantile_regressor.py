@@ -55,7 +55,7 @@ class MultiQuantileRegressor(BaseEstimator, RegressorMixin):
         params[self.quantile_param] = q
         base_learner = self.base_learner(**params)
 
-        if self.quantile_param not in base_learner.get_params():  # type: ignore
+        if self.quantile_param not in base_learner.get_params():
             msg = f"The base estimator does not support the quantile parameter '{self.quantile_param}'."
             raise ValueError(msg)
 
@@ -86,13 +86,13 @@ class MultiQuantileRegressor(BaseEstimator, RegressorMixin):
             # Check if early stopping is supported
             # Check that eval_set is supported
             if eval_set is None and "early_stopping_rounds" in self.hyperparams:
-                model.set_params(early_stopping_rounds=None)  # type: ignore
+                model.set_params(early_stopping_rounds=None)
 
-            if eval_set is not None and self.learner_eval_sample_weight_param is not None:  # type: ignore
+            if eval_set is not None and self.learner_eval_sample_weight_param is not None:
                 kwargs[self.learner_eval_sample_weight_param] = eval_sample_weight
 
             if "early_stopping_rounds" in self.hyperparams and self.learner_eval_sample_weight_param is not None:
-                model.set_params(early_stopping_rounds=self.hyperparams["early_stopping_rounds"])  # type: ignore
+                model.set_params(early_stopping_rounds=self.hyperparams["early_stopping_rounds"])
 
             if feature_name:
                 self.model_feature_names = feature_name
