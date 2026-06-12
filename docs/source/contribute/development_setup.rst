@@ -154,7 +154,7 @@ Note that also OpenSTEF 4.0 uses several modern development tools:
 * **uv**: Package manager and virtual environment handler (`uv website <https://docs.astral.sh/uv/>`_)
 * **Poe the Poet**: Task runner for common development tasks (`poethepoet website <https://poethepoet.natn.io/>`_)
 * **Ruff**: Lightning-fast linting and formatting (`ruff website <https://docs.astral.sh/ruff/>`_)
-* **Pyright**: Type checking (`pyright website <https://microsoft.github.io/pyright/>`_)
+* **ty**: Type checking (`ty website <https://docs.astral.sh/ty/>`_)
 * **pytest**: Testing framework with coverage reporting (`pytest website <https://pytest.org/>`_)
 * **Sphinx**: Documentation generation (`sphinx website <https://www.sphinx-doc.org/>`_)
 * **REUSE**: License compliance checking (`reuse website <https://reuse.software/>`_)

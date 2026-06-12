@@ -35,10 +35,6 @@ MANIFEST
 # Ruff
 .ruff_cache/
 
-# Pyright
-.pyright/
-# pyright-report/
-
 # Test, coverage, tox
 .pytest_cache/
 .coverage

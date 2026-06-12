@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
-from openstef_core.datasets import TimeSeriesDataset  # noqa: TC001  # runtime needed for pyright
+from openstef_core.datasets import TimeSeriesDataset  # noqa: TC001
 
 if TYPE_CHECKING:
     import pandas as pd
