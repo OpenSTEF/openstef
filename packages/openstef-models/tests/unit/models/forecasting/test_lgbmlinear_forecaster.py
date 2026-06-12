@@ -21,7 +21,7 @@ def base_config() -> LGBMLinearForecaster:
 
     return LGBMLinearForecaster(
         quantiles=[Q(0.1), Q(0.5), Q(0.9)],
-        horizons=[LeadTime(timedelta(days=1))],
+        horizons=[LeadTime(timedelta(days=14))],
         hyperparams=LGBMLinearHyperParams(n_estimators=100, max_depth=3, min_data_in_leaf=1, min_data_in_bin=1),
         device="cpu",
         n_jobs=1,
