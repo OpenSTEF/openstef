@@ -52,6 +52,9 @@ jobs:
       - name: typing
         if: ${{ ! inputs._SKIP_QUALITY && always() }}
         run: poe type
+      - name: typing tests
+        if: ${{ ! inputs._SKIP_QUALITY && always() }}
+        run: poe type-tests
       - name: tests
         if: ${{ ! inputs._SKIP_QUALITY && always() }}
         run: poe tests
