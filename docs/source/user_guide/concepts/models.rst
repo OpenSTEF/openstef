@@ -45,7 +45,7 @@ methods.
    in the interval ``[forecast_start, forecast_start + max_horizon]``. Input rows
    beyond ``max_horizon`` are silently discarded before the model runs. This is
    enforced by passing ``horizon=self.max_horizon`` to
-   :meth:`~openstef_core.datasets.validated_datasets.ForecastInputDataset.input_data`
+   :meth:`~openstef_core.datasets.ForecastInputDataset.input_data`
    inside every concrete ``predict()`` implementation. You can therefore safely pass
    a :class:`~openstef_core.datasets.ForecastInputDataset` containing more data than
    the forecaster needs without worrying about spurious predictions far into the future.

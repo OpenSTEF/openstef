@@ -54,7 +54,7 @@ class Forecaster(BaseConfig, BatchPredictor[ForecastInputDataset, ForecastDatase
           ``[forecast_start, forecast_start + max_horizon]``.  Any input rows
           beyond ``max_horizon`` are silently discarded.  This is enforced by
           passing ``horizon=self.max_horizon`` to
-          :meth:`~openstef_core.datasets.validated_datasets.ForecastInputDataset.input_data`
+          :meth:`~openstef_core.datasets.ForecastInputDataset.input_data`
           inside every concrete ``predict()`` implementation.
 
     Example:

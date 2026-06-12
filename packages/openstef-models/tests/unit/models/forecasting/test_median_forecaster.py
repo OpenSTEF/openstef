@@ -15,7 +15,13 @@ from openstef_models.models.forecasting.forecaster import ForecastDataset
 from openstef_models.models.forecasting.median_forecaster import MedianForecaster
 
 
-def test_median_returns_median():
+@pytest.fixture
+def median_forecaster() -> MedianForecaster:
+    """Median forecaster fixture."""
+    return MedianForecaster(quantiles=[Q(0.5)], horizons=[LeadTime(timedelta(days=2))])
+
+
+def test_median_returns_median(median_forecaster: MedianForecaster):
     # Arrange
     index = pd.date_range("2020-01-01T00:00", periods=3, freq="h")
     training_data = create_timeseries_dataset(
@@ -44,8 +50,7 @@ def test_median_returns_median():
     )
     expected_result.index.freq = None  # ty: ignore[invalid-assignment]
 
-    config = MedianForecaster(quantiles=[Q(0.5)], horizons=[LeadTime.from_string("PT36H")])
-    model = config
+    model = median_forecaster
 
     # Act
     model.fit(training_input_data)
@@ -56,7 +61,7 @@ def test_median_returns_median():
     pd.testing.assert_frame_equal(result.data, expected_result.data)
 
 
-def test_median_handles_some_missing_data():
+def test_median_handles_some_missing_data(median_forecaster: MedianForecaster):
     # Arrange
     index = pd.date_range("2023-01-01", periods=3, freq="h")
     training_data = create_timeseries_dataset(
@@ -84,19 +89,16 @@ def test_median_handles_some_missing_data():
     )
     expected_result.index.freq = None  # ty: ignore[invalid-assignment]
 
-    config = MedianForecaster(quantiles=[Q(0.5)], horizons=[LeadTime.from_string("PT3H")])
-    model = config
-
     # Act
-    model.fit(training_input_data)
-    result = model.predict(training_input_data)
+    median_forecaster.fit(training_input_data)
+    result = median_forecaster.predict(training_input_data)
 
     # Assert
     assert result.sample_interval == expected_result.sample_interval
     pd.testing.assert_frame_equal(result.data, expected_result.data)
 
 
-def test_median_handles_missing_data_for_some_horizons():
+def test_median_handles_missing_data_for_some_horizons(median_forecaster: MedianForecaster):
     # Arrange
     index = pd.date_range("2023-01-01", periods=3, freq="h")
     training_data = create_timeseries_dataset(
@@ -124,19 +126,16 @@ def test_median_handles_missing_data_for_some_horizons():
     )
     expected_result.index.freq = None  # ty: ignore[invalid-assignment]
 
-    config = MedianForecaster(quantiles=[Q(0.5)], horizons=[LeadTime.from_string("PT3H")])
-    model = config
-
     # Act
-    model.fit(training_input_data)
-    result = model.predict(training_input_data)
+    median_forecaster.fit(training_input_data)
+    result = median_forecaster.predict(training_input_data)
 
     # Assert
     assert result.sample_interval == expected_result.sample_interval
     pd.testing.assert_frame_equal(result.data, expected_result.data)
 
 
-def test_median_handles_all_missing_data():
+def test_median_handles_all_missing_data(median_forecaster: MedianForecaster):
     # Arrange
     index = pd.date_range("2023-01-01", periods=3, freq="h")
     training_data = create_timeseries_dataset(
@@ -164,19 +163,16 @@ def test_median_handles_all_missing_data():
         forecast_start=training_input_data.forecast_start,
     )
 
-    config = MedianForecaster(quantiles=[Q(0.5)], horizons=[LeadTime.from_string("PT3H")])
-    model = config
-
     # Act
-    model.fit(training_input_data)
-    result = model.predict(training_input_data)
+    median_forecaster.fit(training_input_data)
+    result = median_forecaster.predict(training_input_data)
 
     # Assert
     assert result.sample_interval == expected_result.sample_interval
     pd.testing.assert_frame_equal(result.data, expected_result.data)
 
 
-def test_median_uses_lag_features_if_available():
+def test_median_uses_lag_features_if_available(median_forecaster: MedianForecaster):
     # Arrange
     index = pd.date_range("2023-01-01T00:00", periods=3, freq="h")
     training_data = create_timeseries_dataset(
@@ -204,19 +200,16 @@ def test_median_uses_lag_features_if_available():
     )
     expected_result.index.freq = None  # ty: ignore[invalid-assignment]
 
-    config = MedianForecaster(quantiles=[Q(0.5)], horizons=[LeadTime.from_string("PT3H")])
-    model = config
-
     # Act
-    model.fit(training_input_data)
-    result = model.predict(training_input_data)
+    median_forecaster.fit(training_input_data)
+    result = median_forecaster.predict(training_input_data)
 
     # Assert
     assert result.sample_interval == expected_result.sample_interval
     pd.testing.assert_frame_equal(result.data, expected_result.data)
 
 
-def test_median_handles_small_gap():
+def test_median_handles_small_gap(median_forecaster: MedianForecaster):
     # Arrange
     index = pd.date_range("2023-01-01T00:00", periods=5, freq="h")
     training_data = create_timeseries_dataset(
@@ -255,19 +248,16 @@ def test_median_handles_small_gap():
     )
     expected_result.index.freq = None  # ty: ignore[invalid-assignment]
 
-    config = MedianForecaster(quantiles=[Q(0.5)], horizons=[LeadTime.from_string("PT5H")])
-    model = config
-
     # Act
-    model.fit(training_input_data)
-    result = model.predict(training_input_data)
+    median_forecaster.fit(training_input_data)
+    result = median_forecaster.predict(training_input_data)
 
     # Assert
     assert result.sample_interval == expected_result.sample_interval
     pd.testing.assert_frame_equal(result.data, expected_result.data)
 
 
-def test_median_handles_large_gap():
+def test_median_handles_large_gap(median_forecaster: MedianForecaster):
     # Arrange
     index_1 = pd.date_range("2023-01-01T00:00", periods=3, freq="h")
     training_data_1 = create_timeseries_dataset(
@@ -306,19 +296,16 @@ def test_median_handles_large_gap():
     )
     expected_result.index.freq = None  # ty: ignore[invalid-assignment]
 
-    config = MedianForecaster(quantiles=[Q(0.5)], horizons=[LeadTime.from_string("PT48H")])
-    model = config
-
     # Act
-    model.fit(training_input_data)
-    result = model.predict(training_input_data)
+    median_forecaster.fit(training_input_data)
+    result = median_forecaster.predict(training_input_data)
 
     # Assert
     assert result.sample_interval == expected_result.sample_interval
     pd.testing.assert_frame_equal(result.data, expected_result.data)
 
 
-def test_median_fit_with_missing_features_raises():
+def test_median_fit_with_missing_features_raises(median_forecaster: MedianForecaster):
     # Arrange
     index = pd.date_range("2023-01-01", periods=3, freq="h")
     training_data = create_timeseries_dataset(
@@ -335,9 +322,7 @@ def test_median_fit_with_missing_features_raises():
         forecast_start=index[0],
     )
 
-    config = MedianForecaster(quantiles=[Q(0.5)], horizons=[LeadTime.from_string("PT3H")])
-    model = config
-    model.fit(training_input_data)
+    median_forecaster.fit(training_input_data)
 
     # Create prediction data missing one lag feature
     prediction_data = training_data.data.copy()
@@ -351,10 +336,10 @@ def test_median_fit_with_missing_features_raises():
 
     # Act & Assert
     with pytest.raises(ValueError, match="The input data is missing the following lag features"):
-        model.predict(prediction_input_data)
+        median_forecaster.predict(prediction_input_data)
 
 
-def test_median_fit_with_no_lag_features_raises():
+def test_median_fit_with_no_lag_features_raises(median_forecaster: MedianForecaster):
     # Arrange
     index = pd.date_range("2023-01-01", periods=3, freq="h")
     training_data = create_timeseries_dataset(
@@ -369,15 +354,12 @@ def test_median_fit_with_no_lag_features_raises():
         forecast_start=index[0],
     )
 
-    config = MedianForecaster(quantiles=[Q(0.5)], horizons=[LeadTime.from_string("PT3H")])
-    model = config
-
     # Act & Assert
     with pytest.raises(ValueError, match=r"No lag features found in the input data."):
-        model.fit(training_input_data)
+        median_forecaster.fit(training_input_data)
 
 
-def test_median_fit_with_inconsistent_lag_features_raises():
+def test_median_fit_with_inconsistent_lag_features_raises(median_forecaster: MedianForecaster):
     # Arrange
     index = pd.date_range("2023-01-01", periods=3, freq="h")
     training_data = create_timeseries_dataset(
@@ -396,14 +378,14 @@ def test_median_fit_with_inconsistent_lag_features_raises():
     )
 
     config = MedianForecaster(quantiles=[Q(0.5)], horizons=[LeadTime.from_string("PT3H")])
-    model = config
+    median_forecaster = config
 
     # Act & Assert
     with pytest.raises(ValueError, match="Lag features are not evenly spaced"):
-        model.fit(training_input_data)
+        median_forecaster.fit(training_input_data)
 
 
-def test_median_fit_with_inconsistent_frequency_raises():
+def test_median_fit_with_inconsistent_frequency_raises(median_forecaster: MedianForecaster):
     # Arrange
     index = pd.date_range("2023-01-01", periods=3, freq="min")
     training_data = create_timeseries_dataset(
@@ -421,9 +403,6 @@ def test_median_fit_with_inconsistent_frequency_raises():
         forecast_start=index[0],
     )
 
-    config = MedianForecaster(quantiles=[Q(0.5)], horizons=[LeadTime.from_string("PT3H")])
-    model = config
-
     # Act & Assert
     with pytest.raises(
         ValueError,
@@ -431,10 +410,10 @@ def test_median_fit_with_inconsistent_frequency_raises():
             r"Lag feature interval (1:00:00) does not match data frequency (0:01:00). Please ensure lag features match the data frequency."
         ),
     ):
-        model.fit(training_input_data)
+        median_forecaster.fit(training_input_data)
 
 
-def test_predicting_without_fitting_raises():
+def test_predicting_without_fitting_raises(median_forecaster: MedianForecaster):
     # Arrange
     index = pd.date_range("2023-01-01", periods=3, freq="min")
     training_data = create_timeseries_dataset(
@@ -452,9 +431,6 @@ def test_predicting_without_fitting_raises():
         forecast_start=index[0],
     )
 
-    config = MedianForecaster(quantiles=[Q(0.5)], horizons=[LeadTime.from_string("PT3M")])
-    model = config
-
     # Act & Assert
     with pytest.raises(AttributeError, match="This MedianForecaster instance is not fitted yet"):
-        model.predict(training_input_data)
+        median_forecaster.predict(training_input_data)
