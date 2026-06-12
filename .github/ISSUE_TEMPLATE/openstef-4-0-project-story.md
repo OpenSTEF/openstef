@@ -1,7 +1,7 @@
 ---
 name: OpenSTEF 4 Project Story
 about: Describe this issue template's purpose here.
-title: "[OpenSTEF 4] "
+title: ''
 labels: OpenSTEF 4
 assignees: ''
 
