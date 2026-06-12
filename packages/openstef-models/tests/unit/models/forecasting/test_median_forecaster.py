@@ -50,11 +50,9 @@ def test_median_returns_median(median_forecaster: MedianForecaster):
     )
     expected_result.index.freq = None  # ty: ignore[invalid-assignment]
 
-    model = median_forecaster
-
     # Act
-    model.fit(training_input_data)
-    result = model.predict(training_input_data)
+    median_forecaster.fit(training_input_data)
+    result = median_forecaster.predict(training_input_data)
 
     # Assert
     assert result.sample_interval == expected_result.sample_interval
@@ -376,9 +374,6 @@ def test_median_fit_with_inconsistent_lag_features_raises(median_forecaster: Med
         target_column="load",
         forecast_start=index[0],
     )
-
-    config = MedianForecaster(quantiles=[Q(0.5)], horizons=[LeadTime.from_string("PT3H")])
-    median_forecaster = config
 
     # Act & Assert
     with pytest.raises(ValueError, match="Lag features are not evenly spaced"):
