@@ -84,7 +84,7 @@ def test_median_handles_some_missing_data():
     )
     expected_result.index.freq = None  # ty: ignore[invalid-assignment]
 
-    config = MedianForecaster(quantiles=[Q(0.5)], horizons=[LeadTime.from_string("PT3M")])
+    config = MedianForecaster(quantiles=[Q(0.5)], horizons=[LeadTime.from_string("PT3H")])
     model = config
 
     # Act
@@ -124,7 +124,7 @@ def test_median_handles_missing_data_for_some_horizons():
     )
     expected_result.index.freq = None  # ty: ignore[invalid-assignment]
 
-    config = MedianForecaster(quantiles=[Q(0.5)], horizons=[LeadTime.from_string("PT3M")])
+    config = MedianForecaster(quantiles=[Q(0.5)], horizons=[LeadTime.from_string("PT3H")])
     model = config
 
     # Act
@@ -164,7 +164,7 @@ def test_median_handles_all_missing_data():
         forecast_start=training_input_data.forecast_start,
     )
 
-    config = MedianForecaster(quantiles=[Q(0.5)], horizons=[LeadTime.from_string("PT3M")])
+    config = MedianForecaster(quantiles=[Q(0.5)], horizons=[LeadTime.from_string("PT3H")])
     model = config
 
     # Act
@@ -204,7 +204,7 @@ def test_median_uses_lag_features_if_available():
     )
     expected_result.index.freq = None  # ty: ignore[invalid-assignment]
 
-    config = MedianForecaster(quantiles=[Q(0.5)], horizons=[LeadTime.from_string("PT3M")])
+    config = MedianForecaster(quantiles=[Q(0.5)], horizons=[LeadTime.from_string("PT3H")])
     model = config
 
     # Act
@@ -255,7 +255,7 @@ def test_median_handles_small_gap():
     )
     expected_result.index.freq = None  # ty: ignore[invalid-assignment]
 
-    config = MedianForecaster(quantiles=[Q(0.5)], horizons=[LeadTime.from_string("PT3M")])
+    config = MedianForecaster(quantiles=[Q(0.5)], horizons=[LeadTime.from_string("PT5H")])
     model = config
 
     # Act
@@ -306,7 +306,7 @@ def test_median_handles_large_gap():
     )
     expected_result.index.freq = None  # ty: ignore[invalid-assignment]
 
-    config = MedianForecaster(quantiles=[Q(0.5)], horizons=[LeadTime.from_string("PT3M")])
+    config = MedianForecaster(quantiles=[Q(0.5)], horizons=[LeadTime.from_string("PT48H")])
     model = config
 
     # Act
