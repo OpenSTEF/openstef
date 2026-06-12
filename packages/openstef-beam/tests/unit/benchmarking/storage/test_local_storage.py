@@ -10,6 +10,7 @@ from unittest.mock import Mock
 
 import pandas as pd
 import pytest
+from pydantic_extra_types.coordinate import Latitude, Longitude
 
 from openstef_beam.analysis import AnalysisOutput, AnalysisScope, VisualizationOutput
 from openstef_beam.analysis.models import AnalysisAggregation
@@ -18,7 +19,6 @@ from openstef_beam.benchmarking.storage import LocalBenchmarkStorage
 from openstef_beam.evaluation import EvaluationReport, EvaluationSubsetReport, Filtering, SubsetMetric
 from openstef_core.datasets import ForecastDataset, TimeSeriesDataset
 from openstef_core.types import AvailableAt, LeadTime
-from pydantic_extra_types.coordinate import Latitude, Longitude
 
 
 def assert_directory_and_file_exist(expected_path: Path) -> None:

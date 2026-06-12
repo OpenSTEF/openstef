@@ -70,7 +70,7 @@ class RollingAggregatesAdder(BaseConfig, TimeSeriesTransform):
         default=timedelta(hours=24),
         description="Rolling window size for the aggregation.",
     )
-    aggregation_functions: list[AggregationFunction] = Field(    # ty: ignore[invalid-assignment] 
+    aggregation_functions: list[AggregationFunction] = Field(  # ty: ignore[invalid-assignment]
         default_factory=lambda: ["median", "min", "max"],
         description="Aggregation functions to compute over the rolling window.",
     )

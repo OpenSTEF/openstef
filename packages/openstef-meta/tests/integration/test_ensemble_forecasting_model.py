@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 
 from datetime import timedelta
+from typing import cast
 
 import numpy as np
 import pandas as pd
@@ -12,9 +13,8 @@ from openstef_core.datasets.validated_datasets import TimeSeriesDataset
 from openstef_core.types import LeadTime, Q
 from openstef_meta.models.ensemble_forecasting_model import EnsembleForecastingModel
 from openstef_meta.presets import EnsembleForecastingWorkflowConfig, create_ensemble_forecasting_workflow
-from openstef_models.models.forecasting_model import BaseForecastingModel, ForecastingModel
+from openstef_models.models.forecasting_model import BaseForecastingModel
 from openstef_models.presets import ForecastingWorkflowConfig, create_forecasting_workflow
-from typing import cast
 from openstef_models.transforms.general import SampleWeightConfig
 
 

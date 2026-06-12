@@ -13,6 +13,7 @@ import pandas as pd
 import pytest
 import s3fs
 from moto.server import ThreadedMotoServer
+from pydantic_extra_types.coordinate import Latitude, Longitude
 
 from openstef_beam.benchmarking import S3BenchmarkStorage
 from openstef_beam.benchmarking.models import BenchmarkTarget
@@ -24,7 +25,6 @@ from openstef_core.datasets import (
     VersionedTimeSeriesDataset,
 )
 from openstef_core.types import AvailableAt
-from pydantic_extra_types.coordinate import Latitude, Longitude
 
 
 @pytest.fixture(scope="session")

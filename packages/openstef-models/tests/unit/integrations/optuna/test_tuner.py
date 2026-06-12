@@ -171,7 +171,9 @@ def test_reconstruct_best_config__multi_model_parses_dotted_trial_keys() -> None
     study.best_params = {"xgboost_hyperparams.n_estimators": 300, "gblinear_hyperparams.n_steps": 150}
 
     # Act
-    best_config = cast(ForecastingWorkflowConfig, tuner._reconstruct_best_config(config, [info_xgb, info_gblinear], study))
+    best_config = cast(
+        ForecastingWorkflowConfig, tuner._reconstruct_best_config(config, [info_xgb, info_gblinear], study)
+    )
 
     # Assert
     assert best_config.xgboost_hyperparams.n_estimators == 300

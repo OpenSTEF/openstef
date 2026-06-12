@@ -9,6 +9,7 @@ from typing import override
 import pandas as pd
 import pytest
 from pydantic import ValidationError
+from pydantic_extra_types.coordinate import Latitude, Longitude
 
 from openstef_beam.benchmarking.models import BenchmarkTarget
 from openstef_beam.benchmarking.target_provider import (
@@ -16,7 +17,6 @@ from openstef_beam.benchmarking.target_provider import (
     filter_away_flatline_chunks,
 )
 from openstef_core.datasets import VersionedTimeSeriesDataset
-from pydantic_extra_types.coordinate import Latitude, Longitude
 
 
 @pytest.mark.parametrize(

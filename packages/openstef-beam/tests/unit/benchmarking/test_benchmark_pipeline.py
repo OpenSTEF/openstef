@@ -8,6 +8,7 @@ from unittest.mock import MagicMock, Mock, call, patch
 
 import pandas as pd
 import pytest
+from pydantic_extra_types.coordinate import Latitude, Longitude
 
 from openstef_beam.analysis import AnalysisConfig, AnalysisScope
 from openstef_beam.analysis.models import AnalysisAggregation
@@ -23,7 +24,6 @@ from openstef_beam.benchmarking import (
 from openstef_beam.evaluation import EvaluationConfig, EvaluationReport, EvaluationSubsetReport, SubsetMetric
 from openstef_core.datasets import ForecastDataset, TimeSeriesDataset, VersionedTimeSeriesDataset
 from openstef_core.types import AvailableAt
-from pydantic_extra_types.coordinate import Latitude, Longitude
 from tests.utils.mocks import MockForecaster, MockMetricsProvider, MockTargetProvider
 
 if TYPE_CHECKING:

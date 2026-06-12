@@ -4,16 +4,17 @@
 
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from typing import cast
 
 import numpy as np
 import pytest
-
-from typing import cast
-
 from pydantic_extra_types.coordinate import Latitude, Longitude
 
 from openstef_beam.backtesting.restricted_horizon_timeseries import RestrictedHorizonVersionedTimeSeries
-from openstef_beam.benchmarking.baselines.openstef4 import OpenSTEF4BacktestForecaster, create_openstef4_preset_backtest_forecaster
+from openstef_beam.benchmarking.baselines.openstef4 import (
+    OpenSTEF4BacktestForecaster,
+    create_openstef4_preset_backtest_forecaster,
+)
 from openstef_beam.benchmarking.benchmark_pipeline import BenchmarkContext, BenchmarkTarget
 from openstef_core.datasets import VersionedTimeSeriesDataset
 from openstef_core.testing import create_synthetic_forecasting_dataset

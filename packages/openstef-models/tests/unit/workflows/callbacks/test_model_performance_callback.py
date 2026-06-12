@@ -2,9 +2,8 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+from typing import cast
 from unittest.mock import MagicMock
-
-from typing import Any, cast
 
 import pytest
 
