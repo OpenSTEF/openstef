@@ -13,6 +13,7 @@ import pandas as pd
 import pytest
 import s3fs
 from moto.server import ThreadedMotoServer
+from pydantic_extra_types.coordinate import Latitude, Longitude
 
 from openstef_beam.benchmarking import S3BenchmarkStorage
 from openstef_beam.benchmarking.models import BenchmarkTarget
@@ -49,7 +50,7 @@ def s3_setup(moto_server: str) -> tuple[s3fs.S3FileSystem, str]:
     # Arrange
     fs = s3fs.S3FileSystem(client_kwargs={"endpoint_url": moto_server}, key="testing", secret="testing")  # noqa: S106 - Not a real secret
     bucket_name = f"test-bucket-{uuid.uuid4().hex[:8]}"
-    fs.makedirs(bucket_name, exist_ok=True)  # pyright: ignore[reportUnknownMemberType]
+    fs.makedirs(bucket_name, exist_ok=True)
     return fs, bucket_name
 
 
@@ -59,8 +60,8 @@ def target() -> BenchmarkTarget:
     return BenchmarkTarget(
         name="test_target",
         description="Test target",
-        latitude=0.0,
-        longitude=0.0,
+        latitude=Latitude(0.0),
+        longitude=Longitude(0.0),
         limit=100.0,
         train_start=pd.Timestamp("2022-12-25"),
         benchmark_start=pd.Timestamp("2023-01-01"),
@@ -188,16 +189,16 @@ def test_s3_upload_on_save(
     # Assert
     if operation == "predictions":
         s3_path = f"{bucket_name}/test-prefix/backtest/default/test_target/predictions.parquet"
-        assert fs.exists(s3_path)  # pyright: ignore[reportUnknownMemberType]
+        assert fs.exists(s3_path)
         # Verify content
-        with fs.open(s3_path, "rb") as f:  # pyright: ignore[reportUnknownMemberType]
-            uploaded_data = pd.read_parquet(f)  # type: ignore
+        with fs.open(s3_path, "rb") as f:
+            uploaded_data = pd.read_parquet(f)
         local_path = local_storage.get_predictions_path_for_target(target)
-        local_data = pd.read_parquet(local_path)  # type: ignore
+        local_data = pd.read_parquet(local_path)
         pd.testing.assert_frame_equal(uploaded_data, local_data)
     else:
         s3_path = f"{bucket_name}/test-prefix/evaluation/default/test_target"
-        assert fs.exists(s3_path)  # pyright: ignore[reportUnknownMemberType]
+        assert fs.exists(s3_path)
 
 
 def test_save_evaluation_output_uploads_to_s3(
@@ -223,7 +224,7 @@ def test_save_evaluation_output_uploads_to_s3(
     # Assert
     # Check that evaluation file was uploaded to S3
     s3_path = f"{bucket_name}/test-prefix/evaluation/default/test_target"
-    assert fs.exists(s3_path), f"Evaluation file not found at {s3_path}"  # pyright: ignore[reportUnknownMemberType]
+    assert fs.exists(s3_path), f"Evaluation file not found at {s3_path}"
 
     # Verify content integrity by checking local file was created
     local_path = local_storage.get_evaluations_path_for_target(target)
@@ -256,8 +257,8 @@ def test_missing_local_files_handling(
     )
 
     # Assert - no files should be uploaded to S3
-    objects = list(fs.ls(f"{bucket_name}/", detail=False))  # pyright: ignore[reportUnknownVariableType, reportUnknownArgumentType, reportUnknownMemberType]
-    assert len(objects) == 0  # pyright: ignore[reportUnknownArgumentType]
+    objects = list(fs.ls(f"{bucket_name}/", detail=False))
+    assert len(objects) == 0
 
 
 def test_load_operations_delegate_to_local_storage(

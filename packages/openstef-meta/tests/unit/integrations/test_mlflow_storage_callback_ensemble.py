@@ -230,7 +230,7 @@ def test_on_fit_end__logs_combiner_hyperparams_as_primary(
 
     runs = callback.storage.search_latest_runs(model_id=ensemble_workflow.model_id, limit=1)
     run = runs[0]
-    params = run.data.params  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+    params = run.data.params
 
     # Combiner hyperparams should be logged as primary params
     assert "learning_rate" in params
@@ -249,7 +249,7 @@ def test_on_fit_end__logs_per_forecaster_hyperparams(
 
     runs = callback.storage.search_latest_runs(model_id=ensemble_workflow.model_id, limit=1)
     run = runs[0]
-    params = run.data.params  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+    params = run.data.params
 
     # Per-forecaster hyperparams should be prefixed
     assert "model_a.alpha" in params

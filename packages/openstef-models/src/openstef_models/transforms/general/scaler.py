@@ -100,7 +100,7 @@ class Scaler(BaseConfig, TimeSeriesTransform):
             data: Time series dataset.
         """
         features = self.selection.resolve(data.feature_names)
-        self._scaler.fit(data.data[features])  # type: ignore[reportUnknownMemberType]
+        self._scaler.fit(data.data[features])
         self._is_fitted = True
 
     @override

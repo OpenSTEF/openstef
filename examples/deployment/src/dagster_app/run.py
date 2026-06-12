@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-# pyright: reportUnknownMemberType=false
+
 # Dagster's materialize helper is not fully typed; silence that noise.
 
 """CLI entrypoints for the Dagster example.

@@ -80,7 +80,7 @@ class EmptyFeatureRemover(BaseConfig, TimeSeriesTransform):
         description="The placeholder for missing values that should be considered empty",
     )
 
-    _remove_columns: set[str] = PrivateAttr(default_factory=set)  # pyright: ignore[reportUnknownVariableType]
+    _remove_columns: set[str] = PrivateAttr(default_factory=set)
     _is_fitted: bool = PrivateAttr(default=False)
 
     @property
@@ -111,7 +111,7 @@ class EmptyFeatureRemover(BaseConfig, TimeSeriesTransform):
             raise NotFittedError(self.__class__.__name__)
 
         # Remove empty columns
-        result_data = data.data.loc[:, ~data.data.columns.isin(self._remove_columns)]  # pyright: ignore[reportUnknownMemberType]
+        result_data = data.data.loc[:, ~data.data.columns.isin(self._remove_columns)]
 
         return TimeSeriesDataset(data=result_data, sample_interval=data.sample_interval)
 

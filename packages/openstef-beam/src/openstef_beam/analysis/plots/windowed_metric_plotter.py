@@ -127,9 +127,9 @@ class WindowedMetricPlotter:
         if self.window_size:
             title += f"<br><sup>Window size: {self.window_size}</sup>"
 
-        fig: go.Figure = px.line(models_df, x="timestamp", y="metric_value", color="model", title=title, markers=True)  # type: ignore[reportUnknownMemberType]
+        fig: go.Figure = px.line(models_df, x="timestamp", y="metric_value", color="model", title=title, markers=True)
 
-        fig.update_layout(  # type: ignore[reportUnknownMemberType]
+        fig.update_layout(
             xaxis_title="Date",
             yaxis_title=metric_name,
             legend_title="Models",

@@ -17,7 +17,7 @@ from pydantic import Field, PrivateAttr, model_validator
 
 # This imputer is still experimental for now:
 # default parameters or details of behaviour might change without any deprecation cycle.
-from sklearn.experimental import enable_iterative_imputer  # noqa: F401 # type: ignore
+from sklearn.experimental import enable_iterative_imputer  # noqa: F401
 from sklearn.impute import IterativeImputer, SimpleImputer
 from sklearn.linear_model import BayesianRidge
 

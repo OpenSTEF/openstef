@@ -14,7 +14,7 @@ from pydantic import ValidationError
 from sklearn.ensemble import ExtraTreesRegressor, RandomForestRegressor
 
 # iterative imputer is experimental. Defaults do not follow deprecation cycle.
-from sklearn.experimental import enable_iterative_imputer  # noqa: F401 # type: ignore
+from sklearn.experimental import enable_iterative_imputer  # noqa: F401
 from sklearn.linear_model import BayesianRidge
 
 from openstef_core.datasets import TimeSeriesDataset

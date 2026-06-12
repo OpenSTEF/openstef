@@ -23,7 +23,7 @@ if _platform.system() == "Darwin":
     try:
         import setproctitle as _spt
 
-        _spt.setproctitle = lambda _title: None  # type: ignore[assignment]
-        _spt.getproctitle = lambda: ""  # type: ignore[assignment]
+        _spt.setproctitle = lambda _title: None  # ty: ignore[invalid-assignment]
+        _spt.getproctitle = lambda: ""  # ty: ignore[invalid-assignment]
     except ImportError:
         pass

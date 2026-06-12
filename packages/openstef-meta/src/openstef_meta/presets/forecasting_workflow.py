@@ -268,7 +268,7 @@ class EnsembleForecastingWorkflowConfig(BaseConfig):
     )
 
     # Evaluation
-    evaluation_metrics: list[MetricProvider] = Field(
+    evaluation_metrics: list[MetricProvider] = Field(  # ty: ignore[invalid-assignment]
         default_factory=lambda: [R2Provider(), ObservedProbabilityProvider()],
         description="List of metric providers for evaluating model score.",
     )

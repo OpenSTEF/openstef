@@ -58,11 +58,11 @@ class JoblibModelSerializer(ModelSerializer):
 
     @override
     def serialize(self, model: object, file: BinaryIO) -> None:
-        joblib.dump(model, file)  # type: ignore[reportUnknownMemberType]
+        joblib.dump(model, file)
 
     @override
     def deserialize(self, file: BinaryIO) -> object:
-        return joblib.load(file)  # type: ignore[reportUnknownMemberType]
+        return joblib.load(file)
 
 
 __all__ = ["JoblibModelSerializer"]

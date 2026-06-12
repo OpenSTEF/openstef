@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
+from typing import cast
 from unittest.mock import MagicMock
 
 import pytest
@@ -10,6 +11,7 @@ from openstef_beam.evaluation.metric_providers import MetricDirection
 from openstef_core.exceptions import ModelUnderperformingError
 from openstef_models.mixins.callbacks import WorkflowContext
 from openstef_models.workflows.callbacks.model_performance_callback import ModelPerformanceCallback
+from openstef_models.workflows.custom_forecasting_workflow import CustomForecastingWorkflow
 
 
 def _make_callback(
@@ -32,9 +34,13 @@ def _make_result(metric_value: float | None) -> MagicMock:
     return result
 
 
+def _make_context() -> WorkflowContext[CustomForecastingWorkflow]:
+    return cast(WorkflowContext[CustomForecastingWorkflow], WorkflowContext(workflow=MagicMock()))
+
+
 def test_on_fit_end__no_metrics_val__skips_without_error() -> None:
     callback = _make_callback()
-    context = WorkflowContext(workflow=MagicMock())
+    context = _make_context()
     result = MagicMock()
     result.metrics_val = None
 
@@ -43,7 +49,7 @@ def test_on_fit_end__no_metrics_val__skips_without_error() -> None:
 
 def test_on_fit_end__metric_not_found__skips_without_error() -> None:
     callback = _make_callback()
-    context = WorkflowContext(workflow=MagicMock())
+    context = _make_context()
     result = _make_result(metric_value=None)
 
     callback.on_fit_end(context=context, result=result)
@@ -51,7 +57,7 @@ def test_on_fit_end__metric_not_found__skips_without_error() -> None:
 
 def test_on_fit_end__lower_is_better__metric_above_threshold__raises() -> None:
     callback = _make_callback(metric_name="MAE", threshold=10.0, metric_direction="lower_is_better")
-    context = WorkflowContext(workflow=MagicMock())
+    context = _make_context()
     result = _make_result(metric_value=15.0)
 
     with pytest.raises(ModelUnderperformingError):
@@ -60,7 +66,7 @@ def test_on_fit_end__lower_is_better__metric_above_threshold__raises() -> None:
 
 def test_on_fit_end__lower_is_better__metric_below_threshold__no_error() -> None:
     callback = _make_callback(metric_name="MAE", threshold=10.0, metric_direction="lower_is_better")
-    context = WorkflowContext(workflow=MagicMock())
+    context = _make_context()
     result = _make_result(metric_value=5.0)
 
     callback.on_fit_end(context=context, result=result)
@@ -68,7 +74,7 @@ def test_on_fit_end__lower_is_better__metric_below_threshold__no_error() -> None
 
 def test_on_fit_end__higher_is_better__metric_below_threshold__raises() -> None:
     callback = _make_callback(metric_name="R2", threshold=0.8, metric_direction="higher_is_better")
-    context = WorkflowContext(workflow=MagicMock())
+    context = _make_context()
     result = _make_result(metric_value=0.5)
 
     with pytest.raises(ModelUnderperformingError):
@@ -77,7 +83,7 @@ def test_on_fit_end__higher_is_better__metric_below_threshold__raises() -> None:
 
 def test_on_fit_end__higher_is_better__metric_above_threshold__no_error() -> None:
     callback = _make_callback(metric_name="R2", threshold=0.8, metric_direction="higher_is_better")
-    context = WorkflowContext(workflow=MagicMock())
+    context = _make_context()
     result = _make_result(metric_value=0.95)
 
     callback.on_fit_end(context=context, result=result)

@@ -58,8 +58,8 @@ def iterate_by_window(
         return
 
     for end in pd.date_range(
-        start=align_datetime(index.min() + window.size, window.stride, mode="ceil"),  # type: ignore[reportUnknownMemberType]
-        end=align_datetime(index.max(), window.stride, mode="floor"),  # type: ignore[reportUnknownMemberType]
+        start=align_datetime(index.min() + window.size, window.stride, mode="ceil"),
+        end=align_datetime(index.max(), window.stride, mode="floor"),
         freq=window.stride,
     ):
         yield (

@@ -304,7 +304,7 @@ class TimeSeriesDataset(TimeSeriesMixin, DatasetMixin):  # noqa: PLR0904 - impor
         Returns:
             New dataset containing only rows with timestamps in the mask.
         """
-        data_filtered = self.data.loc[self.index.isin(mask)]  # pyright: ignore[reportUnknownMemberType]
+        data_filtered = self.data.loc[self.index.isin(mask)]
 
         return self._copy_with_data(data=data_filtered)
 
@@ -320,7 +320,7 @@ class TimeSeriesDataset(TimeSeriesMixin, DatasetMixin):  # noqa: PLR0904 - impor
         if self.horizons is None:
             return self
 
-        data_selected = self.data[self.lead_time_series == horizon.value]
+        data_selected = cast(pd.DataFrame, self.data[self.lead_time_series == horizon.value])
         return self._copy_with_data(data=data_selected)
 
     def to_pandas(self) -> pd.DataFrame:
@@ -395,7 +395,7 @@ class TimeSeriesDataset(TimeSeriesMixin, DatasetMixin):  # noqa: PLR0904 - impor
         available_at_column: str = "available_at",
         horizon_column: str = "horizon",
     ) -> Self:
-        df = pd.read_parquet(path=path)  # pyright: ignore[reportUnknownMemberType]
+        df = pd.read_parquet(path=path)
         if not isinstance(df.index, pd.DatetimeIndex):
             if timestamp_column not in df.columns:
                 raise TimeSeriesValidationError(

@@ -10,7 +10,7 @@ serialization with automatic state migration.
 """
 
 import warnings
-from typing import ClassVar, TypedDict, cast
+from typing import ClassVar, TypedDict, cast, override
 
 from openstef_core.types import Any
 
@@ -41,6 +41,7 @@ class Stateful:
 
     _VERSION: ClassVar[int] = 1
 
+    @override
     def __getstate__(self) -> VersionedState:
         """Serialize object state with version metadata.
 
@@ -74,7 +75,7 @@ class Stateful:
             state: Serialized state, either VersionedState dict or legacy format.
         """
         # Handle legacy objects without versioning
-        if not isinstance(state, dict) or "__version__" not in state:  # pyright: ignore[reportUnnecessaryIsInstance]
+        if not isinstance(state, dict) or "__version__" not in state:
             warnings.warn(
                 f"Loading legacy {self.__class__.__name__} without version metadata.", UserWarning, stacklevel=2
             )
@@ -108,7 +109,7 @@ class Stateful:
         """
         # Check if any parent class has __setstate__
         if hasattr(super(), "__setstate__"):
-            super().__setstate__(state)  # type: ignore[misc]
+            super().__setstate__(state)  # ty: ignore[unresolved-attribute]
         elif state:  # Only update if state is not empty
             self.__dict__.update(state)
 

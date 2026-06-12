@@ -127,7 +127,7 @@ class PrecisionRecallCurvePlotter:
 
         models_df = pd.concat(model_df_list, ignore_index=True)
 
-        fig = px.line(  # type: ignore - needs stubs
+        fig = px.line(
             models_df,
             x="recall",
             y="precision",
@@ -137,7 +137,7 @@ class PrecisionRecallCurvePlotter:
             title=title,
         )
 
-        fig.update_layout(  # type: ignore - needs stubs
+        fig.update_layout(
             xaxis_title="Recall",
             yaxis_title="Precision",
             xaxis={"range": [0, 1]},

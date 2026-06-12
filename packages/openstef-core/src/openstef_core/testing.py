@@ -182,7 +182,7 @@ def load_liander_dataset(
         ImportError: When ``huggingface-hub`` is not installed.
     """
     try:
-        from huggingface_hub import hf_hub_download  # pyright: ignore[reportUnknownVariableType]  # noqa: PLC0415
+        from huggingface_hub import hf_hub_download  # noqa: PLC0415
         from huggingface_hub.utils import logging as hf_logging  # noqa: PLC0415
     except ImportError:
         msg = "huggingface-hub is required for benchmark datasets: pip install openstef-core[benchmark]"
@@ -199,7 +199,7 @@ def load_liander_dataset(
     # Suppress HF Hub noise (unauthenticated requests warning, progress bars)
     hf_logging.set_verbosity_error()
     for filename in files_to_download:
-        hf_hub_download(  # pyright: ignore[reportCallIssue]
+        hf_hub_download(
             repo_id=repo_id,
             filename=filename,
             repo_type="dataset",

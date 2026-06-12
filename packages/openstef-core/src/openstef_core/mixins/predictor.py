@@ -234,7 +234,7 @@ class HyperParams(BaseConfig):
         result: HyperParams = handler(data)
         if instance_ranges and result.__pydantic_private__ is not None:
             result._instance_ranges = instance_ranges
-        return result  # type: ignore[return-value]
+        return result  # ty: ignore[invalid-return-type]
 
     def get_search_space(self, include: set[str] | None = None) -> dict[str, TuningRange]:
         """Merge instance and class-level ranges, returning only ``tune=True`` fields.

@@ -11,6 +11,7 @@ import pytest
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.exceptions import NotFittedError
 from openstef_models.transforms.general import OUTLIER_NAN_MASK_PREFIX, OutlierHandler
+from openstef_models.transforms.general.outlier_handler import ClipMode
 from openstef_models.utils.feature_selection import FeatureSelection
 
 
@@ -48,7 +49,7 @@ def test_dataset() -> TimeSeriesDataset:
 def test_outlier_handler__clip_behavior(
     train_dataset: TimeSeriesDataset,
     test_dataset: TimeSeriesDataset,
-    mode: str,
+    mode: ClipMode,
     expected_a: list[float],
     expected_b: list[float],
 ):
@@ -90,7 +91,7 @@ def test_outlier_handler__clip_behavior(
 def test_outlier_handler__nan_behavior(
     train_dataset: TimeSeriesDataset,
     test_dataset: TimeSeriesDataset,
-    mode: str,
+    mode: ClipMode,
     expected_a: list[float],
     expected_b: list[float],
 ):

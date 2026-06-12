@@ -33,7 +33,7 @@ def dataset() -> tuple[pd.DataFrame, pd.Series]:
 
 
 @pytest.fixture(params=["sklearn_quantile", "lgbm", "xgboost"])
-def baselearner_config(request: pytest.FixtureRequest) -> BaseLearnerConfig:  # type : ignore
+def baselearner_config(request: pytest.FixtureRequest) -> BaseLearnerConfig:
     model: str = request.param
     if model == "sklearn_quantile":
         return BaseLearnerConfig(
@@ -43,7 +43,7 @@ def baselearner_config(request: pytest.FixtureRequest) -> BaseLearnerConfig:  # 
         )
     if model == "lgbm":
         return BaseLearnerConfig(
-            base_learner=LGBMRegressor,  # type: ignore
+            base_learner=LGBMRegressor,
             quantile_param="alpha",
             hyperparams={
                 "objective": "quantile",

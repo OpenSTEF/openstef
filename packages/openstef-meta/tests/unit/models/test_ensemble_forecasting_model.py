@@ -36,6 +36,7 @@ class SimpleCombiner(ForecastCombiner):
 
     _is_fitted: bool = False
 
+    @override
     def fit(
         self,
         data: EnsembleForecastDataset,
@@ -44,6 +45,7 @@ class SimpleCombiner(ForecastCombiner):
     ) -> None:
         self._is_fitted = True
 
+    @override
     def predict(
         self,
         data: EnsembleForecastDataset,
@@ -64,10 +66,12 @@ class SimpleCombiner(ForecastCombiner):
         )
 
     @property
+    @override
     def is_fitted(self) -> bool:
         return self._is_fitted
 
     @property
+    @override
     def feature_importances(self) -> pd.DataFrame:
         return pd.DataFrame()
 

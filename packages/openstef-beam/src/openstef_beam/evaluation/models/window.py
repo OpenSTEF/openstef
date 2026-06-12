@@ -48,6 +48,7 @@ class Window(PydanticStringPrimitive):
         self.stride = stride
         self.minimum_coverage = minimum_coverage
 
+    @override
     def __str__(self) -> str:
         """Converts to string in '(lag=X,size=Y,stride=Z)' format.
 
@@ -62,6 +63,7 @@ class Window(PydanticStringPrimitive):
         return f"(lag={lag_str},size={size_str},stride={stride_str})"
 
     @classmethod
+    @override
     def from_string(cls, s: str) -> Self:
         """Creates an instance from a string in '(lag=X,size=Y,stride=Z)' format.
 
@@ -95,7 +97,7 @@ class Window(PydanticStringPrimitive):
             Validated Window instance.
         """
         if isinstance(v, dict):
-            minimum_coverage = v.get("minimum_coverage", 0.5)
+            minimum_coverage = float(str(v.get("minimum_coverage", 0.5)))
             lag, size, stride = TypeAdapter(tuple[timedelta, timedelta, timedelta]).validate_python((
                 v.get("lag"),
                 v.get("size"),

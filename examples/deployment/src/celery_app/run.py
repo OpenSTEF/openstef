@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-# pyright: reportUnknownMemberType=false, reportFunctionMemberAccess=false
+
 # Celery's task `.delay` and config object are not fully typed; silence that noise.
 
 """Eager (no-broker) CLI entrypoints for the Celery example.

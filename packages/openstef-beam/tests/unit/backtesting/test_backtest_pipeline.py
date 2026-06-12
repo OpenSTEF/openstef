@@ -4,7 +4,7 @@
 
 from collections.abc import Callable
 from datetime import datetime, timedelta
-from typing import Any
+from typing import Any, override
 
 import pandas as pd
 import pytest
@@ -32,12 +32,15 @@ class MockForecaster(BacktestForecasterMixin):
         )
 
     @property
+    @override
     def quantiles(self) -> list[Quantile]:
         return [Quantile(0.5)]
 
+    @override
     def fit(self, data: RestrictedHorizonVersionedTimeSeries) -> None:
         self.train_calls.append(data)
 
+    @override
     def predict(self, data: RestrictedHorizonVersionedTimeSeries) -> TimeSeriesDataset | None:
         """Return a TimeSeriesDataset or None (to simulate model unable to predict)."""
         self.predict_calls.append(data)

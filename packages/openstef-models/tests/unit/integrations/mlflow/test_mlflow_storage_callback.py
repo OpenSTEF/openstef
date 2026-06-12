@@ -21,6 +21,7 @@ from openstef_models.integrations.mlflow import MLFlowStorage, MLFlowStorageCall
 from openstef_models.mixins.callbacks import WorkflowContext
 from openstef_models.models.forecasting.forecaster import Forecaster
 from openstef_models.models.forecasting_model import ForecastingModel, ModelFitResult
+from openstef_models.utils.data_split import DataSplitter
 from openstef_models.workflows.custom_forecasting_workflow import CustomForecastingWorkflow
 
 if TYPE_CHECKING:
@@ -99,8 +100,7 @@ def workflow(sample_dataset: TimeSeriesDataset) -> CustomForecastingWorkflow:
     # (R^2 is undefined with less than 2 samples, and splitting 8 samples creates tiny sets)
     model = ForecastingModel(
         forecaster=SimpleTestForecaster(horizons=horizons, quantiles=quantiles),
-        test_fraction=0.0,
-        val_fraction=0.0,
+        data_splitter=DataSplitter(test_fraction=0.0, val_fraction=0.0),
     )
 
     return CustomForecastingWorkflow(model_id="test_model", model=model)
@@ -243,8 +243,7 @@ def test_mlflow_storage_callback__model_selection__keeps_better_model(
     # Disable splits for worse model too to avoid R^2 warnings
     worse_model = ForecastingModel(
         forecaster=worse_forecaster,
-        test_fraction=0.0,
-        val_fraction=0.0,
+        data_splitter=DataSplitter(test_fraction=0.0, val_fraction=0.0),
     )
 
     # Create a worse result by fitting with the worse model

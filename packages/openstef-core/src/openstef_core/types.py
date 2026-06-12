@@ -55,6 +55,7 @@ class LeadTime(PydanticStringPrimitive):
         """
         self.value = value
 
+    @override
     def __str__(self) -> str:
         """Converts to ISO 8601 duration string.
 
@@ -63,6 +64,7 @@ class LeadTime(PydanticStringPrimitive):
         """
         return TypeAdapter(timedelta).dump_python(self.value, mode="json")
 
+    @override
     def __repr__(self) -> str:
         """Returns a detailed string representation for debugging.
 
@@ -72,6 +74,7 @@ class LeadTime(PydanticStringPrimitive):
         return f"LeadTime('{self}')"
 
     @classmethod
+    @override
     def from_string(cls, s: str) -> Self:
         """Creates an instance from an ISO 8601 duration string.
 
@@ -173,6 +176,7 @@ class AvailableAt(PydanticStringPrimitive):
         self.time_of_day = time_of_day
         self.tzinfo = tzinfo
 
+    @override
     def __str__(self) -> str:
         """Converts to string in ``DnTHHMM`` or ``DnTHHMM[tz]`` format.
 
@@ -185,6 +189,7 @@ class AvailableAt(PydanticStringPrimitive):
         return base
 
     @classmethod
+    @override
     def from_string(cls, s: str) -> Self:
         """Creates an instance from a string in ``DnTHHMM[tz]`` format.
 

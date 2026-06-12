@@ -129,7 +129,7 @@ class QuantileCalibrationBoxPlotter:
         models_df = pd.concat(model_df_list, ignore_index=True)
 
         # Create the boxplot
-        fig: go.Figure = px.box(  # type: ignore[reportUnknownMemberType]
+        fig: go.Figure = px.box(
             models_df,
             x="Quantile",
             y="Calibration_Error",
@@ -138,7 +138,7 @@ class QuantileCalibrationBoxPlotter:
         )
 
         # Add a horizontal line at y=0 (perfect calibration)
-        fig.add_hline(  # type: ignore[reportUnknownMemberType]
+        fig.add_hline(
             y=0,
             line_dash="dash",
             line_color="black",
@@ -150,7 +150,7 @@ class QuantileCalibrationBoxPlotter:
         self._add_over_under_estimation_region_labels(fig)
 
         # Update layout for better readability
-        fig.update_layout(  # type: ignore[reportUnknownMemberType]
+        fig.update_layout(
             xaxis_title="Quantile Level",
             yaxis_title="Calibration Error (Observed - Forecasted)",
             showlegend=True,
@@ -167,7 +167,7 @@ class QuantileCalibrationBoxPlotter:
             fig: The plotly figure to add annotations to.
         """
         # Add overestimation label (positive calibration error region)
-        fig.add_annotation(  # type: ignore[reportUnknownMemberType]
+        fig.add_annotation(
             x=1,
             y=1,
             xref="paper",
@@ -180,7 +180,7 @@ class QuantileCalibrationBoxPlotter:
         )
 
         # Add underestimation label (negative calibration error region)
-        fig.add_annotation(  # type: ignore[reportUnknownMemberType]
+        fig.add_annotation(
             x=1,
             y=0,
             xref="paper",

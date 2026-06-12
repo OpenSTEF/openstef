@@ -125,7 +125,7 @@ def test_heatmap_prediction_line_values(contributions_dataset: TimeSeriesDataset
     prediction_trace = fig.data[0]
 
     # Assert
-    np.testing.assert_array_almost_equal(prediction_trace.y, expected_prediction.values)
+    np.testing.assert_array_almost_equal(np.array(prediction_trace.y), expected_prediction.to_numpy())
 
 
 def test_waterfall_starts_with_bias(contributions_dataset: TimeSeriesDataset) -> None:
@@ -207,7 +207,7 @@ def test_bar_values_are_mean_absolute(contributions_dataset: TimeSeriesDataset) 
     bar = fig.data[0]
 
     # Assert
-    np.testing.assert_array_almost_equal(bar.x, expected.values)
+    np.testing.assert_array_almost_equal(np.array(bar.x), expected.to_numpy())
 
 
 def test_bar_most_important_feature_at_top(contributions_dataset: TimeSeriesDataset) -> None:

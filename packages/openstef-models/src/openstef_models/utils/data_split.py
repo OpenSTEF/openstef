@@ -38,7 +38,7 @@ def split_by_dates[T: TimeSeriesDataset](
     Returns:
         Tuple of (train_dataset, test_dataset).
     """
-    mask = cast("pd.Series[bool]", dataset.index.normalize().isin(dates_test))  # type: ignore
+    mask = cast("pd.Series[bool]", dataset.index.normalize().isin(dates_test))
     train_data, test_data = dataset.data[~mask], dataset.data[mask]
     return dataset._copy_with_data(train_data), dataset._copy_with_data(test_data)  # noqa: SLF001 - allow protected access, invariants are maintained
 
@@ -188,7 +188,7 @@ def _sample_dates_for_split(
         return pd.DatetimeIndex([]), dates
 
     test_dates = pd.DatetimeIndex(np.sort(rng.choice(dates, size=n_test, replace=False)))
-    train_dates = dates.difference(test_dates, sort=True)  # type: ignore
+    train_dates = dates.difference(test_dates, sort=True)
 
     return train_dates, test_dates
 
@@ -210,7 +210,7 @@ def _get_extreme_days(
     min_days = cast(pd.DatetimeIndex, daily_agg["min"].nsmallest(n_extremes).index)
 
     all_days = cast(pd.DatetimeIndex, daily_agg.index)
-    other_days = all_days.difference(other=max_days.union(other=min_days))  # type: ignore
+    other_days = all_days.difference(other=max_days.union(other=min_days))
 
     return max_days, min_days, other_days
 

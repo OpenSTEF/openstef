@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 
 from datetime import timedelta
+from typing import cast
 
 import numpy as np
 import pandas as pd
@@ -12,7 +13,7 @@ from openstef_core.datasets.validated_datasets import TimeSeriesDataset
 from openstef_core.types import LeadTime, Q
 from openstef_meta.models.ensemble_forecasting_model import EnsembleForecastingModel
 from openstef_meta.presets import EnsembleForecastingWorkflowConfig, create_ensemble_forecasting_workflow
-from openstef_models.models.forecasting_model import ForecastingModel
+from openstef_models.models.forecasting_model import BaseForecastingModel
 from openstef_models.presets import ForecastingWorkflowConfig, create_forecasting_workflow
 from openstef_models.transforms.general import SampleWeightConfig
 
@@ -54,11 +55,11 @@ def config() -> EnsembleForecastingWorkflowConfig:
 @pytest.fixture
 def create_models(
     config: EnsembleForecastingWorkflowConfig,
-) -> tuple[EnsembleForecastingModel, dict[str, ForecastingModel]]:
+) -> tuple[EnsembleForecastingModel, dict[str, BaseForecastingModel]]:
 
-    ensemble_model = create_ensemble_forecasting_workflow(config=config).model
+    ensemble_model = cast(EnsembleForecastingModel, create_ensemble_forecasting_workflow(config=config).model)
 
-    base_models: dict[str, ForecastingModel] = {}
+    base_models: dict[str, BaseForecastingModel] = {}
     for forecaster_name in config.base_models:
         sample_weight_config = config.forecaster_sample_weights.get(forecaster_name, SampleWeightConfig())
         model_config = ForecastingWorkflowConfig(
@@ -76,7 +77,7 @@ def create_models(
 
 def test_preprocessing(
     sample_timeseries_dataset: TimeSeriesDataset,
-    create_models: tuple[EnsembleForecastingModel, dict[str, ForecastingModel]],
+    create_models: tuple[EnsembleForecastingModel, dict[str, BaseForecastingModel]],
 ) -> None:
     # Arrange
     ensemble_model, base_models = create_models

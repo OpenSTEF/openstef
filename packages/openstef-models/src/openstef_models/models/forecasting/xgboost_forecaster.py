@@ -250,6 +250,7 @@ class XGBoostForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
     def hparams(self) -> XGBoostHyperParams:
         return self.hyperparams
 
+    @override
     def model_post_init(self, _context: object, /) -> None:
         """Initialize the underlying XGBoost model from configuration."""
         self._xgboost_model = xgb.XGBRegressor(
@@ -364,6 +365,7 @@ class XGBoostForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
             target_column=data.target_column,
         )
 
+    @override
     def predict_contributions(self, data: ForecastInputDataset) -> TimeSeriesDataset:
         """Compute SHAP feature contributions for the median quantile.
 

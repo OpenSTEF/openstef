@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-# pyright: reportUnknownMemberType=false, reportUnknownVariableType=false
+
 # Airflow's TaskFlow decorators are not fully typed; silence that noise.
 
 """Airflow forecast DAG for OpenSTEF (DAG-based orchestration).

@@ -263,16 +263,17 @@ class SimpleTargetProvider[T: BenchmarkTarget, F](TargetProvider[T, F]):
     def get_targets(self, filter_args: F | None = None) -> list[T]:
         return read_yaml_config(
             path=self.data_dir / self.targets_file_path,
-            class_type=TypeAdapter(list[self.get_target_class]),
+            class_type=TypeAdapter(list[self.get_target_class]),  # ty: ignore[invalid-type-form]
         )
 
     @override
     def get_metrics_for_target(self, target: T) -> list[MetricProvider]:
-        return self.metrics if isinstance(self.metrics, list) else self.metrics(target)  # type: ignore[return-value]
+        return self.metrics if isinstance(self.metrics, list) else self.metrics(target)  # ty: ignore[invalid-return-type]
 
     def _get_measurements_path_for_target(self, target: T) -> Path:
         return self.data_dir / str(target.group_name) / self.measurements_path_template.format(name=target.name)
 
+    @override
     def get_measurements_for_target(self, target: T) -> VersionedTimeSeriesDataset:
         """Load ground truth measurements from target-specific Parquet file.
 
@@ -284,6 +285,7 @@ class SimpleTargetProvider[T: BenchmarkTarget, F](TargetProvider[T, F]):
             sample_interval=self.data_sample_interval,
         ).filter_by_range(start=target.train_start, end=target.benchmark_end)
 
+    @override
     def get_predictors_for_target(self, target: T) -> VersionedTimeSeriesDataset:
         """Combine weather, profiles, and prices into aligned predictor dataset.
 
@@ -352,7 +354,7 @@ class SimpleTargetProvider[T: BenchmarkTarget, F](TargetProvider[T, F]):
             min_length=24 * 4,
             threshold=0.05,
         )
-        return pd.DatetimeIndex(cast(pd.DatetimeIndex, filtered_series.dropna().index))  # type: ignore[reportUnknownMemberType]
+        return pd.DatetimeIndex(cast(pd.DatetimeIndex, filtered_series.dropna().index))
 
 
 def filter_away_flatline_chunks(
@@ -382,7 +384,7 @@ def filter_away_flatline_chunks(
     rolling_std_right = measurement_series.rolling(window=min_length, center=False).std()
 
     flatline_mask = (rolling_std_center < actual_threshold) | (rolling_std_right < actual_threshold)
-    flatline_mask = flatline_mask.fillna(value=False)  # pyright: ignore[reportUnknownMemberType]
+    flatline_mask = flatline_mask.fillna(value=False)
 
     flatline_chunks: list[tuple[int, int]] = []
     start_idx: int | None = None

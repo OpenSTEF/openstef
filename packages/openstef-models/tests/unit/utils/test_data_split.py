@@ -19,7 +19,7 @@ def _with_normalize(dataset: TimeSeriesDataset) -> TimeSeriesDataset:
     def _normalize_index() -> pd.DatetimeIndex:
         return pd.DatetimeIndex(dataset.index).normalize()
 
-    dataset.normalize = _normalize_index  # type: ignore[attr-defined]
+    dataset.normalize = _normalize_index  # ty: ignore[unresolved-attribute]
     return dataset
 
 

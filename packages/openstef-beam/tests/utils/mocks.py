@@ -20,6 +20,7 @@ class DummyMetricProvider(MetricProvider):
 
     value: float = 1.0
 
+    @override
     def __call__(self, subset: ForecastDataset) -> QuantileMetricsDict:
         # Return metrics for global since test is not using actual quantile data
         return cast(QuantileMetricsDict, {"global": {"dummy_metric": self.value}})
@@ -30,6 +31,7 @@ class MockMetricsProvider(MetricProvider):
 
     mocked_result: QuantileMetricsDict
 
+    @override
     def __call__(self, subset: ForecastDataset) -> QuantileMetricsDict:
         return self.mocked_result
 
@@ -89,6 +91,7 @@ class MockForecaster(BacktestForecasterMixin):
         self._quantiles = quantiles or [Q(0.5)]
 
     @property
+    @override
     def quantiles(self) -> list[Quantile]:
         return self._quantiles
 

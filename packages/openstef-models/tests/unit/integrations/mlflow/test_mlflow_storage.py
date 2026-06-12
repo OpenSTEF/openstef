@@ -60,8 +60,8 @@ def test_create_run(storage: MLFlowStorage, model_id: str):
 
     # Assert
     fetched_run = storage._client.get_run(run_id)
-    assert fetched_run.data.params["learning_rate"] == "0.05"  # type: ignore
-    assert fetched_run.data.params["max_depth"] == "10"  # type: ignore
+    assert fetched_run.data.params["learning_rate"] == "0.05"
+    assert fetched_run.data.params["max_depth"] == "10"
 
 
 def test_create_run__experiment_prefix(tmp_path: Path, model_id: str):
@@ -75,11 +75,11 @@ def test_create_run__experiment_prefix(tmp_path: Path, model_id: str):
 
     # Act
     run = storage.create_run(model_id=model_id)
-    experiment_id = cast(str, run.info.experiment_id)  # type: ignore
+    experiment_id = cast(str, run.info.experiment_id)
 
     # Assert
     experiment = storage._client.get_experiment(experiment_id)
-    assert experiment.name == f"prod_{model_id}"  # type: ignore
+    assert experiment.name == f"prod_{model_id}"
 
 
 def test_create_run__artifact_location(tmp_path: Path, model_id: str):
@@ -94,22 +94,22 @@ def test_create_run__artifact_location(tmp_path: Path, model_id: str):
 
     # Act
     run = storage.create_run(model_id=model_id)
-    experiment_id = cast(str, run.info.experiment_id)  # type: ignore
+    experiment_id = cast(str, run.info.experiment_id)
 
     # Assert
     experiment = storage._client.get_experiment(experiment_id)
-    assert experiment.artifact_location.startswith(artifact_uri)  # type: ignore
+    assert experiment.artifact_location.startswith(artifact_uri)
 
 
 def test_create_run__reuses_experiment(storage: MLFlowStorage, model_id: str):
     """Test that multiple runs for same model_id share the same experiment."""
     # Arrange
     first_run = storage.create_run(model_id=model_id)
-    first_exp_id = cast(str, first_run.info.experiment_id)  # type: ignore
+    first_exp_id = cast(str, first_run.info.experiment_id)
 
     # Act
     second_run = storage.create_run(model_id=model_id)
-    second_exp_id = cast(str, second_run.info.experiment_id)  # type: ignore
+    second_exp_id = cast(str, second_run.info.experiment_id)
 
     # Assert
     assert first_exp_id == second_exp_id

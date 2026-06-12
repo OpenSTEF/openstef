@@ -7,7 +7,7 @@
 from collections import defaultdict
 from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any, Literal, NamedTuple, cast
+from typing import Any, Literal, NamedTuple, cast, override
 
 from pydantic import ConfigDict, Field, SkipValidation
 
@@ -65,7 +65,8 @@ class TuningResult[ConfigT: BaseConfig]:
     study: optuna.Study
     workflow: CustomForecastingWorkflow
 
-    def __repr__(self) -> str:  # noqa: D105  # self-explanatory
+    @override
+    def __repr__(self) -> str:  # self-explanatory
         n = len(self.study.best_params)
         return f"TuningResult({n} params tuned)" if n else "TuningResult(no tuning)"
 
@@ -328,7 +329,7 @@ class HyperparameterTuner[ConfigT: BaseConfig](BaseConfig):
         best_config = self._reconstruct_best_config(
             config=self.config, model_tuning_info=model_tuning_info, study=study
         )
-        return best_config, study  # type: ignore[return-value]  # ConfigT narrowing not expressible
+        return best_config, study  # ty: ignore[invalid-return-type]  # ConfigT narrowing not expressible
 
     def fit_with_tuning(self, *, show_progress_bar: bool = True) -> TuningResult[ConfigT]:
         """Tune, then fit a final workflow with the best config.

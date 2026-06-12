@@ -197,7 +197,7 @@ print(comparison_df.to_string(index=False))
 # %% tags=["hide-input"]
 fig = go.Figure()
 
-fig.add_trace(  # pyright: ignore[reportUnknownMemberType]
+fig.add_trace(
     go.Scatter(
         x=[0, 1],
         y=[0, 1],
@@ -207,7 +207,7 @@ fig.add_trace(  # pyright: ignore[reportUnknownMemberType]
     )
 )
 
-fig.add_trace(  # pyright: ignore[reportUnknownMemberType]
+fig.add_trace(
     go.Scatter(
         x=expected,
         y=observed_uncal,
@@ -218,7 +218,7 @@ fig.add_trace(  # pyright: ignore[reportUnknownMemberType]
     )
 )
 
-fig.add_trace(  # pyright: ignore[reportUnknownMemberType]
+fig.add_trace(
     go.Scatter(
         x=expected,
         y=observed_cal,
@@ -229,7 +229,7 @@ fig.add_trace(  # pyright: ignore[reportUnknownMemberType]
     )
 )
 
-fig.update_layout(  # pyright: ignore[reportUnknownMemberType]
+fig.update_layout(
     title="Quantile calibration: expected vs observed coverage",
     xaxis_title="Expected quantile level",
     yaxis_title="Observed coverage",

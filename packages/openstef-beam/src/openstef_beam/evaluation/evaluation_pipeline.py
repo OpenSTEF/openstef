@@ -225,7 +225,7 @@ class EvaluationPipeline:
             target_column=target_column,
         )
         # Drop nans from ground truth to ensure clean join with predictions
-        ground_truth_data = ground_truth_data.pipe_pandas(pd.DataFrame.dropna)  # type: ignore
+        ground_truth_data = ground_truth_data.pipe_pandas(pd.DataFrame.dropna)
 
         for available_at in self.config.available_ats:
             predictions_filtered = predictions.filter_by_available_at(available_at=available_at).select_version()

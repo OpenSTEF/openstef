@@ -69,13 +69,13 @@ dev = [
   # and with toml-fmt-common 1.3.x it crashes on a duplicate argparse
   # --table-format. Bump deliberately in its own PR.
   "pyproject-fmt>=2.6,<2.12",
-  "pyright>=1.1.404",
   "pytest>=8.4.1",
   "pytest-cov>=6.2.1",
   "pytest-xdist>=3.8",
   "reuse>=5.0.2",
   "ruff>=0.12.8",
   "scipy-stubs>=1.16.2.4",
+  "ty>=0.0.48",
 ]
 
 [tool.hatch.build.targets.wheel]
@@ -261,7 +261,7 @@ omit = [
   "packages/*/src/examples/*",
 ]
 
-[tool.pyright]
+[tool.ty.src]
 include = [
   "tools/**/*.py",
   "examples/**/*.py",
@@ -275,11 +275,10 @@ exclude = [
   "**/openstef_deployment_runs/**", # deployment example run artifacts
 ]
 
-typeCheckingMode = "strict"
-reportPrivateImportUsage = false
-reportMissingTypeStubs = false
-reportPrivateUsage = false
-reportUnusedExpression = false
+[tool.ty.rules]
+all = "error"
+possibly-missing-attribute = "ignore" # ignored because large number of false positives, captured by ruff
+possibly-missing-import = "ignore"    # ignored because large number of false positives, captured by ruff(I002)
 
 [tool.poe]
 # Run-the-example tasks (deploy-*) are defined in the deployment example's pyproject,
@@ -309,12 +308,12 @@ help = "Asserts that dependencies are locked"
 cmd = "uv lock --check"
 
 [tool.poe.tasks.type]
-help = "Check typing (with pyright)"
-cmd = "pyright tools examples packages/*/src packages/*/examples"
+help = "Check typing (with ty)"
+cmd = "ty check tools examples packages/*/src"
 
 [tool.poe.tasks.type-tests]
-help = "Check typing (with pyright)"
-cmd = "pyright packages/*/tests"
+help = "Check typing (with ty)"
+cmd = "ty check packages/*/tests"
 
 [tool.poe.tasks.tests]
 help = "Run pytest with xdist, marker filtering, and coverage"
@@ -389,6 +388,7 @@ switch = [
     "format-pyproject --check",
     "lock",
     "type",
+    "type-tests",
     "tests",
     "doctests",
     "notebooks-check",
@@ -401,6 +401,7 @@ switch = [
     "format-pyproject",
     "lock",
     "type",
+    "type-tests",
     "tests",
     "doctests",
     "notebooks",

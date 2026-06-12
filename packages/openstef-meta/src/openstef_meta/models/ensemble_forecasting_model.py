@@ -416,7 +416,7 @@ class EnsembleForecastingModel(BaseForecastingModel):
         )
 
         # Drop target column nan's from training data. One can not train on missing targets.
-        target_dropna = partial(pd.DataFrame.dropna, subset=[self.target_column])  # pyright: ignore[reportUnknownMemberType]
+        target_dropna = partial(pd.DataFrame.dropna, subset=[self.target_column])
         input_data_train = input_data_train.pipe_pandas(target_dropna)
         input_data_val = input_data_val.pipe_pandas(target_dropna) if input_data_val else None
         input_data_test = input_data_test.pipe_pandas(target_dropna) if input_data_test else None

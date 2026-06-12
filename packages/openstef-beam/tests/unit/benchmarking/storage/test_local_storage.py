@@ -10,6 +10,7 @@ from unittest.mock import Mock
 
 import pandas as pd
 import pytest
+from pydantic_extra_types.coordinate import Latitude, Longitude
 
 from openstef_beam.analysis import AnalysisOutput, AnalysisScope, VisualizationOutput
 from openstef_beam.analysis.models import AnalysisAggregation
@@ -44,8 +45,8 @@ def target() -> BenchmarkTarget:
     return BenchmarkTarget(
         name="test_target",
         description="Test target",
-        latitude=0.0,
-        longitude=0.0,
+        latitude=Latitude(0.0),
+        longitude=Longitude(0.0),
         limit=100.0,
         train_start=pd.Timestamp("2022-12-25"),
         benchmark_start=pd.Timestamp("2023-01-01"),

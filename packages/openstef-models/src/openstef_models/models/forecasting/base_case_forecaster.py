@@ -149,7 +149,7 @@ class BaseCaseForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
         # Fill missing values with fallback lag if needed
         if prediction.isna().any():
             prediction_fallback = target_series.shift(freq=self.hyperparams.fallback_lag).reindex(forecast_index)
-            prediction = prediction.fillna(prediction_fallback)  # pyright: ignore[reportUnknownMemberType]
+            prediction = prediction.fillna(prediction_fallback)
 
         return ForecastDataset(
             data=pd.DataFrame(

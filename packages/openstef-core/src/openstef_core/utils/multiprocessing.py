@@ -63,12 +63,10 @@ def run_parallel[T, R](
         return [process_fn(item) for item in items]
 
     if mode == "loky":
-        from joblib import Parallel, delayed  # pyright: ignore[reportUnknownVariableType] # noqa: PLC0415
+        from joblib import Parallel, delayed  # noqa: PLC0415
 
         # Use joblib with loky backend for robust process management
-        return Parallel(n_jobs=n_processes, backend="loky")(  # pyright: ignore[reportUnknownVariableType]
-            delayed(process_fn)(item) for item in items
-        )  # type: ignore
+        return Parallel(n_jobs=n_processes, backend="loky")(delayed(process_fn)(item) for item in items)
 
     # Auto-configure for macOS
     context = multiprocessing.get_context(method=mode)

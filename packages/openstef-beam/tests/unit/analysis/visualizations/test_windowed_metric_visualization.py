@@ -295,8 +295,8 @@ def test_average_time_series_across_targets_averages_correctly(
     # Assert
     # The expected average is mean of [0.4, 1.4] = 0.9 and [0.6, 1.6] = 1.1
     assert averaged == [
-        (datetime.fromisoformat("2023-01-01T01:00:00"), pytest.approx(0.9)),  # pyright: ignore[reportUnknownMemberType]
-        (datetime.fromisoformat("2023-01-01T02:00:00"), pytest.approx(1.1)),  # pyright: ignore[reportUnknownMemberType]
+        (datetime.fromisoformat("2023-01-01T01:00:00"), pytest.approx(0.9)),
+        (datetime.fromisoformat("2023-01-01T02:00:00"), pytest.approx(1.1)),
     ]
 
 
@@ -369,12 +369,12 @@ def test_create_by_run_and_target_handles_multiple_runs_and_targets(
         call(
             model_name="Run1",
             timestamps=[datetime.fromisoformat("2023-01-01T01:00:00"), datetime.fromisoformat("2023-01-01T02:00:00")],
-            metric_values=[pytest.approx(0.9), pytest.approx(1.1)],  # pyright: ignore[reportUnknownMemberType]
+            metric_values=[pytest.approx(0.9), pytest.approx(1.1)],
         ),
         call(
             model_name="Run2",
             timestamps=[datetime.fromisoformat("2023-01-01T01:00:00"), datetime.fromisoformat("2023-01-01T02:00:00")],
-            metric_values=[pytest.approx(0.4), pytest.approx(0.6)],  # pyright: ignore[reportUnknownMemberType]
+            metric_values=[pytest.approx(0.4), pytest.approx(0.6)],
         ),
     ]
     mock_add_model.assert_has_calls(expected_calls)
@@ -427,12 +427,12 @@ def test_create_by_run_and_group_handles_multiple_runs_and_groups(
         call(
             model_name="Run1",
             timestamps=[datetime.fromisoformat("2023-01-01T01:00:00"), datetime.fromisoformat("2023-01-01T02:00:00")],
-            metric_values=[pytest.approx(0.9), pytest.approx(1.1)],  # pyright: ignore[reportUnknownMemberType]
+            metric_values=[pytest.approx(0.9), pytest.approx(1.1)],
         ),
         call(
             model_name="Run2",
             timestamps=[datetime.fromisoformat("2023-01-01T01:00:00"), datetime.fromisoformat("2023-01-01T02:00:00")],
-            metric_values=[pytest.approx(0.4), pytest.approx(0.6)],  # pyright: ignore[reportUnknownMemberType]
+            metric_values=[pytest.approx(0.4), pytest.approx(0.6)],
         ),
     ]
     mock_add_model.assert_has_calls(expected_calls)
@@ -483,7 +483,7 @@ def test_create_by_group_handles_multiple_groups(
         call(
             model_name="Run1",
             timestamps=[datetime.fromisoformat("2023-01-01T01:00:00"), datetime.fromisoformat("2023-01-01T02:00:00")],
-            metric_values=[pytest.approx(0.9), pytest.approx(1.1)],  # pyright: ignore[reportUnknownMemberType]
+            metric_values=[pytest.approx(0.9), pytest.approx(1.1)],
         ),
     ]
     mock_add_model.assert_has_calls(expected_calls)

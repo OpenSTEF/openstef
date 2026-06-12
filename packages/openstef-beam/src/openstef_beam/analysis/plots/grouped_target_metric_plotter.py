@@ -150,7 +150,7 @@ class GroupedTargetMetricPlotter:
 
         if self.target_groups:
             # Create boxplot grouped by target groups
-            fig = px.box(  # type: ignore[reportUnknownMemberType]
+            fig = px.box(
                 models_df,
                 x="target_group",
                 y="metric_value",
@@ -159,9 +159,9 @@ class GroupedTargetMetricPlotter:
             )
         else:
             # Create grouped bar chart with individual targets
-            fig = px.bar(models_df, x="target", y="metric_value", color="model", title=title, barmode="group")  # type: ignore[reportUnknownMemberType]
+            fig = px.bar(models_df, x="target", y="metric_value", color="model", title=title, barmode="group")
 
-        fig.update_layout(  # type: ignore[reportUnknownMemberType]
+        fig.update_layout(
             xaxis_title="Target group" if self.target_groups else "Target",
             yaxis_title=metric_name,
             legend_title="Models",

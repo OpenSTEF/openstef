@@ -259,6 +259,7 @@ class RCRPSProvider(MetricProvider):
         description="Upper quantile bound for rCRPS normalization.",
     )
 
+    @override
     def compute_probabilistic(
         self,
         y_true: npt.NDArray[np.floating],
@@ -321,6 +322,7 @@ class RCRPSSampleWeightedProvider(MetricProvider):
         description="Exponent for sample weight calculation.",
     )
 
+    @override
     def compute_probabilistic(
         self,
         y_true: npt.NDArray[np.floating],

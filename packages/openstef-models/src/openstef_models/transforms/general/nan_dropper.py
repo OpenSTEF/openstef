@@ -69,7 +69,7 @@ class NaNDropper(BaseConfig, TimeSeriesTransform):
         original_row_count = len(data.data)
 
         # Drop rows containing NaN in selected columns
-        transformed_data = data.data.dropna(subset=features)  # pyright: ignore[reportUnknownMemberType]
+        transformed_data = data.data.dropna(subset=features)
         dropped_count = original_row_count - len(transformed_data)
 
         # Log warning if substantial percentage of rows was dropped

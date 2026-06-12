@@ -29,7 +29,7 @@ def sample_dataset() -> TimeSeriesDataset:
 def test_scaler_invalid_method():
     """Test Scaler raises ValidationError for invalid scaling method."""
     with pytest.raises(ValidationError, match="Input should be"):
-        Scaler(method="invalid_method")  # pyright: ignore[reportArgumentType]
+        Scaler(method="invalid_method")  # ty: ignore[invalid-argument-type]
 
 
 def test_scaler_not_fitted_error(sample_dataset: TimeSeriesDataset):

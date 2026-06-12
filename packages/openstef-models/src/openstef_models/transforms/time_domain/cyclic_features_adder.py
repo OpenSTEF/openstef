@@ -67,7 +67,7 @@ class CyclicFeaturesAdder(BaseConfig, TimeSeriesTransform):
         2025-01-01 13:00:00        0.017            -0.259
     """
 
-    included_features: list[CyclicFeatureName] = Field(
+    included_features: list[CyclicFeatureName] = Field(  # ty: ignore[invalid-assignment]
         default_factory=lambda: ["time_of_day", "season", "day_of_week", "month"],
         description="List of cyclic features to include in the transformation. "
         "Options are 'time_of_day', 'season', 'day_of_week', and 'month'.",
