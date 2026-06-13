@@ -240,3 +240,45 @@ def test_rolling_aggregate_features_default_parameters():
     assert "rolling_median_load_P1D" in result.data.columns
     assert "rolling_min_load_P1D" in result.data.columns
     assert "rolling_max_load_P1D" in result.data.columns
+
+
+def test_features_added_lists_columns_for_single_horizon():
+    """features_added() reports the rolling-aggregate columns for a single horizon."""
+    transform = RollingAggregatesAdder(
+        feature="load",
+        rolling_window_size=timedelta(hours=2),
+        aggregation_functions=["mean", "max"],
+        horizons=[LeadTime.from_string("PT36H")],
+    )
+
+    assert transform.features_added() == ["rolling_mean_load_PT2H", "rolling_max_load_PT2H"]
+
+
+def test_features_added_empty_when_multiple_horizons():
+    """features_added() must match transform()'s no-op when multiple horizons are configured.
+
+    Regression: features_added() previously promised rolling-aggregate columns that
+    transform() does not add when len(horizons) > 1, so downstream consumers relying
+    on features_added() expected columns that never materialized.
+    """
+    # Arrange
+    data = pd.DataFrame(
+        {"load": [1.0, 2.0, 3.0, 4.0, 5.0]},
+        index=pd.date_range("2023-01-01 00:00:00", periods=5, freq="1h"),
+    )
+    dataset = TimeSeriesDataset(data, sample_interval=timedelta(hours=1))
+
+    transform = RollingAggregatesAdder(
+        feature="load",
+        rolling_window_size=timedelta(hours=2),
+        aggregation_functions=["mean", "max"],
+        horizons=[LeadTime.from_string("PT24H"), LeadTime.from_string("PT48H")],
+    )
+    transform.fit(dataset)
+
+    # Act - transform() is a no-op for multiple horizons
+    result = transform.transform(dataset)
+
+    # Assert - no columns added, and features_added() reports nothing (consistent)
+    assert result.data.columns.tolist() == dataset.data.columns.tolist()
+    assert transform.features_added() == []
