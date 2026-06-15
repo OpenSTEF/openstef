@@ -29,6 +29,7 @@ classifiers = [
 
 dependencies = [
   "openstef-core>=4.0.0.dev0,<5",
+  "openstef-models>=4.0.0.dev0,<5",
 ]
 
 # Exactly one of [cpu] or [gpu] must be installed — they are declared as
@@ -38,6 +39,15 @@ optional-dependencies.cpu = [
 ]
 optional-dependencies.gpu = [
   "onnxruntime-gpu>=1.20",
+]
+# Resolve checkpoints from the HuggingFace Hub (local paths need no extra).
+optional-dependencies.hub = [
+  "huggingface-hub>=1.2.2",
+]
+# Run the original Chronos-2 Torch module (benchmarking / ONNX parity reference).
+optional-dependencies.torch = [
+  "chronos-forecasting>=2",
+  "torch>=2.4",
 ]
 
 urls.Documentation = "https://openstef.github.io/openstef/index.html"
@@ -58,3 +68,4 @@ conflicts = [
 
 [tool.uv.sources]
 openstef-core = { workspace = true }
+openstef-models = { workspace = true }
