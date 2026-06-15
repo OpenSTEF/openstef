@@ -22,7 +22,7 @@ from openstef_core.types import LeadTime, Quantile
 
 @pytest.fixture
 def forecast_index() -> pd.DatetimeIndex:
-    return pd.date_range("2025-01-01T00:00:00", periods=6, freq="h")
+    return pd.date_range("2025-01-01T00:00:00Z", periods=6, freq="h")
 
 
 # ---------------------------------------------------------------------------
@@ -178,7 +178,7 @@ def test_input_data__horizon_combined_with_start(basic_input_dataset: ForecastIn
 
     # Assert
     assert len(result) == 3
-    assert result.index.min() == pd.Timestamp(start)
+    assert result.index.min() == start
     assert result.index.max() == pd.Timestamp(basic_input_dataset.forecast_start + timedelta(hours=4))
 
 
