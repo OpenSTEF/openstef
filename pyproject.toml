@@ -34,7 +34,7 @@ dependencies = [
 optional-dependencies.all = [
   "openstef-beam[all]",
   "openstef-core",
-  "openstef-foundation-models",
+  "openstef-foundation-models[cpu]",
   "openstef-meta",
   "openstef-models[xgb-cpu]",
 ]
@@ -46,7 +46,7 @@ optional-dependencies.meta = [
   "openstef-meta",
 ]
 optional-dependencies.foundation-models = [
-  "openstef-foundation-models",
+  "openstef-foundation-models[cpu]",
 ]
 optional-dependencies.models = [
   "openstef-models[xgb-cpu]",
@@ -65,7 +65,7 @@ dev = [
   "openstef-beam",
   "openstef-core",
   "openstef-docs",
-  "openstef-foundation-models",
+  "openstef-foundation-models[cpu]",
   "openstef-meta",
   "openstef-models",
   "pandas-stubs>=2.3.0.250703,<3", # Held at <3 to match the pandas <3 pin (see migration issue)

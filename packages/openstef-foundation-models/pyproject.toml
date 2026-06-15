@@ -28,12 +28,14 @@ classifiers = [
 ]
 
 dependencies = [
-  "onnxruntime>=1.20",
   "openstef-core>=4.0.0.dev0,<5",
 ]
 
-# GPU inference via CUDA — install instead of the default CPU onnxruntime when CUDA is available.
-# Do NOT install both onnxruntime and onnxruntime-gpu at the same time.
+# Exactly one of [cpu] or [gpu] must be installed — they are declared as
+# conflicting extras so uv will refuse to resolve both simultaneously.
+optional-dependencies.cpu = [
+  "onnxruntime>=1.20",
+]
 optional-dependencies.gpu = [
   "onnxruntime-gpu>=1.20",
 ]
@@ -45,6 +47,14 @@ urls.Repository = "https://github.com/OpenSTEF/openstef"
 
 [tool.hatch.build.targets.wheel]
 packages = [ "src/openstef_foundation_models" ]
+
+[tool.uv]
+conflicts = [
+  [
+    { extra = "cpu" },
+    { extra = "gpu" },
+  ],
+]
 
 [tool.uv.sources]
 openstef-core = { workspace = true }
