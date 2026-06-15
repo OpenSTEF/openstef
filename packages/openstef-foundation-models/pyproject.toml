@@ -49,6 +49,10 @@ optional-dependencies.torch = [
   "chronos-forecasting>=2",
   "torch>=2.4",
 ]
+# Backtest/benchmark foundation-model forecasters through openstef-beam.
+optional-dependencies.benchmarking = [
+  "openstef-beam>=4.0.0.dev0,<5",
+]
 
 urls.Documentation = "https://openstef.github.io/openstef/index.html"
 urls.Homepage = "https://lfenergy.org/projects/openstef/"
@@ -69,3 +73,4 @@ conflicts = [
 [tool.uv.sources]
 openstef-core = { workspace = true }
 openstef-models = { workspace = true }
+openstef-beam = { workspace = true }
