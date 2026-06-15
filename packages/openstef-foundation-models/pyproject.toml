@@ -1,0 +1,50 @@
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+#
+# SPDX-License-Identifier: MPL-2.0
+
+[build-system]
+build-backend = "hatchling.build"
+
+requires = [ "hatchling" ]
+
+[project]
+name = "openstef-foundation-models"
+version = "0.0.0"
+description = "Foundation model support for OpenSTEF"
+readme = "README.md"
+keywords = [ "energy", "forecasting", "foundationmodels", "machinelearning", "onnx" ]
+license = "MPL-2.0"
+authors = [
+  { name = "Alliander N.V", email = "openstef@lfenergy.org" },
+]
+requires-python = ">=3.12,<4.0"
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+]
+
+dependencies = [
+  "onnxruntime>=1.20",
+  "openstef-core>=4.0.0.dev0,<5",
+]
+
+# GPU inference via CUDA — install instead of the default CPU onnxruntime when CUDA is available.
+# Do NOT install both onnxruntime and onnxruntime-gpu at the same time.
+optional-dependencies.gpu = [
+  "onnxruntime-gpu>=1.20",
+]
+
+urls.Documentation = "https://openstef.github.io/openstef/index.html"
+urls.Homepage = "https://lfenergy.org/projects/openstef/"
+urls.Issues = "https://github.com/OpenSTEF/openstef/issues"
+urls.Repository = "https://github.com/OpenSTEF/openstef"
+
+[tool.hatch.build.targets.wheel]
+packages = [ "src/openstef_foundation_models" ]
+
+[tool.uv.sources]
+openstef-core = { workspace = true }
