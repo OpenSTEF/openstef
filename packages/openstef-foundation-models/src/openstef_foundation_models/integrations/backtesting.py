@@ -86,7 +86,7 @@ class FoundationModelBacktestForecaster(BaseModel, BacktestForecasterMixin):
         """
         window = data.get_window(
             start=data.horizon - self.config.predict_context_length,
-            end=data.horizon,
+            end=data.horizon + self.config.predict_length,
             available_before=data.horizon,
         )
 

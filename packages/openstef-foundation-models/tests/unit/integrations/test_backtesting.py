@@ -36,6 +36,8 @@ class CountingForecaster(Forecaster):
 
     hyperparams: HyperParams = Field(default_factory=HyperParams)
 
+    received_inputs: list[ForecastInputDataset] = Field(default_factory=list)
+
     @property
     @override
     def hparams(self) -> HyperParams:
@@ -52,6 +54,7 @@ class CountingForecaster(Forecaster):
 
     @override
     def predict(self, data: ForecastInputDataset) -> ForecastDataset:
+        self.received_inputs.append(data)
         return self._build_forecast(data)
 
     def _build_forecast(self, data: ForecastInputDataset) -> ForecastDataset:
@@ -77,6 +80,31 @@ def _make_dataset(periods: int = 200) -> tuple[VersionedTimeSeriesDataset, pd.Da
         index=timestamps,
     )
     dataset = VersionedTimeSeriesDataset.from_dataframe(data=data, sample_interval=SAMPLE_INTERVAL)
+    return dataset, timestamps
+
+
+def _make_dataset_with_weather_forecast(
+    periods: int = 200,
+) -> tuple[VersionedTimeSeriesDataset, pd.DatetimeIndex]:
+    """Build a dataset with a target measured per-timestamp and a weather forecast.
+
+    The target's ``available_at`` equals its own timestamp (so future target values
+    are not available before the horizon), while the weather covariate is a forecast
+    issued at the very start (available well before any horizon, including for future
+    timestamps).
+    """
+    timestamps = pd.date_range(start="2025-01-01", periods=periods, freq=SAMPLE_INTERVAL, name="timestamp")
+    target = pd.DataFrame({"available_at": timestamps, "load": np.arange(periods, dtype=float)}, index=timestamps)
+    weather = pd.DataFrame(
+        {"available_at": timestamps[0], "temperature": np.arange(periods, dtype=float) * 0.1},
+        index=timestamps,
+    )
+    dataset = VersionedTimeSeriesDataset(
+        data_parts=[
+            VersionedTimeSeriesDataset.from_dataframe(target, SAMPLE_INTERVAL).data_parts[0],
+            VersionedTimeSeriesDataset.from_dataframe(weather, SAMPLE_INTERVAL).data_parts[0],
+        ]
+    )
     return dataset, timestamps
 
 
@@ -111,6 +139,33 @@ def test_predict_returns_forecast_indexed_from_horizon(forecaster: CountingForec
     assert forecast is not None
     assert forecast.data.index[0].to_pydatetime() == horizon
     assert {q.format() for q in QUANTILES} <= set(forecast.data.columns)
+
+
+def test_predict_window_includes_future_covariates_without_leaking_target(
+    forecaster: CountingForecaster,
+) -> None:
+    """The window extends past the horizon so future weather forecasts reach the model.
+
+    Future covariate values (available before the horizon) must be present for the
+    prediction period, while future target actuals (only available after the horizon)
+    must stay absent to avoid look-ahead leakage.
+    """
+    # Arrange
+    dataset, timestamps = _make_dataset_with_weather_forecast()
+    horizon = timestamps[150].to_pydatetime()
+    adapter = create_foundation_model_backtest_forecaster(_make_workflow(forecaster))
+
+    # Act
+    adapter.predict(_restricted(dataset, horizon))
+
+    # Assert
+    received = forecaster.received_inputs[-1].data
+    future = received[received.index >= horizon]
+    assert not future.empty, "window must include rows at/after the horizon"
+    # Weather forecast is known for the future horizon...
+    assert future["temperature"].notna().all()
+    # ...but target actuals strictly after the horizon must not leak.
+    assert received[received.index > horizon]["load"].isna().all()
 
 
 def test_predict_returns_none_when_no_history(forecaster: CountingForecaster) -> None:
