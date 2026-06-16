@@ -63,7 +63,7 @@ def test_adapter_runs_real_forecaster_load_once(onnx_backend: OnnxBackend) -> No
     session_before = onnx_backend._session  # the same session object must be reused across windows
 
     # Act
-    forecasts = adapter.predict_batch(windows)
+    forecasts = [adapter.predict(window) for window in windows]
 
     # Assert
     assert len(forecasts) == len(windows)

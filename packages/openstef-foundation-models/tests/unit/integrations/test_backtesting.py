@@ -10,12 +10,12 @@ from typing import ClassVar, override
 import numpy as np
 import pandas as pd
 import pytest
-from pydantic import Field, PrivateAttr
+from pydantic import Field
 
 from openstef_beam.backtesting.restricted_horizon_timeseries import RestrictedHorizonVersionedTimeSeries
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.datasets.versioned_timeseries_dataset import VersionedTimeSeriesDataset
-from openstef_core.mixins.predictor import BatchResult, HyperParams
+from openstef_core.mixins.predictor import HyperParams
 from openstef_core.types import LeadTime, Quantile
 from openstef_foundation_models.integrations.backtesting import (
     FoundationModelBacktestForecaster,
@@ -30,13 +30,11 @@ QUANTILES = [Quantile(0.1), Quantile(0.5), Quantile(0.9)]
 
 
 class CountingForecaster(Forecaster):
-    """Zero-shot fake forecaster that counts backend calls (one per batch run)."""
+    """Zero-shot fake forecaster producing a fixed quantile forecast per window."""
 
     HyperParams: ClassVar[type[HyperParams]] = HyperParams
 
     hyperparams: HyperParams = Field(default_factory=HyperParams)
-    _predict_batch_calls: int = PrivateAttr(default=0)
-    _last_batch_size: int = PrivateAttr(default=0)
 
     @property
     @override
@@ -55,14 +53,6 @@ class CountingForecaster(Forecaster):
     @override
     def predict(self, data: ForecastInputDataset) -> ForecastDataset:
         return self._build_forecast(data)
-
-    @override
-    def predict_batch(self, data: list[ForecastInputDataset]) -> BatchResult[ForecastDataset]:
-        self._predict_batch_calls += 1
-        self._last_batch_size = len(data)
-        results: BatchResult[ForecastDataset] = []
-        results.extend(self._build_forecast(item) for item in data)
-        return results
 
     def _build_forecast(self, data: ForecastInputDataset) -> ForecastDataset:
         index = data.create_forecast_range(self.max_horizon)
@@ -135,44 +125,6 @@ def test_predict_returns_none_when_no_history(forecaster: CountingForecaster) ->
 
     # Assert
     assert forecast is None
-
-
-def test_predict_batch_uses_single_backend_call(forecaster: CountingForecaster) -> None:
-    """A batch of windows is forecast in one backend call (load-once), order preserved."""
-    # Arrange
-    dataset, timestamps = _make_dataset()
-    horizons = [timestamps[i].to_pydatetime() for i in (120, 140, 160)]
-    adapter = create_foundation_model_backtest_forecaster(_make_workflow(forecaster), batch_size=8)
-
-    # Act
-    results = adapter.predict_batch([_restricted(dataset, h) for h in horizons])
-
-    # Assert
-    assert forecaster._predict_batch_calls == 1
-    assert forecaster._last_batch_size == 3
-    assert [r.data.index[0].to_pydatetime() for r in results] == horizons
-
-
-def test_predict_batch_preserves_none_positions(forecaster: CountingForecaster) -> None:
-    """Windows without history yield None while valid windows run in one batch call."""
-    # Arrange
-    dataset, timestamps = _make_dataset()
-    horizons = [
-        timestamps[0].to_pydatetime(),  # no history -> None
-        timestamps[140].to_pydatetime(),
-        timestamps[160].to_pydatetime(),
-    ]
-    adapter = create_foundation_model_backtest_forecaster(_make_workflow(forecaster), batch_size=8)
-
-    # Act
-    results = adapter.predict_batch([_restricted(dataset, h) for h in horizons])
-
-    # Assert
-    assert results[0] is None
-    assert results[1] is not None
-    assert results[2] is not None
-    assert forecaster._predict_batch_calls == 1
-    assert forecaster._last_batch_size == 2  # only the two valid windows reach the backend
 
 
 def test_factory_disables_training_and_derives_predict_length(forecaster: CountingForecaster) -> None:
