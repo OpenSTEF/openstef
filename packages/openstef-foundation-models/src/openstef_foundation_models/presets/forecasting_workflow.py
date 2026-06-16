@@ -73,7 +73,7 @@ class OnnxBackendConfig(BaseConfig):
     checkpoint: CheckpointRef = Field(description="Local or Hub checkpoint to load.")
     providers: list[ExecutionProvider] | None = Field(
         default=None,
-        description="Ordered execution providers to try. Defaults to CPU only.",
+        description="Ordered execution providers to try. Defaults to CUDA when available, otherwise CPU.",
     )
     session_options: SessionOptionsConfig | None = Field(
         default=None,
@@ -158,7 +158,7 @@ class ForecastingWorkflowConfig(BaseConfig):
 
     providers: list[ExecutionProvider] | None = Field(
         default=None,
-        description="Ordered ONNX Runtime execution providers to try. Defaults to CPU only.",
+        description="Ordered ONNX Runtime execution providers to try. Defaults to CUDA when available, otherwise CPU.",
     )
     session_options: SessionOptionsConfig | None = Field(
         default=None,
@@ -182,7 +182,11 @@ class ForecastingWorkflowConfig(BaseConfig):
     )
 
 
-def create_forecasting_workflow(config: ForecastingWorkflowConfig) -> CustomForecastingWorkflow:
+def create_forecasting_workflow(
+    config: ForecastingWorkflowConfig,
+    *,
+    backend: InferenceBackend | None = None,
+) -> CustomForecastingWorkflow:
     """Build a foundation-model forecasting workflow from a declarative config.
 
     Resolves the checkpoint (lazily importing the inference runtime), composes
@@ -193,6 +197,11 @@ def create_forecasting_workflow(config: ForecastingWorkflowConfig) -> CustomFore
 
     Args:
         config: The workflow configuration.
+        backend: A pre-built inference backend to run the model on. When omitted,
+            an ONNX backend is built from the config's checkpoint and provider
+            settings (defaulting to CUDA when available, otherwise CPU). Pass an
+            explicit backend to control the device or runtime (e.g. a GPU ONNX
+            session, or a Torch backend).
 
     Returns:
         A ready-to-use workflow composing the configured backend.
@@ -212,14 +221,14 @@ def create_forecasting_workflow(config: ForecastingWorkflowConfig) -> CustomFore
             checkpoint = config.checkpoint or HubCheckpoint(
                 repo_id="openstef/chronos-2-onnx", filename="chronos-2.onnx"
             )
-            backend = OnnxBackendConfig(
+            model_backend = backend or OnnxBackendConfig(
                 checkpoint=checkpoint,
                 providers=config.providers,
                 session_options=config.session_options,
                 strict_providers=config.strict_providers,
             ).build()
             forecaster = Chronos2Forecaster(
-                backend=backend,
+                backend=model_backend,
                 quantiles=config.quantiles,
                 horizons=config.horizons,
                 hyperparams=config.chronos2_hyperparams,

@@ -17,6 +17,7 @@ import numpy as np
 from openstef_core.exceptions import MissingExtraError
 from openstef_foundation_models.inference.providers import (
     CpuProvider,
+    CudaProvider,
     ExecutionProvider,
     SessionOptionsConfig,
 )
@@ -69,7 +70,8 @@ class OnnxBackend:
 
         Args:
             checkpoint: The resolved checkpoint (weights + metadata) to load.
-            providers: Ordered execution providers to try. Defaults to CPU only.
+            providers: Ordered execution providers to try. Defaults to CUDA when
+                available, otherwise CPU.
             session_options: Optional ONNX Runtime session options.
             strict_providers: When ``True``, raise if the realized provider chain
                 falls back to CPU despite an accelerator being requested. When
@@ -78,7 +80,7 @@ class OnnxBackend:
         Returns:
             A backend wrapping the newly built session.
         """
-        provider_configs = list(providers) if providers else [CpuProvider()]
+        provider_configs = list(providers) if providers else _default_providers()
         ort_providers = [config.to_ort() for config in provider_configs]
         so = _build_session_options(session_options) if session_options else None
 
@@ -125,6 +127,21 @@ class OnnxBackend:
         the reference is the supported way to release them.
         """
         self._session = None
+
+
+def _default_providers() -> list[ExecutionProvider]:
+    """Pick a sensible default execution-provider chain for the host.
+
+    Prefers the CUDA GPU provider when ONNX Runtime reports it as available and
+    falls back to CPU otherwise. Other accelerators (TensorRT, CoreML) have
+    enough caveats (engine builds, partial op coverage) that they stay opt-in.
+
+    Returns:
+        A single-element provider chain: CUDA when available, otherwise CPU.
+    """
+    if "CUDAExecutionProvider" in ort.get_available_providers():
+        return [CudaProvider()]
+    return [CpuProvider()]
 
 
 def _build_session_options(config: SessionOptionsConfig) -> ort.SessionOptions:
