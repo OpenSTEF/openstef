@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-"""Backtesting adapter that runs any :class:`Forecaster` through openstef-beam.
+"""Backtesting adapter that runs a forecasting workflow through openstef-beam.
 
 Requires the ``benchmarking`` extra::
 
@@ -10,10 +10,13 @@ Requires the ``benchmarking`` extra::
 
 The adapter bridges beam's backtesting interface
 (:class:`~openstef_beam.backtesting.backtest_forecaster.mixins.BacktestForecasterMixin`)
-to the OpenSTEF :class:`~openstef_models.models.forecasting.forecaster.Forecaster`
-contract. It wraps a **single, already-built** forecaster instance and reuses it
-across every backtest window, so an expensive backend (e.g. a loaded ONNX
-session) is created once and shared — there is no per-window model loading.
+to an OpenSTEF
+:class:`~openstef_models.workflows.custom_forecasting_workflow.CustomForecastingWorkflow`.
+It wraps a **single, already-built** workflow instance and reuses it across every
+backtest window, so an expensive backend (e.g. a loaded ONNX session) is created
+once and shared — there is no per-window model loading. Running through the
+workflow means the model's preprocessing (feature selection / covariates) and
+postprocessing (quantile sorting) apply to every window.
 
 Foundation models such as Chronos-2 are zero-shot, so :meth:`fit` is a no-op and
 ``requires_training`` defaults to ``False``.
@@ -22,16 +25,17 @@ Foundation models such as Chronos-2 are zero-shot, so :meth:`fit` is a no-op and
 import warnings
 from collections.abc import Sequence
 from datetime import timedelta
-from typing import override
+from typing import Self, override
 
-from pydantic import Field
+from pydantic import Field, model_validator
 
 from openstef_core.base_model import BaseModel
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.datasets.validated_datasets import ForecastInputDataset
+from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.exceptions import MissingExtraError
 from openstef_core.types import Quantile
-from openstef_models.models.forecasting.forecaster import Forecaster
+from openstef_models.models.forecasting_model import ForecastingModel, restore_target
+from openstef_models.workflows.custom_forecasting_workflow import CustomForecastingWorkflow
 
 try:
     from openstef_beam.backtesting.backtest_forecaster.mixins import (
@@ -59,27 +63,54 @@ warnings.filterwarnings(
 
 
 class FoundationModelBacktestForecaster(BaseModel, BacktestBatchForecasterMixin, BacktestForecasterMixin):
-    """Backtest wrapper around a single, shared foundation-model forecaster.
+    """Backtest wrapper around a single, shared forecasting workflow.
 
-    The wrapped :attr:`forecaster` is built once and reused for every prediction
+    The wrapped :attr:`workflow` is built once and reused for every prediction
     window (load-once). Each window is translated into a
     :class:`~openstef_core.datasets.validated_datasets.ForecastInputDataset`
-    whose ``forecast_start`` is the window horizon, and the forecaster's batch
-    path is used so a whole batch of windows runs in a single backend call.
+    whose ``forecast_start`` is the window horizon (after the workflow's
+    preprocessing runs), and the forecaster's batch path is used so a whole batch
+    of windows runs in a single backend call.
     """
 
-    forecaster: Forecaster = Field(description="The shared, pre-built forecaster to run for every window.")
+    workflow: CustomForecastingWorkflow = Field(
+        description="The shared, pre-built forecasting workflow to run for every window."
+    )
     config: BacktestForecasterConfig = Field(description="Backtest window configuration.")
-    target_column: str = Field(default="load", description="Name of the target column in the backtest data.")
     batch_size: int | None = Field(
         default=None,
         description="Maximum windows per backend call. None or 1 disables batching.",
     )
 
+    @model_validator(mode="after")
+    def _validate_template_model(self) -> Self:
+        """Ensure the workflow wraps a single-forecaster model the adapter can drive.
+
+        Returns:
+            The validated adapter.
+
+        Raises:
+            TypeError: If the workflow model is not a :class:`ForecastingModel`.
+        """
+        if not isinstance(self.workflow.model, ForecastingModel):
+            msg = (
+                "FoundationModelBacktestForecaster requires a workflow wrapping a ForecastingModel, "
+                f"got {type(self.workflow.model).__name__}."
+            )
+            raise TypeError(msg)
+        return self
+
+    @property
+    def _model(self) -> ForecastingModel:
+        """The wrapped single-forecaster model (validated at construction)."""
+        model = self.workflow.model
+        assert isinstance(model, ForecastingModel)  # noqa: S101 - guaranteed by validator
+        return model
+
     @property
     @override
     def quantiles(self) -> list[Quantile]:
-        return self.forecaster.quantiles
+        return self._model.quantiles
 
     @override
     def fit(self, data: RestrictedHorizonVersionedTimeSeries) -> None:
@@ -90,41 +121,57 @@ class FoundationModelBacktestForecaster(BaseModel, BacktestBatchForecasterMixin,
         input_dataset = self._to_input(data)
         if input_dataset is None:
             return None
-        return self.forecaster.predict(input_dataset)
+        raw_forecast = self._model.forecaster.predict(input_dataset)
+        return self._finalize(raw_forecast, input_dataset)
 
     @override
     def predict_batch(
         self, batch: list[RestrictedHorizonVersionedTimeSeries]
     ) -> Sequence[TimeSeriesDataset | None]:
-        inputs = [self._to_input(data) for data in batch]
         results: list[TimeSeriesDataset | None] = [None] * len(batch)
 
-        valid = [(position, dataset) for position, dataset in enumerate(inputs) if dataset is not None]
-        if not valid:
+        prepared: list[tuple[int, ForecastInputDataset]] = []
+        for position, data in enumerate(batch):
+            input_dataset = self._to_input(data)
+            if input_dataset is not None:
+                prepared.append((position, input_dataset))
+        if not prepared:
             return results
 
-        forecasts = self.forecaster.predict_batch([dataset for _, dataset in valid])
-        for (position, _), forecast in zip(valid, forecasts, strict=True):
-            results[position] = forecast
+        raw_forecasts = self._model.forecaster.predict_batch([dataset for _, dataset in prepared])
+        for (position, input_dataset), raw_forecast in zip(prepared, raw_forecasts, strict=True):
+            results[position] = self._finalize(raw_forecast, input_dataset)
         return results
 
+    def _finalize(self, raw_forecast: ForecastDataset, input_dataset: ForecastInputDataset) -> TimeSeriesDataset:
+        """Apply the same target restoration and postprocessing as the workflow.
+
+        Mirrors :meth:`ForecastingModel.predict` so the batched path produces the
+        same output as a single :meth:`predict`.
+
+        Returns:
+            The postprocessed forecast.
+        """
+        model = self._model
+        restored = restore_target(
+            dataset=raw_forecast, original_dataset=input_dataset, target_column=model.target_column
+        )
+        return model.postprocessing.transform(data=restored)
+
     def _to_input(self, data: RestrictedHorizonVersionedTimeSeries) -> ForecastInputDataset | None:
-        """Translate a backtest window into a forecaster input dataset.
+        """Translate a backtest window into a preprocessed forecaster input dataset.
 
         Returns:
             The input dataset, or ``None`` when there is no observed target
             history before the horizon (no reliable forecast can be produced).
         """
+        model = self._model
         window = data.get_window(
             start=data.horizon - self.config.predict_context_length,
             end=data.horizon,
             available_before=data.horizon,
         )
-        input_dataset = ForecastInputDataset.from_timeseries(
-            window,
-            target_column=self.target_column,
-            forecast_start=data.horizon,
-        )
+        input_dataset = model.prepare_input(data=window, forecast_start=data.horizon)
 
         history = input_dataset.target_series
         if history[history.index < data.horizon].notna().sum() == 0:
@@ -133,26 +180,24 @@ class FoundationModelBacktestForecaster(BaseModel, BacktestBatchForecasterMixin,
 
 
 def create_foundation_model_backtest_forecaster(
-    forecaster: Forecaster,
+    workflow: CustomForecastingWorkflow,
     *,
     predict_length: timedelta | None = None,
     predict_context_length: timedelta = _DEFAULT_CONTEXT_LENGTH,
     batch_size: int | None = None,
-    target_column: str = "load",
     config: BacktestForecasterConfig | None = None,
 ) -> FoundationModelBacktestForecaster:
-    """Wrap a forecaster for backtesting through openstef-beam.
+    """Wrap a forecasting workflow for backtesting through openstef-beam.
 
-    Builds a load-once backtest forecaster that reuses *forecaster* (and its
+    Builds a load-once backtest forecaster that reuses *workflow* (and its
     backend) across every window.
 
     Args:
-        forecaster: A pre-built forecaster to run for every window.
-        predict_length: Forecast horizon per window. Defaults to the forecaster's
-            maximum configured horizon.
+        workflow: A pre-built forecasting workflow to run for every window.
+        predict_length: Forecast horizon per window. Defaults to the workflow
+            model's maximum configured horizon.
         predict_context_length: Amount of history fed as model context.
         batch_size: Maximum windows per backend call. None or 1 disables batching.
-        target_column: Name of the target column in the backtest data.
         config: Full backtest config. When given, it overrides the derived
             window settings (``predict_length``/``predict_context_length``).
 
@@ -162,7 +207,7 @@ def create_foundation_model_backtest_forecaster(
     if config is None:
         config = BacktestForecasterConfig(
             requires_training=False,
-            predict_length=predict_length if predict_length is not None else forecaster.max_horizon.value,
+            predict_length=predict_length if predict_length is not None else workflow.model.max_horizon.value,
             predict_min_length=timedelta(minutes=15),
             predict_context_length=predict_context_length,
             predict_context_min_coverage=0.0,
@@ -171,9 +216,8 @@ def create_foundation_model_backtest_forecaster(
         )
 
     return FoundationModelBacktestForecaster(
-        forecaster=forecaster,
+        workflow=workflow,
         config=config,
-        target_column=target_column,
         batch_size=batch_size,
     )
 

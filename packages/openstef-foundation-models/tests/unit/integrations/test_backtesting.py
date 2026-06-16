@@ -22,6 +22,8 @@ from openstef_foundation_models.integrations.backtesting import (
     create_foundation_model_backtest_forecaster,
 )
 from openstef_models.models.forecasting.forecaster import Forecaster
+from openstef_models.models.forecasting_model import ForecastingModel
+from openstef_models.workflows.custom_forecasting_workflow import CustomForecastingWorkflow
 
 SAMPLE_INTERVAL = timedelta(minutes=15)
 QUANTILES = [Quantile(0.1), Quantile(0.5), Quantile(0.9)]
@@ -92,6 +94,14 @@ def _restricted(dataset: VersionedTimeSeriesDataset, horizon: datetime) -> Restr
     return RestrictedHorizonVersionedTimeSeries(dataset=dataset, horizon=horizon)
 
 
+def _make_workflow(forecaster: Forecaster) -> CustomForecastingWorkflow:
+    """Wrap a forecaster in a minimal single-forecaster workflow."""
+    return CustomForecastingWorkflow(
+        model=ForecastingModel(forecaster=forecaster, target_column="load"),
+        model_id="test",
+    )
+
+
 @pytest.fixture
 def forecaster() -> CountingForecaster:
     return CountingForecaster(quantiles=QUANTILES, horizons=[LeadTime.from_string("PT2H")])
@@ -102,7 +112,7 @@ def test_predict_returns_forecast_indexed_from_horizon(forecaster: CountingForec
     # Arrange
     dataset, timestamps = _make_dataset()
     horizon = timestamps[150].to_pydatetime()
-    adapter = create_foundation_model_backtest_forecaster(forecaster)
+    adapter = create_foundation_model_backtest_forecaster(_make_workflow(forecaster))
 
     # Act
     forecast = adapter.predict(_restricted(dataset, horizon))
@@ -110,7 +120,7 @@ def test_predict_returns_forecast_indexed_from_horizon(forecaster: CountingForec
     # Assert
     assert forecast is not None
     assert forecast.data.index[0].to_pydatetime() == horizon
-    assert set(forecast.data.columns) == {q.format() for q in QUANTILES}
+    assert {q.format() for q in QUANTILES} <= set(forecast.data.columns)
 
 
 def test_predict_returns_none_when_no_history(forecaster: CountingForecaster) -> None:
@@ -118,7 +128,7 @@ def test_predict_returns_none_when_no_history(forecaster: CountingForecaster) ->
     # Arrange
     dataset, timestamps = _make_dataset()
     horizon = timestamps[0].to_pydatetime()  # nothing strictly before the first timestamp
-    adapter = create_foundation_model_backtest_forecaster(forecaster)
+    adapter = create_foundation_model_backtest_forecaster(_make_workflow(forecaster))
 
     # Act
     forecast = adapter.predict(_restricted(dataset, horizon))
@@ -132,7 +142,7 @@ def test_predict_batch_uses_single_backend_call(forecaster: CountingForecaster) 
     # Arrange
     dataset, timestamps = _make_dataset()
     horizons = [timestamps[i].to_pydatetime() for i in (120, 140, 160)]
-    adapter = create_foundation_model_backtest_forecaster(forecaster, batch_size=8)
+    adapter = create_foundation_model_backtest_forecaster(_make_workflow(forecaster), batch_size=8)
 
     # Act
     results = adapter.predict_batch([_restricted(dataset, h) for h in horizons])
@@ -152,7 +162,7 @@ def test_predict_batch_preserves_none_positions(forecaster: CountingForecaster) 
         timestamps[140].to_pydatetime(),
         timestamps[160].to_pydatetime(),
     ]
-    adapter = create_foundation_model_backtest_forecaster(forecaster, batch_size=8)
+    adapter = create_foundation_model_backtest_forecaster(_make_workflow(forecaster), batch_size=8)
 
     # Act
     results = adapter.predict_batch([_restricted(dataset, h) for h in horizons])
@@ -168,7 +178,7 @@ def test_predict_batch_preserves_none_positions(forecaster: CountingForecaster) 
 def test_factory_disables_training_and_derives_predict_length(forecaster: CountingForecaster) -> None:
     """The default config is zero-shot and its horizon matches the forecaster."""
     # Arrange / Act
-    adapter = create_foundation_model_backtest_forecaster(forecaster)
+    adapter = create_foundation_model_backtest_forecaster(_make_workflow(forecaster))
 
     # Assert
     assert adapter.config.requires_training is False
@@ -178,7 +188,7 @@ def test_factory_disables_training_and_derives_predict_length(forecaster: Counti
 def test_quantiles_delegate_to_forecaster(forecaster: CountingForecaster) -> None:
     """The adapter exposes the wrapped forecaster's quantiles."""
     # Arrange / Act
-    adapter = create_foundation_model_backtest_forecaster(forecaster)
+    adapter = create_foundation_model_backtest_forecaster(_make_workflow(forecaster))
 
     # Assert
     assert adapter.quantiles == QUANTILES
@@ -187,8 +197,8 @@ def test_quantiles_delegate_to_forecaster(forecaster: CountingForecaster) -> Non
 def test_adapter_reuses_single_forecaster_instance(forecaster: CountingForecaster) -> None:
     """The same forecaster instance backs every window (no per-window rebuild)."""
     # Arrange
-    adapter = create_foundation_model_backtest_forecaster(forecaster)
+    adapter = create_foundation_model_backtest_forecaster(_make_workflow(forecaster))
 
     # Act / Assert
     assert isinstance(adapter, FoundationModelBacktestForecaster)
-    assert adapter.forecaster is forecaster
+    assert adapter.workflow.model.forecaster is forecaster
