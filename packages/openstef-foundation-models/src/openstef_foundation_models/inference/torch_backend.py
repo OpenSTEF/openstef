@@ -12,6 +12,15 @@ follows the named-tensor contract and makes no assumptions about which model it
 runs. Loading a *specific* model (e.g. Chronos-2) into a module is the caller's
 responsibility — see ``scripts/load_chronos2_torch.py`` for a throwaway helper
 used by the ONNX-vs-Torch benchmark comparison.
+
+.. admonition:: REMOVE WHEN THE TORCH BACKEND IS DROPPED
+
+    Production inference runs exclusively on the ONNX backend. This Torch
+    backend exists only to validate the ONNX export against the original
+    weights (see ``tests/integration/test_onnx_torch_parity.py`` and
+    ``scripts/load_chronos2_torch.py``). Delete this module, the parity test,
+    and the loader script together once the export is trusted and the heavy
+    ``[torch]`` extra is no longer wanted.
 """
 
 import logging

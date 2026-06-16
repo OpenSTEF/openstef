@@ -12,6 +12,11 @@ named-tensor contract.
 This test is heavy and depends on optional, large dependencies (``torch`` +
 ``chronos-forecasting``) and the export lab, so it skips unless everything is
 available.
+
+REMOVE WHEN THE TORCH BACKEND IS DROPPED: this parity test only exists to
+validate the ONNX export against the original Torch weights. Delete it together
+with ``inference/torch_backend.py`` and ``scripts/load_chronos2_torch.py`` once
+the export is trusted. Keep it in sync with the export graph until then.
 """
 
 import importlib.util

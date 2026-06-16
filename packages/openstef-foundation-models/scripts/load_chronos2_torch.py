@@ -10,6 +10,9 @@ intentionally lives outside the package's import graph (a script, not a module)
 because it is model-specific glue and will be **removed** once the comparison is
 done — the :class:`TorchBackend` itself is model-independent and must stay that way.
 
+REMOVE WHEN THE TORCH BACKEND IS DROPPED: delete this script together with
+``inference/torch_backend.py`` and ``tests/integration/test_onnx_torch_parity.py``.
+
 Requires the optional ``[torch]`` extra plus ``chronos-forecasting``::
 
     uv run --extra torch python packages/openstef-foundation-models/scripts/load_chronos2_torch.py
