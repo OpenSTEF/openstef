@@ -27,7 +27,6 @@ The model is zero-shot: there is nothing to train, so :meth:`fit` is a no-op and
 """
 
 from dataclasses import dataclass
-from datetime import datetime
 from typing import ClassVar, override
 
 import numpy as np
@@ -208,18 +207,19 @@ class Chronos2Forecaster(Forecaster):
         }
         return inputs, target_indices
 
+    @staticmethod
     def _build_series_rows(
-        self,
         data: ForecastInputDataset,
         context_length: int,
         horizon_length: int,
     ) -> _SeriesRows:
         """Build the target and covariate rows for a single series.
 
-        The target row carries the target history in ``context`` and an empty
-        (masked-out) future. Each non-target feature column becomes a covariate
-        row carrying its own history in ``context`` and its known horizon values
-        in ``future_covariates``.
+        The target and every covariate column are reindexed in a single pass
+        onto one grid that spans the context window and the forecast horizon,
+        then sliced into the context and future blocks. The target row's future
+        is masked out (its horizon is exactly what the model predicts); covariate
+        rows keep their known horizon values.
 
         Args:
             data: Input dataset providing the target and covariate columns.
@@ -229,93 +229,30 @@ class Chronos2Forecaster(Forecaster):
         Returns:
             The assembled rows for this series, target first.
         """
-        target_context, target_mask = self._build_context(data.target_series, data.forecast_start, context_length)
-        contexts = [target_context]
-        masks = [target_mask]
-        future_covariates = [np.zeros(horizon_length, dtype=np.float32)]
-        future_masks = [np.zeros(horizon_length, dtype=np.float32)]
+        columns = [data.target_column, *(name for name in data.feature_names if name != data.target_column)]
 
-        horizon_index = pd.date_range(
-            start=pd.Timestamp(data.forecast_start),
-            periods=horizon_length,
+        forecast_start = pd.Timestamp(data.forecast_start)
+        context_index = pd.date_range(
+            end=forecast_start - data.sample_interval,
+            periods=context_length,
             freq=data.sample_interval,
         )
-        covariate_columns = [name for name in data.feature_names if name != data.target_column]
-        for name in covariate_columns:
-            series = data.data[name]
-            cov_context, cov_mask = self._build_context(series, data.forecast_start, context_length)
-            cov_future, cov_future_mask = self._build_future_covariate(series, horizon_index)
-            contexts.append(cov_context)
-            masks.append(cov_mask)
-            future_covariates.append(cov_future)
-            future_masks.append(cov_future_mask)
+        horizon_index = pd.date_range(start=forecast_start, periods=horizon_length, freq=data.sample_interval)
+
+        values, mask = _reindex_to_matrix(data.data[columns], context_index.append(horizon_index))
+        context, attention_mask = values[:, :context_length], mask[:, :context_length]
+        future, future_mask = values[:, context_length:].copy(), mask[:, context_length:].copy()
+
+        # The target's own future is unknown - it is exactly what the model predicts.
+        future[0] = np.float32(0.0)
+        future_mask[0] = np.float32(0.0)
 
         return _SeriesRows(
-            context=np.stack(contexts),
-            attention_mask=np.stack(masks),
-            future_covariates=np.stack(future_covariates),
-            future_covariates_mask=np.stack(future_masks),
+            context=context,
+            attention_mask=attention_mask,
+            future_covariates=future,
+            future_covariates_mask=future_mask,
         )
-
-    @staticmethod
-    def _build_context(
-        series: pd.Series,
-        forecast_start: datetime,
-        context_length: int,
-    ) -> tuple[np.ndarray, np.ndarray]:
-        """Build the context and attention-mask row for a single series.
-
-        Takes the most recent ``context_length`` values strictly before the
-        forecast start, left-padding with zeros when history is short. Missing
-        values (padding or gaps) are zero-filled and flagged in the attention
-        mask so the model ignores them.
-
-        Args:
-            series: Time-indexed values (target or covariate).
-            forecast_start: Timestamp marking the first forecast step.
-            context_length: Number of context steps the model consumes.
-
-        Returns:
-            Tuple of ``(context, attention_mask)``, each of shape
-            ``(context_length,)`` and dtype ``float32``.
-        """
-        start = pd.Timestamp(forecast_start)
-        values = series[series.index < start].to_numpy(dtype=np.float32)[-context_length:]
-
-        padding = context_length - values.shape[0]
-        if padding > 0:
-            values = np.concatenate([np.full(padding, np.nan, dtype=np.float32), values])
-
-        finite = np.isfinite(values)
-        context = np.where(finite, values, np.float32(0.0)).astype(np.float32)
-        mask = finite.astype(np.float32)
-        return context, mask
-
-    @staticmethod
-    def _build_future_covariate(
-        series: pd.Series,
-        horizon_index: pd.DatetimeIndex,
-    ) -> tuple[np.ndarray, np.ndarray]:
-        """Build the known-future covariate row for a single covariate column.
-
-        The covariate is reindexed onto the model's frozen horizon. Steps with a
-        known value are passed through with mask 1; steps that fall outside the
-        covariate's range (or are NaN) are zero-filled with mask 0 so the model
-        ignores them.
-
-        Args:
-            series: Time-indexed covariate values spanning history and future.
-            horizon_index: Timestamps of the model's frozen horizon.
-
-        Returns:
-            Tuple of ``(future_covariates, future_covariates_mask)``, each of
-            shape ``(len(horizon_index),)`` and dtype ``float32``.
-        """
-        values = series.reindex(horizon_index).to_numpy(dtype=np.float32)
-        finite = np.isfinite(values)
-        future = np.where(finite, values, np.float32(0.0)).astype(np.float32)
-        mask = finite.astype(np.float32)
-        return future, mask
 
     def _build_forecast(self, data: ForecastInputDataset, predictions: np.ndarray) -> ForecastDataset:
         """Post-process one series' raw quantile predictions into a dataset.
@@ -346,6 +283,33 @@ class Chronos2Forecaster(Forecaster):
             sample_interval=data.sample_interval,
             target_column=data.target_column,
         )
+
+
+def _reindex_to_matrix(frame: pd.DataFrame, index: pd.Index) -> tuple[np.ndarray, np.ndarray]:
+    """Align a feature frame onto a time grid as paired value and mask matrices.
+
+    Each column becomes a row of the returned matrices (column order preserved),
+    so a frame of ``target + covariates`` over a ``context + horizon`` grid turns
+    into the model's row-per-series layout in one vectorised pass. Timestamps
+    with no value (gaps in history or covariates that stop short of the horizon)
+    are zero-filled in the value matrix and flagged with 0 in the mask so the
+    model ignores them.
+
+    This is the generic ``forecast-input -> (matrix, mask)`` step; callers slice
+    the result into context and future blocks. It is model-agnostic and meant to
+    be shared by other foundation-model forecasters.
+
+    Args:
+        frame: Time-indexed feature columns.
+        index: Target time grid to align onto.
+
+    Returns:
+        Tuple ``(values, mask)``, each of shape ``(n_columns, len(index))`` and
+        dtype ``float32``; ``mask`` is 1 wherever a finite value is present.
+    """
+    values = frame.reindex(index).to_numpy(dtype=np.float32).T
+    finite = np.isfinite(values)
+    return np.where(finite, values, np.float32(0.0)).astype(np.float32), finite.astype(np.float32)
 
 
 __all__ = [
