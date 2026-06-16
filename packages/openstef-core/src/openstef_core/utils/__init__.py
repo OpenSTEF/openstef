@@ -23,10 +23,14 @@ from openstef_core.utils.pydantic import (
     timedelta_from_isoformat,
     timedelta_to_isoformat,
 )
+from openstef_core.utils.quantiles import (
+    interpolate_quantiles,
+)
 
 __all__ = [
     "align_datetime",
     "align_datetime_to_time",
+    "interpolate_quantiles",
     "not_none",
     "run_parallel",
     "timedelta_from_isoformat",

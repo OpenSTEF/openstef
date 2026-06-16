@@ -29,8 +29,8 @@ from pydantic import Field
 
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.mixins.predictor import BatchResult, HyperParams
+from openstef_core.utils.quantiles import interpolate_quantiles
 from openstef_foundation_models.inference.backend import InferenceBackend
-from openstef_foundation_models.utils.quantiles import interpolate_quantiles
 from openstef_models.models.forecasting.forecaster import Forecaster
 
 

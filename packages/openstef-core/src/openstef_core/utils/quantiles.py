@@ -2,13 +2,12 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-"""Quantile-grid resampling for foundation-model forecasters.
+"""Quantile-grid resampling for probabilistic forecasts.
 
-Foundation models emit a fixed, model-native grid of quantile levels (e.g.
-Chronos-2's 21 levels). Forecasters request an arbitrary set of quantiles, so
-the native predictions must be resampled onto the requested grid. This module
-provides a single pure NumPy helper for that, kept dependency-free and unit
-tested in isolation.
+Some models emit a fixed, model-native grid of quantile levels while callers
+request an arbitrary set of quantiles. This module provides a single pure NumPy
+helper that resamples predictions from one quantile grid onto another, kept
+dependency-free and unit tested in isolation.
 """
 
 from collections.abc import Sequence
@@ -17,6 +16,8 @@ import numpy as np
 
 #: Minimum number of source quantile levels required to interpolate between.
 _MIN_SOURCE_QUANTILES = 2
+
+__all__ = ["interpolate_quantiles"]
 
 
 def interpolate_quantiles(

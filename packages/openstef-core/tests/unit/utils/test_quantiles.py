@@ -7,7 +7,7 @@
 import numpy as np
 import pytest
 
-from openstef_foundation_models.utils.quantiles import interpolate_quantiles
+from openstef_core.utils.quantiles import interpolate_quantiles
 
 
 def test_interpolate_quantiles_returns_exact_values_on_matching_levels() -> None:
