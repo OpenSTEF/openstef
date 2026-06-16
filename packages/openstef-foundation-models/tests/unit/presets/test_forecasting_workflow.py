@@ -21,10 +21,13 @@ from openstef_foundation_models.models.checkpoint import (
 )
 from openstef_foundation_models.models.forecasting import Chronos2Forecaster
 from openstef_foundation_models.presets.forecasting_workflow import (
-    FoundationForecasterConfig,
+    ForecastingWorkflowConfig,
     OnnxBackendConfig,
-    create_foundation_forecaster,
+    create_forecasting_workflow,
 )
+from openstef_models.models import ForecastingModel
+from openstef_models.transforms.general import Selector
+from openstef_models.workflows.custom_forecasting_workflow import CustomForecastingWorkflow
 
 NATIVE_QUANTILES = [0.1, 0.5, 0.9]
 
@@ -68,26 +71,57 @@ def _write_checkpoint(tmp_path: Path) -> LocalCheckpoint:
     return LocalCheckpoint(path=weights_path)
 
 
-def test_create_foundation_forecaster_builds_chronos2(monkeypatch: pytest.MonkeyPatch) -> None:
-    """The factory composes the built backend into a Chronos2Forecaster."""
+def test_create_forecasting_workflow_builds_chronos2(monkeypatch: pytest.MonkeyPatch) -> None:
+    """The factory composes the built backend into a Chronos2Forecaster workflow."""
     # Arrange
     backend = StubBackend(_metadata())
     monkeypatch.setattr(OnnxBackendConfig, "build", lambda _self: backend)
-    config = FoundationForecasterConfig(
+    config = ForecastingWorkflowConfig(
         model="chronos2",
-        backend=OnnxBackendConfig(checkpoint=LocalCheckpoint(path=Path("chronos-2.onnx"))),
+        checkpoint=LocalCheckpoint(path=Path("chronos-2.onnx")),
         quantiles=[Quantile(0.1), Quantile(0.5), Quantile(0.9)],
         horizons=[LeadTime.from_string("PT24H")],
     )
 
     # Act
-    forecaster = create_foundation_forecaster(config)
+    workflow = create_forecasting_workflow(config)
 
     # Assert
+    assert isinstance(workflow, CustomForecastingWorkflow)
+    assert workflow.model_id == "chronos2"
+    model = workflow.model
+    assert isinstance(model, ForecastingModel)
+    assert model.target_column == "load"
+    forecaster = model.forecaster
     assert isinstance(forecaster, Chronos2Forecaster)
     assert forecaster.backend is backend
     assert forecaster.quantiles == [Quantile(0.1), Quantile(0.5), Quantile(0.9)]
     assert forecaster.horizons == [LeadTime.from_string("PT24H")]
+
+
+def test_create_forecasting_workflow_selects_target_and_weather_covariates(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """With no explicit selection, the target plus the three weather covariates are kept."""
+    # Arrange
+    monkeypatch.setattr(OnnxBackendConfig, "build", lambda _self: StubBackend(_metadata()))
+    config = ForecastingWorkflowConfig(
+        model="chronos2",
+        checkpoint=LocalCheckpoint(path=Path("chronos-2.onnx")),
+    )
+
+    # Act
+    workflow = create_forecasting_workflow(config)
+
+    # Assert
+    selector = workflow.model.preprocessing.transforms[0]
+    assert isinstance(selector, Selector)
+    assert selector.selection.include == {
+        "load",
+        "shortwave_radiation",
+        "wind_speed_80m",
+        "temperature_2m",
+    }
 
 
 def test_onnx_backend_config_build_resolves_checkpoint_and_passes_options(
@@ -126,15 +160,15 @@ def test_onnx_backend_config_build_resolves_checkpoint_and_passes_options(
 def test_config_round_trips_through_json() -> None:
     """The config serialises and validates back to an equal config."""
     # Arrange
-    config = FoundationForecasterConfig(
+    config = ForecastingWorkflowConfig(
         model="chronos2",
-        backend=OnnxBackendConfig(checkpoint=LocalCheckpoint(path=Path("chronos-2.onnx"))),
+        checkpoint=LocalCheckpoint(path=Path("chronos-2.onnx")),
         quantiles=[Quantile(0.5)],
         horizons=[LeadTime.from_string("PT48H")],
     )
 
     # Act
-    restored = FoundationForecasterConfig.model_validate_json(config.model_dump_json())
+    restored = ForecastingWorkflowConfig.model_validate_json(config.model_dump_json())
 
     # Assert
     assert restored == config

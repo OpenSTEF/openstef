@@ -10,14 +10,14 @@ when a backend config is built, not when these presets are imported.
 
 from openstef_foundation_models.presets.forecasting_workflow import (
     BackendConfig,
-    FoundationForecasterConfig,
+    ForecastingWorkflowConfig,
     OnnxBackendConfig,
-    create_foundation_forecaster,
+    create_forecasting_workflow,
 )
 
 __all__ = [
     "BackendConfig",
-    "FoundationForecasterConfig",
+    "ForecastingWorkflowConfig",
     "OnnxBackendConfig",
-    "create_foundation_forecaster",
+    "create_forecasting_workflow",
 ]
