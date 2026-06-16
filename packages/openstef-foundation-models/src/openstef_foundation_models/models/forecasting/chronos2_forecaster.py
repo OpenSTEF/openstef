@@ -26,7 +26,6 @@ The model is zero-shot: there is nothing to train, so :meth:`fit` is a no-op and
 :attr:`is_fitted` is always ``True`` once a backend is attached.
 """
 
-from dataclasses import dataclass
 from typing import ClassVar, override
 
 import numpy as np
@@ -35,29 +34,9 @@ from pydantic import Field
 
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.mixins.predictor import BatchResult, HyperParams
-from openstef_core.utils.quantiles import interpolate_quantiles
+from openstef_core.utils.numpy import interpolate_quantiles, zero_fill_with_mask
 from openstef_foundation_models.inference.backend import InferenceBackend
 from openstef_models.models.forecasting.forecaster import Forecaster
-
-
-@dataclass(frozen=True)
-class _SeriesRows:
-    """Assembled model rows for a single series and its covariates.
-
-    A series contributes one target row followed by one row per covariate. All
-    rows of a series share a ``group_id`` so Chronos-2 attends across them. The
-    target row's ``future_covariates`` are masked out (its future is unknown);
-    covariate rows carry their known horizon values.
-    """
-
-    context: np.ndarray
-    """Context windows, shape ``(n_rows, context_length)``; row 0 is the target."""
-    attention_mask: np.ndarray
-    """Validity mask for ``context``, same shape."""
-    future_covariates: np.ndarray
-    """Horizon covariate values, shape ``(n_rows, horizon_length)``."""
-    future_covariates_mask: np.ndarray
-    """Known-value mask for ``future_covariates``, same shape."""
 
 
 class Chronos2HyperParams(HyperParams):
@@ -166,9 +145,12 @@ class Chronos2Forecaster(Forecaster):
     def _build_inputs(self, batch: list[ForecastInputDataset]) -> tuple[dict[str, np.ndarray], list[int]]:
         """Assemble the batched model input tensors for a batch of series.
 
-        Rows are laid out series by series: for each series its target row comes
-        first, followed by one row per covariate. All rows of a series share a
-        ``group_id`` so Chronos-2 attends across the group.
+        Each series becomes a matrix of ``target + covariate`` rows over one
+        ``context + horizon`` grid; the matrices are concatenated along the row
+        (batch) axis and split once into the context and future blocks. Rows of a
+        series share a ``group_id`` so Chronos-2 attends across the group. The
+        target row's future is exactly what the model predicts, so it is blanked
+        out.
 
         Args:
             batch: Input datasets to forecast.
@@ -181,45 +163,42 @@ class Chronos2Forecaster(Forecaster):
         context_length = self.backend.metadata.context_length
         horizon_length = self.backend.metadata.horizon_length
 
-        contexts: list[np.ndarray] = []
-        masks: list[np.ndarray] = []
-        future_covariates: list[np.ndarray] = []
-        future_masks: list[np.ndarray] = []
+        matrices: list[np.ndarray] = []
         group_ids: list[int] = []
         target_indices: list[int] = []
-
         for group_id, data in enumerate(batch):
-            target_indices.append(len(contexts))
-            rows = self._build_series_rows(data, context_length, horizon_length)
-            n_rows = rows.context.shape[0]
-            contexts.extend(rows.context)
-            masks.extend(rows.attention_mask)
-            future_covariates.extend(rows.future_covariates)
-            future_masks.extend(rows.future_covariates_mask)
-            group_ids.extend([group_id] * n_rows)
+            target_indices.append(len(group_ids))
+            matrix = self._build_group_matrix(data, context_length, horizon_length)
+            matrices.append(matrix)
+            group_ids.extend([group_id] * matrix.shape[0])
+
+        values, mask = zero_fill_with_mask(np.concatenate(matrices))
+
+        # The target row's future is exactly what the model predicts: blank it out.
+        values[target_indices, context_length:] = np.float32(0.0)
+        mask[target_indices, context_length:] = np.float32(0.0)
 
         inputs = {
-            "context": np.stack(contexts),
-            "attention_mask": np.stack(masks),
+            "context": values[:, :context_length],
+            "attention_mask": mask[:, :context_length],
             "group_ids": np.asarray(group_ids, dtype=np.int64),
-            "future_covariates": np.stack(future_covariates),
-            "future_covariates_mask": np.stack(future_masks),
+            "future_covariates": values[:, context_length:],
+            "future_covariates_mask": mask[:, context_length:],
         }
         return inputs, target_indices
 
     @staticmethod
-    def _build_series_rows(
+    def _build_group_matrix(
         data: ForecastInputDataset,
         context_length: int,
         horizon_length: int,
-    ) -> _SeriesRows:
-        """Build the target and covariate rows for a single series.
+    ) -> np.ndarray:
+        """Build the ``target + covariate`` matrix for a single series group.
 
-        The target and every covariate column are reindexed in a single pass
-        onto one grid that spans the context window and the forecast horizon,
-        then sliced into the context and future blocks. The target row's future
-        is masked out (its horizon is exactly what the model predicts); covariate
-        rows keep their known horizon values.
+        The target and every covariate column are reindexed onto one grid that
+        spans the context window and the forecast horizon. Row 0 is the target;
+        each remaining row is a covariate. Missing timestamps stay ``NaN`` here -
+        the caller turns them into zeros plus a mask.
 
         Args:
             data: Input dataset providing the target and covariate columns.
@@ -227,32 +206,17 @@ class Chronos2Forecaster(Forecaster):
             horizon_length: Frozen forecast horizon the model emits.
 
         Returns:
-            The assembled rows for this series, target first.
+            Matrix of shape ``(n_columns, context_length + horizon_length)``,
+            target row first.
         """
         columns = [data.target_column, *(name for name in data.feature_names if name != data.target_column)]
-
         forecast_start = pd.Timestamp(data.forecast_start)
-        context_index = pd.date_range(
-            end=forecast_start - data.sample_interval,
-            periods=context_length,
+        index = pd.date_range(
+            start=forecast_start - context_length * data.sample_interval,
+            periods=context_length + horizon_length,
             freq=data.sample_interval,
         )
-        horizon_index = pd.date_range(start=forecast_start, periods=horizon_length, freq=data.sample_interval)
-
-        values, mask = _reindex_to_matrix(data.data[columns], context_index.append(horizon_index))
-        context, attention_mask = values[:, :context_length], mask[:, :context_length]
-        future, future_mask = values[:, context_length:].copy(), mask[:, context_length:].copy()
-
-        # The target's own future is unknown - it is exactly what the model predicts.
-        future[0] = np.float32(0.0)
-        future_mask[0] = np.float32(0.0)
-
-        return _SeriesRows(
-            context=context,
-            attention_mask=attention_mask,
-            future_covariates=future,
-            future_covariates_mask=future_mask,
-        )
+        return data.data[columns].reindex(index).to_numpy(dtype=np.float32).T
 
     def _build_forecast(self, data: ForecastInputDataset, predictions: np.ndarray) -> ForecastDataset:
         """Post-process one series' raw quantile predictions into a dataset.
@@ -283,33 +247,6 @@ class Chronos2Forecaster(Forecaster):
             sample_interval=data.sample_interval,
             target_column=data.target_column,
         )
-
-
-def _reindex_to_matrix(frame: pd.DataFrame, index: pd.Index) -> tuple[np.ndarray, np.ndarray]:
-    """Align a feature frame onto a time grid as paired value and mask matrices.
-
-    Each column becomes a row of the returned matrices (column order preserved),
-    so a frame of ``target + covariates`` over a ``context + horizon`` grid turns
-    into the model's row-per-series layout in one vectorised pass. Timestamps
-    with no value (gaps in history or covariates that stop short of the horizon)
-    are zero-filled in the value matrix and flagged with 0 in the mask so the
-    model ignores them.
-
-    This is the generic ``forecast-input -> (matrix, mask)`` step; callers slice
-    the result into context and future blocks. It is model-agnostic and meant to
-    be shared by other foundation-model forecasters.
-
-    Args:
-        frame: Time-indexed feature columns.
-        index: Target time grid to align onto.
-
-    Returns:
-        Tuple ``(values, mask)``, each of shape ``(n_columns, len(index))`` and
-        dtype ``float32``; ``mask`` is 1 wherever a finite value is present.
-    """
-    values = frame.reindex(index).to_numpy(dtype=np.float32).T
-    finite = np.isfinite(values)
-    return np.where(finite, values, np.float32(0.0)).astype(np.float32), finite.astype(np.float32)
 
 
 __all__ = [
