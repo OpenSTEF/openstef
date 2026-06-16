@@ -196,6 +196,9 @@ nb_execution_show_tb = True
 nb_execution_excludepatterns = [
     "benchmarks/*",  # Benchmarks are too expensive to execute during docs build
     "benchmarks/*/*",
+    # Foundation-model tutorial needs a large local ONNX checkpoint that is not
+    # published yet, so it cannot run in CI/doc builds. Render it without executing.
+    "tutorials/foundation_model_forecasting",
 ]
 
 # Sphinx version switcher

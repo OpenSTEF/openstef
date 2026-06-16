@@ -48,6 +48,18 @@ Model Training
    * - :doc:`Hyperparameter Tuning <tutorials/hyperparameter_tuning_with_optuna>`
      - Optimize model hyperparameters using Optuna integration with cross-validated backtesting.
 
+Foundation Models
+^^^^^^^^^^^^^^^^^
+
+.. list-table::
+   :header-rows: 1
+   :widths: 30 70
+
+   * - Tutorial
+     - Description
+   * - :doc:`Foundation-Model Forecasting <tutorials/foundation_model_forecasting>`
+     - Produce a zero-shot probabilistic forecast with the pretrained Chronos-2 model via OpenSTEF's ONNX backend.
+
 Evaluation & Analysis
 ^^^^^^^^^^^^^^^^^^^^^
 
@@ -101,6 +113,13 @@ the docs build — run them locally to reproduce results.
    Feature Engineering <tutorials/feature_engineering>
    Ensemble Forecasting <tutorials/ensemble_forecasting>
    Hyperparameter Tuning <tutorials/hyperparameter_tuning_with_optuna>
+
+.. toctree::
+   :maxdepth: 1
+   :hidden:
+   :caption: Foundation Models
+
+   Foundation-Model Forecasting <tutorials/foundation_model_forecasting>
 
 .. toctree::
    :maxdepth: 1
