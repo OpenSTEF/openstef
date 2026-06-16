@@ -58,10 +58,12 @@ urls.Repository = "https://github.com/OpenSTEF/openstef"
 
 [dependency-groups]
 dev = [
+  "ipykernel>=6.29",
   "jupytext>=1.19.1",
   "licensecheck>=2025.1",
   "microsoft-python-type-stubs",
   "moto[s3,server]>=5.1.11",
+  "nbconvert>=7.16",
   "openstef-beam",
   "openstef-core",
   "openstef-docs",
