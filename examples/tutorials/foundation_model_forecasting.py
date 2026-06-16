@@ -124,13 +124,13 @@ from openstef_foundation_models.presets.forecasting_workflow import (
 )
 from openstef_models.utils.feature_selection import Include
 
-HORIZON = LeadTime.from_string("PT48H")
+HORIZON = LeadTime.from_string("P7D")
 
 workflow = create_forecasting_workflow(
     ForecastingWorkflowConfig(
         model="chronos2",
         checkpoint=checkpoint,
-        quantiles=[Q(0.1), Q(0.5), Q(0.9)],
+        quantiles=[Q(0.3), Q(0.5), Q(0.7)],
         horizons=[HORIZON],
         target_column="load",
         # Keep the target plus the three known-future weather covariates; every
@@ -168,7 +168,7 @@ from openstef_core.testing import load_liander_dataset
 
 dataset = load_liander_dataset()
 
-forecast_start = datetime.fromisoformat("2024-04-15T00:00:00Z")
+forecast_start = datetime.fromisoformat("2024-11-15T00:00:00Z")
 context_start = forecast_start - timedelta(days=60)
 
 # The window spans history + horizon: load history conditions the model, while the
@@ -197,13 +197,13 @@ forecast.data.head()
 
 # %% tags=["remove-cell"]
 assert len(forecast.data) > 1, "Expected a multi-step forecast"
-assert forecast.quantiles == [Q(0.1), Q(0.5), Q(0.9)], "Quantiles should match the request"
+assert forecast.quantiles == [Q(0.3), Q(0.5), Q(0.7)], "Quantiles should match the request"
 
 # %% [markdown]
 # ## Visualize the forecast
 #
 # [`ForecastTimeSeriesPlotter`](https://openstef.github.io/openstef/api/generated/openstef_beam.analysis.plots.ForecastTimeSeriesPlotter.html)
-# overlays the actual load against the median forecast with a shaded P10-P90 band.
+# overlays the actual load against the median forecast with a shaded quantile band.
 
 # %% tags=["hide-input"]
 from openstef_beam.analysis.plots import ForecastTimeSeriesPlotter
