@@ -65,12 +65,22 @@ def test_onnx_matches_torch_quantile_predictions(
     context = rng.normal(100.0, 10.0, size=(batch_size, context_length)).astype(np.float32)
     group_ids = np.arange(batch_size, dtype=np.int64)
     attention_mask = np.ones((batch_size, context_length), dtype=np.float32)
+    # Target-only parity: covariates masked out over the frozen horizon.
+    horizon_length = chronos2_metadata.horizon_length
+    future_covariates = np.zeros((batch_size, horizon_length), dtype=np.float32)
+    future_covariates_mask = np.zeros((batch_size, horizon_length), dtype=np.float32)
 
     # Act
     onnx_out = np.asarray(
-        onnx_backend.run({"context": context, "group_ids": group_ids, "attention_mask": attention_mask})[
-            "quantile_preds"
-        ]
+        onnx_backend.run(
+            {
+                "context": context,
+                "group_ids": group_ids,
+                "attention_mask": attention_mask,
+                "future_covariates": future_covariates,
+                "future_covariates_mask": future_covariates_mask,
+            }
+        )["quantile_preds"]
     )
     with torch.inference_mode():
         torch_out = (
@@ -78,6 +88,8 @@ def test_onnx_matches_torch_quantile_predictions(
                 torch.from_numpy(context),
                 torch.from_numpy(group_ids),
                 torch.from_numpy(attention_mask),
+                torch.from_numpy(future_covariates),
+                torch.from_numpy(future_covariates_mask),
             )
             .cpu()
             .numpy()

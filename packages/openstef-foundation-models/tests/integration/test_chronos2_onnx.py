@@ -49,6 +49,31 @@ def _make_input(periods: int, horizon: LeadTime, *, start: str = "2025-01-01") -
     )
 
 
+def _make_input_with_covariate(periods: int, *, start: str = "2025-01-01") -> ForecastInputDataset:
+    """Build a forecast input with a known covariate spanning history and the full horizon.
+
+    The target is observed only over the history; the covariate column is known
+    over both the history and the entire frozen horizon (so it is forwarded as a
+    fully-known future covariate).
+    """
+    total = periods + HORIZON_LENGTH
+    index = pd.date_range(start, periods=total, freq=SAMPLE_INTERVAL)
+    steps_per_day = int(timedelta(days=1) / SAMPLE_INTERVAL)
+    phase = 2 * np.pi * np.arange(total) / steps_per_day
+
+    load = 100.0 + 30.0 * np.sin(phase)
+    load[periods:] = np.nan  # target is unknown over the horizon
+    covariate = 50.0 + 20.0 * np.sin(phase + np.pi / 4)  # known everywhere
+
+    frame = pd.DataFrame({"load": load, "temperature_2m": covariate}, index=index)
+    return ForecastInputDataset(
+        data=frame,
+        sample_interval=SAMPLE_INTERVAL,
+        target_column="load",
+        forecast_start=index[periods].to_pydatetime(),
+    )
+
+
 def test_onnx_backend_produces_native_quantile_shape(onnx_backend: OnnxBackend) -> None:
     """The raw backend returns finite native-quantile predictions of the frozen shape."""
     # Arrange
@@ -58,6 +83,9 @@ def test_onnx_backend_produces_native_quantile_shape(onnx_backend: OnnxBackend) 
         "context": rng.normal(100.0, 10.0, size=(batch_size, context_length)).astype(np.float32),
         "group_ids": np.arange(batch_size, dtype=np.int64),
         "attention_mask": np.ones((batch_size, context_length), dtype=np.float32),
+        # Target-only path: covariates masked out (the horizon length is frozen at 672).
+        "future_covariates": np.zeros((batch_size, HORIZON_LENGTH), dtype=np.float32),
+        "future_covariates_mask": np.zeros((batch_size, HORIZON_LENGTH), dtype=np.float32),
     }
 
     # Act
@@ -66,6 +94,39 @@ def test_onnx_backend_produces_native_quantile_shape(onnx_backend: OnnxBackend) 
     # Assert
     predictions = np.asarray(outputs["quantile_preds"])
     assert predictions.shape == (batch_size, N_NATIVE_QUANTILES, HORIZON_LENGTH)
+    assert np.isfinite(predictions).all()
+
+
+def test_onnx_backend_runs_with_known_future_covariates(onnx_backend: OnnxBackend) -> None:
+    """A grouped target+covariate batch with known-future values runs and stays finite."""
+    # Arrange: row 0 is the target, row 1 is a covariate sharing its group id.
+    context_length = 512
+    rng = np.random.default_rng(1)
+    context = rng.normal(100.0, 10.0, size=(2, context_length)).astype(np.float32)
+    inputs = {
+        "context": context,
+        "group_ids": np.array([0, 0], dtype=np.int64),
+        "attention_mask": np.ones((2, context_length), dtype=np.float32),
+        # Target row (0): covariates masked out. Covariate row (1): known horizon values.
+        "future_covariates": np.vstack(
+            [
+                np.zeros(HORIZON_LENGTH, dtype=np.float32),
+                rng.normal(50.0, 5.0, size=HORIZON_LENGTH).astype(np.float32),
+            ]
+        ),
+        "future_covariates_mask": np.vstack(
+            [
+                np.zeros(HORIZON_LENGTH, dtype=np.float32),
+                np.ones(HORIZON_LENGTH, dtype=np.float32),
+            ]
+        ),
+    }
+
+    # Act
+    predictions = np.asarray(onnx_backend.run(inputs)["quantile_preds"])
+
+    # Assert
+    assert predictions.shape == (2, N_NATIVE_QUANTILES, HORIZON_LENGTH)
     assert np.isfinite(predictions).all()
 
 
@@ -128,3 +189,30 @@ def test_onnx_backend_metadata_matches_checkpoint(
     assert onnx_backend.metadata.model_family == chronos2_metadata.model_family
     assert onnx_backend.metadata.horizon_length == HORIZON_LENGTH
     assert onnx_backend.metadata.native_quantiles == chronos2_metadata.native_quantiles
+
+
+def test_chronos2_forecaster_conditions_on_covariates(onnx_backend: OnnxBackend) -> None:
+    """A known covariate conditions the forecast: it differs from the target-only run."""
+    # Arrange
+    horizon = LeadTime.from_string("PT24H")
+    forecaster = Chronos2Forecaster(backend=onnx_backend, quantiles=QUANTILES, horizons=[horizon])
+    with_covariate = _make_input_with_covariate(periods=14 * 96)
+    without_covariate = ForecastInputDataset(
+        data=with_covariate.data[["load"]],
+        sample_interval=SAMPLE_INTERVAL,
+        target_column="load",
+        forecast_start=with_covariate.forecast_start,
+    )
+
+    # Act
+    covariate_forecast = forecaster.predict(with_covariate)
+    baseline_forecast = forecaster.predict(without_covariate)
+
+    # Assert
+    assert covariate_forecast.quantiles_data.shape == baseline_forecast.quantiles_data.shape
+    assert np.isfinite(covariate_forecast.quantiles_data.to_numpy()).all()
+    # Conditioning on the covariate changes the model's output.
+    assert not np.allclose(
+        covariate_forecast.quantiles_data.to_numpy(),
+        baseline_forecast.quantiles_data.to_numpy(),
+    )
