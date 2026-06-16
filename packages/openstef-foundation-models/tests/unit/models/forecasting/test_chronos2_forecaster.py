@@ -65,7 +65,7 @@ class RecordingBackend:
 def metadata() -> CheckpointMetadata:
     return CheckpointMetadata(
         model_family="chronos2",
-        input_names=["context", "group_ids", "attention_mask"],
+        input_names=["context", "group_ids", "attention_mask", "future_covariates", "future_covariates_mask"],
         output_name="quantile_preds",
         native_quantiles=NATIVE_QUANTILES,
         context_length=CONTEXT_LENGTH,
@@ -98,6 +98,34 @@ def _make_input(periods: int = 100, forecast_offset: int = 80) -> ForecastInputD
     """
     index = pd.date_range("2025-01-01", periods=periods, freq=SAMPLE_INTERVAL)
     frame = pd.DataFrame({"load": np.arange(periods, dtype=float)}, index=index)
+    return ForecastInputDataset(
+        data=frame,
+        sample_interval=SAMPLE_INTERVAL,
+        target_column="load",
+        forecast_start=index[forecast_offset].to_pydatetime(),
+    )
+
+
+def _make_input_with_covariates(
+    covariates: list[str],
+    periods: int = 100,
+    forecast_offset: int = 80,
+) -> ForecastInputDataset:
+    """Build a forecast input with a ramp target plus known covariate columns.
+
+    Each covariate spans the full index (history and horizon). Covariate ``c``
+    at step ``t`` holds ``t + 1000 * (c_index + 1)`` so values are distinct per
+    covariate and easy to verify.
+
+    Args:
+        covariates: Names of the covariate columns to add.
+        periods: Total number of timesteps in the series.
+        forecast_offset: Index of the forecast start within the series.
+    """
+    index = pd.date_range("2025-01-01", periods=periods, freq=SAMPLE_INTERVAL)
+    frame = pd.DataFrame({"load": np.arange(periods, dtype=float)}, index=index)
+    for offset, name in enumerate(covariates, start=1):
+        frame[name] = np.arange(periods, dtype=float) + 1000.0 * offset
     return ForecastInputDataset(
         data=frame,
         sample_interval=SAMPLE_INTERVAL,
@@ -257,3 +285,163 @@ def test_supports_batching_is_enabled(forecaster: Chronos2Forecaster) -> None:
     """Chronos-2 advertises batch support."""
     # Assert
     assert forecaster.supports_batching is True
+
+
+def test_build_inputs_adds_a_covariate_row_per_feature_sharing_group_id(forecaster: Chronos2Forecaster) -> None:
+    """A series with K covariates produces 1 + K rows that share one group id."""
+    # Arrange
+    backend = forecaster.backend
+    assert isinstance(backend, RecordingBackend)
+    data = _make_input_with_covariates(["temperature", "radiation"])
+
+    # Act
+    forecaster.predict(data)
+
+    # Assert: target row + 2 covariate rows, all in group 0
+    assert backend.last_inputs is not None
+    assert backend.last_inputs["context"].shape == (3, CONTEXT_LENGTH)
+    np.testing.assert_array_equal(backend.last_inputs["group_ids"], np.array([0, 0, 0], dtype=np.int64))
+
+
+def test_build_inputs_covariate_context_holds_covariate_history(forecaster: Chronos2Forecaster) -> None:
+    """Each covariate row's context carries that covariate's own history."""
+    # Arrange
+    backend = forecaster.backend
+    assert isinstance(backend, RecordingBackend)
+    data = _make_input_with_covariates(["temperature"], periods=100, forecast_offset=80)
+
+    # Act
+    forecaster.predict(data)
+
+    # Assert: covariate row (index 1) context ends at the value just before
+    # forecast start. Covariate at step t = t + 1000; step 79 -> 1079.
+    assert backend.last_inputs is not None
+    covariate_context = backend.last_inputs["context"][1]
+    assert covariate_context[-1] == pytest.approx(1079.0)
+
+
+def test_build_inputs_future_covariates_carry_known_horizon_values(forecaster: Chronos2Forecaster) -> None:
+    """Covariate rows carry known horizon values; the target row is masked out."""
+    # Arrange: 120 steps so the full 32-step horizon after index 80 is covered.
+    backend = forecaster.backend
+    assert isinstance(backend, RecordingBackend)
+    data = _make_input_with_covariates(["temperature"], periods=120, forecast_offset=80)
+
+    # Act
+    forecaster.predict(data)
+
+    # Assert
+    assert backend.last_inputs is not None
+    future = backend.last_inputs["future_covariates"]
+    future_mask = backend.last_inputs["future_covariates_mask"]
+    horizon = backend.metadata.horizon_length
+
+    # Target row (0): future fully masked out.
+    np.testing.assert_array_equal(future_mask[0], np.zeros(horizon, dtype=np.float32))
+    np.testing.assert_array_equal(future[0], np.zeros(horizon, dtype=np.float32))
+
+    # Covariate row (1): forecast start is index 80, covariate step t = t + 1000.
+    # The horizon spans steps 80..80+horizon-1, all known.
+    np.testing.assert_array_equal(future_mask[1], np.ones(horizon, dtype=np.float32))
+    expected = np.arange(80, 80 + horizon, dtype=np.float32) + 1000.0
+    np.testing.assert_array_almost_equal(future[1], expected)
+
+
+def test_build_inputs_future_covariates_masked_beyond_available_horizon(forecaster: Chronos2Forecaster) -> None:
+    """Horizon steps with no covariate value are zero-filled and masked out."""
+    # Arrange: only 4 steps of covariate exist past the forecast start, but the
+    # model horizon is 32 steps.
+    backend = forecaster.backend
+    assert isinstance(backend, RecordingBackend)
+    data = _make_input_with_covariates(["temperature"], periods=84, forecast_offset=80)
+
+    # Act
+    forecaster.predict(data)
+
+    # Assert
+    assert backend.last_inputs is not None
+    future_mask = backend.last_inputs["future_covariates_mask"][1]
+    horizon = backend.metadata.horizon_length
+    # Steps 80..83 (4 values) known, the remaining horizon masked out.
+    assert future_mask[:4].sum() == pytest.approx(4.0)
+    np.testing.assert_array_equal(future_mask[4:], np.zeros(horizon - 4, dtype=np.float32))
+
+
+def test_predict_batch_assigns_one_group_per_series_with_covariates(forecaster: Chronos2Forecaster) -> None:
+    """Batched series with covariates get contiguous, per-series group ids."""
+    # Arrange
+    backend = forecaster.backend
+    assert isinstance(backend, RecordingBackend)
+    batch = [
+        _make_input_with_covariates(["temperature", "radiation"]),
+        _make_input_with_covariates(["temperature"]),
+    ]
+
+    # Act
+    forecaster.predict_batch(batch)
+
+    # Assert: series 0 -> 3 rows (group 0), series 1 -> 2 rows (group 1)
+    assert backend.last_inputs is not None
+    assert backend.last_inputs["context"].shape == (5, CONTEXT_LENGTH)
+    np.testing.assert_array_equal(backend.last_inputs["group_ids"], np.array([0, 0, 0, 1, 1], dtype=np.int64))
+
+
+def test_predict_slices_the_target_row_from_grouped_output() -> None:
+    """With covariates present, post-processing reads each series' target row."""
+    # Arrange: a backend whose output encodes each row's global index as the
+    # constant median, so we can verify which row is read back.
+    metadata = CheckpointMetadata(
+        model_family="chronos2",
+        input_names=["context", "group_ids", "attention_mask", "future_covariates", "future_covariates_mask"],
+        output_name="quantile_preds",
+        native_quantiles=NATIVE_QUANTILES,
+        context_length=CONTEXT_LENGTH,
+        output_patch_size=OUTPUT_PATCH_SIZE,
+        horizon_patches=HORIZON_PATCHES,
+        resolution_minutes=15,
+    )
+    backend = RowIndexBackend(metadata)
+    forecaster = Chronos2Forecaster(
+        backend=backend,
+        quantiles=[Quantile(0.5)],
+        horizons=[LeadTime.from_string("PT2H")],
+    )
+    batch = [
+        _make_input_with_covariates(["temperature", "radiation"]),  # rows 0,1,2 -> target row 0
+        _make_input_with_covariates(["temperature"]),  # rows 3,4 -> target row 3
+    ]
+
+    # Act
+    results = forecaster.predict_batch(batch)
+
+    # Assert: each forecast median equals its target row's global index.
+    median = Quantile(0.5).format()
+    assert results[0].data[median].iloc[0] == pytest.approx(0.0)
+    assert results[1].data[median].iloc[0] == pytest.approx(3.0)
+
+
+class RowIndexBackend:
+    """A stub backend whose output encodes each row's global index.
+
+    Every native quantile of row ``r`` is the constant value ``r``. Slicing a
+    target row therefore yields a forecast whose value is that row's index,
+    which makes target-row selection observable.
+    """
+
+    def __init__(self, metadata: CheckpointMetadata) -> None:
+        self._metadata = metadata
+
+    @property
+    def metadata(self) -> CheckpointMetadata:
+        return self._metadata
+
+    def run(self, inputs: Mapping[str, np.ndarray]) -> Mapping[str, np.ndarray]:
+        batch_size = inputs["context"].shape[0]
+        horizon = self._metadata.horizon_length
+        n_quantiles = len(NATIVE_QUANTILES)
+        row_index = np.arange(batch_size, dtype=np.float32)
+        output = np.broadcast_to(row_index[:, None, None], (batch_size, n_quantiles, horizon))
+        return {self._metadata.output_name: output.copy()}
+
+    def close(self) -> None:
+        pass
