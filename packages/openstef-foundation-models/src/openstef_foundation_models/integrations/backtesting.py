@@ -69,7 +69,7 @@ class FoundationModelBacktestForecaster(BaseModel, BacktestForecasterMixin):
     @property
     @override
     def quantiles(self) -> list[Quantile]:
-        return self.workflow.quantiles
+        return self.workflow.model.quantiles
 
     @override
     def fit(self, data: RestrictedHorizonVersionedTimeSeries) -> None:
@@ -90,7 +90,7 @@ class FoundationModelBacktestForecaster(BaseModel, BacktestForecasterMixin):
             available_before=data.horizon,
         )
 
-        target = window.data[self.workflow.target_column]
+        target = window.data[self.workflow.model.target_column]
         if target[target.index < data.horizon].notna().sum() == 0:
             return None
 
@@ -123,7 +123,7 @@ def create_foundation_model_backtest_forecaster(
     if config is None:
         config = BacktestForecasterConfig(
             requires_training=False,
-            predict_length=predict_length if predict_length is not None else workflow.max_horizon.value,
+            predict_length=predict_length if predict_length is not None else workflow.model.max_horizon.value,
             predict_min_length=timedelta(minutes=15),
             predict_context_length=predict_context_length,
             predict_context_min_coverage=0.0,

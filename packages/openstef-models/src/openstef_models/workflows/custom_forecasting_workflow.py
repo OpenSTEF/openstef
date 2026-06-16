@@ -19,7 +19,6 @@ from openstef_core.base_model import BaseModel
 from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesDataset
 from openstef_core.datasets.validated_datasets import ForecastDataset
 from openstef_core.exceptions import NotFittedError, SkipFitting
-from openstef_core.types import LeadTime, Quantile
 from openstef_models.mixins import ModelIdentifier, PredictorCallback
 from openstef_models.mixins.callbacks import WorkflowContext
 from openstef_models.models.forecasting_model import BaseForecastingModel, ModelFitResult
@@ -130,21 +129,6 @@ class CustomForecastingWorkflow(BaseModel):
     )
 
     _logger: logging.Logger = PrivateAttr(default_factory=lambda: logging.getLogger(__name__))
-
-    @property
-    def quantiles(self) -> list[Quantile]:
-        """Quantiles the wrapped model forecasts."""
-        return self.model.quantiles
-
-    @property
-    def max_horizon(self) -> LeadTime:
-        """Maximum forecast horizon the wrapped model supports."""
-        return self.model.max_horizon
-
-    @property
-    def target_column(self) -> str:
-        """Name of the target column the wrapped model forecasts."""
-        return self.model.target_column
 
     def with_run_name(self, run_name: str) -> Self:
         """Return a deep copy of this workflow with the given run name."""
