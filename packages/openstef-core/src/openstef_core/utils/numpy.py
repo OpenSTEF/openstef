@@ -2,12 +2,12 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-"""Quantile-grid resampling for probabilistic forecasts.
+"""Pure NumPy helpers for probabilistic forecasting.
 
-Some models emit a fixed, model-native grid of quantile levels while callers
-request an arbitrary set of quantiles. This module provides a single pure NumPy
-helper that resamples predictions from one quantile grid onto another, kept
-dependency-free and unit tested in isolation.
+Dependency-free array utilities used across forecasters: resampling predictions
+from one quantile grid onto another, and splitting an array into a zero-filled
+value matrix plus a finiteness mask. Each helper is pure and unit tested in
+isolation.
 """
 
 from collections.abc import Sequence
@@ -17,7 +17,28 @@ import numpy as np
 #: Minimum number of source quantile levels required to interpolate between.
 _MIN_SOURCE_QUANTILES = 2
 
-__all__ = ["interpolate_quantiles"]
+__all__ = ["interpolate_quantiles", "zero_fill_with_mask"]
+
+
+def zero_fill_with_mask(values: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    """Split an array into a zero-filled copy and a finiteness mask.
+
+    Non-finite entries (``NaN`` or infinities) are replaced with ``0.0`` in the
+    returned values; the mask is ``1.0`` exactly where the original entry was
+    finite. This is the common "feed raw values, tell the model which are real"
+    step for masked model inputs.
+
+    Args:
+        values: Array of any shape.
+
+    Returns:
+        Tuple ``(filled, mask)``, both ``float32`` and the same shape as
+        *values*. ``filled`` has non-finite entries zeroed; ``mask`` is ``1.0``
+        where *values* was finite, ``0.0`` otherwise.
+    """
+    finite = np.isfinite(values)
+    filled = np.where(finite, values, np.float32(0.0)).astype(np.float32)
+    return filled, finite.astype(np.float32)
 
 
 def interpolate_quantiles(

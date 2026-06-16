@@ -2,12 +2,12 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-"""Unit tests for the quantile-grid resampling helper."""
+"""Unit tests for the pure NumPy forecasting helpers."""
 
 import numpy as np
 import pytest
 
-from openstef_core.utils.quantiles import interpolate_quantiles
+from openstef_core.utils.numpy import interpolate_quantiles, zero_fill_with_mask
 
 
 def test_interpolate_quantiles_returns_exact_values_on_matching_levels() -> None:
@@ -121,3 +121,30 @@ def test_interpolate_quantiles_raises_when_too_few_source_levels() -> None:
     # Act / Assert
     with pytest.raises(ValueError, match="at least two levels"):
         interpolate_quantiles(predictions, source, target_quantiles=[0.5])
+
+
+def test_zero_fill_with_mask_zeros_non_finite_and_flags_finite() -> None:
+    """Non-finite entries become 0 in values and 0 in the mask; finite stay 1."""
+    # Arrange
+    values = np.array([[1.0, np.nan, 3.0], [np.inf, 5.0, -np.inf]])
+
+    # Act
+    filled, mask = zero_fill_with_mask(values)
+
+    # Assert
+    np.testing.assert_array_equal(filled, np.array([[1.0, 0.0, 3.0], [0.0, 5.0, 0.0]], dtype=np.float32))
+    np.testing.assert_array_equal(mask, np.array([[1.0, 0.0, 1.0], [0.0, 1.0, 0.0]], dtype=np.float32))
+
+
+def test_zero_fill_with_mask_returns_float32() -> None:
+    """Both outputs are float32 regardless of input dtype."""
+    # Arrange
+    values = np.array([1, 2, 3], dtype=np.int64)
+
+    # Act
+    filled, mask = zero_fill_with_mask(values)
+
+    # Assert
+    assert filled.dtype == np.float32
+    assert mask.dtype == np.float32
+    np.testing.assert_array_equal(mask, np.ones(3, dtype=np.float32))
