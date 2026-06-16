@@ -44,7 +44,7 @@ from openstef_core.mixins import TransformPipeline
 from openstef_core.types import LeadTime, Q, Quantile
 from openstef_foundation_models.inference.backend import InferenceBackend
 from openstef_foundation_models.inference.providers import ExecutionProvider, SessionOptionsConfig
-from openstef_foundation_models.models.checkpoint import CheckpointRef, HubCheckpoint
+from openstef_foundation_models.models.checkpoint import CheckpointRef
 from openstef_foundation_models.models.forecasting.chronos2_forecaster import (
     Chronos2Forecaster,
     Chronos2HyperParams,
@@ -53,7 +53,7 @@ from openstef_models.mixins import ModelIdentifier
 from openstef_models.models import ForecastingModel
 from openstef_models.transforms.general import Selector
 from openstef_models.transforms.postprocessing import QuantileSorter
-from openstef_models.utils.feature_selection import FeatureSelection, Include
+from openstef_models.utils.feature_selection import FeatureSelection
 from openstef_models.workflows.custom_forecasting_workflow import (
     CustomForecastingWorkflow,
     ForecastingCallback,
@@ -61,16 +61,16 @@ from openstef_models.workflows.custom_forecasting_workflow import (
 
 
 class OnnxBackendConfig(BaseConfig):
-    """Configuration for an ONNX Runtime inference backend.
+    """Compute configuration for an ONNX Runtime inference backend.
 
-    :meth:`build` resolves the checkpoint and constructs an
-    :class:`~openstef_foundation_models.inference.onnx_backend.OnnxBackend`. The
-    ONNX Runtime dependency is imported lazily there, so this config stays
-    importable without the ``[cpu]``/``[gpu]`` extra installed.
+    Holds only *how* to run the model (execution providers, session options), not
+    *which* weights: the checkpoint is supplied to :meth:`build` by the caller, so
+    the same compute settings can run different checkpoints. The ONNX Runtime
+    dependency is imported lazily in :meth:`build`, so this config stays importable
+    without the ``[cpu]``/``[gpu]`` extra installed.
     """
 
     kind: Literal["onnx"] = Field(default="onnx", description="Discriminator tag for backend type.")
-    checkpoint: CheckpointRef = Field(description="Local or Hub checkpoint to load.")
     providers: list[ExecutionProvider] | None = Field(
         default=None,
         description="Ordered execution providers to try. Defaults to CUDA when available, otherwise CPU.",
@@ -84,17 +84,20 @@ class OnnxBackendConfig(BaseConfig):
         description="Raise (rather than warn) if the realized provider chain silently falls back to CPU.",
     )
 
-    def build(self) -> InferenceBackend:
-        """Resolve the checkpoint and build the ONNX Runtime backend.
+    def build(self, checkpoint: CheckpointRef) -> InferenceBackend:
+        """Resolve *checkpoint* and build the ONNX Runtime backend.
 
         Importing the backend raises ``MissingExtraError`` if ONNX Runtime is not installed.
+
+        Args:
+            checkpoint: The checkpoint (weights + metadata) to load and run.
 
         Returns:
             A ready-to-run backend wrapping the resolved checkpoint.
         """
         from openstef_foundation_models.inference.onnx_backend import OnnxBackend  # noqa: PLC0415
 
-        resolved = self.checkpoint.resolve()
+        resolved = checkpoint.resolve()
         return OnnxBackend.from_checkpoint(
             resolved,
             providers=self.providers,
@@ -113,18 +116,14 @@ class ForecastingWorkflowConfig(BaseConfig):
     """Declarative configuration for a foundation-model forecasting workflow.
 
     Selects a model family and the checkpoint that backs it, the requested
-    quantiles and horizons, and the feature columns Chronos-2 conditions on.
-    Every selected non-target column is treated as a known covariate, so the
-    weather forecasts (radiation, wind speed, temperature) condition the
-    forecast. Column names default to the Liander 2024 dataset conventions and
-    are configurable.
+    quantiles and horizons, the target column, and the columns to keep before
+    forecasting. Every kept non-target column is treated as a known covariate, so
+    weather forecasts condition the prediction. Compute settings (execution
+    providers, session options) live on the nested :attr:`backend` config.
     """
 
     model: Literal["chronos2"] = Field(description="Foundation model family to use.")
-    checkpoint: CheckpointRef | None = Field(
-        default=None,
-        description="Checkpoint to load. When omitted, a sensible default is inferred from `model`.",
-    )
+    checkpoint: CheckpointRef = Field(description="Checkpoint (weights + metadata) to load and run.")
 
     quantiles: list[Quantile] = Field(
         default=[Q(0.5)],
@@ -138,35 +137,15 @@ class ForecastingWorkflowConfig(BaseConfig):
     )
 
     target_column: str = Field(default="load", description="Name of the target column to forecast.")
-    radiation_column: str = Field(
-        default="shortwave_radiation",
-        description="Name of the (known-future) radiation covariate column.",
-    )
-    wind_speed_column: str = Field(
-        default="wind_speed_80m",
-        description="Name of the (known-future) wind-speed covariate column.",
-    )
-    temperature_column: str = Field(
-        default="temperature_2m",
-        description="Name of the (known-future) temperature covariate column.",
-    )
-    selected_features: FeatureSelection | None = Field(
-        default=None,
-        description="Features to keep before forecasting. When omitted, the target plus the radiation, "
-        "wind-speed and temperature covariate columns are selected.",
+    selected_features: FeatureSelection = Field(
+        default_factory=lambda: FeatureSelection.ALL,
+        description="Columns to keep before forecasting. Defaults to all columns. Every kept non-target column "
+        "is forwarded to the model as a known covariate. Must include the target column.",
     )
 
-    providers: list[ExecutionProvider] | None = Field(
-        default=None,
-        description="Ordered ONNX Runtime execution providers to try. Defaults to CUDA when available, otherwise CPU.",
-    )
-    session_options: SessionOptionsConfig | None = Field(
-        default=None,
-        description="Optional ONNX Runtime session options.",
-    )
-    strict_providers: bool = Field(
-        default=False,
-        description="Raise (rather than warn) if the realized provider chain silently falls back to CPU.",
+    backend: BackendConfig = Field(
+        default_factory=OnnxBackendConfig,
+        description="Inference backend (compute) configuration: execution providers and session options.",
     )
 
     chronos2_hyperparams: Chronos2HyperParams = Field(
@@ -182,51 +161,25 @@ class ForecastingWorkflowConfig(BaseConfig):
     )
 
 
-def create_forecasting_workflow(
-    config: ForecastingWorkflowConfig,
-    *,
-    backend: InferenceBackend | None = None,
-) -> CustomForecastingWorkflow:
+def create_forecasting_workflow(config: ForecastingWorkflowConfig) -> CustomForecastingWorkflow:
     """Build a foundation-model forecasting workflow from a declarative config.
 
     Resolves the checkpoint (lazily importing the inference runtime), composes
-    the forecaster for the selected model family, and wraps it in a workflow with
-    feature-selection preprocessing and quantile-sorting postprocessing. There is
-    no training step: the model is zero-shot, so
-    :meth:`CustomForecastingWorkflow.fit` only fits the feature selector.
+    the forecaster for the selected model family on the configured backend, and
+    wraps it in a workflow with feature-selection preprocessing and
+    quantile-sorting postprocessing. There is no training step: the model is
+    zero-shot, so :meth:`CustomForecastingWorkflow.fit` only fits the feature
+    selector.
 
     Args:
         config: The workflow configuration.
-        backend: A pre-built inference backend to run the model on. When omitted,
-            an ONNX backend is built from the config's checkpoint and provider
-            settings (defaulting to CUDA when available, otherwise CPU). Pass an
-            explicit backend to control the device or runtime (e.g. a GPU ONNX
-            session, or a Torch backend).
 
     Returns:
         A ready-to-use workflow composing the configured backend.
     """
-    selected_features = config.selected_features or Include(
-        config.target_column,
-        config.radiation_column,
-        config.wind_speed_column,
-        config.temperature_column,
-    )
-
     match config.model:
         case "chronos2":
-            # Inferred default while the ONNX checkpoint is unpublished; resolves
-            # to the Hub repo once it is published. Pass `checkpoint` explicitly
-            # (e.g. a LocalCheckpoint) until then.
-            checkpoint = config.checkpoint or HubCheckpoint(
-                repo_id="openstef/chronos-2-onnx", filename="chronos-2.onnx"
-            )
-            model_backend = backend or OnnxBackendConfig(
-                checkpoint=checkpoint,
-                providers=config.providers,
-                session_options=config.session_options,
-                strict_providers=config.strict_providers,
-            ).build()
+            model_backend = config.backend.build(config.checkpoint)
             forecaster = Chronos2Forecaster(
                 backend=model_backend,
                 quantiles=config.quantiles,
@@ -237,7 +190,7 @@ def create_forecasting_workflow(
     callbacks: list[ForecastingCallback] = []
     return CustomForecastingWorkflow(
         model=ForecastingModel(
-            preprocessing=TransformPipeline(transforms=[Selector(selection=selected_features)]),
+            preprocessing=TransformPipeline(transforms=[Selector(selection=config.selected_features)]),
             forecaster=forecaster,
             postprocessing=TransformPipeline(transforms=[QuantileSorter()]),
             target_column=config.target_column,

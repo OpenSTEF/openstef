@@ -122,6 +122,7 @@ from openstef_foundation_models.presets.forecasting_workflow import (
     ForecastingWorkflowConfig,
     create_forecasting_workflow,
 )
+from openstef_models.utils.feature_selection import Include
 
 HORIZON = LeadTime.from_string("PT48H")
 
@@ -132,9 +133,14 @@ workflow = create_forecasting_workflow(
         quantiles=[Q(0.1), Q(0.5), Q(0.9)],
         horizons=[HORIZON],
         target_column="load",
-        radiation_column="shortwave_radiation",
-        wind_speed_column="wind_speed_80m",
-        temperature_column="temperature_2m",
+        # Keep the target plus the three known-future weather covariates; every
+        # kept non-target column is forwarded to Chronos-2 as a covariate.
+        selected_features=Include(
+            "load",
+            "shortwave_radiation",
+            "wind_speed_80m",
+            "temperature_2m",
+        ),
     )
 )
 

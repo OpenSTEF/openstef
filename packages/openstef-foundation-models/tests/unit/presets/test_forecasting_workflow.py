@@ -27,6 +27,7 @@ from openstef_foundation_models.presets.forecasting_workflow import (
 )
 from openstef_models.models import ForecastingModel
 from openstef_models.transforms.general import Selector
+from openstef_models.utils.feature_selection import FeatureSelection
 from openstef_models.workflows.custom_forecasting_workflow import CustomForecastingWorkflow
 
 NATIVE_QUANTILES = [0.1, 0.5, 0.9]
@@ -75,7 +76,7 @@ def test_create_forecasting_workflow_builds_chronos2(monkeypatch: pytest.MonkeyP
     """The factory composes the built backend into a Chronos2Forecaster workflow."""
     # Arrange
     backend = StubBackend(_metadata())
-    monkeypatch.setattr(OnnxBackendConfig, "build", lambda _self: backend)
+    monkeypatch.setattr(OnnxBackendConfig, "build", lambda _self, _checkpoint: backend)
     config = ForecastingWorkflowConfig(
         model="chronos2",
         checkpoint=LocalCheckpoint(path=Path("chronos-2.onnx")),
@@ -99,12 +100,12 @@ def test_create_forecasting_workflow_builds_chronos2(monkeypatch: pytest.MonkeyP
     assert forecaster.horizons == [LeadTime.from_string("PT24H")]
 
 
-def test_create_forecasting_workflow_selects_target_and_weather_covariates(
+def test_create_forecasting_workflow_selects_all_features_by_default(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """With no explicit selection, the target plus the three weather covariates are kept."""
+    """With no explicit selection, all columns are kept (target + every covariate)."""
     # Arrange
-    monkeypatch.setattr(OnnxBackendConfig, "build", lambda _self: StubBackend(_metadata()))
+    monkeypatch.setattr(OnnxBackendConfig, "build", lambda _self, _checkpoint: StubBackend(_metadata()))
     config = ForecastingWorkflowConfig(
         model="chronos2",
         checkpoint=LocalCheckpoint(path=Path("chronos-2.onnx")),
@@ -116,12 +117,7 @@ def test_create_forecasting_workflow_selects_target_and_weather_covariates(
     # Assert
     selector = workflow.model.preprocessing.transforms[0]
     assert isinstance(selector, Selector)
-    assert selector.selection.include == {
-        "load",
-        "shortwave_radiation",
-        "wind_speed_80m",
-        "temperature_2m",
-    }
+    assert selector.selection == FeatureSelection.ALL
 
 
 def test_onnx_backend_config_build_resolves_checkpoint_and_passes_options(
@@ -144,10 +140,10 @@ def test_onnx_backend_config_build_resolves_checkpoint_and_passes_options(
         return StubBackend(resolved.metadata)
 
     monkeypatch.setattr(onnx_module.OnnxBackend, "from_checkpoint", staticmethod(fake_from_checkpoint))
-    backend_config = OnnxBackendConfig(checkpoint=_write_checkpoint(tmp_path), strict_providers=True)
+    backend_config = OnnxBackendConfig(strict_providers=True)
 
     # Act
-    backend = backend_config.build()
+    backend = backend_config.build(checkpoint=_write_checkpoint(tmp_path))
 
     # Assert
     assert isinstance(backend, StubBackend)
