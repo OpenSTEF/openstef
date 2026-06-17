@@ -81,7 +81,6 @@ from openstef_beam.benchmarking.callbacks.strict_execution_callback import Stric
 from openstef_beam.benchmarking.models.benchmark_target import BenchmarkTarget
 from openstef_beam.benchmarking.storage.local_storage import LocalBenchmarkStorage
 from openstef_core.types import LeadTime, Q
-from openstef_foundation_models.inference.providers import CoreMLProvider
 from openstef_foundation_models.integrations.backtesting import (
     FoundationModelBacktestForecaster,
     create_foundation_model_backtest_forecaster,
@@ -89,7 +88,6 @@ from openstef_foundation_models.integrations.backtesting import (
 from openstef_foundation_models.models.checkpoint import LocalCheckpoint
 from openstef_foundation_models.presets.forecasting_workflow import (
     ForecastingWorkflowConfig,
-    OnnxBackendConfig,
     create_forecasting_workflow,
 )
 from openstef_models.utils.feature_selection import Include
@@ -209,7 +207,11 @@ workflow = create_forecasting_workflow(
             "wind_speed_80m",
             "temperature_2m",
         ),
-        backend=OnnxBackendConfig(providers=[CoreMLProvider()], strict_providers=True),  # For Mac GPU
+        # No `backend` override: the default provider policy reads the checkpoint
+        # metadata (precision, static shapes) and the host to pick a performant
+        # chain automatically — CoreML (GPU) on a static macOS checkpoint, CUDA on
+        # NVIDIA, CPU otherwise. Pass an explicit `backend=OnnxBackendConfig(...)`
+        # only to force a specific chain.
     )
 )
 

@@ -13,6 +13,7 @@ import pytest
 
 import openstef_foundation_models.inference.onnx_backend as onnx_module
 from openstef_core.types import LeadTime, Quantile
+from openstef_foundation_models.inference.provider_selection import DefaultProviderPolicy
 from openstef_foundation_models.models.checkpoint import (
     CheckpointMetadata,
     LocalCheckpoint,
@@ -132,14 +133,16 @@ def test_onnx_backend_config_build_resolves_checkpoint_and_passes_options(
         providers: object = None,
         session_options: object = None,
         *,
-        strict_providers: bool = False,
+        policy: object = None,
     ) -> StubBackend:
         captured["resolved"] = resolved
-        captured["strict_providers"] = strict_providers
+        captured["providers"] = providers
+        captured["policy"] = policy
         return StubBackend(resolved.metadata)
 
     monkeypatch.setattr(onnx_module.OnnxBackend, "from_checkpoint", staticmethod(fake_from_checkpoint))
-    backend_config = OnnxBackendConfig(strict_providers=True)
+    policy = DefaultProviderPolicy()
+    backend_config = OnnxBackendConfig(policy=policy)
 
     # Act
     backend = backend_config.build(checkpoint=_write_checkpoint(tmp_path))
@@ -149,7 +152,8 @@ def test_onnx_backend_config_build_resolves_checkpoint_and_passes_options(
     resolved = captured["resolved"]
     assert isinstance(resolved, ResolvedCheckpoint)
     assert resolved.metadata.model_family == "chronos2"
-    assert captured["strict_providers"] is True
+    assert captured["providers"] is None
+    assert captured["policy"] is policy
 
 
 def test_config_round_trips_through_json() -> None:
@@ -169,12 +173,12 @@ def test_config_round_trips_through_json() -> None:
     assert restored == config
 
 
-def test_importing_preset_succeeds_without_onnx_backend() -> None:
-    """Importing the preset must not require the heavy ONNX Runtime dependency.
+def test_importing_preset_succeeds_without_building_backend() -> None:
+    """Importing the preset must not eagerly build the ONNX backend session.
 
-    The ONNX backend is imported lazily inside ``OnnxBackendConfig.build``, so the
-    module must import cleanly on its own.
+    ``OnnxBackend`` is imported lazily inside ``OnnxBackendConfig.build``, so the
+    preset module imports cleanly without constructing an inference session.
     """
-    # Act / Assert: the import succeeds without the heavy ONNX backend at module load.
+    # Act / Assert: the import succeeds without building a backend at module load.
     module = importlib.import_module("openstef_foundation_models.presets.forecasting_workflow")
     assert module is not None

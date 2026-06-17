@@ -15,9 +15,12 @@ from collections.abc import Mapping, Sequence
 import numpy as np
 
 from openstef_core.exceptions import MissingExtraError
+from openstef_foundation_models.inference.provider_selection import (
+    DefaultProviderPolicy,
+    HostCapabilities,
+    ProviderPolicy,
+)
 from openstef_foundation_models.inference.providers import (
-    CpuProvider,
-    CudaProvider,
     ExecutionProvider,
     SessionOptionsConfig,
 )
@@ -64,23 +67,58 @@ class OnnxBackend:
         providers: Sequence[ExecutionProvider] | None = None,
         session_options: SessionOptionsConfig | None = None,
         *,
-        strict_providers: bool = False,
+        policy: ProviderPolicy | None = None,
     ) -> "OnnxBackend":
         """Build a backend by loading a checkpoint into a new ONNX Runtime session.
 
+        How the provider chain is chosen drives how strictly its realization is
+        enforced:
+
+        * ``providers is None`` (default): *policy* (or :class:`DefaultProviderPolicy`)
+          selects a chain from the checkpoint and host — **graceful**, warning only
+          if it fell all the way to CPU.
+        * explicit ``providers``: those exact providers are used — **strict**,
+          raising if a requested accelerator is not realized. *policy* is ignored.
+
         Args:
             checkpoint: The resolved checkpoint (weights + metadata) to load.
-            providers: Ordered execution providers to try. Defaults to CUDA when
-                available, otherwise CPU.
+            providers: Ordered execution providers to try. ``None`` lets the policy
+                pick a host-appropriate chain from the checkpoint metadata.
             session_options: Optional ONNX Runtime session options.
-            strict_providers: When ``True``, raise if the realized provider chain
-                falls back to CPU despite an accelerator being requested. When
-                ``False`` (default), only warn.
+            policy: Selection policy used when ``providers is None``. Defaults to
+                :class:`DefaultProviderPolicy`.
 
         Returns:
             A backend wrapping the newly built session.
         """
-        provider_configs = list(providers) if providers else _default_providers()
+        metadata = checkpoint.metadata
+        if providers is not None:
+            provider_configs = list(providers)
+            explicit = True
+            logger.info(
+                "Using explicit execution-provider chain %s for checkpoint '%s'.",
+                [config.to_ort()[0] for config in provider_configs],
+                metadata.model_family,
+            )
+        else:
+            selector = policy or DefaultProviderPolicy()
+            host = HostCapabilities.detect()
+            provider_configs = selector.select(metadata, host)
+            explicit = False
+            logger.debug(
+                "Detected host: platform=%s, available_providers=%s",
+                host.platform,
+                sorted(host.available_providers),
+            )
+            logger.info(
+                "%s selected execution-provider chain %s for checkpoint '%s' (precision=%s, static_shapes=%s) on %s.",
+                type(selector).__name__,
+                [config.to_ort()[0] for config in provider_configs],
+                metadata.model_family,
+                metadata.precision,
+                metadata.static_shapes,
+                host.platform,
+            )
         ort_providers = [config.to_ort() for config in provider_configs]
         so = _build_session_options(session_options) if session_options else None
 
@@ -89,10 +127,11 @@ class OnnxBackend:
             sess_options=so,
             providers=ort_providers,
         )
+        logger.info("ONNX Runtime session built; realized providers: %s.", session.get_providers())
         _check_provider_fallback(
             requested=provider_configs,
             realized=session.get_providers(),
-            strict=strict_providers,
+            strict=explicit,
         )
         return cls(metadata=checkpoint.metadata, session=session)
 
@@ -129,21 +168,6 @@ class OnnxBackend:
         self._session = None
 
 
-def _default_providers() -> list[ExecutionProvider]:
-    """Pick a sensible default execution-provider chain for the host.
-
-    Prefers the CUDA GPU provider when ONNX Runtime reports it as available and
-    falls back to CPU otherwise. Other accelerators (TensorRT, CoreML) have
-    enough caveats (engine builds, partial op coverage) that they stay opt-in.
-
-    Returns:
-        A single-element provider chain: CUDA when available, otherwise CPU.
-    """
-    if "CUDAExecutionProvider" in ort.get_available_providers():
-        return [CudaProvider()]
-    return [CpuProvider()]
-
-
 def _build_session_options(config: SessionOptionsConfig) -> ort.SessionOptions:
     """Translate a :class:`SessionOptionsConfig` into ONNX Runtime session options.
 
@@ -175,15 +199,24 @@ def _check_provider_fallback(
 
     ONNX Runtime silently drops accelerators it cannot initialize (missing
     libraries, unsupported ops) and falls back to CPU. This compares the
-    requested chain against what was actually realized and warns (or raises).
+    requested chain against what was actually realized. How strictly that is
+    enforced depends on who chose the chain:
+
+    * ``strict`` (the chain was given explicitly — the caller owns it): raise if
+      *any* requested accelerator is missing.
+    * graceful (the chain came from a policy): warn only if it fell *all the way*
+      to CPU, i.e. not a single requested accelerator was realized. A policy chain
+      like ``[CoreML, CPU]`` realizing CoreML is the intended outcome, not a
+      fallback worth reporting.
 
     Args:
         requested: The execution providers that were requested.
         realized: The provider names ONNX Runtime actually loaded.
-        strict: When ``True``, raise instead of warning.
+        strict: When ``True``, raise on any missing accelerator; otherwise warn
+            only on a full fallback to CPU.
 
     Raises:
-        RuntimeError: If ``strict`` is set and an accelerator fell back to CPU.
+        RuntimeError: If ``strict`` is set and a requested accelerator is missing.
     """
     requested_names = {config.to_ort()[0] for config in requested}
     accelerators = requested_names - {"CPUExecutionProvider"}
@@ -191,12 +224,18 @@ def _check_provider_fallback(
         return
     realized_set = set(realized)
     missing = accelerators - realized_set
-    if not missing:
-        return
-    msg = (
-        f"Requested execution provider(s) {sorted(missing)} were not realized; "
-        f"ONNX Runtime fell back to {realized}. Inference will run on CPU."
-    )
     if strict:
-        raise RuntimeError(msg)
-    logger.warning(msg)
+        if missing:
+            msg = (
+                f"Requested execution provider(s) {sorted(missing)} were not realized; "
+                f"ONNX Runtime fell back to {realized}."
+            )
+            raise RuntimeError(msg)
+        return
+    if accelerators & realized_set:
+        return
+    logger.warning(
+        "No requested accelerator (%s) was realized; ONNX Runtime fell back to %s. Inference will run on CPU.",
+        sorted(accelerators),
+        realized,
+    )

@@ -43,6 +43,7 @@ from openstef_core.base_model import BaseConfig
 from openstef_core.mixins import TransformPipeline
 from openstef_core.types import LeadTime, Q, Quantile
 from openstef_foundation_models.inference.backend import InferenceBackend
+from openstef_foundation_models.inference.provider_selection import DefaultProviderPolicy
 from openstef_foundation_models.inference.providers import ExecutionProvider, SessionOptionsConfig
 from openstef_foundation_models.models.checkpoint import CheckpointRef
 from openstef_foundation_models.models.forecasting.chronos2_forecaster import (
@@ -73,15 +74,19 @@ class OnnxBackendConfig(BaseConfig):
     kind: Literal["onnx"] = Field(default="onnx", description="Discriminator tag for backend type.")
     providers: list[ExecutionProvider] | None = Field(
         default=None,
-        description="Ordered execution providers to try. Defaults to CUDA when available, otherwise CPU.",
+        description="Ordered execution providers to try. ``None`` lets :attr:`policy` pick a host-appropriate "
+        "chain from the checkpoint metadata (graceful). An explicit list is used exactly as given (strict: a "
+        "missing accelerator raises).",
+    )
+    policy: DefaultProviderPolicy = Field(
+        default=DefaultProviderPolicy(),
+        description="Selection policy used when :attr:`providers` is None. Maps the checkpoint's precision and "
+        "static-shape-ness plus the host to an ordered provider chain. Replace it (e.g. a subclass overriding "
+        "select) to target hardware the default does not cover.",
     )
     session_options: SessionOptionsConfig | None = Field(
         default=None,
         description="Optional ONNX Runtime session options.",
-    )
-    strict_providers: bool = Field(
-        default=False,
-        description="Raise (rather than warn) if the realized provider chain silently falls back to CPU.",
     )
 
     def build(self, checkpoint: CheckpointRef) -> InferenceBackend:
@@ -102,7 +107,7 @@ class OnnxBackendConfig(BaseConfig):
             resolved,
             providers=self.providers,
             session_options=self.session_options,
-            strict_providers=self.strict_providers,
+            policy=self.policy,
         )
 
 

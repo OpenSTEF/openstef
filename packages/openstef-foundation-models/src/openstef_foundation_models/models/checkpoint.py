@@ -25,7 +25,7 @@ from openstef_core.base_model import BaseConfig
 #: Current schema version for :class:`CheckpointMetadata`. Bumped when the
 #: metadata layout changes in a backwards-incompatible way so externally
 #: published checkpoints can be validated against the reader.
-METADATA_SCHEMA_VERSION = 1
+METADATA_SCHEMA_VERSION = 2
 
 
 class CheckpointMetadata(BaseConfig):
@@ -70,9 +70,24 @@ class CheckpointMetadata(BaseConfig):
         gt=0,
         description="Sampling interval of the series the model expects, in minutes.",
     )
-    int8: bool = Field(
+    precision: Literal["fp32", "fp16", "int8"] = Field(
+        default="fp32",
+        description="Numeric precision of the weights. Drives provider selection: int8 (QDQ) is fast on CPU "
+        "but cannot be accelerated by CoreML, fp16/fp32 follow the static-shape CoreML path on macOS.",
+    )
+    static_shapes: bool = Field(
         default=False,
-        description="Whether the weights are statically int8-quantized.",
+        description="Whether ALL graph axes are frozen (no symbolic dims), making the checkpoint eligible for "
+        "shape-strict runtimes such as CoreML. The frozen sizes are given by context_length and horizon_length; "
+        "when False those are maxima on symbolic axes.",
+    )
+    max_covariates: int | None = Field(
+        default=None,
+        gt=0,
+        description="Frozen number of covariate series the graph accepts, or None if that axis is dynamic. "
+        "Independent of static_shapes (the covariate axis is not the series/batch axis): a graph may freeze "
+        "the covariate count while leaving the batch dynamic. Consumed only by the forecaster, which "
+        "pads/validates a series' covariate columns to it.",
     )
 
     @property
