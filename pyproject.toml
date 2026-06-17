@@ -72,7 +72,7 @@ dev = [
   "openstef-beam[all]",
   "openstef-core[benchmark]",
   "openstef-docs",
-  "openstef-foundation-models[benchmarking,cpu,hub,torch]",
+  "openstef-foundation-models[benchmarking,cpu,hub]",
   "openstef-meta",
   "openstef-models[lgbm,tuning,xgb-cpu]",
   "pandas-stubs>=2.3.0.250703,<3",                          # Held at <3 to match the pandas <3 pin (see migration issue)

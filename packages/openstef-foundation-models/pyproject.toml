@@ -52,15 +52,6 @@ optional-dependencies.gpu = [
 optional-dependencies.hub = [
   "huggingface-hub>=1.2.2",
 ]
-# Run the original Chronos-2 Torch module (benchmarking / ONNX parity reference).
-# NOTE: `chronos-forecasting>=2` is intentionally NOT listed here. It pins
-# huggingface-hub<1.0, which conflicts with openstef-core[benchmark]
-# (huggingface-hub>=1.2.2) and would make the workspace unresolvable. It is a
-# temporary parity-reference dependency — install it ad hoc when needed:
-#   uv pip install "chronos-forecasting>=2"
-optional-dependencies.torch = [
-  "torch>=2.4",
-]
 urls.Documentation = "https://openstef.github.io/openstef/index.html"
 urls.Homepage = "https://lfenergy.org/projects/openstef/"
 urls.Issues = "https://github.com/OpenSTEF/openstef/issues"

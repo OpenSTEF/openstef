@@ -174,7 +174,7 @@ optional extra installed. It therefore:
         CudaProvider,
         ExecutionProvider,
     )
-    # NOT OnnxBackend / TorchBackend — importing those requires onnxruntime / torch.
+    # NOT OnnxBackend — importing it requires onnxruntime.
 
 .. code-block:: python
 

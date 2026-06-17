@@ -11,11 +11,10 @@ ONNX for Torch is a configuration choice.
 
 Only the **dependency-free** surface is re-exported here: the
 :class:`InferenceBackend` protocol and the execution-provider configs (pure
-pydantic). The concrete backends live in their own submodules and import their
-heavy dependency at module top level, so importing them is an explicit opt-in:
+pydantic). The concrete backend lives in its own submodule and imports its
+heavy dependency at module top level, so importing it is an explicit opt-in:
 
 * ``from openstef_foundation_models.inference.onnx_backend import OnnxBackend`` requires ONNX Runtime.
-* ``from openstef_foundation_models.inference.torch_backend import TorchBackend`` requires PyTorch.
 """
 
 from openstef_foundation_models.inference.backend import InferenceBackend

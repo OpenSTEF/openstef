@@ -7,7 +7,7 @@
 This module is **runtime-light**: importing it pulls in dependency-free pydantic
 config (checkpoint refs, execution-provider configs) and the pure-Python
 transform/workflow classes from ``openstef_models``. The heavy inference runtime
-— ONNX Runtime, Torch — is imported lazily inside the selected backend's
+— ONNX Runtime — is imported lazily inside the selected backend's
 :meth:`build` method, so a caller that only inspects or serialises a config never
 pays for a backend it will not use.
 
