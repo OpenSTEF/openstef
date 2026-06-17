@@ -221,6 +221,7 @@ def build_torch_backend(metadata: CheckpointMetadata, model_id: str, device: str
             super().__init__()
             self.model = model
 
+        @override
         def forward(
             self,
             context: torch.Tensor,

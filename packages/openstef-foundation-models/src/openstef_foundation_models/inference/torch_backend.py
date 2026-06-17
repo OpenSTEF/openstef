@@ -32,7 +32,7 @@ from openstef_core.exceptions import MissingExtraError
 from openstef_foundation_models.models.checkpoint import CheckpointMetadata
 
 try:
-    import torch  # ty: ignore[unresolved-import]
+    import torch
 except ImportError as e:
     raise MissingExtraError("torch", "openstef-foundation-models") from e
 
@@ -85,9 +85,7 @@ class TorchBackend:
         if self._module is None:
             msg = "TorchBackend has been closed."
             raise RuntimeError(msg)
-        torch_inputs = {
-            name: torch.from_numpy(np.asarray(value)).to(self._device) for name, value in inputs.items()
-        }
+        torch_inputs = {name: torch.from_numpy(np.asarray(value)).to(self._device) for name, value in inputs.items()}
         with torch.inference_mode():
             output = self._module(**torch_inputs)
         array = output.detach().cpu().numpy() if isinstance(output, torch.Tensor) else np.asarray(output)
