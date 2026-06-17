@@ -98,19 +98,28 @@ class CoreMLProvider(BaseConfig):
     )
     compute_units: Literal["CPUOnly", "CPUAndGPU", "CPUAndNeuralEngine", "ALL"] = Field(
         default="ALL",
-        description="Which compute units CoreML may dispatch to.",
+        description="Which compute units CoreML may dispatch to. Prefer 'CPUAndGPU' for large transformer "
+        "graphs: allowing the Neural Engine ('ALL'/'CPUAndNeuralEngine') can make CoreML's ahead-of-time "
+        "compile run for many minutes for no inference win.",
+    )
+    cache_dir: Path | None = Field(
+        default=None,
+        description="Directory for CoreML's compiled-model cache (ORT 'ModelCacheDirectory'). CoreML compiles "
+        "the graph ahead of time on session build, which is slow; caching it cuts a warm rebuild from tens of "
+        "seconds to a few. The cache is ORT-version/OS/hardware-specific — a local speedup, not a portable "
+        "artifact. Requires 'MLProgram' format.",
     )
 
     def to_ort(self) -> OrtProvider:
         """Compile to an ONNX Runtime provider tuple.
 
         Returns:
-            The ``CoreMLExecutionProvider`` with format and compute-unit options.
+            The ``CoreMLExecutionProvider`` with format, compute-unit and (optional) cache options.
         """
-        return (
-            "CoreMLExecutionProvider",
-            {"ModelFormat": self.model_format, "MLComputeUnits": self.compute_units},
-        )
+        options: dict[str, object] = {"ModelFormat": self.model_format, "MLComputeUnits": self.compute_units}
+        if self.cache_dir is not None:
+            options["ModelCacheDirectory"] = str(self.cache_dir)
+        return ("CoreMLExecutionProvider", options)
 
 
 #: An execution-provider config, discriminated by its ``kind`` tag.
