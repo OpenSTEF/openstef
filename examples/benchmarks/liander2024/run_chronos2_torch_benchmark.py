@@ -205,7 +205,13 @@ def build_torch_backend(metadata: CheckpointMetadata, model_id: str, device: str
     """
     try:
         import torch  # noqa: PLC0415
-        from chronos import Chronos2Pipeline  # noqa: PLC0415
+
+        # chronos-forecasting is intentionally absent from the lockfile: it pins
+        # huggingface-hub<1.0, which conflicts with openstef-core[benchmark]'s
+        # security floor (>=1.2.2, #934). So ty can never resolve it in the
+        # locked env — install ad hoc (`uv pip install "chronos-forecasting>=2"`)
+        # to actually run this benchmark.
+        from chronos import Chronos2Pipeline  # noqa: PLC0415 # ty: ignore[unresolved-import]
 
         from openstef_foundation_models.inference.torch_backend import TorchBackend  # noqa: PLC0415
     except ImportError as exc:

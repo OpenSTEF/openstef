@@ -4301,6 +4301,9 @@ models = [
 ]
 
 [package.dev-dependencies]
+deployment = [
+    { name = "openstef-deployment-examples", extra = ["airflow", "celery", "dagster"] },
+]
 dev = [
     { name = "ipykernel" },
     { name = "jupytext" },
@@ -4342,9 +4345,10 @@ requires-dist = [
     { name = "openstef-models", extras = ["xgb-cpu"], marker = "extra == 'all'", editable = "packages/openstef-models" },
     { name = "openstef-models", extras = ["xgb-cpu"], marker = "extra == 'models'", editable = "packages/openstef-models" },
 ]
-provides-extras = ["all", "beam", "meta", "foundation-models", "models"]
+provides-extras = ["all", "beam", "foundation-models", "meta", "models"]
 
 [package.metadata.requires-dev]
+deployment = [{ name = "openstef-deployment-examples", extras = ["airflow", "celery", "dagster"], editable = "examples/deployment" }]
 dev = [
     { name = "ipykernel", specifier = ">=6.29" },
     { name = "jupytext", specifier = ">=1.19.1" },
@@ -4355,7 +4359,7 @@ dev = [
     { name = "openstef-beam", extras = ["all"], editable = "packages/openstef-beam" },
     { name = "openstef-core", extras = ["benchmark"], editable = "packages/openstef-core" },
     { name = "openstef-docs", editable = "docs" },
-    { name = "openstef-foundation-models", extras = ["cpu", "hub", "torch", "benchmarking"], editable = "packages/openstef-foundation-models" },
+    { name = "openstef-foundation-models", extras = ["benchmarking", "cpu", "hub", "torch"], editable = "packages/openstef-foundation-models" },
     { name = "openstef-meta", editable = "packages/openstef-meta" },
     { name = "openstef-models", extras = ["lgbm", "tuning", "xgb-cpu"], editable = "packages/openstef-models" },
     { name = "pandas-stubs", specifier = ">=2.3.0.250703,<3" },
@@ -4592,7 +4596,7 @@ requires-dist = [
     { name = "openstef-models", editable = "packages/openstef-models" },
     { name = "torch", marker = "extra == 'torch'", specifier = ">=2.4" },
 ]
-provides-extras = ["cpu", "gpu", "hub", "torch", "benchmarking"]
+provides-extras = ["benchmarking", "cpu", "gpu", "hub", "torch"]
 
 [[package]]
 name = "openstef-meta"

@@ -89,6 +89,13 @@ dev = [
   "scipy-stubs>=1.16.2.4",
   "ty>=0.0.48",
 ]
+# The deployment example's orchestrator stacks. Kept in their own group (still
+# installed by `--all-groups`) so the example apps are type-checked + kept in
+# sync with the library by default, while staying escapable via `--no-group
+# deployment` for anyone who wants to skip the heavy Airflow install.
+deployment = [
+  "openstef-deployment-examples[airflow,celery,dagster]",
+]
 
 [tool.hatch.build.targets.wheel]
 bypass-selection = true
@@ -101,6 +108,7 @@ default = true
 [tool.uv.sources]
 openstef-beam = { workspace = true }
 openstef-core = { workspace = true }
+openstef-deployment-examples = { workspace = true }
 openstef-docs = { workspace = true }
 openstef-foundation-models = { workspace = true }
 openstef-meta = { workspace = true }
