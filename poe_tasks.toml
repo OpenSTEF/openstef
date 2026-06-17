@@ -1,0 +1,179 @@
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+#
+# SPDX-License-Identifier: MPL-2.0
+
+# Poe the Poet task definitions, split out of pyproject.toml and pulled back in
+# via `[tool.poe] include` there. Run with `uv run poe <task>`.
+
+[tool.poe.tasks.lint]
+help = "Lint code (with ruff)"
+cmd = 'ruff check --fix --show-fixes ${check:+ --no-fix} ${unsafe:+ --unsafe-fixes}'
+args = [
+  { name = "check", type = "boolean", help = "Does not correct files, only warns" },
+  { name = "unsafe", type = "boolean", help = "Enables unsafe fixes, which may change the code in a way that is not reversible. Use with care." },
+]
+
+[tool.poe.tasks.format]
+help = "Format code (with ruff)"
+cmd = 'ruff format ${check:+ --diff}'
+args = [ { name = "check", type = "boolean", help = "Does not correct files, only warns" } ]
+
+[tool.poe.tasks.format-pyproject]
+help = "Format pyproject.toml (with pyproject-fmt)"
+cmd = 'pyproject-fmt ${check:+ --check} -n pyproject.toml packages/*/pyproject.toml'
+args = [ { name = "check", type = "boolean", help = "Does not correct files, only warns" } ]
+
+[tool.poe.tasks.lock]
+help = "Asserts that dependencies are locked"
+cmd = "uv lock --check"
+
+[tool.poe.tasks.type]
+help = "Check typing (with ty)"
+cmd = "ty check tools examples packages/*/src"
+
+[tool.poe.tasks.type-tests]
+help = "Check typing (with ty)"
+cmd = "ty check packages/*/tests"
+
+[tool.poe.tasks.tests]
+help = "Run pytest with xdist, marker filtering, and coverage"
+cmd = "pytest --numprocesses=auto ${markers:+ -m $markers} --cov --cov-report=term-missing --cov-report=xml:coverage.xml"
+args = [
+  { name = "markers", type = "string", default = "", help = "Only run tests matching the given pytest markers expression" },
+]
+
+[tool.poe.tasks.doctests]
+help = "Run all docstring examples via pytest’s doctest plugin"
+cmd = "pytest --numprocesses=auto --doctest-modules packages/*/src --maxfail=1"
+
+[tool.poe.tasks.notebooks]
+help = "Sync jupytext .py percent sources → .ipynb notebooks (and vice versa)"
+sequence = [
+  { cmd = "jupytext --sync examples/tutorials/*.py" },
+  { cmd = "jupytext --sync examples/benchmarks/custom/*.py examples/benchmarks/liander2024/*.py" },
+]
+
+[tool.poe.tasks.notebooks-clear]
+help = "Strip outputs from all .ipynb notebooks"
+sequence = [
+  { cmd = "jupyter nbconvert --clear-output --inplace examples/tutorials/*.ipynb" },
+  { cmd = "jupyter nbconvert --clear-output --inplace examples/benchmarks/custom/*.ipynb examples/benchmarks/liander2024/*.ipynb" },
+]
+
+[tool.poe.tasks.notebooks-check]
+help = "Check that .ipynb notebooks are in sync with their jupytext .py sources and have no outputs"
+sequence = [
+  { cmd = "jupytext --sync examples/tutorials/*.py" },
+  { cmd = "jupytext --sync examples/benchmarks/custom/*.py examples/benchmarks/liander2024/*.py" },
+  { cmd = "git diff --exit-code -- examples/tutorials/ examples/benchmarks/" },
+  { script = "tools.check_notebook_outputs:main" },
+]
+
+[tool.poe.tasks.report]
+help = "Generate coverage report. Will use data from a previous cover command."
+sequence = [
+  { cmd = "coverage report", help = "Generate a coverage report" },
+  { cmd = "coverage xml -o coverage.xml", help = "Generate XML coverage report for CI integration" },
+]
+
+[tool.poe.tasks.reuse]
+help = "Check REUSE compliance (with optional fix)"
+args = [ { name = "fix", type = "boolean", help = "Automatically fix REUSE compliance issues before lint check" } ]
+control.expr = "fix"
+switch = [
+  { case = "True", cmd = "uv run tools/reuse-fix.py --license \"MPL-2.0\" --copyright \"Contributors to the OpenSTEF project <openstef@lfenergy.org>\"" },
+  { cmd = "reuse lint" },
+]
+
+[tool.poe.tasks.licensecheck]
+help = "Check licenses of dependencies for compatibility"
+cmd = 'licensecheck ${check:+ --show-only-failing --zero}'
+args = [ { name = "check", type = "boolean", help = "Does not correct files, only warns" } ]
+
+[tool.poe.tasks.licensecheck-third-party]
+help = "Check licenses of dependencies for compatibility"
+cmd = 'licensecheck --format markdown --file THIRD_PARTY_LICENSES.md'
+
+[tool.poe.tasks.all]
+help = "Run all CI calls"
+control.expr = "check"                                                                       # There is no pass through option (yet?) so use a control expression to pass --check option to tasks when relevant
+args = [ { name = "check", type = "boolean", help = "Does not correct files, only warns" } ]
+# NB: ruff needs the linter (which will sort imports) to run before the formatter (which cannot sort imports).
+switch = [
+  { case = "check", sequence = [
+    "reuse",
+    "licensecheck --check",
+    "lint --check",
+    "format --check",
+    "format-pyproject --check",
+    "lock",
+    "type",
+    "type-tests",
+    "tests",
+    "doctests",
+    "notebooks-check",
+  ], ignore_fail = "return_non_zero" },
+  { sequence = [
+    "licensecheck --check",
+    "reuse --fix",
+    "lint",
+    "format",
+    "format-pyproject",
+    "lock",
+    "type",
+    "type-tests",
+    "tests",
+    "doctests",
+    "notebooks",
+  ], ignore_fail = "return_non_zero" },
+]
+
+[tool.poe.tasks.version]
+help = "Set the release version in pyproject.toml and packages' pyproject.toml files"
+sequence = [
+  # Bumps the version in all pyproject.toml files
+  { cmd = "uv version ${version} --frozen" },
+  { cmd = "uv version --package openstef-beam ${version} --frozen" },
+  { cmd = "uv version --package openstef-core ${version} --frozen" },
+  { cmd = "uv version --package openstef-foundation-models ${version} --frozen" },
+  { cmd = "uv version --package openstef-meta ${version} --frozen" },
+  { cmd = "uv version --package openstef-models ${version} --frozen" },
+  # Pin these versions in the root pyproject.toml
+  { cmd = "uv add openstef-beam==${version} --optional beam" },
+  { cmd = "uv add openstef-foundation-models==${version} --optional foundation-models" },
+  { cmd = "uv add openstef-meta==${version} --optional meta" },
+  { cmd = "uv add openstef-models==${version} --optional models" },
+  { cmd = "uv add openstef-core==${version} --optional core" },
+  { cmd = "uv add openstef-meta==${version} --optional models" },
+  { cmd = "uv add openstef-foundation-models==${version} openstef-meta==${version} openstef-models==${version} openstef-beam==${version} openstef-core==${version} --optional all" },
+  { cmd = "uv add openstef-models==${version} openstef-core==${version}" },
+]
+args = [
+  { name = "version", type = "string", help = "The version to set, e.g. 4.0.0" },
+]
+
+[tool.poe.tasks.build]
+help = "Build all packages"
+sequence = [
+  { cmd = "uv build --all-packages" },
+  { cmd = "uv build .", help = "Build root meta package separately (not part of --all-packages)" },
+]
+
+[tool.poe.tasks._docs_sync]
+help = "Sync tutorial and benchmark sources into docs/source for Sphinx (also runs automatically via conf.py)"
+cmd = "python docs/sync_sources.py"
+
+[tool.poe.tasks.docs]
+help = "Build the documentation"
+control.expr = "serve"
+switch = [
+  { case = "True", cmd = "sphinx-autobuild docs/source docs/build/html --watch packages --watch examples" },
+  { cmd = "sphinx-build -b html docs/source docs/build/html" },
+]
+args = [
+  { name = "serve", type = "boolean", default = false, help = "Serve the documentation with live reload" },
+]
+
+[tool.poe.tasks.docs-clean]
+help = "Clean the documentation build artifacts"
+cmd = "rm -rf docs/build/html/* docs/source/api/generated"
