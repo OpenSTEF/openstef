@@ -49,6 +49,9 @@ def config() -> EnsembleForecastingWorkflowConfig:
             "gblinear": SampleWeightConfig(method="exponential", weight_exponent=1.0),
             "lgbm": SampleWeightConfig(method="exponential", weight_exponent=0.0),
         },
+        # This test exercises preprocessing/model structure only — no MLflow logging — so skip the
+        # storage to avoid materializing its relative default store (./mlflow) in the repo root.
+        mlflow_storage=None,
     )
 
 
@@ -68,6 +71,7 @@ def create_models(
             quantiles=config.quantiles,
             horizons=config.horizons,
             sample_weight_config=sample_weight_config,
+            mlflow_storage=None,
         )
         base_model = create_forecasting_workflow(config=model_config).model
         base_models[forecaster_name] = base_model
