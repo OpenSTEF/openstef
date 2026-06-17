@@ -33,7 +33,10 @@ dependencies = [
 ]
 
 # Exactly one of [cpu] or [gpu] must be installed — they are declared as
-# conflicting extras so uv will refuse to resolve both simultaneously.
+# conflicting extras (see [tool.uv]) so uv refuses to resolve both at once.
+# The root `openstef` package (and the dev group) depend on
+# `openstef-foundation-models[cpu]`, so the default install gets the CPU
+# runtime without the caller having to choose.
 optional-dependencies.cpu = [
   "onnxruntime>=1.20",
 ]
@@ -45,8 +48,12 @@ optional-dependencies.hub = [
   "huggingface-hub>=1.2.2",
 ]
 # Run the original Chronos-2 Torch module (benchmarking / ONNX parity reference).
+# NOTE: `chronos-forecasting>=2` is intentionally NOT listed here. It pins
+# huggingface-hub<1.0, which conflicts with openstef-core[benchmark]
+# (huggingface-hub>=1.2.2) and would make the workspace unresolvable. It is a
+# temporary parity-reference dependency — install it ad hoc when needed:
+#   uv pip install "chronos-forecasting>=2"
 optional-dependencies.torch = [
-  "chronos-forecasting>=2",
   "torch>=2.4",
 ]
 # Backtest/benchmark foundation-model forecasters through openstef-beam.

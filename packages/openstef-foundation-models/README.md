@@ -10,16 +10,20 @@ Foundation model support for OpenSTEF — bringing pre-trained, ONNX-based forec
 
 ## Installation
 
-CPU (default):
+Pick exactly one ONNX runtime — `[cpu]` and `[gpu]` are mutually exclusive.
+
+CPU (default — the meta-package `openstef` installs this for you):
 
 ```bash
-pip install openstef-foundation-models
+pip install "openstef-foundation-models[cpu]"
 ```
 
-GPU (CUDA — replaces the CPU runtime):
+GPU (CUDA):
 
 ```bash
 pip install "openstef-foundation-models[gpu]"
 ```
 
-> **Note:** Do **not** install both `onnxruntime` and `onnxruntime-gpu` in the same environment.
+> **Note:** Do **not** install both `[cpu]` and `[gpu]` in the same environment —
+> `onnxruntime` and `onnxruntime-gpu` collide. They're declared as conflicting
+> extras so uv enforces the choice; `pip` does not, so pick one yourself.

@@ -216,7 +216,7 @@ Clone and Install
     cd openstef
 
     # Install in development mode with all dependencies
-    uv sync --all-extras --dev
+    uv sync --all-packages --all-groups
 
     # Verify installation
     uv run pytest

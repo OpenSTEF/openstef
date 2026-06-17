@@ -86,14 +86,24 @@ Install the development dependencies using uv:
 
 .. code-block:: bash
 
-    uv sync --all-groups --all-extras
+    uv sync --all-packages --all-groups
 
 This will:
 
 1. Create a virtual environment (if one doesn't exist)
 2. Install all workspace packages in development mode
 3. Install all development dependencies including testing, linting, and documentation tools
-4. Install all optional extras for development
+4. Install the full feature set (CPU flavour) — the ``dev`` dependency group is a curated
+   superset of every optional feature needed for development
+
+.. note::
+
+    Use ``--all-groups``, **not** ``--all-extras``. A few extras are mutually exclusive —
+    ``openstef-foundation-models`` declares ``cpu``/``gpu`` (and ``openstef-models`` has
+    ``xgb-cpu``/``xgb-gpu``) as conflicting extras, so ``--all-extras`` would try to activate
+    both sides of a conflict and fail. The ``dev`` group already pulls the CPU builds, which
+    is what you want for local development. Install a GPU build deliberately in its own
+    environment (e.g. ``uv pip install "openstef-foundation-models[gpu]"``).
 
 Understanding the workspace structure
 =====================================
@@ -182,5 +192,5 @@ The built documentation will be available at ``docs/build/html/index.html``.
 
 .. note::
 
-    Building documentation requires additional dependencies that are included in the 
-    development environment. Make sure you've run ``uv sync --all-groups --all-extras`` first.
+    Building documentation requires additional dependencies that are included in the
+    development environment. Make sure you've run ``uv sync --all-packages --all-groups`` first.
