@@ -32,6 +32,11 @@ dependencies = [
   "openstef-models>=4.0.0.dev0,<5",
 ]
 
+# Backtest/benchmark foundation-model forecasters through openstef-beam.
+optional-dependencies.benchmarking = [
+  "openstef-beam>=4.0.0.dev0,<5",
+]
+
 # Exactly one of [cpu] or [gpu] must be installed — they are declared as
 # conflicting extras (see [tool.uv]) so uv refuses to resolve both at once.
 # The root `openstef` package (and the dev group) depend on
@@ -56,11 +61,6 @@ optional-dependencies.hub = [
 optional-dependencies.torch = [
   "torch>=2.4",
 ]
-# Backtest/benchmark foundation-model forecasters through openstef-beam.
-optional-dependencies.benchmarking = [
-  "openstef-beam>=4.0.0.dev0,<5",
-]
-
 urls.Documentation = "https://openstef.github.io/openstef/index.html"
 urls.Homepage = "https://lfenergy.org/projects/openstef/"
 urls.Issues = "https://github.com/OpenSTEF/openstef/issues"

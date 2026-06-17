@@ -95,10 +95,7 @@ from openstef_foundation_models.models.checkpoint import LocalCheckpoint
 
 artifact_path = Path("chronos-onnx-lab/artifacts/chronos-2.onnx")
 if not artifact_path.is_file():
-    msg = (
-        f"Chronos-2 ONNX artifact not found at {artifact_path}. "
-        "Export it with the chronos-onnx-lab script."
-    )
+    msg = f"Chronos-2 ONNX artifact not found at {artifact_path}. Export it with the chronos-onnx-lab script."
     raise FileNotFoundError(msg)
 
 # The metadata sidecar (chronos-2.metadata.json) is auto-discovered next to the weights.
@@ -175,10 +172,7 @@ context_start = forecast_start - timedelta(days=60)
 # weather columns are known across the whole range (history and future).
 window = dataset.filter_by_range(start=context_start, end=forecast_start + HORIZON.value)
 
-print(
-    f"Window:   {context_start:%Y-%m-%d} to {forecast_start + HORIZON.value:%Y-%m-%d}, "
-    f"{len(window.data):,} rows"
-)
+print(f"Window:   {context_start:%Y-%m-%d} to {forecast_start + HORIZON.value:%Y-%m-%d}, {len(window.data):,} rows")
 
 # %% [markdown]
 # ## Forecast
