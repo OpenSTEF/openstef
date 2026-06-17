@@ -72,5 +72,6 @@ def test_adapter_runs_real_forecaster_load_once(onnx_backend: OnnxBackend) -> No
         assert forecast.data.index[0].to_pydatetime() == horizon
         assert {q.format() for q in QUANTILES} <= set(forecast.data.columns)
     # Load-once: the same forecaster (and its single ONNX session) served every window.
+    assert isinstance(adapter.workflow.model, ForecastingModel)
     assert adapter.workflow.model.forecaster is forecaster
     assert onnx_backend._session is session_before

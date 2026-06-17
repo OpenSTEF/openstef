@@ -16,7 +16,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from openstef_core.datasets.validated_datasets import ForecastInputDataset
+from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.types import LeadTime, Quantile
 from openstef_foundation_models.models.checkpoint import CheckpointMetadata
 from openstef_foundation_models.models.forecasting import Chronos2Forecaster
@@ -277,8 +277,11 @@ def test_predict_batch_preserves_per_series_forecast_start(forecaster: Chronos2F
     results = forecaster.predict_batch([first, second])
 
     # Assert
-    assert results[0].data.index[0].to_pydatetime() == first.forecast_start
-    assert results[1].data.index[0].to_pydatetime() == second.forecast_start
+    first_result, second_result = results
+    assert isinstance(first_result, ForecastDataset)
+    assert isinstance(second_result, ForecastDataset)
+    assert first_result.data.index[0].to_pydatetime() == first.forecast_start
+    assert second_result.data.index[0].to_pydatetime() == second.forecast_start
 
 
 def test_supports_batching_is_enabled(forecaster: Chronos2Forecaster) -> None:
@@ -415,9 +418,12 @@ def test_predict_slices_the_target_row_from_grouped_output() -> None:
     results = forecaster.predict_batch(batch)
 
     # Assert: each forecast median equals its target row's global index.
+    first_result, second_result = results
+    assert isinstance(first_result, ForecastDataset)
+    assert isinstance(second_result, ForecastDataset)
     median = Quantile(0.5).format()
-    assert results[0].data[median].iloc[0] == pytest.approx(0.0)
-    assert results[1].data[median].iloc[0] == pytest.approx(3.0)
+    assert first_result.data[median].iloc[0] == pytest.approx(0.0)
+    assert second_result.data[median].iloc[0] == pytest.approx(3.0)
 
 
 class RowIndexBackend:

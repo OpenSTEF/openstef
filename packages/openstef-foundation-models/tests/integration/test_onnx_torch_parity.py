@@ -58,7 +58,7 @@ def test_onnx_matches_torch_quantile_predictions(
     # Arrange
     pytest.importorskip("torch", reason="ONNX-vs-Torch parity needs the [torch] extra.")
     pytest.importorskip("chronos", reason="ONNX-vs-Torch parity needs chronos-forecasting.")
-    import torch  # ty: ignore[unresolved-import]  # noqa: PLC0415
+    import torch  # noqa: PLC0415
     from chronos import BaseChronosPipeline  # ty: ignore[unresolved-import]  # noqa: PLC0415
 
     lab = _load_lab_module()
@@ -77,15 +77,13 @@ def test_onnx_matches_torch_quantile_predictions(
 
     # Act
     onnx_out = np.asarray(
-        onnx_backend.run(
-            {
-                "context": context,
-                "group_ids": group_ids,
-                "attention_mask": attention_mask,
-                "future_covariates": future_covariates,
-                "future_covariates_mask": future_covariates_mask,
-            }
-        )["quantile_preds"]
+        onnx_backend.run({
+            "context": context,
+            "group_ids": group_ids,
+            "attention_mask": attention_mask,
+            "future_covariates": future_covariates,
+            "future_covariates_mask": future_covariates_mask,
+        })["quantile_preds"]
     )
     with torch.inference_mode():
         torch_out = (

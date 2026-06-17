@@ -208,4 +208,5 @@ def test_adapter_reuses_single_forecaster_instance(forecaster: CountingForecaste
 
     # Act / Assert
     assert isinstance(adapter, FoundationModelBacktestForecaster)
+    assert isinstance(adapter.workflow.model, ForecastingModel)
     assert adapter.workflow.model.forecaster is forecaster
