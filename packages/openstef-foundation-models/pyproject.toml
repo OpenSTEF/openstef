@@ -28,13 +28,14 @@ classifiers = [
 ]
 
 dependencies = [
+  # huggingface-hub resolves published checkpoints from the Hub — the default
+  # checkpoint source — and is pure Python, so it is a base dependency rather
+  # than an extra. openstef-beam (the backtesting integration target) is already
+  # a hard transitive dependency via openstef-models, so it is declared directly.
+  "huggingface-hub>=1.2.2",
+  "openstef-beam>=4.0.0.dev0,<5",
   "openstef-core>=4.0.0.dev0,<5",
   "openstef-models>=4.0.0.dev0,<5",
-]
-
-# Backtest/benchmark foundation-model forecasters through openstef-beam.
-optional-dependencies.benchmarking = [
-  "openstef-beam>=4.0.0.dev0,<5",
 ]
 
 # Exactly one of [cpu] or [gpu] must be installed — they are declared as
@@ -47,10 +48,6 @@ optional-dependencies.cpu = [
 ]
 optional-dependencies.gpu = [
   "onnxruntime-gpu>=1.20",
-]
-# Resolve checkpoints from the HuggingFace Hub (local paths need no extra).
-optional-dependencies.hub = [
-  "huggingface-hub>=1.2.2",
 ]
 urls.Documentation = "https://openstef.github.io/openstef/index.html"
 urls.Homepage = "https://lfenergy.org/projects/openstef/"

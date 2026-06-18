@@ -4080,7 +4080,7 @@ dev = [
     { name = "openstef-beam", extra = ["all"] },
     { name = "openstef-core", extra = ["benchmark"] },
     { name = "openstef-docs" },
-    { name = "openstef-foundation-models", extra = ["benchmarking", "hub"] },
+    { name = "openstef-foundation-models" },
     { name = "openstef-foundation-models", extra = ["cpu"], marker = "extra == 'extra-26-openstef-foundation-models-cpu'" },
     { name = "openstef-meta" },
     { name = "openstef-models", extra = ["lgbm", "tuning", "xgb-cpu"] },
@@ -4125,7 +4125,7 @@ dev = [
     { name = "openstef-beam", extras = ["all"], editable = "packages/openstef-beam" },
     { name = "openstef-core", extras = ["benchmark"], editable = "packages/openstef-core" },
     { name = "openstef-docs", editable = "docs" },
-    { name = "openstef-foundation-models", extras = ["benchmarking", "cpu", "hub"], editable = "packages/openstef-foundation-models" },
+    { name = "openstef-foundation-models", extras = ["cpu"], editable = "packages/openstef-foundation-models" },
     { name = "openstef-meta", editable = "packages/openstef-meta" },
     { name = "openstef-models", extras = ["lgbm", "tuning", "xgb-cpu"], editable = "packages/openstef-models" },
     { name = "pandas-stubs", specifier = ">=2.3.0.250703,<3" },
@@ -4331,34 +4331,30 @@ name = "openstef-foundation-models"
 version = "0.0.0"
 source = { editable = "packages/openstef-foundation-models" }
 dependencies = [
+    { name = "huggingface-hub" },
+    { name = "openstef-beam" },
     { name = "openstef-core" },
     { name = "openstef-models" },
 ]
 
 [package.optional-dependencies]
-benchmarking = [
-    { name = "openstef-beam" },
-]
 cpu = [
     { name = "onnxruntime" },
 ]
 gpu = [
     { name = "onnxruntime-gpu" },
 ]
-hub = [
-    { name = "huggingface-hub" },
-]
 
 [package.metadata]
 requires-dist = [
-    { name = "huggingface-hub", marker = "extra == 'hub'", specifier = ">=1.2.2" },
+    { name = "huggingface-hub", specifier = ">=1.2.2" },
     { name = "onnxruntime", marker = "extra == 'cpu'", specifier = ">=1.20" },
     { name = "onnxruntime-gpu", marker = "extra == 'gpu'", specifier = ">=1.20" },
-    { name = "openstef-beam", marker = "extra == 'benchmarking'", editable = "packages/openstef-beam" },
+    { name = "openstef-beam", editable = "packages/openstef-beam" },
     { name = "openstef-core", editable = "packages/openstef-core" },
     { name = "openstef-models", editable = "packages/openstef-models" },
 ]
-provides-extras = ["benchmarking", "cpu", "gpu", "hub"]
+provides-extras = ["cpu", "gpu"]
 
 [[package]]
 name = "openstef-meta"
