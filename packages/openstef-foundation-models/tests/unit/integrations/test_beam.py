@@ -190,6 +190,27 @@ def test_default_config_is_zero_shot_and_load_once(forecaster: CountingForecaste
     assert adapter.config.predict_length == timedelta(hours=48)
 
 
+def test_from_workflow_sizes_predict_length_to_the_workflow_horizon(forecaster: CountingForecaster) -> None:
+    """from_workflow defaults the prediction length to the workflow's maximum horizon."""
+    # Arrange / Act
+    adapter = FoundationModelBacktestForecaster.from_workflow(_make_workflow(forecaster))
+
+    # Assert
+    assert adapter.config.requires_training is False
+    assert adapter.config.predict_length == forecaster.max_horizon.value
+
+
+def test_from_workflow_accepts_an_explicit_predict_length(forecaster: CountingForecaster) -> None:
+    """An explicit predict_length overrides the workflow-derived default."""
+    # Arrange / Act
+    adapter = FoundationModelBacktestForecaster.from_workflow(
+        _make_workflow(forecaster), predict_length=timedelta(hours=6)
+    )
+
+    # Assert
+    assert adapter.config.predict_length == timedelta(hours=6)
+
+
 def test_explicit_config_overrides_the_derived_default(forecaster: CountingForecaster) -> None:
     """A config passed at construction is kept verbatim, not replaced by the default."""
     # Arrange
