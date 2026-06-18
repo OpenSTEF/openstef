@@ -18,20 +18,33 @@ postprocessing (quantile sorting) wraps the model as for any other OpenSTEF
 model. Chronos-2 conditions on covariates, so every selected non-target feature
 column is forwarded to the model as a known covariate.
 
-Typical use::
+By default the checkpoint is fetched from the published OpenSTEF Chronos-2 repo on
+the HuggingFace Hub, so the minimal config is just::
 
     from openstef_foundation_models.presets.forecasting_workflow import (
         ForecastingWorkflowConfig,
         create_forecasting_workflow,
     )
-    from openstef_foundation_models.models.checkpoint import LocalCheckpoint
+
+    workflow = create_forecasting_workflow(ForecastingWorkflowConfig())
+
+Pick a different published size or variant through the catalog — for example the
+small model with static shapes to enable CoreML on macOS::
+
+    from openstef_foundation_models.models.catalog import Chronos2, CheckpointVariant
 
     config = ForecastingWorkflowConfig(
-        model="chronos2",
-        checkpoint=LocalCheckpoint(path="chronos-2.onnx"),
+        checkpoint=Chronos2.SMALL.checkpoint(CheckpointVariant.STATIC),
         quantiles=[Quantile(0.1), Quantile(0.5), Quantile(0.9)],
         horizons=[LeadTime.from_string("PT48H")],
     )
+    workflow = create_forecasting_workflow(config)
+
+To run a checkpoint already on disk, pass a ``LocalCheckpoint`` instead::
+
+    from openstef_foundation_models.models.checkpoint import LocalCheckpoint
+
+    config = ForecastingWorkflowConfig(checkpoint=LocalCheckpoint(path="chronos-2.onnx"))
     workflow = create_forecasting_workflow(config)
 """
 
@@ -45,6 +58,7 @@ from openstef_core.types import LeadTime, Q, Quantile
 from openstef_foundation_models.inference.backend import InferenceBackend
 from openstef_foundation_models.inference.provider_selection import DefaultProviderPolicy
 from openstef_foundation_models.inference.providers import ExecutionProvider, SessionOptionsConfig
+from openstef_foundation_models.models.catalog import Chronos2
 from openstef_foundation_models.models.checkpoint import CheckpointRef
 from openstef_foundation_models.models.forecasting.chronos2_forecaster import (
     Chronos2Forecaster,
@@ -112,8 +126,8 @@ class OnnxBackendConfig(BaseConfig):
 
 
 #: A backend configuration. Currently ONNX-only; kept as a named type so the
-#: workflow config and factory grow to a discriminated union of backends
-#: (e.g. a Torch backend) without changing their public signatures.
+#: workflow config and factory can grow to a discriminated union of backends
+#: without changing their public signatures.
 BackendConfig = OnnxBackendConfig
 
 
@@ -127,8 +141,13 @@ class ForecastingWorkflowConfig(BaseConfig):
     providers, session options) live on the nested :attr:`backend` config.
     """
 
-    model: Literal["chronos2"] = Field(description="Foundation model family to use.")
-    checkpoint: CheckpointRef = Field(description="Checkpoint (weights + metadata) to load and run.")
+    model: Literal["chronos2"] = Field(default="chronos2", description="Foundation model family to use.")
+    checkpoint: CheckpointRef = Field(
+        default=Chronos2.BASE.checkpoint(),
+        description="Checkpoint (weights + metadata) to load and run. Defaults to the published OpenSTEF "
+        "Chronos-2 dynamic ONNX checkpoint on the HuggingFace Hub. Pick a size and variant with "
+        "`Chronos2.<SIZE>.checkpoint(...)`, or pass a LocalCheckpoint to run a file already on disk.",
+    )
 
     quantiles: list[Quantile] = Field(
         default=[Q(0.5)],

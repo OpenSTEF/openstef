@@ -4,7 +4,7 @@
 
 """Checkpoint resolution for foundation-model forecasters.
 
-A *checkpoint* bundles an ONNX (or Torch) weights file with a sidecar
+A *checkpoint* bundles an ONNX weights file with a sidecar
 :class:`CheckpointMetadata` JSON document describing the model-family specifics
 (IO tensor names, native quantile grid, context/horizon sizing, resolution).
 Keeping these specifics in data rather than code keeps the inference backends
@@ -174,24 +174,20 @@ class HubCheckpoint(BaseConfig):
         description="Git revision (branch, tag, or commit) to download. Defaults to the latest revision.",
     )
     repo_type: str = Field(default="model", description="HuggingFace repository type.")
+    local_dir: Path | None = Field(
+        default=None,
+        description="Directory to download files into. Defaults to the shared HuggingFace Hub cache.",
+    )
 
-    def resolve(self, local_dir: Path | None = None) -> ResolvedCheckpoint:
+    def resolve(self) -> ResolvedCheckpoint:
         """Download the weights and metadata from the Hub and resolve them.
-
-        Args:
-            local_dir: Directory to download files into. Defaults to the Hub cache.
 
         Returns:
             A :class:`ResolvedCheckpoint` pointing at the downloaded weights file.
-
-        Raises:
-            ImportError: When ``huggingface-hub`` is not installed.
         """
-        try:
-            from huggingface_hub import hf_hub_download  # noqa: PLC0415
-        except ImportError:
-            msg = "huggingface-hub is required to resolve Hub checkpoints: pip install openstef-foundation-models[hub]"
-            raise ImportError(msg) from None
+        # Imported lazily so building a checkpoint config stays cheap; huggingface-hub
+        # is a base dependency, so the import itself cannot fail.
+        from huggingface_hub import hf_hub_download  # noqa: PLC0415
 
         metadata_filename = self.metadata_filename or str(_default_metadata_path(Path(self.filename)))
         weights_path = hf_hub_download(
@@ -199,14 +195,14 @@ class HubCheckpoint(BaseConfig):
             filename=self.filename,
             repo_type=self.repo_type,
             revision=self.revision,
-            local_dir=local_dir,
+            local_dir=self.local_dir,
         )
         metadata_path = hf_hub_download(
             repo_id=self.repo_id,
             filename=metadata_filename,
             repo_type=self.repo_type,
             revision=self.revision,
-            local_dir=local_dir,
+            local_dir=self.local_dir,
         )
         metadata = CheckpointMetadata.model_validate_json(Path(metadata_path).read_text(encoding="utf-8"))
         return ResolvedCheckpoint(weights_path=Path(weights_path), metadata=metadata)

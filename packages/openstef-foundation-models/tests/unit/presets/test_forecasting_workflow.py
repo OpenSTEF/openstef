@@ -16,6 +16,7 @@ from openstef_core.types import LeadTime, Quantile
 from openstef_foundation_models.inference.provider_selection import DefaultProviderPolicy
 from openstef_foundation_models.models.checkpoint import (
     CheckpointMetadata,
+    HubCheckpoint,
     LocalCheckpoint,
     ResolvedCheckpoint,
 )
@@ -171,6 +172,17 @@ def test_config_round_trips_through_json() -> None:
 
     # Assert
     assert restored == config
+
+
+def test_default_checkpoint_is_the_published_hub_export() -> None:
+    """With no checkpoint given, the config points at the OpenSTEF Chronos-2 Hub repo."""
+    # Act
+    checkpoint = ForecastingWorkflowConfig().checkpoint
+
+    # Assert
+    assert isinstance(checkpoint, HubCheckpoint)
+    assert checkpoint.repo_id == "OpenSTEF/chronos-2-onnx"
+    assert checkpoint.filename == "chronos-2.onnx"
 
 
 def test_importing_preset_succeeds_without_building_backend() -> None:
