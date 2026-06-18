@@ -76,9 +76,7 @@ def test_static_fp32_on_macos_without_coreml_runtime_uses_cpu() -> None:
 
 def test_int8_on_macos_skips_coreml_for_cpu() -> None:
     """INT8 (QDQ) cannot be accelerated by CoreML, so a static int8 macOS graph goes straight to CPU."""
-    chain = DefaultProviderPolicy().select(
-        _metadata(precision="int8", static_shapes=True), _host("darwin", COREML)
-    )
+    chain = DefaultProviderPolicy().select(_metadata(precision="int8", static_shapes=True), _host("darwin", COREML))
     assert chain == [CpuProvider()]
 
 
