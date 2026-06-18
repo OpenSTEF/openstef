@@ -8,7 +8,7 @@
 :class:`~openstef_foundation_models.inference.backend.InferenceBackend` to the
 OpenSTEF :class:`~openstef_models.models.forecasting.forecaster.Forecaster`
 contract. It owns the Chronos-2 specific pre- and post-processing while the
-backend (ONNX or Torch) stays model-agnostic:
+backend stays model-agnostic:
 
 - **Preprocessing** builds the ``context``, ``attention_mask``, ``group_ids``,
   ``future_covariates`` and ``future_covariates_mask`` tensors. Every non-target

@@ -18,9 +18,8 @@ class InferenceBackend(Protocol):
 
     A backend takes a mapping of named input tensors to a mapping of named
     output tensors. It owns whatever runtime resources are needed (e.g. an ONNX
-    Runtime session or a Torch module) and is loaded once, then reused across an
-    entire backtest. Model-family specifics live in :attr:`metadata`, not in the
-    backend itself.
+    Runtime session) and is loaded once, then reused across an entire backtest.
+    Model-family specifics live in :attr:`metadata`, not in the backend itself.
     """
 
     @property

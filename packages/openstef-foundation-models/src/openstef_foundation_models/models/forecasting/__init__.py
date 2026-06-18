@@ -6,7 +6,7 @@
 
 These forecasters compose an
 :class:`~openstef_foundation_models.inference.backend.InferenceBackend` and are
-themselves dependency-free: the heavy runtime (ONNX Runtime, Torch) lives in the
+themselves dependency-free: the heavy runtime (ONNX Runtime) lives in the
 injected backend, not here.
 """
 
