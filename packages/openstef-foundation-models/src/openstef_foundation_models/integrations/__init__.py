@@ -2,10 +2,9 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-"""Integrations with optional external frameworks.
+"""Integrations with neighbouring OpenSTEF frameworks.
 
-This package is import-light: each integration module carries its own optional
-dependency (e.g. :mod:`openstef_foundation_models.integrations.backtesting`
-requires the ``benchmarking`` extra) and must be imported directly so that
-importing this package never pulls in a dependency you have not installed.
+Each module is named for what it integrates with — e.g.
+:mod:`openstef_foundation_models.integrations.beam` adapts a forecasting workflow
+to openstef-beam's backtesting interface.
 """

@@ -19,7 +19,7 @@ from openstef_beam.backtesting.restricted_horizon_timeseries import RestrictedHo
 from openstef_core.datasets.versioned_timeseries_dataset import VersionedTimeSeriesDataset
 from openstef_core.types import LeadTime, Quantile
 from openstef_foundation_models.inference.onnx_backend import OnnxBackend
-from openstef_foundation_models.integrations.backtesting import create_foundation_model_backtest_forecaster
+from openstef_foundation_models.integrations.beam import FoundationModelBacktestForecaster
 from openstef_foundation_models.models.forecasting import Chronos2Forecaster
 from openstef_models.models.forecasting_model import ForecastingModel
 from openstef_models.workflows.custom_forecasting_workflow import CustomForecastingWorkflow
@@ -56,7 +56,7 @@ def test_adapter_runs_real_forecaster_load_once(onnx_backend: OnnxBackend) -> No
         model=ForecastingModel(forecaster=forecaster, target_column="load"),
         model_id="chronos2-backtest",
     )
-    adapter = create_foundation_model_backtest_forecaster(workflow)
+    adapter = FoundationModelBacktestForecaster(workflow=workflow)
     dataset, timestamps = _make_dataset(periods=10 * 96)
     horizons = [timestamps[index].to_pydatetime() for index in (4 * 96, 6 * 96, 8 * 96)]
     windows = [_restricted(dataset, horizon) for horizon in horizons]

@@ -81,9 +81,9 @@ from openstef_beam.benchmarking.callbacks.strict_execution_callback import Stric
 from openstef_beam.benchmarking.models.benchmark_target import BenchmarkTarget
 from openstef_beam.benchmarking.storage.local_storage import LocalBenchmarkStorage
 from openstef_core.types import LeadTime, Q
-from openstef_foundation_models.integrations.backtesting import (
+from openstef_foundation_models.integrations.beam import (
+    DEFAULT_BACKTEST_CONFIG,
     FoundationModelBacktestForecaster,
-    create_foundation_model_backtest_forecaster,
 )
 from openstef_foundation_models.models.checkpoint import LocalCheckpoint
 from openstef_foundation_models.presets.forecasting_workflow import (
@@ -227,9 +227,9 @@ workflow = create_forecasting_workflow(
 # %%
 def chronos2_factory(_context: BenchmarkContext, _target: BenchmarkTarget) -> FoundationModelBacktestForecaster:
     """Return a backtest forecaster wrapping the shared, pre-built workflow."""
-    return create_foundation_model_backtest_forecaster(
+    return FoundationModelBacktestForecaster(
         workflow=workflow,
-        predict_length=FORECAST_HORIZONS[0].value,
+        config=DEFAULT_BACKTEST_CONFIG.model_copy(update={"predict_length": FORECAST_HORIZONS[0].value}),
     )
 
 
