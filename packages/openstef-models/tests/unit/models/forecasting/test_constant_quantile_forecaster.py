@@ -132,4 +132,4 @@ def test_constant_quantile_forecaster__feature_importances(quantiles: list[Quant
     assert result.shape == (1, len(quantiles))
     assert list(result.index) == ["load"]
     assert list(result.columns) == [quantile.format() for quantile in quantiles]
-    assert (result.to_numpy() == 1.0).all()
+    np.testing.assert_equal(result.to_numpy(), 1.0)

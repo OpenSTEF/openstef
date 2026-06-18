@@ -281,4 +281,4 @@ def test_base_case_forecaster__feature_importances(quantile: Quantile):
     assert result.shape == (1, 1)
     assert list(result.index) == ["load"]
     assert list(result.columns) == [quantile.format()]
-    assert (result.to_numpy() == 1.0).all()
+    np.testing.assert_equal(result.to_numpy(), 1.0)
