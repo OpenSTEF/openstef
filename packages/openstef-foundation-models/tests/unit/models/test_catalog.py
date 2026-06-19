@@ -24,7 +24,7 @@ def test_static_variant_adds_the_static_filename_suffix() -> None:
 
 
 def test_metadata_filename_defaults_alongside_the_weights() -> None:
-    """The sidecar metadata name is derived from the weights stem on resolve."""
+    """The metadata filename is derived from the weights stem on resolve."""
     checkpoint = Chronos2.BASE.checkpoint(CheckpointVariant.STATIC)
     # metadata_filename defaults to None; HubCheckpoint derives it from the weights stem.
     assert checkpoint.metadata_filename is None

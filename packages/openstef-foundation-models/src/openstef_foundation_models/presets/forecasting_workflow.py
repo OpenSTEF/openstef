@@ -4,48 +4,21 @@
 
 """Presets for building foundation-model forecasting workflows from config.
 
-This module is **runtime-light**: importing it pulls in dependency-free pydantic
-config (checkpoint refs, execution-provider configs) and the pure-Python
-transform/workflow classes from ``openstef_models``. The heavy inference runtime
-— ONNX Runtime — is imported lazily inside the selected backend's
-:meth:`build` method, so a caller that only inspects or serialises a config never
-pays for a backend it will not use.
-
-The factory returns a
+A :class:`ForecastingWorkflowConfig` declares the model family, the checkpoint
+that backs it, the requested quantiles/horizons, the target column, and the
+columns to keep; :func:`create_forecasting_workflow` turns it into a
 :class:`~openstef_models.workflows.custom_forecasting_workflow.CustomForecastingWorkflow`
-rather than a bare forecaster, so the same preprocessing (feature selection) and
-postprocessing (quantile sorting) wraps the model as for any other OpenSTEF
-model. Chronos-2 conditions on covariates, so every selected non-target feature
-column is forwarded to the model as a known covariate.
+with feature-selection preprocessing and quantile-sorting postprocessing. Every
+selected non-target column is forwarded to the model as a known covariate.
 
-By default the checkpoint is fetched from the published OpenSTEF Chronos-2 repo on
-the HuggingFace Hub, so the minimal config is just::
-
-    from openstef_foundation_models.presets.forecasting_workflow import (
-        ForecastingWorkflowConfig,
-        create_forecasting_workflow,
-    )
+The checkpoint defaults to the published OpenSTEF Chronos-2 model on the
+HuggingFace Hub, so the minimal config is just::
 
     workflow = create_forecasting_workflow(ForecastingWorkflowConfig())
 
-Pick a different published size or variant through the catalog — for example the
-small model with static shapes to enable CoreML on macOS::
-
-    from openstef_foundation_models.models.catalog import Chronos2, CheckpointVariant
-
-    config = ForecastingWorkflowConfig(
-        checkpoint=Chronos2.SMALL.checkpoint(CheckpointVariant.STATIC),
-        quantiles=[Quantile(0.1), Quantile(0.5), Quantile(0.9)],
-        horizons=[LeadTime.from_string("PT48H")],
-    )
-    workflow = create_forecasting_workflow(config)
-
-To run a checkpoint already on disk, pass a ``LocalCheckpoint`` instead::
-
-    from openstef_foundation_models.models.checkpoint import LocalCheckpoint
-
-    config = ForecastingWorkflowConfig(checkpoint=LocalCheckpoint(path="chronos-2.onnx"))
-    workflow = create_forecasting_workflow(config)
+Pick a different size or variant through :class:`~openstef_foundation_models.models.catalog.Chronos2`,
+or pass a :class:`~openstef_foundation_models.models.checkpoint.LocalCheckpoint`
+to run a file already on disk.
 """
 
 from typing import Literal
@@ -80,9 +53,7 @@ class OnnxBackendConfig(BaseConfig):
 
     Holds only *how* to run the model (execution providers, session options), not
     *which* weights: the checkpoint is supplied to :meth:`build` by the caller, so
-    the same compute settings can run different checkpoints. The ONNX Runtime
-    dependency is imported lazily in :meth:`build`, so this config stays importable
-    without the ``[cpu]``/``[gpu]`` extra installed.
+    the same compute settings can run different checkpoints.
     """
 
     kind: Literal["onnx"] = Field(default="onnx", description="Discriminator tag for backend type.")

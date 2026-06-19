@@ -65,7 +65,7 @@ class StubBackend:
 
 
 def _write_checkpoint(tmp_path: Path) -> LocalCheckpoint:
-    """Write a dummy weights file and a valid metadata sidecar to *tmp_path*."""
+    """Write a dummy weights file and valid metadata JSON to *tmp_path*."""
     weights_path = tmp_path / "chronos-2.onnx"
     weights_path.write_bytes(b"")
     metadata_path = tmp_path / "chronos-2.metadata.json"

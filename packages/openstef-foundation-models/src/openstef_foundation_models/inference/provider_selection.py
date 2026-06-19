@@ -16,9 +16,8 @@ than scattered platform ``if``-ladders:
   adapter that maps ``(checkpoint, host)`` to an ordered provider chain. Users
   with exotic hardware implement their own policy.
 
-Importing this module requires ONNX Runtime (the ``[cpu]`` or ``[gpu]`` extra,
-exactly one of which every install of this package must choose). The import
-fails early and loudly with :class:`MissingExtraError` if neither is installed.
+Importing this module requires ONNX Runtime (the ``[cpu]`` or ``[gpu]`` extra)
+and raises :class:`MissingExtraError` if it is missing.
 """
 
 import platform
@@ -81,6 +80,13 @@ class ProviderPolicy(Protocol):
     Implement this to encode selection rules for hardware the default policy does
     not cover; pass the implementation to the backend or
     :class:`~openstef_foundation_models.presets.forecasting_workflow.OnnxBackendConfig`.
+
+    A policy-selected chain is enforced *gracefully*: ONNX Runtime silently drops
+    accelerators it cannot initialize and falls back to CPU, and a policy chain
+    such as ``[CoreML, CPU]`` realizing CoreML is the intended outcome, so a
+    warning is logged only if it falls all the way to CPU. A chain the caller
+    passes explicitly is enforced *strictly* instead: any requested accelerator
+    that is not realized raises.
     """
 
     def select(self, metadata: CheckpointMetadata, host: HostCapabilities) -> list[ExecutionProvider]:

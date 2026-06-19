@@ -4,8 +4,8 @@
 
 """Checkpoint resolution for foundation-model forecasters.
 
-A *checkpoint* bundles an ONNX weights file with a sidecar
-:class:`CheckpointMetadata` JSON document describing the model-family specifics
+A *checkpoint* bundles an ONNX weights file with a :class:`CheckpointMetadata`
+JSON document, written next to the weights, describing the model-family specifics
 (IO tensor names, native quantile grid, context/horizon sizing, resolution).
 Keeping these specifics in data rather than code keeps the inference backends
 and forecasters generic.
@@ -29,7 +29,7 @@ METADATA_SCHEMA_VERSION = 2
 
 
 class CheckpointMetadata(BaseConfig):
-    """Sidecar metadata describing a foundation-model checkpoint.
+    """Metadata describing a foundation-model checkpoint.
 
     This document travels next to the weights file and drives the generic
     inference path, so that no model-family specifics are hardcoded in the
@@ -106,11 +106,11 @@ class ResolvedCheckpoint(BaseConfig):
     model_config = BaseConfig.model_config | {"arbitrary_types_allowed": True}
 
     weights_path: Path = Field(description="Local path to the resolved weights file.")
-    metadata: CheckpointMetadata = Field(description="Parsed sidecar metadata.")
+    metadata: CheckpointMetadata = Field(description="Parsed model metadata.")
 
 
 def _default_metadata_path(weights_path: Path) -> Path:
-    """Derive the default sidecar metadata path for a weights file.
+    """Derive the default metadata path for a weights file.
 
     Args:
         weights_path: Path to the weights file (e.g. ``chronos-2.onnx``).
@@ -132,7 +132,7 @@ class LocalCheckpoint(BaseConfig):
     path: Path = Field(description="Path to the local weights file.")
     metadata_path: Path | None = Field(
         default=None,
-        description="Path to the sidecar metadata JSON. Defaults to the weights path with a '.metadata.json' suffix.",
+        description="Path to the metadata JSON. Defaults to the weights path with a '.metadata.json' suffix.",
     )
 
     def resolve(self) -> ResolvedCheckpoint:

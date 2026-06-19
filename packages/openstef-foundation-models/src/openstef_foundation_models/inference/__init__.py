@@ -4,18 +4,11 @@
 
 """Inference backends for foundation-model forecasters.
 
-An :class:`InferenceBackend` isolates *how* a checkpoint is executed behind a
-single named-tensor contract. Forecasters *compose* a backend rather than
-inheriting execution behaviour, so the execution runtime is a configuration
-choice. ONNX Runtime is the only backend today; the contract keeps room for
-others without touching forecaster code.
-
-Only the **dependency-free** surface is re-exported here: the
-:class:`InferenceBackend` protocol and the execution-provider configs (pure
-pydantic). The concrete backend lives in its own submodule and imports its
-heavy dependency at module top level, so importing it is an explicit opt-in:
-
-* ``from openstef_foundation_models.inference.onnx_backend import OnnxBackend`` requires ONNX Runtime.
+An :class:`InferenceBackend` isolates how a checkpoint is executed behind a
+single named-tensor contract; forecasters compose a backend rather than
+inheriting execution behaviour. Only the dependency-free surface (the protocol
+and the execution-provider configs) is re-exported here; a concrete backend
+lives in its own submodule and imports its heavy runtime at module top level.
 """
 
 from openstef_foundation_models.inference.backend import InferenceBackend

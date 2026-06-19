@@ -89,7 +89,7 @@ class Chronos2(StrEnum):
 
         Returns:
             A :class:`~openstef_foundation_models.models.checkpoint.HubCheckpoint`
-            pointing at the published weights and their sidecar metadata.
+            pointing at the published weights and their metadata.
         """
         return HubCheckpoint(
             repo_id=f"{HF_NAMESPACE}/{self.value}-onnx",

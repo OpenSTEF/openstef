@@ -5,9 +5,9 @@
 """Shared fixtures for the foundation-model integration tests.
 
 These tests run the real exported Chronos-2 ONNX checkpoint. The artifact is
-large and lives outside the repository (the export lab), so every fixture here
-skips cleanly when it is unavailable. The checkpoint metadata is read from the
-``.metadata.json`` sidecar written next to the weights by the export script.
+large and lives outside the repository, so every fixture here skips cleanly when
+it is unavailable. The checkpoint metadata is read from the ``.metadata.json``
+file written next to the weights.
 """
 
 from pathlib import Path
@@ -41,16 +41,16 @@ def onnx_artifact() -> Path:
 
 @pytest.fixture(scope="session")
 def chronos2_metadata(onnx_artifact: Path) -> CheckpointMetadata:
-    """Metadata describing the exported checkpoint, read from its sidecar."""
-    sidecar = onnx_artifact.with_suffix(".metadata.json")
-    if not sidecar.is_file():
-        pytest.skip(f"Checkpoint metadata sidecar not found at {sidecar}; re-export to generate it.")
-    return CheckpointMetadata.model_validate_json(sidecar.read_text(encoding="utf-8"))
+    """Metadata describing the exported checkpoint, read from its JSON file."""
+    metadata_path = onnx_artifact.with_suffix(".metadata.json")
+    if not metadata_path.is_file():
+        pytest.skip(f"Checkpoint metadata not found at {metadata_path}; re-export to generate it.")
+    return CheckpointMetadata.model_validate_json(metadata_path.read_text(encoding="utf-8"))
 
 
 @pytest.fixture(scope="session")
 def resolved_checkpoint(onnx_artifact: Path) -> ResolvedCheckpoint:
-    """Resolve the artifact against its auto-discovered sidecar metadata file."""
+    """Resolve the artifact against its auto-discovered metadata file."""
     return LocalCheckpoint(path=onnx_artifact).resolve()
 
 

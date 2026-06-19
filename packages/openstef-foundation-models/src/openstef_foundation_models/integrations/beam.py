@@ -15,9 +15,6 @@ Every window is forecast by calling the workflow's own
 :meth:`~CustomForecastingWorkflow.predict`, so the model's preprocessing (feature
 selection / covariates) and postprocessing (quantile sorting) apply uniformly.
 
-Forecasting runs one window at a time. Batching multiple windows into a single backend
-call is a separate, planned optimisation and is intentionally not done here.
-
 Foundation models such as Chronos-2 are zero-shot, so :meth:`fit` is a no-op and the
 default window config disables training.
 """

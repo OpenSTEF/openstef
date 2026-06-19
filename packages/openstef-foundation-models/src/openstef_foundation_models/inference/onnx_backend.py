@@ -4,9 +4,8 @@
 
 """ONNX Runtime execution backend.
 
-Importing this module requires ONNX Runtime (the ``[cpu]`` or ``[gpu]`` extra).
-The import fails early and loudly with :class:`MissingExtraError` if it is not
-installed, rather than deferring the failure to inference time.
+Importing this module requires ONNX Runtime (the ``[cpu]`` or ``[gpu]`` extra)
+and raises :class:`MissingExtraError` if it is missing.
 """
 
 import logging
@@ -71,14 +70,10 @@ class OnnxBackend:
     ) -> "OnnxBackend":
         """Build a backend by loading a checkpoint into a new ONNX Runtime session.
 
-        How the provider chain is chosen drives how strictly its realization is
-        enforced:
-
-        * ``providers is None`` (default): *policy* (or :class:`DefaultProviderPolicy`)
-          selects a chain from the checkpoint and host — **graceful**, warning only
-          if it fell all the way to CPU.
-        * explicit ``providers``: those exact providers are used — **strict**,
-          raising if a requested accelerator is not realized. *policy* is ignored.
+        With ``providers=None`` the *policy* selects a chain from the checkpoint
+        and host; an explicit ``providers`` list is used as given and *policy* is
+        ignored. See :class:`~openstef_foundation_models.inference.provider_selection.ProviderPolicy`
+        for how a chain is chosen and how strictly its realization is enforced.
 
         Args:
             checkpoint: The resolved checkpoint (weights + metadata) to load.
@@ -197,17 +192,9 @@ def _check_provider_fallback(
 ) -> None:
     """Detect and report a silent fallback to the CPU execution provider.
 
-    ONNX Runtime silently drops accelerators it cannot initialize (missing
-    libraries, unsupported ops) and falls back to CPU. This compares the
-    requested chain against what was actually realized. How strictly that is
-    enforced depends on who chose the chain:
-
-    * ``strict`` (the chain was given explicitly — the caller owns it): raise if
-      *any* requested accelerator is missing.
-    * graceful (the chain came from a policy): warn only if it fell *all the way*
-      to CPU, i.e. not a single requested accelerator was realized. A policy chain
-      like ``[CoreML, CPU]`` realizing CoreML is the intended outcome, not a
-      fallback worth reporting.
+    Compares the requested chain against what ONNX Runtime actually realized. See
+    :class:`~openstef_foundation_models.inference.provider_selection.ProviderPolicy`
+    for the strict-vs-graceful contract this enforces.
 
     Args:
         requested: The execution providers that were requested.
