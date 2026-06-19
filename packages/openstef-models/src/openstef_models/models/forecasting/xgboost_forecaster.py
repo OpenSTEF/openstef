@@ -19,7 +19,7 @@ from sklearn.preprocessing import StandardScaler
 from openstef_core.datasets import ForecastDataset, ForecastInputDataset, TimeSeriesDataset
 from openstef_core.exceptions import MissingExtraError, NotFittedError
 from openstef_core.mixins.param_ranges import CategoricalRange, FloatRange, IntRange
-from openstef_core.mixins.predictor import HyperParams
+from openstef_core.mixins.predictor import BatchResult, HyperParams
 from openstef_core.utils.pandas import normalize_to_unit_sum
 from openstef_models.explainability.mixins import ContributionsMixin, ExplainableForecaster
 from openstef_models.models.forecasting.forecaster import Forecaster
@@ -232,6 +232,10 @@ class XGBoostForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
     HyperParams: ClassVar[type[XGBoostHyperParams]] = XGBoostHyperParams
 
     hyperparams: XGBoostHyperParams = Field(default_factory=XGBoostHyperParams)
+    supports_batching: bool = Field(
+        default=True,
+        description="XGBoost runs the whole batch as one concatenated predict call.",
+    )
     device: str = Field(
         default="cpu", description="Device for XGBoost computation. Options: 'cpu', 'cuda', 'cuda:<ordinal>', 'gpu'"
     )
@@ -364,6 +368,53 @@ class XGBoostForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
             data.sample_interval,
             target_column=data.target_column,
         )
+
+    @override
+    def predict_batch(self, data: list[ForecastInputDataset]) -> BatchResult[ForecastDataset]:
+        """Forecast a batch of series with a single concatenated model call.
+
+        Each item's feature frame is built independently (respecting its own
+        ``forecast_start``); the frames are concatenated and predicted in one
+        ``xgboost`` call, then the prediction rows are split back per item. The
+        result is row-for-row equivalent to looping :meth:`predict`.
+
+        Args:
+            data: Input datasets to forecast. Each provides its own forecast start.
+
+        Returns:
+            One forecast per input dataset, in the same order.
+
+        Raises:
+            NotFittedError: If the model has not been fitted.
+        """
+        if not self.is_fitted:
+            raise NotFittedError(self.__class__.__name__)
+        if not data:
+            return []
+
+        frames = [item.input_data(start=item.forecast_start) for item in data]
+        row_counts = [len(frame) for frame in frames]
+        combined = pd.concat(frames, axis=0)
+
+        combined_pred = self._xgboost_model.predict(combined).reshape(-1, len(self.quantiles))
+        if self._target_scaler is not None and len(combined_pred) > 0:
+            combined_pred = self._target_scaler.inverse_transform(combined_pred)
+
+        results: BatchResult[ForecastDataset] = []
+        offset = 0
+        for item, frame, count in zip(data, frames, row_counts, strict=True):
+            chunk = combined_pred[offset : offset + count]
+            offset += count
+            results.append(
+                ForecastDataset.from_quantile_predictions(
+                    chunk,
+                    frame.index,
+                    self.quantiles,
+                    item.sample_interval,
+                    target_column=item.target_column,
+                )
+            )
+        return results
 
     @override
     def predict_contributions(self, data: ForecastInputDataset) -> TimeSeriesDataset:

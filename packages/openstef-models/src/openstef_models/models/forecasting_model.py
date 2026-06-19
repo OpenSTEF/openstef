@@ -12,6 +12,7 @@ unified interface while providing consistent data transformation and validation.
 
 import logging
 from abc import abstractmethod
+from collections.abc import Sequence
 from datetime import datetime, timedelta
 from functools import partial
 from typing import Self, cast, override
@@ -29,7 +30,7 @@ from openstef_core.datasets import (
     TimeSeriesDataset,
 )
 from openstef_core.datasets.timeseries_dataset import validate_horizons_present
-from openstef_core.exceptions import InsufficientlyCompleteError, NotFittedError
+from openstef_core.exceptions import InsufficientlyCompleteError, NotFittedError, PredictError
 from openstef_core.mixins import HyperParams, Predictor, TransformPipeline
 from openstef_core.types import LeadTime, Quantile
 from openstef_models.explainability.mixins import ContributionsMixin, ExplainableForecaster
@@ -310,6 +311,78 @@ class BaseForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDatas
 
         return self.postprocessing.transform(data=raw_predictions)
 
+    @staticmethod
+    def _normalize_forecast_starts(
+        n: int,
+        forecast_start: datetime | Sequence[datetime | None] | None,
+    ) -> list[datetime | None]:
+        """Expand a scalar/None/sequence ``forecast_start`` into one entry per item.
+
+        Args:
+            n: Number of batch items.
+            forecast_start: A single start applied to all items, ``None`` (each item
+                uses its own window), or a per-item sequence of length ``n``.
+
+        Returns:
+            A list of length ``n`` with one forecast start (or ``None``) per item.
+
+        Raises:
+            ValueError: If a sequence is provided whose length differs from ``n``.
+        """
+        if isinstance(forecast_start, Sequence) and not isinstance(forecast_start, str):
+            starts = list(forecast_start)
+            if len(starts) != n:
+                msg = f"forecast_start sequence length {len(starts)} != batch size {n}."
+                raise ValueError(msg)
+            return starts
+        return [forecast_start] * n
+
+    def predict_batch(
+        self,
+        data: list[TimeSeriesDataset],
+        forecast_start: datetime | Sequence[datetime | None] | None = None,
+    ) -> list[ForecastDataset]:
+        """Generate forecasts for a batch of inputs with one model instance.
+
+        Each item is preprocessed independently (keeping its own ``forecast_start``);
+        the preprocessed batch is then forecast together via ``_predict_batch`` and
+        each raw forecast is postprocessed.
+
+        Args:
+            data: One ``TimeSeriesDataset`` per location/series to forecast.
+            forecast_start: A single start applied to all items, ``None`` (each item
+                uses its own window), or a per-item sequence of the same length.
+
+        Returns:
+            One ``ForecastDataset`` per input, in input order.
+
+        Raises:
+            NotFittedError: If the model has not been fitted.
+        """
+        if not self.is_fitted:
+            raise NotFittedError(type(self).__name__)
+        if not data:
+            return []
+
+        starts = self._normalize_forecast_starts(len(data), forecast_start)
+        inputs = [self.prepare_input(data=item, forecast_start=start) for item, start in zip(data, starts, strict=True)]
+        raw = self._predict_batch(input_data=inputs)
+        return [self.postprocessing.transform(data=forecast) for forecast in raw]
+
+    def _predict_batch(self, input_data: list[ForecastInputDataset]) -> list[ForecastDataset]:
+        """Generate raw forecasts for a preprocessed batch.
+
+        The default fallback loops ``_predict`` item by item. Subclasses backed by a
+        batch-native forecaster override this to issue a single batched call.
+
+        Args:
+            input_data: One preprocessed ``ForecastInputDataset`` per batch item.
+
+        Returns:
+            One raw ``ForecastDataset`` per input, in input order.
+        """
+        return [self._predict(input_data=item) for item in input_data]
+
     def score(self, data: TimeSeriesDataset) -> SubsetMetric:
         """Evaluate model performance on the provided dataset.
 
@@ -541,6 +614,22 @@ class ForecastingModel(BaseForecastingModel):
     def _predict(self, input_data: ForecastInputDataset) -> ForecastDataset:
         prediction = self.forecaster.predict(data=input_data)
         return restore_target(dataset=prediction, original_dataset=input_data, target_column=self.target_column)
+
+    @override
+    def _predict_batch(self, input_data: list[ForecastInputDataset]) -> list[ForecastDataset]:
+        raw = self.forecaster.predict_batch(data=input_data)
+        forecasts: list[ForecastDataset] = []
+        for item, forecast in zip(input_data, raw, strict=True):
+            if isinstance(forecast, PredictError):
+                raise forecast
+            forecasts.append(
+                restore_target(
+                    dataset=forecast,
+                    original_dataset=item,
+                    target_column=self.target_column,
+                )
+            )
+        return forecasts
 
     @override
     def predict_contributions(

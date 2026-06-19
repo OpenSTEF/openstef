@@ -12,11 +12,15 @@ import pandas as pd
 import pytest
 from pydantic import Field
 
-from openstef_beam.backtesting.backtest_forecaster.mixins import BacktestForecasterConfig
+from openstef_beam.backtesting import BacktestConfig, BacktestPipeline
+from openstef_beam.backtesting.backtest_forecaster.mixins import (
+    BacktestBatchForecasterMixin,
+    BacktestForecasterConfig,
+)
 from openstef_beam.backtesting.restricted_horizon_timeseries import RestrictedHorizonVersionedTimeSeries
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.datasets.versioned_timeseries_dataset import VersionedTimeSeriesDataset
-from openstef_core.mixins.predictor import HyperParams
+from openstef_core.mixins.predictor import BatchResult, HyperParams
 from openstef_core.types import LeadTime, Quantile
 from openstef_foundation_models.integrations.beam import FoundationModelBacktestForecaster
 from openstef_models.models.forecasting.forecaster import Forecaster
@@ -35,6 +39,7 @@ class CountingForecaster(Forecaster):
     hyperparams: HyperParams = Field(default_factory=HyperParams)
 
     received_inputs: list[ForecastInputDataset] = Field(default_factory=list)
+    received_batches: list[list[ForecastInputDataset]] = Field(default_factory=list)
 
     @property
     @override
@@ -54,6 +59,13 @@ class CountingForecaster(Forecaster):
     def predict(self, data: ForecastInputDataset) -> ForecastDataset:
         self.received_inputs.append(data)
         return self._build_forecast(data)
+
+    @override
+    def predict_batch(self, data: list[ForecastInputDataset]) -> BatchResult[ForecastDataset]:
+        # Batch-native fake: record the batch and build each forecast directly,
+        # without looping predict, so the single-call invariant can be asserted.
+        self.received_batches.append(list(data))
+        return [self._build_forecast(item) for item in data]
 
     def _build_forecast(self, data: ForecastInputDataset) -> ForecastDataset:
         index = data.create_forecast_range(self.max_horizon)
@@ -250,3 +262,181 @@ def test_adapter_reuses_single_forecaster_instance(forecaster: CountingForecaste
     assert isinstance(adapter, FoundationModelBacktestForecaster)
     assert isinstance(adapter.workflow.model, ForecastingModel)
     assert adapter.workflow.model.forecaster is forecaster
+
+
+def test_adapter_is_batch_forecaster_and_batch_size_is_settable(forecaster: CountingForecaster) -> None:
+    """The adapter implements the batch mixin and exposes a settable batch_size."""
+    # Arrange / Act
+    adapter = FoundationModelBacktestForecaster(workflow=_make_workflow(forecaster), batch_size=8)
+
+    # Assert
+    assert isinstance(adapter, BacktestBatchForecasterMixin)
+    assert adapter.batch_size == 8
+
+
+def test_from_workflow_sets_batch_size(forecaster: CountingForecaster) -> None:
+    """from_workflow forwards batch_size to the adapter."""
+    adapter = FoundationModelBacktestForecaster.from_workflow(_make_workflow(forecaster), batch_size=16)
+    assert adapter.batch_size == 16
+
+
+def test_predict_batch_issues_single_batched_call(forecaster: CountingForecaster) -> None:
+    """predict_batch routes all windows through one workflow.predict_batch call."""
+    # Arrange
+    dataset, timestamps = _make_dataset()
+    adapter = FoundationModelBacktestForecaster(workflow=_make_workflow(forecaster), batch_size=4)
+    horizons = [timestamps[120].to_pydatetime(), timestamps[140].to_pydatetime(), timestamps[160].to_pydatetime()]
+    batch = [_restricted(dataset, horizon) for horizon in horizons]
+
+    # Act
+    results = adapter.predict_batch(batch)
+
+    # Assert - aligned output, one batched forecaster call, no per-item predict
+    assert len(results) == len(batch)
+    assert all(result is not None for result in results)
+    assert len(forecaster.received_batches) == 1
+    assert len(forecaster.received_batches[0]) == len(batch)
+    assert forecaster.received_inputs == []
+
+
+def test_predict_batch_preserves_none_for_windows_without_history(forecaster: CountingForecaster) -> None:
+    """A window with no usable target history maps to None at its original index."""
+    # Arrange
+    dataset, timestamps = _make_dataset()
+    adapter = FoundationModelBacktestForecaster(workflow=_make_workflow(forecaster), batch_size=4)
+    # Middle event has no history before the very first timestamp.
+    batch = [
+        _restricted(dataset, timestamps[120].to_pydatetime()),
+        _restricted(dataset, timestamps[0].to_pydatetime()),
+        _restricted(dataset, timestamps[160].to_pydatetime()),
+    ]
+
+    # Act
+    results = adapter.predict_batch(batch)
+
+    # Assert
+    assert results[0] is not None
+    assert results[1] is None
+    assert results[2] is not None
+    # Only the two valid windows were forecast.
+    assert len(forecaster.received_batches[0]) == 2
+
+
+def test_predict_batch_all_none_returns_all_none(forecaster: CountingForecaster) -> None:
+    """When no window has usable history, predict_batch returns all None without a call."""
+    # Arrange
+    dataset, timestamps = _make_dataset()
+    adapter = FoundationModelBacktestForecaster(workflow=_make_workflow(forecaster), batch_size=4)
+    batch = [_restricted(dataset, timestamps[0].to_pydatetime())]
+
+    # Act
+    results = adapter.predict_batch(batch)
+
+    # Assert
+    assert results == [None]
+    assert forecaster.received_batches == []
+
+
+def test_predict_batch_matches_looping_predict(forecaster: CountingForecaster) -> None:
+    """predict_batch is equivalent to looping predict (modulo Nones)."""
+    # Arrange
+    dataset, timestamps = _make_dataset()
+    horizons = [timestamps[120].to_pydatetime(), timestamps[140].to_pydatetime(), timestamps[160].to_pydatetime()]
+    batch = [_restricted(dataset, horizon) for horizon in horizons]
+
+    batch_adapter = FoundationModelBacktestForecaster(workflow=_make_workflow(forecaster), batch_size=4)
+    single_adapter = FoundationModelBacktestForecaster(
+        workflow=_make_workflow(CountingForecaster(quantiles=QUANTILES, horizons=[LeadTime.from_string("PT2H")]))
+    )
+
+    # Act
+    batched = batch_adapter.predict_batch(batch)
+    looped = [single_adapter.predict(item) for item in batch]
+
+    # Assert
+    assert len(batched) == len(looped)
+    for batched_result, single_result in zip(batched, looped, strict=True):
+        assert batched_result is not None
+        assert single_result is not None
+        pd.testing.assert_frame_equal(batched_result.data, single_result.data)
+
+
+def test_predict_batch_versioned_adds_available_at(forecaster: CountingForecaster) -> None:
+    """predict_batch_versioned adds an available_at column per window."""
+    # Arrange
+    dataset, timestamps = _make_dataset()
+    adapter = FoundationModelBacktestForecaster(workflow=_make_workflow(forecaster), batch_size=4)
+    horizons = [timestamps[120].to_pydatetime(), timestamps[160].to_pydatetime()]
+    batch = [_restricted(dataset, horizon) for horizon in horizons]
+
+    # Act
+    results = adapter.predict_batch_versioned(batch)
+
+    # Assert
+    assert len(results) == len(batch)
+    for result, horizon in zip(results, horizons, strict=True):
+        assert result is not None
+        assert "available_at" in result.data.columns
+        assert (result.data["available_at"] == horizon).all()
+
+
+def _make_pipeline_data(periods: int = 100) -> tuple[VersionedTimeSeriesDataset, VersionedTimeSeriesDataset]:
+    """Build (ground_truth, predictors) datasets for a small BacktestPipeline run."""
+    timestamps = pd.date_range(start="2024-01-01", periods=periods, freq="1h", name="timestamp")
+    ground_truth = VersionedTimeSeriesDataset.from_dataframe(
+        data=pd.DataFrame({"available_at": timestamps, "load": np.arange(periods, dtype=float)}, index=timestamps),
+        sample_interval=timedelta(hours=1),
+    )
+    predictors = VersionedTimeSeriesDataset.from_dataframe(
+        data=pd.DataFrame(
+            {"available_at": timestamps[0], "feature": np.arange(periods, dtype=float)}, index=timestamps
+        ),
+        sample_interval=timedelta(hours=1),
+    )
+    return ground_truth, predictors
+
+
+def test_backtest_pipeline_uses_batched_path_and_matches_serial() -> None:
+    """A BacktestPipeline with batch_size>1 takes the batched path and matches serial output."""
+    # Arrange
+    ground_truth, predictors = _make_pipeline_data()
+    config = BacktestConfig(
+        predict_interval=timedelta(hours=6),
+        train_interval=timedelta(days=1),
+    )
+    run_kwargs = {
+        "ground_truth": ground_truth,
+        "predictors": predictors,
+        "start": datetime.fromisoformat("2024-01-02T00:00:00"),
+        "end": datetime.fromisoformat("2024-01-04T00:00:00"),
+        "show_progress": False,
+    }
+
+    batched_forecaster = CountingForecaster(quantiles=QUANTILES, horizons=[LeadTime.from_string("PT2H")])
+    batched_adapter = FoundationModelBacktestForecaster.from_workflow(
+        _make_workflow(batched_forecaster),
+        predict_context_length=timedelta(hours=12),
+        batch_size=4,
+    )
+
+    serial_forecaster = CountingForecaster(quantiles=QUANTILES, horizons=[LeadTime.from_string("PT2H")])
+    serial_adapter = FoundationModelBacktestForecaster.from_workflow(
+        _make_workflow(serial_forecaster),
+        predict_context_length=timedelta(hours=12),
+        batch_size=None,
+    )
+
+    # Act
+    batched_result = BacktestPipeline(config=config, forecaster=batched_adapter).run(**run_kwargs)
+    serial_result = BacktestPipeline(config=config, forecaster=serial_adapter).run(**run_kwargs)
+
+    # Assert - batched path engaged, serial path did not, and results match.
+    assert len(batched_forecaster.received_batches) > 0
+    assert batched_forecaster.received_inputs == []
+    assert len(serial_forecaster.received_inputs) > 0
+    assert serial_forecaster.received_batches == []
+    assert len(batched_result.data) > 0
+    pd.testing.assert_frame_equal(
+        batched_result.data.sort_index(axis=1),
+        serial_result.data.sort_index(axis=1),
+    )

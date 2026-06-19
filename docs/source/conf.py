@@ -196,6 +196,12 @@ nb_execution_show_tb = True
 nb_execution_excludepatterns = [
     "benchmarks/*",  # Benchmarks are too expensive to execute during docs build
     "benchmarks/*/*",
+    # Foundation-model tutorial needs a large local ONNX checkpoint that is not
+    # published yet, so it cannot run in CI/doc builds. Render it without executing.
+    # The trailing * is required: myst-nb matches the source path including its ".py".
+    "tutorials/foundation_model_forecasting*",
+    # Batch-inference tutorial also reads a local ONNX checkpoint; render without executing.
+    "tutorials/batch_inference*",
 ]
 
 # Sphinx version switcher

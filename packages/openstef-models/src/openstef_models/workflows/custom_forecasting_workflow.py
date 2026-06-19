@@ -10,6 +10,7 @@ entry point for production forecasting systems.
 """
 
 import logging
+from collections.abc import Sequence
 from datetime import datetime
 from typing import Self
 
@@ -51,6 +52,32 @@ class ForecastingCallback(
         >>> callback = LoggingCallback()
         >>> workflow = CustomForecastingWorkflow(model, callbacks=callback) # doctest: +SKIP
     """
+
+    def on_predict_batch_start(
+        self,
+        context: "WorkflowContext[CustomForecastingWorkflow]",
+        data: list[TimeSeriesDataset],
+    ) -> None:
+        """Called before a batched prediction begins. Default no-op.
+
+        Args:
+            context: The workflow context performing the batched prediction.
+            data: Input datasets being used for the batched prediction.
+        """
+
+    def on_predict_batch_end(
+        self,
+        context: "WorkflowContext[CustomForecastingWorkflow]",
+        data: list[TimeSeriesDataset],
+        result: list[ForecastDataset],
+    ) -> None:
+        """Called after a batched prediction completes. Default no-op.
+
+        Args:
+            context: The workflow context that completed the batched prediction.
+            data: Input datasets that were used for the batched prediction.
+            result: Generated forecasts, one per input.
+        """
 
 
 class CustomForecastingWorkflow(BaseModel):
@@ -199,6 +226,39 @@ class CustomForecastingWorkflow(BaseModel):
 
         for callback in self.callbacks:
             callback.on_predict_end(context=context, data=data, result=forecasts)
+
+        return forecasts
+
+    def predict_batch(
+        self,
+        data: list[TimeSeriesDataset],
+        forecast_start: datetime | Sequence[datetime | None] | None = None,
+    ) -> list[ForecastDataset]:
+        """Generate forecasts for a batch of inputs with callback execution.
+
+        Args:
+            data: One dataset per location/series to forecast.
+            forecast_start: A single start applied to all items, ``None`` (each item
+                uses its own window), or a per-item sequence of the same length.
+
+        Returns:
+            One forecast per input, in input order.
+
+        Raises:
+            NotFittedError: If the underlying model has not been trained.
+        """
+        context: WorkflowContext[CustomForecastingWorkflow] = WorkflowContext(workflow=self)
+
+        for callback in self.callbacks:
+            callback.on_predict_batch_start(context=context, data=data)
+
+        if not self.model.is_fitted:
+            raise NotFittedError(type(self.model).__name__)
+
+        forecasts = self.model.predict_batch(data=data, forecast_start=forecast_start)
+
+        for callback in self.callbacks:
+            callback.on_predict_batch_end(context=context, data=data, result=forecasts)
 
         return forecasts
 

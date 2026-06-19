@@ -10,12 +10,12 @@ import pandas as pd
 import pytest
 from pydantic import PrivateAttr
 
-from openstef_core.datasets import TimeSeriesDataset
+from openstef_core.datasets import ForecastInputDataset, TimeSeriesDataset
 from openstef_core.datasets.validated_datasets import ForecastDataset
 from openstef_core.exceptions import InsufficientlyCompleteError, NotFittedError
 from openstef_core.mixins import TransformPipeline
 from openstef_core.mixins.param_ranges import IntRange
-from openstef_core.mixins.predictor import HyperParams
+from openstef_core.mixins.predictor import BatchResult, HyperParams
 from openstef_core.testing import assert_timeseries_equal, create_synthetic_forecasting_dataset
 from openstef_core.types import LeadTime, Quantile, override
 from openstef_models.models.forecasting.constant_quantile_forecaster import ConstantQuantileForecaster
@@ -299,3 +299,155 @@ def test_restore_target__adds_target_when_not_present():
     # Assert - target column should be added with original values
     expected = pd.Series([100.0, 200.0, 300.0], index=index, name="load")
     pd.testing.assert_series_equal(result.data["load"], expected)
+
+
+class _CountingForecaster(SimpleForecaster):
+    """SimpleForecaster that records how often predict / predict_batch are called."""
+
+    _predict_calls: int = PrivateAttr(default=0)
+    _predict_batch_calls: int = PrivateAttr(default=0)
+
+    @property
+    def predict_calls(self) -> int:
+        """Number of single-item predict calls."""
+        return self._predict_calls
+
+    @property
+    def predict_batch_calls(self) -> int:
+        """Number of batched predict_batch calls."""
+        return self._predict_batch_calls
+
+    @override
+    def predict(self, data: ForecastInputDataset) -> ForecastDataset:
+        self._predict_calls += 1
+        return super().predict(data)
+
+    @override
+    def predict_batch(self, data: list[ForecastInputDataset]) -> BatchResult[ForecastDataset]:
+        # Batch-native stub: build each forecast directly without looping predict,
+        # so the model layer's single-call invariant can be asserted precisely.
+        self._predict_batch_calls += 1
+        results: BatchResult[ForecastDataset] = []
+        for item in data:
+            forecast_values = {quantile: 100.0 + float(quantile) * 10 for quantile in self.quantiles}
+            results.append(
+                ForecastDataset(
+                    pd.DataFrame(
+                        {
+                            quantile.format(): [forecast_values[quantile]] * len(item.index)
+                            for quantile in self.quantiles
+                        },
+                        index=item.index,
+                    ),
+                    item.sample_interval,
+                    item.forecast_start,
+                )
+            )
+        return results
+
+
+def test_forecasting_model__predict_batch_matches_loop(sample_timeseries_dataset: TimeSeriesDataset):
+    """predict_batch returns the same forecasts as looping predict per item."""
+    # Arrange
+    horizons = [LeadTime(timedelta(hours=6))]
+    forecaster = SimpleForecaster(quantiles=[Quantile(0.5)], horizons=horizons)
+    model = ForecastingModel(forecaster=forecaster)
+    model.fit(data=sample_timeseries_dataset)
+
+    items = [sample_timeseries_dataset, sample_timeseries_dataset]
+
+    # Act
+    batch = model.predict_batch(items)
+    looped = [model.predict(item) for item in items]
+
+    # Assert
+    assert len(batch) == len(items)
+    for batched, single in zip(batch, looped, strict=True):
+        assert_timeseries_equal(batched, single)
+
+
+def test_forecasting_model__predict_batch_issues_single_forecaster_call(
+    sample_timeseries_dataset: TimeSeriesDataset,
+):
+    """ForecastingModel._predict_batch must issue exactly one forecaster.predict_batch call."""
+    # Arrange
+    horizons = [LeadTime(timedelta(hours=6))]
+    forecaster = _CountingForecaster(quantiles=[Quantile(0.5)], horizons=horizons)
+    model = ForecastingModel(forecaster=forecaster)
+    model.fit(data=sample_timeseries_dataset)
+
+    calls_before = forecaster.predict_batch_calls
+    predict_calls_before = forecaster.predict_calls
+
+    # Act
+    model.predict_batch([sample_timeseries_dataset, sample_timeseries_dataset, sample_timeseries_dataset])
+
+    # Assert - exactly one batched call, no extra per-item predict calls
+    assert forecaster.predict_batch_calls - calls_before == 1
+    assert forecaster.predict_calls - predict_calls_before == 0
+
+
+def test_forecasting_model__predict_batch_per_item_forecast_start(
+    sample_timeseries_dataset: TimeSeriesDataset,
+):
+    """A per-item forecast_start sequence is respected (different output windows)."""
+    # Arrange
+    horizons = [LeadTime(timedelta(hours=6))]
+    forecaster = SimpleForecaster(quantiles=[Quantile(0.5)], horizons=horizons)
+    model = ForecastingModel(forecaster=forecaster)
+    model.fit(data=sample_timeseries_dataset)
+
+    start_a = datetime.fromisoformat("2025-01-01T12:00:00")
+    start_b = datetime.fromisoformat("2025-01-01T18:00:00")
+
+    # Act
+    batch = model.predict_batch(
+        [sample_timeseries_dataset, sample_timeseries_dataset],
+        forecast_start=[start_a, start_b],
+    )
+    expected_a = model.predict(sample_timeseries_dataset, forecast_start=start_a)
+    expected_b = model.predict(sample_timeseries_dataset, forecast_start=start_b)
+
+    # Assert
+    assert_timeseries_equal(batch[0], expected_a)
+    assert_timeseries_equal(batch[1], expected_b)
+    assert batch[0].forecast_start == start_a
+    assert batch[1].forecast_start == start_b
+
+
+def test_forecasting_model__predict_batch_forecast_start_length_mismatch(
+    sample_timeseries_dataset: TimeSeriesDataset,
+):
+    """A forecast_start sequence whose length mismatches the batch raises ValueError."""
+    # Arrange
+    horizons = [LeadTime(timedelta(hours=6))]
+    forecaster = SimpleForecaster(quantiles=[Quantile(0.5)], horizons=horizons)
+    model = ForecastingModel(forecaster=forecaster)
+    model.fit(data=sample_timeseries_dataset)
+
+    # Act & Assert
+    with pytest.raises(ValueError, match="forecast_start sequence length"):
+        model.predict_batch(
+            [sample_timeseries_dataset, sample_timeseries_dataset],
+            forecast_start=[datetime.fromisoformat("2025-01-01T12:00:00")],
+        )
+
+
+def test_forecasting_model__predict_batch_empty_returns_empty(sample_timeseries_dataset: TimeSeriesDataset):
+    """predict_batch on an empty list returns an empty list."""
+    horizons = [LeadTime(timedelta(hours=6))]
+    forecaster = SimpleForecaster(quantiles=[Quantile(0.5)], horizons=horizons)
+    model = ForecastingModel(forecaster=forecaster)
+    model.fit(data=sample_timeseries_dataset)
+
+    assert model.predict_batch([]) == []
+
+
+def test_forecasting_model__predict_batch_not_fitted_raises_error(sample_timeseries_dataset: TimeSeriesDataset):
+    """predict_batch raises NotFittedError when the model is not fitted."""
+    horizons = [LeadTime(timedelta(hours=6))]
+    forecaster = SimpleForecaster(quantiles=[Quantile(0.5)], horizons=horizons)
+    model = ForecastingModel(forecaster=forecaster)
+
+    with pytest.raises(NotFittedError):
+        model.predict_batch([sample_timeseries_dataset])
