@@ -38,7 +38,7 @@ jobs:
           activate-environment: true
           enable-cache: true
       - name: Install build dependencies
-        run: uv sync --frozen --no-install-project --all-groups
+        run: uv sync --frozen --no-install-project
 
       # Start of release steps
       - name: Compute ephemeral dev version

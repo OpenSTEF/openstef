@@ -86,24 +86,27 @@ Install the development dependencies using uv:
 
 .. code-block:: bash
 
-    uv sync --all-packages --all-groups
+    uv sync
 
-This will:
+This installs the default ``dev`` dependency group: a curated aggregate of the focused
+groups (``test``, ``lint``, ``typecheck``, ``notebooks``, ``docs``, ``deployment``) plus
+every workspace feature in its CPU flavour. One command gives you the full environment to
+run the tests, linters, type checker, and docs build — no ``--all-groups`` or
+``--all-packages`` needed.
 
-1. Create a virtual environment (if one doesn't exist)
-2. Install all workspace packages in development mode
-3. Install all development dependencies including testing, linting, and documentation tools
-4. Install the full feature set (CPU flavour) — the ``dev`` dependency group is a curated
-   superset of every optional feature needed for development
+To install only part of the toolbelt, sync the focused groups directly, e.g.
+``uv sync --no-default-groups --group test`` for just the test runner.
 
 .. note::
 
-    Use ``--all-groups``, **not** ``--all-extras``. A few extras are mutually exclusive —
-    ``openstef-foundation-models`` declares ``cpu``/``gpu`` (and ``openstef-models`` has
-    ``xgb-cpu``/``xgb-gpu``) as conflicting extras, so ``--all-extras`` would try to activate
-    both sides of a conflict and fail. The ``dev`` group already pulls the CPU builds, which
-    is what you want for local development. Install a GPU build deliberately in its own
-    environment (e.g. ``uv pip install "openstef-foundation-models[gpu]"``).
+    The default environment installs the **CPU** compute runtimes (``onnxruntime``,
+    ``xgboost-cpu``). For a GPU environment, run::
+
+        uv sync --no-default-groups --group dev-gpu
+
+    The CPU and GPU runtimes are declared as conflicting extras, so do **not** pass
+    ``--all-groups`` or ``--all-extras`` — they would try to activate both flavours at once
+    and fail. Install one or the other.
 
 Understanding the workspace structure
 =====================================

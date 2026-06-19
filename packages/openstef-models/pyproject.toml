@@ -57,3 +57,13 @@ urls.Repository = "https://github.com/OpenSTEF/openstef"
 
 [tool.hatch.build.targets.wheel]
 packages = [ "src/openstef_models" ]
+
+[tool.uv]
+# xgb-cpu installs xgboost-cpu (Linux/Windows) and xgb-gpu installs the full
+# xgboost; both provide the same import, so exactly one may be installed.
+conflicts = [
+  [
+    { extra = "xgb-cpu" },
+    { extra = "xgb-gpu" },
+  ],
+]
