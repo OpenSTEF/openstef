@@ -24,11 +24,7 @@ optuna.logging.set_verbosity(optuna.logging.WARNING)
 
 
 def _config(**kwargs: Any) -> ForecastingWorkflowConfig:
-    """Minimal ForecastingWorkflowConfig for tuning tests.
-
-    ``mlflow_storage=None`` keeps these mocked-workflow unit tests from materializing MLflow's
-    relative default store (``./mlflow``) in the repo root.
-    """
+    """Minimal ForecastingWorkflowConfig for tuning tests (no MLflow storage)."""
     return ForecastingWorkflowConfig(model_id="test", model="xgboost", mlflow_storage=None, **kwargs)
 
 

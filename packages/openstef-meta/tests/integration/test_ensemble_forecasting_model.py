@@ -49,9 +49,7 @@ def config() -> EnsembleForecastingWorkflowConfig:
             "gblinear": SampleWeightConfig(method="exponential", weight_exponent=1.0),
             "lgbm": SampleWeightConfig(method="exponential", weight_exponent=0.0),
         },
-        # This test exercises preprocessing/model structure only — no MLflow logging — so skip the
-        # storage to avoid materializing its relative default store (./mlflow) in the repo root.
-        mlflow_storage=None,
+        mlflow_storage=None,  # no MLflow logging needed for this structural test
     )
 
 

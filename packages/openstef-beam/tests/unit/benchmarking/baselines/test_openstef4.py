@@ -25,13 +25,7 @@ from openstef_models.presets import ForecastingWorkflowConfig
 
 @pytest.fixture
 def mlflow_storage(tmp_path: Path) -> MLFlowStorage:
-    """MLflow storage rooted in a per-test tmp dir.
-
-    ``MLFlowStorage`` defaults its tracking/artifact stores to *relative* paths (``./mlflow``,
-    ``./mlflow_artifacts_local``). Left at the repo root they persist across runs, so with
-    model-reuse enabled a stale model — pickled before a config field existed — gets reloaded and
-    fails to deserialize. Rooting them in ``tmp_path`` keeps every run isolated.
-    """
+    """MLflow storage rooted in a per-test tmp dir so runs stay isolated."""
     return MLFlowStorage(
         tracking_uri=str(tmp_path / "mlflow"),
         local_artifacts_path=tmp_path / "mlflow_artifacts",
