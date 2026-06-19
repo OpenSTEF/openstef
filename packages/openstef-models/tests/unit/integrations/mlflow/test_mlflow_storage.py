@@ -34,12 +34,12 @@ class SimpleStatefulModel(Stateful):
 @pytest.fixture
 def storage(tmp_path: Path) -> MLFlowStorage:
     """Create MLflow storage instance with temporary directories."""
-    tracking_path = tmp_path / "mlflow"
     artifacts_path = tmp_path / "mlflow_artifacts"
 
     return MLFlowStorage(
-        tracking_uri=str(tracking_path),
+        tracking_uri=f"sqlite:///{tmp_path / 'mlflow.db'}",
         local_artifacts_path=artifacts_path,
+        artifact_location=(tmp_path / "mlruns").as_uri(),
     )
 
 
@@ -68,8 +68,9 @@ def test_create_run__experiment_prefix(tmp_path: Path, model_id: str):
     """Test that experiment_name_prefix is prepended to experiment names."""
     # Arrange
     storage = MLFlowStorage(
-        tracking_uri=str(tmp_path / "mlflow"),
+        tracking_uri=f"sqlite:///{tmp_path / 'mlflow.db'}",
         local_artifacts_path=tmp_path / "artifacts",
+        artifact_location=(tmp_path / "mlruns").as_uri(),
         experiment_name_prefix="prod_",
     )
 
