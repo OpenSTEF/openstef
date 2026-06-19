@@ -79,8 +79,9 @@ OpenSTEF 4.0 uses a workspace structure with multiple packages:
 * ``openstef-beam``: Backtesting, evaluation, analysis and metrics  
 * ``openstef-core``: Core utilities, dataset types, shared types and base models used by other packages
 * ``docs``: Documentation source
+* ``openstef-meta``: Meta-models for combining and stacking forecasts (ensembles, weighted blends)
+* ``openstef-foundation-models``: Foundation-model forecasters (e.g. Chronos-2) on an ONNX runtime
 * ``openstef-compatibility``: Compatibility layer for OpenSTEF 3.x (coming soon)
-* ``openstef-foundational-models``: Deep learning and foundational models (coming soon)
 
 Install the development dependencies using uv:
 
