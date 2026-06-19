@@ -20,6 +20,8 @@ from openstef_core.transforms import TimeSeriesTransform
 
 MIN_WEEKEND_IDX: int = 5  # Saturday
 SUNDAY_IDX: int = 6
+MONTHS_PER_YEAR: int = 12
+QUARTERS_PER_YEAR: int = 4
 
 
 class DatetimeFeaturesAdder(BaseConfig, TimeSeriesTransform):
@@ -86,9 +88,15 @@ class DatetimeFeaturesAdder(BaseConfig, TimeSeriesTransform):
                 )
             )
         else:
-            month_dummies = pd.get_dummies(data.index.month, prefix="month", dtype=int)
+            # Use fixed categories so the one-hot columns are stable regardless of which
+            # months/quarters appear in the data. Without this, get_dummies only emits
+            # columns for the values present, so features_added() cannot enumerate them
+            # and training/inference can produce mismatched column sets.
+            months = pd.Categorical(data.index.month, categories=list(range(1, MONTHS_PER_YEAR + 1)))
+            month_dummies = pd.get_dummies(months, prefix="month", dtype=int)
             month_dummies.index = data.index
-            quarter_dummies = pd.get_dummies(data.index.quarter, prefix="quarter", dtype=int)
+            quarters = pd.Categorical(data.index.quarter, categories=list(range(1, QUARTERS_PER_YEAR + 1)))
+            quarter_dummies = pd.get_dummies(quarters, prefix="quarter", dtype=int)
             quarter_dummies.index = data.index
             features.extend([month_dummies, quarter_dummies])
 
@@ -99,13 +107,14 @@ class DatetimeFeaturesAdder(BaseConfig, TimeSeriesTransform):
 
     @override
     def features_added(self) -> list[str]:
-        return [
-            "is_week_day",
-            "is_weekend_day",
-            "is_sunday",
-            "month_of_year",
-            "quarter_of_year",
-        ]
+        base = ["is_week_day", "is_weekend_day", "is_sunday"]
+        if self.onehot_encode:
+            return [
+                *base,
+                *[f"month_{month}" for month in range(1, MONTHS_PER_YEAR + 1)],
+                *[f"quarter_{quarter}" for quarter in range(1, QUARTERS_PER_YEAR + 1)],
+            ]
+        return [*base, "month_of_year", "quarter_of_year"]
 
 
 __all__ = ["DatetimeFeaturesAdder"]
