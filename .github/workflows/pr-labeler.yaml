@@ -4,7 +4,7 @@
 # Automatically label PRs, config in ../pr-labler.yml
 name: PR Labeler
 on:
-  pull_request:
+  pull_request_target:
     types: [opened]
 
 jobs:
