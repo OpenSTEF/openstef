@@ -19,3 +19,4 @@ jobs:
   quality:
     name: Quality Checks
     uses: ./.github/workflows/_job_quality_check.yaml
+    secrets: inherit
