@@ -28,6 +28,8 @@ Example::
     checkpoint = Chronos2.BASE.checkpoint(CheckpointVariant.STATIC)
 """
 
+from __future__ import annotations
+
 import platform
 from enum import StrEnum
 
@@ -54,7 +56,7 @@ class CheckpointVariant(StrEnum):
         return "_static" if self is CheckpointVariant.STATIC else ""
 
     @classmethod
-    def recommended(cls) -> "CheckpointVariant":
+    def recommended(cls) -> CheckpointVariant:
         """The variant to prefer on the host running this code.
 
         Returns :attr:`STATIC` on macOS, where frozen shapes let the CoreML

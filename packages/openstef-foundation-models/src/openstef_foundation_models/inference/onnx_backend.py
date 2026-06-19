@@ -10,6 +10,7 @@ and raises :class:`MissingExtraError` if it is missing.
 
 import logging
 from collections.abc import Mapping, Sequence
+from typing import Self
 
 import numpy as np
 
@@ -67,7 +68,7 @@ class OnnxBackend:
         session_options: SessionOptionsConfig | None = None,
         *,
         policy: ProviderPolicy | None = None,
-    ) -> "OnnxBackend":
+    ) -> Self:
         """Build a backend by loading a checkpoint into a new ONNX Runtime session.
 
         With ``providers=None`` the *policy* selects a chain from the checkpoint
