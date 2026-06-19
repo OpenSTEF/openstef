@@ -2,22 +2,14 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-"""Pure NumPy helpers for probabilistic forecasting.
+"""Pure NumPy helpers for probabilistic forecasting."""
 
-Dependency-free array utilities used across forecasters: resampling predictions
-from one quantile grid onto another, and splitting an array into a zero-filled
-value matrix plus a finiteness mask. Each helper is pure and unit tested in
-isolation.
-"""
-
+import logging
 from collections.abc import Sequence
 
 import numpy as np
 
-#: Minimum number of source quantile levels required to interpolate between.
-_MIN_SOURCE_QUANTILES = 2
-
-__all__ = ["interpolate_quantiles", "zero_fill_with_mask"]
+logger = logging.getLogger(__name__)
 
 
 def zero_fill_with_mask(values: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
@@ -51,7 +43,10 @@ def interpolate_quantiles(
     Performs piecewise-linear interpolation across the quantile dimension (the
     last axis of *predictions*). Target levels outside the source range are
     clamped to the nearest source prediction (constant extrapolation), which
-    keeps the resampled values within the predicted envelope.
+    keeps the resampled values within the predicted envelope. Because the model
+    cannot say anything beyond its most extreme level, a request for, say, q0.999
+    against a model whose highest level is q0.99 returns the q0.99 prediction; a
+    warning is logged whenever this clamping happens.
 
     Args:
         predictions: Array of shape ``(..., n_source)`` whose last axis holds
@@ -70,7 +65,8 @@ def interpolate_quantiles(
     src = np.asarray(source_quantiles, dtype=np.float64)
     tgt = np.asarray(target_quantiles, dtype=np.float64)
 
-    if src.ndim != 1 or src.shape[0] < _MIN_SOURCE_QUANTILES:
+    min_levels = 2  # need at least two source levels to interpolate between
+    if src.ndim != 1 or src.shape[0] < min_levels:
         msg = "source_quantiles must be a 1-D sequence with at least two levels."
         raise ValueError(msg)
     if predictions.shape[-1] != src.shape[0]:
@@ -83,6 +79,16 @@ def interpolate_quantiles(
         msg = "source_quantiles must be strictly ascending."
         raise ValueError(msg)
 
+    out_of_range = tgt[(tgt < src[0]) | (tgt > src[-1])]
+    if out_of_range.size:
+        logger.warning(
+            "Target quantile level(s) %s lie outside the source range [%s, %s]; "
+            "clamping to the nearest source quantile (constant extrapolation).",
+            np.unique(out_of_range).tolist(),
+            src[0],
+            src[-1],
+        )
+
     # Bracket each target level by the adjacent source levels, clamping the
     # endpoints so out-of-range targets extrapolate as constants.
     upper = np.clip(np.searchsorted(src, tgt, side="left"), 1, src.shape[0] - 1)
@@ -94,3 +100,6 @@ def interpolate_quantiles(
     low_values = predictions[..., lower]
     high_values = predictions[..., upper]
     return low_values * (1.0 - weight) + high_values * weight
+
+
+__all__ = ["interpolate_quantiles", "zero_fill_with_mask"]

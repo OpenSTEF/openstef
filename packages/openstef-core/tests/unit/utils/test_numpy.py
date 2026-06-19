@@ -62,6 +62,35 @@ def test_interpolate_quantiles_clamps_targets_above_source_range() -> None:
     np.testing.assert_array_almost_equal(result, [[80.0]])
 
 
+def test_interpolate_quantiles_warns_when_clamping_out_of_range(caplog: pytest.LogCaptureFixture) -> None:
+    """A requested level beyond the source range logs a warning before clamping."""
+    # Arrange
+    source = [0.1, 0.5, 0.9]
+    predictions = np.array([[10.0, 50.0, 90.0]])
+
+    # Act
+    with caplog.at_level("WARNING"):
+        result = interpolate_quantiles(predictions, source, target_quantiles=[0.999])
+
+    # Assert: clamped to the highest source prediction, and the user was warned
+    np.testing.assert_array_almost_equal(result, [[90.0]])
+    assert "outside the source range" in caplog.text
+
+
+def test_interpolate_quantiles_does_not_warn_within_range(caplog: pytest.LogCaptureFixture) -> None:
+    """Targets inside the source range interpolate silently."""
+    # Arrange
+    source = [0.1, 0.5, 0.9]
+    predictions = np.array([[10.0, 50.0, 90.0]])
+
+    # Act
+    with caplog.at_level("WARNING"):
+        interpolate_quantiles(predictions, source, target_quantiles=[0.3, 0.7])
+
+    # Assert
+    assert not caplog.text
+
+
 def test_interpolate_quantiles_preserves_leading_dimensions() -> None:
     """Interpolation only touches the last axis; leading shape is preserved."""
     # Arrange: a horizon of four rows, each with three source levels
