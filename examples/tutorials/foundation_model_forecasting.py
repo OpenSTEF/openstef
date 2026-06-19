@@ -29,7 +29,7 @@
 #
 # What you'll do:
 #
-# - Point at a local Chronos-2 ONNX checkpoint and its metadata file
+# - Select a published Chronos-2 checkpoint from the HuggingFace Hub
 # - Build a forecasting workflow from a config with `create_forecasting_workflow`
 # - Feed load history plus known-future weather and read the predicted quantiles
 # - Plot a P30 / P50 / P70 forecast
@@ -40,11 +40,6 @@
 # probabilistic forecast directly. Covariates cover the whole time range, so the
 # model sees each weather series both as history and as known future values and can
 # react to, say, an incoming cold snap.
-# ```
-#
-# ```{note}
-# This tutorial reads a local ONNX export of Chronos-2, so it is not run during the
-# docs build. Point `artifact_path` at your own export to run it locally.
 # ```
 
 # %% tags=["remove-cell"]
@@ -70,43 +65,22 @@ logger = setup_notebook_logging(
 )
 
 # %% [markdown]
-# ## Locate the checkpoint
-#
-# A checkpoint is the ONNX weights file plus a small `CheckpointMetadata` JSON file
-# (`<weights>.metadata.json`) describing the model's tensor names, native quantile
-# grid, and context/horizon sizing. Keeping these specifics in data rather than code
-# lets the same generic inference backend serve any foundation model.
-#
-# Here we point at a local export; its metadata file sits next to the weights and is
-# discovered automatically. Once the checkpoint is published to the HuggingFace Hub
-# this becomes a one-line `HubCheckpoint(...)`.
-
-# %%
-from pathlib import Path
-
-from openstef_foundation_models.models.checkpoint import LocalCheckpoint
-
-artifact_path = Path("chronos-onnx-lab/artifacts/chronos-2.onnx")
-if not artifact_path.is_file():
-    msg = f"Chronos-2 ONNX artifact not found at {artifact_path}. Export it with the chronos-onnx-lab script."
-    raise FileNotFoundError(msg)
-
-# The metadata JSON (chronos-2.metadata.json) is auto-discovered next to the weights.
-checkpoint = LocalCheckpoint(path=artifact_path)
-print(f"Checkpoint: {artifact_path.name} ({artifact_path.stat().st_size / 1e6:.0f} MB)")
-
-# %% [markdown]
 # ## Assemble the workflow
 #
-# `ForecastingWorkflowConfig` declares the model family, the checkpoint that backs
-# it, the quantiles/horizons to predict, and which columns are the target and the
-# weather covariates. `create_forecasting_workflow` resolves the checkpoint, builds
-# the ONNX Runtime session once, and wraps a `Chronos2Forecaster` in a
-# `CustomForecastingWorkflow` (a `Selector` that picks the target and covariates, the
-# forecaster, and a `QuantileSorter`).
+# `ForecastingWorkflowConfig` declares the model family, the checkpoint that backs it,
+# the quantiles/horizons to predict, and which columns are the target and the weather
+# covariates. OpenSTEF publishes Chronos-2 as ONNX checkpoints on the HuggingFace Hub;
+# the `Chronos2` catalog turns a size into a checkpoint reference, downloaded and cached
+# on first use. The config defaults to the full `Chronos2.BASE`, so the checkpoint is
+# optional — here we pick the compact `Chronos2.SMALL` so the tutorial stays fast and
+# runs in the docs build (pass a `LocalCheckpoint(path=...)` to run a file on disk).
+# `create_forecasting_workflow` then resolves the checkpoint, builds the ONNX Runtime
+# session once, and wraps a `Chronos2Forecaster` in a `CustomForecastingWorkflow` (a
+# `Selector` that picks the target and covariates, the forecaster, and a `QuantileSorter`).
 
 # %%
 from openstef_core.types import LeadTime, Q
+from openstef_foundation_models.models import Chronos2
 from openstef_foundation_models.presets.forecasting_workflow import (
     ForecastingWorkflowConfig,
     create_forecasting_workflow,
@@ -118,7 +92,7 @@ HORIZON = LeadTime.from_string("P7D")
 workflow = create_forecasting_workflow(
     ForecastingWorkflowConfig(
         model="chronos2",
-        checkpoint=checkpoint,
+        checkpoint=Chronos2.SMALL.checkpoint(),
         quantiles=[Q(0.3), Q(0.5), Q(0.7)],
         horizons=[HORIZON],
         target_column="load",

@@ -75,7 +75,8 @@ from openstef_beam.benchmarking.models.benchmark_target import BenchmarkTarget
 from openstef_beam.benchmarking.storage.local_storage import LocalBenchmarkStorage
 from openstef_core.types import LeadTime, Q
 from openstef_foundation_models.integrations.beam import FoundationModelBacktestForecaster
-from openstef_foundation_models.models.checkpoint import LocalCheckpoint
+from openstef_foundation_models.models import CheckpointVariant, Chronos2
+from openstef_foundation_models.models.checkpoint import CheckpointRef, LocalCheckpoint
 from openstef_foundation_models.presets.forecasting_workflow import (
     ForecastingWorkflowConfig,
     create_forecasting_workflow,
@@ -94,8 +95,9 @@ logging.basicConfig(level=logging.INFO, format="[%(asctime)s][%(levelname)s] %(m
 OUTPUT_PATH = Path("./benchmark_results")
 BENCHMARK_RESULTS_PATH_CHRONOS2 = OUTPUT_PATH / "Chronos2"
 
-# Path to the local Chronos-2 ONNX export (with its `.metadata.json` next to it).
-CHECKPOINT_PATH = Path(os.environ.get("CHRONOS2_ONNX_PATH", "chronos-onnx-lab/artifacts/chronos-2.onnx"))
+# Use the published Chronos-2 checkpoint from the HuggingFace Hub by default. Set
+# CHRONOS2_ONNX_PATH to benchmark a local ONNX export (with its `.metadata.json`) instead.
+LOCAL_CHECKPOINT_PATH = os.environ.get("CHRONOS2_ONNX_PATH")
 
 # Run sequentially so the loaded model is reused across every target (see the note
 # at the top). A value > 1 would load one model copy per worker process.
@@ -110,19 +112,20 @@ FORECAST_HORIZONS = [LeadTime.from_string("P3D")]
 PREDICTION_QUANTILES = [Q(0.05), Q(0.1), Q(0.3), Q(0.5), Q(0.7), Q(0.9), Q(0.95)]
 
 # %% [markdown]
-# ## Locate the checkpoint
+# ## Select the checkpoint
 #
-# A checkpoint is the ONNX weights file plus a small `CheckpointMetadata` JSON file
-# (`<weights>.metadata.json`) describing the model's tensor names, native quantile
-# grid, and context/horizon sizing. The metadata file is discovered automatically
-# next to the weights.
+# By default we pull the published `Chronos2.BASE` checkpoint from the HuggingFace Hub
+# (`recommended()` picks the variant best suited to this host). Its metadata, which
+# describes the tensor names, native quantile grid, and context/horizon sizing, is
+# downloaded alongside the weights. Set `CHRONOS2_ONNX_PATH` to benchmark a local
+# export instead; its `.metadata.json` is discovered next to the weights.
 
 # %%
-if not CHECKPOINT_PATH.is_file():
-    msg = f"Chronos-2 ONNX artifact not found at {CHECKPOINT_PATH}. Set CHRONOS2_ONNX_PATH to your export."
-    raise FileNotFoundError(msg)
-
-checkpoint = LocalCheckpoint(path=CHECKPOINT_PATH)
+checkpoint: CheckpointRef = (
+    LocalCheckpoint(path=Path(LOCAL_CHECKPOINT_PATH))
+    if LOCAL_CHECKPOINT_PATH
+    else Chronos2.BASE.checkpoint(CheckpointVariant.recommended())
+)
 
 # %% [markdown]
 # ## Build the workflow once
