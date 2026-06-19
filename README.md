@@ -80,7 +80,7 @@ Additional tutorials are available in the [online documentation](https://openste
 This project includes third-party libraries licensed under their respective Open-Source licenses. SPDX-License-Identifier headers show applicable licenses. License files are in the [LICENSES/](LICENSES/) directory.
 ## Contributing
 
-We welcome contributions to OpenSTEF 4.0!
+We welcome contributions to OpenSTEF 4.0! 
 
 **[Read our Contributing Guide](https://openstef.github.io/openstef/contribute/)** - documentation for contributors including:
 
