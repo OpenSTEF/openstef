@@ -19,15 +19,6 @@ SPDX-License-Identifier: MPL-2.0
 [![Python 3.12+](https://img.shields.io/badge/python-3.12%2B-blue.svg)](https://www.python.org/downloads/)
 ![GitHub Release](https://img.shields.io/github/v/release/openstef/openstef)
 
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=OpenSTEF_openstef&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=OpenSTEF_openstef)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=OpenSTEF_openstef&metric=coverage)](https://sonarcloud.io/summary/new_code?id=OpenSTEF_openstef)
-[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=OpenSTEF_openstef&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=OpenSTEF_openstef)
-[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=OpenSTEF_openstef&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=OpenSTEF_openstef)
-[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=OpenSTEF_openstef&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=OpenSTEF_openstef)
-[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=OpenSTEF_openstef&metric=bugs)](https://sonarcloud.io/summary/new_code?id=OpenSTEF_openstef)
-[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=OpenSTEF_openstef&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=OpenSTEF_openstef)
-[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=OpenSTEF_openstef&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=OpenSTEF_openstef)
-
 ## What is OpenSTEF
 
 **OpenSTEF** (Open Short-Term Energy Forecasting) is an open-source, model-agnostic Python framework for creating short-term forecasts in the energy sector. It provides complete machine learning pipelines for data preprocessing, feature engineering, model training, probabilistic forecasting, and evaluation. Version 4.0.0 introduces a complete architectural refactor with enhanced modularity, full type safety, and modern Python development practices.
@@ -89,7 +80,7 @@ Additional tutorials are available in the [online documentation](https://openste
 This project includes third-party libraries licensed under their respective Open-Source licenses. SPDX-License-Identifier headers show applicable licenses. License files are in the [LICENSES/](LICENSES/) directory.
 ## Contributing
 
-We welcome contributions to OpenSTEF 4.0! 
+We welcome contributions to OpenSTEF 4.0!
 
 **[Read our Contributing Guide](https://openstef.github.io/openstef/contribute/)** - documentation for contributors including:
 
