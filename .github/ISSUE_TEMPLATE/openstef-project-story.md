@@ -2,7 +2,7 @@
 name: OpenSTEF Project Story
 about: Describe a new feature or improvement for OpenSTEF
 title: ''
-labels: ''
+labels: 'OpenSTEF 4'
 assignees: ''
 ---
 
