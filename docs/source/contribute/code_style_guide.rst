@@ -119,21 +119,20 @@ Optional Dependencies
 =====================
 
 Heavy or platform-specific dependencies (``xgboost``, ``onnxruntime``, ``torch``,
-``huggingface-hub``, ...) are declared as **optional extras** in ``pyproject.toml``,
-never as hard dependencies of a package. The question is then *where* and *when*
-an import of a missing extra should fail. OpenSTEF uses a deliberate hybrid of two
-patterns, chosen by the role the module plays.
+``huggingface-hub``, ...) are declared as optional extras in ``pyproject.toml``,
+not as hard dependencies. Where an import of a missing extra should fail depends
+on the role the module plays, and OpenSTEF uses two patterns accordingly.
 
 Fail-early in implementation modules
 ------------------------------------
 
-A module that *is* the boundary for an optional dependency (a concrete
-forecaster, an execution backend, an integration) imports that dependency **at
-module top level** and fails immediately with
-:class:`~openstef_core.exceptions.MissingExtraError` if it is missing. Importing
-such a module is an explicit opt-in, so failing at import time is honest, gives a
-curated install hint, and — crucially — lets the rest of the module use **real
-types** instead of quoted forward references and ``TYPE_CHECKING`` guards.
+A module that is the boundary for an optional dependency (a concrete forecaster,
+an execution backend, an integration) imports that dependency at module top level
+and fails immediately with :class:`~openstef_core.exceptions.MissingExtraError`
+if it is missing. Importing such a module is an explicit opt-in, so failing at
+import time is honest, gives a curated install hint, and lets the rest of the
+module use real types instead of quoted forward references and ``TYPE_CHECKING``
+guards.
 
 .. code-block:: python
 
@@ -149,20 +148,17 @@ types** instead of quoted forward references and ``TYPE_CHECKING`` guards.
     class GBLinearForecaster(Forecaster):
         _model: xgb.XGBRegressor = PrivateAttr()  # real type, no quotes
 
-This mirrors how libraries like Matplotlib (backends), Optuna (integrations), and
-Airflow (providers) treat their plugin modules.
-
 Import-light in aggregator modules
 ----------------------------------
 
-A module whose job is to *select between* implementations — a package
-``__init__``, a preset, or a factory — must stay importable **without** any
-optional extra installed. It therefore:
+A module whose job is to select between implementations (a package ``__init__``,
+a preset, or a factory) must stay importable without any optional extra
+installed. It therefore:
 
-* re-exports only the **dependency-free** surface (protocols, ``pydantic`` config
-  models, enums) and **never** eagerly imports the heavy implementation modules; and
-* lazy-imports the *selected* implementation inside the branch that needs it, so
-  the cost (and the dependency) is only paid once the user commits to a backend.
+* re-exports only the dependency-free surface (protocols, ``pydantic`` config
+  models, enums) and never eagerly imports the heavy implementation modules; and
+* lazy-imports the selected implementation inside the branch that needs it, so
+  the cost is only paid once the user commits to a backend.
 
 .. code-block:: python
 
@@ -189,15 +185,15 @@ optional extra installed. It therefore:
 Rules of thumb
 --------------
 
-* **Never** ``try/except ImportError`` around an optional dependency just to keep a
-  module importable while deferring the failure to call time — either own the
-  dependency (fail-early) or don't import it here (lazy in the aggregator).
-* **Never** blanket re-export implementation modules from a package ``__init__``;
+* Do not ``try/except ImportError`` around an optional dependency just to keep a
+  module importable while deferring the failure to call time. Either own the
+  dependency (fail-early) or do not import it here (lazy in the aggregator).
+* Do not blanket re-export implementation modules from a package ``__init__``;
   that forces every consumer to install every extra.
 * Always raise :class:`~openstef_core.exceptions.MissingExtraError` (not a bare
   ``ImportError``) so users get a consistent, actionable install message.
-* Model-/backend-specific glue belongs in the implementation module, not in a
-  generic component — keep generic backends free of model-specific imports.
+* Keep model- or backend-specific glue in the implementation module, not in a
+  generic component.
 
 .. _variable-naming:
 

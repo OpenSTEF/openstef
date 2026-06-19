@@ -198,7 +198,8 @@ nb_execution_excludepatterns = [
     "benchmarks/*/*",
     # Foundation-model tutorial needs a large local ONNX checkpoint that is not
     # published yet, so it cannot run in CI/doc builds. Render it without executing.
-    "tutorials/foundation_model_forecasting",
+    # The trailing * is required: myst-nb matches the source path including its ".py".
+    "tutorials/foundation_model_forecasting*",
 ]
 
 # Sphinx version switcher
