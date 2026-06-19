@@ -537,5 +537,5 @@ def test_band_stores_non_integer_percentiles():
 
     # Assert
     assert len(bands) == 1
-    assert bands[0]["lower_quantile"] == 2.5
-    assert bands[0]["upper_quantile"] == 97.5
+    assert bands[0]["lower_quantile"] == pytest.approx(2.5)
+    assert bands[0]["upper_quantile"] == pytest.approx(97.5)

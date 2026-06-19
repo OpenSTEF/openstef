@@ -275,6 +275,19 @@ class ForecastTimeSeriesPlotter(BaseConfig):
         """
         return Quantile.from_percentile(percentile).format().removeprefix("quantile_P")
 
+    def _band_label(self, band: BandData) -> str:
+        """Build the legend/trace label for a quantile band, e.g. ``Model 10%-90%``.
+
+        Args:
+            band (BandData): The quantile band to label.
+
+        Returns:
+            str: The label combining the model name and the band's percentiles.
+        """
+        lower = self._format_percentile(band["lower_quantile"])
+        upper = self._format_percentile(band["upper_quantile"])
+        return f"{band['model_name']} {lower}%-{upper}%"
+
     def _get_quantile_colors(self, quantile: float, colormap: str) -> tuple[str, str]:
         """Generate fill and stroke colors for a given quantile using a colorscale.
 
@@ -416,18 +429,19 @@ class ForecastTimeSeriesPlotter(BaseConfig):
             # correctly. Quantile is a float subclass, so it sorts by value.
             quantile_cols = [col for col in quantiles.columns if col.startswith("quantile_P")]
             sorted_quantiles = sorted(Quantile.parse(col) for col in quantile_cols)
+            median_column = Quantile.from_percentile(self.MEDIAN_QUANTILE).format()
 
             # Create band data from widest to narrowest
             for i in range(len(sorted_quantiles) // 2):
                 lower_q, upper_q = sorted_quantiles[i], sorted_quantiles[-(i + 1)]
-                lower_percentile = lower_q.to_percentile()
-                if lower_percentile == self.MEDIAN_QUANTILE:
+                # Compare via the canonical column name to avoid float equality.
+                if lower_q.format() == median_column:
                     continue
 
                 bands.append({
                     "model_name": model_name,
                     "model_index": model_index,
-                    "lower_quantile": lower_percentile,
+                    "lower_quantile": lower_q.to_percentile(),
                     "upper_quantile": upper_q.to_percentile(),
                     "lower_data": quantiles[lower_q.format()],
                     "upper_data": quantiles[upper_q.format()],
@@ -646,11 +660,7 @@ class ForecastTimeSeriesPlotter(BaseConfig):
                     "color": f"rgba{style['stroke_color'][3:-1]}, {self.stroke_opacity})",
                     "width": self.stroke_width,
                 },
-                name=(
-                    f"{band['model_name']} "
-                    f"{self._format_percentile(band['lower_quantile'])}%-"
-                    f"{self._format_percentile(band['upper_quantile'])}%"
-                ),
+                name=self._band_label(band),
                 showlegend=True,
                 hoverinfo="skip",
                 legendgroup=style["legendgroup"],
@@ -704,11 +714,7 @@ class ForecastTimeSeriesPlotter(BaseConfig):
                         "color": f"rgba{style['stroke_color'][3:-1]}, {self.stroke_opacity})",
                         "width": self.stroke_width,
                     },
-                    name=(
-                        f"{band['model_name']} "
-                        f"{self._format_percentile(band['lower_quantile'])}%-"
-                        f"{self._format_percentile(band['upper_quantile'])}%"
-                    ),
+                    name=self._band_label(band),
                     showlegend=show_legend,
                     hoverinfo="skip",
                     legendgroup=style["legendgroup"],
