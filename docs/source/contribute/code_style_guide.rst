@@ -119,81 +119,37 @@ Optional Dependencies
 =====================
 
 Heavy or platform-specific dependencies (``xgboost``, ``onnxruntime``, ``torch``,
-``huggingface-hub``, ...) are declared as optional extras in ``pyproject.toml``,
-not as hard dependencies. Where an import of a missing extra should fail depends
-on the role the module plays, and OpenSTEF uses two patterns accordingly.
+``huggingface-hub``, ...) are optional extras in ``pyproject.toml``. Two patterns
+decide where a missing extra fails, based on the module's role.
 
-Fail-early in implementation modules
-------------------------------------
-
-A module that is the boundary for an optional dependency (a concrete forecaster,
-an execution backend, an integration) imports that dependency at module top level
-and fails immediately with :class:`~openstef_core.exceptions.MissingExtraError`
-if it is missing. Importing such a module is an explicit opt-in, so failing at
-import time is honest, gives a curated install hint, and lets the rest of the
-module use real types instead of quoted forward references and ``TYPE_CHECKING``
-guards.
+**Implementation modules** (a forecaster, backend, or integration) own the
+dependency: import it at top level and fail immediately with
+:class:`~openstef_core.exceptions.MissingExtraError`. Importing the module is the
+opt-in, so the failure is honest and the rest of the module can use real types.
 
 .. code-block:: python
-
-    # openstef_models/models/forecasting/gblinear_forecaster.py
-    from openstef_core.exceptions import MissingExtraError
 
     try:
         import xgboost as xgb
     except ImportError as e:
         raise MissingExtraError("xgboost", "openstef-models") from e
 
-
-    class GBLinearForecaster(Forecaster):
-        _model: xgb.XGBRegressor = PrivateAttr()  # real type, no quotes
-
-Import-light in aggregator modules
-----------------------------------
-
-A module whose job is to select between implementations (a package ``__init__``,
-a preset, or a factory) must stay importable without any optional extra
-installed. It therefore:
-
-* re-exports only the dependency-free surface (protocols, ``pydantic`` config
-  models, enums) and never eagerly imports the heavy implementation modules; and
-* lazy-imports the selected implementation inside the branch that needs it, so
-  the cost is only paid once the user commits to a backend.
+**Aggregator modules** (a package ``__init__``, preset, or factory) must import
+without any extra installed: re-export only the dependency-free surface
+(protocols, configs, enums) and lazy-import the chosen implementation inside the
+branch that needs it.
 
 .. code-block:: python
 
-    # openstef_foundation_models/inference/__init__.py
-    # Only the dependency-free surface is re-exported.
-    from openstef_foundation_models.inference.backend import InferenceBackend
-    from openstef_foundation_models.inference.providers import (
-        CpuProvider,
-        CudaProvider,
-        ExecutionProvider,
-    )
-    # NOT OnnxBackend — importing it requires onnxruntime.
-
-.. code-block:: python
-
-    # A factory lazy-imports only the backend it was asked to build.
     def build_backend(config: BackendConfig) -> InferenceBackend:
         if config.kind == "onnx":
             from openstef_foundation_models.inference.onnx_backend import OnnxBackend
 
             return OnnxBackend.from_checkpoint(config.checkpoint)
-        ...
 
-Rules of thumb
---------------
-
-* Do not ``try/except ImportError`` around an optional dependency just to keep a
-  module importable while deferring the failure to call time. Either own the
-  dependency (fail-early) or do not import it here (lazy in the aggregator).
-* Do not blanket re-export implementation modules from a package ``__init__``;
-  that forces every consumer to install every extra.
-* Always raise :class:`~openstef_core.exceptions.MissingExtraError` (not a bare
-  ``ImportError``) so users get a consistent, actionable install message.
-* Keep model- or backend-specific glue in the implementation module, not in a
-  generic component.
+Don't ``try/except ImportError`` just to defer the failure to call time, and
+don't blanket re-export implementation modules from an ``__init__`` — that forces
+every consumer to install every extra.
 
 .. _variable-naming:
 

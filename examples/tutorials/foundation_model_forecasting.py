@@ -121,8 +121,7 @@ print(f"quantiles: {workflow.model.quantiles}")
 #
 # We take 60 days of history up to a chosen forecast start and keep the weather
 # columns running through the 7-day horizon, so Chronos-2 can use the known-future
-# weather as a covariate. The load is fed unscaled: Chronos-2 normalizes each series
-# internally and returns predictions on the original scale.
+# weather as a covariate.
 
 # %%
 from datetime import datetime, timedelta
