@@ -451,3 +451,71 @@ class RowIndexBackend:
 
     def close(self) -> None:
         pass
+
+
+def _frozen_covariate_forecaster(max_covariates: int) -> tuple[Chronos2Forecaster, RecordingBackend]:
+    """Build a forecaster whose checkpoint froze its covariate axis at *max_covariates*."""
+    metadata = CheckpointMetadata(
+        model_family="chronos2",
+        input_names=["context", "group_ids", "attention_mask", "future_covariates", "future_covariates_mask"],
+        output_name="quantile_preds",
+        native_quantiles=NATIVE_QUANTILES,
+        context_length=CONTEXT_LENGTH,
+        output_patch_size=OUTPUT_PATCH_SIZE,
+        horizon_patches=HORIZON_PATCHES,
+        resolution_minutes=15,
+        max_covariates=max_covariates,
+    )
+    backend = RecordingBackend(metadata)
+    forecaster = Chronos2Forecaster(
+        backend=backend,
+        quantiles=[Quantile(0.5)],
+        horizons=[LeadTime.from_string("PT2H")],
+    )
+    return forecaster, backend
+
+
+def test_build_inputs_pads_short_series_to_frozen_covariate_axis() -> None:
+    """A frozen covariate axis pads a short series up to a fixed row count with masked rows."""
+    # Arrange: axis frozen at 3 covariates, but the series carries only 1.
+    forecaster, backend = _frozen_covariate_forecaster(max_covariates=3)
+    data = _make_input_with_covariates(["temperature"], periods=120, forecast_offset=80)
+
+    # Act
+    forecaster.predict(data)
+
+    # Assert: target + 3 covariate rows (1 real, 2 padded), all in group 0.
+    assert backend.last_inputs is not None
+    assert backend.last_inputs["context"].shape == (4, CONTEXT_LENGTH)
+    np.testing.assert_array_equal(backend.last_inputs["group_ids"], np.zeros(4, dtype=np.int64))
+    # The 2 padded rows (indices 2,3) are fully masked and zero-filled, so the
+    # model ignores them across both context and horizon.
+    horizon = backend.metadata.horizon_length
+    np.testing.assert_array_equal(backend.last_inputs["attention_mask"][2:], np.zeros((2, CONTEXT_LENGTH), np.float32))
+    np.testing.assert_array_equal(backend.last_inputs["context"][2:], np.zeros((2, CONTEXT_LENGTH), np.float32))
+    np.testing.assert_array_equal(backend.last_inputs["future_covariates_mask"][2:], np.zeros((2, horizon), np.float32))
+
+
+def test_build_inputs_accepts_covariates_matching_frozen_axis() -> None:
+    """A series whose covariate count matches the frozen axis is passed through unpadded."""
+    # Arrange
+    forecaster, backend = _frozen_covariate_forecaster(max_covariates=2)
+    data = _make_input_with_covariates(["temperature", "radiation"])
+
+    # Act
+    forecaster.predict(data)
+
+    # Assert: target + exactly 2 covariate rows, no padding.
+    assert backend.last_inputs is not None
+    assert backend.last_inputs["context"].shape == (3, CONTEXT_LENGTH)
+
+
+def test_build_inputs_rejects_more_covariates_than_frozen_axis() -> None:
+    """A series with more covariates than the frozen axis fails with a clear message, not an ORT error."""
+    # Arrange: axis frozen at 1 covariate, series carries 2.
+    forecaster, _ = _frozen_covariate_forecaster(max_covariates=1)
+    data = _make_input_with_covariates(["temperature", "radiation"])
+
+    # Act / Assert
+    with pytest.raises(ValueError, match="covariate axis is frozen at 1"):
+        forecaster.predict(data)

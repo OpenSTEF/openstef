@@ -161,13 +161,14 @@ class Chronos2Forecaster(Forecaster):
         """
         context_length = self.backend.metadata.context_length
         horizon_length = self.backend.metadata.horizon_length
+        max_covariates = self.backend.metadata.max_covariates
 
         matrices: list[np.ndarray] = []
         group_ids: list[int] = []
         target_indices: list[int] = []
         for group_id, data in enumerate(batch):
             target_indices.append(len(group_ids))
-            matrix = self._build_group_matrix(data, context_length, horizon_length)
+            matrix = self._build_group_matrix(data, context_length, horizon_length, max_covariates)
             matrices.append(matrix)
             group_ids.extend([group_id] * matrix.shape[0])
 
@@ -191,6 +192,7 @@ class Chronos2Forecaster(Forecaster):
         data: ForecastInputDataset,
         context_length: int,
         horizon_length: int,
+        max_covariates: int | None,
     ) -> np.ndarray:
         """Build the ``target + covariate`` matrix for a single series group.
 
@@ -199,14 +201,27 @@ class Chronos2Forecaster(Forecaster):
         each remaining row is a covariate. Missing timestamps stay ``NaN`` here -
         the caller turns them into zeros plus a mask.
 
+        When ``max_covariates`` is set the checkpoint froze its covariate axis, so
+        the row count must be exactly ``1 + max_covariates``: a series with fewer
+        covariates is padded with all-``NaN`` rows (masked out downstream, so they
+        do not affect the forecast) and one with more is rejected, turning what
+        would be an opaque ONNX Runtime shape error into a clear message.
+
         Args:
             data: Input dataset providing the target and covariate columns.
             context_length: Number of context steps the model consumes.
             horizon_length: Frozen forecast horizon the model emits.
+            max_covariates: Frozen covariate-row count, or ``None`` when the
+                covariate axis is dynamic and no padding is needed.
 
         Returns:
-            Matrix of shape ``(n_columns, context_length + horizon_length)``,
-            target row first.
+            Matrix of shape ``(n_rows, context_length + horizon_length)``, target
+            row first, where ``n_rows`` is ``1 + max_covariates`` when the axis is
+            frozen.
+
+        Raises:
+            ValueError: If the series has more covariates than the frozen
+                ``max_covariates`` axis can hold.
         """
         columns = [data.target_column, *(name for name in data.feature_names if name != data.target_column)]
         forecast_start = pd.Timestamp(data.forecast_start)
@@ -215,7 +230,21 @@ class Chronos2Forecaster(Forecaster):
             periods=context_length + horizon_length,
             freq=data.sample_interval,
         )
-        return data.data[columns].reindex(index).to_numpy(dtype=np.float32).T
+        matrix = data.data[columns].reindex(index).to_numpy(dtype=np.float32).T
+        if max_covariates is None:
+            return matrix
+
+        n_covariates = matrix.shape[0] - 1
+        if n_covariates > max_covariates:
+            msg = (
+                f"Series has {n_covariates} covariates but the checkpoint's covariate axis is frozen at "
+                f"{max_covariates}; drop covariates or use a dynamic-shape checkpoint."
+            )
+            raise ValueError(msg)
+        if n_covariates < max_covariates:
+            padding = np.full((max_covariates - n_covariates, matrix.shape[1]), np.nan, dtype=np.float32)
+            matrix = np.concatenate([matrix, padding])
+        return matrix
 
     def _build_forecast(self, data: ForecastInputDataset, predictions: np.ndarray) -> ForecastDataset:
         """Post-process one series' raw quantile predictions into a dataset.
