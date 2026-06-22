@@ -38,8 +38,9 @@
 # ```
 #
 # ```{note}
-# This benchmark reads a local ONNX export of Chronos-2, so it is not run during the
-# docs build. Set `CHRONOS2_ONNX_PATH` to your own export to run it locally.
+# This benchmark runs the full Liander backtest, so it is not run during the docs build.
+# It defaults to the published Chronos-2 checkpoint from the Hub; set `CHRONOS2_ONNX_PATH`
+# to benchmark a local ONNX export instead.
 # ```
 
 # %% tags=["remove-cell"]
