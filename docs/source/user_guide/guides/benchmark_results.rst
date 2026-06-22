@@ -38,16 +38,25 @@ At a Glance
 Each box shows the distribution of per-target ``rCRPS`` within a target group (one
 point per target). Lower is better.
 
+.. note::
+
+   This figure covers the **trained classical models** only and predates the
+   foundation-model results. For the zero-shot **Chronos-2** numbers, see the
+   :ref:`tables below <benchmark_tables>`.
+
 **Takeaways**
 
-- The **ensemble** is the most accurate model across every target group, on both the
-  unweighted and the peak-weighted metric.
-- **GBLinear** is a strong, consistent second and a good single-model default —
-  especially where extrapolation beyond the training range matters (congestion).
-- **XGBoost** alone trails the other two on this benchmark. The ensemble does not
-  use it: it blends GBLinear with a LightGBM learner, pairing GBLinear's linear
-  extrapolation with complementary non-linear structure.
-- The gap between models *widens* under the peak-weighted metric (see
+- **Chronos-2**, a zero-shot foundation model that is not trained on this data, posts
+  the lowest aggregate ``rCRPS`` and ``rMAE`` on this benchmark; its compact ``small``
+  variant is close behind. It is heavier at inference than the classical models — see
+  the :ref:`Model Selection Guide <concept_models>` for the trade-offs.
+- Among the **trained** models, the **ensemble** is the strongest and most consistent
+  across groups, with **GBLinear** a close, dependable second — especially where
+  extrapolation beyond the training range matters (congestion).
+- **XGBoost** alone trails the other trained models here. The ensemble does not use it:
+  it blends GBLinear with a LightGBM learner, pairing GBLinear's linear extrapolation
+  with complementary non-linear structure.
+- Differences between models *widen* under the peak-weighted metric (see
   :ref:`rCRPS sample-weighted <metric_rcrps_weighted>`), most visibly for the highly
   intermittent solar and wind targets.
 
@@ -159,12 +168,26 @@ column is in bold.
      - 0.044
      - 0.070
    * - Ensemble
-     - **0.049**
-     - **0.039**
-     - **0.047**
-     - **0.058**
-     - **0.037**
-     - **0.066**
+     - 0.049
+     - 0.039
+     - 0.047
+     - 0.058
+     - 0.037
+     - 0.066
+   * - Chronos-2
+     - **0.044**
+     - **0.035**
+     - **0.042**
+     - **0.050**
+     - **0.036**
+     - **0.063**
+   * - Chronos-2 (small)
+     - 0.046
+     - 0.038
+     - 0.044
+     - 0.052
+     - 0.039
+     - 0.064
 
 .. list-table:: rCRPS - sample-weighted / peak-focused (lower is better)
    :header-rows: 1
@@ -193,12 +216,26 @@ column is in bold.
      - 0.077
      - 0.107
    * - Ensemble
-     - **0.059**
-     - **0.042**
-     - **0.053**
-     - **0.067**
+     - 0.059
+     - 0.042
+     - 0.053
+     - 0.067
      - **0.069**
-     - **0.096**
+     - 0.096
+   * - Chronos-2
+     - **0.051**
+     - **0.036**
+     - **0.043**
+     - **0.053**
+     - **0.069**
+     - **0.093**
+   * - Chronos-2 (small)
+     - 0.053
+     - 0.038
+     - 0.046
+     - 0.055
+     - 0.074
+     - 0.094
 
 .. list-table:: rMAE (P50) - median point forecast (lower is better)
    :header-rows: 1
@@ -227,12 +264,26 @@ column is in bold.
      - 0.070
      - 0.110
    * - Ensemble
-     - **0.078**
-     - **0.063**
-     - **0.074**
-     - **0.089**
+     - 0.078
+     - 0.063
+     - 0.074
+     - 0.089
      - **0.062**
      - **0.103**
+   * - Chronos-2
+     - **0.072**
+     - **0.058**
+     - **0.069**
+     - **0.082**
+     - **0.062**
+     - **0.103**
+   * - Chronos-2 (small)
+     - 0.076
+     - 0.062
+     - 0.073
+     - 0.086
+     - 0.066
+     - 0.105
 
 
 How These Numbers Were Produced
@@ -249,8 +300,10 @@ How These Numbers Were Produced
    * - Models
      - ``xgboost`` (:class:`~openstef_models.models.forecasting.xgboost_forecaster.XGBoostForecaster`),
        ``gblinear`` (:class:`~openstef_models.models.forecasting.gblinear_forecaster.GBLinearForecaster`),
-       and ``ensemble`` (an openstef-meta learned-weight combination of
-       LightGBM and GBLinear base models).
+       ``ensemble`` (an openstef-meta learned-weight combination of LightGBM and
+       GBLinear base models), and the **zero-shot Chronos-2** foundation model
+       (``base`` and ``small``) run via ONNX with no training — see
+       :doc:`Foundation-Model Forecasting </tutorials/foundation_model_forecasting>`.
    * - Forecast moment
      - Day-ahead, with all inputs restricted to what was available at **D-1 06:00**
        (no future data leakage).
