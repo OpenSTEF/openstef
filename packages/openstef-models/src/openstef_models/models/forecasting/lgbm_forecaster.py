@@ -9,6 +9,7 @@ forecasting. Optimized for time series data with specialized loss functions and
 comprehensive hyperparameter control for production forecasting workflows.
 """
 
+from abc import abstractmethod
 from typing import TYPE_CHECKING, ClassVar, Literal, override
 
 import numpy as np
@@ -31,19 +32,12 @@ if TYPE_CHECKING:
     from lightgbm import LGBMRegressor
 
 
-class LGBMHyperParams(HyperParams):
-    """LightGBM hyperparameters for gradient boosting tree models.
+class LGBMHyperParamsBase(HyperParams):
+    """Shared LightGBM hyperparameters for gradient boosting tree models.
 
-    Example:
-        Creating custom hyperparameters for deep trees with regularization
-
-        >>> hyperparams = LGBMHyperParams(
-        ...     n_estimators=200,
-        ...     max_depth=8,
-        ...     learning_rate=0.1,
-        ...     reg_alpha=0.1,
-        ...     reg_lambda=1.0,
-        ... )
+    Holds the common field definitions used by both the standard
+    :class:`LGBMHyperParams` and the linear-leaf :class:`LGBMLinearHyperParams`.
+    Concrete subclasses only override the defaults that differ between variants.
 
     Note:
         These parameters are optimized for probabilistic forecasting with
@@ -111,6 +105,27 @@ class LGBMHyperParams(HyperParams):
         description="Fraction of features used when constructing each tree. Range: (0,1]",
     )
 
+
+class LGBMHyperParams(LGBMHyperParamsBase):
+    """LightGBM hyperparameters for gradient boosting tree models.
+
+    Example:
+        Creating custom hyperparameters for deep trees with regularization
+
+        >>> hyperparams = LGBMHyperParams(
+        ...     n_estimators=200,
+        ...     max_depth=8,
+        ...     learning_rate=0.1,
+        ...     reg_alpha=0.1,
+        ...     reg_lambda=1.0,
+        ... )
+
+    Note:
+        These parameters are optimized for probabilistic forecasting with
+        quantile regression. The default objective function is specialized
+        for magnitude-weighted pinball loss.
+    """
+
     @classmethod
     def forecaster_class(cls) -> "type[LGBMForecaster]":
         """Create a LightGBM forecaster instance from this configuration.
@@ -124,7 +139,200 @@ class LGBMHyperParams(HyperParams):
 MODEL_CODE_VERSION = 1
 
 
-class LGBMForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
+class LGBMBaseForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
+    """Shared implementation for LightGBM-based forecasters.
+
+    Holds the common fields and fit/predict/explain logic used by both the
+    standard :class:`LGBMForecaster` and the linear-leaf
+    ``LGBMLinearForecaster``. Subclasses only bind their concrete
+    hyperparameter type and toggle :attr:`_use_linear_tree`.
+    """
+
+    #: Whether LightGBM fits a linear model at the leaves (``linear_tree``).
+    _use_linear_tree: ClassVar[bool] = False
+
+    device: str = Field(
+        default="cpu",
+        description="Device for LightGBM computation. Options: 'cpu', 'cuda', 'cuda:<ordinal>', 'gpu'",
+    )
+    n_jobs: int = Field(
+        default=1,
+        description="Number of parallel threads for tree construction. -1 uses all available cores.",
+    )
+    verbosity: Literal[-1, 0, 1, 2, 3] = Field(
+        default=-1, description="Verbosity level. 0=silent, 1=warning, 2=info, 3=debug"
+    )
+    random_state: int | None = Field(
+        default=None,
+        alias="seed",
+        description="Random seed for reproducibility.",
+    )
+    early_stopping_rounds: int | None = Field(
+        default=None,
+        description="Training stops if performance doesn't improve for this many rounds.",
+    )
+
+    _model: MultiQuantileRegressor = PrivateAttr()
+
+    @property
+    @abstractmethod
+    def hparams(self) -> LGBMHyperParamsBase:
+        """Concrete hyperparameters for this forecaster."""
+
+    @override
+    def model_post_init(self, _context: object, /) -> None:
+        """Initialize the underlying LightGBM model from configuration.
+
+        Raises:
+            MissingExtraError: If lightgbm is not installed.
+        """
+        try:
+            from lightgbm import LGBMRegressor  # noqa: PLC0415
+        except ImportError as e:
+            raise MissingExtraError("lightgbm", "openstef-models") from e
+
+        hparams = self.hparams
+        lgbm_params = {
+            # Core parameters
+            "linear_tree": self._use_linear_tree,
+            "objective": "quantile",
+            "n_estimators": hparams.n_estimators,
+            "learning_rate": hparams.learning_rate,
+            "max_depth": hparams.max_depth,
+            "min_child_weight": hparams.min_child_weight,
+            # Data binning
+            "min_data_in_leaf": hparams.min_data_in_leaf,
+            "min_data_in_bin": hparams.min_data_in_bin,
+            # Regularization
+            "reg_alpha": hparams.reg_alpha,
+            "reg_lambda": hparams.reg_lambda,
+            # Tree structure control
+            "num_leaves": hparams.num_leaves,
+            "max_bin": hparams.max_bin,
+            # Subsampling
+            "colsample_bytree": hparams.colsample_bytree,
+            # General parameters
+            "random_state": self.random_state,
+            "early_stopping_rounds": self.early_stopping_rounds,
+            "verbosity": self.verbosity,
+            "n_jobs": self.n_jobs,
+        }
+
+        self._model = MultiQuantileRegressor(
+            base_learner=LGBMRegressor,
+            quantile_param="alpha",
+            hyperparams=lgbm_params,
+            quantiles=[float(q) for q in self.quantiles],
+        )
+
+    @property
+    @override
+    def is_fitted(self) -> bool:
+        return self._model.is_fitted
+
+    @staticmethod
+    def _prepare_fit_input(data: ForecastInputDataset) -> tuple[pd.DataFrame, np.ndarray, pd.Series]:
+        """Prepare training data for LightGBM fitting.
+        
+        Args:
+            data: ForecastInputDataset containing input features, target values, and sample weights.
+
+        Returns:
+            Tuple containing input features, target values, and sample weights.
+        """
+        input_data: pd.DataFrame = data.input_data()
+        target: np.ndarray = np.asarray(data.target_series.values)
+        sample_weight: pd.Series = data.sample_weight_series
+        return input_data, target, sample_weight
+
+    @override
+    def fit(self, data: ForecastInputDataset, data_val: ForecastInputDataset | None = None) -> None:
+        # Prepare training data
+        input_data, target, sample_weight = self._prepare_fit_input(data)
+
+        # Evaluation sets
+        eval_set = [(input_data, target)]
+        sample_weight_eval_set = [sample_weight]
+
+        if data_val is not None:
+            input_data_val, target_val, sample_weight_val = self._prepare_fit_input(data_val)
+            eval_set.append((input_data_val, target_val))
+            sample_weight_eval_set.append(sample_weight_val)
+
+        self._model.fit(
+            X=input_data,
+            y=target,
+            feature_name=input_data.columns.tolist(),
+            sample_weight=sample_weight,
+            eval_set=eval_set,
+            eval_sample_weight=sample_weight_eval_set,
+        )
+
+    @override
+    def predict(self, data: ForecastInputDataset) -> ForecastDataset:
+        if not self.is_fitted:
+            raise NotFittedError(self.__class__.__name__)
+
+        input_data: pd.DataFrame = data.input_data(start=data.forecast_start, horizon=self.max_horizon)
+        prediction: npt.NDArray[np.floating] = self._model.predict(X=input_data)
+
+        return ForecastDataset(
+            data=pd.DataFrame(
+                data=prediction,
+                index=input_data.index,
+                columns=[quantile.format() for quantile in self.quantiles],
+            ),
+            sample_interval=data.sample_interval,
+            target_column=data.target_column,
+        )
+
+    @override
+    def predict_contributions(self, data: ForecastInputDataset) -> TimeSeriesDataset:
+        """Compute SHAP feature contributions for the median quantile.
+
+        Args:
+            data: Input dataset for which to compute feature contributions.
+
+        Returns:
+            TimeSeriesDataset with per-feature SHAP values plus a bias column.
+
+        Raises:
+            NotFittedError: If the model has not been fitted.
+        """
+        if not self.is_fitted:
+            raise NotFittedError(self.__class__.__name__)
+
+        input_data: pd.DataFrame = data.input_data(start=data.forecast_start)
+        n_quantiles = len(self.quantiles)
+
+        # Extract median quantile model
+        median_idx = min(range(n_quantiles), key=lambda i: abs(float(self.quantiles[i]) - 0.5))
+        model: LGBMRegressor = self._model.models[median_idx]  # type: ignore
+
+        # Get SHAP contributions from median quantile model (includes bias as last column)
+        contribs: np.ndarray = model.predict(input_data, pred_contrib=True)
+
+        columns = [*input_data.columns, "bias"]
+        contribs_df = pd.DataFrame(contribs, index=input_data.index, columns=columns)
+        return TimeSeriesDataset(data=contribs_df, sample_interval=data.sample_interval)
+
+    @property
+    @override
+    def feature_importances(self) -> pd.DataFrame:
+        models: list[LGBMRegressor] = self._model.models  # type: ignore
+        weights_df = pd.DataFrame(
+            [models[i].feature_importances_ for i in range(len(models))],
+            index=[quantile.format() for quantile in self.quantiles],
+            columns=self._model.model_feature_names if self._model.has_feature_names else None,
+        ).transpose()
+
+        weights_df.index.name = "feature_name"
+        weights_df.columns.name = "quantiles"
+
+        return weights_df.pipe(normalize_to_unit_sum)
+
+
+class LGBMForecaster(LGBMBaseForecaster):
     """LightGBM-based forecaster for probabilistic energy forecasting.
 
     Implements gradient boosting trees using LightGBM for multi-quantile forecasting.
@@ -168,177 +376,11 @@ class LGBMForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
     HyperParams: ClassVar[type[LGBMHyperParams]] = LGBMHyperParams
 
     hyperparams: LGBMHyperParams = Field(default_factory=LGBMHyperParams)
-    device: str = Field(
-        default="cpu",
-        description="Device for LightGBM computation. Options: 'cpu', 'cuda', 'cuda:<ordinal>', 'gpu'",
-    )
-    n_jobs: int = Field(
-        default=1,
-        description="Number of parallel threads for tree construction. -1 uses all available cores.",
-    )
-    verbosity: Literal[-1, 0, 1, 2, 3] = Field(
-        default=-1, description="Verbosity level. 0=silent, 1=warning, 2=info, 3=debug"
-    )
-    random_state: int | None = Field(
-        default=None,
-        alias="seed",
-        description="Random seed for reproducibility.",
-    )
-    early_stopping_rounds: int | None = Field(
-        default=None,
-        description="Training stops if performance doesn't improve for this many rounds.",
-    )
-
-    _lgbm_model: MultiQuantileRegressor = PrivateAttr()
 
     @property
     @override
     def hparams(self) -> LGBMHyperParams:
         return self.hyperparams
 
-    @override
-    def model_post_init(self, _context: object, /) -> None:
-        """Initialize the underlying LightGBM model from configuration.
 
-        Raises:
-            MissingExtraError: If lightgbm is not installed.
-        """
-        try:
-            from lightgbm import LGBMRegressor  # noqa: PLC0415
-        except ImportError as e:
-            raise MissingExtraError("lightgbm", "openstef-models") from e
-
-        lgbm_params = {
-            # Core parameters
-            "linear_tree": False,
-            "objective": "quantile",
-            "n_estimators": self.hyperparams.n_estimators,
-            "learning_rate": self.hyperparams.learning_rate,
-            "max_depth": self.hyperparams.max_depth,
-            "min_child_weight": self.hyperparams.min_child_weight,
-            # Data binning
-            "min_data_in_leaf": self.hyperparams.min_data_in_leaf,
-            "min_data_in_bin": self.hyperparams.min_data_in_bin,
-            # Regularization
-            "reg_alpha": self.hyperparams.reg_alpha,
-            "reg_lambda": self.hyperparams.reg_lambda,
-            # Tree structure control
-            "num_leaves": self.hyperparams.num_leaves,
-            "max_bin": self.hyperparams.max_bin,
-            # Subsampling
-            "colsample_bytree": self.hyperparams.colsample_bytree,
-            # General parameters
-            "random_state": self.random_state,
-            "early_stopping_rounds": self.early_stopping_rounds,
-            "verbosity": self.verbosity,
-            "n_jobs": self.n_jobs,
-        }
-
-        self._lgbm_model = MultiQuantileRegressor(
-            base_learner=LGBMRegressor,
-            quantile_param="alpha",
-            hyperparams=lgbm_params,
-            quantiles=[float(q) for q in self.quantiles],
-        )
-
-    @property
-    @override
-    def is_fitted(self) -> bool:
-        return self._lgbm_model.is_fitted
-
-    @staticmethod
-    def _prepare_fit_input(data: ForecastInputDataset) -> tuple[pd.DataFrame, np.ndarray, pd.Series]:
-        input_data: pd.DataFrame = data.input_data()
-        target: np.ndarray = np.asarray(data.target_series.values)
-        sample_weight: pd.Series = data.sample_weight_series
-
-        return input_data, target, sample_weight
-
-    @override
-    def fit(self, data: ForecastInputDataset, data_val: ForecastInputDataset | None = None) -> None:
-        # Prepare training data
-        input_data, target, sample_weight = self._prepare_fit_input(data)
-
-        # Evaluation sets
-        eval_set = [(input_data, target)]
-        sample_weight_eval_set = [sample_weight]
-
-        if data_val is not None:
-            input_data_val, target_val, sample_weight_val = self._prepare_fit_input(data_val)
-            eval_set.append((input_data_val, target_val))
-            sample_weight_eval_set.append(sample_weight_val)
-
-        self._lgbm_model.fit(
-            X=input_data,
-            y=target,
-            feature_name=input_data.columns.tolist(),
-            sample_weight=sample_weight,
-            eval_set=eval_set,
-            eval_sample_weight=sample_weight_eval_set,
-        )
-
-    @override
-    def predict(self, data: ForecastInputDataset) -> ForecastDataset:
-        if not self.is_fitted:
-            raise NotFittedError(self.__class__.__name__)
-
-        input_data: pd.DataFrame = data.input_data(start=data.forecast_start, horizon=self.max_horizon)
-        prediction: npt.NDArray[np.floating] = self._lgbm_model.predict(X=input_data)
-
-        return ForecastDataset(
-            data=pd.DataFrame(
-                data=prediction,
-                index=input_data.index,
-                columns=[quantile.format() for quantile in self.quantiles],
-            ),
-            sample_interval=data.sample_interval,
-            target_column=data.target_column,
-        )
-
-    @override
-    def predict_contributions(self, data: ForecastInputDataset) -> TimeSeriesDataset:
-        """Compute SHAP feature contributions for the median quantile.
-
-        Args:
-            data: Input dataset for which to compute feature contributions.
-
-        Returns:
-            TimeSeriesDataset with per-feature SHAP values plus a bias column.
-
-        Raises:
-            NotFittedError: If the model has not been fitted.
-        """
-        if not self.is_fitted:
-            raise NotFittedError(self.__class__.__name__)
-
-        input_data: pd.DataFrame = data.input_data(start=data.forecast_start)
-        n_quantiles = len(self.quantiles)
-
-        # Extract median quantile model
-        median_idx = min(range(n_quantiles), key=lambda i: abs(float(self.quantiles[i]) - 0.5))
-        model: LGBMRegressor = self._lgbm_model.models[median_idx]  # type: ignore
-
-        # Get SHAP contributions from median quantile model (includes bias as last column)
-        contribs: np.ndarray = model.predict(input_data, pred_contrib=True)
-
-        columns = [*input_data.columns, "bias"]
-        contribs_df = pd.DataFrame(contribs, index=input_data.index, columns=columns)
-        return TimeSeriesDataset(data=contribs_df, sample_interval=data.sample_interval)
-
-    @property
-    @override
-    def feature_importances(self) -> pd.DataFrame:
-        models: list[LGBMRegressor] = self._lgbm_model.models  # type: ignore
-        weights_df = pd.DataFrame(
-            [models[i].feature_importances_ for i in range(len(models))],
-            index=[quantile.format() for quantile in self.quantiles],
-            columns=self._lgbm_model.model_feature_names if self._lgbm_model.has_feature_names else None,
-        ).transpose()
-
-        weights_df.index.name = "feature_name"
-        weights_df.columns.name = "quantiles"
-
-        return weights_df.pipe(normalize_to_unit_sum)
-
-
-__all__ = ["LGBMForecaster", "LGBMHyperParams"]
+__all__ = ["LGBMBaseForecaster", "LGBMForecaster", "LGBMHyperParams", "LGBMHyperParamsBase"]
