@@ -20,12 +20,12 @@ SPDX-License-Identifier: MPL-2.0
 ![GitHub Release](https://img.shields.io/github/v/release/openstef/openstef)
 
 
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=OpenSTEF_openstef&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=OpenSTEF_openstef)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=OpenSTEF_openstef&metric=coverage)](https://sonarcloud.io/summary/new_code?id=OpenSTEF_openstef)
-[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=OpenSTEF_openstef&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=OpenSTEF_openstef)
-[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=OpenSTEF_openstef&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=OpenSTEF_openstef)
-[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=OpenSTEF_openstef&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=OpenSTEF_openstef)
-[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=OpenSTEF_openstef&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=OpenSTEF_openstef)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=OpenSTEF_openstef&metric=alert_status)](https://sonarcloud.io/summary/overall?id=OpenSTEF_openstef)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=OpenSTEF_openstef&metric=coverage)](https://sonarcloud.io/summary/overall?id=OpenSTEF_openstef)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=OpenSTEF_openstef&metric=sqale_rating)](https://sonarcloud.io/summary/overall?id=OpenSTEF_openstef)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=OpenSTEF_openstef&metric=reliability_rating)](https://sonarcloud.io/summary/overall?id=OpenSTEF_openstef)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=OpenSTEF_openstef&metric=security_rating)](https://sonarcloud.io/summary/overall?id=OpenSTEF_openstef)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=OpenSTEF_openstef&metric=vulnerabilities)](https://sonarcloud.io/summary/overall?id=OpenSTEF_openstef)
 
 
 ## What is OpenSTEF
