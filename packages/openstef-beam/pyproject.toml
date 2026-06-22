@@ -28,6 +28,7 @@ classifiers = [
 ]
 
 dependencies = [
+  "jinja2>=3",
   "openstef-core>=4.0.0.dev0,<5",
   "plotly>=6.3",
   "pyyaml>=6.0.2",

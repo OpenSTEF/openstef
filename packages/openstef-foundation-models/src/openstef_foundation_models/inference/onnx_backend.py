@@ -31,6 +31,14 @@ try:
 except ImportError as e:
     raise MissingExtraError("onnxruntime", "openstef-foundation-models", install_extra="cpu") from e
 
+# onnxruntime-gpu ships the CUDA execution-provider plugin but loads the CUDA/cuDNN
+# runtime (the nvidia-*-cu12 wheels the [gpu] extra pulls) lazily at session creation.
+# preload_dlls() loads them from the nvidia site-packages so the CUDA provider can be
+# realized without a system CUDA install or LD_LIBRARY_PATH. It is a no-op on the CPU
+# runtime; the guard covers onnxruntime < 1.21, which predates the API.
+if hasattr(ort, "preload_dlls"):
+    ort.preload_dlls()
+
 logger = logging.getLogger(__name__)
 
 
