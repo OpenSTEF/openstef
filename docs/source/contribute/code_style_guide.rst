@@ -26,12 +26,12 @@ PEP 8 with Ruff
 ---------------
 
 OpenSTEF follows `PEP 8 <https://peps.python.org/pep-0008/>`_ as enforced by 
-`Ruff <https://docs.astral.sh/ruff/>`_. Our configuration extends the standard 
-line length to **88 characters** (matching Black's default).
+`Ruff <https://docs.astral.sh/ruff/>`_. Our configuration sets the line length to
+**120 characters**.
 
 Key formatting rules:
 
-* **Line length**: 88 characters maximum
+* **Line length**: 120 characters maximum
 * **Indentation**: 4 spaces (no tabs)
 * **Quotes**: Prefer double quotes for strings
 * **Trailing commas**: Required in multi-line constructs
