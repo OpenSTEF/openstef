@@ -4,10 +4,10 @@
 
 import warnings
 from datetime import UTC, datetime, time, timedelta, timezone
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 import pandas as pd
 import pytest
-import pytz
 from pydantic import BaseModel
 
 from openstef_core.types import AvailableAt, LeadTime, Quantile, QuantileOrGlobal
@@ -55,12 +55,12 @@ def test_lead_time_from_string_roundtrip(input_delta: timedelta):
         pytest.param(AvailableAt(day_offset=-1, time_of_day=time(6, 0)), "D-1T0600", id="no_tz"),
         pytest.param(AvailableAt(day_offset=-2, time_of_day=time(12, 0)), "D-2T1200", id="no_tz_D-2"),
         pytest.param(
-            AvailableAt(day_offset=-1, time_of_day=time(6, 0), tzinfo=pytz.UTC),
+            AvailableAt(day_offset=-1, time_of_day=time(6, 0), tzinfo=ZoneInfo("UTC")),
             "D-1T0600[UTC]",
-            id="pytz_utc",
+            id="zoneinfo_utc",
         ),
         pytest.param(
-            AvailableAt(day_offset=-1, time_of_day=time(6, 0), tzinfo=pytz.timezone("Europe/Amsterdam")),
+            AvailableAt(day_offset=-1, time_of_day=time(6, 0), tzinfo=ZoneInfo("Europe/Amsterdam")),
             "D-1T0600[Europe/Amsterdam]",
             id="named_tz",
         ),
@@ -85,11 +85,11 @@ def test_available_at_str(available_at: AvailableAt, expected_string: str):
         pytest.param(AvailableAt(day_offset=-1, time_of_day=time(6, 0)), id="no_tz"),
         pytest.param(AvailableAt(day_offset=-2, time_of_day=time(12, 0)), id="no_tz_D-2"),
         pytest.param(
-            AvailableAt(day_offset=-1, time_of_day=time(6, 0), tzinfo=pytz.UTC),
-            id="pytz_utc",
+            AvailableAt(day_offset=-1, time_of_day=time(6, 0), tzinfo=ZoneInfo("UTC")),
+            id="zoneinfo_utc",
         ),
         pytest.param(
-            AvailableAt(day_offset=-1, time_of_day=time(6, 0), tzinfo=pytz.timezone("Europe/Amsterdam")),
+            AvailableAt(day_offset=-1, time_of_day=time(6, 0), tzinfo=ZoneInfo("Europe/Amsterdam")),
             id="named_tz",
         ),
     ],
@@ -120,7 +120,7 @@ def test_available_at_from_string_legacy_colon_format():
 @pytest.mark.parametrize(
     "tz_str",
     [
-        pytest.param("UTC", id="pytz_utc"),
+        pytest.param("UTC", id="utc"),
         pytest.param("Europe/Amsterdam", id="named_tz"),
     ],
 )
@@ -157,15 +157,15 @@ def test_available_at_from_string_z_suffix():
     at = AvailableAt.from_string("D-1T0600Z")
     assert at.day_offset == -1
     assert at.time_of_day == time(6, 0)
-    assert at.tzinfo == pytz.UTC
+    assert at.tzinfo == ZoneInfo("UTC")
 
 
 def test_available_at_from_string_rejects_invalid_tz():
-    with pytest.raises(pytz.UnknownTimeZoneError):
+    with pytest.raises(ZoneInfoNotFoundError):
         AvailableAt.from_string("D-1T0600[INVALID]")
 
 
-_AMS = pytz.timezone("Europe/Amsterdam")
+_AMS = ZoneInfo("Europe/Amsterdam")
 
 
 @pytest.mark.parametrize(
@@ -184,7 +184,7 @@ _AMS = pytz.timezone("Europe/Amsterdam")
             id="naive_D-2",
         ),
         pytest.param(
-            AvailableAt(day_offset=-1, time_of_day=time(6, 0), tzinfo=pytz.UTC),
+            AvailableAt(day_offset=-1, time_of_day=time(6, 0), tzinfo=ZoneInfo("UTC")),
             datetime(2026, 3, 6, tzinfo=UTC),
             datetime(2026, 3, 5, 6, 0, tzinfo=UTC),
             id="utc_to_utc",
@@ -197,11 +197,11 @@ _AMS = pytz.timezone("Europe/Amsterdam")
         ),
         pytest.param(
             AvailableAt(day_offset=-1, time_of_day=time(6, 0), tzinfo=UTC),
-            _AMS.localize(datetime(2026, 3, 6)),  # noqa: DTZ001
+            datetime(2026, 3, 6, tzinfo=_AMS),
             # Reference is Mar 6 00:00 CET = Mar 5 23:00 UTC.
             # Day extracted in UTC (self.tzinfo) → Mar 5, D-1 → Mar 4.
             # 06:00 UTC on Mar 4 = 07:00 CET (winter time, UTC+1)
-            _AMS.localize(datetime(2026, 3, 4, 7, 0)),  # noqa: DTZ001
+            datetime(2026, 3, 4, 7, 0, tzinfo=_AMS),
             id="utc_tz_ams_ref_extracts_day_in_utc",
         ),
         pytest.param(
