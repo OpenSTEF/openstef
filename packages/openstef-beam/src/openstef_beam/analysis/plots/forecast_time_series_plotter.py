@@ -645,8 +645,8 @@ class ForecastTimeSeriesPlotter(BaseConfig):
         # diff() finds transitions: True->False (-1) and False->True (1)
         mask_array = mask.to_numpy()
         transitions = np.diff(np.concatenate(([False], mask_array, [False])).astype(int))
-        segment_starts = np.where(transitions == 1)[0]  # Where transitions from False to True
-        segment_ends = np.where(transitions == -1)[0] - 1  # Where transitions from True to False
+        segment_starts = np.nonzero(transitions == 1)[0]  # Where transitions from False to True
+        segment_ends = np.nonzero(transitions == -1)[0] - 1  # Where transitions from True to False
         segments = list(zip(segment_starts, segment_ends, strict=True))
 
         # Create separate polygon for each continuous segment
