@@ -38,7 +38,7 @@ from openstef_foundation_models.models.checkpoint import CheckpointMetadata
 try:
     import onnxruntime as ort
 except ImportError as e:
-    raise MissingExtraError("onnxruntime", "openstef-foundation-models") from e
+    raise MissingExtraError("onnxruntime", "openstef-foundation-models", install_extra="cpu") from e
 
 
 class HostCapabilities(BaseConfig):
