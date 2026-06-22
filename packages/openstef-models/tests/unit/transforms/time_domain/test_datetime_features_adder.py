@@ -131,15 +131,7 @@ def test_features_added_matches_columns_without_onehot():
 
 
 def test_features_added_matches_columns_with_onehot():
-    """features_added() must match transform()'s one-hot columns, and they must be stable.
-
-    Regression: features_added() previously returned the non-one-hot names
-    (month_of_year/quarter_of_year), which the one-hot branch never produces, and
-    omitted the actual month_N/quarter_N columns. The one-hot columns were also
-    data-dependent (only months present in the data), so features_added() could not
-    enumerate them and training/inference could produce different column sets.
-    """
-    # Data spanning only two months: the column set must still be the full, stable one.
+    """features_added() matches the one-hot columns, which span all months and quarters."""
     data = pd.DataFrame(
         {"load": [1.0, 2.0]},
         index=pd.DatetimeIndex(["2025-01-15", "2025-04-15"]),
@@ -150,8 +142,6 @@ def test_features_added_matches_columns_with_onehot():
     result = transform.transform(dataset)
     added = [col for col in result.data.columns if col != "load"]
 
-    # features_added() reports exactly what transform() adds
     assert set(transform.features_added()) == set(added)
-    # one-hot columns are the full, stable set regardless of the data span
     assert all(f"month_{month}" in added for month in range(1, 13))
     assert all(f"quarter_{quarter}" in added for quarter in range(1, 5))

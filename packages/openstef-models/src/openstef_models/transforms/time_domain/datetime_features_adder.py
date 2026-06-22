@@ -88,10 +88,7 @@ class DatetimeFeaturesAdder(BaseConfig, TimeSeriesTransform):
                 )
             )
         else:
-            # Use fixed categories so the one-hot columns are stable regardless of which
-            # months/quarters appear in the data. Without this, get_dummies only emits
-            # columns for the values present, so features_added() cannot enumerate them
-            # and training/inference can produce mismatched column sets.
+            # Fixed categories keep the one-hot columns stable regardless of the data span.
             months = pd.Categorical(data.index.month, categories=list(range(1, MONTHS_PER_YEAR + 1)))
             month_dummies = pd.get_dummies(months, prefix="month", dtype=int)
             month_dummies.index = data.index
