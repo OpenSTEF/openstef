@@ -18,6 +18,8 @@ SPDX-License-Identifier: MPL-2.0
 [![License: MPL-2.0](https://img.shields.io/badge/License-MPL%202.0-brightgreen.svg)](LICENSE.md)
 [![Python 3.12+](https://img.shields.io/badge/python-3.12%2B-blue.svg)](https://www.python.org/downloads/)
 ![GitHub Release](https://img.shields.io/github/v/release/openstef/openstef)
+
+
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=OpenSTEF_openstef&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=OpenSTEF_openstef)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=OpenSTEF_openstef&metric=coverage)](https://sonarcloud.io/summary/new_code?id=OpenSTEF_openstef)
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=OpenSTEF_openstef&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=OpenSTEF_openstef)
