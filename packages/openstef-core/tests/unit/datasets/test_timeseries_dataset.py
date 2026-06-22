@@ -7,10 +7,10 @@
 from datetime import datetime, time, timedelta
 from pathlib import Path
 from typing import cast
+from zoneinfo import ZoneInfo
 
 import pandas as pd
 import pytest
-from zoneinfo import ZoneInfo
 
 from openstef_core.datasets.timeseries_dataset import TimeSeriesDataset
 from openstef_core.testing import create_timeseries_dataset

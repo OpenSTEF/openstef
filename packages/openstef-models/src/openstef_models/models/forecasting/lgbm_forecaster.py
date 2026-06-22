@@ -176,6 +176,7 @@ class LGBMBaseForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
 
     @property
     @abstractmethod
+    @override
     def hparams(self) -> LGBMHyperParamsBase:
         """Concrete hyperparameters for this forecaster."""
 
@@ -233,7 +234,7 @@ class LGBMBaseForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
     @staticmethod
     def _prepare_fit_input(data: ForecastInputDataset) -> tuple[pd.DataFrame, np.ndarray, pd.Series]:
         """Prepare training data for LightGBM fitting.
-        
+
         Args:
             data: ForecastInputDataset containing input features, target values, and sample weights.
 
