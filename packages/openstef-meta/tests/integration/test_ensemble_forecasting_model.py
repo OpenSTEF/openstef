@@ -49,7 +49,7 @@ def config() -> EnsembleForecastingWorkflowConfig:
             "gblinear": SampleWeightConfig(method="exponential", weight_exponent=1.0),
             "lgbm": SampleWeightConfig(method="exponential", weight_exponent=0.0),
         },
-        mlflow_storage=None,  # no MLflow logging needed for this structural test
+        mlflow_storage=None,
     )
 
 

@@ -24,7 +24,7 @@ optuna.logging.set_verbosity(optuna.logging.WARNING)
 
 
 def _config(**kwargs: Any) -> ForecastingWorkflowConfig:
-    """Minimal ForecastingWorkflowConfig for tuning tests (no MLflow storage)."""
+    """Minimal ForecastingWorkflowConfig for tuning tests."""
     return ForecastingWorkflowConfig(model_id="test", model="xgboost", mlflow_storage=None, **kwargs)
 
 
