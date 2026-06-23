@@ -20,8 +20,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout # Must be done before using composite actions
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
+          fetch-depth: 0 # full history gives Sonar accurate new-code / blame info
           show-progress: false # very verbose for not much
       - name: Install uv
         uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
@@ -31,7 +32,7 @@ jobs:
           enable-cache: true
       - name: Install dependencies
         if: ${{ always() }}
-        run: uv sync --frozen --no-install-project --all-groups --all-extras --all-packages
+        run: uv sync --frozen --no-install-project
 
       # Run quality checks
       - name: reuse
@@ -64,6 +65,15 @@ jobs:
       - name: notebooks-check
         if: ${{ ! inputs._SKIP_QUALITY && always() }}
         run: poe notebooks-check
+
+      # Upload analysis + coverage.xml (produced by the tests step) to SonarCloud.
+      # Skipped on fork PRs, which cannot access the SONAR_TOKEN secret.
+      - name: SonarCloud scan
+        if: ${{ ! inputs._SKIP_QUALITY && !cancelled() && (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository) }}
+        uses: SonarSource/sonarqube-scan-action@713881670b6b3676cda39549040e2d88c70d582e # v8.2.0
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: https://sonarcloud.io
 
       - name: Stop if any quality step failed
         # All tests are run with always() not to stop on the first error. This step makes the workflow fail if any quality step failed.

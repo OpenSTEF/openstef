@@ -19,6 +19,15 @@ SPDX-License-Identifier: MPL-2.0
 [![Python 3.12+](https://img.shields.io/badge/python-3.12%2B-blue.svg)](https://www.python.org/downloads/)
 ![GitHub Release](https://img.shields.io/github/v/release/openstef/openstef)
 
+
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=OpenSTEF_openstef&metric=alert_status)](https://sonarcloud.io/summary/overall?id=OpenSTEF_openstef)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=OpenSTEF_openstef&metric=coverage)](https://sonarcloud.io/summary/overall?id=OpenSTEF_openstef)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=OpenSTEF_openstef&metric=sqale_rating)](https://sonarcloud.io/summary/overall?id=OpenSTEF_openstef)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=OpenSTEF_openstef&metric=reliability_rating)](https://sonarcloud.io/summary/overall?id=OpenSTEF_openstef)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=OpenSTEF_openstef&metric=security_rating)](https://sonarcloud.io/summary/overall?id=OpenSTEF_openstef)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=OpenSTEF_openstef&metric=vulnerabilities)](https://sonarcloud.io/summary/overall?id=OpenSTEF_openstef)
+
+
 ## What is OpenSTEF
 
 **OpenSTEF** (Open Short-Term Energy Forecasting) is an open-source, model-agnostic Python framework for creating short-term forecasts in the energy sector. It provides complete machine learning pipelines for data preprocessing, feature engineering, model training, probabilistic forecasting, and evaluation. Version 4.0.0 introduces a complete architectural refactor with enhanced modularity, full type safety, and modern Python development practices.
@@ -42,19 +51,38 @@ OpenSTEF 4.0.0 is organized as a monorepo with specialized packages under the `p
 **Requirements:** Python ≥3.12, 64-bit OS (Windows, macOS, Linux)
 
 ```bash
-# Install the complete framework
+# Minimal-but-runnable convenience layer (core + models with CPU XGBoost)
 pip install openstef
+
+# Everything, CPU flavour
+pip install "openstef[all]"
 
 # Or install individual packages
 pip install openstef-models
 pip install openstef-beam
 pip install openstef-core
 
-# With optional features
+# Optional feature extras (additive)
 pip install "openstef-models[lgbm]"
-pip install "openstef-models[xgb-cpu]"
+pip install "openstef-models[tuning]"
 pip install "openstef-beam[all]"
 ```
+
+**Compute runtimes (pick one per package).** Packages with a heavy runtime ship
+mutually exclusive CPU and GPU builds as conflicting extras — install one, not both:
+
+```bash
+# Foundation models (Chronos-2): CPU everywhere, GPU on CUDA Linux/Windows
+pip install "openstef-foundation-models[cpu]"
+pip install "openstef-foundation-models[gpu]"
+
+# XGBoost models: CPU or GPU
+pip install "openstef-models[xgb-cpu]"
+pip install "openstef-models[xgb-gpu]"
+```
+
+The `openstef` meta-package always ships the CPU builds; for GPU, install the
+component package directly with its `[gpu]` extra.
 
 Using [uv](https://docs.astral.sh/uv/) (recommended for development):
 
@@ -92,14 +120,17 @@ We welcome contributions to OpenSTEF 4.0!
 ### Quick Development Setup
 
 ```bash
-# Clone and set up for development
+# Clone and set up for development (one command installs the full CPU dev env)
 git clone https://github.com/OpenSTEF/openstef.git
 cd openstef
-uv sync --dev
+uv sync
 
 # Run tests and quality checks
 uv run poe all
 ```
+
+> GPU dev env (CUDA; Linux/Windows): `uv sync --no-default-groups --group dev-gpu`.
+> Do not use `--all-groups`/`--all-extras` — the CPU and GPU runtimes conflict.
 
 **Code of Conduct**: We follow the [Contributor Code of Conduct](https://openstef.github.io/openstef/contribute/code_of_conduct.html) to ensure a welcoming environment for all contributors.
 ## Citations

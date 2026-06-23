@@ -30,8 +30,8 @@ classifiers = [
 dependencies = [
   "holidays>=0.79",
   "mlflow-skinny>=3,<4",
-  "openstef-beam>=4.0.0.dev0,<5",
-  "openstef-core>=4.0.0.dev0,<5",
+  "openstef-beam>=4,<5",
+  "openstef-core>=4,<5",
   "pvlib>=0.13",
   "pycountry>=24.6.1",
   "scikit-learn>=1.7.1,<1.8",
@@ -57,3 +57,13 @@ urls.Repository = "https://github.com/OpenSTEF/openstef"
 
 [tool.hatch.build.targets.wheel]
 packages = [ "src/openstef_models" ]
+
+[tool.uv]
+# xgb-cpu installs xgboost-cpu (Linux/Windows) and xgb-gpu installs the full
+# xgboost; both provide the same import, so exactly one may be installed.
+conflicts = [
+  [
+    { extra = "xgb-cpu" },
+    { extra = "xgb-gpu" },
+  ],
+]

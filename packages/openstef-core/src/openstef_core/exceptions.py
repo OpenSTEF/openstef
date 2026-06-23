@@ -12,19 +12,24 @@ from collections.abc import Sequence
 
 
 class MissingExtraError(Exception):
-    """Exception raised when an extra is missing in the extras list."""
+    """Exception raised when an optional dependency for a feature is not installed."""
 
-    def __init__(self, extra: str, package: str = "openstef-beam"):
-        """Initialize the exception with the name of the missing extra.
+    def __init__(self, extra: str, package: str = "openstef-beam", *, install_extra: str | None = None):
+        """Initialize the exception with the missing dependency and how to install it.
 
         Args:
-            extra: Name of the missing extra package.
-            package: Name of the package requiring the extra.
+            extra: Import/distribution name that failed to import (e.g. ``"onnxruntime"``).
+            package: OpenSTEF package that owns the optional feature.
+            install_extra: The extra group to install for this feature (e.g. ``"cpu"``),
+                yielding ``pip install {package}[{install_extra}]``. When ``None`` the hint
+                installs ``extra`` directly. Prefer naming the extra group: not every package
+                defines an ``[all]`` extra, and some groups are mutually exclusive.
         """
         self.extra = extra
+        target = f"{package}[{install_extra}]" if install_extra else extra
         super().__init__(
-            f"Optional package {extra} is missing. Please install it to use this module using `pip install {extra}` "
-            f"or install all optional features using `pip install {package}[all]`."
+            f"Optional dependency '{extra}' is required for this feature but is not installed. "
+            f"Install it with `pip install {target}`."
         )
 
 

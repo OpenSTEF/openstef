@@ -9,7 +9,7 @@ SPDX-License-Identifier: MPL-2.0
 Before you start, make sure to install all the necessary dependencies by running:
 
 ```bash
-uv sync --all-extras --all-groups --all-packages
+uv sync
 ```
 
 ## Contents
