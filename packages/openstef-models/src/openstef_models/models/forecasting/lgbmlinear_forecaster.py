@@ -207,7 +207,7 @@ class LGBMLinearForecaster(Forecaster, ExplainableForecaster, ContributionsMixin
         try:
             from lightgbm import LGBMRegressor  # noqa: PLC0415
         except ImportError as e:
-            raise MissingExtraError("lightgbm", "openstef-models") from e
+            raise MissingExtraError("lightgbm", "openstef-models", install_extra="lgbm") from e
 
         lgbmlinear_params = {
             # Core parameters

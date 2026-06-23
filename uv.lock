@@ -6,6 +6,13 @@ resolution-markers = [
     "python_full_version == '3.13.*'",
     "python_full_version < '3.13'",
 ]
+conflicts = [[
+    { package = "openstef-foundation-models", extra = "cpu" },
+    { package = "openstef-foundation-models", extra = "gpu" },
+], [
+    { package = "openstef-models", extra = "xgb-cpu" },
+    { package = "openstef-models", extra = "xgb-gpu" },
+]]
 
 [manifest]
 members = [
@@ -15,6 +22,7 @@ members = [
     "openstef-deployment-examples",
     "openstef-docs",
     "openstef-examples",
+    "openstef-foundation-models",
     "openstef-meta",
     "openstef-models",
 ]
@@ -171,7 +179,7 @@ version = "1.4.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "frozenlist" },
-    { name = "typing-extensions", marker = "python_full_version < '3.13'" },
+    { name = "typing-extensions", marker = "python_full_version < '3.13' or (extra == 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-15-openstef-models-xgb-gpu') or (extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/61/62/06741b579156360248d1ec624842ad0edf697050bbaf7c3e46394e106ad1/aiosignal-1.4.0.tar.gz", hash = "sha256:f47eecd9468083c2029cc99945502cb7708b082c232f9aca65da147157b251c7", size = 25007, upload-time = "2025-07-03T22:54:43.528Z" }
 wheels = [
@@ -255,7 +263,7 @@ version = "4.13.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "idna" },
-    { name = "typing-extensions", marker = "python_full_version < '3.13'" },
+    { name = "typing-extensions", marker = "python_full_version < '3.13' or (extra == 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-15-openstef-models-xgb-gpu') or (extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/19/14/2c5dd9f512b66549ae92767a9c7b330ae88e1932ca57876909410251fe13/anyio-4.13.0.tar.gz", hash = "sha256:334b70e641fd2221c1505b3890c69882fe4a2df910cba14d97019b90b24439dc", size = 231622, upload-time = "2026-03-24T12:59:09.671Z" }
 wheels = [
@@ -807,7 +815,7 @@ name = "cffi"
 version = "2.0.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "pycparser", marker = "implementation_name != 'PyPy'" },
+    { name = "pycparser", marker = "implementation_name != 'PyPy' or (extra == 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-15-openstef-models-xgb-gpu') or (extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/eb/56/b1ba7935a17738ae8453301356628e8147c79dbb825bcbc73dc7401f9846/cffi-2.0.0.tar.gz", hash = "sha256:44d1b5909021139fe36001ae048dbdde8214afa20200eda0f64c068cac5d5529", size = 523588, upload-time = "2025-09-08T23:24:04.541Z" }
 wheels = [
@@ -955,7 +963,7 @@ name = "click"
 version = "8.4.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "colorama", marker = "sys_platform == 'win32'" },
+    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-15-openstef-models-xgb-gpu') or (extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/9b/98/518d8e5081007684232226f475082b30087d0f585e8457db087298259f49/click-8.4.1.tar.gz", hash = "sha256:918b5633eddf6b41c32d4f454bf0de810065c74e3f7dbf8ee5452f8be88d3e96", size = 353007, upload-time = "2026-05-22T04:08:37.769Z" }
 wheels = [
@@ -1047,7 +1055,7 @@ name = "colorlog"
 version = "6.10.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "colorama", marker = "sys_platform == 'win32'" },
+    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-15-openstef-models-xgb-gpu') or (extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/a2/61/f083b5ac52e505dfc1c624eafbf8c7589a0d7f32daa398d2e7590efa5fda/colorlog-6.10.1.tar.gz", hash = "sha256:eb4ae5cb65fe7fec7773c2306061a8e63e02efc2c72eba9d27b0fa23c94f1321", size = 17162, upload-time = "2025-10-16T16:14:11.978Z" }
 wheels = [
@@ -1275,7 +1283,7 @@ name = "cryptography"
 version = "48.0.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "cffi", marker = "platform_python_implementation != 'PyPy'" },
+    { name = "cffi", marker = "platform_python_implementation != 'PyPy' or (extra == 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-15-openstef-models-xgb-gpu') or (extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/9f/a9/db8f313fdcd85d767d4973515e1db101f9c71f95fced83233de224673757/cryptography-48.0.0.tar.gz", hash = "sha256:5c3932f4436d1cccb036cb0eaef46e6e2db91035166f1ad6505c3c9d5a635920", size = 832984, upload-time = "2026-05-04T22:59:38.133Z" }
 wheels = [
@@ -1349,10 +1357,10 @@ dependencies = [
     { name = "grpcio-health-checking" },
     { name = "jinja2" },
     { name = "protobuf" },
-    { name = "psutil", marker = "sys_platform == 'win32'" },
+    { name = "psutil", marker = "sys_platform == 'win32' or (extra == 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-15-openstef-models-xgb-gpu') or (extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu')" },
     { name = "python-dotenv" },
     { name = "pytz" },
-    { name = "pywin32", marker = "sys_platform == 'win32'" },
+    { name = "pywin32", marker = "sys_platform == 'win32' or (extra == 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-15-openstef-models-xgb-gpu') or (extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu')" },
     { name = "requests" },
     { name = "rich" },
     { name = "six" },
@@ -1517,7 +1525,7 @@ name = "docker"
 version = "7.1.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "pywin32", marker = "sys_platform == 'win32'" },
+    { name = "pywin32", marker = "sys_platform == 'win32' or (extra == 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-15-openstef-models-xgb-gpu') or (extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu')" },
     { name = "requests" },
     { name = "urllib3" },
 ]
@@ -1817,6 +1825,14 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/91/f1/605a56d4ea217b307f3e6f4d663e0351253d85d841edc93ba559f0648e19/flask_wtf-1.3.0.tar.gz", hash = "sha256:61d5dabc50c3df885c297dcbd80810443a5d632106c8a69cab8ce740f0cdd7cc", size = 50414, upload-time = "2026-04-23T07:41:55.096Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/14/d2/97adf2ec7af95522573e6dd5493ee84792d0fbfb2def010c4a581b8d6e5e/flask_wtf-1.3.0-py3-none-any.whl", hash = "sha256:dc5e3a4ce97f75c47bf6c1c72ad2c3b7bdf579a2ed13aebcc5d3d81fe2571160", size = 13959, upload-time = "2026-04-23T07:41:53.828Z" },
+]
+
+[[package]]
+name = "flatbuffers"
+version = "25.12.19"
+source = { registry = "https://pypi.org/simple" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e8/2d/d2a548598be01649e2d46231d151a6c56d10b964d94043a335ae56ea2d92/flatbuffers-25.12.19-py2.py3-none-any.whl", hash = "sha256:7634f50c427838bb021c2d66a3d1168e9d199b0607e6329399f04846d42e20b4", size = 26661, upload-time = "2025-12-19T23:16:13.622Z" },
 ]
 
 [[package]]
@@ -2123,7 +2139,9 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/c4/37/4549f149c9797c21b32c2683c33522af22522099de128b2406672526d005/greenlet-3.5.1-cp312-cp312-macosx_11_0_universal2.whl", hash = "sha256:fa4f98af3a528f0c3fd592a26df7f376f93329c8f4d987f6bb979057af8bf5e2", size = 286220, upload-time = "2026-05-20T13:07:28.463Z" },
     { url = "https://files.pythonhosted.org/packages/38/ff/a4f436709716965eaab9f36ea7b906c8a927fbe32fb1372a2071d964f6b1/greenlet-3.5.1-cp312-cp312-manylinux_2_24_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:ffea73584b216150eab159b6d12348fb253e68757974de1e2c40d8a318ac89ed", size = 601585, upload-time = "2026-05-20T14:00:06.141Z" },
     { url = "https://files.pythonhosted.org/packages/65/ad/54bc3fcee3ad368a61b19b67d88117f7a8c29727bf71fffdeda81fbd946e/greenlet-3.5.1-cp312-cp312-manylinux_2_24_ppc64le.manylinux_2_28_ppc64le.whl", hash = "sha256:1072b4f9edcc1e192d9283a66a3e68d6b84c561de33a83d7858beb9ba1effe10", size = 614215, upload-time = "2026-05-20T14:05:42.675Z" },
+    { url = "https://files.pythonhosted.org/packages/7c/6c/de5b1b388cd2d9fbdfeab324863daba37d54e6e233ddbefd70b385a8c591/greenlet-3.5.1-cp312-cp312-manylinux_2_24_s390x.manylinux_2_28_s390x.whl", hash = "sha256:89101bfd5011e069be974903cb3a4e4523845e4ece2d62dcd8d358933c0ef249", size = 620094, upload-time = "2026-05-20T14:09:09.18Z" },
     { url = "https://files.pythonhosted.org/packages/40/69/b91cda0647df839483201545913514c2827ebea5e5ccdf931842763bc127/greenlet-3.5.1-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:add5217d68b31130f0beca584d7fef4878327d2e31642b66618a14eef312b63b", size = 611358, upload-time = "2026-05-20T13:14:26.37Z" },
+    { url = "https://files.pythonhosted.org/packages/4a/43/1204baffab8a6476464795a7ccf394a3248d4f22c9f87173a15b36b6d971/greenlet-3.5.1-cp312-cp312-manylinux_2_39_riscv64.whl", hash = "sha256:e6cd99ea59dd5d89f0c956606571d79bfe6f68c9eb7f4a4083a41a7f1587edee", size = 422782, upload-time = "2026-05-20T14:01:39.597Z" },
     { url = "https://files.pythonhosted.org/packages/59/90/3cf77e080350cd02fa307bb2abf05df48f4482c240275bbd2c203ba8bb1c/greenlet-3.5.1-cp312-cp312-musllinux_1_2_aarch64.whl", hash = "sha256:a5ea42a752d47a145eae922b605cd1634665ac3d5ec1e72402d5048e8d60d207", size = 1570475, upload-time = "2026-05-20T14:02:25.29Z" },
     { url = "https://files.pythonhosted.org/packages/65/2c/18cece62045e74598c3c393f70dce4a63f56222015ba29a5d4eeb04f764c/greenlet-3.5.1-cp312-cp312-musllinux_1_2_x86_64.whl", hash = "sha256:c5551170cf4f5ff5623e9af81323751979fee2c731e2287b61f73cd27257b823", size = 1635625, upload-time = "2026-05-20T13:14:34.027Z" },
     { url = "https://files.pythonhosted.org/packages/30/f5/310d104ddf41eb5a70f4c268d22508dfb0c3c8e86fec152be34d0d2ed819/greenlet-3.5.1-cp312-cp312-win_amd64.whl", hash = "sha256:3c8bb982ad117d29478ef8f5533e97df21f1e2befd17a299257b0c96d1371c0b", size = 238791, upload-time = "2026-05-20T13:10:39.018Z" },
@@ -2131,7 +2149,9 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/27/69/7f7e5372d998b81001899b1c0823c957aa413ba0f2662e65821611cc31e4/greenlet-3.5.1-cp313-cp313-macosx_11_0_universal2.whl", hash = "sha256:51518ff74664078fc51bffcc6fc529b0df5ae58da192691cee765d45ce944a2b", size = 285060, upload-time = "2026-05-20T13:08:51.899Z" },
     { url = "https://files.pythonhosted.org/packages/b1/bf/387f9b6b865fd2ae0d0be09e0004827295a01b71be76ed350dd1e28a91a4/greenlet-3.5.1-cp313-cp313-manylinux_2_24_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:1ffdb3c0bb002c99cd8f298957e046c3dbf6006b5b7cdf11a4e19194624a0a0a", size = 604370, upload-time = "2026-05-20T14:00:07.492Z" },
     { url = "https://files.pythonhosted.org/packages/32/f5/169ce3d4e4c67291bd18f8cbe0299c9f3e45102c7f1fb3c14780c93e4532/greenlet-3.5.1-cp313-cp313-manylinux_2_24_ppc64le.manylinux_2_28_ppc64le.whl", hash = "sha256:7715a5a2c3378ba602c3a440558261e13a820bb53a82693aacd7b7f6d964e283", size = 616987, upload-time = "2026-05-20T14:05:44.237Z" },
+    { url = "https://files.pythonhosted.org/packages/19/ba/c24110c55dffa55aa6e1d98b45310da33801aeba7686ff0190fe5d46fd32/greenlet-3.5.1-cp313-cp313-manylinux_2_24_s390x.manylinux_2_28_s390x.whl", hash = "sha256:d40a890035c0058cadbdc4af7569800fd28a0e527a0fdbb7b5f9418f176846ce", size = 622911, upload-time = "2026-05-20T14:09:10.598Z" },
     { url = "https://files.pythonhosted.org/packages/ee/e5/7f2e41d5273be07e77560d61ea4e56485b4d6c316d2a84518c62d1364061/greenlet-3.5.1-cp313-cp313-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:dc71ff466927a201b08305acac451ebe1aedfcea002f62f1f2f2ac2ac1e6a135", size = 613911, upload-time = "2026-05-20T13:14:27.539Z" },
+    { url = "https://files.pythonhosted.org/packages/ec/7b/d20db2e8a5ad6c038702f3179b136f93f0a3d1a21a0c0777f3e470cdf4b2/greenlet-3.5.1-cp313-cp313-manylinux_2_39_riscv64.whl", hash = "sha256:67821bb03e4e98664490edb787ff6af501194c29bbee0f5c1dfdcf1dc3d9d436", size = 425228, upload-time = "2026-05-20T14:01:40.837Z" },
     { url = "https://files.pythonhosted.org/packages/c5/a4/fbdc67579b73615a1f91615e814303cc71e06128f7baaba87be79b8fb90c/greenlet-3.5.1-cp313-cp313-musllinux_1_2_aarch64.whl", hash = "sha256:cd443683db272ebaaca03af98c0b063ab30db70ea8a31a1559f35e3f7b744ccd", size = 1570689, upload-time = "2026-05-20T14:02:27.225Z" },
     { url = "https://files.pythonhosted.org/packages/e6/b4/77abbe35078be39718a46cd49caf16bceb35662f97a34101dca28aa98e47/greenlet-3.5.1-cp313-cp313-musllinux_1_2_x86_64.whl", hash = "sha256:089fff7a6ce8d9316d1f65ebc00273a56be258c1725b32b94de90a3a979557e1", size = 1635602, upload-time = "2026-05-20T13:14:36.344Z" },
     { url = "https://files.pythonhosted.org/packages/37/f7/129f27ca700845b8ee8ca88ce7f43435a1239c2eddb7677fc938822762cf/greenlet-3.5.1-cp313-cp313-win_amd64.whl", hash = "sha256:110a1ca7b49b014b097f6078272c3f4ed31af45b254de5228b79adba879f6af9", size = 238683, upload-time = "2026-05-20T13:11:50.57Z" },
@@ -2139,7 +2159,9 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/8a/cb/c62454606daf5640369c94d8a9dd540599b1bfc090e2d2180cb77f4038d2/greenlet-3.5.1-cp314-cp314-macosx_11_0_universal2.whl", hash = "sha256:d8ab31c9de8651a2facdd5c5bb0011f2380dd1a7af78ce2adf4b56095294fc07", size = 285579, upload-time = "2026-05-20T13:08:56.396Z" },
     { url = "https://files.pythonhosted.org/packages/ec/71/c4270398c2eba968a6071af1dfbdcaeee6ec1c24bc8b435b8cc452700da6/greenlet-3.5.1-cp314-cp314-manylinux_2_24_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:5e300185139abc337ade480c327183adf42a875ac7181bfe66d7d4efea31fbea", size = 651106, upload-time = "2026-05-20T14:00:09.448Z" },
     { url = "https://files.pythonhosted.org/packages/1a/ab/71e34b78a44ec271fb5f550c17bc46d301ddc5953890d935f270b0dcdb5a/greenlet-3.5.1-cp314-cp314-manylinux_2_24_ppc64le.manylinux_2_28_ppc64le.whl", hash = "sha256:7ffdb990dcaa0234cf9845aead5df2e3c3a8b6507d409274dd87e0d5ab05ffc2", size = 663478, upload-time = "2026-05-20T14:05:45.88Z" },
+    { url = "https://files.pythonhosted.org/packages/c6/2d/2d80842910da44f78c286532d084b8a5c3717c844ae80ceb3858738ae89a/greenlet-3.5.1-cp314-cp314-manylinux_2_24_s390x.manylinux_2_28_s390x.whl", hash = "sha256:6c09df69dc1712d131332054a858a3e5cca400967fa3a672e2324fbb0971448c", size = 667767, upload-time = "2026-05-20T14:09:12.15Z" },
     { url = "https://files.pythonhosted.org/packages/77/96/4efd6fa5c62c85426a0c19077a586258ebc3a2a146ff2493e4312a697a22/greenlet-3.5.1-cp314-cp314-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:2f82b3597e9d83b63408affed0b48fd0f54935edac4302237b9a837be0dae33c", size = 660800, upload-time = "2026-05-20T13:14:29.129Z" },
+    { url = "https://files.pythonhosted.org/packages/e9/d3/dad2eecedfbb1ed7050a20dcfae40c1442b74bc7423608be2c7e03ee7133/greenlet-3.5.1-cp314-cp314-manylinux_2_39_riscv64.whl", hash = "sha256:a4764e0bfc6a4d114c865b32520805c16a990ef5f286a514413b05d5ecd6a23d", size = 470786, upload-time = "2026-05-20T14:01:42.064Z" },
     { url = "https://files.pythonhosted.org/packages/7a/e0/6c71401a25cac7000261304e866a2f2cc04dc74810d40e2f118aa4799495/greenlet-3.5.1-cp314-cp314-musllinux_1_2_aarch64.whl", hash = "sha256:c0141e37414c10164e702b8fb1473304221ad98f71600850c6ef7ff4880feba0", size = 1617518, upload-time = "2026-05-20T14:02:28.662Z" },
     { url = "https://files.pythonhosted.org/packages/41/26/c5c06643e8c0af9e7bf18e16cb51d0ab7625155f0392e1c9015d66d556cd/greenlet-3.5.1-cp314-cp314-musllinux_1_2_x86_64.whl", hash = "sha256:50ae25a67bea74ea41fb14b960bc532df73eb713417b2d61892dced82fe8d3bc", size = 1681593, upload-time = "2026-05-20T13:14:39.417Z" },
     { url = "https://files.pythonhosted.org/packages/8a/bd/e11a108317485075e68af9d23039619b86b28130c3b50d227d42edece64b/greenlet-3.5.1-cp314-cp314-win_amd64.whl", hash = "sha256:8a17c42330e261299766b75ac1ea32caa437a9453c8f65d16a13140db378ecd3", size = 239800, upload-time = "2026-05-20T13:09:30.128Z" },
@@ -2147,14 +2169,18 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/90/12/41bf27fde4d3605d3773ae57751eda182b8be2f5398011c041173b1d9534/greenlet-3.5.1-cp314-cp314t-macosx_11_0_universal2.whl", hash = "sha256:ea8da1e900d758d078810d4255d8c6aa572181896a31ec79d779eb79c3adc9ad", size = 293637, upload-time = "2026-05-20T13:12:35.529Z" },
     { url = "https://files.pythonhosted.org/packages/44/44/ba14b23e9757707050c2f397d305bbcae62e5d7cad122f8b6baec5ae4a1f/greenlet-3.5.1-cp314-cp314t-manylinux_2_24_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:a19570c52a21420dcbc94e661994bc325c0b5b11304540fed514586da5dc8f2e", size = 650840, upload-time = "2026-05-20T14:00:11.079Z" },
     { url = "https://files.pythonhosted.org/packages/a8/37/5ddc2b686a6844f91abecef43411842426da2e1573f60b49ecf2547f4ae1/greenlet-3.5.1-cp314-cp314t-manylinux_2_24_ppc64le.manylinux_2_28_ppc64le.whl", hash = "sha256:3d955c89b75eeca4723d7cc14135f393cd47c32e2a6cb4a8e4c6e760a26b0986", size = 656416, upload-time = "2026-05-20T14:05:47.118Z" },
+    { url = "https://files.pythonhosted.org/packages/8c/46/5987dcd1a2570ba84f3b187536b2ca3ae97613387e57f5cfa99df068fe5e/greenlet-3.5.1-cp314-cp314t-manylinux_2_24_s390x.manylinux_2_28_s390x.whl", hash = "sha256:ea37d5a157eb9493820d3792ac4ece28619a394391d2b9f2f78057d396ff0f0f", size = 656607, upload-time = "2026-05-20T14:09:13.949Z" },
     { url = "https://files.pythonhosted.org/packages/e1/f0/d17510297c35a2992712f0bf84de3779749999f7d3d63aa1f09db7c62dbe/greenlet-3.5.1-cp314-cp314t-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:de2daaaebd1a5aa88c49045b6baf9310b3263796bd88db713edf37cf53e7bb4e", size = 654397, upload-time = "2026-05-20T13:14:30.696Z" },
+    { url = "https://files.pythonhosted.org/packages/2c/c1/6da0a9ddcc29d7e51ef14883fa3dc1e53b3f4ffba00582106c7bf55da1d8/greenlet-3.5.1-cp314-cp314t-manylinux_2_39_riscv64.whl", hash = "sha256:8d8a23250ea3ec7b36de8fa4b541e9e2db3ee82915cc060ab0631609ad8b28de", size = 488287, upload-time = "2026-05-20T14:01:43.143Z" },
     { url = "https://files.pythonhosted.org/packages/37/eb/147387705bb89092645b012586e7273cb5ed3c90ef7eaf3a69173eaf0209/greenlet-3.5.1-cp314-cp314t-musllinux_1_2_aarch64.whl", hash = "sha256:3bfbd69cc349e43bf3a8ae1c85548ff0718efc887615c2db16c3833d7b0b072d", size = 1614469, upload-time = "2026-05-20T14:02:30.192Z" },
     { url = "https://files.pythonhosted.org/packages/a6/4e/37ee0da7732b7aa9896f17e15579a9df34b9fcb9dd494f0adfa749af6623/greenlet-3.5.1-cp314-cp314t-musllinux_1_2_x86_64.whl", hash = "sha256:4378720dd888136c27215a0214d32a4d37c3852765d45bc37aad0623423cfd78", size = 1675115, upload-time = "2026-05-20T13:14:40.972Z" },
     { url = "https://files.pythonhosted.org/packages/57/f3/97dfcf4a6eb5077f8a672234216fb5923eb89f2cab7081cb10b2cf75b605/greenlet-3.5.1-cp314-cp314t-win_amd64.whl", hash = "sha256:45718441607f9325d948db98cbc691276059316d0358c188c246da4e1d4d23d2", size = 245246, upload-time = "2026-05-20T13:12:22.646Z" },
     { url = "https://files.pythonhosted.org/packages/5d/73/d7f72e34b582f694f4a9b248162db7b09cc458a259ba8f0c0bfa1a34ea7d/greenlet-3.5.1-cp315-cp315-macosx_11_0_universal2.whl", hash = "sha256:2baee5ca02031757ffe8cc3d69f0cc0aec7065ce362622da74f32d3bcab1c541", size = 285575, upload-time = "2026-05-20T13:12:07.043Z" },
     { url = "https://files.pythonhosted.org/packages/df/59/fa9c6e87dc8ad27a95dabe2f29f372b733d05a8a67470f6c901ed9975655/greenlet-3.5.1-cp315-cp315-manylinux_2_24_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:9b1ec3274918a81d3ea778b9e75b56b72b33f300edb6cf7f3a7fe1dae56683de", size = 656428, upload-time = "2026-05-20T14:00:12.556Z" },
     { url = "https://files.pythonhosted.org/packages/f6/f9/e753408871eaa61dfe35e619cfc67512b036fde99893685d50eea9e07146/greenlet-3.5.1-cp315-cp315-manylinux_2_24_ppc64le.manylinux_2_28_ppc64le.whl", hash = "sha256:111e2390ffffc47d5840b01711dd7fac07d4c09283d0283e7f3264b14e284c64", size = 667064, upload-time = "2026-05-20T14:05:48.662Z" },
+    { url = "https://files.pythonhosted.org/packages/dc/74/807a047255bf1e09303627c46dc043dca596b6958a354d904f32ab382005/greenlet-3.5.1-cp315-cp315-manylinux_2_24_s390x.manylinux_2_28_s390x.whl", hash = "sha256:10a9a1c0bfbc93d41156ffcb90c75fbc05544054faf15dcc1fdf9765f8b607f0", size = 672962, upload-time = "2026-05-20T14:09:15.532Z" },
     { url = "https://files.pythonhosted.org/packages/96/27/5565b5b40389f1c7753003a07e21892fda8660926787036d5bc0308b8113/greenlet-3.5.1-cp315-cp315-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:e630136e905fe5ff43e86945ae41220b6d1470956a39220e708110ac48d01ea5", size = 665697, upload-time = "2026-05-20T13:14:32.943Z" },
+    { url = "https://files.pythonhosted.org/packages/76/32/19d4e13225193c29b13e308015223f7d75fd3d8623d49dd19040d2ce8ec1/greenlet-3.5.1-cp315-cp315-manylinux_2_39_riscv64.whl", hash = "sha256:ef08c1567c78074b22d1a200183d52d04a14df447bf70bcbb6a3507a48e776fc", size = 476047, upload-time = "2026-05-20T14:01:44.39Z" },
     { url = "https://files.pythonhosted.org/packages/cf/82/e7de4178c0c2d1c9a5a3be3cc0b33e46a85b3ee4a77c071bf7ad8600e079/greenlet-3.5.1-cp315-cp315-musllinux_1_2_aarch64.whl", hash = "sha256:975eac34b44a7077ca4d421348455b94f0f518246a7f14bc6d2fdcfe5b584368", size = 1621256, upload-time = "2026-05-20T14:02:31.91Z" },
     { url = "https://files.pythonhosted.org/packages/00/10/f2dddcf7dacac17dfc68691809589adad06135eb28930429cf58a6467a2f/greenlet-3.5.1-cp315-cp315-musllinux_1_2_x86_64.whl", hash = "sha256:9ab3c3a0b2ae6198e67c898dad5215a49f9ae0d0081b3c3ec59f333e39eeca26", size = 1685956, upload-time = "2026-05-20T13:14:42.55Z" },
     { url = "https://files.pythonhosted.org/packages/22/17/4a232b32133230ada52f70e9d7f5b65b0caef8772f01849bd8d149e7e4ca/greenlet-3.5.1-cp315-cp315-win_amd64.whl", hash = "sha256:cbfc69be86e10dcfef5b1e6269d1d6926552aa89ee39e1de3353360c1b6989ab", size = 239802, upload-time = "2026-05-20T13:13:15.481Z" },
@@ -2162,7 +2188,9 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/7a/57/816d9cff29119da3505b3d6a5e14a8af89006ac36f47f891ff293ee05af1/greenlet-3.5.1-cp315-cp315t-macosx_11_0_universal2.whl", hash = "sha256:a6fdf2433a5441ef9a95464f7c3e674775da1c8c1177fff311cee1acad4626ed", size = 293877, upload-time = "2026-05-20T13:10:19.078Z" },
     { url = "https://files.pythonhosted.org/packages/23/a1/59b0a7c7d140ff1a75626680b9a9899b79a9176cab298b394968fb023295/greenlet-3.5.1-cp315-cp315t-manylinux_2_24_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:7546556f0d649f99f6a361098a55f761181bb2ea12ff150bb16d26092ad88244", size = 655333, upload-time = "2026-05-20T14:00:14.758Z" },
     { url = "https://files.pythonhosted.org/packages/72/1b/5efe127597625042218939d01855109f352779050768b670b52edcc16a6c/greenlet-3.5.1-cp315-cp315t-manylinux_2_24_ppc64le.manylinux_2_28_ppc64le.whl", hash = "sha256:d5ee3ea898009fa898f85f9982255d35278c477bebe185beca249cab42d4526c", size = 659443, upload-time = "2026-05-20T14:05:50.159Z" },
+    { url = "https://files.pythonhosted.org/packages/c9/9d/1dcdf7b95ab3cf8c7b6d7277c18a5e167312f2b362ddfcc5d5e6d8d84b43/greenlet-3.5.1-cp315-cp315t-manylinux_2_24_s390x.manylinux_2_28_s390x.whl", hash = "sha256:a57b0d05a0448eed231d59c0ceb287dde984551e54cbc51ac2d4865712838e9c", size = 659998, upload-time = "2026-05-20T14:09:16.912Z" },
     { url = "https://files.pythonhosted.org/packages/6c/6d/c404246ea4d22d097a7426d0efb5b781bd7eb67715f09e79001bd552ab18/greenlet-3.5.1-cp315-cp315t-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:a5c81f74d204d3edd136ebfd50dce53acbb776995d721a0fe801626cfc93b8cd", size = 658356, upload-time = "2026-05-20T13:14:35.091Z" },
+    { url = "https://files.pythonhosted.org/packages/05/7e/c4959664fc231d587d66d8e81f2095e98056ba1954beafdcbe635e251052/greenlet-3.5.1-cp315-cp315t-manylinux_2_39_riscv64.whl", hash = "sha256:b0703c2cef53e01baec47f7a3868009913ad71ec678bbecb42a6f40895e4ce62", size = 494470, upload-time = "2026-05-20T14:01:45.611Z" },
     { url = "https://files.pythonhosted.org/packages/51/02/f8ee37fb6d2219329f350af241c27fcf12df57e723d11f6fc6d3bacdadaa/greenlet-3.5.1-cp315-cp315t-musllinux_1_2_aarch64.whl", hash = "sha256:2c18ef16bf6d4dd410e4dd52996888ea1497be26892fe5bbc73580aba4287b8e", size = 1619216, upload-time = "2026-05-20T14:02:33.403Z" },
     { url = "https://files.pythonhosted.org/packages/93/c5/3dc9475ace2c7a3680da12372cddd7f1ac874eb410a1ac48d3e9dab83782/greenlet-3.5.1-cp315-cp315t-musllinux_1_2_x86_64.whl", hash = "sha256:17d86354f0ae6b61bf9be5148d0dd34e06c3cb7c602c671f79f29ac3b150e659", size = 1678427, upload-time = "2026-05-20T13:14:43.71Z" },
     { url = "https://files.pythonhosted.org/packages/df/4e/750c15c317a41ffb36f0bf40b933e3d744a7dede61889f74443ea69690cf/greenlet-3.5.1-cp315-cp315t-win_amd64.whl", hash = "sha256:e7516cf6ae6b8a582c2770a0caed47b8a48373ed732c33d69a72913ae6ac923e", size = 245225, upload-time = "2026-05-20T13:13:59.366Z" },
@@ -2403,7 +2431,7 @@ dependencies = [
     { name = "click" },
     { name = "filelock" },
     { name = "fsspec" },
-    { name = "hf-xet", marker = "platform_machine == 'AMD64' or platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'arm64' or platform_machine == 'x86_64'" },
+    { name = "hf-xet", marker = "platform_machine == 'AMD64' or platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'arm64' or platform_machine == 'x86_64' or (extra == 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-15-openstef-models-xgb-gpu') or (extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu')" },
     { name = "httpx" },
     { name = "packaging" },
     { name = "pyyaml" },
@@ -2421,7 +2449,7 @@ name = "humanfriendly"
 version = "10.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "pyreadline3", marker = "sys_platform == 'win32'" },
+    { name = "pyreadline3", marker = "sys_platform == 'win32' or (extra == 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-15-openstef-models-xgb-gpu') or (extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/cc/3f/2c29224acb2e2df4d2046e4c73ee2662023c58ff5b113c4c1adac0886c43/humanfriendly-10.0.tar.gz", hash = "sha256:6b0b831ce8f15f7300721aa49829fc4e83921a9a301cc7f606be6686a2288ddc", size = 360702, upload-time = "2021-09-17T21:40:43.31Z" }
 wheels = [
@@ -2481,7 +2509,7 @@ name = "ipykernel"
 version = "7.2.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "appnope", marker = "sys_platform == 'darwin'" },
+    { name = "appnope", marker = "sys_platform == 'darwin' or (extra == 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-15-openstef-models-xgb-gpu') or (extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu')" },
     { name = "comm" },
     { name = "debugpy" },
     { name = "ipython" },
@@ -2505,14 +2533,14 @@ name = "ipython"
 version = "9.14.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "colorama", marker = "sys_platform == 'win32'" },
+    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-15-openstef-models-xgb-gpu') or (extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu')" },
     { name = "decorator" },
     { name = "ipython-pygments-lexers" },
     { name = "jedi" },
     { name = "matplotlib-inline" },
-    { name = "pexpect", marker = "sys_platform != 'emscripten' and sys_platform != 'win32'" },
+    { name = "pexpect", marker = "(sys_platform != 'emscripten' and sys_platform != 'win32') or (sys_platform == 'emscripten' and extra == 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-15-openstef-models-xgb-gpu') or (sys_platform == 'win32' and extra == 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-15-openstef-models-xgb-gpu') or (sys_platform == 'emscripten' and extra != 'extra-15-openstef-models-xgb-gpu' and extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu') or (sys_platform == 'emscripten' and extra != 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu') or (sys_platform == 'win32' and extra != 'extra-15-openstef-models-xgb-gpu' and extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu') or (sys_platform == 'win32' and extra != 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu')" },
     { name = "prompt-toolkit" },
-    { name = "psutil", marker = "sys_platform != 'emscripten'" },
+    { name = "psutil", marker = "sys_platform != 'emscripten' or (extra == 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-15-openstef-models-xgb-gpu') or (extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu')" },
     { name = "pygments" },
     { name = "stack-data" },
     { name = "traitlets" },
@@ -2850,7 +2878,7 @@ dependencies = [
     { name = "nbformat" },
     { name = "packaging" },
     { name = "prometheus-client" },
-    { name = "pywinpty", marker = "os_name == 'nt'" },
+    { name = "pywinpty", marker = "os_name == 'nt' or (extra == 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-15-openstef-models-xgb-gpu') or (extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu')" },
     { name = "pyzmq" },
     { name = "send2trash" },
     { name = "terminado" },
@@ -2868,7 +2896,7 @@ name = "jupyter-server-terminals"
 version = "0.5.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "pywinpty", marker = "os_name == 'nt'" },
+    { name = "pywinpty", marker = "os_name == 'nt' or (extra == 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-15-openstef-models-xgb-gpu') or (extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu')" },
     { name = "terminado" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/f4/a7/bcd0a9b0cbba88986fe944aaaf91bfda603e5a50bda8ed15123f381a3b2f/jupyter_server_terminals-0.5.4.tar.gz", hash = "sha256:bbda128ed41d0be9020349f9f1f2a4ab9952a73ed5f5ac9f1419794761fb87f5", size = 31770, upload-time = "2026-01-14T16:53:20.213Z" }
@@ -3204,8 +3232,8 @@ name = "loguru"
 version = "0.7.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "colorama", marker = "sys_platform == 'win32'" },
-    { name = "win32-setctime", marker = "sys_platform == 'win32'" },
+    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-15-openstef-models-xgb-gpu') or (extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu')" },
+    { name = "win32-setctime", marker = "sys_platform == 'win32' or (extra == 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-15-openstef-models-xgb-gpu') or (extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/3a/05/a1dae3dffd1116099471c643b8924f5aa6524411dc6c63fdae648c4f1aca/loguru-0.7.3.tar.gz", hash = "sha256:19480589e77d47b8d85b2c827ad95d49bf31b0dcde16593892eb51dd18706eb6", size = 63559, upload-time = "2024-12-06T11:20:56.608Z" }
 wheels = [
@@ -3918,12 +3946,144 @@ wheels = [
 ]
 
 [[package]]
+name = "nvidia-cublas-cu12"
+version = "12.9.2.10"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "nvidia-cuda-nvrtc-cu12" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/f7/a2/c96163a0fff1839c0c9548bbdeae7b853b867009e33b9b9264adc238b1cf/nvidia_cublas_cu12-12.9.2.10-py3-none-manylinux_2_27_aarch64.whl", hash = "sha256:5572131a59c3eebeeb1c4c8144f772d49372c20124916e072a0e3fc30df421d5", size = 575012079, upload-time = "2026-04-08T18:51:47.303Z" },
+    { url = "https://files.pythonhosted.org/packages/cb/c0/0a517bfe63ccd3b92eb254d264e28fca3c7cab75d07daea315250fb1bf73/nvidia_cublas_cu12-12.9.2.10-py3-none-manylinux_2_27_x86_64.whl", hash = "sha256:e4f53a8ca8c5d6e8c492d0d0a3d565ecb59a751b19cfdaa4f6da0ab2104c1702", size = 581240110, upload-time = "2026-04-08T18:52:31.532Z" },
+    { url = "https://files.pythonhosted.org/packages/20/e2/fc9a0e985249d873150276d5afb02e39a66817fedbf1a385724393e505ed/nvidia_cublas_cu12-12.9.2.10-py3-none-win_amd64.whl", hash = "sha256:623f43027d40d44ceadf0043f002bd25cf353e8f13ce90b9a87057019f560661", size = 553162896, upload-time = "2026-04-08T18:53:10.035Z" },
+]
+
+[[package]]
+name = "nvidia-cuda-nvrtc-cu12"
+version = "12.9.86"
+source = { registry = "https://pypi.org/simple" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/b8/85/e4af82cc9202023862090bfca4ea827d533329e925c758f0cde964cb54b7/nvidia_cuda_nvrtc_cu12-12.9.86-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl", hash = "sha256:210cf05005a447e29214e9ce50851e83fc5f4358df8b453155d5e1918094dcb4", size = 89568129, upload-time = "2025-06-05T20:02:41.973Z" },
+    { url = "https://files.pythonhosted.org/packages/64/eb/c2295044b8f3b3b08860e2f6a912b702fc92568a167259df5dddb78f325e/nvidia_cuda_nvrtc_cu12-12.9.86-py3-none-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:096d4de6bda726415dfaf3198d4f5c522b8e70139c97feef5cd2ca6d4cd9cead", size = 44528905, upload-time = "2025-06-05T20:02:29.754Z" },
+    { url = "https://files.pythonhosted.org/packages/52/de/823919be3b9d0ccbf1f784035423c5f18f4267fb0123558d58b813c6ec86/nvidia_cuda_nvrtc_cu12-12.9.86-py3-none-win_amd64.whl", hash = "sha256:72972ebdcf504d69462d3bcd67e7b81edd25d0fb85a2c46d3ea3517666636349", size = 76408187, upload-time = "2025-06-05T20:12:27.819Z" },
+]
+
+[[package]]
+name = "nvidia-cuda-runtime-cu12"
+version = "12.9.79"
+source = { registry = "https://pypi.org/simple" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/bc/e0/0279bd94539fda525e0c8538db29b72a5a8495b0c12173113471d28bce78/nvidia_cuda_runtime_cu12-12.9.79-py3-none-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:83469a846206f2a733db0c42e223589ab62fd2fabac4432d2f8802de4bded0a4", size = 3515012, upload-time = "2025-06-05T20:00:35.519Z" },
+    { url = "https://files.pythonhosted.org/packages/bc/46/a92db19b8309581092a3add7e6fceb4c301a3fd233969856a8cbf042cd3c/nvidia_cuda_runtime_cu12-12.9.79-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:25bba2dfb01d48a9b59ca474a1ac43c6ebf7011f1b0b8cc44f54eb6ac48a96c3", size = 3493179, upload-time = "2025-06-05T20:00:53.735Z" },
+    { url = "https://files.pythonhosted.org/packages/59/df/e7c3a360be4f7b93cee39271b792669baeb3846c58a4df6dfcf187a7ffab/nvidia_cuda_runtime_cu12-12.9.79-py3-none-win_amd64.whl", hash = "sha256:8e018af8fa02363876860388bd10ccb89eb9ab8fb0aa749aaf58430a9f7c4891", size = 3591604, upload-time = "2025-06-05T20:11:17.036Z" },
+]
+
+[[package]]
+name = "nvidia-cudnn-cu12"
+version = "9.23.2.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "nvidia-cublas-cu12" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/a4/19/e70f60a82986f65111d30ffd1744ed3478a3f8cd67bcdac38bf00d57d9da/nvidia_cudnn_cu12-9.23.2.1-py3-none-manylinux_2_27_aarch64.whl", hash = "sha256:3adf706a93367d400b4e7668fc14834c7551c9122eeb22f8aec6435b18da5b6f", size = 778221490, upload-time = "2026-06-16T03:36:51.086Z" },
+    { url = "https://files.pythonhosted.org/packages/e1/ef/276c358c6ab44efbe68e69977657cb80927e7ab6d45968d042e1083f45e5/nvidia_cudnn_cu12-9.23.2.1-py3-none-manylinux_2_27_x86_64.whl", hash = "sha256:a5e706320218dc7d661b0e13402f204eeccd07b18d061b4d60668f80e464dd1e", size = 721096736, upload-time = "2026-06-16T04:39:58.1Z" },
+    { url = "https://files.pythonhosted.org/packages/9b/93/b37f3a0fe29b1ae3bbb42c22cc25cb152971bb400a589cade336bdf5f4f3/nvidia_cudnn_cu12-9.23.2.1-py3-none-win_amd64.whl", hash = "sha256:549d6eb120cdd89429997243cd2cad1e864aac3a2f887a93f17836ce72d83873", size = 689997647, upload-time = "2026-06-16T04:47:21.167Z" },
+]
+
+[[package]]
+name = "nvidia-cufft-cu12"
+version = "11.4.1.4"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "nvidia-nvjitlink-cu12" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/9b/2b/76445b0af890da61b501fde30650a1a4bd910607261b209cccb5235d3daa/nvidia_cufft_cu12-11.4.1.4-py3-none-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:1a28c9b12260a1aa7a8fd12f5ebd82d027963d635ba82ff39a1acfa7c4c0fbcf", size = 200822453, upload-time = "2025-06-05T20:05:27.889Z" },
+    { url = "https://files.pythonhosted.org/packages/95/f4/61e6996dd20481ee834f57a8e9dca28b1869366a135e0d42e2aa8493bdd4/nvidia_cufft_cu12-11.4.1.4-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:c67884f2a7d276b4b80eb56a79322a95df592ae5e765cf1243693365ccab4e28", size = 200877592, upload-time = "2025-06-05T20:05:45.862Z" },
+    { url = "https://files.pythonhosted.org/packages/20/ee/29955203338515b940bd4f60ffdbc073428f25ef9bfbce44c9a066aedc5c/nvidia_cufft_cu12-11.4.1.4-py3-none-win_amd64.whl", hash = "sha256:8e5bfaac795e93f80611f807d42844e8e27e340e0cde270dcb6c65386d795b80", size = 200067309, upload-time = "2025-06-05T20:13:59.762Z" },
+]
+
+[[package]]
+name = "nvidia-curand-cu12"
+version = "10.3.10.19"
+source = { registry = "https://pypi.org/simple" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/14/1c/2a45afc614d99558d4a773fa740d8bb5471c8398eeed925fc0fcba020173/nvidia_curand_cu12-10.3.10.19-py3-none-manylinux_2_27_aarch64.whl", hash = "sha256:de663377feb1697e1d30ed587b07d5721fdd6d2015c738d7528a6002a6134d37", size = 68292066, upload-time = "2025-05-01T19:39:13.595Z" },
+    { url = "https://files.pythonhosted.org/packages/31/44/193a0e171750ca9f8320626e8a1f2381e4077a65e69e2fb9708bd479e34a/nvidia_curand_cu12-10.3.10.19-py3-none-manylinux_2_27_x86_64.whl", hash = "sha256:49b274db4780d421bd2ccd362e1415c13887c53c214f0d4b761752b8f9f6aa1e", size = 68295626, upload-time = "2025-05-01T19:39:38.885Z" },
+    { url = "https://files.pythonhosted.org/packages/e5/98/1bd66fd09cbe1a5920cb36ba87029d511db7cca93979e635fd431ad3b6c0/nvidia_curand_cu12-10.3.10.19-py3-none-win_amd64.whl", hash = "sha256:e8129e6ac40dc123bd948e33d3e11b4aa617d87a583fa2f21b3210e90c743cde", size = 68774847, upload-time = "2025-05-01T19:48:52.93Z" },
+]
+
+[[package]]
 name = "nvidia-nccl-cu12"
 version = "2.30.4"
 source = { registry = "https://pypi.org/simple" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/bc/2b/1757b6b74ee241de5efee3f35487dcb33e09c07605254809c6ce36aeb783/nvidia_nccl_cu12-2.30.4-py3-none-manylinux_2_18_aarch64.whl", hash = "sha256:606fa9aa9215c00367d060188eb1a5bbd28396aff5e11b9200d99d1a6ab79a71", size = 300091935, upload-time = "2026-04-23T03:22:58.024Z" },
     { url = "https://files.pythonhosted.org/packages/6b/c3/0e45ff4dce8401f6ea7c25d80d75738813a47f5ae2691e2478f2fd1e5e93/nvidia_nccl_cu12-2.30.4-py3-none-manylinux_2_18_x86_64.whl", hash = "sha256:040974b261edec4b8b793e59e92ab7176fe4ab4bc61b800f9f3bfaeec2d436f3", size = 300164158, upload-time = "2026-04-23T03:23:19.589Z" },
+]
+
+[[package]]
+name = "nvidia-nvjitlink-cu12"
+version = "12.9.86"
+source = { registry = "https://pypi.org/simple" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/46/0c/c75bbfb967457a0b7670b8ad267bfc4fffdf341c074e0a80db06c24ccfd4/nvidia_nvjitlink_cu12-12.9.86-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl", hash = "sha256:e3f1171dbdc83c5932a45f0f4c99180a70de9bd2718c1ab77d14104f6d7147f9", size = 39748338, upload-time = "2025-06-05T20:10:25.613Z" },
+    { url = "https://files.pythonhosted.org/packages/97/bc/2dcba8e70cf3115b400fef54f213bcd6715a3195eba000f8330f11e40c45/nvidia_nvjitlink_cu12-12.9.86-py3-none-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:994a05ef08ef4b0b299829cde613a424382aff7efb08a7172c1fa616cc3af2ca", size = 39514880, upload-time = "2025-06-05T20:10:04.89Z" },
+    { url = "https://files.pythonhosted.org/packages/dd/7e/2eecb277d8a98184d881fb98a738363fd4f14577a4d2d7f8264266e82623/nvidia_nvjitlink_cu12-12.9.86-py3-none-win_amd64.whl", hash = "sha256:cc6fcec260ca843c10e34c936921a1c426b351753587fdd638e8cff7b16bb9db", size = 35584936, upload-time = "2025-06-05T20:16:08.525Z" },
+]
+
+[[package]]
+name = "onnxruntime"
+version = "1.27.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "flatbuffers" },
+    { name = "numpy" },
+    { name = "packaging" },
+    { name = "protobuf" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c3/b7/dd3a524ed93a820dff1af902d0412957ab12499953333e9daa01af5bc480/onnxruntime-1.27.0-cp312-cp312-macosx_14_0_arm64.whl", hash = "sha256:a14c2ce45312def86b77aea651f46565e45960cf5f0721bfdff449165086ab76", size = 18433506, upload-time = "2026-06-15T22:43:47.026Z" },
+    { url = "https://files.pythonhosted.org/packages/84/86/c3b6b17745a1997d784dadc9bd88d713d2e6721139a5a0e885b28cfb79b1/onnxruntime-1.27.0-cp312-cp312-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:c6fddce0539a4898c7bef35b052ffd37935b2190e35488eab99ce91887743ea1", size = 16438140, upload-time = "2026-06-15T22:42:40.666Z" },
+    { url = "https://files.pythonhosted.org/packages/26/81/24dd9b31b0fb912ee19ca53ac1c9764bfd79d58a2ccef564eb693be831a5/onnxruntime-1.27.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:7c65a7438632d55dfbc8a02ee60bd6cf7dd9d1ba05a43d4b851452f32338e194", size = 18658316, upload-time = "2026-06-15T22:43:04.012Z" },
+    { url = "https://files.pythonhosted.org/packages/4f/88/8ec9db1a4d126bb8b758992beb40d1249df171917d75f44a327eb5f20dda/onnxruntime-1.27.0-cp312-cp312-win_amd64.whl", hash = "sha256:20c321cf187ba496e648acf6b4cf90b4d398b0d17c2a77fdaeba365b908cc1c1", size = 13358769, upload-time = "2026-06-15T22:43:34.581Z" },
+    { url = "https://files.pythonhosted.org/packages/ae/9f/fdad359dfcba7e7cd8815569b304a596531d4efa77a75d77f8b4981891a2/onnxruntime-1.27.0-cp312-cp312-win_arm64.whl", hash = "sha256:d0d1f68868e2ef30ef70998ba9bbbc5c305e9b17041e3936751c1b8aa6aade06", size = 13104440, upload-time = "2026-06-15T22:43:22.893Z" },
+    { url = "https://files.pythonhosted.org/packages/fb/2b/54208fd03ad410480bc17edf4869376362da8bbf46fe186ddf4cb5cc20fe/onnxruntime-1.27.0-cp313-cp313-macosx_14_0_arm64.whl", hash = "sha256:b3e5b58b8c89c2b20e086e890aa9527377e5c240dc3ecc1640d18e07705eeb1c", size = 18432958, upload-time = "2026-06-15T22:42:53.105Z" },
+    { url = "https://files.pythonhosted.org/packages/ce/88/24fc51fcbb126da6d032372314e47b55c3faad58f2aa78c0e199ccd20b9c/onnxruntime-1.27.0-cp313-cp313-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:48b3d87eb560ff6a772240506f3c78d6d27c63cafedd5c775672e1194f968cfd", size = 16438180, upload-time = "2026-06-15T22:42:43.093Z" },
+    { url = "https://files.pythonhosted.org/packages/cb/19/14929c3c2fe0b79b41cce24463062bf3afa4cdd3c19dccf00319caa92bff/onnxruntime-1.27.0-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:6872443f236a554921cda6f318c900e2d0c226792cf3534d00e5057c6926e5d2", size = 18658445, upload-time = "2026-06-15T22:43:08.053Z" },
+    { url = "https://files.pythonhosted.org/packages/7f/76/59ed932b0244acd7bbbd6449480053a6d958ea66357f022f932872e19287/onnxruntime-1.27.0-cp313-cp313-win_amd64.whl", hash = "sha256:760021bca514d64a811837820d351a08a41741f16f8b4c26450da708fecf14e6", size = 13357856, upload-time = "2026-06-15T22:43:37.315Z" },
+    { url = "https://files.pythonhosted.org/packages/79/51/d1ec60ec7b1e2ae2d7340ba52b8a13529140039cd4407ba8dddbbc046582/onnxruntime-1.27.0-cp313-cp313-win_arm64.whl", hash = "sha256:2fdfa9df40a0ded0028ce6f9cd863264237f3970559dea2b81456e9ac4622b94", size = 13104412, upload-time = "2026-06-15T22:43:27.457Z" },
+    { url = "https://files.pythonhosted.org/packages/5e/7d/e6bb1c6445c94f708c38cd8fbb7bf0264108c33498b9445c93e60fe6d329/onnxruntime-1.27.0-cp313-cp313t-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:54c0c4e9202c36c4ecdb1f3443f5dfbfd5ee3b54d1362c4b4c6134110e74fb32", size = 16443331, upload-time = "2026-06-15T22:42:45.649Z" },
+    { url = "https://files.pythonhosted.org/packages/72/1b/b18b31e806eabc41077810199fbbb36fbc2d5f19912416e5ccfbf73053d1/onnxruntime-1.27.0-cp313-cp313t-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:1b215aa662c8f983f7d6dedafe65a9be72c26e5338e0fe98b3e0422c32c85428", size = 18670967, upload-time = "2026-06-15T22:43:10.621Z" },
+    { url = "https://files.pythonhosted.org/packages/3a/37/48ab79c39b58a7c9f6f5aac1fa0ff2b993eb2643393d6ed9e839ddb6f347/onnxruntime-1.27.0-cp314-cp314-macosx_14_0_arm64.whl", hash = "sha256:0874edc171f470fc4dd2bbb60bc0989612ed1a8b89b365cda016630a93227f13", size = 18433941, upload-time = "2026-06-15T22:42:58.867Z" },
+    { url = "https://files.pythonhosted.org/packages/6e/24/d535ca8a09dbf697f853377c8dc0820dbcaae5f334316b400b953afbcba8/onnxruntime-1.27.0-cp314-cp314-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:5b51c014cf1a4fcd93c29a97eac8071fa27710dae05a4d0380bb60a66d60a62c", size = 16439970, upload-time = "2026-06-15T22:42:48.023Z" },
+    { url = "https://files.pythonhosted.org/packages/f9/b1/ea9ee80c0bdaa4efb13f29f8c236f3740f6655e8c092a2d119515a5a652c/onnxruntime-1.27.0-cp314-cp314-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:445fb702ea5241ba813a3ce2febe2e9408a64f6ad2eb610924322c536165f7cd", size = 18659240, upload-time = "2026-06-15T22:43:13.165Z" },
+    { url = "https://files.pythonhosted.org/packages/e9/f2/1404507d76a21940e8bf46f414e3d1abd94dc888cb89a30f4a540275846f/onnxruntime-1.27.0-cp314-cp314-win_amd64.whl", hash = "sha256:49e416be0d717338b6d041b99911b716d70c397d277056450724f93bdded3fc2", size = 13685306, upload-time = "2026-06-15T22:43:40.416Z" },
+    { url = "https://files.pythonhosted.org/packages/10/e5/ca5cf012ccccb806c70e94aadfebca5606acc62b33eb88cec13352d0778f/onnxruntime-1.27.0-cp314-cp314-win_arm64.whl", hash = "sha256:856032937dd3bc7a7c141909c8d7ae4fde3e3f59bddf061ae627b9a051bda95c", size = 13456280, upload-time = "2026-06-15T22:43:29.693Z" },
+    { url = "https://files.pythonhosted.org/packages/67/7b/dca330a8397e9d816c976d7aed4e24a4a2d279bb1e551e3d0221d1389b1d/onnxruntime-1.27.0-cp314-cp314t-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:c6197a02e3f620c4dc13cff51b80672409fc1ffab3aa2593911b19fd322ff48b", size = 16443274, upload-time = "2026-06-15T22:42:50.467Z" },
+    { url = "https://files.pythonhosted.org/packages/b7/f6/2bac21f722aa45d876d4a51f26bd0ef30e704068a3cd5021a5a7cd784271/onnxruntime-1.27.0-cp314-cp314t-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:370d211e1ceeac4cd5f45301655463ac59e27cdc74d9f7aeb2d19ff4b7a76715", size = 18670781, upload-time = "2026-06-15T22:43:17.151Z" },
+]
+
+[[package]]
+name = "onnxruntime-gpu"
+version = "1.26.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "flatbuffers" },
+    { name = "numpy" },
+    { name = "packaging" },
+    { name = "protobuf" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/94/fd/59bee7cffaa435da44fefdeb63e29c61de4dbfa4b279852f59cd02c042ae/onnxruntime_gpu-1.26.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:3c01119ed4d9449d60367fa8ccffcd02bd3fe736754284e4b198d131f54edad6", size = 276971796, upload-time = "2026-05-08T19:15:46.192Z" },
+    { url = "https://files.pythonhosted.org/packages/a4/e4/9b378a5466ea0bed65e5beb8e09254973c580a6522810a38afbcc45e5105/onnxruntime_gpu-1.26.0-cp312-cp312-win_amd64.whl", hash = "sha256:5f49c44689894650990e4c8a857d2edafc276fbd79bba57ceb224bd18d25d491", size = 226548963, upload-time = "2026-05-08T19:09:34.925Z" },
+    { url = "https://files.pythonhosted.org/packages/dd/97/fe8979f44b9275654b42f7bb556e30789b71a1b22998c83b540df2b1b774/onnxruntime_gpu-1.26.0-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:cfda2fad535595bfc3e570eb588092717711dcb2957656d814695e0c9ceb1508", size = 276974871, upload-time = "2026-05-08T19:15:58.052Z" },
+    { url = "https://files.pythonhosted.org/packages/67/3f/59f1777a394625ecc9a85636de57dc47c25dbb5f888da050f1463955a0ce/onnxruntime_gpu-1.26.0-cp313-cp313-win_amd64.whl", hash = "sha256:6ab9f9c741d2e239b2e321ab0d389c04329d4ab7f11e3b92dd3aa7db1c59dee4", size = 226548083, upload-time = "2026-05-08T19:09:44.408Z" },
+    { url = "https://files.pythonhosted.org/packages/89/96/360328e3c463f7ea08e853c4239c397e83363dd0204de71a710dc1a544bd/onnxruntime_gpu-1.26.0-cp313-cp313t-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:bcf6f347cad9f88a9a625c2b352cf9de927528aedb627ebbc089a201f1990b94", size = 276992052, upload-time = "2026-05-08T19:16:09.892Z" },
+    { url = "https://files.pythonhosted.org/packages/fd/c8/aa2dc0e79bba577f37d5448bcb32fea79977e07506684d8138c19a0f1077/onnxruntime_gpu-1.26.0-cp314-cp314-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:9e6e4fb1ec9ae1cf456534d9115f106ab2a1ae96fa513b4ed0f4795302b4a2c6", size = 276978254, upload-time = "2026-05-08T19:16:22.096Z" },
+    { url = "https://files.pythonhosted.org/packages/41/e7/923298431e669567d7ccc2a4c898b6534a47641a051569fd97165fe6d9b8/onnxruntime_gpu-1.26.0-cp314-cp314-win_amd64.whl", hash = "sha256:3e592439b0183d303c2374517b5b392599a3d50b2dc9de949b9b15731ac921c9", size = 229142768, upload-time = "2026-05-08T19:09:54.589Z" },
+    { url = "https://files.pythonhosted.org/packages/97/91/93ffe5431d154989f5e04864a25a97eea480997d771232bcbbc538188241/onnxruntime_gpu-1.26.0-cp314-cp314t-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:56dc7b73954ff4bdc71f5b8ab306b6f61be5d007881b6ef423a609e2b9cd088b", size = 276991545, upload-time = "2026-05-08T19:16:33.347Z" },
 ]
 
 [[package]]
@@ -3966,38 +4126,59 @@ version = "0.0.0"
 source = { editable = "." }
 dependencies = [
     { name = "openstef-core" },
-    { name = "openstef-models", extra = ["xgb-cpu"] },
+    { name = "openstef-models" },
+    { name = "openstef-models", extra = ["xgb-cpu"], marker = "extra == 'extra-15-openstef-models-xgb-cpu' or (extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu')" },
 ]
 
 [package.optional-dependencies]
 all = [
     { name = "openstef-beam", extra = ["all"] },
     { name = "openstef-core" },
+    { name = "openstef-foundation-models" },
+    { name = "openstef-foundation-models", extra = ["cpu"], marker = "(extra == 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-15-openstef-models-xgb-gpu') or (extra != 'extra-15-openstef-models-xgb-gpu' and extra == 'extra-26-openstef-foundation-models-cpu') or (extra != 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-26-openstef-foundation-models-cpu')" },
     { name = "openstef-meta" },
-    { name = "openstef-models", extra = ["xgb-cpu"] },
+    { name = "openstef-models" },
+    { name = "openstef-models", extra = ["xgb-cpu"], marker = "extra == 'extra-15-openstef-models-xgb-cpu' or (extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu')" },
 ]
 beam = [
     { name = "huggingface-hub" },
     { name = "openstef-beam" },
 ]
+foundation-models = [
+    { name = "openstef-foundation-models" },
+    { name = "openstef-foundation-models", extra = ["cpu"], marker = "(extra == 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-15-openstef-models-xgb-gpu') or (extra != 'extra-15-openstef-models-xgb-gpu' and extra == 'extra-26-openstef-foundation-models-cpu') or (extra != 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-26-openstef-foundation-models-cpu')" },
+]
 meta = [
     { name = "openstef-meta" },
 ]
 models = [
-    { name = "openstef-models", extra = ["xgb-cpu"] },
+    { name = "openstef-models" },
+    { name = "openstef-models", extra = ["xgb-cpu"], marker = "extra == 'extra-15-openstef-models-xgb-cpu' or (extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu')" },
 ]
 
 [package.dev-dependencies]
+build = [
+    { name = "poethepoet" },
+]
+deployment = [
+    { name = "openstef-deployment-examples", extra = ["airflow", "celery", "dagster"] },
+]
 dev = [
+    { name = "ipykernel" },
     { name = "jupytext" },
     { name = "licensecheck" },
     { name = "microsoft-python-type-stubs" },
     { name = "moto", extra = ["s3", "server"] },
-    { name = "openstef-beam" },
-    { name = "openstef-core" },
+    { name = "nbconvert" },
+    { name = "openstef-beam", extra = ["all"] },
+    { name = "openstef-core", extra = ["benchmark"] },
+    { name = "openstef-deployment-examples", extra = ["airflow", "celery", "dagster"] },
     { name = "openstef-docs" },
+    { name = "openstef-foundation-models" },
+    { name = "openstef-foundation-models", extra = ["cpu"], marker = "(extra == 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-15-openstef-models-xgb-gpu') or (extra != 'extra-15-openstef-models-xgb-gpu' and extra == 'extra-26-openstef-foundation-models-cpu') or (extra != 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-26-openstef-foundation-models-cpu')" },
     { name = "openstef-meta" },
-    { name = "openstef-models" },
+    { name = "openstef-models", extra = ["lgbm", "tuning"] },
+    { name = "openstef-models", extra = ["xgb-cpu"], marker = "extra == 'extra-15-openstef-models-xgb-cpu' or (extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu')" },
     { name = "pandas-stubs" },
     { name = "poethepoet" },
     { name = "pyproject-fmt" },
@@ -4009,6 +4190,77 @@ dev = [
     { name = "scipy-stubs" },
     { name = "ty" },
 ]
+dev-gpu = [
+    { name = "ipykernel" },
+    { name = "jupytext" },
+    { name = "licensecheck" },
+    { name = "microsoft-python-type-stubs" },
+    { name = "moto", extra = ["s3", "server"] },
+    { name = "nbconvert" },
+    { name = "openstef-beam", extra = ["all"] },
+    { name = "openstef-core", extra = ["benchmark"] },
+    { name = "openstef-deployment-examples", extra = ["airflow", "celery", "dagster"] },
+    { name = "openstef-docs" },
+    { name = "openstef-foundation-models" },
+    { name = "openstef-foundation-models", extra = ["gpu"], marker = "(extra == 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-15-openstef-models-xgb-gpu') or (extra != 'extra-15-openstef-models-xgb-gpu' and extra == 'extra-26-openstef-foundation-models-gpu') or (extra != 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-26-openstef-foundation-models-gpu')" },
+    { name = "openstef-meta" },
+    { name = "openstef-models", extra = ["lgbm", "tuning"] },
+    { name = "openstef-models", extra = ["xgb-gpu"], marker = "extra == 'extra-15-openstef-models-xgb-gpu' or (extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu')" },
+    { name = "pandas-stubs" },
+    { name = "poethepoet" },
+    { name = "pyproject-fmt" },
+    { name = "pytest" },
+    { name = "pytest-cov" },
+    { name = "pytest-xdist" },
+    { name = "reuse" },
+    { name = "ruff" },
+    { name = "scipy-stubs" },
+    { name = "ty" },
+]
+docs = [
+    { name = "openstef-docs" },
+]
+features-cpu = [
+    { name = "openstef-beam", extra = ["all"] },
+    { name = "openstef-core", extra = ["benchmark"] },
+    { name = "openstef-foundation-models" },
+    { name = "openstef-foundation-models", extra = ["cpu"], marker = "(extra == 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-15-openstef-models-xgb-gpu') or (extra != 'extra-15-openstef-models-xgb-gpu' and extra == 'extra-26-openstef-foundation-models-cpu') or (extra != 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-26-openstef-foundation-models-cpu')" },
+    { name = "openstef-meta" },
+    { name = "openstef-models", extra = ["lgbm", "tuning"] },
+    { name = "openstef-models", extra = ["xgb-cpu"], marker = "extra == 'extra-15-openstef-models-xgb-cpu' or (extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu')" },
+]
+features-gpu = [
+    { name = "openstef-beam", extra = ["all"] },
+    { name = "openstef-core", extra = ["benchmark"] },
+    { name = "openstef-foundation-models" },
+    { name = "openstef-foundation-models", extra = ["gpu"], marker = "(extra == 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-15-openstef-models-xgb-gpu') or (extra != 'extra-15-openstef-models-xgb-gpu' and extra == 'extra-26-openstef-foundation-models-gpu') or (extra != 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-26-openstef-foundation-models-gpu')" },
+    { name = "openstef-meta" },
+    { name = "openstef-models", extra = ["lgbm", "tuning"] },
+    { name = "openstef-models", extra = ["xgb-gpu"], marker = "extra == 'extra-15-openstef-models-xgb-gpu' or (extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu')" },
+]
+lint = [
+    { name = "licensecheck" },
+    { name = "pyproject-fmt" },
+    { name = "reuse" },
+    { name = "ruff" },
+]
+notebooks = [
+    { name = "ipykernel" },
+    { name = "jupytext" },
+    { name = "nbconvert" },
+]
+test = [
+    { name = "moto", extra = ["s3", "server"] },
+    { name = "pytest" },
+    { name = "pytest-cov" },
+    { name = "pytest-xdist" },
+]
+typecheck = [
+    { name = "microsoft-python-type-stubs" },
+    { name = "pandas-stubs" },
+    { name = "scipy-stubs" },
+    { name = "ty" },
+]
 
 [package.metadata]
 requires-dist = [
@@ -4017,25 +4269,33 @@ requires-dist = [
     { name = "openstef-beam", extras = ["all"], marker = "extra == 'all'", editable = "packages/openstef-beam" },
     { name = "openstef-core", editable = "packages/openstef-core" },
     { name = "openstef-core", marker = "extra == 'all'", editable = "packages/openstef-core" },
+    { name = "openstef-foundation-models", extras = ["cpu"], marker = "extra == 'all'", editable = "packages/openstef-foundation-models" },
+    { name = "openstef-foundation-models", extras = ["cpu"], marker = "extra == 'foundation-models'", editable = "packages/openstef-foundation-models" },
     { name = "openstef-meta", marker = "extra == 'all'", editable = "packages/openstef-meta" },
     { name = "openstef-meta", marker = "extra == 'meta'", editable = "packages/openstef-meta" },
     { name = "openstef-models", extras = ["xgb-cpu"], editable = "packages/openstef-models" },
     { name = "openstef-models", extras = ["xgb-cpu"], marker = "extra == 'all'", editable = "packages/openstef-models" },
     { name = "openstef-models", extras = ["xgb-cpu"], marker = "extra == 'models'", editable = "packages/openstef-models" },
 ]
-provides-extras = ["all", "beam", "meta", "models"]
+provides-extras = ["all", "beam", "foundation-models", "meta", "models"]
 
 [package.metadata.requires-dev]
+build = [{ name = "poethepoet", specifier = ">=0.36" }]
+deployment = [{ name = "openstef-deployment-examples", extras = ["airflow", "celery", "dagster"], editable = "examples/deployment" }]
 dev = [
+    { name = "ipykernel", specifier = ">=6.29" },
     { name = "jupytext", specifier = ">=1.19.1" },
     { name = "licensecheck", specifier = ">=2025.1" },
     { name = "microsoft-python-type-stubs", git = "https://github.com/microsoft/python-type-stubs.git" },
     { name = "moto", extras = ["s3", "server"], specifier = ">=5.1.11" },
-    { name = "openstef-beam", editable = "packages/openstef-beam" },
-    { name = "openstef-core", editable = "packages/openstef-core" },
+    { name = "nbconvert", specifier = ">=7.16" },
+    { name = "openstef-beam", extras = ["all"], editable = "packages/openstef-beam" },
+    { name = "openstef-core", extras = ["benchmark"], editable = "packages/openstef-core" },
+    { name = "openstef-deployment-examples", extras = ["airflow", "celery", "dagster"], editable = "examples/deployment" },
     { name = "openstef-docs", editable = "docs" },
+    { name = "openstef-foundation-models", extras = ["cpu"], editable = "packages/openstef-foundation-models" },
     { name = "openstef-meta", editable = "packages/openstef-meta" },
-    { name = "openstef-models", editable = "packages/openstef-models" },
+    { name = "openstef-models", extras = ["lgbm", "tuning", "xgb-cpu"], editable = "packages/openstef-models" },
     { name = "pandas-stubs", specifier = ">=2.3.0.250703,<3" },
     { name = "poethepoet", specifier = ">=0.36" },
     { name = "pyproject-fmt", specifier = ">=2.6,<2.12" },
@@ -4044,6 +4304,69 @@ dev = [
     { name = "pytest-xdist", specifier = ">=3.8" },
     { name = "reuse", specifier = ">=5.0.2" },
     { name = "ruff", specifier = ">=0.12.8" },
+    { name = "scipy-stubs", specifier = ">=1.16.2.4" },
+    { name = "ty", specifier = ">=0.0.48" },
+]
+dev-gpu = [
+    { name = "ipykernel", specifier = ">=6.29" },
+    { name = "jupytext", specifier = ">=1.19.1" },
+    { name = "licensecheck", specifier = ">=2025.1" },
+    { name = "microsoft-python-type-stubs", git = "https://github.com/microsoft/python-type-stubs.git" },
+    { name = "moto", extras = ["s3", "server"], specifier = ">=5.1.11" },
+    { name = "nbconvert", specifier = ">=7.16" },
+    { name = "openstef-beam", extras = ["all"], editable = "packages/openstef-beam" },
+    { name = "openstef-core", extras = ["benchmark"], editable = "packages/openstef-core" },
+    { name = "openstef-deployment-examples", extras = ["airflow", "celery", "dagster"], editable = "examples/deployment" },
+    { name = "openstef-docs", editable = "docs" },
+    { name = "openstef-foundation-models", extras = ["gpu"], editable = "packages/openstef-foundation-models" },
+    { name = "openstef-meta", editable = "packages/openstef-meta" },
+    { name = "openstef-models", extras = ["lgbm", "tuning", "xgb-gpu"], editable = "packages/openstef-models" },
+    { name = "pandas-stubs", specifier = ">=2.3.0.250703,<3" },
+    { name = "poethepoet", specifier = ">=0.36" },
+    { name = "pyproject-fmt", specifier = ">=2.6,<2.12" },
+    { name = "pytest", specifier = ">=8.4.1" },
+    { name = "pytest-cov", specifier = ">=6.2.1" },
+    { name = "pytest-xdist", specifier = ">=3.8" },
+    { name = "reuse", specifier = ">=5.0.2" },
+    { name = "ruff", specifier = ">=0.12.8" },
+    { name = "scipy-stubs", specifier = ">=1.16.2.4" },
+    { name = "ty", specifier = ">=0.0.48" },
+]
+docs = [{ name = "openstef-docs", editable = "docs" }]
+features-cpu = [
+    { name = "openstef-beam", extras = ["all"], editable = "packages/openstef-beam" },
+    { name = "openstef-core", extras = ["benchmark"], editable = "packages/openstef-core" },
+    { name = "openstef-foundation-models", extras = ["cpu"], editable = "packages/openstef-foundation-models" },
+    { name = "openstef-meta", editable = "packages/openstef-meta" },
+    { name = "openstef-models", extras = ["lgbm", "tuning", "xgb-cpu"], editable = "packages/openstef-models" },
+]
+features-gpu = [
+    { name = "openstef-beam", extras = ["all"], editable = "packages/openstef-beam" },
+    { name = "openstef-core", extras = ["benchmark"], editable = "packages/openstef-core" },
+    { name = "openstef-foundation-models", extras = ["gpu"], editable = "packages/openstef-foundation-models" },
+    { name = "openstef-meta", editable = "packages/openstef-meta" },
+    { name = "openstef-models", extras = ["lgbm", "tuning", "xgb-gpu"], editable = "packages/openstef-models" },
+]
+lint = [
+    { name = "licensecheck", specifier = ">=2025.1" },
+    { name = "pyproject-fmt", specifier = ">=2.6,<2.12" },
+    { name = "reuse", specifier = ">=5.0.2" },
+    { name = "ruff", specifier = ">=0.12.8" },
+]
+notebooks = [
+    { name = "ipykernel", specifier = ">=6.29" },
+    { name = "jupytext", specifier = ">=1.19.1" },
+    { name = "nbconvert", specifier = ">=7.16" },
+]
+test = [
+    { name = "moto", extras = ["s3", "server"], specifier = ">=5.1.11" },
+    { name = "pytest", specifier = ">=8.4.1" },
+    { name = "pytest-cov", specifier = ">=6.2.1" },
+    { name = "pytest-xdist", specifier = ">=3.8" },
+]
+typecheck = [
+    { name = "microsoft-python-type-stubs", git = "https://github.com/microsoft/python-type-stubs.git" },
+    { name = "pandas-stubs", specifier = ">=2.3.0.250703,<3" },
     { name = "scipy-stubs", specifier = ">=1.16.2.4" },
     { name = "ty", specifier = ">=0.0.48" },
 ]
@@ -4121,7 +4444,8 @@ version = "0.0.0"
 source = { editable = "examples/deployment" }
 dependencies = [
     { name = "openstef-core", extra = ["benchmark"] },
-    { name = "openstef-models", extra = ["xgb-cpu"] },
+    { name = "openstef-models" },
+    { name = "openstef-models", extra = ["xgb-cpu"], marker = "extra == 'extra-15-openstef-models-xgb-cpu' or (extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu')" },
     { name = "pydantic-settings" },
 ]
 
@@ -4235,6 +4559,46 @@ requires-dist = [
 provides-extras = ["tutorials"]
 
 [[package]]
+name = "openstef-foundation-models"
+version = "0.0.0"
+source = { editable = "packages/openstef-foundation-models" }
+dependencies = [
+    { name = "huggingface-hub" },
+    { name = "openstef-beam" },
+    { name = "openstef-core" },
+    { name = "openstef-models" },
+]
+
+[package.optional-dependencies]
+cpu = [
+    { name = "onnxruntime" },
+]
+gpu = [
+    { name = "nvidia-cublas-cu12" },
+    { name = "nvidia-cuda-runtime-cu12" },
+    { name = "nvidia-cudnn-cu12" },
+    { name = "nvidia-cufft-cu12" },
+    { name = "nvidia-curand-cu12" },
+    { name = "onnxruntime-gpu" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "huggingface-hub", specifier = ">=1.2.2" },
+    { name = "nvidia-cublas-cu12", marker = "extra == 'gpu'", specifier = ">=12,<13" },
+    { name = "nvidia-cuda-runtime-cu12", marker = "extra == 'gpu'", specifier = ">=12,<13" },
+    { name = "nvidia-cudnn-cu12", marker = "extra == 'gpu'", specifier = ">=9,<10" },
+    { name = "nvidia-cufft-cu12", marker = "extra == 'gpu'", specifier = ">=11,<12" },
+    { name = "nvidia-curand-cu12", marker = "extra == 'gpu'", specifier = ">=10,<11" },
+    { name = "onnxruntime", marker = "extra == 'cpu'", specifier = ">=1.20" },
+    { name = "onnxruntime-gpu", marker = "extra == 'gpu'", specifier = ">=1.21" },
+    { name = "openstef-beam", editable = "packages/openstef-beam" },
+    { name = "openstef-core", editable = "packages/openstef-core" },
+    { name = "openstef-models", editable = "packages/openstef-models" },
+]
+provides-extras = ["cpu", "gpu"]
+
+[[package]]
 name = "openstef-meta"
 version = "0.0.0"
 source = { editable = "packages/openstef-meta" }
@@ -4274,8 +4638,8 @@ tuning = [
     { name = "optuna" },
 ]
 xgb-cpu = [
-    { name = "xgboost", marker = "sys_platform == 'darwin'" },
-    { name = "xgboost-cpu", marker = "sys_platform == 'linux' or sys_platform == 'win32'" },
+    { name = "xgboost", marker = "sys_platform == 'darwin' or (extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu')" },
+    { name = "xgboost-cpu", marker = "sys_platform == 'linux' or sys_platform == 'win32' or (extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu')" },
 ]
 xgb-gpu = [
     { name = "xgboost" },
@@ -4434,7 +4798,7 @@ name = "optype"
 version = "0.17.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "typing-extensions", marker = "python_full_version < '3.13'" },
+    { name = "typing-extensions", marker = "python_full_version < '3.13' or (extra == 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-15-openstef-models-xgb-gpu') or (extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/9b/86/e6f1f6f3487492dfcf3b7a2d4e2534d27af6ac05b364b276706906c34865/optype-0.17.1.tar.gz", hash = "sha256:07bfa32b795dea28fba8605a6288d36370d072f25183fb9c29b5a90f4b6f5638", size = 53572, upload-time = "2026-05-17T22:13:28.725Z" }
 wheels = [
@@ -5239,7 +5603,7 @@ name = "pytest"
 version = "9.0.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "colorama", marker = "sys_platform == 'win32'" },
+    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-15-openstef-models-xgb-gpu') or (extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu')" },
     { name = "iniconfig" },
     { name = "packaging" },
     { name = "pluggy" },
@@ -5465,7 +5829,7 @@ name = "pyzmq"
 version = "27.1.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "cffi", marker = "implementation_name == 'pypy'" },
+    { name = "cffi", marker = "implementation_name == 'pypy' or (extra == 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-15-openstef-models-xgb-gpu') or (extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/04/0b/3c9baedbdf613ecaa7aa07027780b8867f57b6293b6ee50de316c9f3222b/pyzmq-27.1.0.tar.gz", hash = "sha256:ac0765e3d44455adb6ddbf4417dcce460fc40a05978c08efdf2948072f6db540", size = 281750, upload-time = "2025-09-08T23:10:18.157Z" }
 wheels = [
@@ -5519,7 +5883,7 @@ source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "attrs" },
     { name = "rpds-py" },
-    { name = "typing-extensions", marker = "python_full_version < '3.13'" },
+    { name = "typing-extensions", marker = "python_full_version < '3.13' or (extra == 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-15-openstef-models-xgb-gpu') or (extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/22/f5/df4e9027acead3ecc63e50fe1e36aca1523e1719559c499951bb4b53188f/referencing-0.37.0.tar.gz", hash = "sha256:44aefc3142c5b842538163acb373e24cce6632bd54bdb01b21ad5863489f50d8", size = 78036, upload-time = "2025-10-13T15:30:48.871Z" }
 wheels = [
@@ -6116,11 +6480,11 @@ wheels = [
 
 [[package]]
 name = "setuptools"
-version = "82.0.1"
+version = "81.0.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/4f/db/cfac1baf10650ab4d1c111714410d2fbb77ac5a616db26775db562c8fab2/setuptools-82.0.1.tar.gz", hash = "sha256:7d872682c5d01cfde07da7bccc7b65469d3dca203318515ada1de5eda35efbf9", size = 1152316, upload-time = "2026-03-09T12:47:17.221Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/0d/1c/73e719955c59b8e424d015ab450f51c0af856ae46ea2da83eba51cc88de1/setuptools-81.0.0.tar.gz", hash = "sha256:487b53915f52501f0a79ccfd0c02c165ffe06631443a886740b91af4b7a5845a", size = 1198299, upload-time = "2026-02-06T21:10:39.601Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/9d/76/f789f7a86709c6b087c5a2f52f911838cad707cc613162401badc665acfe/setuptools-82.0.1-py3-none-any.whl", hash = "sha256:a59e362652f08dcd477c78bb6e7bd9d80a7995bc73ce773050228a348ce2e5bb", size = 1006223, upload-time = "2026-03-09T12:47:15.026Z" },
+    { url = "https://files.pythonhosted.org/packages/e1/e3/c164c88b2e5ce7b24d667b9bd83589cf4f3520d97cad01534cd3c4f55fdb/setuptools-81.0.0-py3-none-any.whl", hash = "sha256:fdd925d5c5d9f62e4b74b30d6dd7828ce236fd6ed998a08d81de62ce5a6310d6", size = 1062021, upload-time = "2026-02-06T21:10:37.175Z" },
 ]
 
 [[package]]
@@ -6175,7 +6539,7 @@ source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "alabaster" },
     { name = "babel" },
-    { name = "colorama", marker = "sys_platform == 'win32'" },
+    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-15-openstef-models-xgb-gpu') or (extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu')" },
     { name = "docutils" },
     { name = "imagesize" },
     { name = "jinja2" },
@@ -6367,7 +6731,7 @@ name = "sqlalchemy"
 version = "1.4.54"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "greenlet", marker = "platform_machine == 'AMD64' or platform_machine == 'WIN32' or platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'ppc64le' or platform_machine == 'win32' or platform_machine == 'x86_64'" },
+    { name = "greenlet", marker = "platform_machine == 'AMD64' or platform_machine == 'WIN32' or platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'ppc64le' or platform_machine == 'win32' or platform_machine == 'x86_64' or (extra == 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-15-openstef-models-xgb-gpu') or (extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/ce/af/20290b55d469e873cba9d41c0206ab5461ff49d759989b3fe65010f9d265/sqlalchemy-1.4.54.tar.gz", hash = "sha256:4470fbed088c35dc20b78a39aaf4ae54fe81790c783b3264872a0224f437c31a", size = 8470350, upload-time = "2024-09-05T15:54:10.398Z" }
 wheels = [
@@ -6431,7 +6795,7 @@ version = "0.52.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "anyio" },
-    { name = "typing-extensions", marker = "python_full_version < '3.13'" },
+    { name = "typing-extensions", marker = "python_full_version < '3.13' or (extra == 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-15-openstef-models-xgb-gpu') or (extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/c4/68/79977123bb7be889ad680d79a40f339082c1978b5cfcf62c2d8d196873ac/starlette-0.52.1.tar.gz", hash = "sha256:834edd1b0a23167694292e94f597773bc3f89f362be6effee198165a35d62933", size = 2653702, upload-time = "2026-01-18T13:34:11.062Z" }
 wheels = [
@@ -6491,8 +6855,8 @@ name = "terminado"
 version = "0.18.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "ptyprocess", marker = "os_name != 'nt'" },
-    { name = "pywinpty", marker = "os_name == 'nt'" },
+    { name = "ptyprocess", marker = "os_name != 'nt' or (extra == 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-15-openstef-models-xgb-gpu') or (extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu')" },
+    { name = "pywinpty", marker = "os_name == 'nt' or (extra == 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-15-openstef-models-xgb-gpu') or (extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu')" },
     { name = "tornado" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/8a/11/965c6fd8e5cc254f1fe142d547387da17a8ebfd75a3455f637c663fb38a0/terminado-0.18.1.tar.gz", hash = "sha256:de09f2c4b85de4765f7714688fff57d3e75bad1f909b589fde880460c753fd2e", size = 32701, upload-time = "2024-03-12T14:34:39.026Z" }
@@ -6624,7 +6988,7 @@ name = "tqdm"
 version = "4.67.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "colorama", marker = "sys_platform == 'win32'" },
+    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-15-openstef-models-xgb-gpu') or (extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/09/a9/6ba95a270c6f1fbcd8dac228323f2777d886cb206987444e4bce66338dd4/tqdm-4.67.3.tar.gz", hash = "sha256:7d825f03f89244ef73f1d4ce193cb1774a8179fd96f31d7e1dcde62092b960bb", size = 169598, upload-time = "2026-02-03T17:35:53.048Z" }
 wheels = [
@@ -6724,7 +7088,7 @@ name = "tzlocal"
 version = "5.3.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "tzdata", marker = "sys_platform == 'win32'" },
+    { name = "tzdata", marker = "sys_platform == 'win32' or (extra == 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-15-openstef-models-xgb-gpu') or (extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu')" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/8b/2e/c14812d3d4d9cd1773c6be938f89e5735a1f11a9f184ac3639b93cef35d5/tzlocal-5.3.1.tar.gz", hash = "sha256:cceffc7edecefea1f595541dbd6e990cb1ea3d19bf01b2809f362a03dd7921fd", size = 30761, upload-time = "2025-03-05T21:17:41.549Z" }
 wheels = [
@@ -6823,11 +7187,11 @@ wheels = [
 
 [package.optional-dependencies]
 standard = [
-    { name = "colorama", marker = "sys_platform == 'win32'" },
+    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-15-openstef-models-xgb-gpu') or (extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu')" },
     { name = "httptools" },
     { name = "python-dotenv" },
     { name = "pyyaml" },
-    { name = "uvloop", marker = "platform_python_implementation != 'PyPy' and sys_platform != 'cygwin' and sys_platform != 'win32'" },
+    { name = "uvloop", marker = "(platform_python_implementation != 'PyPy' and sys_platform != 'cygwin' and sys_platform != 'win32') or (platform_python_implementation == 'PyPy' and extra == 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-15-openstef-models-xgb-gpu') or (platform_python_implementation == 'PyPy' and extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu') or (sys_platform == 'cygwin' and extra == 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-15-openstef-models-xgb-gpu') or (sys_platform == 'win32' and extra == 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-15-openstef-models-xgb-gpu') or (sys_platform == 'cygwin' and extra != 'extra-15-openstef-models-xgb-gpu' and extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu') or (sys_platform == 'cygwin' and extra != 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu') or (sys_platform == 'win32' and extra != 'extra-15-openstef-models-xgb-gpu' and extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu') or (sys_platform == 'win32' and extra != 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu')" },
     { name = "watchfiles" },
     { name = "websockets" },
 ]
@@ -7188,7 +7552,7 @@ version = "3.2.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "numpy" },
-    { name = "nvidia-nccl-cu12", marker = "sys_platform == 'linux'" },
+    { name = "nvidia-nccl-cu12", marker = "sys_platform == 'linux' or (extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu')" },
     { name = "scipy" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/91/bb/1eb0242409d22db725d7a88088e6cfd6556829fb0736f9ff69aa9f1e9455/xgboost-3.2.0.tar.gz", hash = "sha256:99b0e9a2a64896cdaf509c5e46372d336c692406646d20f2af505003c0c5d70d", size = 1263936, upload-time = "2026-02-10T11:03:05.542Z" }

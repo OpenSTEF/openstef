@@ -47,7 +47,7 @@ jobs:
           enable-cache: true
 
       - name: Install dependencies
-        run: uv sync --frozen --no-install-project --all-groups --all-extras
+        run: uv sync --frozen --no-install-project
 
       - name: Build Sphinx documentation
         run: poe docs

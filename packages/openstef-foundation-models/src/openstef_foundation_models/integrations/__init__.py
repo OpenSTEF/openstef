@@ -2,6 +2,4 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-
-def test_example() -> None:
-    assert True
+"""Integrations with neighbouring OpenSTEF frameworks, one module per framework."""

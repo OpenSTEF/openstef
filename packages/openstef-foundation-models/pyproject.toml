@@ -28,18 +28,37 @@ classifiers = [
 ]
 
 dependencies = [
-  "openstef-core>=4.0.0.dev0,<5",
+  # huggingface-hub resolves published checkpoints from the Hub — the default
+  # checkpoint source — and is pure Python, so it is a base dependency rather
+  # than an extra. openstef-beam (the backtesting integration target) is already
+  # a hard transitive dependency via openstef-models, so it is declared directly.
+  "huggingface-hub>=1.2.2",
+  "openstef-beam>=4,<5",
+  "openstef-core>=4,<5",
+  "openstef-models>=4,<5",
 ]
 
 # Exactly one of [cpu] or [gpu] must be installed — they are declared as
-# conflicting extras so uv will refuse to resolve both simultaneously.
+# conflicting extras (see [tool.uv]) so uv refuses to resolve both at once.
+# The root `openstef` package (and the dev group) depend on
+# `openstef-foundation-models[cpu]`, so the default install gets the CPU
+# runtime without the caller having to choose.
 optional-dependencies.cpu = [
   "onnxruntime>=1.20",
 ]
+# onnxruntime-gpu ships only the CUDA execution-provider plugin, not the CUDA/cuDNN
+# runtime it loads at session creation. We pull the matching nvidia CUDA-12 / cuDNN-9
+# wheels explicitly (rather than via onnxruntime-gpu's own [cuda,cudnn] extras, whose
+# nested-extra markers don't resolve through our conflicting cpu/gpu extras); >=1.21
+# auto-preloads them from site-packages, so GPU works without a system CUDA install.
 optional-dependencies.gpu = [
-  "onnxruntime-gpu>=1.20",
+  "nvidia-cublas-cu12>=12,<13",
+  "nvidia-cuda-runtime-cu12>=12,<13",
+  "nvidia-cudnn-cu12>=9,<10",
+  "nvidia-cufft-cu12>=11,<12",
+  "nvidia-curand-cu12>=10,<11",
+  "onnxruntime-gpu>=1.21",
 ]
-
 urls.Documentation = "https://openstef.github.io/openstef/index.html"
 urls.Homepage = "https://lfenergy.org/projects/openstef/"
 urls.Issues = "https://github.com/OpenSTEF/openstef/issues"
@@ -58,3 +77,5 @@ conflicts = [
 
 [tool.uv.sources]
 openstef-core = { workspace = true }
+openstef-models = { workspace = true }
+openstef-beam = { workspace = true }
