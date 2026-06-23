@@ -241,7 +241,7 @@ filterwarnings = [
 doctest_optionflags = "NORMALIZE_WHITESPACE"
 
 [tool.coverage.report]
-fail_under = 20
+fail_under = 80
 show_missing = true
 skip_covered = true
 sort = "-Miss"

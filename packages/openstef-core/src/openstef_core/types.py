@@ -18,9 +18,9 @@ from decimal import Decimal
 from enum import StrEnum
 from functools import total_ordering
 from typing import Any, Literal, Self, override
+from zoneinfo import ZoneInfo
 
 import pandas as pd
-import pytz
 from pydantic import GetCoreSchemaHandler, TypeAdapter, ValidationInfo
 from pydantic_core import CoreSchema, core_schema
 
@@ -134,10 +134,10 @@ class AvailableAt(PydanticStringPrimitive):
     - *HHMM* is the time of day
 
     An optional timezone suffix ``[Region/City]`` (RFC 9557 bracket
-    notation) makes the availability time timezone-aware.  Both pytz
+    notation) makes the availability time timezone-aware.  ``zoneinfo``
     and stdlib ``datetime.timezone`` objects are accepted; they
     round-trip through the IANA name via ``str(tz)`` /
-    ``pytz.timezone(name)``.
+    ``zoneinfo.ZoneInfo(name)``.
 
     For example, ``D-1T0600[Europe/Amsterdam]`` means "6:00
     Europe/Amsterdam on the previous day".
@@ -146,8 +146,8 @@ class AvailableAt(PydanticStringPrimitive):
 
     Example:
         >>> from datetime import time
-        >>> import pytz
-        >>> tz_at = AvailableAt(day_offset=-1, time_of_day=time(6, 0), tzinfo=pytz.timezone('Europe/Amsterdam'))
+        >>> from zoneinfo import ZoneInfo
+        >>> tz_at = AvailableAt(day_offset=-1, time_of_day=time(6, 0), tzinfo=ZoneInfo('Europe/Amsterdam'))
         >>> str(tz_at)
         'D-1T0600[Europe/Amsterdam]'
         >>> at = AvailableAt.from_string("D-1T0600")
@@ -155,7 +155,7 @@ class AvailableAt(PydanticStringPrimitive):
         (-1, datetime.time(6, 0))
     """
 
-    def __init__(self, day_offset: int, time_of_day: time, *, tzinfo: pytz.BaseTzInfo | dt_timezone | None = None):
+    def __init__(self, day_offset: int, time_of_day: time, *, tzinfo: ZoneInfo | dt_timezone | None = None):
         """Initialise with a day offset, time of day, and optional timezone.
 
         Args:
@@ -163,7 +163,7 @@ class AvailableAt(PydanticStringPrimitive):
                 ``-1`` means "the previous day", ``0`` means "the same day".
             time_of_day: Clock time when data becomes available.
             tzinfo: Optional timezone for the availability time
-                (e.g. ``pytz.timezone("Europe/Amsterdam")``, ``pytz.UTC``,
+                (e.g. ``zoneinfo.ZoneInfo("Europe/Amsterdam")``, ``zoneinfo.ZoneInfo("UTC")``,
                 or ``datetime.timezone.utc``).
 
         Raises:
@@ -217,9 +217,9 @@ class AvailableAt(PydanticStringPrimitive):
             raise ValueError(msg)
 
         if z_part:
-            resolved_tz = pytz.UTC
+            resolved_tz = ZoneInfo("UTC")
         elif tz_part:
-            resolved_tz = pytz.timezone(tz_part)
+            resolved_tz = ZoneInfo(tz_part)
         else:
             resolved_tz = None
 
@@ -261,10 +261,7 @@ class AvailableAt(PydanticStringPrimitive):
         if source_tz is None:
             return naive_result
 
-        if isinstance(source_tz, pytz.BaseTzInfo):
-            aware = source_tz.localize(naive_result)
-        else:
-            aware = naive_result.replace(tzinfo=source_tz)
+        aware = naive_result.replace(tzinfo=source_tz)
 
         if date.tzinfo is not None:
             return aware.astimezone(date.tzinfo)

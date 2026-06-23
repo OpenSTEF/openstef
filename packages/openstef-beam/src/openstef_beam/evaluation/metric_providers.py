@@ -672,7 +672,7 @@ class RIQDProvider(MetricProvider):
             if np.isclose(quantile, symmetric_quantile, atol=1e-6):
                 continue  # skip if same quantile (e.g., 0.5)
 
-            symmetric_indices = np.where(np.isclose(quantiles, symmetric_quantile, atol=1e-6))[0]
+            symmetric_indices = np.nonzero(np.isclose(quantiles, symmetric_quantile, atol=1e-6))[0]
 
             if len(symmetric_indices) == 0:
                 continue  # no symmetric quantile found, skip
