@@ -24,6 +24,8 @@ from openstef_models.presets import ForecastingWorkflowConfig
 
 @pytest.fixture
 def xgboost_config() -> ForecastingWorkflowConfig:
+    # mlflow_storage=None: these tests exercise fit/predict in-process and never assert
+    # on persistence, so skip MLflow entirely (the default factory writes to ./mlruns).
     return ForecastingWorkflowConfig(
         model_id="test_xgb",
         model="xgboost",

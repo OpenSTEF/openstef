@@ -41,6 +41,8 @@ OpenSTEF 4.0 follows a modular design with specialized packages:
      - Backtesting, Evaluation, Analysis, and Metrics (BEAM)
    * - ``openstef-meta``
      - Meta-models for combining and stacking forecasts (ensembles, weighted blends)
+   * - ``openstef-foundation-models``
+     - Foundation-model forecasters (e.g. Chronos-2) run on an ONNX runtime
 
 Quick Installation
 ==================
@@ -74,8 +76,10 @@ For most users, start with the meta-package:
 
             pixi add openstef
 
-This installs ``openstef`` meta-package by default, which provides the core functionality
-including `openstef-core` and `openstef-models`.
+This installs the ``openstef`` meta-package, a minimal-but-runnable convenience layer:
+``openstef-core`` plus ``openstef-models`` with its CPU XGBoost runtime. To pick GPU
+runtimes, foundation models, or a leaner footprint, install the individual component
+packages with the extras you need (see below).
 
 Installation Options
 ====================
@@ -101,7 +105,8 @@ OpenSTEF's modular design allows you to install exactly what you need:
 
             uv add "openstef[all]"
 
-This installs all available packages: ``openstef-models`` and ``openstef-beam``.
+This installs every component (``openstef-beam``, ``openstef-foundation-models``,
+``openstef-meta``, ``openstef-models``) in its CPU flavour.
 
 **Individual Package Installation:**
 
@@ -153,12 +158,12 @@ Mix and match components using the meta-package:
 
             # Models + BEAM
             pip install "openstef[beam]"
-            
-            # Models + Foundational models (when available)
-            pip install "openstef[foundational-models]"
-            
+
+            # Models + foundation models (CPU runtime)
+            pip install "openstef[foundation-models]"
+
             # Multiple extras
-            pip install "openstef[beam,foundational-models]"
+            pip install "openstef[beam,foundation-models]"
 
     .. tab-item:: uv
 
@@ -166,12 +171,12 @@ Mix and match components using the meta-package:
 
             # Models + BEAM
             uv add "openstef[beam]"
-            
-            # Models + Foundational models (when available)
-            uv add "openstef[foundational-models]"
-            
+
+            # Models + foundation models (CPU runtime)
+            uv add "openstef[foundation-models]"
+
             # Multiple extras
-            uv add "openstef[beam,foundational-models]"
+            uv add "openstef[beam,foundation-models]"
 
 **Use Case Examples:**
 
@@ -195,6 +200,56 @@ Mix and match components using the meta-package:
      - ``pip install openstef``
      - Core functionality
 
+Compute Runtimes: CPU vs GPU
+----------------------------
+
+Some packages ship a heavy compute runtime that comes in mutually exclusive CPU and
+GPU builds. Pick exactly one per package: they are declared as conflicting extras, so
+a resolver refuses to install both at once.
+
+.. list-table:: Choose one runtime per package
+   :header-rows: 1
+   :widths: 34 33 33
+
+   * - Package
+     - CPU (default)
+     - GPU (CUDA; Linux/Windows)
+   * - ``openstef-foundation-models``
+     - ``[cpu]`` (onnxruntime)
+     - ``[gpu]`` (onnxruntime-gpu)
+   * - ``openstef-models``
+     - ``[xgb-cpu]``
+     - ``[xgb-gpu]``
+
+.. code-block:: bash
+
+    # CPU build (works on every platform; the flavour the meta-package ships)
+    pip install "openstef-foundation-models[cpu]"
+
+    # GPU build (CUDA-enabled Linux or Windows only)
+    pip install "openstef-foundation-models[gpu]"
+
+The ``openstef`` meta-package (and its ``[all]`` extra) always selects the CPU builds.
+For GPU, install the component package directly with its ``[gpu]`` extra. GPU wheels are
+published for Linux and Windows with CUDA; there is no GPU build for macOS.
+
+Feature extras are additive — combine as many as you need:
+
+.. list-table:: Optional feature extras
+   :header-rows: 1
+   :widths: 40 60
+
+   * - Extra
+     - Adds
+   * - ``openstef-models[lgbm]``
+     - LightGBM forecasters
+   * - ``openstef-models[tuning]``
+     - Optuna hyperparameter tuning
+   * - ``openstef-core[benchmark]``
+     - Benchmark dataset loaders (HuggingFace Hub)
+   * - ``openstef-beam[all]``
+     - All BEAM baselines plus S3 storage
+
 Development Installation
 ========================
 
@@ -215,31 +270,37 @@ Clone and Install
     git clone https://github.com/OpenSTEF/openstef.git
     cd openstef
 
-    # Install in development mode with all dependencies
-    uv sync --all-extras --dev
+    # Install the full development environment (CPU flavour)
+    uv sync
 
     # Verify installation
-    uv run pytest
+    uv run poe all
 
-This installs:
+A plain ``uv sync`` installs the default ``dev`` group: every workspace package in
+editable mode plus the full toolbelt (test, lint, type-check, notebooks, docs). One
+command, no ``--all-groups`` or ``--all-packages`` needed.
 
-* All OpenSTEF packages in editable mode
-* Development tools (linting, testing, documentation)
-* Pre-commit hooks for code quality
-
-Package-Specific Development
-----------------------------
-
-To work on individual packages:
+For a GPU development environment (CUDA; Linux/Windows), swap the runtime flavour:
 
 .. code-block:: bash
 
-    # Install specific package in development mode
-    cd packages/openstef-models
-    uv pip install -e .
+    uv sync --no-default-groups --group dev-gpu
 
-    # Or install with development dependencies
-    uv sync --dev
+Partial Toolbelts
+-----------------
+
+The ``dev`` group aggregates focused groups you can sync on their own, e.g. to run
+just the tests or just the linters:
+
+.. code-block:: bash
+
+    uv sync --no-default-groups --group test    # pytest stack only
+    uv sync --no-default-groups --group lint     # ruff / reuse / pyproject-fmt
+
+.. note::
+
+    Do not pass ``--all-groups`` or ``--all-extras``: the CPU and GPU runtimes are
+    declared as conflicting extras, so activating both flavours at once fails.
 
 Verification
 ============

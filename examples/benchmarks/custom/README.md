@@ -31,7 +31,7 @@ Copy this folder as a starting point for your own BEAM benchmarks.
 
 ```bash
 # Install (requires uv: https://docs.astral.sh/uv/)
-uv sync --all-extras --all-groups --all-packages
+uv sync
 
 # Test the example forecaster on Liander 2024
 uv run python -m examples.benchmarks.custom.run_liander2024_benchmark

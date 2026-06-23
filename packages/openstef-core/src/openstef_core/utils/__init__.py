@@ -19,6 +19,10 @@ from openstef_core.utils.invariants import (
 from openstef_core.utils.multiprocessing import (
     run_parallel,
 )
+from openstef_core.utils.numpy import (
+    interpolate_quantiles,
+    zero_fill_with_mask,
+)
 from openstef_core.utils.pydantic import (
     timedelta_from_isoformat,
     timedelta_to_isoformat,
@@ -27,8 +31,10 @@ from openstef_core.utils.pydantic import (
 __all__ = [
     "align_datetime",
     "align_datetime_to_time",
+    "interpolate_quantiles",
     "not_none",
     "run_parallel",
     "timedelta_from_isoformat",
     "timedelta_to_isoformat",
+    "zero_fill_with_mask",
 ]
