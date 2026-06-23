@@ -1,10 +1,8 @@
 # SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
-
 [build-system]
 build-backend = "hatchling.build"
-
 requires = [ "hatchling" ]
 
 [project]
@@ -26,7 +24,6 @@ classifiers = [
   "Programming Language :: Python :: 3.13",
   "Programming Language :: Python :: 3.14",
 ]
-
 dependencies = [
   # huggingface-hub resolves published checkpoints from the Hub — the default
   # checkpoint source — and is pure Python, so it is a base dependency rather
@@ -37,7 +34,6 @@ dependencies = [
   "openstef-core>=4,<5",
   "openstef-models>=4,<5",
 ]
-
 # Exactly one of [cpu] or [gpu] must be installed — they are declared as
 # conflicting extras (see [tool.uv]) so uv refuses to resolve both at once.
 # The root `openstef` package (and the dev group) depend on
@@ -64,18 +60,16 @@ urls.Homepage = "https://lfenergy.org/projects/openstef/"
 urls.Issues = "https://github.com/OpenSTEF/openstef/issues"
 urls.Repository = "https://github.com/OpenSTEF/openstef"
 
-[tool.hatch.build.targets.wheel]
-packages = [ "src/openstef_foundation_models" ]
+[tool.hatch]
+build.targets.wheel.packages = [ "src/openstef_foundation_models" ]
 
 [tool.uv]
+sources.openstef-beam = { workspace = true }
+sources.openstef-core = { workspace = true }
+sources.openstef-models = { workspace = true }
 conflicts = [
   [
     { extra = "cpu" },
     { extra = "gpu" },
   ],
 ]
-
-[tool.uv.sources]
-openstef-core = { workspace = true }
-openstef-models = { workspace = true }
-openstef-beam = { workspace = true }

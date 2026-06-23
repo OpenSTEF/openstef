@@ -1,10 +1,8 @@
 # SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
-
 [build-system]
 build-backend = "hatchling.build"
-
 requires = [ "hatchling" ]
 
 [project]
@@ -26,14 +24,12 @@ classifiers = [
   "Programming Language :: Python :: 3.13",
   "Programming Language :: Python :: 3.14",
 ]
-
 dependencies = [
   "openstef-core>=4,<5",
   "plotly>=6.3",
   "pyyaml>=6.0.2",
   "tqdm>=4.67.1",
 ]
-
 optional-dependencies.all = [
   "openstef-beam[baselines]",
   "s3fs>=2025.5.1",
@@ -47,10 +43,10 @@ urls.Homepage = "https://lfenergy.org/projects/openstef/"
 urls.Issues = "https://github.com/OpenSTEF/openstef/issues"
 urls.Repository = "https://github.com/OpenSTEF/openstef"
 
-[tool.hatch.build.targets.wheel]
-packages = [ "src/openstef_beam" ]
+[tool.hatch]
+build.targets.wheel.packages = [ "src/openstef_beam" ]
 
-[tool.uv.sources]
-openstef-core = { workspace = true }
-openstef-models = { workspace = true }
-openstef-meta = { workspace = true }
+[tool.uv]
+sources.openstef-core = { workspace = true }
+sources.openstef-meta = { workspace = true }
+sources.openstef-models = { workspace = true }
