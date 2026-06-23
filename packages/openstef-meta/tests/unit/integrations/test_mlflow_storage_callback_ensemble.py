@@ -139,8 +139,9 @@ class SimpleTestCombiner(ForecastCombiner):
 def storage(tmp_path: Path) -> MLFlowStorage:
     """Create MLflow storage with temporary paths."""
     return MLFlowStorage(
-        tracking_uri=str(tmp_path / "mlflow"),
+        tracking_uri=f"sqlite:///{tmp_path / 'mlflow.db'}",
         local_artifacts_path=tmp_path / "artifacts",
+        artifact_location=(tmp_path / "mlruns").as_uri(),
     )
 
 

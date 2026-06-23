@@ -182,7 +182,7 @@ filterwarnings = [
 doctest_optionflags = "NORMALIZE_WHITESPACE"
 
 [tool.coverage.report]
-fail_under = 20
+fail_under = 80
 show_missing = true
 skip_covered = true
 sort = "-Miss"
@@ -231,7 +231,20 @@ include = [ "poe_tasks.toml", "examples/deployment/pyproject.toml" ]
 [tool.licensecheck]
 # Pycountry is LGPL-2.1 according to pypi.
 # MPL 2.0 lists explicitly that it is compatible with LGPL-2.1 and later, so we ignore it here (due to false positive).
-ignore_packages = [ "openstef-beam", "openstef-core", "openstef-meta", "openstef-models", "pycountry" ]
+ignore_packages = [ "openstef-beam", "openstef-core", "openstef-foundation-models", "openstef-meta", "openstef-models", "pycountry" ]
 # Note: MPL 2.0 lists explicitly Apache License 2.0 as compatible, so we ignore it here (due to false positive).
 ignore_licenses = [ "apache software license", "apache license 2.0" ]
 extras = [ "all" ]
+# Skip our own editable workspace packages: licensecheck's dependency resolver
+# (depgather) cannot parse the `-e file://` entries `uv pip compile` emits for them
+# and would otherwise crash before any license is checked.
+skip_dependencies = [
+  "openstef-beam",
+  "openstef-core",
+  "openstef-deployment-examples",
+  "openstef-docs",
+  "openstef-examples",
+  "openstef-foundation-models",
+  "openstef-meta",
+  "openstef-models",
+]
