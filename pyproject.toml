@@ -463,3 +463,15 @@ ignore_packages = [ "openstef-beam", "openstef-core", "openstef-meta", "openstef
 # Note: MPL 2.0 lists explicitly Apache License 2.0 as compatible, so we ignore it here (due to false positive).
 ignore_licenses = [ "apache software license", "apache license 2.0" ]
 extras = [ "all" ]
+# Skip our own editable workspace packages: licensecheck's dependency resolver
+# (depgather) cannot parse the `-e file://` entries `uv pip compile` emits for them
+# and would otherwise crash before any license is checked.
+skip_dependencies = [
+  "openstef-beam",
+  "openstef-core",
+  "openstef-deployment-examples",
+  "openstef-docs",
+  "openstef-examples",
+  "openstef-meta",
+  "openstef-models",
+]
