@@ -19,7 +19,7 @@ dependencies = [
   "pydantic-settings>=2.14,<3",
 ]
 
-optional-dependencies.airflow = [ "apache-airflow>=2.10,<3" ]
+optional-dependencies.airflow = [ "apache-airflow>=3.2,<4" ]
 optional-dependencies.celery = [
   "celery[redis]>=5.4",
 ]
