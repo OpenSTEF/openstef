@@ -7,10 +7,10 @@
 from datetime import datetime, time, timedelta
 from pathlib import Path
 from typing import cast
+from zoneinfo import ZoneInfo
 
 import pandas as pd
 import pytest
-import pytz
 
 from openstef_core.datasets.timeseries_dataset import TimeSeriesDataset
 from openstef_core.testing import create_timeseries_dataset
@@ -135,7 +135,7 @@ def test_filter_by_available_at(
 def test_filter_by_available_at_dst_aware():
     """Cutoff shifts by 1h across CET→CEST transition (2026-03-29)."""
 
-    available_at = AvailableAt(day_offset=-1, time_of_day=time(6, 0), tzinfo=pytz.timezone("Europe/Amsterdam"))
+    available_at = AvailableAt(day_offset=-1, time_of_day=time(6, 0), tzinfo=ZoneInfo("Europe/Amsterdam"))
 
     dataset = TimeSeriesDataset(
         data=pd.DataFrame(

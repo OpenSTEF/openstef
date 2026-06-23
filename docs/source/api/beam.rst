@@ -9,7 +9,9 @@ BEAM Package (:mod:`openstef_beam`)
 
 .. currentmodule:: openstef_beam
 
-Backtesting, evaluation, analysis and metrics for forecasting models.
+BEAM (Backtesting, Evaluation, Analysis, and Metrics) is a package for
+backtesting, evaluating, analysing, and measuring the performance of
+forecasting models.
 
 .. autosummary::
    :toctree: generated/

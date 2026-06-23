@@ -262,3 +262,23 @@ def test_base_case_forecaster__different_lag_configurations(primary_lag: timedel
     # Assert
     assert len(result.data) > 0
     assert not result.data["quantile_P50"].isna().all()
+
+
+@pytest.mark.parametrize("quantile", [Quantile(0.1), Quantile(0.5), Quantile(0.9)])
+def test_base_case_forecaster__feature_importances(quantile: Quantile):
+    """Test that feature_importances has the correct shape and values."""
+    # Arrange
+    forecaster = BaseCaseForecaster(
+        quantiles=[quantile],
+        horizons=[LeadTime(timedelta(hours=1))],
+        hyperparams=BaseCaseForecasterHyperParams(),
+    )
+
+    # Act
+    result = forecaster.feature_importances
+
+    # Assert
+    assert result.shape == (1, 1)
+    assert list(result.index) == ["load"]
+    assert list(result.columns) == [quantile.format()]
+    np.testing.assert_equal(result.to_numpy(), 1.0)
