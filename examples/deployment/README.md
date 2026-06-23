@@ -86,11 +86,5 @@ export OPENSTEF_DEPLOY_BROKER_URL=redis://localhost:6379/0
 export OPENSTEF_DEPLOY_RESULT_BACKEND=redis://localhost:6379/1
 ```
 
-> **Notes:** `deploy-airflow-ui` includes [`sitecustomize.py`](src/airflow_app/sitecustomize.py) via
-> `PYTHONPATH` to patch `setproctitle` to a no-op on macOS. On macOS 26 (Tahoe), Airflow's
-> gunicorn config calls `setproctitle` in each forked worker process; the underlying
-> `CFBundleGetFunctionPointerForName` call is not fork-safe on macOS 26 and triggers SIGSEGV.
-> The patch is harmless on Linux and earlier macOS versions.
-
 See each subpackage's module docstring for more, including the real Redis broker, Celery beat,
 and the Airflow/Dagster schedulers.
