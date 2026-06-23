@@ -197,4 +197,4 @@ The built documentation will be available at ``docs/build/html/index.html``.
 .. note::
 
     Building documentation requires additional dependencies that are included in the
-    development environment. Make sure you've run ``uv sync --all-packages --all-groups`` first.
+    development environment. Make sure you've run ``uv sync`` first.
