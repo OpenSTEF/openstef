@@ -65,7 +65,7 @@ def _patch_session(monkeypatch: pytest.MonkeyPatch, realized: Iterable[str]) -> 
         def __init__(self, path: str, sess_options: object = None, providers: object = None) -> None:
             self.requested = providers
 
-        def get_providers(self) -> list[str]:  # noqa: PLR6301
+        def get_providers(self) -> list[str]:
             return realized_list
 
     monkeypatch.setattr(onnx_module.ort, "InferenceSession", _FakeSession)

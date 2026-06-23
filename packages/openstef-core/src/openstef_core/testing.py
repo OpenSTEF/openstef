@@ -78,7 +78,7 @@ def create_timeseries_dataset(
     )
 
 
-def create_synthetic_forecasting_dataset(  # noqa: PLR0913, PLR0917 - complex function - testing utility
+def create_synthetic_forecasting_dataset(  # noqa: PLR0913 - complex function - testing utility
     start: datetime = datetime.fromisoformat("2025-01-01T00:00:00+00:00"),  # noqa: B008
     length: timedelta = timedelta(days=30 * 9),
     sample_interval: timedelta = timedelta(hours=1),

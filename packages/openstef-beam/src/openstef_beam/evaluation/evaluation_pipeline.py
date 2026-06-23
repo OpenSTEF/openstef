@@ -282,20 +282,22 @@ class EvaluationPipeline:
 
         if len(self.window_metric_providers) > 0:
             for window in self.config.windows:
-                windowed_metrics.extend([
-                    SubsetMetric(
-                        window=window,
-                        timestamp=window_timestamp,
-                        metrics=merge_quantile_metrics([
-                            provider(window_subset) for provider in self.window_metric_providers
-                        ]),
-                    )
-                    for window_timestamp, window_subset in iterate_subsets_by_window(
-                        subset=subset,
-                        window=window,
-                        reference_date=reference_date,
-                    )
-                ])
+                windowed_metrics.extend(
+                    [
+                        SubsetMetric(
+                            window=window,
+                            timestamp=window_timestamp,
+                            metrics=merge_quantile_metrics(
+                                [provider(window_subset) for provider in self.window_metric_providers]
+                            ),
+                        )
+                        for window_timestamp, window_subset in iterate_subsets_by_window(
+                            subset=subset,
+                            window=window,
+                            reference_date=reference_date,
+                        )
+                    ]
+                )
 
         if reference_date is None:
             # When reference data is set, user likely wants metrics for that specific time frame
