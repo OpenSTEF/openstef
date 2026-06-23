@@ -19,7 +19,7 @@ dependencies = [
   "pydantic-settings>=2.14,<3",
 ]
 
-optional-dependencies.airflow = [ "apache-airflow>=2.10,<3" ]
+optional-dependencies.airflow = [ "apache-airflow>=3.2,<4" ]
 optional-dependencies.celery = [
   "celery[redis]>=5.4",
 ]
@@ -62,13 +62,11 @@ env.OPENSTEF_DEPLOY_DATA_DIR = "${POE_ROOT}/examples/deployment/openstef_deploym
 env.AIRFLOW_HOME = "${POE_ROOT}/examples/deployment/openstef_deployment_runs/airflow"
 env.AIRFLOW__CORE__DAGS_FOLDER = "${POE_ROOT}/examples/deployment/src/airflow_app/dags"
 env.AIRFLOW__CORE__LOAD_EXAMPLES = "False"
-# AIRFLOW__METRICS__TIMER_UNIT_CONSISTENCY: enables the Airflow 3 metrics behaviour, removing the
-# RemovedInAirflow3Warning that would otherwise appear on every log line.
-# PYTHONPATH: loads sitecustomize.py which patches setproctitle to a no-op on macOS.
-# Airflow's gunicorn config calls setproctitle in post_worker_init; on macOS 26 this crashes
-# via CFBundleGetFunctionPointerForName/_os_log_preferences_refresh in a forked child.
-env.AIRFLOW__METRICS__TIMER_UNIT_CONSISTENCY = "true"
-env.PYTHONPATH = "${POE_ROOT}/examples/deployment/src/airflow_app"
+# Built-in simple auth manager, so the example does not require the Flask-AppBuilder provider.
+env.AIRFLOW__CORE__AUTH_MANAGER = "airflow.api_fastapi.auth.managers.simple.simple_auth_manager.SimpleAuthManager"
+# macOS fork-safety: the dag-processor forks to parse DAGs; without this the forked child
+# aborts on macOS, so DAGs never serialize and do not show up in the UI. No-op on Linux.
+env.OBJC_DISABLE_INITIALIZE_FORK_SAFETY = "YES"
 cmd = "uv run --no-sync --package openstef-deployment-examples airflow standalone"
 
 [tool.poe.tasks.deploy-airflow-train]
@@ -77,7 +75,7 @@ env.OPENSTEF_DEPLOY_DATA_DIR = "${POE_ROOT}/examples/deployment/openstef_deploym
 env.AIRFLOW_HOME = "${POE_ROOT}/examples/deployment/openstef_deployment_runs/airflow"
 env.AIRFLOW__CORE__DAGS_FOLDER = "${POE_ROOT}/examples/deployment/src/airflow_app/dags"
 env.AIRFLOW__CORE__LOAD_EXAMPLES = "False"
-env.AIRFLOW__METRICS__TIMER_UNIT_CONSISTENCY = "true"
+env.AIRFLOW__CORE__AUTH_MANAGER = "airflow.api_fastapi.auth.managers.simple.simple_auth_manager.SimpleAuthManager"
 sequence = [
   { cmd = "uv run --no-sync --package openstef-deployment-examples airflow db migrate" },
   { cmd = "uv run --no-sync --package openstef-deployment-examples airflow dags test openstef_train 2024-04-15" },
@@ -89,7 +87,7 @@ env.OPENSTEF_DEPLOY_DATA_DIR = "${POE_ROOT}/examples/deployment/openstef_deploym
 env.AIRFLOW_HOME = "${POE_ROOT}/examples/deployment/openstef_deployment_runs/airflow"
 env.AIRFLOW__CORE__DAGS_FOLDER = "${POE_ROOT}/examples/deployment/src/airflow_app/dags"
 env.AIRFLOW__CORE__LOAD_EXAMPLES = "False"
-env.AIRFLOW__METRICS__TIMER_UNIT_CONSISTENCY = "true"
+env.AIRFLOW__CORE__AUTH_MANAGER = "airflow.api_fastapi.auth.managers.simple.simple_auth_manager.SimpleAuthManager"
 sequence = [
   { cmd = "uv run --no-sync --package openstef-deployment-examples airflow db migrate" },
   { cmd = "uv run --no-sync --package openstef-deployment-examples airflow dags test openstef_forecast 2024-04-15" },
