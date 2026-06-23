@@ -26,12 +26,12 @@ PEP 8 with Ruff
 ---------------
 
 OpenSTEF follows `PEP 8 <https://peps.python.org/pep-0008/>`_ as enforced by 
-`Ruff <https://docs.astral.sh/ruff/>`_. Our configuration extends the standard 
-line length to **88 characters** (matching Black's default).
+`Ruff <https://docs.astral.sh/ruff/>`_. Our configuration sets the line length to
+**120 characters**.
 
 Key formatting rules:
 
-* **Line length**: 88 characters maximum
+* **Line length**: 120 characters maximum
 * **Indentation**: 4 spaces (no tabs)
 * **Quotes**: Prefer double quotes for strings
 * **Trailing commas**: Required in multi-line constructs
@@ -112,6 +112,44 @@ Organize imports in this order with blank lines between sections:
     # 3. OpenSTEF modules
     from openstef.models.forecasting import LinearForecaster
     from openstef.transforms import LagTransform
+
+.. _optional-dependencies:
+
+Optional Dependencies
+=====================
+
+Heavy or platform-specific dependencies (``xgboost``, ``onnxruntime``, ``torch``,
+``huggingface-hub``, ...) are optional extras in ``pyproject.toml``. Two patterns
+decide where a missing extra fails, based on the module's role.
+
+**Implementation modules** (a forecaster, backend, or integration) own the
+dependency: import it at top level and fail immediately with
+:class:`~openstef_core.exceptions.MissingExtraError`. Importing the module is the
+opt-in, so the failure is honest and the rest of the module can use real types.
+
+.. code-block:: python
+
+    try:
+        import xgboost as xgb
+    except ImportError as e:
+        raise MissingExtraError("xgboost", "openstef-models") from e
+
+**Aggregator modules** (a package ``__init__``, preset, or factory) must import
+without any extra installed: re-export only the dependency-free surface
+(protocols, configs, enums) and lazy-import the chosen implementation inside the
+branch that needs it.
+
+.. code-block:: python
+
+    def build_backend(config: BackendConfig) -> InferenceBackend:
+        if config.kind == "onnx":
+            from openstef_foundation_models.inference.onnx_backend import OnnxBackend
+
+            return OnnxBackend.from_checkpoint(config.checkpoint)
+
+Don't ``try/except ImportError`` just to defer the failure to call time, and
+don't blanket re-export implementation modules from an ``__init__`` — that forces
+every consumer to install every extra.
 
 .. _variable-naming:
 

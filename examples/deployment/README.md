@@ -51,7 +51,7 @@ Dagster example shows this between two assets; Airflow and Celery between two ta
 From the repository root (installs all three orchestrators plus the `poe` runner):
 
 ```bash
-uv sync --all-extras --all-packages
+uv sync
 ```
 
 ## Run
