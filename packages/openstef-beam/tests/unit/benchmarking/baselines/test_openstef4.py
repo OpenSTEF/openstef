@@ -19,27 +19,19 @@ from openstef_beam.benchmarking.benchmark_pipeline import BenchmarkContext, Benc
 from openstef_core.datasets import VersionedTimeSeriesDataset
 from openstef_core.testing import create_synthetic_forecasting_dataset
 from openstef_core.types import LeadTime, Q
-from openstef_models.integrations.mlflow import MLFlowStorage
 from openstef_models.presets import ForecastingWorkflowConfig
 
 
 @pytest.fixture
-def mlflow_storage(tmp_path: Path) -> MLFlowStorage:
-    """MLflow storage rooted in a per-test tmp dir so runs stay isolated."""
-    return MLFlowStorage(
-        tracking_uri=str(tmp_path / "mlflow"),
-        local_artifacts_path=tmp_path / "mlflow_artifacts",
-    )
-
-
-@pytest.fixture
-def xgboost_config(mlflow_storage: MLFlowStorage) -> ForecastingWorkflowConfig:
+def xgboost_config() -> ForecastingWorkflowConfig:
+    # mlflow_storage=None: these tests exercise fit/predict in-process and never assert
+    # on persistence, so skip MLflow entirely (the default factory writes to ./mlruns).
     return ForecastingWorkflowConfig(
         model_id="test_xgb",
         model="xgboost",
         horizons=[LeadTime.from_string("PT24H")],
         quantiles=[Q(0.5)],
-        mlflow_storage=mlflow_storage,
+        mlflow_storage=None,
     )
 
 
@@ -131,7 +123,6 @@ def test_fit_then_predict_returns_forecast(
 def test_fit_retains_previous_model_on_insufficient_data(
     benchmark_target: BenchmarkTarget,
     training_data: VersionedTimeSeriesDataset,
-    mlflow_storage: MLFlowStorage,
     tmp_path: Path,
 ):
     """fit() should skip training and retain the previous model when data has all-NaN targets."""
@@ -142,7 +133,7 @@ def test_fit_retains_previous_model_on_insufficient_data(
         horizons=[LeadTime.from_string("PT24H")],
         quantiles=[Q(0.5)],
         model_reuse_enable=False,
-        mlflow_storage=mlflow_storage,
+        mlflow_storage=None,
     )
     factory = create_openstef4_preset_backtest_forecaster(
         workflow_config=config,
