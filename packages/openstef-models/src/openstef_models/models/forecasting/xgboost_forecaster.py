@@ -34,7 +34,7 @@ from openstef_models.utils.xgboost import get_median_shap_contribs
 try:
     import xgboost as xgb
 except ImportError as e:
-    raise MissingExtraError("xgboost", "openstef-models") from e
+    raise MissingExtraError("xgboost", "openstef-models", install_extra="xgb-cpu") from e
 
 
 class XGBoostHyperParams(HyperParams):

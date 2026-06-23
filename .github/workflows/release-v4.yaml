@@ -46,7 +46,7 @@ jobs:
           activate-environment: true
           enable-cache: true
       - name: Install build dependencies
-        run: uv sync --frozen --no-install-project --all-groups --all-extras
+        run: uv sync --frozen --no-install-project --no-default-groups --group build
 
       # Start of release steps
       - name: Set version from release
