@@ -4157,6 +4157,9 @@ models = [
 ]
 
 [package.dev-dependencies]
+build = [
+    { name = "poethepoet" },
+]
 deployment = [
     { name = "openstef-deployment-examples", extra = ["airflow", "celery", "dagster"] },
 ]
@@ -4277,6 +4280,7 @@ requires-dist = [
 provides-extras = ["all", "beam", "foundation-models", "meta", "models"]
 
 [package.metadata.requires-dev]
+build = [{ name = "poethepoet", specifier = ">=0.36" }]
 deployment = [{ name = "openstef-deployment-examples", extras = ["airflow", "celery", "dagster"], editable = "examples/deployment" }]
 dev = [
     { name = "ipykernel", specifier = ">=6.29" },
@@ -4372,7 +4376,6 @@ name = "openstef-beam"
 version = "0.0.0"
 source = { editable = "packages/openstef-beam" }
 dependencies = [
-    { name = "jinja2" },
     { name = "openstef-core" },
     { name = "plotly" },
     { name = "pyyaml" },
@@ -4393,7 +4396,6 @@ baselines = [
 
 [package.metadata]
 requires-dist = [
-    { name = "jinja2", specifier = ">=3" },
     { name = "openstef-beam", extras = ["baselines"], marker = "extra == 'all'", editable = "packages/openstef-beam" },
     { name = "openstef-core", editable = "packages/openstef-core" },
     { name = "openstef-meta", marker = "extra == 'baselines'", editable = "packages/openstef-meta" },

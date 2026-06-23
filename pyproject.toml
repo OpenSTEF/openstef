@@ -60,7 +60,7 @@ urls.Repository = "https://github.com/OpenSTEF/openstef"
 # Default environment: the complete CPU dev setup in one `uv sync`. For a GPU
 # environment run `uv sync --no-default-groups --group dev-gpu`.
 dev = [
-  "poethepoet>=0.36",
+  { include-group = "build" },
   { include-group = "deployment" },
   { include-group = "docs" },
   { include-group = "features-cpu" },
@@ -69,9 +69,6 @@ dev = [
   { include-group = "test" },
   { include-group = "typecheck" },
 ]
-# Focused groups so a contributor (or a CI job) can install just what a task
-# needs. The default `dev` group at the bottom aggregates them into the full CPU
-# environment, so day-to-day setup is a single `uv sync`.
 test = [
   "moto[s3,server]>=5.1.11",
   "pytest>=8.4.1",
@@ -79,6 +76,11 @@ test = [
   "pytest-xdist>=3.8",
 ]
 docs = [ "openstef-docs" ]
+# Focused groups let a contributor (or a CI job) install just what a task needs;
+# the `dev` group above aggregates them into the full CPU environment, so everyday
+# setup is a single `uv sync`. The release/build job installs only `build` (the poe
+# runner), not the full dev stack.
+build = [ "poethepoet>=0.36" ]
 lint = [
   "licensecheck>=2025.1",
   "pyproject-fmt>=2.6,<2.12", # 2.12+ restyles every pyproject (churn); bump in its own PR
@@ -115,7 +117,7 @@ features-gpu = [
   "openstef-models[lgbm,tuning,xgb-gpu]",
 ]
 dev-gpu = [
-  "poethepoet>=0.36",
+  { include-group = "build" },
   { include-group = "deployment" },
   { include-group = "docs" },
   { include-group = "features-gpu" },

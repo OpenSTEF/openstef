@@ -33,9 +33,9 @@ dependencies = [
   # than an extra. openstef-beam (the backtesting integration target) is already
   # a hard transitive dependency via openstef-models, so it is declared directly.
   "huggingface-hub>=1.2.2",
-  "openstef-beam>=4.0.0.dev0,<5",
-  "openstef-core>=4.0.0.dev0,<5",
-  "openstef-models>=4.0.0.dev0,<5",
+  "openstef-beam>=4,<5",
+  "openstef-core>=4,<5",
+  "openstef-models>=4,<5",
 ]
 
 # Exactly one of [cpu] or [gpu] must be installed — they are declared as
