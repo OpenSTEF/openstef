@@ -48,8 +48,14 @@ class Forecaster(BaseConfig, BatchPredictor[ForecastInputDataset, ForecastDatase
     initialised in ``model_post_init``.
 
     Invariants:
-        - Predictions must include all quantiles specified in the configuration
-        - predict_batch() only called when supports_batching returns True
+        - Predictions must include all quantiles specified in the configuration.
+        - predict_batch() only called when supports_batching returns True.
+        - ``predict()`` only returns timestamps in the interval
+          ``[forecast_start, forecast_start + max_horizon]``.  Any input rows
+          beyond ``max_horizon`` are silently discarded.  This is enforced by
+          passing ``horizon=self.max_horizon`` to
+          :meth:`~openstef_core.datasets.ForecastInputDataset.input_data`
+          inside every concrete ``predict()`` implementation.
 
     Example:
         Creating a forecaster with multiple horizons

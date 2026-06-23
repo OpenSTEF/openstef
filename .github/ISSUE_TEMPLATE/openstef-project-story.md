@@ -1,14 +1,13 @@
 ---
-name: OpenSTEF 4 Project Story
-about: Describe this issue template's purpose here.
+name: OpenSTEF Project Story
+about: Describe a new feature or improvement for OpenSTEF
 title: ''
-labels: OpenSTEF 4
+labels: 'OpenSTEF 4'
 assignees: ''
-
 ---
 
 As
-I want to 
+I want to
 So that I
 
 🌍 Background
@@ -22,25 +21,18 @@ So that I
 Definition of Done:
 
 ✅ Acceptance criteria
-
-- [ ] 
+- [ ]
 
 📄 Documentation criteria:
-
-Interfaces with other products and services
-
-Update relevant confluence pages
+Update relevant documentation pages
 
 🧪 Test criteria:
-
 Unit tests written and passed
 
 ⌛ Dependencies:
-
 N/A
 
 🚀 Releasing:
-
 N/A
 
 Other information:

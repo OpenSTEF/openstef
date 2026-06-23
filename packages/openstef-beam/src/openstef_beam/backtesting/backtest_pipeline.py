@@ -272,7 +272,7 @@ class BacktestPipeline:
         total_events = len(events)
         pbar = tqdm(total=total_events, smoothing=0.0, disable=not show_progress)
 
-        try:  # noqa: PLW0717 - single try wraps the full event loop for unified progress-bar cleanup
+        try:
             for event_batch in BacktestEventGenerator.iterate_batched(events=events, batch_size=batch_size):
                 if event_batch.is_training:
                     self._process_train_event(event_batch.events[0], dataset)

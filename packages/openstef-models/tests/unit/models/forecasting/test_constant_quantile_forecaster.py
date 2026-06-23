@@ -107,3 +107,29 @@ def test_constant_quantile_forecaster__predict_not_fitted_raises_error(
     # Act & Assert
     with pytest.raises(NotFittedError, match="ConstantQuantileForecaster"):
         forecaster.predict(input_dataset)
+
+
+@pytest.mark.parametrize(
+    "quantiles",
+    [
+        pytest.param([Quantile(0.5)], id="single_quantile"),
+        pytest.param([Quantile(0.1), Quantile(0.5), Quantile(0.9)], id="multiple_quantiles"),
+    ],
+)
+def test_constant_quantile_forecaster__feature_importances(quantiles: list[Quantile]):
+    """Test that feature_importances has the correct shape for any number of quantiles."""
+    # Arrange
+    forecaster = ConstantQuantileForecaster(
+        quantiles=quantiles,
+        horizons=[LeadTime(timedelta(hours=6))],
+        hyperparams=ConstantQuantileForecasterHyperParams(),
+    )
+
+    # Act
+    result = forecaster.feature_importances
+
+    # Assert
+    assert result.shape == (1, len(quantiles))
+    assert list(result.index) == ["load"]
+    assert list(result.columns) == [quantile.format() for quantile in quantiles]
+    np.testing.assert_equal(result.to_numpy(), 1.0)

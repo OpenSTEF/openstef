@@ -171,7 +171,7 @@ class BaseCaseForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
     @override
     def feature_importances(self) -> pd.DataFrame:
         return pd.DataFrame(
-            data=[1.0],
+            data=1.0,
             index=["load"],
             columns=[quantile.format() for quantile in self.quantiles],
         )

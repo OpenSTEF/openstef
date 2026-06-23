@@ -90,7 +90,7 @@ def chronological_train_test_split[T: TimeSeriesDataset](
     if not 0.0 <= test_fraction <= 1.0:
         raise ValueError("test_fraction must be between 0 and 1.")
 
-    if test_fraction == 0.0:  # noqa: RUF069 - exact sentinel; validated >= 0.0 above and 0.0 is exactly representable
+    if test_fraction <= 0.0:  # validated >= 0.0 above, so this is equivalent to == 0.0 without float equality
         # No test set
         return dataset, dataset._copy_with_data(dataset.data.iloc[0:0])  # noqa: SLF001 - allow protected access, invariants are maintained
 

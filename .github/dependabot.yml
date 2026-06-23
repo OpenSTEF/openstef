@@ -6,6 +6,10 @@
 #  - Patch/minor updates are grouped into daily PRs; majors stay individual.
 #  - lockfile-only: updates touch uv.lock only, never widen pyproject.toml
 #    constraints, so no "update X requirement from A to B" PRs.
+#  - Linters/formatters (ruff, ty, pyproject-fmt) are isolated in their own group:
+#    their releases routinely add rules/checks or restyle files and fail the quality
+#    gate, so they land in a dedicated PR rather than blocking unrelated library or
+#    security updates.
 #  - Cooldown delays brand-new releases by a few days as supply-chain protection.
 #  - Security advisories are in their own group, exempt from cooldown.
 
@@ -42,8 +46,13 @@ updates:
       python-security:
         applies-to: security-updates
         update-types: [patch, minor]
+      python-linters:
+        applies-to: version-updates
+        patterns: ["ruff", "ty", "pyproject-fmt"]
+        update-types: [patch, minor]
       python-versions:
         applies-to: version-updates
+        exclude-patterns: ["ruff", "ty", "pyproject-fmt"]
         update-types: [patch, minor]
 
   - package-ecosystem: github-actions

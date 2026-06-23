@@ -28,7 +28,7 @@ This is the complete API reference for OpenSTEF. The API is organized into sever
         :link: beam-api
         :link-type: ref
 
-        Backtesting, evaluation, analysis and metrics for forecasting models
+        BEAM (Backtesting, Evaluation, Analysis, and Metrics) for forecasting models
 
     .. grid-item-card:: :fa:`layer-group` Meta Package
         :link: meta-api
