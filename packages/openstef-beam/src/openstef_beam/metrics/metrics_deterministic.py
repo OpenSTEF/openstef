@@ -647,8 +647,8 @@ def relative_pinball_loss(
     if y_true.size == 0 or y_pred.size == 0:
         return float("NaN")
 
-    # Calculate mean pinball loss (weighted if weights provided)
-    mean_pinball_loss = pinball_loss(y_true, y_pred, quantile=quantile, sample_weights=sample_weights)
+    # Calculate pinball loss (weighted if weights provided)
+    pinball_loss_quantile = pinball_loss(y_true, y_pred, quantile=quantile, sample_weights=sample_weights)
 
     # Calculate measurement range for normalization
     y_range = np.quantile(y_true, q=measurement_range_upper_q) - np.quantile(y_true, q=measurement_range_lower_q)
@@ -658,6 +658,6 @@ def relative_pinball_loss(
         return float("NaN")
 
     # Calculate relative pinball loss
-    relative_pinball_loss = mean_pinball_loss / y_range
+    relative_pinball_loss = pinball_loss_quantile / y_range
 
     return float(relative_pinball_loss)

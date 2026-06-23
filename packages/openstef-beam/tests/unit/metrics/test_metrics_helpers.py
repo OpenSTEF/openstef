@@ -8,6 +8,7 @@ import numpy as np
 import pytest
 
 from openstef_beam.metrics.metrics_helpers import represented_interval_weights
+from openstef_core.types import Q
 
 
 @pytest.mark.parametrize(
@@ -23,7 +24,7 @@ from openstef_beam.metrics.metrics_helpers import represented_interval_weights
 )
 def test_represented_interval_weights(quantiles: Sequence[float], expected: Sequence[float]) -> None:
     # Act
-    weights = represented_interval_weights(np.array(quantiles))
+    weights = represented_interval_weights([Q(q) for q in quantiles])
 
     # Assert
     assert np.allclose(weights, expected)

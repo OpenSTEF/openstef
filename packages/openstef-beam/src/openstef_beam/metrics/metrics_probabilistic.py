@@ -25,7 +25,7 @@ from openstef_beam.metrics.metrics_deterministic import pinball_loss
 from openstef_beam.metrics.metrics_helpers import represented_interval_weights
 from openstef_core.types import Quantile
 
-type CRPSMethod = Literal["interval", "uniform"]
+type QuantileWeightingMethod = Literal["interval", "uniform"]
 
 
 def crps(
@@ -33,7 +33,7 @@ def crps(
     y_pred: npt.NDArray[np.floating],
     quantiles: npt.NDArray[np.floating],
     sample_weights: npt.NDArray[np.floating] | None = None,
-    method: CRPSMethod = "interval",
+    method: QuantileWeightingMethod = "interval",
 ) -> float:
     """Calculate the Continuous Ranked Probability Score (CRPS) for probabilistic forecasts.
 
@@ -75,6 +75,11 @@ def crps(
         CRPS reduces to the absolute error when comparing point forecasts
         (single quantile). For well-calibrated forecasts, CRPS approximately
         equals half the expected absolute error of random forecasts.
+
+        The factor 2.0 converts the (weighted) average pinball loss into CRPS:
+        CRPS equals twice the integral of the pinball loss over all quantile
+        levels in [0, 1]. The (weighted) average of the per-quantile pinball losses
+        approximates that integral, and multiplying by 2 recovers the CRPS scale.
     """
     per_quantile_loss = np.array([
         pinball_loss(y_true, y_pred[:, i], quantile=float(quantile), sample_weights=sample_weights)
@@ -82,7 +87,7 @@ def crps(
     ])
 
     if method == "interval":
-        quantile_weights = represented_interval_weights(quantiles)
+        quantile_weights = represented_interval_weights([Quantile(quantile) for quantile in quantiles])
     else:
         quantile_weights = np.full(len(quantiles), 1.0 / len(quantiles))
 
@@ -96,7 +101,7 @@ def rcrps(
     lower_quantile: float = 0.05,
     upper_quantile: float = 0.95,
     sample_weights: npt.NDArray[np.floating] | None = None,
-    method: CRPSMethod = "interval",
+    method: QuantileWeightingMethod = "interval",
 ) -> float:
     """Calculate the relative Continuous Ranked Probability Score (rCRPS).
 

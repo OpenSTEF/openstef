@@ -4,12 +4,16 @@
 
 """Helper functions shared between probabilistic and deterministic metrics."""
 
+from collections.abc import Sequence
+
 import numpy as np
 import numpy.typing as npt
 
+from openstef_core.types import Quantile
+
 
 def represented_interval_weights(
-    quantiles: npt.NDArray[np.floating],
+    quantiles: Sequence[Quantile],
 ) -> npt.NDArray[np.floating]:
     """Calculate the probability interval each quantile represents on [0, 1].
 

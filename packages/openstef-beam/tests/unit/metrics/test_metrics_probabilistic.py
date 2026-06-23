@@ -9,7 +9,7 @@ import pytest
 from sklearn.metrics import mean_pinball_loss as sk_mean_pinball_loss
 
 from openstef_beam.metrics import crps, mean_absolute_calibration_error, rcrps
-from openstef_beam.metrics.metrics_probabilistic import CRPSMethod, mean_pinball_loss
+from openstef_beam.metrics.metrics_probabilistic import QuantileWeightingMethod, mean_pinball_loss
 from openstef_core.types import Q
 
 
@@ -68,7 +68,11 @@ from openstef_core.types import Q
     ],
 )
 def test_crps(
-    y_true: Sequence[float], y_pred: Sequence[float], quantiles: Sequence[float], method: CRPSMethod, expected: float
+    y_true: Sequence[float],
+    y_pred: Sequence[float],
+    quantiles: Sequence[float],
+    method: QuantileWeightingMethod,
+    expected: float,
 ) -> None:
     # Act
     result = crps(np.array(y_true), np.array(y_pred), np.array(quantiles), method=method)
