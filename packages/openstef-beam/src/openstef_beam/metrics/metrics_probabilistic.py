@@ -244,7 +244,7 @@ def mean_pinball_loss(
     It penalizes under- and over-predictions differently based on the quantile level.
 
     Args:
-        y_true: Observed values with shape (num_samples,).
+        y_true: Observed values with shape (num_samples,) or (num_samples, num_quantiles).
         y_pred: Predicted quantiles with shape (num_samples, num_quantiles).
             Each column corresponds to predictions for a specific quantile level.
         quantiles: Quantile levels with shape (num_quantiles,).
@@ -255,8 +255,11 @@ def mean_pinball_loss(
         The weighted average Pinball Loss across all samples and quantiles. Lower values indicate better
         forecast quality.
     """
-    # Reshape predictions in case they arrive flattened (e.g. from an XGBoost eval callback).
+    # Reshape predictions and targets in case they arrive flattened (e.g. from an XGBoost eval callback,
+    # which repeats the observed value across quantile columns). Collapse the targets back to one value per sample.
     y_pred = np.reshape(y_pred, [-1, len(quantiles)])
+    n_rows = y_pred.shape[0]
+    y_true = np.reshape(y_true, [n_rows, -1])[:, 0]
 
     # Average the (sample-weighted) pinball loss across all quantiles.
     return float(
