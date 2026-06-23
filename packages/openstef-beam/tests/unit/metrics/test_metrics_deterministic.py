@@ -13,6 +13,7 @@ from openstef_beam.metrics import (
     confusion_matrix,
     fbeta,
     mape,
+    pinball_loss,
     precision_recall,
     relative_pinball_loss,
     riqd,
@@ -588,3 +589,35 @@ def test_relative_pinball_loss_returns_nan_when_inputs_empty() -> None:
 
     # Assert
     assert np.isnan(result)
+
+
+@pytest.mark.parametrize(
+    ("y_true", "y_pred", "quantile", "sample_weights", "expected"),
+    [
+        # Perfect prediction yields zero loss.
+        pytest.param([10, 20, 30], [10, 20, 30], 0.5, None, 0.0, id="perfect_prediction"),
+        # Low quantile: under-predictions weighted by q, over-prediction by (1 - q). mean([0.5, 0.4, 0.9]) = 0.6
+        pytest.param([100, 120, 110], [95, 116, 111], 0.1, None, 0.6, id="low_quantile"),
+        # High quantile mixing under- and over-predictions. mean([0.2, 1.8, 0.3]) = 2.3/3
+        pytest.param([10, 20, 30], [12, 18, 33], 0.9, None, 2.3 / 3, id="high_quantile"),
+        # Same as high_quantile but sample weighted: (0.2 * 1 + 1.8 * 2 + 0.3 * 1) / 4 = 1.025
+        pytest.param([10, 20, 30], [12, 18, 33], 0.9, [1.0, 2.0, 1.0], 1.025, id="high_quantile_sample_weighted"),
+    ],
+)
+def test_pinball_loss_various(
+    y_true: Sequence[float],
+    y_pred: Sequence[float],
+    quantile: float,
+    sample_weights: Sequence[float] | None,
+    expected: float,
+) -> None:
+    # Arrange
+    y_true_arr = np.array(y_true)
+    y_pred_arr = np.array(y_pred)
+    weights_arg = np.array(sample_weights) if sample_weights is not None else None
+
+    # Act
+    result = pinball_loss(y_true_arr, y_pred_arr, quantile=quantile, sample_weights=weights_arg)
+
+    # Assert
+    assert abs(result - expected) < 1e-8, f"Expected {expected} but got {result}"

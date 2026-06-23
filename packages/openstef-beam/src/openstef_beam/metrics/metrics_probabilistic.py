@@ -50,7 +50,7 @@ def crps(
         sample_weights: Optional weights for each sample with shape (num_samples,).
             If None, all samples are weighted equally.
         method: Quantile weighting scheme to use. "interval" (default) weights each
-            quantile by the probability interval it represents on [0, 1], giving more 
+            quantile by the probability interval it represents on [0, 1], giving more
             stability across quantile sets with different spacing. "uniform"
             weights every quantile equally.
 
