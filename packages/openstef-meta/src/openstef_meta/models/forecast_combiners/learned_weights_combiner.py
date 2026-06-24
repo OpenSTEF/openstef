@@ -314,14 +314,16 @@ class WeightsCombiner(ForecastCombiner):
         if not self.is_fitted:
             raise NotFittedError(self.__class__.__name__)
 
-        predictions = pd.DataFrame({
-            q.format(): self._predict_quantile(
-                dataset=data.get_base_predictions_for_quantile(quantile=q),
-                additional_features=additional_features,
-                quantile=q,
-            )
-            for q in self.quantiles
-        })
+        predictions = pd.DataFrame(
+            {
+                q.format(): self._predict_quantile(
+                    dataset=data.get_base_predictions_for_quantile(quantile=q),
+                    additional_features=additional_features,
+                    quantile=q,
+                )
+                for q in self.quantiles
+            }
+        )
         target_series = data.target_series
         if target_series is not None:
             predictions[data.target_column] = target_series

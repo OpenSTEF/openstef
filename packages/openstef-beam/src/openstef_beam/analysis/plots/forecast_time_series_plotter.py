@@ -230,10 +230,12 @@ class ForecastTimeSeriesPlotter(BaseConfig):
         if name is None:
             name = f"Limit {len(self._limits) + 1}"
 
-        self._limits.append({
-            "value": value,
-            "name": name,
-        })
+        self._limits.append(
+            {
+                "value": value,
+                "name": name,
+            }
+        )
 
         return self
 
@@ -399,14 +401,16 @@ class ForecastTimeSeriesPlotter(BaseConfig):
                 if lower_quantile == int(self.MEDIAN_QUANTILE):
                     continue
 
-                bands.append({
-                    "model_name": model_name,
-                    "model_index": model_index,
-                    "lower_quantile": lower_quantile,
-                    "upper_quantile": upper_quantile,
-                    "lower_data": quantiles[f"quantile_P{lower_quantile:02d}"],
-                    "upper_data": quantiles[f"quantile_P{upper_quantile:02d}"],
-                })
+                bands.append(
+                    {
+                        "model_name": model_name,
+                        "model_index": model_index,
+                        "lower_quantile": lower_quantile,
+                        "upper_quantile": upper_quantile,
+                        "lower_data": quantiles[f"quantile_P{lower_quantile:02d}"],
+                        "upper_data": quantiles[f"quantile_P{upper_quantile:02d}"],
+                    }
+                )
         return bands
 
     def _prepare_forecast_lines(self) -> list[LineData]:

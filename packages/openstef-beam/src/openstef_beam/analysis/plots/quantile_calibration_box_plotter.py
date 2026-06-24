@@ -119,11 +119,13 @@ class QuantileCalibrationBoxPlotter:
             # Create quantile labels
             quantile_labels = [q.format() for q in model_data["forecasted_prob"]]
 
-            model_df = pd.DataFrame({
-                "Model": [model_data["model"]] * len(calibration_errors),
-                "Quantile": quantile_labels,
-                "Calibration_Error": calibration_errors,
-            })
+            model_df = pd.DataFrame(
+                {
+                    "Model": [model_data["model"]] * len(calibration_errors),
+                    "Quantile": quantile_labels,
+                    "Calibration_Error": calibration_errors,
+                }
+            )
             model_df_list.append(model_df)
 
         models_df = pd.concat(model_df_list, ignore_index=True)

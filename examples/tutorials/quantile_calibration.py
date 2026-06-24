@@ -136,12 +136,14 @@ forecast_aligned = forecast_uncal.data.loc[actuals.index]
 expected = [float(q) for q in quantiles]
 observed_uncal = [float((actuals <= forecast_aligned[f"quantile_P{int(float(q) * 100)}"]).mean()) for q in quantiles]
 
-calibration_df = pd.DataFrame({
-    "quantile": [f"P{int(float(q) * 100)}" for q in quantiles],
-    "expected": expected,
-    "observed": observed_uncal,
-    "error": [o - e for o, e in zip(observed_uncal, expected, strict=True)],
-})
+calibration_df = pd.DataFrame(
+    {
+        "quantile": [f"P{int(float(q) * 100)}" for q in quantiles],
+        "expected": expected,
+        "observed": observed_uncal,
+        "error": [o - e for o, e in zip(observed_uncal, expected, strict=True)],
+    }
+)
 print("Calibration before isotonic correction:")
 print(calibration_df.to_string(index=False))
 
@@ -184,14 +186,16 @@ forecast_cal_aligned = forecast_cal.data.loc[actuals.index]
 
 observed_cal = [float((actuals <= forecast_cal_aligned[f"quantile_P{int(float(q) * 100)}"]).mean()) for q in quantiles]
 
-comparison_df = pd.DataFrame({
-    "quantile": [f"P{int(float(q) * 100)}" for q in quantiles],
-    "expected": expected,
-    "observed (before)": observed_uncal,
-    "observed (after)": observed_cal,
-    "error (before)": [o - e for o, e in zip(observed_uncal, expected, strict=True)],
-    "error (after)": [o - e for o, e in zip(observed_cal, expected, strict=True)],
-})
+comparison_df = pd.DataFrame(
+    {
+        "quantile": [f"P{int(float(q) * 100)}" for q in quantiles],
+        "expected": expected,
+        "observed (before)": observed_uncal,
+        "observed (after)": observed_cal,
+        "error (before)": [o - e for o, e in zip(observed_uncal, expected, strict=True)],
+        "error (after)": [o - e for o, e in zip(observed_cal, expected, strict=True)],
+    }
+)
 print(comparison_df.to_string(index=False))
 
 # %% tags=["hide-input"]
