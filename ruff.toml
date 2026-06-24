@@ -14,7 +14,7 @@ include = [
   "packages/**/*.py",
 ]
 output-format = "concise"
-format.preview = true
+format.preview = false
 lint.select = [ "ALL" ]
 lint.ignore = [
   "COM812", # Conflicting rules (a), ruff itself suggest disabling them
@@ -110,4 +110,4 @@ lint.pylint.allow-dunder-method-names = [
   "__pydantic_init_subclass__",
 ] # valid pydantic name
 lint.pylint.max-args = 7 # the default of 5 is a bit limiting. 7 should be enough for nearly all cases
-lint.preview = true
+lint.preview = false

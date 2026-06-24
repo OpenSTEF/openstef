@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-import pickle  # noqa: S403 - controlled test
+import pickle
 import warnings
 from typing import ClassVar, override
 

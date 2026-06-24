@@ -124,11 +124,13 @@ class SummaryTableVisualization(VisualizationProvider):
             for quantile, metrics in global_metric.metrics.items():
                 formatted_quantile = self._format_quantile(quantile)
                 for metric_name, metric_value in metrics.items():
-                    rows.append({
-                        "Quantile|Global": formatted_quantile,
-                        "Metric": metric_name,
-                        "Value": metric_value,
-                    })
+                    rows.append(
+                        {
+                            "Quantile|Global": formatted_quantile,
+                            "Metric": metric_name,
+                            "Value": metric_value,
+                        }
+                    )
         return rows
 
     @staticmethod
@@ -207,15 +209,17 @@ class SummaryTableVisualization(VisualizationProvider):
         rows: list[dict[str, Any]] = []
         for (quantile, metric_name, group), values in metric_dict.items():
             agg = self._aggregate_metric_values(values)
-            rows.append({
-                "Group": group,
-                "Quantile|Global": quantile,
-                "Metric": metric_name,
-                "Mean": agg.mean,
-                "Min": agg.min,
-                "Max": agg.max,
-                "Median": agg.median,
-            })
+            rows.append(
+                {
+                    "Group": group,
+                    "Quantile|Global": quantile,
+                    "Metric": metric_name,
+                    "Mean": agg.mean,
+                    "Min": agg.min,
+                    "Max": agg.max,
+                    "Median": agg.median,
+                }
+            )
 
         dataframe = SummaryTableVisualization._create_sorted_dataframe(
             rows=rows,
@@ -290,16 +294,18 @@ class SummaryTableVisualization(VisualizationProvider):
         rows: list[dict[str, Any]] = []
         for (quantile, metric_name, run_name, group), values in metric_dict.items():
             agg = self._aggregate_metric_values(values)
-            rows.append({
-                "Group": group,
-                "Quantile|Global": quantile,
-                "Metric": metric_name,
-                "Run": run_name,
-                "Mean": agg.mean,
-                "Min": agg.min,
-                "Max": agg.max,
-                "Median": agg.median,
-            })
+            rows.append(
+                {
+                    "Group": group,
+                    "Quantile|Global": quantile,
+                    "Metric": metric_name,
+                    "Run": run_name,
+                    "Mean": agg.mean,
+                    "Min": agg.min,
+                    "Max": agg.max,
+                    "Median": agg.median,
+                }
+            )
 
         dataframe = self._create_sorted_dataframe(
             rows=rows,

@@ -170,8 +170,7 @@ class ConfidenceIntervalApplicator(BaseModel, Transform[ForecastDataset, Forecas
 def _calculate_hourly_std(errors: pd.Series) -> pd.Series:
     # Group errors by hour (0-23) and compute std for each hour
     return (
-        errors
-        .groupby(cast(pd.DatetimeIndex, errors.index).hour)
+        errors.groupby(cast(pd.DatetimeIndex, errors.index).hour)
         .std()
         .reindex(range(24))
         .rename("stdev")

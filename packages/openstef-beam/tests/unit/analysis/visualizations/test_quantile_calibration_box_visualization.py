@@ -108,18 +108,20 @@ def test_create_by_target_handles_multiple_targets(
 
     # Assert
     # Verify each target is added
-    mock_add_model.assert_has_calls([
-        call(
-            model_name="Run1",
-            observed_probs=[Quantile(0.15), Quantile(0.55)],
-            forecasted_probs=[Quantile(0.1), Quantile(0.5)],
-        ),
-        call(
-            model_name="Run1",
-            observed_probs=[Quantile(0.15), Quantile(0.55)],
-            forecasted_probs=[Quantile(0.1), Quantile(0.5)],
-        ),
-    ])
+    mock_add_model.assert_has_calls(
+        [
+            call(
+                model_name="Run1",
+                observed_probs=[Quantile(0.15), Quantile(0.55)],
+                forecasted_probs=[Quantile(0.1), Quantile(0.5)],
+            ),
+            call(
+                model_name="Run1",
+                observed_probs=[Quantile(0.15), Quantile(0.55)],
+                forecasted_probs=[Quantile(0.1), Quantile(0.5)],
+            ),
+        ]
+    )
     mock_plot.assert_called_once_with(title="Quantile Calibration over all targets in group for Run1")
     assert result.name == viz.name
     assert result.figure == mock_plotly_figure
@@ -163,30 +165,32 @@ def test_create_by_run_and_target_handles_multiple_runs_and_targets(
 
     # Assert
     # Verify each target within each run is added as a separate model entry
-    mock_add_model.assert_has_calls([
-        # Run1 targets
-        call(
-            model_name="Run1",
-            observed_probs=[Quantile(0.15), Quantile(0.55)],
-            forecasted_probs=[Quantile(0.1), Quantile(0.5)],
-        ),
-        call(
-            model_name="Run1",
-            observed_probs=[Quantile(0.15), Quantile(0.55)],
-            forecasted_probs=[Quantile(0.1), Quantile(0.5)],
-        ),
-        # Run2 targets
-        call(
-            model_name="Run2",
-            observed_probs=[Quantile(0.15), Quantile(0.55)],
-            forecasted_probs=[Quantile(0.1), Quantile(0.5)],
-        ),
-        call(
-            model_name="Run2",
-            observed_probs=[Quantile(0.15), Quantile(0.55)],
-            forecasted_probs=[Quantile(0.1), Quantile(0.5)],
-        ),
-    ])
+    mock_add_model.assert_has_calls(
+        [
+            # Run1 targets
+            call(
+                model_name="Run1",
+                observed_probs=[Quantile(0.15), Quantile(0.55)],
+                forecasted_probs=[Quantile(0.1), Quantile(0.5)],
+            ),
+            call(
+                model_name="Run1",
+                observed_probs=[Quantile(0.15), Quantile(0.55)],
+                forecasted_probs=[Quantile(0.1), Quantile(0.5)],
+            ),
+            # Run2 targets
+            call(
+                model_name="Run2",
+                observed_probs=[Quantile(0.15), Quantile(0.55)],
+                forecasted_probs=[Quantile(0.1), Quantile(0.5)],
+            ),
+            call(
+                model_name="Run2",
+                observed_probs=[Quantile(0.15), Quantile(0.55)],
+                forecasted_probs=[Quantile(0.1), Quantile(0.5)],
+            ),
+        ]
+    )
     mock_plot.assert_called_once_with(title="Quantile Calibration by run and over all targets in group")
     assert result.name == viz.name
     assert result.figure == mock_plotly_figure
@@ -217,18 +221,20 @@ def test_create_by_group_handles_multiple_groups(
         result = viz.create_by_group(reports)
 
     # Assert
-    mock_add_model.assert_has_calls([
-        call(
-            model_name="Run1",
-            observed_probs=[Quantile(0.15), Quantile(0.55)],
-            forecasted_probs=[Quantile(0.1), Quantile(0.5)],
-        ),
-        call(
-            model_name="Run1",
-            observed_probs=[Quantile(0.15), Quantile(0.55)],
-            forecasted_probs=[Quantile(0.1), Quantile(0.5)],
-        ),
-    ])
+    mock_add_model.assert_has_calls(
+        [
+            call(
+                model_name="Run1",
+                observed_probs=[Quantile(0.15), Quantile(0.55)],
+                forecasted_probs=[Quantile(0.1), Quantile(0.5)],
+            ),
+            call(
+                model_name="Run1",
+                observed_probs=[Quantile(0.15), Quantile(0.55)],
+                forecasted_probs=[Quantile(0.1), Quantile(0.5)],
+            ),
+        ]
+    )
     mock_plot.assert_called_once_with(title="Quantile Calibration over all targets for Run1")
     assert result.name == viz.name
     assert result.figure == mock_plotly_figure
@@ -260,23 +266,25 @@ def test_create_by_run_and_group_handles_multiple_runs_and_groups(
         result = viz.create_by_run_and_group(reports)
 
     # Assert
-    mock_add_model.assert_has_calls([
-        call(
-            model_name="Run1",
-            observed_probs=[Quantile(0.15), Quantile(0.55)],
-            forecasted_probs=[Quantile(0.1), Quantile(0.5)],
-        ),
-        call(
-            model_name="Run1",
-            observed_probs=[Quantile(0.15), Quantile(0.55)],
-            forecasted_probs=[Quantile(0.1), Quantile(0.5)],
-        ),
-        call(
-            model_name="Run2",
-            observed_probs=[Quantile(0.15), Quantile(0.55)],
-            forecasted_probs=[Quantile(0.1), Quantile(0.5)],
-        ),
-    ])
+    mock_add_model.assert_has_calls(
+        [
+            call(
+                model_name="Run1",
+                observed_probs=[Quantile(0.15), Quantile(0.55)],
+                forecasted_probs=[Quantile(0.1), Quantile(0.5)],
+            ),
+            call(
+                model_name="Run1",
+                observed_probs=[Quantile(0.15), Quantile(0.55)],
+                forecasted_probs=[Quantile(0.1), Quantile(0.5)],
+            ),
+            call(
+                model_name="Run2",
+                observed_probs=[Quantile(0.15), Quantile(0.55)],
+                forecasted_probs=[Quantile(0.1), Quantile(0.5)],
+            ),
+        ]
+    )
     mock_plot.assert_called_once_with(title="Quantile Calibration by run and over all targets")
     assert result.name == viz.name
     assert result.figure == mock_plotly_figure

@@ -206,7 +206,7 @@ class BaseForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDatas
             raise ValueError(msg)
         return self
 
-    def get_explainable_components(self) -> dict[str, ExplainableForecaster]:  # noqa: PLR6301
+    def get_explainable_components(self) -> dict[str, ExplainableForecaster]:
         """Return named components that support feature-importance plotting.
 
         Keys are used as filename suffixes; an empty key means no suffix.
