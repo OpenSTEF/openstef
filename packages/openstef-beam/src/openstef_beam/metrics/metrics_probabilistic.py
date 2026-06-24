@@ -81,10 +81,12 @@ def crps(
         levels in [0, 1]. The (weighted) average of the per-quantile pinball losses
         approximates that integral, and multiplying by 2 recovers the CRPS scale.
     """
-    per_quantile_loss = np.array([
-        pinball_loss(y_true, y_pred[:, i], quantile=float(quantile), sample_weights=sample_weights)
-        for i, quantile in enumerate(quantiles)
-    ])
+    per_quantile_loss = np.array(
+        [
+            pinball_loss(y_true, y_pred[:, i], quantile=float(quantile), sample_weights=sample_weights)
+            for i, quantile in enumerate(quantiles)
+        ]
+    )
 
     if method == "interval":
         quantile_weights = represented_interval_weights([Quantile(quantile) for quantile in quantiles])
@@ -268,8 +270,10 @@ def mean_pinball_loss(
 
     # Average the (sample-weighted) pinball loss across all quantiles.
     return float(
-        np.mean([
-            pinball_loss(y_true, y_pred[:, i], quantile=float(quantile), sample_weights=sample_weight)
-            for i, quantile in enumerate(quantiles)
-        ])
+        np.mean(
+            [
+                pinball_loss(y_true, y_pred[:, i], quantile=float(quantile), sample_weights=sample_weight)
+                for i, quantile in enumerate(quantiles)
+            ]
+        )
     )
