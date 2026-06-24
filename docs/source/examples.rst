@@ -30,7 +30,7 @@ Getting Started
    * - :doc:`Understanding Datasets <tutorials/datasets>`
      - Learn how versioned time series data works and why it matters for honest forecasting.
 
-Model Training
+Training & Forecasting
 ^^^^^^^^^^^^^^
 
 .. list-table::
@@ -47,6 +47,8 @@ Model Training
      - Combine multiple models into an ensemble for improved accuracy and robustness.
    * - :doc:`Hyperparameter Tuning <tutorials/hyperparameter_tuning_with_optuna>`
      - Optimize model hyperparameters using Optuna integration with cross-validated backtesting.
+   * - :doc:`Foundation-Model Forecasting <tutorials/foundation_model_forecasting>`
+     - Produce a zero-shot probabilistic forecast with the pretrained Chronos-2 model via OpenSTEF's ONNX backend.
 
 Evaluation & Analysis
 ^^^^^^^^^^^^^^^^^^^^^
@@ -95,12 +97,13 @@ the docs build — run them locally to reproduce results.
 .. toctree::
    :maxdepth: 1
    :hidden:
-   :caption: Model Training
+   :caption: Training & Forecasting
 
    Custom Pipeline <tutorials/custom_pipeline>
    Feature Engineering <tutorials/feature_engineering>
    Ensemble Forecasting <tutorials/ensemble_forecasting>
    Hyperparameter Tuning <tutorials/hyperparameter_tuning_with_optuna>
+   Foundation-Model Forecasting <tutorials/foundation_model_forecasting>
 
 .. toctree::
    :maxdepth: 1

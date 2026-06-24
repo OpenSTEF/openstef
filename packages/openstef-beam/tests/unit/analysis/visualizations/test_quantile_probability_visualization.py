@@ -136,18 +136,20 @@ def test_create_by_run_generates_multi_run_comparison(
 
     # Assert
     # Verify each run is added as a separate model
-    mock_add_model.assert_has_calls([
-        call(
-            model_name="Run1",
-            observed_probs=[Quantile(0.15), Quantile(0.55)],
-            forecasted_probs=[Quantile(0.1), Quantile(0.5)],
-        ),
-        call(
-            model_name="Run2",
-            observed_probs=[Quantile(0.15), Quantile(0.55)],
-            forecasted_probs=[Quantile(0.1), Quantile(0.5)],
-        ),
-    ])
+    mock_add_model.assert_has_calls(
+        [
+            call(
+                model_name="Run1",
+                observed_probs=[Quantile(0.15), Quantile(0.55)],
+                forecasted_probs=[Quantile(0.1), Quantile(0.5)],
+            ),
+            call(
+                model_name="Run2",
+                observed_probs=[Quantile(0.15), Quantile(0.55)],
+                forecasted_probs=[Quantile(0.1), Quantile(0.5)],
+            ),
+        ]
+    )
     mock_plot.assert_called_once_with(title="Quantile Probability by Run")
     assert result.name == viz.name
     assert result.figure == mock_plotly_figure
@@ -175,18 +177,20 @@ def test_create_by_run_and_target_generates_multi_run_comparison(
 
     # Assert
     # Verify each run is added as a separate model
-    mock_add_model.assert_has_calls([
-        call(
-            model_name="Run1",
-            observed_probs=[Quantile(0.15), Quantile(0.55)],
-            forecasted_probs=[Quantile(0.1), Quantile(0.5)],
-        ),
-        call(
-            model_name="Run2",
-            observed_probs=[Quantile(0.15), Quantile(0.55)],
-            forecasted_probs=[Quantile(0.1), Quantile(0.5)],
-        ),
-    ])
+    mock_add_model.assert_has_calls(
+        [
+            call(
+                model_name="Run1",
+                observed_probs=[Quantile(0.15), Quantile(0.55)],
+                forecasted_probs=[Quantile(0.1), Quantile(0.5)],
+            ),
+            call(
+                model_name="Run2",
+                observed_probs=[Quantile(0.15), Quantile(0.55)],
+                forecasted_probs=[Quantile(0.1), Quantile(0.5)],
+            ),
+        ]
+    )
     mock_plot.assert_called_once_with(title="Quantile Probability by Run")
     assert result.name == viz.name
     assert result.figure == mock_plotly_figure
@@ -214,18 +218,20 @@ def test_create_by_target_generates_multi_target_comparison(
 
     # Assert
     # Verify each target is added as a separate model
-    mock_add_model.assert_has_calls([
-        call(
-            model_name="Target1",
-            observed_probs=[Quantile(0.15), Quantile(0.55)],
-            forecasted_probs=[Quantile(0.1), Quantile(0.5)],
-        ),
-        call(
-            model_name="Target2",
-            observed_probs=[Quantile(0.15), Quantile(0.55)],
-            forecasted_probs=[Quantile(0.1), Quantile(0.5)],
-        ),
-    ])
+    mock_add_model.assert_has_calls(
+        [
+            call(
+                model_name="Target1",
+                observed_probs=[Quantile(0.15), Quantile(0.55)],
+                forecasted_probs=[Quantile(0.1), Quantile(0.5)],
+            ),
+            call(
+                model_name="Target2",
+                observed_probs=[Quantile(0.15), Quantile(0.55)],
+                forecasted_probs=[Quantile(0.1), Quantile(0.5)],
+            ),
+        ]
+    )
     mock_plot.assert_called_once_with(title="Quantile Probability by Target for Run1")
     assert result.name == viz.name
     assert result.figure == mock_plotly_figure

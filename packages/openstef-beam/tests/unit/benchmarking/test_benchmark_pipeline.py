@@ -340,19 +340,23 @@ def test_benchmark_runner_storage_integration(
     # Check that storage was queried for existing outputs
     cast(Mock, mock_storage.has_backtest_output).assert_called_with(target)
     cast(Mock, mock_storage.has_evaluation_output).assert_called_with(target)
-    cast(Mock, mock_storage.has_analysis_output).assert_has_calls([
-        call(
-            scope=AnalysisScope(
-                target_name="location1",
-                group_name="default",
-                run_name="default",
-                aggregation=AnalysisAggregation.TARGET,
-            )
-        ),
-        call(
-            AnalysisScope(target_name=None, group_name=None, run_name="default", aggregation=AnalysisAggregation.GROUP)
-        ),
-    ])
+    cast(Mock, mock_storage.has_analysis_output).assert_has_calls(
+        [
+            call(
+                scope=AnalysisScope(
+                    target_name="location1",
+                    group_name="default",
+                    run_name="default",
+                    aggregation=AnalysisAggregation.TARGET,
+                )
+            ),
+            call(
+                AnalysisScope(
+                    target_name=None, group_name=None, run_name="default", aggregation=AnalysisAggregation.GROUP
+                )
+            ),
+        ]
+    )
 
     # Check that outputs were saved to storage
     cast(Mock, mock_storage.save_backtest_output).assert_called_once_with(

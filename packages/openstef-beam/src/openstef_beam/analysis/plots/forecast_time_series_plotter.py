@@ -236,10 +236,12 @@ class ForecastTimeSeriesPlotter(BaseConfig):
         if name is None:
             name = f"Limit {len(self._limits) + 1}"
 
-        self._limits.append({
-            "value": value,
-            "name": name,
-        })
+        self._limits.append(
+            {
+                "value": value,
+                "name": name,
+            }
+        )
 
         return self
 
@@ -438,14 +440,16 @@ class ForecastTimeSeriesPlotter(BaseConfig):
                 if lower_q.format() == median_column:
                     continue
 
-                bands.append({
-                    "model_name": model_name,
-                    "model_index": model_index,
-                    "lower_quantile": lower_q.to_percentile(),
-                    "upper_quantile": upper_q.to_percentile(),
-                    "lower_data": quantiles[lower_q.format()],
-                    "upper_data": quantiles[upper_q.format()],
-                })
+                bands.append(
+                    {
+                        "model_name": model_name,
+                        "model_index": model_index,
+                        "lower_quantile": lower_q.to_percentile(),
+                        "upper_quantile": upper_q.to_percentile(),
+                        "lower_data": quantiles[lower_q.format()],
+                        "upper_data": quantiles[upper_q.format()],
+                    }
+                )
         return bands
 
     def _prepare_forecast_lines(self) -> list[LineData]:
@@ -684,8 +688,8 @@ class ForecastTimeSeriesPlotter(BaseConfig):
         # diff() finds transitions: True->False (-1) and False->True (1)
         mask_array = mask.to_numpy()
         transitions = np.diff(np.concatenate(([False], mask_array, [False])).astype(int))
-        segment_starts = np.where(transitions == 1)[0]  # Where transitions from False to True
-        segment_ends = np.where(transitions == -1)[0] - 1  # Where transitions from True to False
+        segment_starts = np.nonzero(transitions == 1)[0]  # Where transitions from False to True
+        segment_ends = np.nonzero(transitions == -1)[0] - 1  # Where transitions from True to False
         segments = list(zip(segment_starts, segment_ends, strict=True))
 
         # Create separate polygon for each continuous segment

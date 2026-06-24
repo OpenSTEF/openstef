@@ -4,10 +4,10 @@
 
 import warnings
 from datetime import UTC, datetime, time, timedelta, timezone
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 import pandas as pd
 import pytest
-import pytz
 from pydantic import BaseModel
 
 from openstef_core.types import AvailableAt, LeadTime, Quantile, QuantileOrGlobal
@@ -55,12 +55,12 @@ def test_lead_time_from_string_roundtrip(input_delta: timedelta):
         pytest.param(AvailableAt(day_offset=-1, time_of_day=time(6, 0)), "D-1T0600", id="no_tz"),
         pytest.param(AvailableAt(day_offset=-2, time_of_day=time(12, 0)), "D-2T1200", id="no_tz_D-2"),
         pytest.param(
-            AvailableAt(day_offset=-1, time_of_day=time(6, 0), tzinfo=pytz.UTC),
+            AvailableAt(day_offset=-1, time_of_day=time(6, 0), tzinfo=ZoneInfo("UTC")),
             "D-1T0600[UTC]",
-            id="pytz_utc",
+            id="zoneinfo_utc",
         ),
         pytest.param(
-            AvailableAt(day_offset=-1, time_of_day=time(6, 0), tzinfo=pytz.timezone("Europe/Amsterdam")),
+            AvailableAt(day_offset=-1, time_of_day=time(6, 0), tzinfo=ZoneInfo("Europe/Amsterdam")),
             "D-1T0600[Europe/Amsterdam]",
             id="named_tz",
         ),
@@ -85,11 +85,11 @@ def test_available_at_str(available_at: AvailableAt, expected_string: str):
         pytest.param(AvailableAt(day_offset=-1, time_of_day=time(6, 0)), id="no_tz"),
         pytest.param(AvailableAt(day_offset=-2, time_of_day=time(12, 0)), id="no_tz_D-2"),
         pytest.param(
-            AvailableAt(day_offset=-1, time_of_day=time(6, 0), tzinfo=pytz.UTC),
-            id="pytz_utc",
+            AvailableAt(day_offset=-1, time_of_day=time(6, 0), tzinfo=ZoneInfo("UTC")),
+            id="zoneinfo_utc",
         ),
         pytest.param(
-            AvailableAt(day_offset=-1, time_of_day=time(6, 0), tzinfo=pytz.timezone("Europe/Amsterdam")),
+            AvailableAt(day_offset=-1, time_of_day=time(6, 0), tzinfo=ZoneInfo("Europe/Amsterdam")),
             id="named_tz",
         ),
     ],
@@ -120,7 +120,7 @@ def test_available_at_from_string_legacy_colon_format():
 @pytest.mark.parametrize(
     "tz_str",
     [
-        pytest.param("UTC", id="pytz_utc"),
+        pytest.param("UTC", id="utc"),
         pytest.param("Europe/Amsterdam", id="named_tz"),
     ],
 )
@@ -157,15 +157,15 @@ def test_available_at_from_string_z_suffix():
     at = AvailableAt.from_string("D-1T0600Z")
     assert at.day_offset == -1
     assert at.time_of_day == time(6, 0)
-    assert at.tzinfo == pytz.UTC
+    assert at.tzinfo == ZoneInfo("UTC")
 
 
 def test_available_at_from_string_rejects_invalid_tz():
-    with pytest.raises(pytz.UnknownTimeZoneError):
+    with pytest.raises(ZoneInfoNotFoundError):
         AvailableAt.from_string("D-1T0600[INVALID]")
 
 
-_AMS = pytz.timezone("Europe/Amsterdam")
+_AMS = ZoneInfo("Europe/Amsterdam")
 
 
 @pytest.mark.parametrize(
@@ -184,7 +184,7 @@ _AMS = pytz.timezone("Europe/Amsterdam")
             id="naive_D-2",
         ),
         pytest.param(
-            AvailableAt(day_offset=-1, time_of_day=time(6, 0), tzinfo=pytz.UTC),
+            AvailableAt(day_offset=-1, time_of_day=time(6, 0), tzinfo=ZoneInfo("UTC")),
             datetime(2026, 3, 6, tzinfo=UTC),
             datetime(2026, 3, 5, 6, 0, tzinfo=UTC),
             id="utc_to_utc",
@@ -197,11 +197,11 @@ _AMS = pytz.timezone("Europe/Amsterdam")
         ),
         pytest.param(
             AvailableAt(day_offset=-1, time_of_day=time(6, 0), tzinfo=UTC),
-            _AMS.localize(datetime(2026, 3, 6)),  # noqa: DTZ001
+            datetime(2026, 3, 6, tzinfo=_AMS),
             # Reference is Mar 6 00:00 CET = Mar 5 23:00 UTC.
             # Day extracted in UTC (self.tzinfo) → Mar 5, D-1 → Mar 4.
             # 06:00 UTC on Mar 4 = 07:00 CET (winter time, UTC+1)
-            _AMS.localize(datetime(2026, 3, 4, 7, 0)),  # noqa: DTZ001
+            datetime(2026, 3, 4, 7, 0, tzinfo=_AMS),
             id="utc_tz_ams_ref_extracts_day_in_utc",
         ),
         pytest.param(
@@ -279,18 +279,22 @@ def test_available_at_time_of_day():
 def test_available_at_apply_index_naive():
     """apply_index on a naive DatetimeIndex returns correct naive cutoffs."""
 
-    index = pd.DatetimeIndex([
-        datetime(2026, 3, 6),  # noqa: DTZ001
-        datetime(2026, 3, 7),  # noqa: DTZ001
-    ])
+    index = pd.DatetimeIndex(
+        [
+            datetime(2026, 3, 6),  # noqa: DTZ001
+            datetime(2026, 3, 7),  # noqa: DTZ001
+        ]
+    )
     at = AvailableAt(day_offset=-1, time_of_day=time(6, 0))
 
     result = at.apply_index(index)
 
-    expected = pd.DatetimeIndex([
-        datetime(2026, 3, 5, 6, 0),  # noqa: DTZ001
-        datetime(2026, 3, 6, 6, 0),  # noqa: DTZ001
-    ])
+    expected = pd.DatetimeIndex(
+        [
+            datetime(2026, 3, 5, 6, 0),  # noqa: DTZ001
+            datetime(2026, 3, 6, 6, 0),  # noqa: DTZ001
+        ]
+    )
     pd.testing.assert_index_equal(result, expected)
 
 
@@ -309,35 +313,41 @@ def test_available_at_apply_index_utc():
 def test_available_at_apply_index_cross_tz_dst():
     """apply_index with AMS tzinfo on UTC index shifts correctly across DST."""
     # Index in UTC, AvailableAt in Europe/Amsterdam
-    index = pd.to_datetime([
-        "2026-03-28T23:00:00+00:00",  # cutoff = Mar 28 06:00 CET = 05:00 UTC
-        "2026-03-29T00:00:00+00:00",  # cutoff = Mar 28 06:00 CET = 05:00 UTC
-        "2026-03-29T12:00:00+00:00",  # cutoff = Mar 28 06:00 CET = 05:00 UTC
-        "2026-03-30T00:00:00+00:00",  # cutoff = Mar 29 06:00 CEST = 04:00 UTC
-    ])
+    index = pd.to_datetime(
+        [
+            "2026-03-28T23:00:00+00:00",  # cutoff = Mar 28 06:00 CET = 05:00 UTC
+            "2026-03-29T00:00:00+00:00",  # cutoff = Mar 28 06:00 CET = 05:00 UTC
+            "2026-03-29T12:00:00+00:00",  # cutoff = Mar 28 06:00 CET = 05:00 UTC
+            "2026-03-30T00:00:00+00:00",  # cutoff = Mar 29 06:00 CEST = 04:00 UTC
+        ]
+    )
     at = AvailableAt(day_offset=-1, time_of_day=time(6, 0), tzinfo=_AMS)
 
     result = at.apply_index(index)
 
-    expected = pd.to_datetime([
-        "2026-03-28T05:00:00+00:00",
-        "2026-03-28T05:00:00+00:00",
-        "2026-03-28T05:00:00+00:00",
-        "2026-03-29T04:00:00+00:00",
-    ])
+    expected = pd.to_datetime(
+        [
+            "2026-03-28T05:00:00+00:00",
+            "2026-03-28T05:00:00+00:00",
+            "2026-03-28T05:00:00+00:00",
+            "2026-03-29T04:00:00+00:00",
+        ]
+    )
     pd.testing.assert_index_equal(result, expected)
     assert result.tz == index.tz
 
 
 def test_available_at_apply_index_matches_apply():
     """apply_index results should match element-wise apply() calls."""
-    index = pd.to_datetime([
-        "2026-03-27T23:00:00+00:00",
-        "2026-03-28T00:00:00+00:00",
-        "2026-03-28T12:00:00+00:00",
-        "2026-03-29T12:00:00+00:00",
-        "2026-03-30T12:00:00+00:00",
-    ])
+    index = pd.to_datetime(
+        [
+            "2026-03-27T23:00:00+00:00",
+            "2026-03-28T00:00:00+00:00",
+            "2026-03-28T12:00:00+00:00",
+            "2026-03-29T12:00:00+00:00",
+            "2026-03-30T12:00:00+00:00",
+        ]
+    )
     at = AvailableAt(day_offset=-1, time_of_day=time(6, 0), tzinfo=_AMS)
 
     vectorized = at.apply_index(index)

@@ -187,16 +187,18 @@ class PeakMetricProvider(MetricProvider):
     @property
     @override
     def metric_names(self) -> frozenset[str]:
-        return frozenset({
-            "num_predicted_peaks",
-            "num_true_peaks",
-            "precision",
-            "recall",
-            "effective_precision",
-            "effective_recall",
-            f"F{self.beta}",
-            f"effective_F{self.beta}",
-        })
+        return frozenset(
+            {
+                "num_predicted_peaks",
+                "num_true_peaks",
+                "precision",
+                "recall",
+                "effective_precision",
+                "effective_recall",
+                f"F{self.beta}",
+                f"effective_F{self.beta}",
+            }
+        )
 
     limit_pos: float = Field(
         default=0.5,
@@ -672,7 +674,7 @@ class RIQDProvider(MetricProvider):
             if np.isclose(quantile, symmetric_quantile, atol=1e-6):
                 continue  # skip if same quantile (e.g., 0.5)
 
-            symmetric_indices = np.where(np.isclose(quantiles, symmetric_quantile, atol=1e-6))[0]
+            symmetric_indices = np.nonzero(np.isclose(quantiles, symmetric_quantile, atol=1e-6))[0]
 
             if len(symmetric_indices) == 0:
                 continue  # no symmetric quantile found, skip

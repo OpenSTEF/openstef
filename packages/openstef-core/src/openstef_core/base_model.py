@@ -159,7 +159,7 @@ class PydanticStringPrimitive:
         )
 
     @classmethod
-    def __get_pydantic_json_schema__(  # noqa: PLW3201
+    def __get_pydantic_json_schema__(
         cls,
         _schema: core_schema.CoreSchema,
         handler: GetJsonSchemaHandler,

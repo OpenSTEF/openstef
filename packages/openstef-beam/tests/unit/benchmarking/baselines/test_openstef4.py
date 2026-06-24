@@ -24,11 +24,14 @@ from openstef_models.presets import ForecastingWorkflowConfig
 
 @pytest.fixture
 def xgboost_config() -> ForecastingWorkflowConfig:
+    # mlflow_storage=None: these tests exercise fit/predict in-process and never assert
+    # on persistence, so skip MLflow entirely (the default factory writes to ./mlruns).
     return ForecastingWorkflowConfig(
         model_id="test_xgb",
         model="xgboost",
         horizons=[LeadTime.from_string("PT24H")],
         quantiles=[Q(0.5)],
+        mlflow_storage=None,
     )
 
 
@@ -130,6 +133,7 @@ def test_fit_retains_previous_model_on_insufficient_data(
         horizons=[LeadTime.from_string("PT24H")],
         quantiles=[Q(0.5)],
         model_reuse_enable=False,
+        mlflow_storage=None,
     )
     factory = create_openstef4_preset_backtest_forecaster(
         workflow_config=config,

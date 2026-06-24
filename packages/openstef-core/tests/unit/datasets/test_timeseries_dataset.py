@@ -7,10 +7,10 @@
 from datetime import datetime, time, timedelta
 from pathlib import Path
 from typing import cast
+from zoneinfo import ZoneInfo
 
 import pandas as pd
 import pytest
-import pytz
 
 from openstef_core.datasets.timeseries_dataset import TimeSeriesDataset
 from openstef_core.testing import create_timeseries_dataset
@@ -22,25 +22,29 @@ def simple_dataset() -> TimeSeriesDataset:
     return TimeSeriesDataset(
         data=pd.DataFrame(
             data={
-                "available_at": pd.to_datetime([
-                    "2023-01-01T09:50:00",  # lead time = 10:00 - 09:50 = +10min
-                    "2023-01-01T10:55:00",  # lead time = 11:00 - 10:55 = +5min
-                    "2023-01-01T12:10:00",  # lead time = 12:00 - 12:10 = -10min
-                    "2023-01-01T13:20:00",  # lead time = 13:00 - 13:20 = -20min
-                    "2023-01-01T14:15:00",  # lead time = 14:00 - 14:15 = -15min
-                    "2023-01-01T14:30:00",  # lead time = 14:00 - 14:30 = -30min
-                ]),
+                "available_at": pd.to_datetime(
+                    [
+                        "2023-01-01T09:50:00",  # lead time = 10:00 - 09:50 = +10min
+                        "2023-01-01T10:55:00",  # lead time = 11:00 - 10:55 = +5min
+                        "2023-01-01T12:10:00",  # lead time = 12:00 - 12:10 = -10min
+                        "2023-01-01T13:20:00",  # lead time = 13:00 - 13:20 = -20min
+                        "2023-01-01T14:15:00",  # lead time = 14:00 - 14:15 = -15min
+                        "2023-01-01T14:30:00",  # lead time = 14:00 - 14:30 = -30min
+                    ]
+                ),
                 "value1": [10, 20, 30, 40, 50, 55],  # 55 should override 50 for 14:00
             },
-            index=pd.to_datetime([
-                "2023-01-01T10:00:00",
-                "2023-01-01T11:00:00",
-                "2023-01-01T12:00:00",
-                "2023-01-01T13:00:00",
-                # Duplicate timestamp with different availability
-                "2023-01-01T14:00:00",
-                "2023-01-01T14:00:00",
-            ]),
+            index=pd.to_datetime(
+                [
+                    "2023-01-01T10:00:00",
+                    "2023-01-01T11:00:00",
+                    "2023-01-01T12:00:00",
+                    "2023-01-01T13:00:00",
+                    # Duplicate timestamp with different availability
+                    "2023-01-01T14:00:00",
+                    "2023-01-01T14:00:00",
+                ]
+            ),
         ),
         sample_interval=timedelta(hours=1),
     )
@@ -135,21 +139,25 @@ def test_filter_by_available_at(
 def test_filter_by_available_at_dst_aware():
     """Cutoff shifts by 1h across CET→CEST transition (2026-03-29)."""
 
-    available_at = AvailableAt(day_offset=-1, time_of_day=time(6, 0), tzinfo=pytz.timezone("Europe/Amsterdam"))
+    available_at = AvailableAt(day_offset=-1, time_of_day=time(6, 0), tzinfo=ZoneInfo("Europe/Amsterdam"))
 
     dataset = TimeSeriesDataset(
         data=pd.DataFrame(
             data={
-                "available_at": pd.to_datetime([
-                    "2026-03-28T04:30:00+00:00",  # before cutoff 05:00 UTC → kept
-                    "2026-03-29T04:30:00+00:00",  # after  cutoff 04:00 UTC → filtered
-                ]),
+                "available_at": pd.to_datetime(
+                    [
+                        "2026-03-28T04:30:00+00:00",  # before cutoff 05:00 UTC → kept
+                        "2026-03-29T04:30:00+00:00",  # after  cutoff 04:00 UTC → filtered
+                    ]
+                ),
                 "value": [1, 2],
             },
-            index=pd.to_datetime([
-                "2026-03-29T12:00:00+00:00",  # cutoff = Mar 28 06:00 CET = 05:00 UTC
-                "2026-03-30T12:00:00+00:00",  # cutoff = Mar 29 06:00 CEST = 04:00 UTC
-            ]),
+            index=pd.to_datetime(
+                [
+                    "2026-03-29T12:00:00+00:00",  # cutoff = Mar 28 06:00 CET = 05:00 UTC
+                    "2026-03-30T12:00:00+00:00",  # cutoff = Mar 29 06:00 CEST = 04:00 UTC
+                ]
+            ),
         ),
         sample_interval=timedelta(hours=24),
     )
@@ -262,14 +270,16 @@ def test_available_at_and_lead_time_series_equivalence():
 def test_select_horizon(horizon: LeadTime, expected_values: list[int]):
     """Filter dataset to include only data for a specific forecast horizon."""
     # Arrange
-    index = pd.to_datetime([
-        "2023-01-01T10:00:00",
-        "2023-01-01T11:00:00",
-        "2023-01-01T12:00:00",
-        "2023-01-01T13:00:00",
-        "2023-01-01T14:00:00",
-        "2023-01-01T14:00:00",
-    ])
+    index = pd.to_datetime(
+        [
+            "2023-01-01T10:00:00",
+            "2023-01-01T11:00:00",
+            "2023-01-01T12:00:00",
+            "2023-01-01T13:00:00",
+            "2023-01-01T14:00:00",
+            "2023-01-01T14:00:00",
+        ]
+    )
     horizons = pd.Series([timedelta(hours=1)] * 6, index=index)
     dataset = create_timeseries_dataset(
         value1=[10, 20, 30, 40, 50, 55],

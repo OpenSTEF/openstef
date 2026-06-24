@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-import pickle  # noqa: S403 - Controlled test
+import pickle
 from datetime import datetime, timedelta
 from typing import TYPE_CHECKING, override
 

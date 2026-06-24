@@ -79,21 +79,35 @@ OpenSTEF 4.0 uses a workspace structure with multiple packages:
 * ``openstef-beam``: Backtesting, evaluation, analysis and metrics  
 * ``openstef-core``: Core utilities, dataset types, shared types and base models used by other packages
 * ``docs``: Documentation source
+* ``openstef-meta``: Meta-models for combining and stacking forecasts (ensembles, weighted blends)
+* ``openstef-foundation-models``: Foundation-model forecasters (e.g. Chronos-2) on an ONNX runtime
 * ``openstef-compatibility``: Compatibility layer for OpenSTEF 3.x (coming soon)
-* ``openstef-foundational-models``: Deep learning and foundational models (coming soon)
 
 Install the development dependencies using uv:
 
 .. code-block:: bash
 
-    uv sync --all-groups --all-extras
+    uv sync
 
-This will:
+This installs the default ``dev`` dependency group: a curated aggregate of the focused
+groups (``test``, ``lint``, ``typecheck``, ``notebooks``, ``docs``, ``deployment``) plus
+every workspace feature in its CPU flavour. One command gives you the full environment to
+run the tests, linters, type checker, and docs build — no ``--all-groups`` or
+``--all-packages`` needed.
 
-1. Create a virtual environment (if one doesn't exist)
-2. Install all workspace packages in development mode
-3. Install all development dependencies including testing, linting, and documentation tools
-4. Install all optional extras for development
+To install only part of the toolbelt, sync the focused groups directly, e.g.
+``uv sync --no-default-groups --group test`` for just the test runner.
+
+.. note::
+
+    The default environment installs the **CPU** compute runtimes (``onnxruntime``,
+    ``xgboost-cpu``). For a GPU environment, run::
+
+        uv sync --no-default-groups --group dev-gpu
+
+    The CPU and GPU runtimes are declared as conflicting extras, so do **not** pass
+    ``--all-groups`` or ``--all-extras`` — they would try to activate both flavours at once
+    and fail. Install one or the other.
 
 Understanding the workspace structure
 =====================================
@@ -182,5 +196,5 @@ The built documentation will be available at ``docs/build/html/index.html``.
 
 .. note::
 
-    Building documentation requires additional dependencies that are included in the 
-    development environment. Make sure you've run ``uv sync --all-groups --all-extras`` first.
+    Building documentation requires additional dependencies that are included in the
+    development environment. Make sure you've run ``uv sync`` first.
