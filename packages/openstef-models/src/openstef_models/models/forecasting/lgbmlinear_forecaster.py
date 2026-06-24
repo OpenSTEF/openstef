@@ -283,7 +283,7 @@ class LGBMLinearForecaster(Forecaster, ExplainableForecaster, ContributionsMixin
         if not self.is_fitted:
             raise NotFittedError(self.__class__.__name__)
 
-        input_data: pd.DataFrame = data.input_data(start=data.forecast_start, horizon=self.max_horizon)
+        input_data: pd.DataFrame = data.input_data(start=data.forecast_start)
         prediction: npt.NDArray[np.floating] = self._lgbmlinear_model.predict(X=input_data)
 
         return ForecastDataset(

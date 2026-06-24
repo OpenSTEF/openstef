@@ -275,7 +275,7 @@ class GBLinearForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
             raise InputValidationError("There are nan values in the input data. Use imputation transform to fix them.")
 
         # Get input features for prediction
-        input_data: pd.DataFrame = data.input_data(start=data.forecast_start, horizon=self.max_horizon)
+        input_data: pd.DataFrame = data.input_data(start=data.forecast_start)
         # Generate predictions
         predictions_array: np.ndarray = self._gblinear_model.predict(input_data).reshape(-1, len(self.quantiles))
 

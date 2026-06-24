@@ -135,14 +135,12 @@ class ForecastInputDataset(TimeSeriesDataset):
 
         return pd.Series(1, index=self.index)
 
-    def input_data(self, start: datetime | None = None, horizon: LeadTime | None = None) -> pd.DataFrame:
+    def input_data(self, start: datetime | None = None) -> pd.DataFrame:
         """Extract the input features excluding the target column.
 
         Args:
             start: Optional datetime to filter data from. If provided, only includes
                 data points with timestamps at or after this date.
-            horizon: Optional maximum horizon to limit returned data. If provided, only
-                includes data points with timestamps at or before forecast_start + horizon.
 
         Returns:
             DataFrame containing input features with original datetime index.
@@ -154,9 +152,6 @@ class ForecastInputDataset(TimeSeriesDataset):
         input_data: pd.DataFrame = self.data.drop(columns=drop_columns, errors="ignore")
         if start is not None:
             input_data = input_data[input_data.index >= pd.Timestamp(start)]
-        if horizon is not None:
-            end = self.forecast_start + horizon.value
-            input_data = input_data[input_data.index <= pd.Timestamp(end)]
 
         return input_data
 
