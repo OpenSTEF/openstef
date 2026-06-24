@@ -4183,7 +4183,6 @@ dependencies = [
     { name = "openstef-core" },
     { name = "plotly" },
     { name = "pyyaml" },
-    { name = "scoringrules" },
     { name = "tqdm" },
 ]
 
@@ -4207,7 +4206,6 @@ requires-dist = [
     { name = "plotly", specifier = ">=6.3" },
     { name = "pyyaml", specifier = ">=6.0.2" },
     { name = "s3fs", marker = "extra == 'all'", specifier = ">=2025.5.1" },
-    { name = "scoringrules", specifier = ">=0.8" },
     { name = "tqdm", specifier = ">=4.67.1" },
 ]
 provides-extras = ["all", "baselines"]
@@ -6237,19 +6235,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/02/30/7a2e621918d1317ab972f797161131f2635648ad5d92baf0695dd009e4f9/scipy_stubs-1.17.1.5.tar.gz", hash = "sha256:284b1dd1dd46107a614971d170030d310cd88b2ac6b483f85285ee0ff87720bd", size = 399933, upload-time = "2026-05-25T21:34:33.6Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/e1/26/d4bc2ba3427a623f79a6c10c8f427c7a55b56eb8b3eddc369319d97f741b/scipy_stubs-1.17.1.5-py3-none-any.whl", hash = "sha256:58ebf054a86c000c72e8982e121c4ead0d3d9ba7a6c38aa5fa71b07f96a427fd", size = 607388, upload-time = "2026-05-25T21:34:32.073Z" },
-]
-
-[[package]]
-name = "scoringrules"
-version = "0.11.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "numpy" },
-    { name = "scipy" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/e2/2c/645ef0174c26c2eccffc65596a29f2b3eb61daf441ac1ba79dd71611cc14/scoringrules-0.11.0.tar.gz", hash = "sha256:434d53c292bc319d080657dfdda99a3f6a5ceac45687d0f1218f8180e02a259d", size = 194532, upload-time = "2026-06-06T21:56:02.547Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/ef/c2/646ebbc8a8b9df9244a76c8a523f7e768857ce3abd1c6bd4740470fd6b86/scoringrules-0.11.0-py3-none-any.whl", hash = "sha256:6371a36c856a8055b6751dc401a7e20000f0fd2886d602c90ee35ee0bc8ebb4e", size = 96450, upload-time = "2026-06-06T21:56:01.178Z" },
 ]
 
 [[package]]

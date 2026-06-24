@@ -31,7 +31,6 @@ dependencies = [
   "openstef-core>=4,<5",
   "plotly>=6.3",
   "pyyaml>=6.0.2",
-  "scoringrules>=0.8",
   "tqdm>=4.67.1",
 ]
 
