@@ -63,7 +63,7 @@ context that may be necessary for resolving the issue:
          Request a feature
 
 Since OpenSTEF is an open source project with limited resources, we encourage users
-to also :ref:`participate <contribute_code>` in fixing bugs and implementing new
+to also :ref:`participate <contribute/contributing_guide:Ways to Contribute>` in fixing bugs and implementing new
 features.
 
 .. _contribute_guide:
@@ -89,7 +89,7 @@ to contributing, we recommend that you first read our
          :gutter: 1
 
          .. grid-item-card::
-            :link: contribute_code
+            :link: contribute/contributing_guide:Ways to Contribute
             :link-type: ref
             :class-card: sd-shadow-none
             :class-body: sd-text-{primary}
@@ -97,7 +97,7 @@ to contributing, we recommend that you first read our
             :octicon:`code;1em;sd-text-info` Contribute code
 
          .. grid-item-card::
-            :link: contribute_documentation
+            :link: contribute/contributing_guide:Ways to Contribute
             :link-type: ref
             :class-card: sd-shadow-none
             :class-body: sd-text-{primary}
@@ -105,7 +105,7 @@ to contributing, we recommend that you first read our
             :octicon:`note;1em;sd-text-info` Write documentation
 
          .. grid-item-card::
-            :link: other_ways_to_contribute
+            :link: contribute/contributing_guide:Community Guidelines
             :link-type: ref
             :class-card: sd-shadow-none
             :class-body: sd-text-{primary}
@@ -119,19 +119,19 @@ to contributing, we recommend that you first read our
 
          .. grid-item::
 
-            :octicon:`info;1em;sd-text-info` :ref:`Is this my first contribution? <new_contributors>`
+            :octicon:`info;1em;sd-text-info` :ref:`Is this my first contribution? <contribute/contributing_guide:How to Contribute>`
 
          .. grid-item::
 
-            :octicon:`question;1em;sd-text-info` :ref:`Where do I ask questions? <get_connected>`
+            :octicon:`question;1em;sd-text-info` :ref:`Where do I ask questions? <contribute/contributing_guide:Getting Help>`
 
          .. grid-item::
 
-            :octicon:`git-pull-request;1em;sd-text-info` :ref:`How do I choose an issue? <managing_issues_prs>`
+            :octicon:`git-pull-request;1em;sd-text-info` :ref:`How do I choose an issue? <contribute/contributing_guide:Filing Bugs and Change Requests>`
 
          .. grid-item::
 
-            :octicon:`codespaces;1em;sd-text-info` :ref:`How do I start a pull request? <how-to-pull-request>`
+            :octicon:`codespaces;1em;sd-text-info` :ref:`How do I start a pull request? <contribute/contributing_guide:Pull Request Process>`
 
 .. _development_workflow_section:
 
