@@ -83,10 +83,12 @@ def test_create_by_none_generates_single_target_time_series(
     mock_add_model.assert_called_once_with(
         model_name="TestRun", quantiles=IsSamePandas(pandas_obj=sample_evaluation_report.subset.quantiles_data)
     )
-    mock_add_limit.assert_has_calls([
-        call(value=100.0, name="Upper Limit"),
-        call(value=-100.0, name="Lower Limit"),
-    ])
+    mock_add_limit.assert_has_calls(
+        [
+            call(value=100.0, name="Upper Limit"),
+            call(value=-100.0, name="Lower Limit"),
+        ]
+    )
     mock_plot.assert_called_once_with(title="Measurements vs Forecasts for TestTarget")
 
     # Verify output structure
@@ -121,16 +123,20 @@ def test_create_by_run_generates_multi_run_comparison(
     # Assert
     # Verify measurements are shared and limits use first target's value
     mock_add_measurements.assert_called_once_with(sample_evaluation_report.subset.target_series)
-    mock_add_limit.assert_has_calls([
-        call(value=100.0, name="Upper Limit"),  # First target's limit, not 150.0
-        call(value=-100.0, name="Lower Limit"),
-    ])
+    mock_add_limit.assert_has_calls(
+        [
+            call(value=100.0, name="Upper Limit"),  # First target's limit, not 150.0
+            call(value=-100.0, name="Lower Limit"),
+        ]
+    )
 
     # Verify each run is added as separate model
-    mock_add_model.assert_has_calls([
-        call(model_name="Run1", quantiles=IsSamePandas(pandas_obj=sample_evaluation_report.subset.quantiles_data)),
-        call(model_name="Run2", quantiles=IsSamePandas(pandas_obj=sample_evaluation_report.subset.quantiles_data)),
-    ])
+    mock_add_model.assert_has_calls(
+        [
+            call(model_name="Run1", quantiles=IsSamePandas(pandas_obj=sample_evaluation_report.subset.quantiles_data)),
+            call(model_name="Run2", quantiles=IsSamePandas(pandas_obj=sample_evaluation_report.subset.quantiles_data)),
+        ]
+    )
 
     mock_plot.assert_called_once_with(title="Forecast Time Series Comparison")
     assert result.name == viz.name

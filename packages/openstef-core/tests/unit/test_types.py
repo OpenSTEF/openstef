@@ -279,18 +279,22 @@ def test_available_at_time_of_day():
 def test_available_at_apply_index_naive():
     """apply_index on a naive DatetimeIndex returns correct naive cutoffs."""
 
-    index = pd.DatetimeIndex([
-        datetime(2026, 3, 6),  # noqa: DTZ001
-        datetime(2026, 3, 7),  # noqa: DTZ001
-    ])
+    index = pd.DatetimeIndex(
+        [
+            datetime(2026, 3, 6),  # noqa: DTZ001
+            datetime(2026, 3, 7),  # noqa: DTZ001
+        ]
+    )
     at = AvailableAt(day_offset=-1, time_of_day=time(6, 0))
 
     result = at.apply_index(index)
 
-    expected = pd.DatetimeIndex([
-        datetime(2026, 3, 5, 6, 0),  # noqa: DTZ001
-        datetime(2026, 3, 6, 6, 0),  # noqa: DTZ001
-    ])
+    expected = pd.DatetimeIndex(
+        [
+            datetime(2026, 3, 5, 6, 0),  # noqa: DTZ001
+            datetime(2026, 3, 6, 6, 0),  # noqa: DTZ001
+        ]
+    )
     pd.testing.assert_index_equal(result, expected)
 
 
@@ -309,35 +313,41 @@ def test_available_at_apply_index_utc():
 def test_available_at_apply_index_cross_tz_dst():
     """apply_index with AMS tzinfo on UTC index shifts correctly across DST."""
     # Index in UTC, AvailableAt in Europe/Amsterdam
-    index = pd.to_datetime([
-        "2026-03-28T23:00:00+00:00",  # cutoff = Mar 28 06:00 CET = 05:00 UTC
-        "2026-03-29T00:00:00+00:00",  # cutoff = Mar 28 06:00 CET = 05:00 UTC
-        "2026-03-29T12:00:00+00:00",  # cutoff = Mar 28 06:00 CET = 05:00 UTC
-        "2026-03-30T00:00:00+00:00",  # cutoff = Mar 29 06:00 CEST = 04:00 UTC
-    ])
+    index = pd.to_datetime(
+        [
+            "2026-03-28T23:00:00+00:00",  # cutoff = Mar 28 06:00 CET = 05:00 UTC
+            "2026-03-29T00:00:00+00:00",  # cutoff = Mar 28 06:00 CET = 05:00 UTC
+            "2026-03-29T12:00:00+00:00",  # cutoff = Mar 28 06:00 CET = 05:00 UTC
+            "2026-03-30T00:00:00+00:00",  # cutoff = Mar 29 06:00 CEST = 04:00 UTC
+        ]
+    )
     at = AvailableAt(day_offset=-1, time_of_day=time(6, 0), tzinfo=_AMS)
 
     result = at.apply_index(index)
 
-    expected = pd.to_datetime([
-        "2026-03-28T05:00:00+00:00",
-        "2026-03-28T05:00:00+00:00",
-        "2026-03-28T05:00:00+00:00",
-        "2026-03-29T04:00:00+00:00",
-    ])
+    expected = pd.to_datetime(
+        [
+            "2026-03-28T05:00:00+00:00",
+            "2026-03-28T05:00:00+00:00",
+            "2026-03-28T05:00:00+00:00",
+            "2026-03-29T04:00:00+00:00",
+        ]
+    )
     pd.testing.assert_index_equal(result, expected)
     assert result.tz == index.tz
 
 
 def test_available_at_apply_index_matches_apply():
     """apply_index results should match element-wise apply() calls."""
-    index = pd.to_datetime([
-        "2026-03-27T23:00:00+00:00",
-        "2026-03-28T00:00:00+00:00",
-        "2026-03-28T12:00:00+00:00",
-        "2026-03-29T12:00:00+00:00",
-        "2026-03-30T12:00:00+00:00",
-    ])
+    index = pd.to_datetime(
+        [
+            "2026-03-27T23:00:00+00:00",
+            "2026-03-28T00:00:00+00:00",
+            "2026-03-28T12:00:00+00:00",
+            "2026-03-29T12:00:00+00:00",
+            "2026-03-30T12:00:00+00:00",
+        ]
+    )
     at = AvailableAt(day_offset=-1, time_of_day=time(6, 0), tzinfo=_AMS)
 
     vectorized = at.apply_index(index)

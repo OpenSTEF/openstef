@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-import pickle  # noqa: S403 - controlled test
+import pickle
 from datetime import datetime, timedelta
 
 import numpy as np

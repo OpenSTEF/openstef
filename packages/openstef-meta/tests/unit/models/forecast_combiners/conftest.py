@@ -25,19 +25,23 @@ def forecast_dataset_factory() -> Callable[[], ForecastDataset]:
                 "quantile_P90": np.array([1, 2, 3]) * coef[2],
                 "load": [100, 200, 300],
             },
-            index=pd.to_datetime([
-                "2023-01-01T10:00:00",
-                "2023-01-01T11:00:00",
-                "2023-01-01T12:00:00",
-            ]),
+            index=pd.to_datetime(
+                [
+                    "2023-01-01T10:00:00",
+                    "2023-01-01T11:00:00",
+                    "2023-01-01T12:00:00",
+                ]
+            ),
         )
         df += rng.normal(0, 1, df.shape)  # Add slight noise to avoid perfect predictions
 
-        df["available_at"] = pd.to_datetime([
-            "2023-01-01T09:50:00",
-            "2023-01-01T10:55:00",
-            "2023-01-01T12:10:00",
-        ])
+        df["available_at"] = pd.to_datetime(
+            [
+                "2023-01-01T09:50:00",
+                "2023-01-01T10:55:00",
+                "2023-01-01T12:10:00",
+            ]
+        )
 
         return ForecastDataset(
             data=df,

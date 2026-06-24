@@ -117,12 +117,14 @@ class PrecisionRecallCurvePlotter:
         # Combine all model data into a single DataFrame
         model_df_list: list[pd.DataFrame] = []
         for model_data in self.models_data:
-            model_df = pd.DataFrame({
-                "model": [model_data["model"]] * len(model_data["precision"]),
-                "precision": model_data["precision"],
-                "recall": model_data["recall"],
-                "quantile": model_data["quantile"],
-            })
+            model_df = pd.DataFrame(
+                {
+                    "model": [model_data["model"]] * len(model_data["precision"]),
+                    "precision": model_data["precision"],
+                    "recall": model_data["recall"],
+                    "quantile": model_data["quantile"],
+                }
+            )
             model_df_list.append(model_df)
 
         models_df = pd.concat(model_df_list, ignore_index=True)

@@ -33,7 +33,7 @@ from openstef_core.utils.pandas import unsafe_sorted_range_slice_idxs
 _logger = logging.getLogger(__name__)
 
 
-class TimeSeriesDataset(TimeSeriesMixin, DatasetMixin):  # noqa: PLR0904 - important utility class, allow too many public methods
+class TimeSeriesDataset(TimeSeriesMixin, DatasetMixin):
     """A time series dataset with regular sampling intervals and optional versioning.
 
     This class represents time series data with a consistent sampling interval

@@ -43,10 +43,12 @@ def sample_evaluation_subset() -> ForecastDataset:
     return ForecastDataset(
         data=pd.DataFrame(
             {"quantile_P10": [1.0, 2.0], "quantile_P50": [2.0, 3.0], "quantile_P90": [3.0, 4.0], "load": [1.5, 2.5]},
-            index=pd.to_datetime([
-                datetime.fromisoformat("2023-01-01T00:00:00"),
-                datetime.fromisoformat("2023-01-01T01:00:00"),
-            ]),
+            index=pd.to_datetime(
+                [
+                    datetime.fromisoformat("2023-01-01T00:00:00"),
+                    datetime.fromisoformat("2023-01-01T01:00:00"),
+                ]
+            ),
         ),
         sample_interval=timedelta(hours=1),
     )

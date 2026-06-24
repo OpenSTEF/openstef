@@ -89,8 +89,7 @@ class HolidayFeatureAdder(BaseConfig, TimeSeriesTransform):
 
         # Merge dates with holidays
         merged = (
-            pd
-            .Series(data=index.date, index=index)
+            pd.Series(data=index.date, index=index)
             .to_frame("date")
             .merge(holidays_df[["date", "sanitized_name"]], on="date", how="left")
             .set_index(index)
@@ -145,11 +144,13 @@ def get_holiday_names(
     country_holidays = holidays.country_holidays(
         country=str(country_code), categories=["public"], years=reference_years, language="en_US"
     )
-    return sorted([
-        sanitize_holiday_name(holiday_name)
-        for holiday_name in set(country_holidays.values())
-        if sanitize_holiday_name(holiday_name) and sanitize_holiday_name(holiday_name) not in reserved_features
-    ])
+    return sorted(
+        [
+            sanitize_holiday_name(holiday_name)
+            for holiday_name in set(country_holidays.values())
+            if sanitize_holiday_name(holiday_name) and sanitize_holiday_name(holiday_name) not in reserved_features
+        ]
+    )
 
 
 def get_holidays(

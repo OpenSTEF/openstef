@@ -59,20 +59,21 @@ class SummaryTablePlotter:
         """
         # Apply basic styling to the HTML table
         return (
-            self.data.style
-            .set_table_attributes('class="dataframe"')
+            self.data.style.set_table_attributes('class="dataframe"')
             .set_properties(**{"text-align": "left", "padding": "5px", "border": "1px solid #ddd"})  # ty: ignore[invalid-argument-type]
-            .set_table_styles([
-                {
-                    "selector": "thead th",
-                    "props": [
-                        ("font-weight", "bold"),
-                        ("text-align", "left"),
-                        ("padding", "8px"),
-                        ("border-bottom", "2px solid #ddd"),
-                    ],
-                },
-            ])
+            .set_table_styles(
+                [
+                    {
+                        "selector": "thead th",
+                        "props": [
+                            ("font-weight", "bold"),
+                            ("text-align", "left"),
+                            ("padding", "8px"),
+                            ("border-bottom", "2px solid #ddd"),
+                        ],
+                    },
+                ]
+            )
             .hide(axis="index")
             .to_html()
         )

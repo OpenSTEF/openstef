@@ -577,11 +577,13 @@ class EnsembleForecastDataset(TimeSeriesDataset):
         if sample_weights is not None:
             additional_columns[sample_weight_column] = sample_weights
 
-        combined_data = pd.DataFrame({
-            f"{learner}{ENSEMBLE_COLUMN_SEP}{q.format()}": ds.data[q.format()]
-            for learner, ds in datasets.items()
-            for q in ds.quantiles
-        }).assign(**additional_columns)
+        combined_data = pd.DataFrame(
+            {
+                f"{learner}{ENSEMBLE_COLUMN_SEP}{q.format()}": ds.data[q.format()]
+                for learner, ds in datasets.items()
+                for q in ds.quantiles
+            }
+        ).assign(**additional_columns)
 
         return cls(
             data=combined_data,

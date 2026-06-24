@@ -98,11 +98,13 @@ class Window(PydanticStringPrimitive):
         """
         if isinstance(v, dict):
             minimum_coverage = float(str(v.get("minimum_coverage", 0.5)))
-            lag, size, stride = TypeAdapter(tuple[timedelta, timedelta, timedelta]).validate_python((
-                v.get("lag"),
-                v.get("size"),
-                v.get("stride", timedelta(days=1)),
-            ))
+            lag, size, stride = TypeAdapter(tuple[timedelta, timedelta, timedelta]).validate_python(
+                (
+                    v.get("lag"),
+                    v.get("size"),
+                    v.get("stride", timedelta(days=1)),
+                )
+            )
 
             return cls(lag=lag, size=size, stride=stride, minimum_coverage=minimum_coverage)
 

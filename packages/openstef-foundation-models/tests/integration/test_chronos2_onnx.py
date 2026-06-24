@@ -108,14 +108,18 @@ def test_onnx_backend_runs_with_known_future_covariates(onnx_backend: OnnxBacken
         "group_ids": np.array([0, 0], dtype=np.int64),
         "attention_mask": np.ones((2, context_length), dtype=np.float32),
         # Target row (0): covariates masked out. Covariate row (1): known horizon values.
-        "future_covariates": np.vstack([
-            np.zeros(HORIZON_LENGTH, dtype=np.float32),
-            rng.normal(50.0, 5.0, size=HORIZON_LENGTH).astype(np.float32),
-        ]),
-        "future_covariates_mask": np.vstack([
-            np.zeros(HORIZON_LENGTH, dtype=np.float32),
-            np.ones(HORIZON_LENGTH, dtype=np.float32),
-        ]),
+        "future_covariates": np.vstack(
+            [
+                np.zeros(HORIZON_LENGTH, dtype=np.float32),
+                rng.normal(50.0, 5.0, size=HORIZON_LENGTH).astype(np.float32),
+            ]
+        ),
+        "future_covariates_mask": np.vstack(
+            [
+                np.zeros(HORIZON_LENGTH, dtype=np.float32),
+                np.ones(HORIZON_LENGTH, dtype=np.float32),
+            ]
+        ),
     }
 
     # Act
