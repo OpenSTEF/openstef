@@ -12,7 +12,7 @@ Examples sidebar and the User Guide sidebar (as separate Sphinx documents).
 It also materializes the community health files (CONTRIBUTING, CODE_OF_CONDUCT,
 SECURITY, SUPPORT, PROJECT_GOVERNANCE). These live canonically in the org-level
 ``OpenSTEF/.github`` repository — the single source of truth — as plain,
-GitHub-flavored Markdown (so they render correctly on GitHub). They are
+GitHub-flavored Markdown (so they render correctly on GitHub). They are always
 downloaded via the GitHub REST API at build time and written verbatim; the docs
 render them through the MyST parser (which already handles GitHub constructs
 such as ``<details>`` blocks and blockquotes) and reference their headings via
@@ -80,22 +80,6 @@ EMBED_MAP = {
 }
 
 
-def _resolve_local_community_source() -> Path | None:
-    """Find a local checkout of the org ``.github`` repo, if available.
-
-    Looks only for a sibling ``.github`` checkout next to this repository
-    (the canonical GitHub org-repo name). This is a convenience fast path for
-    previewing local, unpushed edits; otherwise files come from the GitHub API.
-
-    Returns:
-        The directory containing the community markdown files, or ``None``.
-    """
-    candidate = ROOT.parent / COMMUNITY_REPO_NAME
-    if candidate.is_dir() and (candidate / "CONTRIBUTING.md").is_file():
-        return candidate
-    return None
-
-
 def _download_community_file(name: str) -> str:
     """Download a single community file via the GitHub REST API.
 
@@ -129,21 +113,9 @@ def _download_community_file(name: str) -> str:
             "The docs embed the OpenSTEF/.github community files "
             "(CONTRIBUTING.md, CODE_OF_CONDUCT.md, SECURITY.md, SUPPORT.md, "
             "PROJECT_GOVERNANCE.md) and cannot build without them. Ensure "
-            "network access to GitHub, or check out OpenSTEF/.github as a "
-            f"sibling '{COMMUNITY_REPO_NAME}' directory, then rebuild."
+            "network access to GitHub, then rebuild."
         )
         raise RuntimeError(msg) from exc
-
-
-def _get_community_content(name: str, local_source: Path | None) -> str:
-    """Return the content of a community file, preferring a local checkout."""
-    if local_source is not None:
-        local_file = local_source / name
-        if local_file.is_file():
-            print(f"  {COMMUNITY_REPO_NAME} (local):{name}")
-            return local_file.read_text(encoding="utf-8")
-    print(f"  GitHub API:{COMMUNITY_REPO}:{name}")
-    return _download_community_file(name)
 
 
 def sync_community_files() -> None:
@@ -151,21 +123,19 @@ def sync_community_files() -> None:
 
     The canonical copies live in ``OpenSTEF/.github`` (a single source of truth
     inherited by every repo on GitHub) as plain, GitHub-flavored Markdown. They
-    are downloaded via the GitHub REST API (or read from a sibling ``.github``
-    checkout, if present) and written verbatim into ``COMMUNITY_DEST``. The
-    contribute pages pull them in with ``.. include::`` and let the MyST parser
-    render them, so no Markdown rewriting happens here.
+    are downloaded via the GitHub REST API and written into
+    ``COMMUNITY_DEST``. The contribute pages pull them in with ``.. include::``
+    and let the MyST parser render them, so no Markdown rewriting happens here.
 
     Raises:
         RuntimeError: If any required community file cannot be obtained. The docs
             would otherwise build incompletely, so the build must fail with a
             clear message.
     """
-    local_source = _resolve_local_community_source()
-
     COMMUNITY_DEST.mkdir(parents=True, exist_ok=True)
     for name in COMMUNITY_FILES:
-        content = _get_community_content(name, local_source)
+        print(f"  GitHub API:{COMMUNITY_REPO}:{name}")
+        content = _download_community_file(name)
         dest = COMMUNITY_DEST / name
         dest.write_text(content, encoding="utf-8")
         print(f"    -> {dest.relative_to(ROOT)}")
