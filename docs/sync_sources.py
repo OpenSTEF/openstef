@@ -133,8 +133,14 @@ def sync_community_files() -> None:
             clear message.
     """
     COMMUNITY_DEST.mkdir(parents=True, exist_ok=True)
+
     for name in COMMUNITY_FILES:
         print(f"  GitHub API:{COMMUNITY_REPO}:{name}")
+
+        if (COMMUNITY_DEST / name).is_file():
+            print(f"    -> {COMMUNITY_DEST.relative_to(ROOT) / name} (already present; skipping)")
+            continue
+
         content = _download_community_file(name)
         dest = COMMUNITY_DEST / name
         dest.write_text(content, encoding="utf-8")
