@@ -116,3 +116,32 @@ def test_datetime_features_onehot_encoding():
     # Should NOT have regular month/quarter columns
     assert "month_of_year" not in result.data.columns
     assert "quarter_of_year" not in result.data.columns
+
+
+def test_features_added_matches_columns_without_onehot():
+    """features_added() reports exactly the columns transform() adds (non-one-hot)."""
+    data = pd.DataFrame({"load": [1.0, 2.0, 3.0]}, index=pd.date_range("2025-01-01", periods=3, freq="D"))
+    dataset = TimeSeriesDataset(data, timedelta(days=1))
+    transform = DatetimeFeaturesAdder(onehot_encode=False)
+
+    result = transform.transform(dataset)
+    added = [col for col in result.data.columns if col != "load"]
+
+    assert set(transform.features_added()) == set(added)
+
+
+def test_features_added_matches_columns_with_onehot():
+    """features_added() matches the one-hot columns, which span all months and quarters."""
+    data = pd.DataFrame(
+        {"load": [1.0, 2.0]},
+        index=pd.DatetimeIndex(["2025-01-15", "2025-04-15"]),
+    )
+    dataset = TimeSeriesDataset(data, timedelta(days=1))
+    transform = DatetimeFeaturesAdder(onehot_encode=True)
+
+    result = transform.transform(dataset)
+    added = [col for col in result.data.columns if col != "load"]
+
+    assert set(transform.features_added()) == set(added)
+    assert all(f"month_{month}" in added for month in range(1, 13))
+    assert all(f"quarter_{quarter}" in added for quarter in range(1, 5))
