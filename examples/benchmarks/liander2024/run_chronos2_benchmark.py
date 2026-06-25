@@ -30,14 +30,8 @@
 # 3. Produces probabilistic forecasts (7 quantiles) for a 3-day horizon
 # 4. Saves results locally for comparison (see the *Compare Results* notebook)
 #
-# The model size, on-disk precision, execution provider, and batch size are all
-# selectable via environment variables (see the *Configuration* section), so you can
-# sweep performance setups without editing code:
-#
-# ```bash
-# CHRONOS2_SIZE=small CHRONOS2_PROVIDER=tensorrt-fp16 CHRONOS2_BATCH_SIZE=16 \
-#     python run_chronos2_benchmark.py
-# ```
+# The model size, on-disk precision, execution provider, and batch size are all set in
+# the **Configuration** section below — edit those constants to try different setups.
 #
 # ```{admonition} The model stays loaded across targets
 # :class: tip
@@ -53,9 +47,10 @@
 # it needs network access on first run but no local export. It is not run during the
 # docs build.
 # ```
+#
 
 # %% tags=["remove-cell"]
-# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+# SPDX-FileCopyrightText: 2026 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
 
@@ -65,10 +60,11 @@ os.environ["OMP_NUM_THREADS"] = "1"
 os.environ["OPENBLAS_NUM_THREADS"] = "1"
 os.environ["MKL_NUM_THREADS"] = "1"
 
+
 # %% [markdown]
 # ## Setup
 #
-# Import the benchmarking harness, the foundation-model adapter, and configure logging.
+# Import the relevant components, and configure logging.
 
 # %%
 import logging
@@ -99,6 +95,7 @@ from openstef_models.utils.feature_selection import Include
 logging.basicConfig(level=logging.INFO, format="[%(asctime)s][%(levelname)s] %(message)s")
 logger = logging.getLogger("chronos2_benchmark")
 
+
 # %% [markdown]
 # ## Configuration
 #
@@ -108,66 +105,32 @@ logger = logging.getLogger("chronos2_benchmark")
 # %%
 OUTPUT_PATH = Path("./benchmark_results")
 
-# --- Model setup switches (all env-overridable for easy A/B testing) ---------
-#
-# Mix and match these three knobs to sweep performance setups without editing code:
-#
-#   CHRONOS2_SIZE=base|small      python run_chronos2_benchmark.py
-#   CHRONOS2_PRECISION=fp32|fp32-static|int8
-#   CHRONOS2_PROVIDER=auto|cuda|tensorrt-fp16|tensorrt-fp32|cpu
-#   CHRONOS2_BATCH_SIZE=<int>
-#
-# Model size. "base" -> OpenSTEF/chronos-2-onnx, "small" -> OpenSTEF/chronos-2-small-onnx.
-# The small model has far fewer FLOPs per forecast (faster, slightly less accurate).
-MODEL_SIZE = os.environ.get("CHRONOS2_SIZE", "small")
+# --- Model ---
+MODEL_SIZE = "small"  # "base" or "small" (small is faster, slightly less accurate)
+PRECISION = "fp32"  # "fp32", "fp32-static", or "int8"
+PROVIDER = "auto"  # "auto", "cuda", "tensorrt-fp16", "tensorrt-fp32", or "cpu"
+BATCH_SIZE = 48  # forecast origins grouped into one backend call; 1 = one at a time
 
-# On-disk precision/shape variant of the published ONNX weights:
-#   "fp32"        -> dynamic-shape FP32 (chronos-2.onnx)            [default, portable]
-#   "fp32-static" -> frozen-shape FP32  (chronos-2_static.onnx)    [enables more graph opt / TensorRT specialisation]
-#   "int8"        -> 8-bit quantized    (chronos-2_int8.onnx)      [smallest/fastest on CPU, accuracy-dependent]
-# Note: FP16 is not a separate file - get it at runtime via CHRONOS2_PROVIDER=tensorrt-fp16.
-PRECISION = os.environ.get("CHRONOS2_PRECISION", "fp32")
-
-# ONNX Runtime execution-provider chain:
-#   "auto"          -> let the default policy pick from checkpoint metadata + host
-#   "cuda"          -> CUDA EP (FP32 math) with CPU fallback
-#   "tensorrt-fp16" -> TensorRT EP with FP16 (fastest on NVIDIA), CUDA/CPU fallback
-#   "tensorrt-fp32" -> TensorRT EP at FP32, CUDA/CPU fallback
-#   "cpu"           -> CPU only
-# TensorRT builds an engine on first run; it is cached under ./trt_cache for reuse.
-PROVIDER = os.environ.get("CHRONOS2_PROVIDER", "auto")
-
-# Identifies this setup so sweep runs land in separate result folders and run names.
-RUN_TAG = f"{MODEL_SIZE}-{PRECISION}-{PROVIDER}-b{os.environ.get('CHRONOS2_BATCH_SIZE', '1')}"
-BENCHMARK_RESULTS_PATH_CHRONOS2 = OUTPUT_PATH / "Chronos2" / RUN_TAG
-
-# Run sequentially so the loaded model is reused across every target (see the note
-# at the top). A value > 1 would load one model copy per worker process.
-N_PROCESSES = 1
-
-# Which Liander2024 categories to benchmark. Start with wind parks; add more here,
-# e.g. ["wind_park", "solar_park"]. Set to None to run every category.
-BENCHMARK_FILTER: list[Liander2024Category] | None = ["wind_park"]
-
-# Forecast 3 days ahead, producing 7 quantile bands.
-FORECAST_HORIZONS = [LeadTime.from_string("P3D")]
+# --- Benchmark scope ---
+BENCHMARK_FILTER: list[Liander2024Category] | None = ["wind_park"]  # None = every category
+FORECAST_HORIZONS = [LeadTime.from_string("P3D")]  # 3 days ahead
 PREDICTION_QUANTILES = [Q(0.05), Q(0.1), Q(0.3), Q(0.5), Q(0.7), Q(0.9), Q(0.95)]
 
-# Batch size for inference. The backtest adapter groups this many forecast origins
-# into a single `predict_batch` call, which Chronos-2 serves with one backend
-# invocation instead of one per origin. Larger values trade memory for throughput.
-# Set to 1 to fall back to the serial, one-origin-at-a-time path. Override via the
-# CHRONOS2_BATCH_SIZE environment variable.
-BATCH_SIZE = int(os.environ.get("CHRONOS2_BATCH_SIZE", "48"))
+# --- Run ---
+N_PROCESSES = 1  # keep at 1 so the loaded model is shared across all targets
+RUN_TAG = f"{MODEL_SIZE}-{PRECISION}-{PROVIDER}-b{BATCH_SIZE}"
+BENCHMARK_RESULTS_PATH_CHRONOS2 = OUTPUT_PATH / "Chronos2" / RUN_TAG
+
 
 # %% [markdown]
 # ## Resolve the setup into a checkpoint and a backend
 #
-# The three switches above are turned into a `HubCheckpoint` (which weights + metadata
-# to download from the Hub) and an `OnnxBackendConfig` (how to run them). Both the
+# The three settings above are turned into a `HubCheckpoint` (which weights + metadata
+# to download) and an `OnnxBackendConfig`. Both the
 # weights and their `<weights>.metadata.json` are downloaded and cached on first use.
-# Keeping these as small builders makes it trivial to sweep setups from the
-# environment without touching the workflow below.
+# Keeping these as small builders makes it trivial to try different setups from the
+# Configuration cell without touching the workflow below.
+#
 
 # %%
 _MODEL_SLUGS = {"base": "chronos-2", "small": "chronos-2-small"}
@@ -175,7 +138,7 @@ _PRECISION_SUFFIX = {"fp32": "", "fp32-static": "_static", "int8": "_int8"}
 
 
 def build_checkpoint(size: str, precision: str) -> HubCheckpoint:
-    """Build the Hub checkpoint reference for a model *size* and *precision* variant.
+    """Build the Hub checkpoint reference for a model size and precision variant.
 
     Args:
         size: Model size key, one of ``_MODEL_SLUGS`` (``base`` or ``small``).
@@ -188,10 +151,10 @@ def build_checkpoint(size: str, precision: str) -> HubCheckpoint:
         ValueError: If ``size`` or ``precision`` is not a recognised option.
     """
     if size not in _MODEL_SLUGS:
-        msg = f"Unknown CHRONOS2_SIZE={size!r}; choose one of {sorted(_MODEL_SLUGS)}."
+        msg = f"Unknown MODEL_SIZE={size!r}; choose one of {sorted(_MODEL_SLUGS)}."
         raise ValueError(msg)
     if precision not in _PRECISION_SUFFIX:
-        msg = f"Unknown CHRONOS2_PRECISION={precision!r}; choose one of {sorted(_PRECISION_SUFFIX)}."
+        msg = f"Unknown PRECISION={precision!r}; choose one of {sorted(_PRECISION_SUFFIX)}."
         raise ValueError(msg)
     slug = _MODEL_SLUGS[size]
     # The metadata filename (e.g. chronos-2_int8.metadata.json) is auto-discovered.
@@ -222,7 +185,7 @@ def build_backend(provider: str) -> OnnxBackendConfig:
         "cpu": [CpuProvider()],
     }
     if provider not in chains:
-        msg = f"Unknown CHRONOS2_PROVIDER={provider!r}; choose one of {sorted(chains)}."
+        msg = f"Unknown PROVIDER={provider!r}; choose one of {sorted(chains)}."
         raise ValueError(msg)
     return OnnxBackendConfig(providers=chains[provider])
 
@@ -232,6 +195,7 @@ backend = build_backend(PROVIDER)
 logger.info(
     "Chronos-2 setup: size=%s precision=%s provider=%s batch_size=%s", MODEL_SIZE, PRECISION, PROVIDER, BATCH_SIZE
 )
+
 
 # %% [markdown]
 # ## Build the workflow once
@@ -257,9 +221,9 @@ workflow = create_forecasting_workflow(
             "wind_speed_80m",
             "temperature_2m",
         ),
-        # Compute backend (execution-provider chain) chosen by the CHRONOS2_PROVIDER
-        # switch above. Pass `providers=None` ("auto") to let the default policy read
-        # the checkpoint metadata and host to pick a chain automatically.
+        # Compute backend (execution-provider chain) chosen by the PROVIDER setting
+        # above. Pass `providers=None` ("auto") to let the default policy read the
+        # checkpoint metadata and host to pick a chain automatically.
         backend=backend,
     )
 )
