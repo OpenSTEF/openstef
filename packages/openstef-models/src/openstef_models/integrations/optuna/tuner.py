@@ -16,7 +16,7 @@ try:
 except ImportError as _err:
     from openstef_core.exceptions import MissingExtraError
 
-    raise MissingExtraError("optuna", "openstef-models[tuning]") from _err
+    raise MissingExtraError("optuna", "openstef-models", install_extra="tuning") from _err
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset

@@ -225,7 +225,7 @@ class BenchmarkPipeline[T: BenchmarkTarget, F]:
             _logger.info("Skipping target")
             return
 
-        try:  # noqa: PLW0717 - single try isolates all per-target work so one failure skips just that target
+        try:
             forecaster = model_factory(context, target)
 
             if not self.storage.has_backtest_output(target):

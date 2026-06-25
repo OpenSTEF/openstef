@@ -297,14 +297,16 @@ def test_insert_gaps_for_missing_timestamps(connect_gaps: bool):
     plotter = ForecastTimeSeriesPlotter(connect_gaps=connect_gaps)
 
     # Create example time series with gaps
-    dates_with_gaps = pd.to_datetime([
-        "2024-01-01 10:00:00",
-        "2024-01-01 11:00:00",
-        "2024-01-01 13:00:00",
-        "2024-01-01 14:00:00",
-        "2024-01-01 18:00:00",
-        "2024-01-01 19:00:00",
-    ])
+    dates_with_gaps = pd.to_datetime(
+        [
+            "2024-01-01 10:00:00",
+            "2024-01-01 11:00:00",
+            "2024-01-01 13:00:00",
+            "2024-01-01 14:00:00",
+            "2024-01-01 18:00:00",
+            "2024-01-01 19:00:00",
+        ]
+    )
     original_series = pd.Series([10, 20, 30, 40, 50, 60], index=dates_with_gaps)
     sample_interval = pd.Timedelta("1h")
 
@@ -406,14 +408,16 @@ def test_add_quantile_band(connect_gaps: bool):
     figure = go.Figure()
 
     # Create example quantile data with gaps
-    dates_with_gaps = pd.to_datetime([
-        "2024-01-01 10:00:00",
-        "2024-01-01 11:00:00",
-        "2024-01-01 13:00:00",
-        "2024-01-01 14:00:00",
-        "2024-01-01 18:00:00",
-        "2024-01-01 19:00:00",
-    ])
+    dates_with_gaps = pd.to_datetime(
+        [
+            "2024-01-01 10:00:00",
+            "2024-01-01 11:00:00",
+            "2024-01-01 13:00:00",
+            "2024-01-01 14:00:00",
+            "2024-01-01 18:00:00",
+            "2024-01-01 19:00:00",
+        ]
+    )
 
     lower_quantile_data = pd.Series([5, 10, 15, 20, 25, 30], index=dates_with_gaps)
     upper_quantile_data = pd.Series([15, 25, 35, 45, 55, 65], index=dates_with_gaps)
@@ -465,3 +469,77 @@ def test_add_quantile_band(connect_gaps: bool):
         if hasattr(trace, "showlegend") and not trace.showlegend and getattr(trace, "fill", None) is None
     ]
     assert len(hover_traces) >= 1
+
+
+@pytest.mark.parametrize(
+    ("percentile", "expected"),
+    [
+        (10.0, "10"),
+        (50.0, "50"),
+        (90.0, "90"),
+        (2.5, "2.5"),
+        (97.5, "97.5"),
+        (0.1, "0.1"),
+        (99.9, "99.9"),
+    ],
+)
+def test_format_percentile(percentile: float, expected: str):
+    """Whole-number percentiles drop the trailing ``.0``; non-integers render exactly."""
+    assert ForecastTimeSeriesPlotter._format_percentile(percentile) == expected
+
+
+def test_plot_with_non_integer_quantiles():
+    """Extreme/non-integer quantiles (e.g. P0.1, P99.9) should plot without error.
+
+    Regression test for #764: quantile columns were parsed with ``int()``, which
+    raised ``ValueError`` on percentiles such as ``0.1`` or ``2.5``.
+    """
+    # Arrange
+    index = pd.date_range("2024-01-01", periods=3, freq="D")
+    quantiles = pd.DataFrame(
+        {
+            "quantile_P0.1": [0, 1, 2],
+            "quantile_P2.5": [1, 2, 3],
+            "quantile_P50": [2, 3, 4],
+            "quantile_P97.5": [3, 4, 5],
+            "quantile_P99.9": [4, 5, 6],
+        },
+        index=index,
+    )
+
+    plotter = ForecastTimeSeriesPlotter()
+    plotter.add_model(model_name="Model 1", quantiles=quantiles)
+
+    # Act
+    fig = plotter.plot()
+
+    # Assert
+    # Two bands (0.1-99.9 and 2.5-97.5), each = polygon + hover trace, plus the
+    # 50th-quantile line: 2 * 2 + 1 = 5 traces.
+    assert len(fig.data) == 5
+    names: list[str] = [trace.name for trace in fig.data]
+    assert any("0.1%-99.9%" in n for n in names)
+    assert any("2.5%-97.5%" in n for n in names)
+    # Non-integer percentiles must not be coerced to ints, and whole numbers must
+    # not gain a trailing ".0".
+    assert not any(".0%" in n for n in names)
+
+
+def test_band_stores_non_integer_percentiles():
+    """Prepared bands keep non-integer percentiles as floats, not truncated ints."""
+    # Arrange
+    index = pd.date_range("2024-01-01", periods=2, freq="D")
+    quantiles = pd.DataFrame(
+        {"quantile_P2.5": [1, 2], "quantile_P97.5": [3, 4]},
+        index=index,
+    )
+    plotter = ForecastTimeSeriesPlotter()
+    plotter.add_model(model_name="Model 1", quantiles=quantiles)
+
+    # Act
+    bands = plotter._prepare_quantile_bands()
+
+    # Assert
+    assert len(bands) == 1
+    assert bands[0]["lower_quantile"] == pytest.approx(2.5)
+    assert bands[0]["upper_quantile"] == pytest.approx(97.5)

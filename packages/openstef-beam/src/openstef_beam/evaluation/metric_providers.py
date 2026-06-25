@@ -187,16 +187,18 @@ class PeakMetricProvider(MetricProvider):
     @property
     @override
     def metric_names(self) -> frozenset[str]:
-        return frozenset({
-            "num_predicted_peaks",
-            "num_true_peaks",
-            "precision",
-            "recall",
-            "effective_precision",
-            "effective_recall",
-            f"F{self.beta}",
-            f"effective_F{self.beta}",
-        })
+        return frozenset(
+            {
+                "num_predicted_peaks",
+                "num_true_peaks",
+                "precision",
+                "recall",
+                "effective_precision",
+                "effective_recall",
+                f"F{self.beta}",
+                f"effective_F{self.beta}",
+            }
+        )
 
     limit_pos: float = Field(
         default=0.5,

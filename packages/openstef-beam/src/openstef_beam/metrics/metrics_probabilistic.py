@@ -16,11 +16,16 @@ Key concepts:
     - Proper scoring: Metrics that reward honest probability estimates over gaming the system.
 """
 
+from typing import Literal
+
 import numpy as np
 import numpy.typing as npt
 
-from openstef_core.exceptions import MissingExtraError
+from openstef_beam.metrics.metrics_deterministic import pinball_loss
+from openstef_beam.metrics.metrics_helpers import represented_interval_weights
 from openstef_core.types import Quantile
+
+type QuantileWeightingMethod = Literal["interval", "uniform"]
 
 
 def crps(
@@ -28,6 +33,7 @@ def crps(
     y_pred: npt.NDArray[np.floating],
     quantiles: npt.NDArray[np.floating],
     sample_weights: npt.NDArray[np.floating] | None = None,
+    method: QuantileWeightingMethod = "interval",
 ) -> float:
     """Calculate the Continuous Ranked Probability Score (CRPS) for probabilistic forecasts.
 
@@ -43,6 +49,10 @@ def crps(
             Must be sorted in ascending order and contain values in [0, 1].
         sample_weights: Optional weights for each sample with shape (num_samples,).
             If None, all samples are weighted equally.
+        method: Quantile weighting scheme to use. "interval" (default) weights each
+            quantile by the probability interval it represents on [0, 1], giving more
+            stability across quantile sets with different spacing. "uniform"
+            weights every quantile equally.
 
     Returns:
         The weighted average CRPS across all samples. Lower values indicate
@@ -66,15 +76,24 @@ def crps(
         (single quantile). For well-calibrated forecasts, CRPS approximately
         equals half the expected absolute error of random forecasts.
 
-    Raises:
-        MissingExtraError: If the `scoringrules` package is not installed.
+        The factor 2.0 converts the (weighted) average pinball loss into CRPS:
+        CRPS equals twice the integral of the pinball loss over all quantile
+        levels in [0, 1]. The (weighted) average of the per-quantile pinball losses
+        approximates that integral, and multiplying by 2 recovers the CRPS scale.
     """
-    try:
-        import scoringrules as sr  # noqa: PLC0415 - import is quite slow, so we delay it until this function is called
-    except ImportError as e:
-        raise MissingExtraError("scoringrules", package="openstef-beam") from e
+    per_quantile_loss = np.array(
+        [
+            pinball_loss(y_true, y_pred[:, i], quantile=float(quantile), sample_weights=sample_weights)
+            for i, quantile in enumerate(quantiles)
+        ]
+    )
 
-    return float(np.average(sr.crps_quantile(y_true, y_pred, quantiles), weights=sample_weights))
+    if method == "interval":
+        quantile_weights = represented_interval_weights([Quantile(quantile) for quantile in quantiles])
+    else:
+        quantile_weights = np.full(len(quantiles), 1.0 / len(quantiles))
+
+    return float(2.0 * (quantile_weights @ per_quantile_loss))
 
 
 def rcrps(
@@ -84,6 +103,7 @@ def rcrps(
     lower_quantile: float = 0.05,
     upper_quantile: float = 0.95,
     sample_weights: npt.NDArray[np.floating] | None = None,
+    method: QuantileWeightingMethod = "interval",
 ) -> float:
     """Calculate the relative Continuous Ranked Probability Score (rCRPS).
 
@@ -100,6 +120,7 @@ def rcrps(
         upper_quantile: Upper quantile for range calculation. Must be in [0, 1]
             and greater than lower_quantile.
         sample_weights: Optional weights for each sample with shape (num_samples,).
+        method: Quantile weighting scheme to use, either "interval" (default) or "uniform".
 
     Returns:
         The relative CRPS as a float. Returns NaN if the range between
@@ -127,7 +148,7 @@ def rcrps(
     if y_range == 0:
         return float("NaN")
 
-    return float(crps(y_true, y_pred, quantiles, sample_weights) / y_range)
+    return float(crps(y_true, y_pred, quantiles, sample_weights, method=method) / y_range)
 
 
 def observed_probability(
@@ -241,33 +262,18 @@ def mean_pinball_loss(
         The weighted average Pinball Loss across all samples and quantiles. Lower values indicate better
         forecast quality.
     """
-    # Resize the predictions and targets.
+    # Reshape predictions and targets in case they arrive flattened (e.g. from an XGBoost eval callback,
+    # which repeats the observed value across quantile columns). Collapse the targets back to one value per sample.
     y_pred = np.reshape(y_pred, [-1, len(quantiles)])
     n_rows = y_pred.shape[0]
-    y_true = np.reshape(y_true, [n_rows, -1])
-    sample_weight = np.reshape(sample_weight, [n_rows, 1]) if sample_weight is not None else None
+    y_true = np.reshape(y_true, [n_rows, -1])[:, 0]
 
-    # Extract quantile values into array for vectorized operations
-    quantile_values = np.array(quantiles)  # shape: (n_quantiles,)
-
-    # Compute errors for all quantiles at once
-    errors = y_true - y_pred  # shape: (num_samples, num_quantiles)
-
-    # Compute masks for all quantiles simultaneously
-    underpredict_mask = errors >= 0  # y_true >= y_pred, shape: (num_samples, num_quantiles)
-    overpredict_mask = errors < 0  # y_true < y_pred, shape: (num_samples, num_quantiles)
-
-    # Vectorized pinball loss computation using broadcasting
-    # quantiles broadcasts from (num_quantiles,) to (num_samples, num_quantiles)
-    loss = quantiles * underpredict_mask * errors - (1 - quantile_values) * overpredict_mask * errors
-
-    # Apply sample weights if provided
-    if sample_weight is not None:
-        sample_weight = np.asarray(sample_weight).reshape(-1, 1)  # shape: (num_samples, 1)
-        loss *= sample_weight
-        total_weight = sample_weight.sum() * len(quantiles)
-    else:
-        total_weight = loss.size
-
-    # Return mean loss across all samples and quantiles
-    return float(loss.sum() / total_weight)
+    # Average the (sample-weighted) pinball loss across all quantiles.
+    return float(
+        np.mean(
+            [
+                pinball_loss(y_true, y_pred[:, i], quantile=float(quantile), sample_weights=sample_weight)
+                for i, quantile in enumerate(quantiles)
+            ]
+        )
+    )

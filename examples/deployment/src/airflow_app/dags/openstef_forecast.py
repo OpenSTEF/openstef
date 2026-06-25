@@ -21,7 +21,7 @@ Run it once without a scheduler with ``uv run poe deploy-airflow-forecast``.
 from __future__ import annotations
 
 import pendulum
-from airflow.decorators import dag, task
+from airflow.sdk import dag, task
 from common import pipeline, services
 from common.config import Settings
 

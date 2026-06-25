@@ -1,10 +1,8 @@
 # SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
-
 [build-system]
 build-backend = "hatchling.build"
-
 requires = [ "hatchling" ]
 
 [project]
@@ -26,7 +24,6 @@ classifiers = [
   "Programming Language :: Python :: 3.13",
   "Programming Language :: Python :: 3.14",
 ]
-
 dependencies = [
   "joblib>=1,<2",
   "numpy>=2.3.2,<3",
@@ -36,15 +33,13 @@ dependencies = [
   "pydantic>=2.12.4,<3",
   "pydantic-extra-types>=2.10.5,<3",
 ]
-
 optional-dependencies.benchmark = [
   "huggingface-hub>=1.2.2",
 ]
-
 urls.Documentation = "https://openstef.github.io/openstef/index.html"
 urls.Homepage = "https://lfenergy.org/projects/openstef/"
 urls.Issues = "https://github.com/OpenSTEF/openstef/issues"
 urls.Repository = "https://github.com/OpenSTEF/openstef"
 
-[tool.hatch.build.targets.wheel]
-packages = [ "src/openstef_core" ]
+[tool.hatch]
+build.targets.wheel.packages = [ "src/openstef_core" ]

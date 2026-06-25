@@ -553,6 +553,53 @@ def r2(
     return float(r2_score(y_true, y_pred, sample_weight=sample_weights))
 
 
+def pinball_loss(
+    y_true: npt.NDArray[np.floating],
+    y_pred: npt.NDArray[np.floating],
+    *,
+    quantile: float,
+    sample_weights: npt.NDArray[np.floating] | None = None,
+) -> float:
+    """Calculate the Pinball Loss (also known as Quantile Loss) for a single quantile.
+
+    The Pinball Loss is a scoring rule for a single quantile forecast that
+    penalizes under- and over-predictions differently based on the quantile level.
+
+    Args:
+        y_true: Ground truth values with shape (num_samples,).
+        y_pred: Predicted quantile values with shape (num_samples,).
+        quantile: The quantile level being predicted (e.g., 0.1, 0.5, 0.9).
+            Must be in [0, 1].
+        sample_weights: Optional weights for each sample with shape (num_samples,).
+            If None, all samples are weighted equally.
+
+    Returns:
+        The average Pinball Loss as a float. Lower is better.
+
+    Example:
+        Basic usage for 10th percentile predictions
+
+        >>> import numpy as np
+        >>> y_true = np.array([100, 120, 110])
+        >>> y_pred = np.array([95, 116, 111])
+        >>> pinball_loss(y_true, y_pred, quantile=0.1)
+        0.6
+    """
+    # Ensure inputs are numpy arrays
+    y_true = np.array(y_true)
+    y_pred = np.array(y_pred)
+
+    # Calculate pinball loss for each sample
+    errors = y_true - y_pred
+    losses = np.where(
+        errors >= 0,
+        quantile * errors,  # Under-prediction
+        (quantile - 1) * errors,  # Over-prediction
+    )
+
+    return float(np.average(losses, weights=sample_weights))
+
+
 def relative_pinball_loss(
     y_true: npt.NDArray[np.floating],
     y_pred: npt.NDArray[np.floating],
@@ -566,8 +613,7 @@ def relative_pinball_loss(
 
     The relative pinball loss normalizes the pinball loss by the range of true values,
     making it scale-invariant and suitable for comparing quantile prediction errors
-    across different datasets or time periods. The pinball loss can be used to quantify
-    the accuracy of a single quantile.
+    across different datasets or time periods.
 
     Args:
         y_true: Ground truth values with shape (num_samples,).
@@ -601,16 +647,8 @@ def relative_pinball_loss(
     if y_true.size == 0 or y_pred.size == 0:
         return float("NaN")
 
-    # Calculate pinball loss for each sample
-    errors = y_true - y_pred
-    pinball_losses = np.where(
-        errors >= 0,
-        quantile * errors,  # Under-prediction
-        (quantile - 1) * errors,  # Over-prediction
-    )
-
-    # Calculate mean pinball loss (weighted if weights provided)
-    mean_pinball_loss = np.average(pinball_losses, weights=sample_weights)
+    # Calculate pinball loss (weighted if weights provided)
+    pinball_loss_quantile = pinball_loss(y_true, y_pred, quantile=quantile, sample_weights=sample_weights)
 
     # Calculate measurement range for normalization
     y_range = np.quantile(y_true, q=measurement_range_upper_q) - np.quantile(y_true, q=measurement_range_lower_q)
@@ -620,6 +658,6 @@ def relative_pinball_loss(
         return float("NaN")
 
     # Calculate relative pinball loss
-    relative_pinball_loss = mean_pinball_loss / y_range
+    relative_pinball_loss = pinball_loss_quantile / y_range
 
     return float(relative_pinball_loss)

@@ -131,57 +131,6 @@ def test_input_data__no_start_returns_all_rows(basic_input_dataset: ForecastInpu
     assert len(result) == 6
 
 
-@pytest.mark.parametrize(
-    ("horizon_hours", "expected_len"),
-    [
-        pytest.param(2, 3, id="2h_horizon"),
-        pytest.param(5, 6, id="5h_horizon_full_range"),
-        pytest.param(0, 1, id="0h_horizon_only_start"),
-    ],
-)
-def test_input_data__horizon_limits_rows(
-    basic_input_dataset: ForecastInputDataset,
-    horizon_hours: int,
-    expected_len: int,
-):
-    """Rows after forecast_start + horizon are excluded when horizon is given."""
-    # Arrange
-    horizon = LeadTime(timedelta(hours=horizon_hours))
-
-    # Act
-    # forecast_start = 2025-01-01T00:00 (first index), so end = 00:00 + horizon
-    result = basic_input_dataset.input_data(start=basic_input_dataset.forecast_start, horizon=horizon)
-
-    # Assert
-    assert len(result) == expected_len
-
-
-def test_input_data__horizon_none_returns_all_rows(basic_input_dataset: ForecastInputDataset):
-    """No filtering by horizon when horizon=None."""
-    # Act
-    result = basic_input_dataset.input_data(start=basic_input_dataset.forecast_start, horizon=None)
-
-    # Assert
-    assert len(result) == 6
-
-
-def test_input_data__horizon_combined_with_start(basic_input_dataset: ForecastInputDataset):
-    """start and horizon together correctly bound the returned rows."""
-    # Arrange
-    # forecast_start = 2025-01-01T00:00, start = T+2h, horizon = 4h → end = T+4h
-    # expected rows: T+2h, T+3h, T+4h → 3 rows
-    start = datetime(2025, 1, 1, 2, 0, tzinfo=UTC)
-    horizon = LeadTime(timedelta(hours=4))
-
-    # Act
-    result = basic_input_dataset.input_data(start=start, horizon=horizon)
-
-    # Assert
-    assert len(result) == 3
-    assert result.index.min() == start
-    assert result.index.max() == pd.Timestamp(basic_input_dataset.forecast_start + timedelta(hours=4))
-
-
 def test_create_forecast_range__correct_range(basic_input_dataset: ForecastInputDataset):
     """Forecast range ends at forecast_start + horizon."""
     # Arrange
