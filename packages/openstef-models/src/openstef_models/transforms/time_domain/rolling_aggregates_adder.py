@@ -156,6 +156,10 @@ class RollingAggregatesAdder(BaseConfig, TimeSeriesTransform):
 
     @override
     def features_added(self) -> list[str]:
+        if len(self.horizons) > 1:
+            # Multiple horizons are not yet supported: transform() returns the data
+            # unchanged in that case, so no columns are added.
+            return []
         return [self._make_column_name(func) for func in self.aggregation_functions]
 
 

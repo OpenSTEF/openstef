@@ -104,7 +104,7 @@ class DefaultProviderPolicy(BaseConfig):
 
     kind: Literal["default"] = Field(default="default", description="Discriminator tag for the policy type.")
 
-    def select(  # noqa: PLR6301  # instance method to satisfy the ProviderPolicy protocol, though stateless here
+    def select(  # instance method to satisfy the ProviderPolicy protocol, though stateless here
         self, metadata: CheckpointMetadata, host: HostCapabilities
     ) -> list[ExecutionProvider]:
         """Select an ordered provider chain for *metadata* on *host*.

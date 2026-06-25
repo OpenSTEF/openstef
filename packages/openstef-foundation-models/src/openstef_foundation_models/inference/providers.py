@@ -27,7 +27,7 @@ class CpuProvider(BaseConfig):
 
     kind: Literal["cpu"] = Field(default="cpu", description="Discriminator tag for execution-provider type.")
 
-    def to_ort(self) -> OrtProvider:  # noqa: PLR6301
+    def to_ort(self) -> OrtProvider:
         """Compile to an ONNX Runtime provider tuple.
 
         Returns:

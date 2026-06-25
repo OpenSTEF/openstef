@@ -9,19 +9,20 @@ import pytest
 from sklearn.metrics import mean_pinball_loss as sk_mean_pinball_loss
 
 from openstef_beam.metrics import crps, mean_absolute_calibration_error, rcrps
-from openstef_beam.metrics.metrics_probabilistic import mean_pinball_loss
+from openstef_beam.metrics.metrics_probabilistic import QuantileWeightingMethod, mean_pinball_loss
 from openstef_core.types import Q
 
 
 # CRPS Test Cases
 @pytest.mark.parametrize(
-    ("y_true", "y_pred", "quantiles", "expected"),
+    ("y_true", "y_pred", "quantiles", "method", "expected"),
     [
         # Perfect deterministic forecast (single quantile)
         pytest.param(
             np.array([5.0]),
             np.array([[5.0]]),
             np.array([0.5]),
+            "interval",
             0.0,
             id="crps_perfect_deterministic",
         ),
@@ -30,33 +31,51 @@ from openstef_core.types import Q
             np.array([5.0]),
             np.array([[3.0]]),
             np.array([0.5]),
+            "interval",
             2.0,
             id="crps_offset_deterministic",
         ),
-        # Uniform distribution forecast (0-10 range). Quantile levels 0.0 and 1.0
-        # are excluded: scoringrules >=0.10 rejects degenerate levels, and they
-        # contribute zero pinball loss anyway, so dropping them only changes the
-        # normalization (9 interior levels) giving 8/9.
+        # Uniform distribution forecast (0-10 range) observed at its centre (5.0). Quantile levels 0.0
+        # and 1.0 are excluded as they contribute zero pinball loss. Uniform weighting averages
+        # the 9 pinball losses equally, giving 8/9.
         pytest.param(
             np.array([5.0]),
             np.array([np.linspace(0, 10, 11)[1:-1]]),
             np.linspace(0, 1, 11)[1:-1],
+            "uniform",
             8 / 9,
-            id="crps_uniform_distribution",
+            id="crps_uniform_distribution_uniform_weighting",
+        ),
+        # Same uniform forecast, but interval weighting gives the two tail quantiles (0.1, 0.9) each a
+        # width of 0.15 and the seven interior quantiles a width of 0.10, giving 0.88.
+        pytest.param(
+            np.array([5.0]),
+            np.array([np.linspace(0, 10, 11)[1:-1]]),
+            np.linspace(0, 1, 11)[1:-1],
+            "interval",
+            0.88,
+            id="crps_uniform_distribution_interval_weighting",
         ),
         # Two-point distribution (equally likely at 2 and 4)
         pytest.param(
             np.array([3.0]),
             np.array([[2.0, 4.0]]),
             np.array([0.5, 0.5]),
+            "interval",
             1.0,
             id="crps_two_point_distribution",
         ),
     ],
 )
-def test_crps(y_true: Sequence[float], y_pred: Sequence[float], quantiles: Sequence[float], expected: float) -> None:
+def test_crps(
+    y_true: Sequence[float],
+    y_pred: Sequence[float],
+    quantiles: Sequence[float],
+    method: QuantileWeightingMethod,
+    expected: float,
+) -> None:
     # Act
-    result = crps(np.array(y_true), np.array(y_pred), np.array(quantiles))
+    result = crps(np.array(y_true), np.array(y_pred), np.array(quantiles), method=method)
 
     # Assert
     assert np.isclose(result, expected, rtol=1e-8), f"Expected {expected} but got {result}"

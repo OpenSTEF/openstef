@@ -18,6 +18,7 @@ import plotly.graph_objects as go
 from pydantic import Field, PrivateAttr
 
 from openstef_core.base_model import BaseConfig
+from openstef_core.types import Quantile
 
 
 class ModelData(TypedDict):
@@ -39,12 +40,16 @@ class LineData(TypedDict):
 
 # Add a typed dict for quantile band data
 class BandData(TypedDict):
-    """TypedDict for storing quantile band data."""
+    """TypedDict for storing quantile band data.
+
+    ``lower_quantile`` and ``upper_quantile`` are percentile values (0-100) and
+    may be non-integer (e.g. ``2.5`` or ``99.9``) for extreme quantiles.
+    """
 
     model_name: str
     model_index: int
-    lower_quantile: int
-    upper_quantile: int
+    lower_quantile: float
+    upper_quantile: float
     lower_data: pd.Series
     upper_data: pd.Series
 
@@ -182,8 +187,9 @@ class ForecastTimeSeriesPlotter(BaseConfig):
             model_name: The name of the model.
             forecast: A pd.Series containing the forecasted values.
             quantiles: A pd.DataFrame containing quantile data.
-                Column names should follow the format 'quantile_P{percentile:02d}',
-                e.g., 'quantile_P10', 'quantile_P90'.
+                Column names should follow the canonical quantile format produced
+                by ``Quantile.format()``, e.g. 'quantile_P10', 'quantile_P90', or
+                'quantile_P99.9' for non-integer percentiles.
 
         Returns:
             ForecastTimeSeriesPlotter: The current instance for method chaining.
@@ -230,10 +236,12 @@ class ForecastTimeSeriesPlotter(BaseConfig):
         if name is None:
             name = f"Limit {len(self._limits) + 1}"
 
-        self._limits.append({
-            "value": value,
-            "name": name,
-        })
+        self._limits.append(
+            {
+                "value": value,
+                "name": name,
+            }
+        )
 
         return self
 
@@ -252,6 +260,35 @@ class ForecastTimeSeriesPlotter(BaseConfig):
 
         color_result = px.colors.sample_colorscale(colorscale=colormap, samplepoints=[rescaled])[0]
         return str(color_result)  # type: ignore[arg-type]
+
+    @staticmethod
+    def _format_percentile(percentile: float) -> str:
+        """Format a percentile (0-100) for display in trace names and hover labels.
+
+        Reuses the canonical quantile formatting from openstef-core so that whole
+        numbers render without a trailing ``.0`` (e.g. ``10``) and non-integer
+        percentiles render exactly (e.g. ``2.5``, ``99.9``).
+
+        Args:
+            percentile (float): The percentile value (0-100) to format.
+
+        Returns:
+            str: The percentile rendered as a label, e.g. ``"10"`` or ``"99.9"``.
+        """
+        return Quantile.from_percentile(percentile).format().removeprefix("quantile_P")
+
+    def _band_label(self, band: BandData) -> str:
+        """Build the legend/trace label for a quantile band, e.g. ``Model 10%-90%``.
+
+        Args:
+            band (BandData): The quantile band to label.
+
+        Returns:
+            str: The label combining the model name and the band's percentiles.
+        """
+        lower = self._format_percentile(band["lower_quantile"])
+        upper = self._format_percentile(band["upper_quantile"])
+        return f"{band['model_name']} {lower}%-{upper}%"
 
     def _get_quantile_colors(self, quantile: float, colormap: str) -> tuple[str, str]:
         """Generate fill and stroke colors for a given quantile using a colorscale.
@@ -299,15 +336,17 @@ class ForecastTimeSeriesPlotter(BaseConfig):
         # Get colors and legendgroup
         colormap = self.colormaps[model_index % len(self.colormaps)]
         fill_color, stroke_color = self._get_quantile_colors(lower_quantile, colormap)
-        legendgroup = f"{model_name}_quantile_{lower_quantile}_{upper_quantile}"
+        lower_label = self._format_percentile(lower_quantile)
+        upper_label = self._format_percentile(upper_quantile)
+        legendgroup = f"{model_name}_quantile_{lower_label}_{upper_label}"
 
         if self.connect_gaps:
             # Original behavior - create single polygon from raw data
             band = BandData(
                 model_name=model_name,
                 model_index=model_index,
-                lower_quantile=int(lower_quantile),
-                upper_quantile=int(upper_quantile),
+                lower_quantile=lower_quantile,
+                upper_quantile=upper_quantile,
                 lower_data=lower_quantile_data,
                 upper_data=upper_quantile_data,
             )
@@ -336,8 +375,8 @@ class ForecastTimeSeriesPlotter(BaseConfig):
             band = BandData(
                 model_name=model_name,
                 model_index=model_index,
-                lower_quantile=int(lower_quantile),
-                upper_quantile=int(upper_quantile),
+                lower_quantile=lower_quantile,
+                upper_quantile=upper_quantile,
                 lower_data=processed_lower_data,
                 upper_data=processed_upper_data,
             )
@@ -364,11 +403,9 @@ class ForecastTimeSeriesPlotter(BaseConfig):
                 },
                 customdata=np.column_stack((y_lower, y_upper)),
                 hovertemplate=(
-                    f"{lower_quantile}%: %{{customdata[0]:,.4s}}<br>"
-                    f"{upper_quantile}%: %{{customdata[1]:,.4s}}"
-                    "<extra></extra>"
+                    f"{lower_label}%: %{{customdata[0]:,.4s}}<br>{upper_label}%: %{{customdata[1]:,.4s}}<extra></extra>"
                 ),
-                name=f"{model_name} {lower_quantile}%-{upper_quantile}% Hover Info",
+                name=f"{model_name} {lower_label}%-{upper_label}% Hover Info",
                 showlegend=False,
                 legendgroup=legendgroup,
                 connectgaps=self.connect_gaps,
@@ -389,24 +426,30 @@ class ForecastTimeSeriesPlotter(BaseConfig):
             model_name = model_data["model_name"]
             quantiles = model_data["quantiles"]
 
-            # Extract and sort quantile percentages
+            # Parse columns with the canonical Quantile type so non-integer
+            # percentiles (e.g. quantile_P0.1 / quantile_P99.9) are handled
+            # correctly. Quantile is a float subclass, so it sorts by value.
             quantile_cols = [col for col in quantiles.columns if col.startswith("quantile_P")]
-            percentiles = sorted([int(col.split("P")[1]) for col in quantile_cols])
+            sorted_quantiles = sorted(Quantile.parse(col) for col in quantile_cols)
+            median_column = Quantile.from_percentile(self.MEDIAN_QUANTILE).format()
 
             # Create band data from widest to narrowest
-            for i in range(len(percentiles) // 2):
-                lower_quantile, upper_quantile = percentiles[i], percentiles[-(i + 1)]
-                if lower_quantile == int(self.MEDIAN_QUANTILE):
+            for i in range(len(sorted_quantiles) // 2):
+                lower_q, upper_q = sorted_quantiles[i], sorted_quantiles[-(i + 1)]
+                # Compare via the canonical column name to avoid float equality.
+                if lower_q.format() == median_column:
                     continue
 
-                bands.append({
-                    "model_name": model_name,
-                    "model_index": model_index,
-                    "lower_quantile": lower_quantile,
-                    "upper_quantile": upper_quantile,
-                    "lower_data": quantiles[f"quantile_P{lower_quantile:02d}"],
-                    "upper_data": quantiles[f"quantile_P{upper_quantile:02d}"],
-                })
+                bands.append(
+                    {
+                        "model_name": model_name,
+                        "model_index": model_index,
+                        "lower_quantile": lower_q.to_percentile(),
+                        "upper_quantile": upper_q.to_percentile(),
+                        "lower_data": quantiles[lower_q.format()],
+                        "upper_data": quantiles[upper_q.format()],
+                    }
+                )
         return bands
 
     def _prepare_forecast_lines(self) -> list[LineData]:
@@ -621,7 +664,7 @@ class ForecastTimeSeriesPlotter(BaseConfig):
                     "color": f"rgba{style['stroke_color'][3:-1]}, {self.stroke_opacity})",
                     "width": self.stroke_width,
                 },
-                name=f"{band['model_name']} {band['lower_quantile']}%-{band['upper_quantile']}%",
+                name=self._band_label(band),
                 showlegend=True,
                 hoverinfo="skip",
                 legendgroup=style["legendgroup"],
@@ -675,7 +718,7 @@ class ForecastTimeSeriesPlotter(BaseConfig):
                         "color": f"rgba{style['stroke_color'][3:-1]}, {self.stroke_opacity})",
                         "width": self.stroke_width,
                     },
-                    name=f"{band['model_name']} {band['lower_quantile']}%-{band['upper_quantile']}%",
+                    name=self._band_label(band),
                     showlegend=show_legend,
                     hoverinfo="skip",
                     legendgroup=style["legendgroup"],

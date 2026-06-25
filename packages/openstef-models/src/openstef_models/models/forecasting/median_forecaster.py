@@ -185,7 +185,7 @@ class MedianForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
             )
             raise ValueError(msg)
 
-        input_data: pd.DataFrame = data.input_data(start=data.forecast_start, horizon=self.max_horizon)
+        input_data: pd.DataFrame = data.input_data(start=data.forecast_start)
 
         # Check that the input data contains the required lag features
         missing_features = set(self._feature_names) - set(data.feature_names)

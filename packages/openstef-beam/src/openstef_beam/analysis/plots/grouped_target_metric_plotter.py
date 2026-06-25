@@ -130,11 +130,13 @@ class GroupedTargetMetricPlotter:
         # Combine all model data into a single DataFrame
         model_df_list: list[pd.DataFrame] = []
         for model_data in self.models_data:
-            model_df = pd.DataFrame({
-                "model": [model_data["model"]] * len(model_data["target"]),
-                "target": model_data["target"],
-                "metric_value": model_data["metric_value"],
-            })
+            model_df = pd.DataFrame(
+                {
+                    "model": [model_data["model"]] * len(model_data["target"]),
+                    "target": model_data["target"],
+                    "metric_value": model_data["metric_value"],
+                }
+            )
             model_df_list.append(model_df)
 
         models_df = pd.concat(model_df_list, ignore_index=True)

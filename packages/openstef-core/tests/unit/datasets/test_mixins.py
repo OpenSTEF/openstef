@@ -16,11 +16,13 @@ from openstef_core.datasets import TimeSeriesDataset
         pytest.param(
             pd.Series(
                 [1, 2, 3],
-                index=pd.to_datetime([
-                    datetime.fromisoformat("2023-01-01"),
-                    datetime.fromisoformat("2023-01-02"),
-                    datetime.fromisoformat("2023-01-03"),
-                ]),
+                index=pd.to_datetime(
+                    [
+                        datetime.fromisoformat("2023-01-01"),
+                        datetime.fromisoformat("2023-01-02"),
+                        datetime.fromisoformat("2023-01-03"),
+                    ]
+                ),
             ),
             timedelta(days=1),
             timedelta(days=3),
@@ -29,11 +31,13 @@ from openstef_core.datasets import TimeSeriesDataset
         pytest.param(
             pd.Series(
                 [1, 2, 2],
-                index=pd.to_datetime([
-                    datetime.fromisoformat("2023-01-01"),
-                    datetime.fromisoformat("2023-01-02"),
-                    datetime.fromisoformat("2023-01-02"),
-                ]),
+                index=pd.to_datetime(
+                    [
+                        datetime.fromisoformat("2023-01-01"),
+                        datetime.fromisoformat("2023-01-02"),
+                        datetime.fromisoformat("2023-01-02"),
+                    ]
+                ),
             ),
             timedelta(days=1),
             timedelta(days=2),

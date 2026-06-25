@@ -427,18 +427,20 @@ print(f"Versioned: {tsd_versioned.is_versioned}")
 # {class}`~openstef_core.datasets.TimeSeriesDataset`:
 
 # %%
-summary = pd.DataFrame({
-    "Source": ["Load", "Weather", "EPEX prices", "Profiles"],
-    "Features": [
-        ", ".join(load.feature_names),
-        f"{len(weather.feature_names)} variables",
-        ", ".join(epex.feature_names),
-        f"{len(profiles.feature_names)} profiles",
-    ],
-    "Rows": [len(load.data), len(weather.data), len(epex.data), len(profiles.data)],
-    "Versioned": [load.is_versioned, weather.is_versioned, epex.is_versioned, profiles.is_versioned],
-    "Update schedule": ["real-time", "every ~6h", "noon day-before", "months ahead"],
-})
+summary = pd.DataFrame(
+    {
+        "Source": ["Load", "Weather", "EPEX prices", "Profiles"],
+        "Features": [
+            ", ".join(load.feature_names),
+            f"{len(weather.feature_names)} variables",
+            ", ".join(epex.feature_names),
+            f"{len(profiles.feature_names)} profiles",
+        ],
+        "Rows": [len(load.data), len(weather.data), len(epex.data), len(profiles.data)],
+        "Versioned": [load.is_versioned, weather.is_versioned, epex.is_versioned, profiles.is_versioned],
+        "Update schedule": ["real-time", "every ~6h", "noon day-before", "months ahead"],
+    }
+)
 summary.set_index("Source").style.set_properties(padding="6px 12px")
 
 # %% [markdown]

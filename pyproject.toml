@@ -1,10 +1,8 @@
 # SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
-
 [build-system]
 build-backend = "hatchling.build"
-
 requires = [ "hatchling" ]
 
 [project]
@@ -25,12 +23,10 @@ classifiers = [
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
 ]
-
 dependencies = [
   "openstef-core",
   "openstef-models[xgb-cpu]",
 ]
-
 optional-dependencies.all = [
   "openstef-beam[all]",
   "openstef-core",
@@ -81,24 +77,17 @@ docs = [ "openstef-docs" ]
 # setup is a single `uv sync`. The release/build job installs only `build` (the poe
 # runner), not the full dev stack.
 build = [ "poethepoet>=0.36" ]
-lint = [
-  "licensecheck>=2025.1",
-  "pyproject-fmt>=2.6,<2.12", # 2.12+ restyles every pyproject (churn); bump in its own PR
-  "reuse>=5.0.2",
-  "ruff>=0.12.8",
-]
-typecheck = [
-  "microsoft-python-type-stubs",
-  "pandas-stubs>=2.3.0.250703,<3", # match the pandas <3 pin
-  "scipy-stubs>=1.16.2.4",
-  "ty>=0.0.48",
-]
-notebooks = [
-  "ipykernel>=6.29",
-  "jupytext>=1.19.1",
-  "nbconvert>=7.16",
-]
 deployment = [ "openstef-deployment-examples[airflow,celery,dagster]" ]
+dev-gpu = [
+  { include-group = "build" },
+  { include-group = "deployment" },
+  { include-group = "docs" },
+  { include-group = "features-gpu" },
+  { include-group = "lint" },
+  { include-group = "notebooks" },
+  { include-group = "test" },
+  { include-group = "typecheck" },
+]
 # Every workspace feature, CPU flavour. `features-gpu` is the opt-in counterpart;
 # the cpu/gpu runtimes conflict (declared on openstef-models and
 # openstef-foundation-models), so an environment installs one set, not both.
@@ -116,37 +105,38 @@ features-gpu = [
   "openstef-meta",
   "openstef-models[lgbm,tuning,xgb-gpu]",
 ]
-dev-gpu = [
-  { include-group = "build" },
-  { include-group = "deployment" },
-  { include-group = "docs" },
-  { include-group = "features-gpu" },
-  { include-group = "lint" },
-  { include-group = "notebooks" },
-  { include-group = "test" },
-  { include-group = "typecheck" },
+lint = [
+  "licensecheck>=2025.1",
+  "pyproject-fmt>=2.24",
+  "reuse>=5.0.2",
+  "ruff>=0.12.8",
+]
+notebooks = [
+  "ipykernel>=6.29",
+  "jupytext>=1.19.1",
+  "nbconvert>=7.16",
+]
+typecheck = [
+  "microsoft-python-type-stubs",
+  "pandas-stubs>=2.3.0.250703,<3", # match the pandas <3 pin
+  "scipy-stubs>=1.16.2.4",
+  "ty>=0.0.48",
 ]
 
-[tool.hatch.build.targets.wheel]
-bypass-selection = true
+[tool.hatch]
+build.targets.wheel.bypass-selection = true
 
-[[tool.uv.index]]
-name = "pypi"
-url = "https://pypi.org/simple"
-default = true
-
-[tool.uv.sources]
-openstef-beam = { workspace = true }
-openstef-core = { workspace = true }
-openstef-deployment-examples = { workspace = true }
-openstef-docs = { workspace = true }
-openstef-foundation-models = { workspace = true }
-openstef-meta = { workspace = true }
-openstef-models = { workspace = true }
-microsoft-python-type-stubs = { git = "git+https://github.com/microsoft/python-type-stubs.git" }
-
-[tool.uv.workspace]
-members = [
+[tool.uv]
+sources.microsoft-python-type-stubs = { git = "git+https://github.com/microsoft/python-type-stubs.git" }
+sources.openstef-beam = { workspace = true }
+sources.openstef-core = { workspace = true }
+sources.openstef-deployment-examples = { workspace = true }
+sources.openstef-docs = { workspace = true }
+sources.openstef-foundation-models = { workspace = true }
+sources.openstef-meta = { workspace = true }
+sources.openstef-models = { workspace = true }
+index = [ { name = "pypi", url = "https://pypi.org/simple", default = true } ]
+workspace.members = [
   "docs",
   "examples",
   "examples/deployment",
@@ -162,65 +152,61 @@ column_width = 120
 indent = 2
 max_supported_python = "3.13"
 
-[tool.pytest.ini_options]
-testpaths = [ "packages/*/tests", "examples/deployment/tests", "tests" ]
-python_files = [ "test_*.py", "*_test.py" ]
-addopts = [
+[tool.ty]
+src.exclude = [
+  "**/.venv/**",                    # never type-check files inside a virtualenv (e.g. a member's local .venv)
+  "**/openstef_deployment_runs/**", # deployment example run artifacts
+  "examples/tutorials/**/*.py",
+]
+src.include = [
+  "examples/**/*.py",
+  "packages/*/examples/**/*.py",
+  "packages/*/src/**/*.py",
+  "packages/*/tests/**/*.py",
+  "tools/**/*.py",
+]
+rules.all = "error"
+rules.possibly-missing-attribute = "ignore"  # ignored because large number of false positives, captured by ruff
+rules.possibly-missing-import = "ignore"  # ignored because large number of false positives, captured by ruff(I002)
+
+[tool.pytest]
+ini_options.testpaths = [ "examples/deployment/tests", "packages/*/tests", "tests" ]
+ini_options.python_files = [ "*_test.py", "test_*.py" ]
+ini_options.addopts = [
   "--import-mode=importlib", # modern way to import tests
   "--strict-markers",        # Force defining marks here (in a markers setting) to prevent typos
 ]
-markers = [
+ini_options.markers = [
   "integration: marks integration tests",
   "slow: marks slow-running tests",
 ]
-filterwarnings = [
+ini_options.filterwarnings = [
   # Ignore fork() deprecation warning from multiprocessing on macOS
   # This warning occurs when pytest (multi-threaded) spawns processes using fork()
   # Using spawn instead breaks test infrastructure (fixtures not picklable)
   "ignore:This process.*is multi-threaded.*use of fork.*may lead to deadlocks:DeprecationWarning",
 ]
-doctest_optionflags = "NORMALIZE_WHITESPACE"
+ini_options.doctest_optionflags = "NORMALIZE_WHITESPACE"
 
-[tool.coverage.report]
-fail_under = 80
-show_missing = true
-skip_covered = true
-sort = "-Miss"
-omit = [ "tests/*", "packages/*/tests" ]
-
-[tool.coverage.run]
-source = [
+[tool.coverage]
+run.omit = [
+  "examples/*",
+  "packages/*/src/examples/*",
+  "packages/*/src/tests/*",
+  "tests/*",
+]
+run.source = [
   "packages/openstef-beam/src",
   "packages/openstef-core/src",
   "packages/openstef-foundation-models/src",
   "packages/openstef-meta/src",
   "packages/openstef-models/src",
 ]
-omit = [
-  "tests/*",
-  "examples/*",
-  "packages/*/src/tests/*",
-  "packages/*/src/examples/*",
-]
-
-[tool.ty.src]
-include = [
-  "tools/**/*.py",
-  "examples/**/*.py",
-  "packages/*/src/**/*.py",
-  "packages/*/examples/**/*.py",
-  "packages/*/tests/**/*.py",
-]
-exclude = [
-  "examples/tutorials/**/*.py",
-  "**/.venv/**",                    # never type-check files inside a virtualenv (e.g. a member's local .venv)
-  "**/openstef_deployment_runs/**", # deployment example run artifacts
-]
-
-[tool.ty.rules]
-all = "error"
-possibly-missing-attribute = "ignore" # ignored because large number of false positives, captured by ruff
-possibly-missing-import = "ignore"    # ignored because large number of false positives, captured by ruff(I002)
+report.fail_under = 80
+report.omit = [ "packages/*/tests", "tests/*" ]
+report.show_missing = true
+report.skip_covered = true
+report.sort = "-Miss"
 
 [tool.poe]
 # Task definitions live in poe_tasks.toml (split out to keep this file lean).

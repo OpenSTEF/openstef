@@ -21,18 +21,22 @@ from openstef_core.types import AvailableAt, LeadTime
 def dataset_part_a() -> TimeSeriesDataset:
     return create_timeseries_dataset(
         feature_a=[20.0, 22.0, 24.0, 23.0],
-        available_ats=pd.to_datetime([
-            "2023-01-01T10:05:00",
-            "2023-01-01T11:05:00",
-            "2023-01-01T12:05:00",
-            "2023-01-01T13:05:00",
-        ]),
-        index=pd.to_datetime([
-            "2023-01-01T10:00:00",
-            "2023-01-01T11:00:00",
-            "2023-01-01T12:00:00",
-            "2023-01-01T13:00:00",
-        ]),
+        available_ats=pd.to_datetime(
+            [
+                "2023-01-01T10:05:00",
+                "2023-01-01T11:05:00",
+                "2023-01-01T12:05:00",
+                "2023-01-01T13:05:00",
+            ]
+        ),
+        index=pd.to_datetime(
+            [
+                "2023-01-01T10:00:00",
+                "2023-01-01T11:00:00",
+                "2023-01-01T12:00:00",
+                "2023-01-01T13:00:00",
+            ]
+        ),
         sample_interval=timedelta(hours=1),
     )
 
@@ -41,64 +45,74 @@ def dataset_part_a() -> TimeSeriesDataset:
 def dataset_part_b() -> TimeSeriesDataset:
     return create_timeseries_dataset(
         feature_b=[100.0, 120.0, 110.0, 105.0, 125.0],
-        available_ats=pd.to_datetime([
-            "2023-01-01T10:10:00",
-            "2023-01-01T11:10:00",
-            "2023-01-01T12:10:00",
-            "2023-01-01T13:10:00",
-            "2023-01-01T14:15:00",
-        ]),
-        index=pd.to_datetime([
-            "2023-01-01T10:00:00",
-            "2023-01-01T11:00:00",
-            "2023-01-01T12:00:00",
-            "2023-01-01T13:00:00",
-            "2023-01-01T14:00:00",  # Additional timestamp with delayed availability
-        ]),
+        available_ats=pd.to_datetime(
+            [
+                "2023-01-01T10:10:00",
+                "2023-01-01T11:10:00",
+                "2023-01-01T12:10:00",
+                "2023-01-01T13:10:00",
+                "2023-01-01T14:15:00",
+            ]
+        ),
+        index=pd.to_datetime(
+            [
+                "2023-01-01T10:00:00",
+                "2023-01-01T11:00:00",
+                "2023-01-01T12:00:00",
+                "2023-01-01T13:00:00",
+                "2023-01-01T14:00:00",  # Additional timestamp with delayed availability
+            ]
+        ),
         sample_interval=timedelta(hours=1),
     )
 
 
 @pytest.fixture
 def versioned_dataset() -> VersionedTimeSeriesDataset:
-    index = pd.to_datetime([
-        "2023-01-01T10:00:00",
-        "2023-01-01T10:00:00",
-        "2023-01-01T11:00:00",
-        "2023-01-01T11:00:00",
-        "2023-01-01T12:00:00",
-        "2023-01-01T12:00:00",
-        "2023-01-01T13:00:00",
-        "2023-01-01T14:00:00",
-    ])
+    index = pd.to_datetime(
+        [
+            "2023-01-01T10:00:00",
+            "2023-01-01T10:00:00",
+            "2023-01-01T11:00:00",
+            "2023-01-01T11:00:00",
+            "2023-01-01T12:00:00",
+            "2023-01-01T12:00:00",
+            "2023-01-01T13:00:00",
+            "2023-01-01T14:00:00",
+        ]
+    )
 
     part_a = create_timeseries_dataset(
         index=index,
-        available_ats=pd.to_datetime([
-            "2023-01-01T10:20:00",
-            "2023-01-01T10:05:00",
-            "2023-01-01T11:30:00",
-            "2023-01-01T11:12:00",
-            "2023-01-01T12:45:00",
-            "2023-01-01T12:10:00",
-            "2023-01-01T13:15:00",
-            "2023-01-01T14:20:00",
-        ]),
+        available_ats=pd.to_datetime(
+            [
+                "2023-01-01T10:20:00",
+                "2023-01-01T10:05:00",
+                "2023-01-01T11:30:00",
+                "2023-01-01T11:12:00",
+                "2023-01-01T12:45:00",
+                "2023-01-01T12:10:00",
+                "2023-01-01T13:15:00",
+                "2023-01-01T14:20:00",
+            ]
+        ),
         feature_a=[100, 150, 200, 250, 275, 300, 330, 360],
     )
 
     part_b = create_timeseries_dataset(
         index=index,
-        available_ats=pd.to_datetime([
-            "2023-01-01T10:40:00",
-            "2023-01-01T10:18:00",
-            "2023-01-01T11:50:00",
-            "2023-01-01T11:22:00",
-            "2023-01-01T12:20:00",
-            "2023-01-01T12:08:00",
-            "2023-01-01T13:10:00",
-            "2023-01-01T14:12:00",
-        ]),
+        available_ats=pd.to_datetime(
+            [
+                "2023-01-01T10:40:00",
+                "2023-01-01T10:18:00",
+                "2023-01-01T11:50:00",
+                "2023-01-01T11:22:00",
+                "2023-01-01T12:20:00",
+                "2023-01-01T12:08:00",
+                "2023-01-01T13:10:00",
+                "2023-01-01T14:12:00",
+            ]
+        ),
         feature_b=[1.0, 1.6, 2.0, 2.6, 3.2, 3.8, 4.2, 4.8],
     )
 
@@ -230,14 +244,16 @@ def test_to_horizons_returns_expected_labels_when_splitting_versions():
         "long_h4",
     ]
     sample_interval = timedelta(hours=1)
-    dataset = VersionedTimeSeriesDataset([
-        create_timeseries_dataset(
-            index=index,
-            available_ats=available_ats,
-            feature=feature_values,
-            sample_interval=sample_interval,
-        )
-    ])
+    dataset = VersionedTimeSeriesDataset(
+        [
+            create_timeseries_dataset(
+                index=index,
+                available_ats=available_ats,
+                feature=feature_values,
+                sample_interval=sample_interval,
+            )
+        ]
+    )
 
     horizons = [
         LeadTime.from_string("PT1H"),
@@ -359,14 +375,16 @@ def test_validate_horizons_present_raises_when_requested_horizon_missing():
         + [ts - pd.Timedelta(hours=2) for ts in timestamps]
         + [ts - pd.Timedelta(hours=24) for ts in timestamps]
     )
-    dataset = VersionedTimeSeriesDataset([
-        create_timeseries_dataset(
-            index=index,
-            available_ats=available_ats,
-            feature=[float(i) for i in range(12)],
-            sample_interval=timedelta(hours=1),
-        )
-    ])
+    dataset = VersionedTimeSeriesDataset(
+        [
+            create_timeseries_dataset(
+                index=index,
+                available_ats=available_ats,
+                feature=[float(i) for i in range(12)],
+                sample_interval=timedelta(hours=1),
+            )
+        ]
+    )
     present = [
         LeadTime.from_string("PT1H"),
         LeadTime.from_string("PT2H"),
