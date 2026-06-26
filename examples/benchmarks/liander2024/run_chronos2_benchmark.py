@@ -98,7 +98,7 @@ OUTPUT_PATH = Path("./benchmark_results")
 # For CPU inference you should usually set this to 1.
 BATCH_SIZE = 16
 
-BENCHMARK_RESULTS_PATH_CHRONOS2 = OUTPUT_PATH / "Chronos2" / f"batch{BATCH_SIZE}"
+BENCHMARK_RESULTS_PATH_CHRONOS2 = OUTPUT_PATH / "Chronos2"
 
 # Use the published Chronos-2 checkpoint from the HuggingFace Hub by default. Set
 # CHRONOS2_ONNX_PATH to benchmark a local ONNX export (with its `.metadata.json`) instead.
