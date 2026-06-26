@@ -243,29 +243,27 @@ for batch_item, serial_item in zip(batched, serial, strict=True):
 # different points in time.
 
 # %% tags=["hide-input"]
-import plotly.graph_objects as go
-
 batch_actuals = dataset.filter_by_range(
     start=forecast_starts[0] - timedelta(days=3),
     end=forecast_starts[-1] + HORIZON.value,
 ).data["load"]
 
-batch_fig = go.Figure()
-batch_fig.add_trace(
-    go.Scatter(x=batch_actuals.index, y=batch_actuals.to_numpy(), name="Actual", line={"color": "#444"})
-)
+batch_plotter = ForecastTimeSeriesPlotter().add_measurements(measurements=batch_actuals)
 for start, batch_forecast in zip(forecast_starts, batched, strict=True):
-    median = batch_forecast.median_series
-    batch_fig.add_trace(go.Scatter(x=median.index, y=median.to_numpy(), name=f"Forecast {start:%b %d}"))
+    batch_plotter = batch_plotter.add_model(
+        model_name=f"Chronos-2 {start:%b %d}",
+        forecast=batch_forecast.median_series,
+        quantiles=batch_forecast.quantiles_data,
+    )
 
-batch_fig = cast(Any, batch_fig)
-batch_fig.update_layout(
+fig = cast(Any, batch_plotter.plot())
+fig.update_layout(
     title="Chronos-2 batched zero-shot forecasts vs actuals",
     yaxis_title="Load (MW)",
     xaxis_title="Time",
     height=500,
 )
-batch_fig.show()
+fig.show()
 
 
 # %% [markdown]
