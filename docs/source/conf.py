@@ -59,12 +59,23 @@ extensions += [
     "sphinx.ext.mathjax",
     "sphinx.ext.napoleon",
     "sphinx.ext.viewcode",
+    "sphinx.ext.autosectionlabel",
     "myst_nb",
     "sphinx_design",
     "sphinx_copybutton",
     "matplotlib.sphinxext.plot_directive",
     "sphinxcontrib.mermaid",
 ]
+
+# Auto-create a cross-reference label for every section heading. This lets RST
+# pages (e.g. ``contribute/index.rst``) deep-link into the community Markdown
+# files materialized from OpenSTEF/.github without that Markdown carrying any
+# Sphinx-specific anchors. Labels are prefixed with the document name to keep
+# them unique, e.g. ``contribute/contributing_guide:Start a pull request``.
+# NB: do not set ``autosectionlabel_maxdepth`` — its depth check crashes on
+# headings coming from ``.. include::``d MyST Markdown (their section node has
+# no parent at ``doctree-read`` time).
+autosectionlabel_prefix_document = True
 
 # Mermaid configuration
 mermaid_version = "10.6.1"
@@ -77,7 +88,16 @@ templates_path = ["_templates"]
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ["conf.py", "**/*.ipynb", "_figures/*", "**/__init__.py"]
+# ``contribute/_community`` holds community files materialized from
+# OpenSTEF/.github at build time; they are pulled in via ``.. include::`` rather
+# than as standalone documents, so exclude them from source discovery.
+exclude_patterns = [
+    "conf.py",
+    "**/*.ipynb",
+    "_figures/*",
+    "**/__init__.py",
+    "contribute/_community/*",
+]
 
 # Specify how to identify the prompt when copying code snippets
 copybutton_prompt_text = r">>> |\.\.\. "
@@ -100,6 +120,10 @@ autosummary_imported_members = False
 suppress_warnings = [
     "autosummary.import_cycle",
     "ref.python",
+    # autosectionlabel labels every heading project-wide; identical section
+    # titles within a single document are harmless here (we only reference the
+    # unique ones), so silence the duplicate-label noise.
+    "autosectionlabel.*",
 ]
 
 
@@ -185,6 +209,11 @@ myst_enable_extensions = [
     "tasklist",
     "colon_fence",
 ]
+
+# Generate anchors for headings (h1-h4) so intra-page Markdown links such as
+# ``[Pull Request Process](#pull-request-process)`` in the injected community
+# files resolve in Sphinx exactly as they do on GitHub.
+myst_heading_anchors = 4
 
 # -- Notebook execution (myst-nb) -------------------------------------------
 nb_custom_formats = {".py": ["jupytext.reads", {"fmt": "py:percent"}]}

@@ -65,6 +65,8 @@ docs/_build/
 docs/source/api/generated/
 docs/source/tutorials/
 docs/source/benchmarks/
+# Community health files materialized from OpenSTEF/.github at build time
+docs/source/contribute/_community/
 docs/source/user_guide/**/quick_start_tutorial.py
 docs/source/user_guide/**/feature_engineering_tutorial.py
 docs/source/user_guide/**/datasets_tutorial.py
