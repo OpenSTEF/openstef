@@ -155,8 +155,8 @@ args = [
 [tool.poe.tasks.build]
 help = "Build all packages"
 sequence = [
-  { cmd = "uv build --all-packages --require-hashes" },
-  { cmd = "uv build . --require-hashes", help = "Build root meta package separately (not part of --all-packages)" },
+  { cmd = "uv build --all-packages" },
+  { cmd = "uv build .", help = "Build root meta package separately (not part of --all-packages)" },
 ]
 
 [tool.poe.tasks._docs_sync]
