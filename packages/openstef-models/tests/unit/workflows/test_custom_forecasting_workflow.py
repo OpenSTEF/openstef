@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 
 from datetime import timedelta
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, override
 
 import pytest
 
@@ -33,6 +33,7 @@ class _RecordingCallback(ForecastingCallback):
         self.last_start_size: int | None = None
         self.last_end_size: int | None = None
 
+    @override
     def on_predict_batch_start(
         self,
         context: "WorkflowContext[CustomForecastingWorkflow]",
@@ -41,6 +42,7 @@ class _RecordingCallback(ForecastingCallback):
         self.batch_start_calls += 1
         self.last_start_size = len(data)
 
+    @override
     def on_predict_batch_end(
         self,
         context: "WorkflowContext[CustomForecastingWorkflow]",

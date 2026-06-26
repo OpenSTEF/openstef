@@ -65,6 +65,7 @@ logger = setup_notebook_logging(
     ),
 )
 
+
 # %% [markdown]
 # ## Assemble the workflow
 #
@@ -112,6 +113,7 @@ workflow = create_forecasting_workflow(
 print(f"is_fitted: {workflow.model.is_fitted}")
 print(f"quantiles: {workflow.model.quantiles}")
 
+
 # %% [markdown]
 # ## Load real load history and weather
 #
@@ -140,6 +142,7 @@ window = dataset.filter_by_range(start=context_start, end=forecast_start + HORIZ
 
 print(f"Window:   {context_start:%Y-%m-%d} to {forecast_start + HORIZON.value:%Y-%m-%d}, {len(window.data):,} rows")
 
+
 # %% [markdown]
 # ## Forecast
 #
@@ -155,9 +158,11 @@ print(f"Forecast rows: {len(forecast.data)}")
 print(f"Quantiles:     {forecast.quantiles}")
 forecast.data.head()
 
+
 # %% tags=["remove-cell"]
 assert len(forecast.data) > 1, "Expected a multi-step forecast"
 assert forecast.quantiles == [Q(0.3), Q(0.5), Q(0.7)], "Quantiles should match the request"
+
 
 # %% [markdown]
 # ## Visualize the forecast
@@ -192,6 +197,7 @@ fig.update_layout(
 )
 fig.show()
 
+
 # %% [markdown]
 # ## Forecast many origins in one call
 #
@@ -199,10 +205,9 @@ fig.show()
 # Instead of looping `predict` per window, hand the whole batch to `predict_batch`:
 # it concatenates the windows and runs the ONNX session a **single** time, returning
 # one forecast per window in input order. The numbers are identical to the serial
-# loop — batching is purely a throughput optimization.
+# loop, batching is purely a throughput optimization.
 #
-# Here we carve four forecast origins two weeks apart out of the same dataset; in
-# practice these would just as easily be different feeders or substations. Each
+# Here we carve four forecast origins two weeks apart out of the same dataset. While this is useful for backtesting, in a live setting you would typically forecast many different locations or targets at once. Each
 # window keeps its own 60 days of history plus the 7-day horizon of known-future
 # weather.
 
@@ -220,6 +225,7 @@ windows = [
 batched = workflow.predict_batch(windows, forecast_start=forecast_starts)
 print(f"Forecasts returned: {len(batched)} (one backend call for the whole batch)")
 
+
 # %% tags=["remove-cell"]
 from openstef_core.testing import assert_timeseries_equal
 
@@ -229,6 +235,7 @@ serial = [
 assert len(batched) == len(serial), "Batched and serial runs should return the same number of forecasts"
 for batch_item, serial_item in zip(batched, serial, strict=True):
     assert_timeseries_equal(batch_item, serial_item)
+
 
 # %% [markdown]
 # Each window is an independent 7-day forecast. We overlay the four median forecasts
@@ -259,6 +266,7 @@ batch_fig.update_layout(
     height=500,
 )
 batch_fig.show()
+
 
 # %% [markdown]
 # ## Next steps
