@@ -330,12 +330,12 @@ class BaseForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDatas
             ValueError: If a sequence is provided whose length differs from ``n``.
         """
         if isinstance(forecast_start, Sequence) and not isinstance(forecast_start, str):
-            starts = cast("list[datetime | None]", list(forecast_start))
+            starts = cast(list[datetime | None], list(forecast_start))
             if len(starts) != n:
                 msg = f"forecast_start sequence length {len(starts)} != batch size {n}."
                 raise ValueError(msg)
             return starts
-        scalar = cast("datetime | None", forecast_start)
+        scalar = cast(datetime | None, forecast_start)
         return [scalar] * n
 
     def predict_batch(
