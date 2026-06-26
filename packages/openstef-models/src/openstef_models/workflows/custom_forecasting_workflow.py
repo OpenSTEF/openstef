@@ -232,20 +232,21 @@ class CustomForecastingWorkflow(BaseModel):
     def predict_batch(
         self,
         data: list[TimeSeriesDataset],
-        forecast_start: datetime | Sequence[datetime | None] | None = None,
+        forecast_start: Sequence[datetime],
     ) -> list[ForecastDataset]:
         """Generate forecasts for a batch of inputs with callback execution.
 
         Args:
             data: One dataset per location/series to forecast.
-            forecast_start: A single start applied to all items, ``None`` (each item
-                uses its own window), or a per-item sequence of the same length.
+            forecast_start: One forecast start per item, in input order. Pass
+                ``[origin] * len(data)`` to share a single origin across the batch.
 
         Returns:
             One forecast per input, in input order.
 
         Raises:
             NotFittedError: If the underlying model has not been trained.
+            ValueError: If ``forecast_start`` length differs from the batch size.
         """
         context: WorkflowContext[CustomForecastingWorkflow] = WorkflowContext(workflow=self)
 

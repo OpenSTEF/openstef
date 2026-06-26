@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-from datetime import timedelta
+from datetime import datetime, timedelta
 from typing import TYPE_CHECKING, override
 
 import pytest
@@ -72,10 +72,11 @@ def test_workflow__predict_batch_matches_loop(sample_timeseries_dataset: TimeSer
     workflow = _make_workflow()
     workflow.fit(sample_timeseries_dataset)
     items = [sample_timeseries_dataset, sample_timeseries_dataset]
+    forecast_start = datetime.fromisoformat("2025-01-01T12:00:00")
 
     # Act
-    batch = workflow.predict_batch(items)
-    looped = [workflow.predict(item) for item in items]
+    batch = workflow.predict_batch(items, forecast_start=[forecast_start] * len(items))
+    looped = [workflow.predict(item, forecast_start=forecast_start) for item in items]
 
     # Assert
     assert len(batch) == len(items)
@@ -92,7 +93,7 @@ def test_workflow__predict_batch_fires_callbacks(sample_timeseries_dataset: Time
     items = [sample_timeseries_dataset, sample_timeseries_dataset, sample_timeseries_dataset]
 
     # Act
-    workflow.predict_batch(items)
+    workflow.predict_batch(items, forecast_start=[datetime.fromisoformat("2025-01-01T12:00:00")] * len(items))
 
     # Assert
     assert callback.batch_start_calls == 1
@@ -106,7 +107,10 @@ def test_workflow__predict_batch_not_fitted_raises_error(sample_timeseries_datas
     workflow = _make_workflow()
 
     with pytest.raises(NotFittedError):
-        workflow.predict_batch([sample_timeseries_dataset])
+        workflow.predict_batch(
+            [sample_timeseries_dataset],
+            forecast_start=[datetime.fromisoformat("2025-01-01T12:00:00")],
+        )
 
 
 def test_workflow__predict_batch_constant_forecaster(sample_timeseries_dataset: TimeSeriesDataset):
@@ -118,10 +122,11 @@ def test_workflow__predict_batch_constant_forecaster(sample_timeseries_dataset: 
     workflow = CustomForecastingWorkflow(model_id="test_model", model=model)
     workflow.fit(sample_timeseries_dataset)
     items = [sample_timeseries_dataset, sample_timeseries_dataset]
+    forecast_start = datetime.fromisoformat("2025-01-01T12:00:00")
 
     # Act
-    batch = workflow.predict_batch(items)
-    looped = [workflow.predict(item) for item in items]
+    batch = workflow.predict_batch(items, forecast_start=[forecast_start] * len(items))
+    looped = [workflow.predict(item, forecast_start=forecast_start) for item in items]
 
     # Assert
     assert len(batch) == len(items)

@@ -355,10 +355,11 @@ def test_forecasting_model__predict_batch_matches_loop(sample_timeseries_dataset
     model.fit(data=sample_timeseries_dataset)
 
     items = [sample_timeseries_dataset, sample_timeseries_dataset]
+    forecast_start = datetime.fromisoformat("2025-01-01T12:00:00")
 
     # Act
-    batch = model.predict_batch(items)
-    looped = [model.predict(item) for item in items]
+    batch = model.predict_batch(items, forecast_start=[forecast_start] * len(items))
+    looped = [model.predict(item, forecast_start=forecast_start) for item in items]
 
     # Assert
     assert len(batch) == len(items)
@@ -379,8 +380,11 @@ def test_forecasting_model__predict_batch_issues_single_forecaster_call(
     calls_before = forecaster.predict_batch_calls
     predict_calls_before = forecaster.predict_calls
 
+    items = [sample_timeseries_dataset, sample_timeseries_dataset, sample_timeseries_dataset]
+    forecast_start = datetime.fromisoformat("2025-01-01T12:00:00")
+
     # Act
-    model.predict_batch([sample_timeseries_dataset, sample_timeseries_dataset, sample_timeseries_dataset])
+    model.predict_batch(items, forecast_start=[forecast_start] * len(items))
 
     # Assert - exactly one batched call, no extra per-item predict calls
     assert forecaster.predict_batch_calls - calls_before == 1
@@ -440,7 +444,7 @@ def test_forecasting_model__predict_batch_empty_returns_empty(sample_timeseries_
     model = ForecastingModel(forecaster=forecaster)
     model.fit(data=sample_timeseries_dataset)
 
-    assert model.predict_batch([]) == []
+    assert model.predict_batch([], forecast_start=[]) == []
 
 
 def test_forecasting_model__predict_batch_not_fitted_raises_error(sample_timeseries_dataset: TimeSeriesDataset):
@@ -450,4 +454,7 @@ def test_forecasting_model__predict_batch_not_fitted_raises_error(sample_timeser
     model = ForecastingModel(forecaster=forecaster)
 
     with pytest.raises(NotFittedError):
-        model.predict_batch([sample_timeseries_dataset])
+        model.predict_batch(
+            [sample_timeseries_dataset],
+            forecast_start=[datetime.fromisoformat("2025-01-01T12:00:00")],
+        )

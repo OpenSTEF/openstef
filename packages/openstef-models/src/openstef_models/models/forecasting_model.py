@@ -311,37 +311,10 @@ class BaseForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDatas
 
         return self.postprocessing.transform(data=raw_predictions)
 
-    @staticmethod
-    def _normalize_forecast_starts(
-        n: int,
-        forecast_start: datetime | Sequence[datetime | None] | None,
-    ) -> list[datetime | None]:
-        """Expand a scalar/None/sequence ``forecast_start`` into one entry per item.
-
-        Args:
-            n: Number of batch items.
-            forecast_start: A single start applied to all items, ``None`` (each item
-                uses its own window), or a per-item sequence of length ``n``.
-
-        Returns:
-            A list of length ``n`` with one forecast start (or ``None``) per item.
-
-        Raises:
-            ValueError: If a sequence is provided whose length differs from ``n``.
-        """
-        if isinstance(forecast_start, Sequence) and not isinstance(forecast_start, str):
-            starts = cast(list[datetime | None], list(forecast_start))
-            if len(starts) != n:
-                msg = f"forecast_start sequence length {len(starts)} != batch size {n}."
-                raise ValueError(msg)
-            return starts
-        scalar = cast(datetime | None, forecast_start)
-        return [scalar] * n
-
     def predict_batch(
         self,
         data: list[TimeSeriesDataset],
-        forecast_start: datetime | Sequence[datetime | None] | None = None,
+        forecast_start: Sequence[datetime],
     ) -> list[ForecastDataset]:
         """Generate forecasts for a batch of inputs with one model instance.
 
@@ -351,22 +324,28 @@ class BaseForecastingModel(BaseModel, Predictor[TimeSeriesDataset, ForecastDatas
 
         Args:
             data: One ``TimeSeriesDataset`` per location/series to forecast.
-            forecast_start: A single start applied to all items, ``None`` (each item
-                uses its own window), or a per-item sequence of the same length.
+            forecast_start: One forecast start per item, in input order. Pass
+                ``[origin] * len(data)`` to share a single origin across the batch.
 
         Returns:
             One ``ForecastDataset`` per input, in input order.
 
         Raises:
             NotFittedError: If the model has not been fitted.
+            ValueError: If ``forecast_start`` length differs from the batch size.
         """
         if not self.is_fitted:
             raise NotFittedError(type(self).__name__)
         if not data:
             return []
+        if len(forecast_start) != len(data):
+            msg = f"forecast_start sequence length {len(forecast_start)} != batch size {len(data)}."
+            raise ValueError(msg)
 
-        starts = self._normalize_forecast_starts(len(data), forecast_start)
-        inputs = [self.prepare_input(data=item, forecast_start=start) for item, start in zip(data, starts, strict=True)]
+        inputs = [
+            self.prepare_input(data=item, forecast_start=start)
+            for item, start in zip(data, forecast_start, strict=True)
+        ]
         raw = self._predict_batch(input_data=inputs)
         return [self.postprocessing.transform(data=forecast) for forecast in raw]
 
