@@ -19,6 +19,7 @@
 # SPDX-License-Identifier: MPL-2.0
 
 
+
 # %% [markdown]
 # # Foundation-Model Forecasting with Chronos-2
 #
@@ -64,6 +65,7 @@ logger = setup_notebook_logging(
         "openstef_core.datasets",
     ),
 )
+
 
 
 # %% [markdown]
@@ -114,6 +116,7 @@ print(f"is_fitted: {workflow.model.is_fitted}")
 print(f"quantiles: {workflow.model.quantiles}")
 
 
+
 # %% [markdown]
 # ## Load real load history and weather
 #
@@ -143,6 +146,7 @@ window = dataset.filter_by_range(start=context_start, end=forecast_start + HORIZ
 print(f"Window:   {context_start:%Y-%m-%d} to {forecast_start + HORIZON.value:%Y-%m-%d}, {len(window.data):,} rows")
 
 
+
 # %% [markdown]
 # ## Forecast
 #
@@ -159,9 +163,11 @@ print(f"Quantiles:     {forecast.quantiles}")
 forecast.data.head()
 
 
+
 # %% tags=["remove-cell"]
 assert len(forecast.data) > 1, "Expected a multi-step forecast"
 assert forecast.quantiles == [Q(0.3), Q(0.5), Q(0.7)], "Quantiles should match the request"
+
 
 
 # %% [markdown]
@@ -198,6 +204,7 @@ fig.update_layout(
 fig.show()
 
 
+
 # %% [markdown]
 # ## Forecast many origins in one call
 #
@@ -226,6 +233,7 @@ batched = workflow.predict_batch(windows, forecast_start=forecast_starts)
 print(f"Forecasts returned: {len(batched)} (one backend call for the whole batch)")
 
 
+
 # %% tags=["remove-cell"]
 from openstef_core.testing import assert_timeseries_equal
 
@@ -235,6 +243,7 @@ serial = [
 assert len(batched) == len(serial), "Batched and serial runs should return the same number of forecasts"
 for batch_item, serial_item in zip(batched, serial, strict=True):
     assert_timeseries_equal(batch_item, serial_item)
+
 
 
 # %% [markdown]
@@ -264,6 +273,7 @@ fig.update_layout(
     height=500,
 )
 fig.show()
+
 
 
 # %% [markdown]
