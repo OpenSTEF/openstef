@@ -153,10 +153,17 @@ args = [
 ]
 
 [tool.poe.tasks.build]
-help = "Build all packages"
+# Builds only the publishable distributions. `openstef-deployment-examples` is a workspace
+# member (so `uv run --package openstef-deployment-examples ...` works) but must NOT be
+# published to PyPI, so it is deliberately excluded here rather than using `--all-packages`.
+help = "Build all publishable packages (excludes openstef-deployment-examples)"
 sequence = [
-  { cmd = "uv build --all-packages" },
-  { cmd = "uv build .", help = "Build root meta package separately (not part of --all-packages)" },
+  { cmd = "uv build --package openstef-core" },
+  { cmd = "uv build --package openstef-models" },
+  { cmd = "uv build --package openstef-beam" },
+  { cmd = "uv build --package openstef-foundation-models" },
+  { cmd = "uv build --package openstef-meta" },
+  { cmd = "uv build .", help = "Build root meta package separately (not a workspace member)" },
 ]
 
 [tool.poe.tasks._docs_sync]
