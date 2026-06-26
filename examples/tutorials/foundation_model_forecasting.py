@@ -33,6 +33,7 @@
 # - Build a forecasting workflow from a config with `create_forecasting_workflow`
 # - Feed load history plus known-future weather and read the predicted quantiles
 # - Plot a P30 / P50 / P70 forecast
+# - Forecast several origins at once with a single `predict_batch` call
 #
 # ```{note}
 # Chronos-2 is zero-shot: it is pretrained and needs no `fit()`. You give it a
@@ -190,6 +191,74 @@ fig.update_layout(
     height=500,
 )
 fig.show()
+
+# %% [markdown]
+# ## Forecast many origins in one call
+#
+# Foundation models shine when you forecast **many** series or origins at once.
+# Instead of looping `predict` per window, hand the whole batch to `predict_batch`:
+# it concatenates the windows and runs the ONNX session a **single** time, returning
+# one forecast per window in input order. The numbers are identical to the serial
+# loop — batching is purely a throughput optimization.
+#
+# Here we carve four forecast origins two weeks apart out of the same dataset; in
+# practice these would just as easily be different feeders or substations. Each
+# window keeps its own 60 days of history plus the 7-day horizon of known-future
+# weather.
+
+# %%
+forecast_starts = [
+    datetime.fromisoformat("2024-09-15T00:00:00Z"),
+    datetime.fromisoformat("2024-09-29T00:00:00Z"),
+    datetime.fromisoformat("2024-10-13T00:00:00Z"),
+    datetime.fromisoformat("2024-10-27T00:00:00Z"),
+]
+windows = [
+    dataset.filter_by_range(start=start - timedelta(days=60), end=start + HORIZON.value) for start in forecast_starts
+]
+
+batched = workflow.predict_batch(windows, forecast_start=forecast_starts)
+print(f"Forecasts returned: {len(batched)} (one backend call for the whole batch)")
+
+# %% tags=["remove-cell"]
+from openstef_core.testing import assert_timeseries_equal
+
+serial = [
+    workflow.predict(window, forecast_start=start) for window, start in zip(windows, forecast_starts, strict=True)
+]
+assert len(batched) == len(serial), "Batched and serial runs should return the same number of forecasts"
+for batch_item, serial_item in zip(batched, serial, strict=True):
+    assert_timeseries_equal(batch_item, serial_item)
+
+# %% [markdown]
+# Each window is an independent 7-day forecast. We overlay the four median forecasts
+# against the actual load to see how the same zero-shot model tracks the series at
+# different points in time.
+
+# %% tags=["hide-input"]
+import plotly.graph_objects as go
+
+batch_actuals = dataset.filter_by_range(
+    start=forecast_starts[0] - timedelta(days=3),
+    end=forecast_starts[-1] + HORIZON.value,
+).data["load"]
+
+batch_fig = go.Figure()
+batch_fig.add_trace(
+    go.Scatter(x=batch_actuals.index, y=batch_actuals.to_numpy(), name="Actual", line={"color": "#444"})
+)
+for start, batch_forecast in zip(forecast_starts, batched, strict=True):
+    median = batch_forecast.median_series
+    batch_fig.add_trace(go.Scatter(x=median.index, y=median.to_numpy(), name=f"Forecast {start:%b %d}"))
+
+batch_fig = cast(Any, batch_fig)
+batch_fig.update_layout(
+    title="Chronos-2 batched zero-shot forecasts vs actuals",
+    yaxis_title="Load (MW)",
+    xaxis_title="Time",
+    height=500,
+)
+batch_fig.show()
 
 # %% [markdown]
 # ## Next steps

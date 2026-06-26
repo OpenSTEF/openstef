@@ -200,8 +200,6 @@ nb_execution_excludepatterns = [
     # published yet, so it cannot run in CI/doc builds. Render it without executing.
     # The trailing * is required: myst-nb matches the source path including its ".py".
     "tutorials/foundation_model_forecasting*",
-    # Batch-inference tutorial also reads a local ONNX checkpoint; render without executing.
-    "tutorials/batch_inference*",
 ]
 
 # Sphinx version switcher

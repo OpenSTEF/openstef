@@ -24,30 +24,19 @@
 #
 # What this does:
 #
-# 1. Downloads the chosen Chronos-2 ONNX checkpoint from the HuggingFace Hub once and
-#    reuses the loaded session for every target
+# 1. Loads a local Chronos-2 ONNX checkpoint once and reuses it for every target
 # 2. Runs day-by-day backtesting on a subset of the dataset (wind parks by default)
 # 3. Produces probabilistic forecasts (7 quantiles) for a 3-day horizon
-# 4. Saves results locally for comparison (see the *Compare Results* notebook)
+# 4. Stacks consecutive forecast windows into batched backend calls (`BATCH_SIZE`)
+# 5. Saves results locally for comparison (see the *Compare Results* notebook)
 #
-# The model size, on-disk precision, execution provider, and batch size are all set in
-# the **Configuration** section below — edit those constants to try different setups.
+# **Note**:
 #
-# ```{admonition} The model stays loaded across targets
-# :class: tip
 # Chronos-2 is zero-shot, so the workflow and its loaded ONNX session are built
 # once and shared across every target. This only holds when the benchmark runs
 # sequentially (`N_PROCESSES = 1`): separate worker processes cannot share a live
 # ONNX session and would load one copy of the model each.
-# ```
-#
-# ```{note}
-# This benchmark downloads the published Chronos-2 ONNX checkpoint from the
-# HuggingFace Hub (`OpenSTEF/chronos-2-onnx` or `OpenSTEF/chronos-2-small-onnx`), so
-# it needs network access on first run but no local export. It is not run during the
-# docs build.
-# ```
-#
+
 
 # %% tags=["remove-cell"]
 # SPDX-FileCopyrightText: 2026 Contributors to the OpenSTEF project <openstef@lfenergy.org>
@@ -59,7 +48,6 @@ import os
 os.environ["OMP_NUM_THREADS"] = "1"
 os.environ["OPENBLAS_NUM_THREADS"] = "1"
 os.environ["MKL_NUM_THREADS"] = "1"
-
 
 # %% [markdown]
 # ## Setup
@@ -82,19 +70,16 @@ from openstef_beam.benchmarking.callbacks.strict_execution_callback import Stric
 from openstef_beam.benchmarking.models.benchmark_target import BenchmarkTarget
 from openstef_beam.benchmarking.storage.local_storage import LocalBenchmarkStorage
 from openstef_core.types import LeadTime, Q
-from openstef_foundation_models.inference.providers import CpuProvider, CudaProvider, TensorRTProvider
 from openstef_foundation_models.integrations.beam import FoundationModelBacktestForecaster
-from openstef_foundation_models.models.checkpoint import HubCheckpoint
+from openstef_foundation_models.models import CheckpointVariant, Chronos2
+from openstef_foundation_models.models.checkpoint import CheckpointRef, LocalCheckpoint
 from openstef_foundation_models.presets.forecasting_workflow import (
     ForecastingWorkflowConfig,
-    OnnxBackendConfig,
     create_forecasting_workflow,
 )
 from openstef_models.utils.feature_selection import Include
 
 logging.basicConfig(level=logging.INFO, format="[%(asctime)s][%(levelname)s] %(message)s")
-logger = logging.getLogger("chronos2_benchmark")
-
 
 # %% [markdown]
 # ## Configuration
@@ -105,97 +90,47 @@ logger = logging.getLogger("chronos2_benchmark")
 # %%
 OUTPUT_PATH = Path("./benchmark_results")
 
-# --- Model ---
-MODEL_SIZE = "small"  # "base" or "small" (small is faster, slightly less accurate)
-PRECISION = "fp32"  # "fp32", "fp32-static", or "int8"
-PROVIDER = "auto"  # "auto", "cuda", "tensorrt-fp16", "tensorrt-fp32", or "cpu"
-BATCH_SIZE = 48  # forecast origins grouped into one backend call; 1 = one at a time
+# Number of forecast windows Chronos-2 stacks into a single backend call. The
+# backtest pipeline groups consecutive windows per target into batches of this
+# size; 1 forecasts one window at a time. Larger batches mean fewer, heavier
+# ONNX calls. Results are written per batch size so runs do not overwrite.
+# Note that more batching is not always better, it depends on your system.
+# For CPU inference you should usually set this to 1.
+BATCH_SIZE = 16
 
-# --- Benchmark scope ---
-BENCHMARK_FILTER: list[Liander2024Category] | None = ["wind_park"]  # None = every category
-FORECAST_HORIZONS = [LeadTime.from_string("P3D")]  # 3 days ahead
+BENCHMARK_RESULTS_PATH_CHRONOS2 = OUTPUT_PATH / "Chronos2" / f"batch{BATCH_SIZE}"
+
+# Use the published Chronos-2 checkpoint from the HuggingFace Hub by default. Set
+# CHRONOS2_ONNX_PATH to benchmark a local ONNX export (with its `.metadata.json`) instead.
+LOCAL_CHECKPOINT_PATH = os.environ.get("CHRONOS2_ONNX_PATH")
+
+# Run sequentially so the loaded model is reused across every target (see the note
+# at the top). A value > 1 would load one model copy per worker process.
+N_PROCESSES = 1
+
+# Which Liander2024 categories to benchmark. Start with wind parks; add more here,
+# e.g. ["wind_park", "solar_park"]. Set to None to run every category.
+BENCHMARK_FILTER: list[Liander2024Category] | None = ["wind_park"]
+
+# Forecast 3 days ahead, producing 7 quantile bands.
+FORECAST_HORIZONS = [LeadTime.from_string("P3D")]
 PREDICTION_QUANTILES = [Q(0.05), Q(0.1), Q(0.3), Q(0.5), Q(0.7), Q(0.9), Q(0.95)]
 
-# --- Run ---
-N_PROCESSES = 1  # keep at 1 so the loaded model is shared across all targets
-RUN_TAG = f"{MODEL_SIZE}-{PRECISION}-{PROVIDER}-b{BATCH_SIZE}"
-BENCHMARK_RESULTS_PATH_CHRONOS2 = OUTPUT_PATH / "Chronos2" / RUN_TAG
-
-
 # %% [markdown]
-# ## Resolve the setup into a checkpoint and a backend
+# ## Select the checkpoint
 #
-# The three settings above are turned into a `HubCheckpoint` (which weights + metadata
-# to download) and an `OnnxBackendConfig`. Both the
-# weights and their `<weights>.metadata.json` are downloaded and cached on first use.
-# Keeping these as small builders makes it trivial to try different setups from the
-# Configuration cell without touching the workflow below.
-#
+# By default we pull the published `Chronos2.BASE` checkpoint from the HuggingFace Hub
+# (`recommended()` picks the variant best suited to this host). Its metadata, which
+# describes the tensor names, native quantile grid, and context/horizon sizing, is
+# downloaded alongside the weights. Set `CHRONOS2_ONNX_PATH` to benchmark a local
+# export instead; its `.metadata.json` is discovered next to the weights.
 
 # %%
-_MODEL_SLUGS = {"base": "chronos-2", "small": "chronos-2-small"}
-_PRECISION_SUFFIX = {"fp32": "", "fp32-static": "_static", "int8": "_int8"}
-
-
-def build_checkpoint(size: str, precision: str) -> HubCheckpoint:
-    """Build the Hub checkpoint reference for a model size and precision variant.
-
-    Args:
-        size: Model size key, one of ``_MODEL_SLUGS`` (``base`` or ``small``).
-        precision: Precision/shape variant key, one of ``_PRECISION_SUFFIX``.
-
-    Returns:
-        A ``HubCheckpoint`` pointing at the selected published weights and metadata.
-
-    Raises:
-        ValueError: If ``size`` or ``precision`` is not a recognised option.
-    """
-    if size not in _MODEL_SLUGS:
-        msg = f"Unknown MODEL_SIZE={size!r}; choose one of {sorted(_MODEL_SLUGS)}."
-        raise ValueError(msg)
-    if precision not in _PRECISION_SUFFIX:
-        msg = f"Unknown PRECISION={precision!r}; choose one of {sorted(_PRECISION_SUFFIX)}."
-        raise ValueError(msg)
-    slug = _MODEL_SLUGS[size]
-    # The metadata filename (e.g. chronos-2_int8.metadata.json) is auto-discovered.
-    return HubCheckpoint(repo_id=f"OpenSTEF/{slug}-onnx", filename=f"{slug}{_PRECISION_SUFFIX[precision]}.onnx")
-
-
-def build_backend(provider: str) -> OnnxBackendConfig:
-    """Build the ONNX backend config for the selected execution-provider chain.
-
-    Args:
-        provider: Provider-chain key (``auto``, ``cuda``, ``tensorrt-fp16``,
-            ``tensorrt-fp32``, or ``cpu``).
-
-    Returns:
-        An ``OnnxBackendConfig`` with the resolved provider chain (``None`` for
-        ``auto``, which defers to the default policy).
-
-    Raises:
-        ValueError: If ``provider`` is not a recognised option.
-    """
-    trt_cache = OUTPUT_PATH / "trt_cache"
-    chains: dict[str, list | None] = {
-        # None lets the default policy choose from checkpoint metadata + host.
-        "auto": None,
-        "cuda": [CudaProvider(), CpuProvider()],
-        "tensorrt-fp16": [TensorRTProvider(fp16=True, engine_cache_dir=trt_cache), CudaProvider(), CpuProvider()],
-        "tensorrt-fp32": [TensorRTProvider(fp16=False, engine_cache_dir=trt_cache), CudaProvider(), CpuProvider()],
-        "cpu": [CpuProvider()],
-    }
-    if provider not in chains:
-        msg = f"Unknown PROVIDER={provider!r}; choose one of {sorted(chains)}."
-        raise ValueError(msg)
-    return OnnxBackendConfig(providers=chains[provider])
-
-
-checkpoint = build_checkpoint(MODEL_SIZE, PRECISION)
-backend = build_backend(PROVIDER)
-logger.info(
-    "Chronos-2 setup: size=%s precision=%s provider=%s batch_size=%s", MODEL_SIZE, PRECISION, PROVIDER, BATCH_SIZE
+checkpoint: CheckpointRef = (
+    LocalCheckpoint(path=Path(LOCAL_CHECKPOINT_PATH))
+    if LOCAL_CHECKPOINT_PATH
+    else Chronos2.BASE.checkpoint(CheckpointVariant.recommended())
 )
-
 
 # %% [markdown]
 # ## Build the workflow once
@@ -221,10 +156,10 @@ workflow = create_forecasting_workflow(
             "wind_speed_80m",
             "temperature_2m",
         ),
-        # Compute backend (execution-provider chain) chosen by the PROVIDER setting
-        # above. Pass `providers=None` ("auto") to let the default policy read the
-        # checkpoint metadata and host to pick a chain automatically.
-        backend=backend,
+        # No `backend` override: the default provider policy reads the checkpoint
+        # metadata (precision, static shapes) and the host to pick a performant
+        # chain automatically. Pass an explicit `backend=OnnxBackendConfig(...)`
+        # only to force a specific chain.
     )
 )
 
@@ -234,7 +169,8 @@ workflow = create_forecasting_workflow(
 #
 # The benchmark calls this factory once per target. It wraps the shared workflow in
 # a backtest adapter without rebuilding it, so the loaded ONNX session is reused for
-# every location.
+# every location. Passing `batch_size` lets the pipeline forecast several windows in
+# a single backend call instead of one at a time.
 
 
 # %%
@@ -261,7 +197,7 @@ if __name__ == "__main__":
         callbacks=[StrictExecutionCallback()],
     ).run(
         forecaster_factory=chronos2_factory,
-        run_name=f"chronos2-{RUN_TAG}",
+        run_name="chronos2",
         n_processes=N_PROCESSES,
         filter_args=BENCHMARK_FILTER,
     )
