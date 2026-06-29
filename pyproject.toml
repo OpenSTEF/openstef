@@ -76,7 +76,7 @@ docs = [ "openstef-docs" ]
 # the `dev` group above aggregates them into the full CPU environment, so everyday
 # setup is a single `uv sync`. The release/build job installs only `build` (the poe
 # runner), not the full dev stack.
-build = [ "poethepoet>=0.36" ]
+build = [ "poethepoet>=0.36", "pypi-attestations>=0.0.21", "sigstore>=3.6.5" ]
 deployment = [ "openstef-deployment-examples[airflow,celery,dagster]" ]
 dev-gpu = [
   { include-group = "build" },
