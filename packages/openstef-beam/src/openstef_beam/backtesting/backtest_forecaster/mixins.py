@@ -186,7 +186,7 @@ class BacktestBatchForecasterMixin:
         batch_size: Maximum number of predictions to process in a single batch.
     """
 
-    batch_size: int | None = Field(..., description="Batch size for prediction.")
+    batch_size: int | None
 
     def predict_batch(self, batch: list[RestrictedHorizonVersionedTimeSeries]) -> Sequence[TimeSeriesDataset | None]:
         """Handles batch prediction across multiple HorizonTransform instances.

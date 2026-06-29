@@ -181,10 +181,24 @@ ini_options.markers = [
   "slow: marks slow-running tests",
 ]
 ini_options.filterwarnings = [
+  # Promote warnings to errors locally so regressions surface early; CI relaxes
+  # this via `poe tests --relaxed` (-W default). Add a scoped `ignore` below only
+  # when an external warning cannot be fixed in our code, with a justification.
+  "error",
   # Ignore fork() deprecation warning from multiprocessing on macOS
   # This warning occurs when pytest (multi-threaded) spawns processes using fork()
   # Using spawn instead breaks test infrastructure (fixtures not picklable)
   "ignore:This process.*is multi-threaded.*use of fork.*may lead to deadlocks:DeprecationWarning",
+  # XGBoost upstream: `booster=gblinear` deprecation is emitted by the bundled C++
+  # library; we cannot suppress it at source and still need the linear booster.
+  "ignore:.*booster=gblinear.*is deprecated.*:UserWarning",
+  # scikit-learn: R^2 is undefined for tiny test fixtures (<2 samples) by design.
+  "ignore:R\\^2 score is not well-defined.*:UserWarning",
+  # numpy: All-NaN slices / divide-by-zero on intentionally sparse test inputs.
+  "ignore:All-NaN slice encountered:RuntimeWarning",
+  "ignore:invalid value encountered in divide:RuntimeWarning",
+  # ctypes callback unraisable noise from a native dependency during teardown.
+  "ignore::pytest.PytestUnraisableExceptionWarning",
 ]
 ini_options.doctest_optionflags = "NORMALIZE_WHITESPACE"
 
