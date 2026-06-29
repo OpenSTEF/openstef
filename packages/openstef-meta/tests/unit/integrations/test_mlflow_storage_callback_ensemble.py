@@ -155,8 +155,8 @@ def callback(storage: MLFlowStorage) -> MLFlowStorageCallback:
 def sample_dataset() -> TimeSeriesDataset:
     return TimeSeriesDataset(
         data=pd.DataFrame(
-            {"load": [100.0, 110.0, 120.0, 105.0, 95.0, 115.0, 125.0, 130.0], "value": 100.0},
-            index=pd.date_range("2025-01-01", periods=8, freq="h"),
+            {"load": [100.0, 110.0, 120.0, 105.0, 95.0, 115.0, 125.0, 130.0] * 6, "value": 100.0},
+            index=pd.date_range("2025-01-01", periods=48, freq="h"),
         ),
         sample_interval=timedelta(hours=1),
     )

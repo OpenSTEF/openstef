@@ -21,7 +21,7 @@ from openstef_models.transforms.general import SampleWeightConfig
 @pytest.fixture
 def sample_timeseries_dataset() -> TimeSeriesDataset:
     """Create sample time series data with typical energy forecasting features."""
-    n_samples = 25
+    n_samples = 400
     rng = np.random.default_rng(seed=42)
 
     data = pd.DataFrame(

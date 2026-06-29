@@ -37,14 +37,18 @@ cmd = "ty check packages/*/tests"
 
 [tool.poe.tasks.tests]
 help = "Run pytest with xdist, marker filtering, and coverage"
-cmd = "pytest --numprocesses=auto ${markers:+ -m $markers} --cov --cov-report=term-missing --cov-report=xml:coverage.xml"
+cmd = "pytest --numprocesses=auto ${markers:+ -m $markers} ${relaxed:+ -W default} --cov --cov-report=term-missing --cov-report=xml:coverage.xml"
 args = [
   { name = "markers", type = "string", default = "", help = "Only run tests matching the given pytest markers expression" },
+  { name = "relaxed", type = "boolean", help = "Do not treat warnings as errors (used by CI; warnings fail locally by default)" },
 ]
 
 [tool.poe.tasks.doctests]
 help = "Run all docstring examples via pytest’s doctest plugin"
-cmd = "pytest --numprocesses=auto --doctest-modules packages/*/src --maxfail=1"
+cmd = "pytest --numprocesses=auto ${relaxed:+ -W default} --doctest-modules packages/*/src --maxfail=1"
+args = [
+  { name = "relaxed", type = "boolean", help = "Do not treat warnings as errors (used by CI; warnings fail locally by default)" },
+]
 
 [tool.poe.tasks.notebooks]
 help = "Sync jupytext .py percent sources → .ipynb notebooks (and vice versa)"

@@ -181,6 +181,17 @@ ini_options.markers = [
   "slow: marks slow-running tests",
 ]
 ini_options.filterwarnings = [
+  # Promote warnings to errors locally so regressions surface early; CI relaxes
+  # this via `poe tests --relaxed` (-W default). Add a scoped `ignore` below only
+  # when an external warning cannot be fixed in our code, with a justification.
+  "error",
+  # XGBoost upstream: `booster=gblinear` deprecation is emitted by the bundled C++
+  # library; we cannot suppress it at source and still need the linear booster.
+  "ignore:.*booster=gblinear.*is deprecated.*:UserWarning",
+  # onnxruntime is a native C++ library; during interpreter teardown its ctypes callback can raise an exception
+  # that Python cannot propagate. Scope the ignore to CPython's fixed ctypes-callback
+  # wording so genuine unraisable exceptions still fail.
+  "ignore:.*Exception ignored on calling ctypes callback function.*:pytest.PytestUnraisableExceptionWarning",
   # Ignore fork() deprecation warning from multiprocessing on macOS
   # This warning occurs when pytest (multi-threaded) spawns processes using fork()
   # Using spawn instead breaks test infrastructure (fixtures not picklable)
@@ -210,9 +221,9 @@ report.sort = "-Miss"
 
 [tool.poe]
 # Task definitions live in poe_tasks.toml (split out to keep this file lean).
-# The deployment example's pyproject contributes the run-the-example deploy-*
+# The deployment example's poe_tasks.toml contributes the run-the-example deploy-*
 # tasks, co-located with the example so `uv run poe deploy-*` works from root.
-include = [ "poe_tasks.toml", "examples/deployment/pyproject.toml" ]
+include = [ "poe_tasks.toml", "examples/deployment/poe_tasks.toml" ]
 
 [tool.licensecheck]
 # Pycountry is LGPL-2.1 according to pypi.

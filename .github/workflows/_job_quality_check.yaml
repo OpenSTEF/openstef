@@ -58,10 +58,10 @@ jobs:
         run: poe type-tests
       - name: tests
         if: ${{ ! inputs._SKIP_QUALITY && always() }}
-        run: poe tests
+        run: poe tests --relaxed
       - name: doctests
         if: ${{ ! inputs._SKIP_QUALITY && always() }}
-        run: poe doctests
+        run: poe doctests --relaxed
       - name: notebooks-check
         if: ${{ ! inputs._SKIP_QUALITY && always() }}
         run: poe notebooks-check
