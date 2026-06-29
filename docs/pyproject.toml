@@ -1,7 +1,6 @@
 # SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
-
 [project]
 name = "openstef-docs"
 version = "0.0.0"
@@ -13,9 +12,17 @@ authors = [
   { name = "Alliander N.V", email = "openstef@lfenergy.org" },
 ]
 requires-python = ">=3.12,<4.0"
+classifiers = [
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+]
 dependencies = [
-  "sphinx-pyproject>=0.3.0",
-  "ipython>=9.4.0",
+  "huggingface-hub>=1.2.2",
+  "ipython>=9.4",
+  "jupyter-cache>=1",
+  "jupytext>=1.16",
   # Constrained to v0.2.x because kaleido >=1.0 fails to JSON-serialize
   # pandas Timestamp values in figure specs (orjson default raises TypeError),
   # 0.4.x is incompatible with the current plotly scope API, and 0.2.1.post1
@@ -24,31 +31,29 @@ dependencies = [
   # pandas Timestamp natively.
   "kaleido>=0.2.1,<0.3,!=0.2.1.post1",
   "matplotlib>=3.10.5",
-  "optuna>=4.7",
-  "huggingface-hub>=1.2.2",
-  "openstef-models",
+  "myst-nb>=1.2",
+  "openstef",
+  "openstef-beam",
   "openstef-core",
+  "openstef-models",
+  "optuna>=4.7",
   "pydata-sphinx-theme>=0.16.1",
   "sphinx>=8.2.3",
+  "sphinx-autobuild>=2024.10.3",
+  "sphinx-autodoc-typehints>=3.2",
   "sphinx-copybutton>=0.5.2",
   "sphinx-design>=0.6.1",
-  "sphinx-gallery>=0.19.0",
-  "sphinx-prompt>=1.10.0",
-  "openstef-beam",
-  "openstef",
-  "sphinx-autobuild>=2024.10.3",
-  "sphinx-autodoc-typehints>=3.2.0",
-  "myst-nb>=1.2.0",
-  "jupyter-cache>=1.0.0",
-  "jupytext>=1.16.0",
+  "sphinx-gallery>=0.19",
+  "sphinx-prompt>=1.10",
+  "sphinx-pyproject>=0.3",
   "sphinxcontrib-mermaid>=0.9.2",
 ]
 
-[tool.uv.sources]
-openstef-beam = { workspace = true }
-openstef-models = { workspace = true }
-openstef = { workspace = true }
-openstef-core = { workspace = true }
-
 [tool.setuptools]
 packages = []
+
+[tool.uv]
+sources.openstef = { workspace = true }
+sources.openstef-beam = { workspace = true }
+sources.openstef-core = { workspace = true }
+sources.openstef-models = { workspace = true }
