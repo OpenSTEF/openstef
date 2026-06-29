@@ -161,7 +161,7 @@ class IsotonicQuantileCalibrator(BaseModel, Transform[ForecastDataset, ForecastD
                 continue  # Skip this quantile
 
             if self.use_local_quantile_estimation:
-                actuals_clean = self._estimate_local_quantiles(predictions_clean, actuals_clean, float(quantile))
+                actuals_clean = self._estimate_local_quantiles(predictions_clean, actuals_clean, quantile)
 
             # Fit isotonic regression
             calibrator = IsotonicRegression(
@@ -184,7 +184,7 @@ class IsotonicQuantileCalibrator(BaseModel, Transform[ForecastDataset, ForecastD
         self._is_fitted = True
 
     def _estimate_local_quantiles(
-        self, predictions: np.ndarray, actuals: np.ndarray, quantile_level: float
+        self, predictions: np.ndarray, actuals: np.ndarray, quantile_level: Quantile
     ) -> np.ndarray:
         """Estimate local quantiles using adaptive windowing.
 

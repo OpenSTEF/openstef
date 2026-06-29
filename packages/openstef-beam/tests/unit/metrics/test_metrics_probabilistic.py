@@ -75,7 +75,7 @@ def test_crps(
     expected: float,
 ) -> None:
     # Act
-    result = crps(np.array(y_true), np.array(y_pred), np.array(quantiles), method=method)
+    result = crps(np.array(y_true), np.array(y_pred), [Q(q) for q in quantiles], method=method)
 
     # Assert
     assert np.isclose(result, expected, rtol=1e-8), f"Expected {expected} but got {result}"
@@ -143,16 +143,16 @@ def test_rcrps(
     # Arrange
     y_true_arr = np.array(y_true)
     y_pred_arr = np.array(y_pred)
-    quantiles_arr = np.array(quantiles)
+    quantiles_list = [Q(q) for q in quantiles]
     weights_arg = np.array(sample_weights) if sample_weights is not None else None
 
     # Act
     result = rcrps(
         y_true_arr,
         y_pred_arr,
-        quantiles_arr,
-        lower_quantile=lower_q,
-        upper_quantile=upper_q,
+        quantiles_list,
+        lower_quantile=Q(lower_q),
+        upper_quantile=Q(upper_q),
         sample_weights=weights_arg,
     )
 
@@ -169,7 +169,7 @@ def test_mean_absolute_calibration_error() -> None:
     # Sample true and predicted values
     y_true = np.array([0.1, 0.2, 0.3, 0.4])
     y_pred = np.repeat(np.array([0.09, 0.19, 0.31, 0.41])[:, np.newaxis], 3, axis=1)
-    quantiles = np.array([0.1, 0.5, 0.9])
+    quantiles = [Q(0.1), Q(0.5), Q(0.9)]
 
     # Compute the mean calibration error
     result = mean_absolute_calibration_error(y_true=y_true, y_pred=y_pred, quantiles=quantiles)

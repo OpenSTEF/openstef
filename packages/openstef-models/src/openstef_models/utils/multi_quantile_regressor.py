@@ -13,6 +13,8 @@ import numpy.typing as npt
 import pandas as pd
 from sklearn.base import BaseEstimator, RegressorMixin
 
+from openstef_core.types import Quantile
+
 logger = logging.getLogger(__name__)
 
 ParamType = float | int | str | bool | None
@@ -29,7 +31,7 @@ class MultiQuantileRegressor(BaseEstimator, RegressorMixin):
         self,
         base_learner: type[BaseEstimator],
         quantile_param: str,
-        quantiles: list[float],
+        quantiles: list[Quantile],
         hyperparams: dict[str, ParamType],
     ):
         """Initialize MultiQuantileRegressor.

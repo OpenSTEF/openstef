@@ -345,8 +345,8 @@ def test_add_segmented_quantile_polygons():
     band = BandData(
         model_name="TestModel",
         model_index=0,
-        lower_quantile=10,
-        upper_quantile=90,
+        lower_percentile=10,
+        upper_percentile=90,
         lower_data=lower_quantile_data,
         upper_data=upper_quantile_data,
     )
@@ -426,9 +426,9 @@ def test_add_quantile_band(connect_gaps: bool):
     plotter._add_quantile_band(
         figure=figure,
         lower_quantile_data=lower_quantile_data,
-        lower_quantile=10.0,
+        lower_percentile=10.0,
         upper_quantile_data=upper_quantile_data,
-        upper_quantile=90.0,
+        upper_percentile=90.0,
         model_name="TestModel",
         model_index=0,
     )
@@ -541,5 +541,5 @@ def test_band_stores_non_integer_percentiles():
 
     # Assert
     assert len(bands) == 1
-    assert bands[0]["lower_quantile"] == pytest.approx(2.5)
-    assert bands[0]["upper_quantile"] == pytest.approx(97.5)
+    assert bands[0]["lower_percentile"] == pytest.approx(2.5)
+    assert bands[0]["upper_percentile"] == pytest.approx(97.5)

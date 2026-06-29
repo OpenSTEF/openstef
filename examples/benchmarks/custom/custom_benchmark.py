@@ -134,8 +134,8 @@ class MyTargetProvider(SimpleTargetProvider[BenchmarkTarget, list[MyCategory]]):
         # rMAE: deterministic accuracy at the median (lower is better)
         # rCRPS: probabilistic accuracy across all quantiles (lower is better)
         return [
-            RMAEProvider(quantiles=[Quantile(0.5)], lower_quantile=0.01, upper_quantile=0.99),
-            RCRPSProvider(lower_quantile=0.01, upper_quantile=0.99),
+            RMAEProvider(quantiles=[Quantile(0.5)], lower_quantile=Quantile(0.01), upper_quantile=Quantile(0.99)),
+            RCRPSProvider(lower_quantile=Quantile(0.01), upper_quantile=Quantile(0.99)),
         ]
 
     @override

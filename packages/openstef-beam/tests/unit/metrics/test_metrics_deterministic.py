@@ -19,6 +19,7 @@ from openstef_beam.metrics import (
     riqd,
     rmae,
 )
+from openstef_core.types import Quantile
 
 
 @pytest.mark.parametrize(
@@ -66,8 +67,8 @@ def test_rmae_various(
     result = rmae(
         y_true_arr,
         y_pred_arr,
-        lower_quantile=lower_quantile,
-        upper_quantile=upper_quantile,
+        lower_quantile=Quantile(lower_quantile),
+        upper_quantile=Quantile(upper_quantile),
         norm_value=norm_value,
         sample_weights=weights_arg,
     )
@@ -130,7 +131,9 @@ def test_rmae_sample_weights_behavior(
 
     # Act
     # use full range quantiles so range = max - min = 10 in these vectors
-    result = rmae(y_true_arr, y_pred_arr, lower_quantile=0.0, upper_quantile=1.0, sample_weights=weights_arg)
+    result = rmae(
+        y_true_arr, y_pred_arr, lower_quantile=Quantile(0.0), upper_quantile=Quantile(1.0), sample_weights=weights_arg
+    )
 
     # Assert
     # Check numerical equality to the expected concrete value
@@ -434,8 +437,8 @@ def test_riqd_various(
         y_true_arr,
         y_pred_lower_q_arr,
         y_pred_upper_q_arr,
-        measurement_range_lower_q=measurement_range_lower_q,
-        measurement_range_upper_q=measurement_range_upper_q,
+        measurement_range_lower_q=Quantile(measurement_range_lower_q),
+        measurement_range_upper_q=Quantile(measurement_range_upper_q),
     )
 
     # Assert
@@ -566,9 +569,9 @@ def test_relative_pinball_loss_various(
     result = relative_pinball_loss(
         y_true_arr,
         y_pred_arr,
-        quantile=quantile,
-        measurement_range_lower_q=measurement_range_lower_q,
-        measurement_range_upper_q=measurement_range_upper_q,
+        quantile=Quantile(quantile),
+        measurement_range_lower_q=Quantile(measurement_range_lower_q),
+        measurement_range_upper_q=Quantile(measurement_range_upper_q),
         sample_weights=weights_arg,
     )
 
@@ -585,7 +588,7 @@ def test_relative_pinball_loss_returns_nan_when_inputs_empty() -> None:
     y_pred_arr = np.array([])
 
     # Act
-    result = relative_pinball_loss(y_true_arr, y_pred_arr, quantile=0.5)
+    result = relative_pinball_loss(y_true_arr, y_pred_arr, quantile=Quantile(0.5))
 
     # Assert
     assert np.isnan(result)
@@ -617,7 +620,7 @@ def test_pinball_loss_various(
     weights_arg = np.array(sample_weights) if sample_weights is not None else None
 
     # Act
-    result = pinball_loss(y_true_arr, y_pred_arr, quantile=quantile, sample_weights=weights_arg)
+    result = pinball_loss(y_true_arr, y_pred_arr, quantile=Quantile(quantile), sample_weights=weights_arg)
 
     # Assert
     assert abs(result - expected) < 1e-8, f"Expected {expected} but got {result}"

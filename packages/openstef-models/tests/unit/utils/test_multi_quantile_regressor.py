@@ -10,6 +10,7 @@ from sklearn.base import BaseEstimator
 from sklearn.linear_model import QuantileRegressor
 from xgboost import XGBRegressor
 
+from openstef_core.types import Quantile
 from openstef_models.utils.multi_quantile_regressor import MultiQuantileRegressor, ParamType
 
 ParamDict = dict[str, ParamType]
@@ -66,7 +67,7 @@ def baselearner_config(request: pytest.FixtureRequest) -> BaseLearnerConfig:
 
 def test_init_sets_quantiles_and_models(baselearner_config: BaseLearnerConfig):
     # Arrange
-    quantiles = [0.1, 0.5, 0.9]
+    quantiles = [Quantile(0.1), Quantile(0.5), Quantile(0.9)]
 
     # Act
     model = MultiQuantileRegressor(
@@ -83,7 +84,7 @@ def test_init_sets_quantiles_and_models(baselearner_config: BaseLearnerConfig):
 
 def test_fit_and_predict_shape(dataset: tuple[pd.DataFrame, pd.Series], baselearner_config: BaseLearnerConfig):
     # Arrange
-    quantiles = [0.1, 0.5, 0.9]
+    quantiles = [Quantile(0.1), Quantile(0.5), Quantile(0.9)]
     X, y = dataset[0], dataset[1]
     model = MultiQuantileRegressor(
         base_learner=baselearner_config.base_learner,
@@ -102,7 +103,7 @@ def test_fit_and_predict_shape(dataset: tuple[pd.DataFrame, pd.Series], baselear
 
 def test_is_fitted_true_after_fit(dataset: tuple[pd.DataFrame, pd.Series], baselearner_config: BaseLearnerConfig):
     # Arrange
-    quantiles = [0.1, 0.5, 0.9]
+    quantiles = [Quantile(0.1), Quantile(0.5), Quantile(0.9)]
     X, y = dataset[0], dataset[1]
     model = MultiQuantileRegressor(
         base_learner=baselearner_config.base_learner,

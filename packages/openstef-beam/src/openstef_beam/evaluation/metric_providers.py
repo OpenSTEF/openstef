@@ -92,19 +92,18 @@ class MetricProvider(BaseConfig):
         Returns:
             QuantileMetricsDict mapping quantile keys to computed metric values.
         """
-        quantiles = np.array(subset.quantiles)
         y_true: npt.NDArray[np.floating] = cast(
             pd.DataFrame, not_none(subset.target_series)
         ).to_numpy()  # type workaround
         y_pred: npt.NDArray[np.floating] = subset.quantiles_data.to_numpy()
 
-        return self.compute_probabilistic(y_true, y_pred, quantiles)
+        return self.compute_probabilistic(y_true, y_pred, subset.quantiles)
 
     def compute_probabilistic(
         self,
         y_true: npt.NDArray[np.floating],
         y_pred: npt.NDArray[np.floating],
-        quantiles: npt.NDArray[np.floating],
+        quantiles: list[Quantile],
     ) -> QuantileMetricsDict:
         """Compute probabilistic metrics computed on multiple quantile data.
 
@@ -114,17 +113,17 @@ class MetricProvider(BaseConfig):
         Args:
             y_true: True values, 1D array of shape (num_samples,).
             y_pred: Predicted values, 2D array of shape (num_samples, num_quantiles).
-            quantiles: Quantiles used for prediction, 1D array of shape (num_quantiles,).
+            quantiles: Quantiles used for prediction, sequence of length (num_quantiles,).
 
         Returns:
             QuantileMetricsDict mapping quantile-prefixed metric names to computed values.
         """
         metrics: QuantileMetricsDict = {}
-        for i, quantile in enumerate(quantiles.tolist()):
+        for i, quantile in enumerate(quantiles):
             if self.quantiles is not None and quantile not in self.quantiles:
                 continue
 
-            metrics[quantile] = self.compute_deterministic(y_true=y_true, y_pred=y_pred[:, i], quantile=float(quantile))
+            metrics[quantile] = self.compute_deterministic(y_true=y_true, y_pred=y_pred[:, i], quantile=quantile)
 
         return metrics
 
@@ -141,7 +140,7 @@ class MetricProvider(BaseConfig):
         self,
         y_true: npt.NDArray[np.floating],
         y_pred: npt.NDArray[np.floating],
-        quantile: float,
+        quantile: Quantile,
     ) -> MetricsDict:
         """Compute metrics for a single quantile prediction.
 
@@ -172,7 +171,7 @@ class CompletenessProvider(MetricProvider):
         self,
         y_true: npt.NDArray[np.floating],
         y_pred: npt.NDArray[np.floating],
-        quantile: float,
+        quantile: Quantile,
     ) -> MetricsDict:
         return {"completeness": completeness(y_pred)}
 
@@ -218,7 +217,7 @@ class PeakMetricProvider(MetricProvider):
         self,
         y_true: npt.NDArray[np.floating],
         y_pred: npt.NDArray[np.floating],
-        quantile: float,
+        quantile: Quantile,
     ) -> MetricsDict:
         cm = confusion_matrix(
             y_true=y_true,
@@ -252,12 +251,12 @@ class RCRPSProvider(MetricProvider):
     def metric_names(self) -> frozenset[str]:
         return frozenset({"rCRPS"})
 
-    lower_quantile: float = Field(
-        default=0.01,
+    lower_quantile: Quantile = Field(
+        default=Quantile(0.01),
         description="Lower quantile bound for rCRPS normalization.",
     )
-    upper_quantile: float = Field(
-        default=0.99,
+    upper_quantile: Quantile = Field(
+        default=Quantile(0.99),
         description="Upper quantile bound for rCRPS normalization.",
     )
 
@@ -266,14 +265,14 @@ class RCRPSProvider(MetricProvider):
         self,
         y_true: npt.NDArray[np.floating],
         y_pred: npt.NDArray[np.floating],
-        quantiles: npt.NDArray[np.floating],
+        quantiles: list[Quantile],
     ) -> QuantileMetricsDict:
         """Compute rCRPS metric for probabilistic forecasts.
 
         Args:
             y_true: True values, 1D array of shape (num_samples,).
             y_pred: Predicted values, 2D array of shape (num_samples, num_quantiles).
-            quantiles: Quantiles used for prediction, 1D array of shape (num_quantiles,).
+            quantiles: Quantiles used for prediction, sequence of length (num_quantiles,).
 
         Returns:
             QuantileMetricsDict containing global rCRPS metric value.
@@ -303,12 +302,12 @@ class RCRPSSampleWeightedProvider(MetricProvider):
     def metric_names(self) -> frozenset[str]:
         return frozenset({"rCRPS_sample_weighted"})
 
-    lower_quantile: float = Field(
-        default=0.01,
+    lower_quantile: Quantile = Field(
+        default=Quantile(0.01),
         description="Lower quantile bound for rCRPS normalization.",
     )
-    upper_quantile: float = Field(
-        default=0.99,
+    upper_quantile: Quantile = Field(
+        default=Quantile(0.99),
         description="Upper quantile bound for rCRPS normalization and sample weighting.",
     )
     a_min: float = Field(
@@ -329,14 +328,14 @@ class RCRPSSampleWeightedProvider(MetricProvider):
         self,
         y_true: npt.NDArray[np.floating],
         y_pred: npt.NDArray[np.floating],
-        quantiles: npt.NDArray[np.floating],
+        quantiles: list[Quantile],
     ) -> QuantileMetricsDict:
         """Compute sample weighted rCRPS metric for probabilistic forecasts.
 
         Args:
             y_true: True values, 1D array of shape (num_samples,).
             y_pred: Predicted values, 2D array of shape (num_samples, num_quantiles).
-            quantiles: Quantiles used for prediction, 1D array of shape (num_quantiles,).
+            quantiles: Quantiles used for prediction, sequence of length (num_quantiles,).
 
         Returns:
             QuantileMetricsDict containing global sample weighted rCRPS metric value.
@@ -382,7 +381,7 @@ class MAEProvider(MetricProvider):
         self,
         y_true: npt.NDArray[np.floating],
         y_pred: npt.NDArray[np.floating],
-        quantile: float,
+        quantile: Quantile,
     ) -> MetricsDict:
         return {"MAE": mae(y_true=y_true, y_pred=y_pred, allow_nan=self.allow_nan)}
 
@@ -399,12 +398,12 @@ class RMAEProvider(MetricProvider):
     def metric_names(self) -> frozenset[str]:
         return frozenset({"rMAE"})
 
-    lower_quantile: float = Field(
-        default=0.01,
+    lower_quantile: Quantile = Field(
+        default=Quantile(0.01),
         description="Lower quantile bound for rMAE normalization.",
     )
-    upper_quantile: float = Field(
-        default=0.99,
+    upper_quantile: Quantile = Field(
+        default=Quantile(0.99),
         description="Upper quantile bound for rMAE normalization.",
     )
     norm_value: float | None = Field(
@@ -422,7 +421,7 @@ class RMAEProvider(MetricProvider):
         self,
         y_true: npt.NDArray[np.floating],
         y_pred: npt.NDArray[np.floating],
-        quantile: float,
+        quantile: Quantile,
     ) -> MetricsDict:
         return {
             "rMAE": rmae(
@@ -448,12 +447,12 @@ class RMAEPeakHoursProvider(MetricProvider):
     def metric_names(self) -> frozenset[str]:
         return frozenset({"rMAE_peak_hours"})
 
-    lower_quantile: float = Field(
-        default=0.01,
+    lower_quantile: Quantile = Field(
+        default=Quantile(0.01),
         description="Lower quantile bound for rMAE normalization.",
     )
-    upper_quantile: float = Field(
-        default=0.99,
+    upper_quantile: Quantile = Field(
+        default=Quantile(0.99),
         description="Upper quantile bound for rMAE normalization.",
     )
     start_peak_hours: int = Field(
@@ -478,7 +477,6 @@ class RMAEPeakHoursProvider(MetricProvider):
         Returns:
             QuantileMetricsDict mapping peak/off-peak periods to computed metric values.
         """
-        quantiles = np.array(subset.quantiles)
         y_true: npt.NDArray[np.floating] = cast(pd.DataFrame, not_none(subset.target_series)).to_numpy()
         y_pred: npt.NDArray[np.floating] = subset.quantiles_data.to_numpy()
 
@@ -488,14 +486,14 @@ class RMAEPeakHoursProvider(MetricProvider):
         y_true = y_true[peak_hours_mask]
         y_pred = y_pred[peak_hours_mask]
 
-        return self.compute_probabilistic(y_true, y_pred, quantiles)
+        return self.compute_probabilistic(y_true, y_pred, subset.quantiles)
 
     @override
     def compute_deterministic(
         self,
         y_true: npt.NDArray[np.floating],
         y_pred: npt.NDArray[np.floating],
-        quantile: float,
+        quantile: Quantile,
     ) -> MetricsDict:
         return {
             "rMAE_peak_hours": rmae(
@@ -524,7 +522,7 @@ class MAPEProvider(MetricProvider):
         self,
         y_true: npt.NDArray[np.floating],
         y_pred: npt.NDArray[np.floating],
-        quantile: float,
+        quantile: Quantile,
     ) -> MetricsDict:
         return {"MAPE": mape(y_true=y_true, y_pred=y_pred)}
 
@@ -547,7 +545,7 @@ class R2Provider(MetricProvider):
         self,
         y_true: npt.NDArray[np.floating],
         y_pred: npt.NDArray[np.floating],
-        quantile: float,
+        quantile: Quantile,
     ) -> MetricsDict:
         return {"R2": r2(y_true=y_true, y_pred=y_pred)}
 
@@ -571,7 +569,7 @@ class ObservedProbabilityProvider(MetricProvider):
         self,
         y_true: npt.NDArray[np.floating],
         y_pred: npt.NDArray[np.floating],
-        quantile: float,
+        quantile: Quantile,
     ) -> MetricsDict:
         return {"observed_probability": observed_probability(y_true=y_true, y_pred=y_pred)}
 
@@ -595,14 +593,14 @@ class MeanAbsoluteCalibrationErrorProvider(MetricProvider):
         self,
         y_true: npt.NDArray[np.floating],
         y_pred: npt.NDArray[np.floating],
-        quantiles: npt.NDArray[np.floating],
+        quantiles: list[Quantile],
     ) -> QuantileMetricsDict:
         """Compute mean absolute calibration error for probabilistic forecasts.
 
         Args:
             y_true: True values, 1D array of shape (num_samples,).
             y_pred: Predicted values, 2D array of shape (num_samples, num_quantiles).
-            quantiles: Quantiles used for prediction, 1D array of shape (num_quantiles,).
+            quantiles: Quantiles used for prediction, sequence of length (num_quantiles,).
 
         Returns:
             QuantileMetricsDict containing global mean absolute calibration error metric.
@@ -631,14 +629,14 @@ class RIQDProvider(MetricProvider):
     def metric_names(self) -> frozenset[str]:
         return frozenset({"rIQD"})
 
-    median_quantile: float = 0.5
+    median_quantile: Quantile = Quantile(0.5)
 
-    measurement_range_lower_q: float = Field(
-        default=0.05,
+    measurement_range_lower_q: Quantile = Field(
+        default=Quantile(0.05),
         description="Lower quantile bound for measurement range normalization.",
     )
-    measurement_range_upper_q: float = Field(
-        default=0.95,
+    measurement_range_upper_q: Quantile = Field(
+        default=Quantile(0.95),
         description="Upper quantile bound for measurement range normalization.",
     )
 
@@ -647,7 +645,7 @@ class RIQDProvider(MetricProvider):
         self,
         y_true: npt.NDArray[np.floating],
         y_pred: npt.NDArray[np.floating],
-        quantiles: npt.NDArray[np.floating],
+        quantiles: list[Quantile],
     ) -> QuantileMetricsDict:
         """Compute rIQD for each quantile by finding its symmetric counterpart.
 
@@ -658,14 +656,14 @@ class RIQDProvider(MetricProvider):
         Args:
             y_true: True values, 1D array of shape (num_samples,).
             y_pred: Predicted values, 2D array of shape (num_samples, num_quantiles).
-            quantiles: Quantiles used for prediction, 1D array of shape (num_quantiles,).
+            quantiles: Quantiles used for prediction, sequence of length (num_quantiles,).
 
         Returns:
             QuantileMetricsDict containing rIQD metrics for each processable quantile.
         """
         metrics: QuantileMetricsDict = {}
 
-        for i, quantile in enumerate(quantiles.tolist()):
+        for i, quantile in enumerate(quantiles):
             if self.quantiles is not None and quantile not in self.quantiles:
                 continue
 
@@ -714,12 +712,12 @@ class RelativePinballLossProvider(MetricProvider):
     def metric_names(self) -> frozenset[str]:
         return frozenset({"relative_pinball_loss"})
 
-    measurement_range_lower_q: float = Field(
-        default=0.01,
+    measurement_range_lower_q: Quantile = Field(
+        default=Quantile(0.01),
         description="Lower quantile bound for measurement range normalization.",
     )
-    measurement_range_upper_q: float = Field(
-        default=0.99,
+    measurement_range_upper_q: Quantile = Field(
+        default=Quantile(0.99),
         description="Upper quantile bound for measurement range normalization.",
     )
 
@@ -728,7 +726,7 @@ class RelativePinballLossProvider(MetricProvider):
         self,
         y_true: npt.NDArray[np.floating],
         y_pred: npt.NDArray[np.floating],
-        quantile: float,
+        quantile: Quantile,
     ) -> MetricsDict:
         return {
             "relative_pinball_loss": relative_pinball_loss(

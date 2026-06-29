@@ -238,7 +238,7 @@ class LGBMForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
             base_learner=LGBMRegressor,
             quantile_param="alpha",
             hyperparams=lgbm_params,
-            quantiles=[float(q) for q in self.quantiles],
+            quantiles=self.quantiles,
         )
 
     @property

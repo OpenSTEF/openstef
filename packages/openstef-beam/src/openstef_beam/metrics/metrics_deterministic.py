@@ -21,6 +21,11 @@ import numpy as np
 import numpy.typing as npt
 from sklearn.metrics import r2_score
 
+from openstef_core.types import Quantile
+
+_Q_05 = Quantile(0.05)
+_Q_95 = Quantile(0.95)
+
 
 def completeness(
     y: npt.NDArray[np.floating],
@@ -104,8 +109,8 @@ def rmae(
     y_true: npt.NDArray[np.floating],
     y_pred: npt.NDArray[np.floating],
     *,
-    lower_quantile: float = 0.05,
-    upper_quantile: float = 0.95,
+    lower_quantile: Quantile = _Q_05,
+    upper_quantile: Quantile = _Q_95,
     norm_value: float | None = None,
     allow_nan: bool = False,
     sample_weights: npt.NDArray[np.floating] | None = None,
@@ -447,8 +452,8 @@ def riqd(
     y_pred_lower_q: npt.NDArray[np.floating],
     y_pred_upper_q: npt.NDArray[np.floating],
     *,
-    measurement_range_lower_q: float = 0.05,
-    measurement_range_upper_q: float = 0.95,
+    measurement_range_lower_q: Quantile = _Q_05,
+    measurement_range_upper_q: Quantile = _Q_95,
 ) -> float:
     """Calculate the relative Inter Quantile Distance (rIQD).
 
@@ -557,7 +562,7 @@ def pinball_loss(
     y_true: npt.NDArray[np.floating],
     y_pred: npt.NDArray[np.floating],
     *,
-    quantile: float,
+    quantile: Quantile,
     sample_weights: npt.NDArray[np.floating] | None = None,
 ) -> float:
     """Calculate the Pinball Loss (also known as Quantile Loss) for a single quantile.
@@ -604,9 +609,9 @@ def relative_pinball_loss(
     y_true: npt.NDArray[np.floating],
     y_pred: npt.NDArray[np.floating],
     *,
-    quantile: float,
-    measurement_range_lower_q: float = 0.05,
-    measurement_range_upper_q: float = 0.95,
+    quantile: Quantile,
+    measurement_range_lower_q: Quantile = _Q_05,
+    measurement_range_upper_q: Quantile = _Q_95,
     sample_weights: npt.NDArray[np.floating] | None = None,
 ) -> float:
     """Calculate the relative Pinball Loss (also known as relative Quantile Loss).

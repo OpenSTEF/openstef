@@ -21,6 +21,7 @@ from typing import Annotated, Literal
 from pydantic import Field
 
 from openstef_core.base_model import BaseConfig
+from openstef_core.types import Quantile
 
 #: Current schema version for :class:`CheckpointMetadata`. Bumped when the
 #: metadata layout changes in a backwards-incompatible way so externally
@@ -50,7 +51,7 @@ class CheckpointMetadata(BaseConfig):
     output_name: str = Field(
         description="Name of the model's quantile-prediction output tensor.",
     )
-    native_quantiles: list[float] = Field(
+    native_quantiles: list[Quantile] = Field(
         min_length=1,
         description="Quantile levels the model natively emits, in ascending order.",
     )

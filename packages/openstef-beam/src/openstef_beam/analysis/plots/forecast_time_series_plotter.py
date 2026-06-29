@@ -42,14 +42,14 @@ class LineData(TypedDict):
 class BandData(TypedDict):
     """TypedDict for storing quantile band data.
 
-    ``lower_quantile`` and ``upper_quantile`` are percentile values (0-100) and
+    ``lower_percentile`` and ``upper_percentile`` are percentile values (0-100) and
     may be non-integer (e.g. ``2.5`` or ``99.9``) for extreme quantiles.
     """
 
     model_name: str
     model_index: int
-    lower_quantile: float
-    upper_quantile: float
+    lower_percentile: float
+    upper_percentile: float
     lower_data: pd.Series
     upper_data: pd.Series
 
@@ -101,7 +101,7 @@ class ForecastTimeSeriesPlotter(BaseConfig):
         'Figure'
     """
 
-    MEDIAN_QUANTILE: ClassVar[float] = 50.0
+    MEDIAN_PERCENTILE: ClassVar[float] = 50.0
 
     COLOR_SCHEME: ClassVar[dict[str, str]] = {
         "blue": "Blues",
@@ -286,24 +286,24 @@ class ForecastTimeSeriesPlotter(BaseConfig):
         Returns:
             str: The label combining the model name and the band's percentiles.
         """
-        lower = self._format_percentile(band["lower_quantile"])
-        upper = self._format_percentile(band["upper_quantile"])
+        lower = self._format_percentile(band["lower_percentile"])
+        upper = self._format_percentile(band["upper_percentile"])
         return f"{band['model_name']} {lower}%-{upper}%"
 
-    def _get_quantile_colors(self, quantile: float, colormap: str) -> tuple[str, str]:
+    def _get_quantile_colors(self, percentile: float, colormap: str) -> tuple[str, str]:
         """Generate fill and stroke colors for a given quantile using a colorscale.
 
         Colors are determined based on the distance from the median (50th percentile).
 
         Args:
-            quantile (float): The quantile value (0-100) to generate colors for.
+            percentile (float): The percentile value (0-100) to generate colors for.
             colormap (str): The colorscale to use.
 
         Returns:
             Tuple[str, str]: A tuple containing (fill_color, stroke_color).
         """
-        fill_value = 1 - abs(quantile - 50.0) / 50.0
-        stroke_value = 1 - abs(quantile + 5.0 - 50.0) / 50.0
+        fill_value = 1 - abs(percentile - 50.0) / 50.0
+        stroke_value = 1 - abs(percentile + 5.0 - 50.0) / 50.0
         return (
             self._get_color_by_value(fill_value, colormap),
             self._get_color_by_value(stroke_value, colormap),
@@ -313,9 +313,9 @@ class ForecastTimeSeriesPlotter(BaseConfig):
         self,
         figure: go.Figure,
         lower_quantile_data: pd.Series,
-        lower_quantile: float,
+        lower_percentile: float,
         upper_quantile_data: pd.Series,
-        upper_quantile: float,
+        upper_percentile: float,
         model_name: str,
         model_index: int,
     ):
@@ -327,17 +327,17 @@ class ForecastTimeSeriesPlotter(BaseConfig):
         Args:
             figure (go.Figure): The plotly figure to add the quantile band to.
             lower_quantile_data (pd.Series): Series with data for the lower quantile.
-            lower_quantile (float): The percentile value of the lower quantile.
+            lower_percentile (float): The percentile value of the lower quantile.
             upper_quantile_data (pd.Series): Series with data for the upper quantile.
-            upper_quantile (float): The percentile value of the upper quantile.
+            upper_percentile (float): The percentile value of the upper quantile.
             model_name (str): The name of the model for which the quantile band is being added.
             model_index (int): The index of the model in the models_data list.
         """
         # Get colors and legendgroup
         colormap = self.colormaps[model_index % len(self.colormaps)]
-        fill_color, stroke_color = self._get_quantile_colors(lower_quantile, colormap)
-        lower_label = self._format_percentile(lower_quantile)
-        upper_label = self._format_percentile(upper_quantile)
+        fill_color, stroke_color = self._get_quantile_colors(lower_percentile, colormap)
+        lower_label = self._format_percentile(lower_percentile)
+        upper_label = self._format_percentile(upper_percentile)
         legendgroup = f"{model_name}_quantile_{lower_label}_{upper_label}"
 
         if self.connect_gaps:
@@ -345,8 +345,8 @@ class ForecastTimeSeriesPlotter(BaseConfig):
             band = BandData(
                 model_name=model_name,
                 model_index=model_index,
-                lower_quantile=lower_quantile,
-                upper_quantile=upper_quantile,
+                lower_percentile=lower_percentile,
+                upper_percentile=upper_percentile,
                 lower_data=lower_quantile_data,
                 upper_data=upper_quantile_data,
             )
@@ -375,8 +375,8 @@ class ForecastTimeSeriesPlotter(BaseConfig):
             band = BandData(
                 model_name=model_name,
                 model_index=model_index,
-                lower_quantile=lower_quantile,
-                upper_quantile=upper_quantile,
+                lower_percentile=lower_percentile,
+                upper_percentile=upper_percentile,
                 lower_data=processed_lower_data,
                 upper_data=processed_upper_data,
             )
@@ -431,7 +431,7 @@ class ForecastTimeSeriesPlotter(BaseConfig):
             # correctly. Quantile is a float subclass, so it sorts by value.
             quantile_cols = [col for col in quantiles.columns if col.startswith("quantile_P")]
             sorted_quantiles = sorted(Quantile.parse(col) for col in quantile_cols)
-            median_column = Quantile.from_percentile(self.MEDIAN_QUANTILE).format()
+            median_column = Quantile.from_percentile(self.MEDIAN_PERCENTILE).format()
 
             # Create band data from widest to narrowest
             for i in range(len(sorted_quantiles) // 2):
@@ -444,8 +444,8 @@ class ForecastTimeSeriesPlotter(BaseConfig):
                     {
                         "model_name": model_name,
                         "model_index": model_index,
-                        "lower_quantile": lower_q.to_percentile(),
-                        "upper_quantile": upper_q.to_percentile(),
+                        "lower_percentile": lower_q.to_percentile(),
+                        "upper_percentile": upper_q.to_percentile(),
                         "lower_data": quantiles[lower_q.format()],
                         "upper_data": quantiles[upper_q.format()],
                     }
@@ -487,7 +487,7 @@ class ForecastTimeSeriesPlotter(BaseConfig):
             forecast = model_data["forecast"]
 
             if quantiles is not None and forecast is None:
-                median_col = f"quantile_P{int(self.MEDIAN_QUANTILE):02d}"
+                median_col = f"quantile_P{int(self.MEDIAN_PERCENTILE):02d}"
                 if median_col in quantiles.columns:
                     lines.append(
                         LineData(
@@ -505,9 +505,9 @@ class ForecastTimeSeriesPlotter(BaseConfig):
             self._add_quantile_band(
                 figure=figure,
                 lower_quantile_data=band["lower_data"],
-                lower_quantile=band["lower_quantile"],
+                lower_percentile=band["lower_percentile"],
                 upper_quantile_data=band["upper_data"],
-                upper_quantile=band["upper_quantile"],
+                upper_percentile=band["upper_percentile"],
                 model_name=band["model_name"],
                 model_index=band["model_index"],
             )

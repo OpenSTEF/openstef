@@ -71,14 +71,14 @@ class Liander2024TargetProvider(SimpleTargetProvider[BenchmarkTarget, list[Liand
     @override
     def get_metrics_for_target(self, target: BenchmarkTarget) -> list[MetricProvider]:
         return [
-            RMAEProvider(quantiles=[Quantile(0.5)], lower_quantile=0.01, upper_quantile=0.99),
-            RCRPSProvider(lower_quantile=0.01, upper_quantile=0.99),
+            RMAEProvider(quantiles=[Quantile(0.5)], lower_quantile=Quantile(0.01), upper_quantile=Quantile(0.99)),
+            RCRPSProvider(lower_quantile=Quantile(0.01), upper_quantile=Quantile(0.99)),
             PeakMetricProvider(
                 limit_pos=target.upper_limit if target.upper_limit is not None else 0.0,
                 limit_neg=target.lower_limit if target.lower_limit is not None else 0.0,
                 beta=2,
             ),
-            RCRPSSampleWeightedProvider(lower_quantile=0.01, upper_quantile=0.99),
+            RCRPSSampleWeightedProvider(lower_quantile=Quantile(0.01), upper_quantile=Quantile(0.99)),
         ]
 
     @override
