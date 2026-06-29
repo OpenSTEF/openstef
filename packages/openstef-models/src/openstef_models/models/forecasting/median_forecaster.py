@@ -214,13 +214,11 @@ class MedianForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
         for time_step in range(lag_array.shape[0]):
             # Get the lag features for the current time step.
             current_lags = lag_array[time_step]
-            # Calculate the median of the available lag features, ignoring NaNs.
-            median = np.nanmedian(current_lags)
-            # If the median calculation resulted in NaN (e.g., all lags were NaN), skip the autoregression step.
-            if not np.isnan(median):
-                median = float(median)
-            else:
+            # If all lags are NaN there is no value to predict, so skip the autoregressive step.
+            if np.all(np.isnan(current_lags)):
                 continue
+            # Calculate the median of the available lag features, ignoring NaNs.
+            median = float(np.nanmedian(current_lags))
 
             # Store the calculated median in the prediction array.
             prediction[time_step] = median

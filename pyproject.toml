@@ -188,8 +188,10 @@ ini_options.filterwarnings = [
   # XGBoost upstream: `booster=gblinear` deprecation is emitted by the bundled C++
   # library; we cannot suppress it at source and still need the linear booster.
   "ignore:.*booster=gblinear.*is deprecated.*:UserWarning",
-  # ctypes callback unraisable noise from a native dependency during teardown.
-  "ignore::pytest.PytestUnraisableExceptionWarning",
+  # onnxruntime is a native C++ library; during interpreter teardown its ctypes callback can raise an exception
+  # that Python cannot propagate. Scope the ignore to CPython's fixed ctypes-callback
+  # wording so genuine unraisable exceptions still fail.
+  "ignore:.*Exception ignored on calling ctypes callback function.*:pytest.PytestUnraisableExceptionWarning",
   # Ignore fork() deprecation warning from multiprocessing on macOS
   # This warning occurs when pytest (multi-threaded) spawns processes using fork()
   # Using spawn instead breaks test infrastructure (fixtures not picklable)
