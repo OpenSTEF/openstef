@@ -9,6 +9,7 @@ from typing import Literal
 import pytest
 from pydantic import ValidationError
 
+from openstef_core.types import Quantile
 from openstef_foundation_models.inference.provider_selection import (
     DefaultProviderPolicy,
     HostCapabilities,
@@ -35,7 +36,7 @@ def _metadata(
         model_family="chronos2",
         input_names=["context", "group_ids", "attention_mask"],
         output_name="quantile_preds",
-        native_quantiles=[0.1, 0.5, 0.9],
+        native_quantiles=[Quantile(0.1), Quantile(0.5), Quantile(0.9)],
         context_length=64,
         output_patch_size=16,
         horizon_patches=2,

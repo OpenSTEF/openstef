@@ -23,8 +23,11 @@ from openstef_foundation_models.models.forecasting import Chronos2Forecaster
 
 # Chronos-2's native quantile grid (21 levels).
 NATIVE_QUANTILES = [
-    0.01, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5,
-    0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 0.99,
+    Quantile(0.01), Quantile(0.05), Quantile(0.1), Quantile(0.15), Quantile(0.2),
+    Quantile(0.25), Quantile(0.3), Quantile(0.35), Quantile(0.4), Quantile(0.45),
+    Quantile(0.5), Quantile(0.55), Quantile(0.6), Quantile(0.65), Quantile(0.7),
+    Quantile(0.75), Quantile(0.8), Quantile(0.85), Quantile(0.9), Quantile(0.95),
+    Quantile(0.99),
 ]  # fmt: skip
 
 CONTEXT_LENGTH = 64

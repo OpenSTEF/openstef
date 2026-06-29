@@ -18,6 +18,7 @@ from pathlib import Path
 import pytest
 
 import openstef_foundation_models.inference.onnx_backend as onnx_module
+from openstef_core.types import Quantile
 from openstef_foundation_models.inference.onnx_backend import OnnxBackend
 from openstef_foundation_models.inference.provider_selection import HostCapabilities
 from openstef_foundation_models.inference.providers import (
@@ -38,7 +39,7 @@ def _checkpoint() -> ResolvedCheckpoint:
         model_family="chronos2",
         input_names=["context"],
         output_name="quantile_preds",
-        native_quantiles=[0.5],
+        native_quantiles=[Quantile(0.5)],
         context_length=64,
         output_patch_size=16,
         horizon_patches=2,

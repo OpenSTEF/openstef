@@ -31,7 +31,7 @@ from openstef_models.transforms.general import Selector
 from openstef_models.utils.feature_selection import FeatureSelection
 from openstef_models.workflows.custom_forecasting_workflow import CustomForecastingWorkflow
 
-NATIVE_QUANTILES = [0.1, 0.5, 0.9]
+NATIVE_QUANTILES = [Quantile(0.1), Quantile(0.5), Quantile(0.9)]
 
 
 def _metadata() -> CheckpointMetadata:
