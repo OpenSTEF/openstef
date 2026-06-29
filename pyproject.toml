@@ -219,9 +219,9 @@ report.sort = "-Miss"
 
 [tool.poe]
 # Task definitions live in poe_tasks.toml (split out to keep this file lean).
-# The deployment example's pyproject contributes the run-the-example deploy-*
+# The deployment example's poe_tasks.toml contributes the run-the-example deploy-*
 # tasks, co-located with the example so `uv run poe deploy-*` works from root.
-include = [ "poe_tasks.toml", "examples/deployment/pyproject.toml" ]
+include = [ "poe_tasks.toml", "examples/deployment/poe_tasks.toml" ]
 
 [tool.licensecheck]
 # Pycountry is LGPL-2.1 according to pypi.
