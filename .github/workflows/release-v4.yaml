@@ -32,8 +32,10 @@ jobs:
     environment: release
     if: ${{ (startsWith(github.ref, 'refs/tags/v4.') || (github.event_name == 'workflow_dispatch' && startsWith(github.event.inputs.version, 'v4'))) && needs.quality.result == 'success' }}
     permissions:
-      # IMPORTANT: this permission is mandatory for trusted publishing
+      # IMPORTANT: this permission is mandatory for trusted publishing and keyless signing
       id-token: write
+      # Required to attach signed artifacts/bundles to the GitHub Release
+      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -77,7 +79,18 @@ jobs:
         run: poe version --version "${{ steps.ver.outputs.version }}"
       - name: Build all packages
         run: poe build
+      - name: Sign distributions (PEP 740 attestations, keyless OIDC)
+        run: uv run --no-sync pypi-attestations sign dist/*.whl dist/*.tar.gz
       - name: Publish packages
+        # uv uploads the matching *.publish.attestation alongside each distribution
         run: uv publish --trusted-publishing always
+      - name: Sign distributions (Sigstore bundles for offline verification)
+        run: uv run --no-sync sigstore sign dist/*.whl dist/*.tar.gz
+      - name: Attach signed artifacts to the GitHub Release
+        if: ${{ github.event_name == 'release' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event.release.tag_name }}
+        run: gh release upload "$TAG" dist/*.whl dist/*.tar.gz dist/*.sigstore.json --clobber
       - name: Summary
-        run: echo "Published version ${{ steps.ver.outputs.version }}"
+        run: echo "Published and signed version ${{ steps.ver.outputs.version }}"
