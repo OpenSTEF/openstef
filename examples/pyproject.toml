@@ -1,20 +1,24 @@
 # SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
-
 [project]
 name = "openstef-examples"
 version = "0.0.0"
 description = "Examples and tutorials for OpenSTEF"
 readme = "README.md"
 requires-python = ">=3.12,<4.0"
+classifiers = [
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+]
 dependencies = [
   "openstef",
   "openstef-beam",
   "openstef-core",
   "openstef-models",
 ]
-
 optional-dependencies.tutorials = [
   "jupyter>=1.1.1",
   # Constrained to v0.2.x; kaleido >=1.0 cannot serialize pandas Timestamp
@@ -24,8 +28,8 @@ optional-dependencies.tutorials = [
   "openstef-core[benchmark]",
 ]
 
-[tool.uv.sources]
-openstef = { workspace = true }
-openstef-beam = { workspace = true }
-openstef-core = { workspace = true }
-openstef-models = { workspace = true }
+[tool.uv]
+sources.openstef = { workspace = true }
+sources.openstef-beam = { workspace = true }
+sources.openstef-core = { workspace = true }
+sources.openstef-models = { workspace = true }
