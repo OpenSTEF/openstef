@@ -279,6 +279,7 @@ def test_mlflow_storage_callback__model_selection__skips_on_tag_change(
     new_model = ForecastingModel(
         forecaster=SimpleTestForecaster(horizons=[LeadTime(timedelta(hours=6))], quantiles=[Q(0.5)]),
         tags={"version": "2.0"},
+        data_splitter=DataSplitter(test_fraction=0.0, val_fraction=0.0),
     )
     new_workflow = CustomForecastingWorkflow(model_id="test_model", model=new_model)
     new_result = new_model.fit(sample_dataset)

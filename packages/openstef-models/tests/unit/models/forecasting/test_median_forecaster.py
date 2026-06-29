@@ -169,7 +169,8 @@ def test_median_handles_all_missing_data():
 
     # Act
     model.fit(training_input_data)
-    result = model.predict(training_input_data)
+    with pytest.warns(RuntimeWarning, match="All-NaN slice encountered"):
+        result = model.predict(training_input_data)
 
     # Assert
     assert result.sample_interval == expected_result.sample_interval
