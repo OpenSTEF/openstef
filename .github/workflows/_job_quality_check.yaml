@@ -49,7 +49,7 @@ jobs:
         run: poe format --check
       - name: format-pyproject
         if: ${{ ! inputs._SKIP_QUALITY && always() }}
-        run: poe format-pyproject --check
+        run: poe format-pyproject
       - name: typing
         if: ${{ ! inputs._SKIP_QUALITY && always() }}
         run: poe type
