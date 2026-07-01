@@ -91,7 +91,13 @@ def test_config_round_trips_and_rebuilds_transformer():
     assert restored._transformer.n_components == 3
 
 
-def test_invalid_transformer_class_raises():
-    """An unimportable transformer_class fails fast at construction."""
-    with pytest.raises(ModuleNotFoundError):
+def test_non_sklearn_transformer_class_raises():
+    """A non-sklearn transformer_class is rejected at construction."""
+    with pytest.raises(ValueError, match="scikit-learn"):
         SklearnTransformAdapter(transformer_class="not_a_real_module.Nope")
+
+
+def test_unknown_sklearn_class_raises():
+    """A sklearn.* path pointing at a non-existent class is rejected."""
+    with pytest.raises(ValueError, match="not found"):
+        SklearnTransformAdapter(transformer_class="sklearn.preprocessing.NotARealTransformer")

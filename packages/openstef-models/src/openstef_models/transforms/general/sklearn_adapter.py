@@ -12,7 +12,7 @@ from pydantic import Field, PrivateAttr
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
-from openstef_core.exceptions import NotFittedError
+from openstef_core.exceptions import MissingExtraError, NotFittedError
 from openstef_core.transforms import TimeSeriesTransform
 from openstef_models.utils.feature_selection import FeatureSelection
 
@@ -73,21 +73,34 @@ class SklearnTransformAdapter(BaseConfig, TimeSeriesTransform):
 
     @override
     def model_post_init(self, context: Any) -> None:
-        module_path, _, class_name = self.transformer_class.rpartition(".")
-        if not module_path:
-            msg = f"transformer_class must be a fully qualified import path, got {self.transformer_class!r}."
+        # Restrict to scikit-learn to keep the dynamic import from loading arbitrary modules.
+        if not self.transformer_class.startswith("sklearn."):
+            msg = f"transformer_class must be a scikit-learn transformer (sklearn.*), got {self.transformer_class!r}."
             raise ValueError(msg)
-        transformer_cls = getattr(importlib.import_module(module_path), class_name)
+        module_path, _, class_name = self.transformer_class.rpartition(".")
+        try:
+            module = importlib.import_module(module_path)
+        except ImportError as e:
+            raise MissingExtraError("sklearn", package="openstef-models") from e
+        try:
+            transformer_cls = getattr(module, class_name)
+        except AttributeError as e:
+            msg = f"{class_name!r} was not found in {module_path!r}."
+            raise ValueError(msg) from e
         self._transformer = transformer_cls(**self.transformer_params)
-        if not hasattr(self._transformer, "get_feature_names_out"):
-            msg = f"{self.transformer_class} does not implement get_feature_names_out and cannot be adapted."
-            raise TypeError(msg)
+
+    def _output_names(self, features: list[str]) -> list[str]:
+        # Prefer the transformer's own output names (handles shape-changing transforms);
+        # fall back to the input names for shape-preserving ones.
+        if hasattr(self._transformer, "get_feature_names_out"):
+            return list(self._transformer.get_feature_names_out(features))
+        return list(features)
 
     @override
     def fit(self, data: TimeSeriesDataset) -> None:
         features = self.selection.resolve(data.feature_names)
         self._transformer.fit(data.data[features])
-        output_names = list(self._transformer.get_feature_names_out(features))
+        output_names = self._output_names(features)
         self._added_features = [name for name in output_names if name not in data.feature_names]
         self._is_fitted = True
 
@@ -97,7 +110,7 @@ class SklearnTransformAdapter(BaseConfig, TimeSeriesTransform):
             raise NotFittedError(self.__class__.__name__)
 
         features = self.selection.resolve(data.feature_names)
-        output_names = list(self._transformer.get_feature_names_out(features))
+        output_names = self._output_names(features)
         transformed = pd.DataFrame(
             self._transformer.transform(data.data[features]),
             index=data.data.index,
