@@ -77,11 +77,11 @@ EMBED_MAP = {
     EXAMPLES / "tutorials" / "backtesting_quickstart.py": (
         DOCS_SOURCE / "user_guide" / "guides" / "backtesting_tutorial.py"
     ),
-    EXAMPLES / "tutorials" / "foundation_model_forecasting.py": (
-        DOCS_SOURCE / "user_guide" / "guides" / "foundation_model_forecasting_tutorial.py"
+    EXAMPLES / "tutorials" / "foundation_model_forecasting_quickstart.py": (
+        DOCS_SOURCE / "user_guide" / "getting_started" / "foundation_model_forecasting_quickstart.py"
     ),
-    EXAMPLES / "tutorials" / "foundation_model_recipes.py": (
-        DOCS_SOURCE / "user_guide" / "guides" / "foundation_model_recipes_tutorial.py"
+    EXAMPLES / "tutorials" / "foundation_model_forecasting.py": (
+        DOCS_SOURCE / "user_guide" / "guides" / "foundation_model_forecasting.py"
     ),
 }
 
