@@ -63,7 +63,30 @@ logger = setup_notebook_logging(
 # # NVIDIA CUDA GPU: installs onnxruntime-gpu plus the pinned NVIDIA CUDA 12 / cuDNN 9
 # # wheels, so no system CUDA install is required.
 # pip install "openstef-foundation-models[gpu]"
+#
+# # Add TensorRT (only if you pin TensorRTProvider): the CUDA 12 runtime on top of [gpu].
+# pip install "openstef-foundation-models[gpu]" tensorrt-cu12
 # ```
+#
+# `[cpu]` installs only `onnxruntime`. `[gpu]` is heavier: `onnxruntime-gpu` carries the CUDA
+# execution-provider plugin but not the CUDA runtime it loads at session creation, so the
+# extra also pulls the matching NVIDIA CUDA 12 and cuDNN 9 wheels and no system CUDA install
+# is required:
+#
+# - `onnxruntime-gpu` (the CUDA execution provider)
+# - `nvidia-cuda-runtime-cu12`
+# - `nvidia-cublas-cu12`
+# - `nvidia-cufft-cu12`
+# - `nvidia-curand-cu12`
+# - `nvidia-cudnn-cu12`
+#
+# These are Linux and Windows x86-64 wheels. Apple Silicon and AMD GPUs use `[cpu]` (see the
+# hardware table below), so they never install the CUDA wheels.
+#
+# Neither extra installs TensorRT. `TensorRTProvider` loads the TensorRT runtime at session
+# creation and expects the TensorRT libraries (NVIDIA's `tensorrt` wheels or a system install)
+# on top of `[gpu]`. Install them yourself only if you pin TensorRT; the default policy never
+# picks it.
 #
 # Through the meta-package, `openstef[foundation-models]` installs the CPU runtime. For the
 # GPU runtime, install `openstef-foundation-models[gpu]` directly, or in the uv workspace use
@@ -136,7 +159,7 @@ print(local_config.checkpoint)
 # explicit list is strict: a missing accelerator raises instead of silently falling back to
 # CPU. The provider configs are `CpuProvider`, `CudaProvider`, `TensorRTProvider`, and
 # `CoreMLProvider`. TensorRT is never chosen by the default policy, so name it explicitly if
-# you want it.
+# you want it, and install the TensorRT runtime yourself since `[gpu]` does not include it.
 
 # %%
 from openstef_foundation_models.inference import CpuProvider, CudaProvider, ExecutionProvider
