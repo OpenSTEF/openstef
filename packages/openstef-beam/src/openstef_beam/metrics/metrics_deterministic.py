@@ -19,12 +19,14 @@ from typing import NamedTuple
 
 import numpy as np
 import numpy.typing as npt
-from sklearn.metrics import r2_score
 
 from openstef_core.types import Quantile
 
 _Q_05 = Quantile(0.05)
 _Q_95 = Quantile(0.95)
+
+# R² is undefined for fewer than this many samples (variance needs at least two points).
+_MIN_R2_SAMPLES = 2
 
 
 def completeness(
@@ -527,7 +529,8 @@ def r2(
     Returns:
         The R² score as a float. Best possible score is 1.0, and it can be negative
         (because the model can be arbitrarily worse). A constant model that always
-        predicts the mean of y_true would get an R² score of 0.0.
+        predicts the mean of y_true would get an R² score of 0.0. Fewer than two
+        samples returns NaN, since R² is undefined there (matching scikit-learn).
 
     Example:
         Basic usage with energy load data
@@ -552,10 +555,24 @@ def r2(
         >>> isinstance(score, float)
         True
     """
-    if len(y_true) == 0 or len(y_pred) == 0:
+    # R² is undefined for fewer than two samples; match scikit-learn, which
+    # returns NaN (with a warning) in that case.
+    if len(y_true) < _MIN_R2_SAMPLES or len(y_pred) < _MIN_R2_SAMPLES:
         return float("NaN")
 
-    return float(r2_score(y_true, y_pred, sample_weight=sample_weights))
+    y_true = np.asarray(y_true, dtype=float)
+    y_pred = np.asarray(y_pred, dtype=float)
+    weights = np.ones_like(y_true) if sample_weights is None else np.asarray(sample_weights, dtype=float)
+
+    weighted_mean = np.average(y_true, weights=weights)
+    residual_sum = float(np.sum(weights * (y_true - y_pred) ** 2))
+    total_sum = float(np.sum(weights * (y_true - weighted_mean) ** 2))
+
+    # Constant y_true: match scikit-learn (1.0 for a perfect fit, else 0.0).
+    if total_sum == 0.0:
+        return 1.0 if residual_sum == 0.0 else 0.0
+
+    return float(1.0 - residual_sum / total_sum)
 
 
 def pinball_loss(
