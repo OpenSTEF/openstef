@@ -453,7 +453,13 @@ def create_forecasting_workflow(
             horizons=config.horizons,
             hyperparams=config.lgbmlinear_hyperparams,
         )
-        postprocessing = [QuantileSorter()]
+        postprocessing = [
+            QuantileSorter(),
+            ConfidenceIntervalApplicator(
+                quantiles=config.quantiles,
+                add_quantiles_from_std=False,
+            ),
+        ]
     elif config.model == "lgbm":
         preprocessing = [
             *checks,
@@ -468,7 +474,13 @@ def create_forecasting_workflow(
             horizons=config.horizons,
             hyperparams=config.lgbm_hyperparams,
         )
-        postprocessing = [QuantileSorter()]
+        postprocessing = [
+            QuantileSorter(),
+            ConfidenceIntervalApplicator(
+                quantiles=config.quantiles,
+                add_quantiles_from_std=False,
+            ),
+        ]
     elif config.model == "gblinear":
         preprocessing = [
             *checks,
@@ -510,7 +522,12 @@ def create_forecasting_workflow(
             quantiles=config.quantiles,
             horizons=config.horizons,
         )
-        postprocessing = []
+        postprocessing = [
+            ConfidenceIntervalApplicator(
+                quantiles=config.quantiles,
+                add_quantiles_from_std=False,
+            ),
+        ]
     elif config.model == "constant_quantile":
         preprocessing = [
             CompletenessChecker(
@@ -522,7 +539,12 @@ def create_forecasting_workflow(
             quantiles=config.quantiles,
             horizons=config.horizons,
         )
-        postprocessing = []
+        postprocessing = [
+            ConfidenceIntervalApplicator(
+                quantiles=config.quantiles,
+                add_quantiles_from_std=False,
+            ),
+        ]
     elif config.model == "flatliner":
         preprocessing = []
         forecaster = FlatlinerForecaster(
