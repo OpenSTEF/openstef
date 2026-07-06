@@ -71,6 +71,8 @@ docs/source/user_guide/**/quick_start_tutorial.py
 docs/source/user_guide/**/feature_engineering_tutorial.py
 docs/source/user_guide/**/datasets_tutorial.py
 docs/source/user_guide/**/backtesting_tutorial.py
+docs/source/user_guide/**/foundation_model_forecasting_quickstart.py
+docs/source/user_guide/**/foundation_model_forecasting.py
 
 # docs/_doctrees/
 # docs/_static_gen/

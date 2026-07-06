@@ -20,258 +20,248 @@
 
 
 # %% [markdown]
-# # Foundation-Model Forecasting with Chronos-2
+# # Foundation Model Forecasting
 #
-# This tutorial produces a zero-shot probabilistic load forecast with the pretrained
-# [Chronos-2](https://huggingface.co/amazon/chronos-2) model using OpenSTEF's ONNX
-# inference backend. No training is involved, and the forecast is conditioned on
-# known weather covariates.
+# This guide covers the practical settings for running `openstef-foundation-models`:
+# installing an ONNX runtime, choosing a checkpoint, picking the execution provider for your
+# hardware, and backtesting with openstef-beam. It uses Chronos-2, the first model family in
+# the package; the same steps apply to families added later.
 #
-# What you'll do:
+# For an end-to-end forecast with a plot, see the
+# {doc}`Foundation Model Forecasting Quickstart </user_guide/getting_started/foundation_model_forecasting_quickstart>`.
+# For what a foundation model is and when to use one, see the
+# {ref}`Foundation Models concept page <concept_foundation_models>`.
 #
-# - Select a published Chronos-2 checkpoint from the HuggingFace Hub
-# - Build a forecasting workflow from a config with `create_forecasting_workflow`
-# - Feed load history plus known-future weather and read the predicted quantiles
-# - Plot a P30 / P50 / P70 forecast
-# - Forecast several origins at once with a single `predict_batch` call
-#
-# ```{note}
-# Chronos-2 is zero-shot: it is pretrained and needs no `fit()`. You give it a
-# window of recent load (and optional known-future covariates) and it returns a
-# probabilistic forecast directly. Covariates cover the whole time range, so the
-# model sees each weather series both as history and as known future values and can
-# react to, say, an incoming cold snap.
-# ```
+# Every code cell below runs during the docs build against the current API, so each output is
+# the live result. The model runs on CPU with the small Chronos-2 checkpoint, which keeps the
+# guide fast and lets it execute on any machine, with or without a GPU.
 
 # %% tags=["remove-cell"]
 import warnings
-from typing import Any, cast
 
 warnings.filterwarnings("ignore")
 
-from openstef_core.testing import configure_notebook_display, setup_notebook_logging
+from openstef_core.testing import setup_notebook_logging
 
-configure_notebook_display()
 logger = setup_notebook_logging(
     __name__,
-    suppress=(
-        "choreographer",
-        "kaleido",
-        "httpx",
-        "huggingface_hub",
-        "fsspec",
-        "filelock",
-        "openstef_core.datasets",
-    ),
+    suppress=("huggingface_hub", "fsspec", "filelock", "openstef_core.datasets"),
 )
 
 
 # %% [markdown]
-# ## Assemble the workflow
+# ## Install one ONNX runtime
 #
-# `ForecastingWorkflowConfig` declares the model family, the checkpoint that backs it,
-# the quantiles/horizons to predict, and which columns are the target and the weather
-# covariates. OpenSTEF publishes Chronos-2 as ONNX checkpoints on the HuggingFace Hub;
-# the `Chronos2` catalog turns a size into a checkpoint reference, downloaded and cached
-# on first use. The config defaults to the full `Chronos2.BASE`, so the checkpoint is
-# optional — here we pick the compact `Chronos2.SMALL` so the tutorial stays fast and
-# runs in the docs build (pass a `LocalCheckpoint(path=...)` to run a file on disk).
-# `create_forecasting_workflow` then resolves the checkpoint, builds the ONNX Runtime
-# session once, and wraps a `Chronos2Forecaster` in a `CustomForecastingWorkflow` (a
-# `Selector` that picks the target and covariates, the forecaster, and a `QuantileSorter`).
+# `[cpu]` and `[gpu]` are mutually exclusive: `onnxruntime` and `onnxruntime-gpu` collide in
+# the same environment, so pick one. uv enforces the choice through conflicting extras; pip
+# does not, so choose it yourself.
+#
+# ```bash
+# # CPU (what the meta-package installs by default)
+# pip install "openstef-foundation-models[cpu]"
+#
+# # NVIDIA CUDA GPU: installs onnxruntime-gpu plus the pinned NVIDIA CUDA 12 / cuDNN 9
+# # wheels, so no system CUDA install is required.
+# pip install "openstef-foundation-models[gpu]"
+#
+# # Add TensorRT (only if you pin TensorRTProvider): the CUDA 12 runtime on top of [gpu].
+# pip install "openstef-foundation-models[gpu]" tensorrt-cu12
+# ```
+#
+# `[cpu]` installs only `onnxruntime`. `[gpu]` is heavier: `onnxruntime-gpu` carries the CUDA
+# execution-provider plugin but not the CUDA runtime it loads at session creation, so the
+# extra also pulls the matching NVIDIA CUDA 12 and cuDNN 9 wheels and no system CUDA install
+# is required:
+#
+# - `onnxruntime-gpu` (the CUDA execution provider)
+# - `nvidia-cuda-runtime-cu12`
+# - `nvidia-cublas-cu12`
+# - `nvidia-cufft-cu12`
+# - `nvidia-curand-cu12`
+# - `nvidia-cudnn-cu12`
+#
+# These are Linux and Windows x86-64 wheels. Apple Silicon and AMD GPUs use `[cpu]` (see the
+# hardware table below), so they never install the CUDA wheels.
+#
+# Neither extra installs TensorRT. `TensorRTProvider` loads the TensorRT runtime at session
+# creation and expects the TensorRT libraries (NVIDIA's `tensorrt` wheels or a system install)
+# on top of `[gpu]`. Install them yourself only if you pin TensorRT; the default policy never
+# picks it.
+#
+# Through the meta-package, `openstef[foundation-models]` installs the CPU runtime. For the
+# GPU runtime, install `openstef-foundation-models[gpu]` directly, or in the uv workspace use
+# the `dev-gpu` group (`uv sync --no-default-groups --group dev-gpu`).
+
+# %% [markdown]
+# ## Pick a checkpoint
+#
+# Use the `Chronos2` catalog instead of writing repo ids by hand. Each entry resolves to a
+# published checkpoint reference; printing it shows the repo id and file the workflow will
+# pull. A `ForecastingWorkflowConfig` with no checkpoint defaults to the base, dynamic-shape
+# build shown first below.
+
+# %%
+from openstef_foundation_models.models import CheckpointVariant, Chronos2
+
+catalog = {
+    # Default: base model, dynamic shapes.
+    "default (base, dynamic)": Chronos2.BASE.checkpoint(),
+    # Smaller model, faster to download and run.
+    "small": Chronos2.SMALL.checkpoint(),
+    # Static shapes, which the default policy needs to pick CoreML on macOS.
+    "base, static": Chronos2.BASE.checkpoint(CheckpointVariant.STATIC),
+    # Let the host choose: static on macOS, dynamic elsewhere.
+    "base, recommended": Chronos2.BASE.checkpoint(CheckpointVariant.recommended()),
+}
+for label, ref in catalog.items():
+    print(f"{label:24} -> {ref.repo_id} :: {ref.filename}")
+
+
+# %% [markdown]
+# ## Run a checkpoint already on disk
+#
+# A file you exported or downloaded yourself is described by `LocalCheckpoint`. It needs the
+# `.onnx` weights and the matching `.metadata.json` file, which records the model's input
+# names, quantiles, context length, horizon, and precision. Building the config does not read
+# the files, so this validates the wiring without a model present.
+
+# %%
+from pathlib import Path
+
+from openstef_foundation_models.models.checkpoint import LocalCheckpoint
+from openstef_foundation_models.presets import ForecastingWorkflowConfig
+
+local_config = ForecastingWorkflowConfig(
+    checkpoint=LocalCheckpoint(
+        path=Path("artifacts/chronos-2.onnx"),
+        metadata_path=Path("artifacts/chronos-2.metadata.json"),
+    ),
+)
+print(local_config.checkpoint)
+
+
+# %% [markdown]
+# ## Choose the execution provider for your hardware
+#
+# A foundation model runs its ONNX graph through an *execution provider*: plain CPU, NVIDIA
+# CUDA, or CoreML on Apple Silicon. By default OpenSTEF reads your machine and the checkpoint
+# and picks a sensible chain, falling back to CPU when no accelerator fits. The table shows
+# what to install and what gets chosen:
+#
+# | Hardware | Install | Provider chosen | Notes |
+# | --- | --- | --- | --- |
+# | NVIDIA GPU | `[gpu]` | CUDA, then CPU | Fastest option. The extra installs the CUDA 12 / cuDNN 9 wheels. |
+# | Apple Silicon | `[cpu]` | CoreML, then CPU | Needs a static-shape checkpoint (`CheckpointVariant.STATIC` or `recommended()`). |
+# | AMD GPU | `[cpu]` | CPU | No supported GPU provider today, so it runs on CPU. See "Extend the backend" below. |
+# | CPU only | `[cpu]` | CPU | Prefer `Chronos2.SMALL`, and an `int8` checkpoint where one is published. |
+#
+# To pin the chain yourself, pass an explicit `providers` list on the backend config. An
+# explicit list is strict: a missing accelerator raises instead of silently falling back to
+# CPU. The provider configs are `CpuProvider`, `CudaProvider`, `TensorRTProvider`, and
+# `CoreMLProvider`. TensorRT is never chosen by the default policy, so name it explicitly if
+# you want it, and install the TensorRT runtime yourself since `[gpu]` does not include it.
+
+# %%
+from openstef_foundation_models.inference import CpuProvider, CudaProvider, ExecutionProvider
+from openstef_foundation_models.presets import OnnxBackendConfig
+
+providers: list[ExecutionProvider] = [CudaProvider(device_id=0), CpuProvider()]
+gpu_config = ForecastingWorkflowConfig(backend=OnnxBackendConfig(providers=providers))
+ordered_providers = [provider.to_ort()[0] for provider in providers]
+print(f"ONNX Runtime will try these providers in order: {ordered_providers}")
+print(f"Pinned on the workflow config: {gpu_config.backend.providers is providers}")
+
+
+# %% [markdown]
+# The config is only the recipe. `create_forecasting_workflow` turns it into a running
+# forecaster with that provider chain baked in, so you set the hardware once here and never
+# pass it again at predict time. Below we pin `CpuProvider` so the workflow runs anywhere,
+# including this docs build, then forecast one short window to confirm the wiring end to end.
 
 # %%
 from openstef_core.types import LeadTime, Q
-from openstef_foundation_models.models import Chronos2
-from openstef_foundation_models.presets.forecasting_workflow import (
-    ForecastingWorkflowConfig,
-    create_forecasting_workflow,
-)
+from openstef_foundation_models.presets import create_forecasting_workflow
 from openstef_models.utils.feature_selection import Include
 
 HORIZON = LeadTime.from_string("P7D")
 
-workflow = create_forecasting_workflow(
+cpu_workflow = create_forecasting_workflow(
     ForecastingWorkflowConfig(
-        model="chronos2",
         checkpoint=Chronos2.SMALL.checkpoint(),
-        quantiles=[Q(0.3), Q(0.5), Q(0.7)],
+        quantiles=[Q(0.5)],
         horizons=[HORIZON],
         target_column="load",
-        # Keep the target plus the three known-future weather covariates; every
-        # kept non-target column is forwarded to Chronos-2 as a covariate.
-        selected_features=Include(
-            "load",
-            "shortwave_radiation",
-            "wind_speed_80m",
-            "temperature_2m",
-        ),
-    )
+        selected_features=Include("load"),
+        backend=OnnxBackendConfig(providers=[CpuProvider()]),
+    ),
 )
-
-# Zero-shot: the model is "fitted" on construction - there is nothing to train.
-print(f"is_fitted: {workflow.model.is_fitted}")
-print(f"quantiles: {workflow.model.quantiles}")
+# Zero-shot: the model is ready on construction, nothing to train.
+print(f"is_fitted: {cpu_workflow.model.is_fitted}  quantiles: {cpu_workflow.model.quantiles}")
 
 
-# %% [markdown]
-# ## Load real load history and weather
-#
-# We reuse the [Liander 2024 benchmark](https://huggingface.co/datasets/Alliander/MSL_Benchmark_Dataset)
-# dataset for a realistic medium-voltage feeder load series together with its
-# weather forecasts. The workflow's `Selector` keeps the target (`load`) and the
-# three weather covariates; everything else is ignored.
-#
-# We take 60 days of history up to a chosen forecast start and keep the weather
-# columns running through the 7-day horizon, so Chronos-2 can use the known-future
-# weather as a covariate.
-
-# %%
+# %% tags=["remove-cell"]
+# Helper: a small load window from the Liander benchmark dataset to drive the demos below.
 from datetime import datetime, timedelta
 
 from openstef_core.testing import load_liander_dataset
 
-dataset = load_liander_dataset()
+_dataset = load_liander_dataset()
+_origin = datetime.fromisoformat("2024-11-15T00:00:00Z")
+demo_window = _dataset.filter_by_range(start=_origin - timedelta(days=60), end=_origin + HORIZON.value)
+demo_origins = [_origin, _origin + timedelta(days=14)]
+demo_windows = [
+    _dataset.filter_by_range(start=origin - timedelta(days=60), end=origin + HORIZON.value) for origin in demo_origins
+]
 
-forecast_start = datetime.fromisoformat("2024-11-15T00:00:00Z")
-context_start = forecast_start - timedelta(days=60)
-
-# The window spans history + horizon: load history conditions the model, while the
-# weather columns are known across the whole range (history and future).
-window = dataset.filter_by_range(start=context_start, end=forecast_start + HORIZON.value)
-
-print(f"Window:   {context_start:%Y-%m-%d} to {forecast_start + HORIZON.value:%Y-%m-%d}, {len(window.data):,} rows")
-
-
-# %% [markdown]
-# ## Forecast
-#
-# `workflow.predict` selects the target and covariates, runs the ONNX session once,
-# and post-processes the output: it slices the model's frozen horizon to the
-# requested 7 days and resamples Chronos-2's native quantile grid onto the
-# requested P30 / P50 / P70.
 
 # %%
-forecast = workflow.predict(window, forecast_start=forecast_start)
-
-print(f"Forecast rows: {len(forecast.data)}")
-print(f"Quantiles:     {forecast.quantiles}")
-forecast.data.head()
-
-
-# %% tags=["remove-cell"]
-assert len(forecast.data) > 1, "Expected a multi-step forecast"
-assert forecast.quantiles == [Q(0.3), Q(0.5), Q(0.7)], "Quantiles should match the request"
+forecast = cpu_workflow.predict(demo_window, forecast_start=demo_origins[0])
+print(f"Forecast rows: {len(forecast.data)}  quantiles: {forecast.quantiles}")
 
 
 # %% [markdown]
-# ## Visualize the forecast
+# ### Extend the backend
 #
-# [`ForecastTimeSeriesPlotter`](https://openstef.github.io/openstef/api/generated/openstef_beam.analysis.plots.ForecastTimeSeriesPlotter.html)
-# overlays the actual load against the median forecast with a shaded quantile band.
-
-# %% tags=["hide-input"]
-from openstef_beam.analysis.plots import ForecastTimeSeriesPlotter
-
-actuals = dataset.filter_by_range(
-    start=forecast_start - timedelta(days=3),
-    end=forecast_start + HORIZON.value,
-).data["load"]
-
-fig = (
-    ForecastTimeSeriesPlotter()
-    .add_measurements(measurements=actuals)
-    .add_model(
-        model_name="Chronos-2",
-        forecast=forecast.median_series,
-        quantiles=forecast.quantiles_data,
-    )
-    .plot()
-)
-fig = cast(Any, fig)
-fig.update_layout(
-    title="Chronos-2 zero-shot forecast vs actuals",
-    yaxis_title="Load (MW)",
-    xaxis_title="Time",
-    height=500,
-)
-fig.show()
-
+# The forecaster does not call ONNX Runtime directly; it goes through the `InferenceBackend`
+# protocol, and `OnnxBackend` is the one implementation today. To use a provider OpenSTEF does
+# not select for you, such as ROCm on an AMD GPU, add a custom `ExecutionProvider` and pass it
+# in the `providers` list, or implement your own `InferenceBackend`. OpenSTEF does not test
+# these paths, so their quality is on you; ROCm in particular is niche and unsupported. See the
+# {doc}`API reference </api/foundation_models>` for the protocol.
 
 # %% [markdown]
-# ## Forecast many origins in one call
+# ## Batch many windows
 #
-# Foundation models shine when you forecast **many** series or origins at once.
-# Instead of looping `predict` per window, hand the whole batch to `predict_batch`:
-# it concatenates the windows and runs the ONNX session a **single** time, returning
-# one forecast per window in input order. The numbers are identical to the serial
-# loop, batching is purely a throughput optimization.
-#
-# Here we carve four forecast origins two weeks apart out of the same dataset. While this is useful for backtesting, in a live setting you would typically forecast many different locations or targets at once. Each
-# window keeps its own 60 days of history plus the 7-day horizon of known-future
-# weather.
+# A foundation model forecasts many windows in a single backend call. Instead of calling
+# `predict` in a loop, collect the windows and pass them to `predict_batch`: it concatenates
+# them, runs the ONNX session once, and returns one forecast per window in input order. The
+# results match a serial loop; only throughput changes. Batching pays off when you forecast many
+# locations or targets at once, or sweep many forecast origins across history. Here we reuse the
+# CPU workflow and the two demo windows from above.
 
 # %%
-forecast_starts = [
-    datetime.fromisoformat("2024-09-15T00:00:00Z"),
-    datetime.fromisoformat("2024-09-29T00:00:00Z"),
-    datetime.fromisoformat("2024-10-13T00:00:00Z"),
-    datetime.fromisoformat("2024-10-27T00:00:00Z"),
-]
-windows = [
-    dataset.filter_by_range(start=start - timedelta(days=60), end=start + HORIZON.value) for start in forecast_starts
-]
-
-batched = workflow.predict_batch(windows, forecast_start=forecast_starts)
-print(f"Forecasts returned: {len(batched)} (one backend call for the whole batch)")
-
-
-# %% tags=["remove-cell"]
-from openstef_core.testing import assert_timeseries_equal
-
-serial = [
-    workflow.predict(window, forecast_start=start) for window, start in zip(windows, forecast_starts, strict=True)
-]
-assert len(batched) == len(serial), "Batched and serial runs should return the same number of forecasts"
-for batch_item, serial_item in zip(batched, serial, strict=True):
-    assert_timeseries_equal(batch_item, serial_item)
+batched = cpu_workflow.predict_batch(demo_windows, forecast_start=demo_origins)
+print(f"Forecasts returned: {len(batched)} (one backend call for {len(demo_windows)} windows)")
 
 
 # %% [markdown]
-# Each window is an independent 7-day forecast. We overlay the four median forecasts
-# against the actual load to see how the same zero-shot model tracks the series at
-# different points in time.
-
-# %% tags=["hide-input"]
-batch_actuals = dataset.filter_by_range(
-    start=forecast_starts[0] - timedelta(days=3),
-    end=forecast_starts[-1] + HORIZON.value,
-).data["load"]
-
-batch_plotter = ForecastTimeSeriesPlotter().add_measurements(measurements=batch_actuals)
-for start, batch_forecast in zip(forecast_starts, batched, strict=True):
-    batch_plotter = batch_plotter.add_model(
-        model_name=f"Chronos-2 {start:%b %d}",
-        forecast=batch_forecast.median_series,
-        quantiles=batch_forecast.quantiles_data,
-    )
-
-fig = cast(Any, batch_plotter.plot())
-fig.update_layout(
-    title="Chronos-2 batched zero-shot forecasts vs actuals",
-    yaxis_title="Load (MW)",
-    xaxis_title="Time",
-    height=500,
-)
-fig.show()
-
+# The quickstart plots a batched run against actual load in its
+# {doc}`batched section </user_guide/getting_started/foundation_model_forecasting_quickstart>`.
+# In backtesting you do not batch by hand: `FoundationModelBacktestForecaster` takes a
+# `batch_size`, and beam stacks that many consecutive windows into one call, shown next.
 
 # %% [markdown]
-# ## Next steps
+# ## Backtest with openstef-beam
 #
-# - {doc}`/tutorials/forecasting_quickstart` — train a classical gradient-boosted
-#   model and compare it against this zero-shot baseline.
-# - {doc}`/tutorials/backtesting_quickstart` — evaluate a forecaster over historical
-#   windows. The `FoundationModelBacktestForecaster` adapter (the `[benchmarking]`
-#   extra) runs Chronos-2 through the same backtesting pipeline, loading the ONNX
-#   session once and reusing it across every window.
+# `FoundationModelBacktestForecaster` wraps a workflow so beam can drive it over historical
+# windows. It reuses the workflow's ONNX session for every window; `batch_size` sets how many
+# consecutive windows beam stacks into a single call. Plug the adapter into a `BacktestPipeline`
+# the same way as any other backtest forecaster; see the
+# {ref}`Backtesting concept page <concept_beam>` for the pipeline. Here we wrap the CPU workflow
+# from above.
+
+# %%
+from openstef_foundation_models.integrations.beam import FoundationModelBacktestForecaster
+
+adapter = FoundationModelBacktestForecaster.from_workflow(cpu_workflow, batch_size=16)
+print(f"Adapter forecasts quantiles {adapter.quantiles} with batch size {adapter.batch_size}")
