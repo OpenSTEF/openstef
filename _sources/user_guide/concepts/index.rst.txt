@@ -44,6 +44,12 @@ Understand the domain and library architecture behind OpenSTEF.
 
         Decompose aggregated load into individual energy components.
 
+    .. grid-item-card:: :fa:`wand-sparkles` Foundation Models
+        :link: foundation_models
+        :link-type: doc
+
+        Zero-shot pretrained forecasting on an ONNX runtime, no per-target training.
+
 .. toctree::
     :maxdepth: 1
     :hidden:
@@ -53,3 +59,4 @@ Understand the domain and library architecture behind OpenSTEF.
     metalearning
     beam
     component_splitting
+    foundation_models

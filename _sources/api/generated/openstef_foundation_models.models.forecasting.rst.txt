@@ -1,0 +1,50 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+
+
+forecasting
+===========
+
+.. currentmodule:: openstef_foundation_models.models.forecasting
+
+.. automodule:: openstef_foundation_models.models.forecasting
+   :no-members:
+   :no-inherited-members:
+
+
+
+
+
+
+
+
+
+Submodules
+----------
+
+
+.. autosummary::
+   :toctree: .
+   :template: module_overview.rst
+
+   openstef_foundation_models.models.forecasting.chronos2_forecaster
+
+
+
+
+
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_class_noindex.rst
+
+   Chronos2Forecaster
+   Chronos2HyperParams
+
+
+

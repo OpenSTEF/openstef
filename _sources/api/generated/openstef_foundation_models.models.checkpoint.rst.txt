@@ -1,0 +1,39 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+
+
+checkpoint
+==========
+
+.. currentmodule:: openstef_foundation_models.models.checkpoint
+
+.. automodule:: openstef_foundation_models.models.checkpoint
+   :no-members:
+   :no-inherited-members:
+
+
+
+
+
+
+
+
+
+
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_class_noindex.rst
+
+   CheckpointMetadata
+   HubCheckpoint
+   LocalCheckpoint
+   ResolvedCheckpoint
+
+
+

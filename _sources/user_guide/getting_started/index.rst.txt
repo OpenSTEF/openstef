@@ -26,6 +26,12 @@ Get up and running with OpenSTEF in minutes.
 
         Train your first model and make a forecast in under 5 minutes.
 
+    .. grid-item-card:: :fa:`wand-sparkles` Foundation Model Quickstart
+        :link: foundation_model_forecasting_quickstart
+        :link-type: doc
+
+        Forecast with a pretrained model, no training, in a few minutes.
+
     .. grid-item-card:: :fa:`arrows-turn-right` Migrating from v3
         :link: migration
         :link-type: doc
@@ -38,4 +44,5 @@ Get up and running with OpenSTEF in minutes.
 
     installation
     quick_start_tutorial
+    Foundation Model Forecasting Quickstart <foundation_model_forecasting_quickstart>
     migration

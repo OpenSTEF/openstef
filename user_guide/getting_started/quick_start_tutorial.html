@@ -61,7 +61,7 @@
     <link rel="icon" href="../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Migrating from OpenSTEF 3 to 4" href="migration.html" />
+    <link rel="next" title="Foundation Model Forecasting Quickstart" href="foundation_model_forecasting_quickstart.html" />
     <link rel="prev" title="Installation" href="installation.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -398,6 +398,7 @@
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Getting Started</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">Forecasting Quickstart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="foundation_model_forecasting_quickstart.html">Foundation Model Forecasting Quickstart</a></li>
 <li class="toctree-l2"><a class="reference internal" href="migration.html">Migrating from OpenSTEF 3 to 4</a></li>
 </ul>
 </details></li>
@@ -407,6 +408,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../concepts/metalearning.html">Metalearning</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../concepts/beam.html">BEAM</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../concepts/component_splitting.html">Component Splitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../concepts/foundation_models.html">Foundation Models</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../guides/index.html">Guides</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -418,6 +420,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../guides/backtesting_tutorial.html">Backtesting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/benchmark_results.html">Benchmark Results</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../guides/deployment.html">Deployment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../guides/foundation_model_forecasting.html">Foundation Model Forecasting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../logging.html">Logging</a></li>
 </ul>
 </details></li>
@@ -634,9 +637,9 @@ model training, and evaluation on a held-out test split.</p>
 <div class="cell_output docutils container">
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Training metrics:
    quantile        R2  observed_probability
-0       0.5  0.810910              0.466435
-1       0.1  0.501096              0.092824
-2       0.9  0.466570              0.900463
+0       0.5  0.800064              0.618056
+1       0.1  0.555858              0.092593
+2       0.9  0.445819              0.915278
 </pre></div>
 </div>
 </div>
@@ -701,43 +704,43 @@ Quantiles:     [0.5, 0.1, 0.9]
   <tbody>
     <tr>
       <th>2024-04-21 22:45:00+00:00</th>
-      <td>362189.93750</td>
-      <td>322605.50000</td>
-      <td>383007.65625</td>
+      <td>383411.62500</td>
+      <td>329559.12500</td>
+      <td>467289.25000</td>
       <td>353333.333333</td>
-      <td>35132.903396</td>
+      <td>30318.615729</td>
     </tr>
     <tr>
       <th>2024-04-21 23:00:00+00:00</th>
-      <td>350908.96875</td>
-      <td>303049.37500</td>
-      <td>376214.37500</td>
+      <td>375081.25000</td>
+      <td>310247.81250</td>
+      <td>460552.21875</td>
       <td>336666.666667</td>
-      <td>31648.882160</td>
+      <td>31536.302170</td>
     </tr>
     <tr>
       <th>2024-04-21 23:15:00+00:00</th>
-      <td>338797.31250</td>
-      <td>298255.40625</td>
-      <td>368465.68750</td>
+      <td>367579.18750</td>
+      <td>304984.75000</td>
+      <td>451019.12500</td>
       <td>323333.333333</td>
-      <td>31648.882160</td>
+      <td>31536.302170</td>
     </tr>
     <tr>
       <th>2024-04-21 23:30:00+00:00</th>
-      <td>326711.31250</td>
-      <td>289763.46875</td>
-      <td>359757.59375</td>
+      <td>358455.00000</td>
+      <td>296527.96875</td>
+      <td>439294.71875</td>
       <td>323333.333333</td>
-      <td>31648.882160</td>
+      <td>31536.302170</td>
     </tr>
     <tr>
       <th>2024-04-21 23:45:00+00:00</th>
-      <td>315575.40625</td>
-      <td>283557.65625</td>
-      <td>351638.71875</td>
+      <td>349636.65625</td>
+      <td>289394.90625</td>
+      <td>428663.62500</td>
       <td>316666.666667</td>
-      <td>31648.882160</td>
+      <td>31536.302170</td>
     </tr>
   </tbody>
 </table>
@@ -779,7 +782,7 @@ confidence bands in a single interactive chart.</p>
 </div>
 </details>
 <div class="cell_output docutils container">
-<img alt="../../_images/9ec396402f7f73c8d0ef6e7fdb1d494246f7d43a1960facfb16146dd8b22bae4.png" src="../../_images/9ec396402f7f73c8d0ef6e7fdb1d494246f7d43a1960facfb16146dd8b22bae4.png" />
+<img alt="../../_images/1b1ec0a7fe64e200d99b472d5b8aa9c8a92f6789d50dc1b1d91911f359e7beee.png" src="../../_images/1b1ec0a7fe64e200d99b472d5b8aa9c8a92f6789d50dc1b1d91911f359e7beee.png" />
 </div>
 </div>
 </section>
@@ -814,11 +817,11 @@ presets don’t cover your use case.</p></li>
       </div>
     </a>
     <a class="right-next"
-       href="migration.html"
+       href="foundation_model_forecasting_quickstart.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Migrating from OpenSTEF 3 to 4</p>
+        <p class="prev-next-title">Foundation Model Forecasting Quickstart</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

@@ -1,0 +1,40 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+
+
+providers
+=========
+
+.. currentmodule:: openstef_foundation_models.inference.providers
+
+.. automodule:: openstef_foundation_models.inference.providers
+   :no-members:
+   :no-inherited-members:
+
+
+
+
+
+
+
+
+
+
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_class_noindex.rst
+
+   CoreMLProvider
+   CpuProvider
+   CudaProvider
+   SessionOptionsConfig
+   TensorRTProvider
+
+
+

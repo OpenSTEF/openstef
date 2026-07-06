@@ -1,0 +1,934 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Foundation Model Forecasting &#8212; OpenSTEF 0.0.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/custom.css?v=3f5a9049" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../_static/scripts/fontawesome.js?digest=a95f357e85573c9b56d5"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
+
+    <script src="../../_static/documentation_options.js?v=7026087e"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=97f0b27d"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/guides/foundation_model_forecasting';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = '_static/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Logging" href="../logging.html" />
+    <link rel="prev" title="Deployment" href="deployment.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.0.0" />
+  
+    
+    <script src="../../_static/searchtools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script src="../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/openstef-horizontal-color.svg" class="logo__image only-light" alt="OpenSTEF homepage"/>
+    <img src="../../_static/openstef-horizontal-white.svg" class="logo__image only-dark pst-js-only" alt="OpenSTEF homepage"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../project/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../contribute/index.html">
+    Contributing
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/OpenSTEF/openstef" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.lfenergy.org/projects/openstef/" title="LFE Homepage" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-bolt fa-lg" aria-hidden="true"></i><span class="visually-hidden">LFE Homepage</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../api/index.html">
+    API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../project/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../contribute/index.html">
+    Contributing
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/OpenSTEF/openstef" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.lfenergy.org/projects/openstef/" title="LFE Homepage" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-bolt fa-lg" aria-hidden="true"></i><span class="visually-hidden">LFE Homepage</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar"><svg class="pst-icon svg-inline--fa" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../getting_started/index.html">Getting Started</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/quick_start_tutorial.html">Forecasting Quickstart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/foundation_model_forecasting_quickstart.html">Foundation Model Forecasting Quickstart</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/migration.html">Migrating from OpenSTEF 3 to 4</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../concepts/index.html">Concepts</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../concepts/intro_to_energy_forecasting.html">Intro to Energy Forecasting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../concepts/models.html">Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../concepts/metalearning.html">Metalearning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../concepts/beam.html">BEAM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../concepts/component_splitting.html">Component Splitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../concepts/foundation_models.html">Foundation Models</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Guides</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="forecasting.html">Forecasting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="feature_engineering_tutorial.html">Feature Engineering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datasets_tutorial.html">Datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="probabilistic_forecasting.html">Probabilistic Forecasting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="reliability_fallback.html">Reliability and Fallback</a></li>
+<li class="toctree-l2"><a class="reference internal" href="backtesting_tutorial.html">Backtesting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="benchmark_results.html">Benchmark Results</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deployment.html">Deployment</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Foundation Model Forecasting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../logging.html">Logging</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../external_resources.html">External resources</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">User Guide</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Guides</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Foundation Model Forecasting</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="foundation-model-forecasting">
+<h1>Foundation Model Forecasting<a class="headerlink" href="#foundation-model-forecasting" title="Link to this heading">#</a></h1>
+<p>This guide covers the practical settings for running <code class="docutils literal notranslate"><span class="pre">openstef-foundation-models</span></code>:
+installing an ONNX runtime, choosing a checkpoint, picking the execution provider for your
+hardware, and backtesting with openstef-beam. It uses Chronos-2, the first model family in
+the package; the same steps apply to families added later.</p>
+<p>For an end-to-end forecast with a plot, see the
+<a class="reference internal" href="../getting_started/foundation_model_forecasting_quickstart.html"><span class="doc">Foundation Model Forecasting Quickstart</span></a>.
+For what a foundation model is and when to use one, see the
+<a class="reference internal" href="../concepts/foundation_models.html#concept-foundation-models"><span class="std std-ref">Foundation Models concept page</span></a>.</p>
+<p>Every code cell below runs during the docs build against the current API, so each output is
+the live result. The model runs on CPU with the small Chronos-2 checkpoint, which keeps the
+guide fast and lets it execute on any machine, with or without a GPU.</p>
+<section id="install-one-onnx-runtime">
+<h2>Install one ONNX runtime<a class="headerlink" href="#install-one-onnx-runtime" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">[cpu]</span></code> and <code class="docutils literal notranslate"><span class="pre">[gpu]</span></code> are mutually exclusive: <code class="docutils literal notranslate"><span class="pre">onnxruntime</span></code> and <code class="docutils literal notranslate"><span class="pre">onnxruntime-gpu</span></code> collide in
+the same environment, so pick one. uv enforces the choice through conflicting extras; pip
+does not, so choose it yourself.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># CPU (what the meta-package installs by default)</span>
+pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;openstef-foundation-models[cpu]&quot;</span>
+
+<span class="c1"># NVIDIA CUDA GPU: installs onnxruntime-gpu plus the pinned NVIDIA CUDA 12 / cuDNN 9</span>
+<span class="c1"># wheels, so no system CUDA install is required.</span>
+pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;openstef-foundation-models[gpu]&quot;</span>
+
+<span class="c1"># Add TensorRT (only if you pin TensorRTProvider): the CUDA 12 runtime on top of [gpu].</span>
+pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;openstef-foundation-models[gpu]&quot;</span><span class="w"> </span>tensorrt-cu12
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">[cpu]</span></code> installs only <code class="docutils literal notranslate"><span class="pre">onnxruntime</span></code>. <code class="docutils literal notranslate"><span class="pre">[gpu]</span></code> is heavier: <code class="docutils literal notranslate"><span class="pre">onnxruntime-gpu</span></code> carries the CUDA
+execution-provider plugin but not the CUDA runtime it loads at session creation, so the
+extra also pulls the matching NVIDIA CUDA 12 and cuDNN 9 wheels and no system CUDA install
+is required:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">onnxruntime-gpu</span></code> (the CUDA execution provider)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nvidia-cuda-runtime-cu12</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nvidia-cublas-cu12</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nvidia-cufft-cu12</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nvidia-curand-cu12</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nvidia-cudnn-cu12</span></code></p></li>
+</ul>
+<p>These are Linux and Windows x86-64 wheels. Apple Silicon and AMD GPUs use <code class="docutils literal notranslate"><span class="pre">[cpu]</span></code> (see the
+hardware table below), so they never install the CUDA wheels.</p>
+<p>Neither extra installs TensorRT. <code class="docutils literal notranslate"><span class="pre">TensorRTProvider</span></code> loads the TensorRT runtime at session
+creation and expects the TensorRT libraries (NVIDIA’s <code class="docutils literal notranslate"><span class="pre">tensorrt</span></code> wheels or a system install)
+on top of <code class="docutils literal notranslate"><span class="pre">[gpu]</span></code>. Install them yourself only if you pin TensorRT; the default policy never
+picks it.</p>
+<p>Through the meta-package, <code class="docutils literal notranslate"><span class="pre">openstef[foundation-models]</span></code> installs the CPU runtime. For the
+GPU runtime, install <code class="docutils literal notranslate"><span class="pre">openstef-foundation-models[gpu]</span></code> directly, or in the uv workspace use
+the <code class="docutils literal notranslate"><span class="pre">dev-gpu</span></code> group (<code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">sync</span> <span class="pre">--no-default-groups</span> <span class="pre">--group</span> <span class="pre">dev-gpu</span></code>).</p>
+</section>
+<section id="pick-a-checkpoint">
+<h2>Pick a checkpoint<a class="headerlink" href="#pick-a-checkpoint" title="Link to this heading">#</a></h2>
+<p>Use the <code class="docutils literal notranslate"><span class="pre">Chronos2</span></code> catalog instead of writing repo ids by hand. Each entry resolves to a
+published checkpoint reference; printing it shows the repo id and file the workflow will
+pull. A <code class="docutils literal notranslate"><span class="pre">ForecastingWorkflowConfig</span></code> with no checkpoint defaults to the base, dynamic-shape
+build shown first below.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">openstef_foundation_models.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">CheckpointVariant</span><span class="p">,</span> <span class="n">Chronos2</span>
+
+<span class="n">catalog</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c1"># Default: base model, dynamic shapes.</span>
+    <span class="s2">&quot;default (base, dynamic)&quot;</span><span class="p">:</span> <span class="n">Chronos2</span><span class="o">.</span><span class="n">BASE</span><span class="o">.</span><span class="n">checkpoint</span><span class="p">(),</span>
+    <span class="c1"># Smaller model, faster to download and run.</span>
+    <span class="s2">&quot;small&quot;</span><span class="p">:</span> <span class="n">Chronos2</span><span class="o">.</span><span class="n">SMALL</span><span class="o">.</span><span class="n">checkpoint</span><span class="p">(),</span>
+    <span class="c1"># Static shapes, which the default policy needs to pick CoreML on macOS.</span>
+    <span class="s2">&quot;base, static&quot;</span><span class="p">:</span> <span class="n">Chronos2</span><span class="o">.</span><span class="n">BASE</span><span class="o">.</span><span class="n">checkpoint</span><span class="p">(</span><span class="n">CheckpointVariant</span><span class="o">.</span><span class="n">STATIC</span><span class="p">),</span>
+    <span class="c1"># Let the host choose: static on macOS, dynamic elsewhere.</span>
+    <span class="s2">&quot;base, recommended&quot;</span><span class="p">:</span> <span class="n">Chronos2</span><span class="o">.</span><span class="n">BASE</span><span class="o">.</span><span class="n">checkpoint</span><span class="p">(</span><span class="n">CheckpointVariant</span><span class="o">.</span><span class="n">recommended</span><span class="p">()),</span>
+<span class="p">}</span>
+<span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">ref</span> <span class="ow">in</span> <span class="n">catalog</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">label</span><span class="si">:</span><span class="s2">24</span><span class="si">}</span><span class="s2"> -&gt; </span><span class="si">{</span><span class="n">ref</span><span class="o">.</span><span class="n">repo_id</span><span class="si">}</span><span class="s2"> :: </span><span class="si">{</span><span class="n">ref</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>default (base, dynamic)  -&gt; OpenSTEF/chronos-2-onnx :: chronos-2.onnx
+small                    -&gt; OpenSTEF/chronos-2-small-onnx :: chronos-2-small.onnx
+base, static             -&gt; OpenSTEF/chronos-2-onnx :: chronos-2_static.onnx
+base, recommended        -&gt; OpenSTEF/chronos-2-onnx :: chronos-2.onnx
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="run-a-checkpoint-already-on-disk">
+<h2>Run a checkpoint already on disk<a class="headerlink" href="#run-a-checkpoint-already-on-disk" title="Link to this heading">#</a></h2>
+<p>A file you exported or downloaded yourself is described by <code class="docutils literal notranslate"><span class="pre">LocalCheckpoint</span></code>. It needs the
+<code class="docutils literal notranslate"><span class="pre">.onnx</span></code> weights and the matching <code class="docutils literal notranslate"><span class="pre">.metadata.json</span></code> file, which records the model’s input
+names, quantiles, context length, horizon, and precision. Building the config does not read
+the files, so this validates the wiring without a model present.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_foundation_models.models.checkpoint</span><span class="w"> </span><span class="kn">import</span> <span class="n">LocalCheckpoint</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_foundation_models.presets</span><span class="w"> </span><span class="kn">import</span> <span class="n">ForecastingWorkflowConfig</span>
+
+<span class="n">local_config</span> <span class="o">=</span> <span class="n">ForecastingWorkflowConfig</span><span class="p">(</span>
+    <span class="n">checkpoint</span><span class="o">=</span><span class="n">LocalCheckpoint</span><span class="p">(</span>
+        <span class="n">path</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;artifacts/chronos-2.onnx&quot;</span><span class="p">),</span>
+        <span class="n">metadata_path</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;artifacts/chronos-2.metadata.json&quot;</span><span class="p">),</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">local_config</span><span class="o">.</span><span class="n">checkpoint</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2026-07-06 07:41:14.378571672 [W:onnxruntime:Default, device_discovery.cc:133 GetPciBusId] Skipping pci_bus_id for PCI path at &quot;/sys/devices/LNXSYSTM:00/LNXSYBUS:00/ACPI0004:00/MSFT1000:00/5620e0c7-8062-4dce-aeb7-520c7ef76171&quot; because filename &quot;5620e0c7-8062-4dce-aeb7-520c7ef76171&quot; did not match expected pattern of [0-9a-f]+:[0-9a-f]+:[0-9a-f]+[.][0-9a-f]+
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>kind=&#39;local&#39; path=PosixPath(&#39;artifacts/chronos-2.onnx&#39;) metadata_path=PosixPath(&#39;artifacts/chronos-2.metadata.json&#39;)
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="choose-the-execution-provider-for-your-hardware">
+<h2>Choose the execution provider for your hardware<a class="headerlink" href="#choose-the-execution-provider-for-your-hardware" title="Link to this heading">#</a></h2>
+<p>A foundation model runs its ONNX graph through an <em>execution provider</em>: plain CPU, NVIDIA
+CUDA, or CoreML on Apple Silicon. By default OpenSTEF reads your machine and the checkpoint
+and picks a sensible chain, falling back to CPU when no accelerator fits. The table shows
+what to install and what gets chosen:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Hardware</p></th>
+<th class="head"><p>Install</p></th>
+<th class="head"><p>Provider chosen</p></th>
+<th class="head"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>NVIDIA GPU</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[gpu]</span></code></p></td>
+<td><p>CUDA, then CPU</p></td>
+<td><p>Fastest option. The extra installs the CUDA 12 / cuDNN 9 wheels.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Apple Silicon</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[cpu]</span></code></p></td>
+<td><p>CoreML, then CPU</p></td>
+<td><p>Needs a static-shape checkpoint (<code class="docutils literal notranslate"><span class="pre">CheckpointVariant.STATIC</span></code> or <code class="docutils literal notranslate"><span class="pre">recommended()</span></code>).</p></td>
+</tr>
+<tr class="row-even"><td><p>AMD GPU</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[cpu]</span></code></p></td>
+<td><p>CPU</p></td>
+<td><p>No supported GPU provider today, so it runs on CPU. See “Extend the backend” below.</p></td>
+</tr>
+<tr class="row-odd"><td><p>CPU only</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[cpu]</span></code></p></td>
+<td><p>CPU</p></td>
+<td><p>Prefer <code class="docutils literal notranslate"><span class="pre">Chronos2.SMALL</span></code>, and an <code class="docutils literal notranslate"><span class="pre">int8</span></code> checkpoint where one is published.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>To pin the chain yourself, pass an explicit <code class="docutils literal notranslate"><span class="pre">providers</span></code> list on the backend config. An
+explicit list is strict: a missing accelerator raises instead of silently falling back to
+CPU. The provider configs are <code class="docutils literal notranslate"><span class="pre">CpuProvider</span></code>, <code class="docutils literal notranslate"><span class="pre">CudaProvider</span></code>, <code class="docutils literal notranslate"><span class="pre">TensorRTProvider</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">CoreMLProvider</span></code>. TensorRT is never chosen by the default policy, so name it explicitly if
+you want it, and install the TensorRT runtime yourself since <code class="docutils literal notranslate"><span class="pre">[gpu]</span></code> does not include it.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">openstef_foundation_models.inference</span><span class="w"> </span><span class="kn">import</span> <span class="n">CpuProvider</span><span class="p">,</span> <span class="n">CudaProvider</span><span class="p">,</span> <span class="n">ExecutionProvider</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_foundation_models.presets</span><span class="w"> </span><span class="kn">import</span> <span class="n">OnnxBackendConfig</span>
+
+<span class="n">providers</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ExecutionProvider</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">CudaProvider</span><span class="p">(</span><span class="n">device_id</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">CpuProvider</span><span class="p">()]</span>
+<span class="n">gpu_config</span> <span class="o">=</span> <span class="n">ForecastingWorkflowConfig</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="n">OnnxBackendConfig</span><span class="p">(</span><span class="n">providers</span><span class="o">=</span><span class="n">providers</span><span class="p">))</span>
+<span class="n">ordered_providers</span> <span class="o">=</span> <span class="p">[</span><span class="n">provider</span><span class="o">.</span><span class="n">to_ort</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">provider</span> <span class="ow">in</span> <span class="n">providers</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ONNX Runtime will try these providers in order: </span><span class="si">{</span><span class="n">ordered_providers</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Pinned on the workflow config: </span><span class="si">{</span><span class="n">gpu_config</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">providers</span><span class="w"> </span><span class="ow">is</span><span class="w"> </span><span class="n">providers</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>ONNX Runtime will try these providers in order: [&#39;CUDAExecutionProvider&#39;, &#39;CPUExecutionProvider&#39;]
+Pinned on the workflow config: False
+</pre></div>
+</div>
+</div>
+</div>
+<p>The config is only the recipe. <code class="docutils literal notranslate"><span class="pre">create_forecasting_workflow</span></code> turns it into a running
+forecaster with that provider chain baked in, so you set the hardware once here and never
+pass it again at predict time. Below we pin <code class="docutils literal notranslate"><span class="pre">CpuProvider</span></code> so the workflow runs anywhere,
+including this docs build, then forecast one short window to confirm the wiring end to end.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">LeadTime</span><span class="p">,</span> <span class="n">Q</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_foundation_models.presets</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_forecasting_workflow</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.utils.feature_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">Include</span>
+
+<span class="n">HORIZON</span> <span class="o">=</span> <span class="n">LeadTime</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;P7D&quot;</span><span class="p">)</span>
+
+<span class="n">cpu_workflow</span> <span class="o">=</span> <span class="n">create_forecasting_workflow</span><span class="p">(</span>
+    <span class="n">ForecastingWorkflowConfig</span><span class="p">(</span>
+        <span class="n">checkpoint</span><span class="o">=</span><span class="n">Chronos2</span><span class="o">.</span><span class="n">SMALL</span><span class="o">.</span><span class="n">checkpoint</span><span class="p">(),</span>
+        <span class="n">quantiles</span><span class="o">=</span><span class="p">[</span><span class="n">Q</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)],</span>
+        <span class="n">horizons</span><span class="o">=</span><span class="p">[</span><span class="n">HORIZON</span><span class="p">],</span>
+        <span class="n">target_column</span><span class="o">=</span><span class="s2">&quot;load&quot;</span><span class="p">,</span>
+        <span class="n">selected_features</span><span class="o">=</span><span class="n">Include</span><span class="p">(</span><span class="s2">&quot;load&quot;</span><span class="p">),</span>
+        <span class="n">backend</span><span class="o">=</span><span class="n">OnnxBackendConfig</span><span class="p">(</span><span class="n">providers</span><span class="o">=</span><span class="p">[</span><span class="n">CpuProvider</span><span class="p">()]),</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+<span class="c1"># Zero-shot: the model is ready on construction, nothing to train.</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;is_fitted: </span><span class="si">{</span><span class="n">cpu_workflow</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">is_fitted</span><span class="si">}</span><span class="s2">  quantiles: </span><span class="si">{</span><span class="n">cpu_workflow</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">quantiles</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-07-06 07:41:15,667][INFO] HTTP Request: HEAD https://huggingface.co/OpenSTEF/chronos-2-small-onnx/resolve/main/chronos-2-small.onnx &quot;HTTP/1.1 302 Found&quot;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-07-06 07:41:18,326][INFO] HTTP Request: HEAD https://huggingface.co/OpenSTEF/chronos-2-small-onnx/resolve/main/chronos-2-small.metadata.json &quot;HTTP/1.1 307 Temporary Redirect&quot;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-07-06 07:41:18,335][INFO] HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/OpenSTEF/chronos-2-small-onnx/d7743f169215d59270490bfc096bc9454821e8ef/chronos-2-small.metadata.json &quot;HTTP/1.1 200 OK&quot;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-07-06 07:41:18,345][INFO] HTTP Request: GET https://huggingface.co/api/resolve-cache/models/OpenSTEF/chronos-2-small-onnx/d7743f169215d59270490bfc096bc9454821e8ef/chronos-2-small.metadata.json &quot;HTTP/1.1 200 OK&quot;
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-07-06 07:41:18,347][INFO] Using explicit execution-provider chain [&#39;CPUExecutionProvider&#39;] for checkpoint &#39;chronos2&#39;.
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-07-06 07:41:18,643][INFO] ONNX Runtime session built; realized providers: [&#39;CPUExecutionProvider&#39;].
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>is_fitted: True  quantiles: [0.5]
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">forecast</span> <span class="o">=</span> <span class="n">cpu_workflow</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">demo_window</span><span class="p">,</span> <span class="n">forecast_start</span><span class="o">=</span><span class="n">demo_origins</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Forecast rows: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">forecast</span><span class="o">.</span><span class="n">data</span><span class="p">)</span><span class="si">}</span><span class="s2">  quantiles: </span><span class="si">{</span><span class="n">forecast</span><span class="o">.</span><span class="n">quantiles</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Forecast rows: 672  quantiles: [0.5]
+</pre></div>
+</div>
+</div>
+</div>
+<section id="extend-the-backend">
+<h3>Extend the backend<a class="headerlink" href="#extend-the-backend" title="Link to this heading">#</a></h3>
+<p>The forecaster does not call ONNX Runtime directly; it goes through the <code class="docutils literal notranslate"><span class="pre">InferenceBackend</span></code>
+protocol, and <code class="docutils literal notranslate"><span class="pre">OnnxBackend</span></code> is the one implementation today. To use a provider OpenSTEF does
+not select for you, such as ROCm on an AMD GPU, add a custom <code class="docutils literal notranslate"><span class="pre">ExecutionProvider</span></code> and pass it
+in the <code class="docutils literal notranslate"><span class="pre">providers</span></code> list, or implement your own <code class="docutils literal notranslate"><span class="pre">InferenceBackend</span></code>. OpenSTEF does not test
+these paths, so their quality is on you; ROCm in particular is niche and unsupported. See the
+<a class="reference internal" href="../../api/foundation_models.html"><span class="doc">API reference</span></a> for the protocol.</p>
+</section>
+</section>
+<section id="batch-many-windows">
+<h2>Batch many windows<a class="headerlink" href="#batch-many-windows" title="Link to this heading">#</a></h2>
+<p>A foundation model forecasts many windows in a single backend call. Instead of calling
+<code class="docutils literal notranslate"><span class="pre">predict</span></code> in a loop, collect the windows and pass them to <code class="docutils literal notranslate"><span class="pre">predict_batch</span></code>: it concatenates
+them, runs the ONNX session once, and returns one forecast per window in input order. The
+results match a serial loop; only throughput changes. Batching pays off when you forecast many
+locations or targets at once, or sweep many forecast origins across history. Here we reuse the
+CPU workflow and the two demo windows from above.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">batched</span> <span class="o">=</span> <span class="n">cpu_workflow</span><span class="o">.</span><span class="n">predict_batch</span><span class="p">(</span><span class="n">demo_windows</span><span class="p">,</span> <span class="n">forecast_start</span><span class="o">=</span><span class="n">demo_origins</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Forecasts returned: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">batched</span><span class="p">)</span><span class="si">}</span><span class="s2"> (one backend call for </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">demo_windows</span><span class="p">)</span><span class="si">}</span><span class="s2"> windows)&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Forecasts returned: 2 (one backend call for 2 windows)
+</pre></div>
+</div>
+</div>
+</div>
+<p>The quickstart plots a batched run against actual load in its
+<a class="reference internal" href="../getting_started/foundation_model_forecasting_quickstart.html"><span class="doc">batched section</span></a>.
+In backtesting you do not batch by hand: <code class="docutils literal notranslate"><span class="pre">FoundationModelBacktestForecaster</span></code> takes a
+<code class="docutils literal notranslate"><span class="pre">batch_size</span></code>, and beam stacks that many consecutive windows into one call, shown next.</p>
+</section>
+<section id="backtest-with-openstef-beam">
+<h2>Backtest with openstef-beam<a class="headerlink" href="#backtest-with-openstef-beam" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">FoundationModelBacktestForecaster</span></code> wraps a workflow so beam can drive it over historical
+windows. It reuses the workflow’s ONNX session for every window; <code class="docutils literal notranslate"><span class="pre">batch_size</span></code> sets how many
+consecutive windows beam stacks into a single call. Plug the adapter into a <code class="docutils literal notranslate"><span class="pre">BacktestPipeline</span></code>
+the same way as any other backtest forecaster; see the
+<a class="reference internal" href="../concepts/beam.html#concept-beam"><span class="std std-ref">Backtesting concept page</span></a> for the pipeline. Here we wrap the CPU workflow
+from above.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">openstef_foundation_models.integrations.beam</span><span class="w"> </span><span class="kn">import</span> <span class="n">FoundationModelBacktestForecaster</span>
+
+<span class="n">adapter</span> <span class="o">=</span> <span class="n">FoundationModelBacktestForecaster</span><span class="o">.</span><span class="n">from_workflow</span><span class="p">(</span><span class="n">cpu_workflow</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Adapter forecasts quantiles </span><span class="si">{</span><span class="n">adapter</span><span class="o">.</span><span class="n">quantiles</span><span class="si">}</span><span class="s2"> with batch size </span><span class="si">{</span><span class="n">adapter</span><span class="o">.</span><span class="n">batch_size</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Adapter forecasts quantiles [0.5] with batch size 16
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="deployment.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Deployment</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../logging.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Logging</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#install-one-onnx-runtime">Install one ONNX runtime</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pick-a-checkpoint">Pick a checkpoint</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#run-a-checkpoint-already-on-disk">Run a checkpoint already on disk</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#choose-the-execution-provider-for-your-hardware">Choose the execution provider for your hardware</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#extend-the-backend">Extend the backend</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#batch-many-windows">Batch many windows</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#backtest-with-openstef-beam">Backtest with openstef-beam</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/OpenSTEF/openstef/edit/main/docs/source/user_guide/guides/foundation_model_forecasting.py">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2017-2026 Contributors to the OpenSTEF project.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.19.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

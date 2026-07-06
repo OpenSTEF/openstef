@@ -1,0 +1,14 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+Chronos2
+========
+
+.. currentmodule:: openstef_foundation_models.models.catalog
+
+.. autoclass:: Chronos2
+   :show-inheritance:
+   :members:
+   :special-members: __init__
+   :no-index:

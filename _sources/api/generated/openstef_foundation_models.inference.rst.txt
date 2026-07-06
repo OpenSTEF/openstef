@@ -1,0 +1,63 @@
+﻿.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+
+
+inference
+=========
+
+.. currentmodule:: openstef_foundation_models.inference
+
+.. automodule:: openstef_foundation_models.inference
+   :no-members:
+   :no-inherited-members:
+
+
+
+
+
+
+
+
+
+
+Submodules
+----------
+
+
+.. autosummary::
+   :toctree: .
+   :template: module_overview.rst
+
+   openstef_foundation_models.inference.backend
+   openstef_foundation_models.inference.onnx_backend
+   openstef_foundation_models.inference.provider_selection
+   openstef_foundation_models.inference.providers
+
+
+
+
+
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_class.rst
+
+   CoreMLProvider
+   CpuProvider
+   CudaProvider
+   InferenceBackend
+   SessionOptionsConfig
+   TensorRTProvider
+
+
+
+
+
+
+
+

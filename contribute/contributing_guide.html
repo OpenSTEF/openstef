@@ -547,6 +547,17 @@ our code consistent and mitigating the impact of changes.</p>
 <p>Code is contributed through pull requests, so we recommend that you start at
 <a class="reference internal" href="#start-a-pull-request">Start a pull request</a>. If you get stuck, please reach out on the
 <a class="reference external" href="https://slack.lfenergy.org/">LF Energy Slack workspace</a> (#openstef channel) or join our four-weekly co-coding meetings.</p>
+<section id="tests">
+<h4>Tests<a class="headerlink" href="#tests" title="Link to this heading">#</a></h4>
+<p>OpenSTEF relies on automated tests to keep the library reliable as it grows, so
+testing is a required part of contributing code. Whenever you add significant new
+functionality, it must come with tests that cover the new behavior in the same
+pull request. Bug fixes are best paired with a regression test that would have caught the problem.</p>
+<p>Tests live in <code class="docutils literal notranslate"><span class="pre">packages/*/tests/</span></code> and run automatically in continuous
+integration. See the
+<a class="reference external" href="https://openstef.github.io/openstef/contribute/development_workflow.html">development workflow</a>
+for how to run the test suite locally before opening your pull request.</p>
+</section>
 </section>
 <section id="documentation">
 <h3>Documentation<a class="headerlink" href="#documentation" title="Link to this heading">#</a></h3>
@@ -699,8 +710,10 @@ then submit a “pull request” (PR). To work on a pull request:</p>
 <a class="reference external" href="https://openstef.github.io/openstef/contribute/development_setup.html">development setup</a></p></li>
 <li><p><strong>Then</strong> start solving the issue, following the guidance in
 <a class="reference external" href="https://openstef.github.io/openstef/contribute/development_workflow.html">development workflow</a></p></li>
-<li><p><strong>As part of verifying your changes</strong> check that your contribution meets
-the pull request guidelines and then open a pull request.</p></li>
+<li><p><strong>As part of verifying your changes</strong> add tests for any major new
+functionality to the automated test suite (see <a class="reference internal" href="#tests">Tests</a>), check that
+your contribution meets the pull request guidelines, and then open a pull
+request.</p></li>
 <li><p><strong>Finally</strong> follow up with maintainers on the PR if waiting more than a few days for
 feedback. Update the pull request as needed.</p></li>
 </ol>
@@ -836,7 +849,10 @@ restricted or blocked</p></li>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ways-to-contribute">Ways to contribute</a><ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#code">Code</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#code">Code</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#tests">Tests</a></li>
+</ul>
+</li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#documentation">Documentation</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#community">Community</a></li>
 </ul>
