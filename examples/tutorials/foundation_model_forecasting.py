@@ -210,8 +210,7 @@ _origin = datetime.fromisoformat("2024-11-15T00:00:00Z")
 demo_window = _dataset.filter_by_range(start=_origin - timedelta(days=60), end=_origin + HORIZON.value)
 demo_origins = [_origin, _origin + timedelta(days=14)]
 demo_windows = [
-    _dataset.filter_by_range(start=origin - timedelta(days=60), end=origin + HORIZON.value)
-    for origin in demo_origins
+    _dataset.filter_by_range(start=origin - timedelta(days=60), end=origin + HORIZON.value) for origin in demo_origins
 ]
 
 
