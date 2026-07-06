@@ -1,21 +1,19 @@
 # SPDX-FileCopyrightText: 2017-2022 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 #
 # SPDX-License-Identifier: MPL-2.0
-# Automatically label PRs, config in ../pr-labler.yml
+# Automatically label PRs, config in ../pr-labeler.yml
 name: PR Labeler
 on:
-  pull_request:
+  pull_request_target:
     types: [opened]
 
 jobs:
   pr-labeler:
     permissions:
-        contents: read # To read config file
-        pull-requests: write # To add labels
+      contents: read # To read config file
+      pull-requests: write # To add labels
     runs-on: ubuntu-latest
     steps:
-      - uses: TimonVS/pr-labeler-action@f9c084306ce8b3f488a8f3ee1ccedc6da131d1af # v5
+      - uses: actions/labeler@f27b608878404679385c85cfa523b85ccb86e213 # v6.1.0
         with:
           configuration-path: .github/pr-labeler.yml
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -35,6 +35,7 @@ dependencies = [
   "openstef",
   "openstef-beam",
   "openstef-core",
+  "openstef-foundation-models",
   "openstef-models",
   "optuna>=4.7",
   "pydata-sphinx-theme>=0.16.1",
@@ -56,4 +57,5 @@ packages = []
 sources.openstef = { workspace = true }
 sources.openstef-beam = { workspace = true }
 sources.openstef-core = { workspace = true }
+sources.openstef-foundation-models = { workspace = true }
 sources.openstef-models = { workspace = true }
