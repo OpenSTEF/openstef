@@ -892,7 +892,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">to run a file already on disk.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">assert_never</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">Field</span>
 
@@ -1063,6 +1063,8 @@ window.runMermaid = runMermaid;</script>
                 <span class="n">horizons</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">horizons</span><span class="p">,</span>
                 <span class="n">hyperparams</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">chronos2_hyperparams</span><span class="p">,</span>
             <span class="p">)</span>
+        <span class="k">case</span><span class="w"> </span><span class="k">_</span><span class="p">:</span>
+            <span class="n">assert_never</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
 
     <span class="n">callbacks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ForecastingCallback</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">return</span> <span class="n">CustomForecastingWorkflow</span><span class="p">(</span>
