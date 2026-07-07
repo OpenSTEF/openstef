@@ -35,7 +35,10 @@ jobs:
         with:
           languages: python
           build-mode: none # Python is interpreted; no build step required
-          queries: security-and-quality
+          # security-extended keeps CodeQL focused on vulnerability queries;
+          # the maintainability/reliability queries in security-and-quality
+          # overlap ruff and SonarCloud.
+          queries: security-extended
 
       - name: Perform CodeQL analysis
         uses: github/codeql-action/analyze@411c4c9a36b3fca4d674f06b6396b2c6d23522c6 # v3
