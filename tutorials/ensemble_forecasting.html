@@ -661,27 +661,27 @@ Combiner:       lgbm
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-07-06 12:37:12,910][WARNING] No aggregation functions specified. Skipping fit.
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-07-07 09:53:58,209][WARNING] No aggregation functions specified. Skipping fit.
 </pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-07-06 12:37:12,910][WARNING] No aggregation functions specified. Returning original data.
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-07-07 09:53:58,210][WARNING] No aggregation functions specified. Returning original data.
 </pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-07-06 12:37:13,055][WARNING] No aggregation functions specified. Returning original data.
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-07-07 09:53:58,357][WARNING] No aggregation functions specified. Returning original data.
 </pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-07-06 12:37:13,216][WARNING] No aggregation functions specified. Returning original data.
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-07-07 09:53:58,520][WARNING] No aggregation functions specified. Returning original data.
 </pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-07-06 12:37:13,707][WARNING] No aggregation functions specified. Returning original data.
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-07-07 09:53:59,017][WARNING] No aggregation functions specified. Returning original data.
 </pre></div>
 </div>
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Ensemble trained successfully
 
 Per-model validation R2:
   lgbm        : 0.7956
-  gblinear    : 0.8021
-  ensemble    : 0.8339
+  gblinear    : 0.8024
+  ensemble    : 0.8311
 </pre></div>
 </div>
 </div>
@@ -699,10 +699,10 @@ Per-model validation R2:
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-07-06 12:37:14,654][WARNING] No aggregation functions specified. Returning original data.
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-07-07 09:53:59,936][WARNING] No aggregation functions specified. Returning original data.
 </pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-07-06 12:37:14,765][WARNING] No aggregation functions specified. Returning original data.
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-07-07 09:54:00,044][WARNING] No aggregation functions specified. Returning original data.
 </pre></div>
 </div>
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Forecast rows: 672
@@ -778,7 +778,7 @@ individually and compare their forecasts.</p>
 </div>
 </details>
 <div class="cell_output docutils container">
-<img alt="../_images/63ffdbe6354eeebb50c2cfcdf470e3c8675fe24cbc8c0498ad8f2b39886ebfe3.png" src="../_images/63ffdbe6354eeebb50c2cfcdf470e3c8675fe24cbc8c0498ad8f2b39886ebfe3.png" />
+<img alt="../_images/3aa323b3e7899f3d6fbc605c30635c1abb0da7a584032ae214dae3fb7ba80d80.png" src="../_images/3aa323b3e7899f3d6fbc605c30635c1abb0da7a584032ae214dae3fb7ba80d80.png" />
 </div>
 </div>
 </section>
@@ -812,8 +812,8 @@ assigned to each model during forecasting.</p></li>
 <div class="cell_output docutils container">
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Combiner feature importances (per quantile):
           quantile_P50  quantile_P10  quantile_P90
-lgbm              0.49      0.478333      0.518333
-gblinear          0.51      0.521667      0.481667
+gblinear      0.503333          0.52      0.488333
+lgbm          0.496667          0.48      0.511667
 </pre></div>
 </div>
 </div>
@@ -854,13 +854,13 @@ the combiner assigns to each model at each point in time during forecasting.</p>
 </div>
 </details>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-07-06 12:37:19,248][WARNING] No aggregation functions specified. Returning original data.
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-07-07 09:54:04,407][WARNING] No aggregation functions specified. Returning original data.
 </pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-07-06 12:37:19,355][WARNING] No aggregation functions specified. Returning original data.
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-07-07 09:54:04,514][WARNING] No aggregation functions specified. Returning original data.
 </pre></div>
 </div>
-<img alt="../_images/c227cfe034ebdfd02bd3671c98c2bc8f77c60aab0329496bf853650d9c035fbd.png" src="../_images/c227cfe034ebdfd02bd3671c98c2bc8f77c60aab0329496bf853650d9c035fbd.png" />
+<img alt="../_images/ef0afea2b2d474b6fced2737210ba6e41510aa81ed01fb6877ee73974a7fcc3e.png" src="../_images/ef0afea2b2d474b6fced2737210ba6e41510aa81ed01fb6877ee73974a7fcc3e.png" />
 </div>
 </div>
 <p>The stacked area chart reveals <em>when</em> the combiner trusts each model.
@@ -901,8 +901,8 @@ implementation from <code class="docutils literal notranslate"><span class="pre"
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Model            rMAE
 ------------ --------
 lgbm           0.1080
-gblinear       0.0978
-Ensemble       0.0929
+gblinear       0.0967
+Ensemble       0.0926
 </pre></div>
 </div>
 </div>
