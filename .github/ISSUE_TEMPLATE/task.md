@@ -3,6 +3,7 @@ name: Task
 about: Track a piece of planned work (feature, chore, refactor, etc.) to be picked up later
 title: ''
 labels: ['to refine']
+type: Task
 assignees: ''
 ---
 

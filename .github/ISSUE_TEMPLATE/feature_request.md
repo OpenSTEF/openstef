@@ -1,8 +1,9 @@
 ---
 name: Feature request
 about: Suggest an idea or improvement for OpenSTEF
-title: '[Feature]: '
+title: ''
 labels: ['enhancement']
+type: Feature
 assignees: ''
 ---
 

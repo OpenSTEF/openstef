@@ -20,23 +20,10 @@ Closes #
 
 ## Breaking changes checklist
 
-<!--
-Only fill out this section if you checked "Breaking change" above, or are
-unsure whether your change is breaking. Delete the section otherwise.
+<!-- Only relevant if you checked "Breaking change" above, or are unsure. -->
 
-A change is breaking if it changes public API behavior, removes/renames
-something public, or changes what gets (de)serialized. Check any that apply
-and describe the migration path below.
--->
-
-- [ ] **Public API changed**: a class, function, method, or parameter was renamed, removed, or had its signature/default/behavior changed
-- [ ] **Serialization / pickle compatibility**: a field was added, renamed, removed, or changed type on a `Stateful`/`Transform` subclass (e.g. a scaler, encoder, or other fitted transform). If so:
-  - [ ] Bumped `_VERSION` on the affected class
-  - [ ] Added/updated `_migrate_state` to migrate previously-pickled state to the new shape (see [`openstef_core.mixins.stateful.Stateful`](packages/openstef-core/src/openstef_core/mixins/stateful.py))
-  - [ ] Added a test that restores an old-version state and asserts it migrates correctly (see [`test_stateful.py`](packages/openstef-core/tests/unit/mixins/test_stateful.py) for the pattern)
-- [ ] **Config/settings schema changed** in a way that breaks existing configs (field renamed/removed/required)
-- [ ] **Default value or behavior changed** in a way that affects existing users' results
-- [ ] **Dependency version bump** with a known breaking change
+- [ ] Public API, config schema, or serialized/pickled objects changed in a way that affects existing users
+- [ ] If yes: see the [breaking changes guide](https://openstef.github.io/openstef/contribute/development_workflow.html#breaking-changes) for the pickle/`_migrate_state` migration pattern
 
 Migration path for existing users (e.g. "old pickled `XScaler` objects auto-migrate on load", "users must now pass `X` explicitly"):
 

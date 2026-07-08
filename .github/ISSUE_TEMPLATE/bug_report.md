@@ -1,8 +1,9 @@
 ---
 name: Bug report
 about: Report a problem with OpenSTEF to help us reproduce and fix it
-title: '[Bug]: '
+title: ''
 labels: ['bug']
+type: Bug
 assignees: ''
 ---
 
@@ -32,7 +33,10 @@ issues first to avoid duplicates: https://github.com/OpenSTEF/openstef/issues
 
 <!--
 A minimal, self-contained code example that reproduces the problem. Prefer
-synthetic data (e.g. numpy/pandas generated data) over external files.
+synthetic data (e.g. numpy/pandas generated data) over external files. If the
+bug only reproduces with realistic load/weather shapes, you can also point to
+the published Liander benchmark dataset:
+https://huggingface.co/datasets/OpenSTEF/liander2024-energy-forecasting-benchmark
 -->
 
 ```python
