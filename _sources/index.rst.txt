@@ -171,7 +171,6 @@ About OpenSTEF
 
         * `Linux Foundation project page <https://www.lfenergy.org/projects/openstef/>`_
         * `Video About OpenSTEF <https://www.lfenergy.org/forecasting-to-create-a-more-resilient-optimized-grid/>`_
-        * :doc:`project/committee`
-        * :doc:`project/maintainers`
+        * :doc:`project/governance`
         * :doc:`project/citing`
         * :doc:`project/license`
