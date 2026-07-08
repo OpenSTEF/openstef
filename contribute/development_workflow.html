@@ -637,6 +637,38 @@ git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </sp
 </ul>
 </section>
 </section>
+<section id="breaking-changes">
+<span id="id2"></span><h2>Breaking changes<a class="headerlink" href="#breaking-changes" title="Link to this heading">#</a></h2>
+<p>A change is breaking if it changes public API behavior, removes/renames something
+public, or changes what gets (de)serialized. If your PR does any of this, describe
+the migration path for existing users in the pull request.</p>
+<section id="public-api">
+<h3>Public API<a class="headerlink" href="#public-api" title="Link to this heading">#</a></h3>
+<p>Renaming, removing, or changing the signature/default/behavior of a public class,
+function, method, or parameter is breaking. Prefer deprecating (with a warning) over
+removing outright when possible.</p>
+</section>
+<section id="serialization-pickle-compatibility">
+<h3>Serialization / pickle compatibility<a class="headerlink" href="#serialization-pickle-compatibility" title="Link to this heading">#</a></h3>
+<p>If a field was added, renamed, removed, or changed type on a <code class="docutils literal notranslate"><span class="pre">Stateful</span></code>/<code class="docutils literal notranslate"><span class="pre">Transform</span></code>
+subclass (e.g. a scaler, encoder, or other fitted transform), previously-pickled
+instances of that class will fail to load correctly unless you migrate them:</p>
+<ol class="arabic simple">
+<li><p>Bump <code class="docutils literal notranslate"><span class="pre">_VERSION</span></code> on the affected class.</p></li>
+<li><p>Add or update <code class="docutils literal notranslate"><span class="pre">_migrate_state</span></code> to migrate previously-pickled state to the new
+shape — see <a class="reference external" href="https://github.com/OpenSTEF/openstef/blob/main/packages/openstef-core/src/openstef_core/mixins/stateful.py">openstef_core.mixins.stateful.Stateful</a>.</p></li>
+<li><p>Add a test that restores an old-version state and asserts it migrates correctly —
+see <a class="reference external" href="https://github.com/OpenSTEF/openstef/blob/main/packages/openstef-core/tests/unit/mixins/test_stateful.py">test_stateful.py</a>
+for the pattern.</p></li>
+</ol>
+</section>
+<section id="config-settings-and-defaults">
+<h3>Config/settings and defaults<a class="headerlink" href="#config-settings-and-defaults" title="Link to this heading">#</a></h3>
+<p>A config/settings schema change that breaks existing configs (a field renamed,
+removed, or newly required), or a default value/behavior change that affects
+existing users’ results, is also breaking and should be called out in the PR.</p>
+</section>
+</section>
 <section id="testing-your-changes">
 <h2>Testing your changes<a class="headerlink" href="#testing-your-changes" title="Link to this heading">#</a></h2>
 <p>Before submitting your pull request, make sure all tests pass:</p>
@@ -842,6 +874,12 @@ Closes <span class="ni">#123</span>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-editing-workflow">The editing workflow</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#commit-message-guidelines">Commit message guidelines</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#breaking-changes">Breaking changes</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#public-api">Public API</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#serialization-pickle-compatibility">Serialization / pickle compatibility</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#config-settings-and-defaults">Config/settings and defaults</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#testing-your-changes">Testing your changes</a></li>

@@ -186,6 +186,45 @@ structured commit messages that enable automated changelog generation and semant
 * Explain *what* and *why*, not just *how*
 * Use ``!`` after the type to indicate breaking changes
 
+.. _breaking-changes:
+
+Breaking changes
+=================
+
+A change is breaking if it changes public API behavior, removes/renames something
+public, or changes what gets (de)serialized. If your PR does any of this, describe
+the migration path for existing users in the pull request.
+
+Public API
+----------
+
+Renaming, removing, or changing the signature/default/behavior of a public class,
+function, method, or parameter is breaking. Prefer deprecating (with a warning) over
+removing outright when possible.
+
+Serialization / pickle compatibility
+-------------------------------------
+
+If a field was added, renamed, removed, or changed type on a ``Stateful``/``Transform``
+subclass (e.g. a scaler, encoder, or other fitted transform), previously-pickled
+instances of that class will fail to load correctly unless you migrate them:
+
+1. Bump ``_VERSION`` on the affected class.
+2. Add or update ``_migrate_state`` to migrate previously-pickled state to the new
+   shape — see `openstef_core.mixins.stateful.Stateful
+   <https://github.com/OpenSTEF/openstef/blob/main/packages/openstef-core/src/openstef_core/mixins/stateful.py>`_.
+3. Add a test that restores an old-version state and asserts it migrates correctly —
+   see `test_stateful.py
+   <https://github.com/OpenSTEF/openstef/blob/main/packages/openstef-core/tests/unit/mixins/test_stateful.py>`_
+   for the pattern.
+
+Config/settings and defaults
+-----------------------------
+
+A config/settings schema change that breaks existing configs (a field renamed,
+removed, or newly required), or a default value/behavior change that affects
+existing users' results, is also breaking and should be called out in the PR.
+
 Testing your changes
 ====================
 
