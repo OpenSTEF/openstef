@@ -21,7 +21,7 @@ or pass a :class:`~openstef_foundation_models.models.checkpoint.LocalCheckpoint`
 to run a file already on disk.
 """
 
-from typing import Literal
+from typing import Literal, assert_never
 
 from pydantic import Field
 
@@ -181,6 +181,8 @@ def create_forecasting_workflow(config: ForecastingWorkflowConfig) -> CustomFore
                 horizons=config.horizons,
                 hyperparams=config.chronos2_hyperparams,
             )
+        case _:
+            assert_never(config.model)
 
     callbacks: list[ForecastingCallback] = []
     return CustomForecastingWorkflow(

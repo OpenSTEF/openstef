@@ -36,6 +36,12 @@ This is the complete API reference for OpenSTEF. The API is organized into sever
 
         Ensemble forecasting and preset workflows
 
+    .. grid-item-card:: :fa:`wand-sparkles` Foundation Models Package
+        :link: foundation-models-api
+        :link-type: ref
+
+        Pretrained foundation-model forecasters on an ONNX runtime
+
 .. toctree::
    :maxdepth: 2
    :hidden:
@@ -44,6 +50,7 @@ This is the complete API reference for OpenSTEF. The API is organized into sever
    models
    beam
    meta
+   foundation_models
 
 Core Package (:mod:`openstef_core`)
 -----------------------------------
@@ -100,3 +107,15 @@ Meta Package (:mod:`openstef_meta`)
    models
    presets
    utils
+
+Foundation Models Package (:mod:`openstef_foundation_models`)
+-------------------------------------------------------------
+
+.. currentmodule:: openstef_foundation_models
+
+.. autosummary::
+
+   models
+   presets
+   inference
+   integrations

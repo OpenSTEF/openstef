@@ -119,6 +119,7 @@ Learn
                 - :doc:`openstef-beam <api/beam>` backtesting, evaluation, analysis and metrics
                 - :doc:`openstef-core <api/core>` utilities, dataset types, shared types
                 - :doc:`openstef-meta <api/meta>` metalearning and model selection
+                - :doc:`openstef-foundation-models <api/foundation_models>` pretrained foundation-model forecasters on ONNX
 
 
 What's new
@@ -170,7 +171,6 @@ About OpenSTEF
 
         * `Linux Foundation project page <https://www.lfenergy.org/projects/openstef/>`_
         * `Video About OpenSTEF <https://www.lfenergy.org/forecasting-to-create-a-more-resilient-optimized-grid/>`_
-        * :doc:`project/committee`
-        * :doc:`project/maintainers`
+        * :doc:`project/governance`
         * :doc:`project/citing`
         * :doc:`project/license`
