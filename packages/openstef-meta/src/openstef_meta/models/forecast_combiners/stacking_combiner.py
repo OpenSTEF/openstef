@@ -122,9 +122,7 @@ class StackingCombiner(ForecastCombiner):
                 msg = f"Model {type(model).__name__} does not support predict_contributions."
                 raise NotImplementedError(msg)
             frames.append(
-                model.predict_contributions(
-                    data=self._prepare_input(data, q, additional_features, join="left")
-                ).data
+                model.predict_contributions(data=self._prepare_input(data, q, additional_features, join="left")).data
             )
 
         contributions = pd.concat(frames, axis=1)
