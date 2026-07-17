@@ -64,10 +64,14 @@ class StackingCombiner(ForecastCombiner):
         data: EnsembleForecastDataset,
         quantile: Quantile,
         additional_features: ForecastInputDataset | None = None,
+        *,
+        join: str = "inner",
     ) -> ForecastInputDataset:
         input_data = data.get_base_predictions_for_quantile(quantile=quantile)
         if additional_features is not None:
-            input_data = combine_forecast_input_datasets(input_data=input_data, additional_features=additional_features)
+            input_data = combine_forecast_input_datasets(
+                input_data=input_data, additional_features=additional_features, join=join
+            )
         return input_data
 
     @property
@@ -100,7 +104,8 @@ class StackingCombiner(ForecastCombiner):
             raise NotFittedError(self.__class__.__name__)
 
         predictions = [
-            self._models[q].predict(data=self._prepare_input(data, q, additional_features)).data for q in self.quantiles
+            self._models[q].predict(data=self._prepare_input(data, q, additional_features, join="left")).data
+            for q in self.quantiles
         ]
         return ForecastDataset(data=pd.concat(predictions, axis=1), sample_interval=data.sample_interval)
 
@@ -116,7 +121,9 @@ class StackingCombiner(ForecastCombiner):
             if not isinstance(model, ContributionsMixin):
                 msg = f"Model {type(model).__name__} does not support predict_contributions."
                 raise NotImplementedError(msg)
-            frames.append(model.predict_contributions(data=self._prepare_input(data, q, additional_features)).data)
+            frames.append(
+                model.predict_contributions(data=self._prepare_input(data, q, additional_features, join="left")).data
+            )
 
         contributions = pd.concat(frames, axis=1)
         target_series = data.target_series
