@@ -276,13 +276,13 @@ class WeightsCombiner(ForecastCombiner):
     def _prepare_input_data(
         dataset: ForecastInputDataset, additional_features: ForecastInputDataset | None
     ) -> pd.DataFrame:
-        df = dataset.input_data(start=dataset.index[0])
-        if additional_features is not None:
-            df_a = additional_features.input_data(start=dataset.index[0])
-            # Left-join keeps the full base-prediction index authoritative: rows without
-            # additional features are retained (as NaN) instead of dropped, so every base
-            # prediction still receives weights and is never zeroed out.
-            df = df.join(df_a, how="left")
+        # Left join keeps the full base-prediction index authoritative: rows without additional
+        # features are retained (as NaN) instead of dropped, so every base prediction still
+        # receives weights and is never zeroed out.
+        combined = combine_forecast_input_datasets(
+            input_data=dataset, additional_features=additional_features, join="left"
+        )
+        df = combined.input_data()
         if df.empty:
             msg = "No base predictions available to combine."
             raise InsufficientlyCompleteError(msg)

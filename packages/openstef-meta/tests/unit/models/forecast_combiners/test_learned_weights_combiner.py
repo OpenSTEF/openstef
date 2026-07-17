@@ -116,6 +116,55 @@ def test_quantile_weights_combiner__fit_with_additional_features_shorter_index(
     assert combiner.is_fitted
 
 
+def test_predict_keeps_full_index_when_base_timestamp_missing_from_additional(
+    ensemble_dataset: EnsembleForecastDataset,
+) -> None:
+    """Predict must forecast every base timestamp even when additional_features misses some.
+
+    Regression test for the real scenario: additional_features extends further into the future
+    than the base predictions but its index grid does not perfectly cover the base index, so a
+    base timestamp is absent and its extra feature is NaN there (future data). The previous inner
+    join + reindex(fill_value=0.0) zeroed the weights for that uncovered row, collapsing its
+    forecast to 0 despite valid base predictions. A left join keeps the base index authoritative
+    and lets the classifier tolerate the NaN feature instead.
+    """
+    # Arrange — additional_features is longer (future rows) but omits the last base timestamp,
+    # and carries an extra feature that is NaN for the future rows.
+    base_index = ensemble_dataset.data.index
+    future_index = pd.date_range(
+        base_index[-1] + ensemble_dataset.sample_interval, periods=3, freq=ensemble_dataset.sample_interval
+    )
+    additional_index = base_index[:-1].append(future_index)
+    additional_features = ForecastInputDataset(
+        data=pd.DataFrame(
+            {
+                "load": [1.0, 2.0, 0.0, 0.0, 0.0],
+                "extra_feature": [10.0, 20.0, np.nan, np.nan, np.nan],
+            },
+            index=additional_index,
+        ),
+        sample_interval=ensemble_dataset.sample_interval,
+        target_column="load",
+    )
+    combiner = WeightsCombiner(
+        hyperparams=LGBMCombinerHyperParams(n_leaves=5, n_estimators=10),
+        quantiles=[Q(0.5)],
+        horizons=[LeadTime(timedelta(days=1))],
+    )
+    combiner.fit(ensemble_dataset, additional_features=additional_features)
+
+    # Act
+    result = combiner.predict(ensemble_dataset, additional_features=additional_features)
+    contributions = combiner.predict_contributions(ensemble_dataset, additional_features=additional_features)
+
+    # Assert — full base index forecast, no NaN, and the uncovered row keeps non-zero weights
+    weight_cols = [c for c in contributions.data.columns if c != "load"]
+    assert result.data.index.equals(base_index)
+    assert not result.data.isna().any().any()
+    assert contributions.data.loc[base_index[-1], weight_cols].sum() > 0
+    assert result.data.loc[base_index[-1], Q(0.5).format()] != 0
+
+
 def test_predict_renormalizes_weights_when_base_model_predictions_are_nan() -> None:
     """Predict should renormalize weights when a base model has NaN predictions.
 

@@ -16,9 +16,9 @@ def combine_forecast_input_datasets(
     Args:
         input_data: ForecastInputDataset containing base forecaster predictions.
         additional_features: Optional ForecastInputDataset containing additional features to combine.
-        join: Type of join to perform on the datasets. Defaults to "inner". Use "left" to keep the
-            full base-prediction index (``input_data``) authoritative, aligning additional features
-            onto it and leaving uncovered rows as NaN instead of dropping them.
+        join: How to combine the datasets. "inner" (default) keeps only shared timestamps. "left"
+            keeps the full ``input_data`` index authoritative, aligning additional features onto it
+            and leaving uncovered rows as NaN.
 
     Returns:
         Combined ForecastInputDataset containing both input data and additional features.
