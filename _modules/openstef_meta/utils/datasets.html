@@ -889,25 +889,32 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    Args:</span>
 <span class="sd">        input_data: ForecastInputDataset containing base forecaster predictions.</span>
 <span class="sd">        additional_features: Optional ForecastInputDataset containing additional features to combine.</span>
-<span class="sd">        join: Type of join to perform on the datasets. Defaults to &quot;inner&quot;.</span>
+<span class="sd">        join: How to combine the datasets. &quot;inner&quot; (default) keeps only shared timestamps. &quot;left&quot;</span>
+<span class="sd">            keeps the full ``input_data`` index authoritative, aligning additional features onto it</span>
+<span class="sd">            and leaving uncovered rows as NaN.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Combined ForecastInputDataset containing both input data and additional features.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">additional_features</span><span class="p">,</span> <span class="n">ForecastInputDataset</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">input_data</span>
-    <span class="k">if</span> <span class="n">join</span> <span class="o">!=</span> <span class="s2">&quot;inner&quot;</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Only &#39;inner&#39; join is currently supported.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">join</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;inner&quot;</span><span class="p">,</span> <span class="s2">&quot;left&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Only &#39;inner&#39; and &#39;left&#39; joins are currently supported.&quot;</span><span class="p">)</span>
     <span class="n">df_additional</span> <span class="o">=</span> <span class="n">additional_features</span><span class="o">.</span><span class="n">data</span>
     <span class="k">if</span> <span class="n">input_data</span><span class="o">.</span><span class="n">target_column</span> <span class="ow">in</span> <span class="n">df_additional</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
         <span class="n">df_additional</span> <span class="o">=</span> <span class="n">df_additional</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">input_data</span><span class="o">.</span><span class="n">target_column</span><span class="p">])</span>
 
     <span class="n">df_input</span> <span class="o">=</span> <span class="n">input_data</span><span class="o">.</span><span class="n">data</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
-        <span class="p">[</span><span class="n">df_input</span><span class="p">,</span> <span class="n">df_additional</span><span class="p">],</span>
-        <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-        <span class="n">join</span><span class="o">=</span><span class="s2">&quot;inner&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">join</span> <span class="o">==</span> <span class="s2">&quot;left&quot;</span><span class="p">:</span>
+        <span class="c1"># Base predictions stay authoritative: additional features are aligned onto the base</span>
+        <span class="c1"># index, so rows lacking features are kept (as NaN) rather than dropped.</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df_input</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">df_additional</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">df_input</span><span class="p">,</span> <span class="n">df_additional</span><span class="p">],</span>
+            <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">join</span><span class="o">=</span><span class="s2">&quot;inner&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">ForecastInputDataset</span><span class="p">(</span>
         <span class="n">data</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>

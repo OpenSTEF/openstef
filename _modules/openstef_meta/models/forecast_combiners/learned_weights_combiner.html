@@ -1179,12 +1179,15 @@ window.runMermaid = runMermaid;</script>
     <span class="k">def</span><span class="w"> </span><span class="nf">_prepare_input_data</span><span class="p">(</span>
         <span class="n">dataset</span><span class="p">:</span> <span class="n">ForecastInputDataset</span><span class="p">,</span> <span class="n">additional_features</span><span class="p">:</span> <span class="n">ForecastInputDataset</span> <span class="o">|</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">input_data</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-        <span class="k">if</span> <span class="n">additional_features</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">df_a</span> <span class="o">=</span> <span class="n">additional_features</span><span class="o">.</span><span class="n">input_data</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-            <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df</span><span class="p">,</span> <span class="n">df_a</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">join</span><span class="o">=</span><span class="s2">&quot;inner&quot;</span><span class="p">)</span>
+        <span class="c1"># Left join keeps the full base-prediction index authoritative: rows without additional</span>
+        <span class="c1"># features are retained (as NaN) instead of dropped, so every base prediction still</span>
+        <span class="c1"># receives weights and is never zeroed out.</span>
+        <span class="n">combined</span> <span class="o">=</span> <span class="n">combine_forecast_input_datasets</span><span class="p">(</span>
+            <span class="n">input_data</span><span class="o">=</span><span class="n">dataset</span><span class="p">,</span> <span class="n">additional_features</span><span class="o">=</span><span class="n">additional_features</span><span class="p">,</span> <span class="n">join</span><span class="o">=</span><span class="s2">&quot;left&quot;</span>
+        <span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">combined</span><span class="o">.</span><span class="n">input_data</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">df</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
-            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;No overlapping timestamps between base predictions and additional features after inner join.&quot;</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;No base predictions available to combine.&quot;</span>
             <span class="k">raise</span> <span class="n">InsufficientlyCompleteError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">df</span>
 
@@ -1202,10 +1205,10 @@ window.runMermaid = runMermaid;</script>
             <span class="n">is_max</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">=</span> <span class="n">weights</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">weights</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
             <span class="n">weights</span> <span class="o">=</span> <span class="n">is_max</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">weights</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
-        <span class="c1"># Reindex weights to predictions so that rows without additional_features</span>
-        <span class="c1"># (dropped by _prepare_input_data&#39;s inner join) get zero weight.</span>
+        <span class="c1"># Weights are already aligned to the full base-prediction index (left join in</span>
+        <span class="c1"># _prepare_input_data), so valid base forecasts are never zeroed out for rows</span>
+        <span class="c1"># lacking additional features.</span>
         <span class="n">predictions</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">input_data</span><span class="p">()</span>
-        <span class="n">weights</span> <span class="o">=</span> <span class="n">weights</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">predictions</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">nan_aware_weighted_mean</span><span class="p">(</span><span class="n">predictions</span><span class="p">,</span> <span class="n">weights</span><span class="p">)</span>
 
 <div class="viewcode-block" id="WeightsCombiner.predict">
