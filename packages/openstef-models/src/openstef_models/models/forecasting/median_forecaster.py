@@ -200,7 +200,9 @@ class MedianForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
         lag_df = input_data.reindex(new_index, fill_value=np.nan)[self._feature_names]
 
         # Convert the lag DataFrame to NumPy arrays for faster processing.
-        lag_array = lag_df.to_numpy()
+        # copy=True ensures a writable array under pandas Copy-on-Write (pandas >= 3),
+        # since the autoregressive step fills the diagonal in place.
+        lag_array = lag_df.to_numpy(copy=True)
         # Initialize the prediction array with NaNs.
         prediction = np.full(lag_array.shape[0], np.nan)
 
