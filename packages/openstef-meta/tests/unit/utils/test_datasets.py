@@ -122,4 +122,3 @@ def test_combine_forecast_input_datasets_left_join_keeps_base_index(ensemble_dat
     # Assert — base index is authoritative; uncovered row keeps the feature as NaN
     assert combined.data.index.equals(base_index)
     assert bool(combined.data.loc[base_index[-1], "extra"] != combined.data.loc[base_index[-1], "extra"])
-
