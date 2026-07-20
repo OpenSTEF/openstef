@@ -131,7 +131,7 @@ def test_fit_forwards_eval_set_for_early_stopping_lgbm(dataset: tuple[pd.DataFra
         base_learner=LGBMRegressor,
         quantile_param="alpha",
         quantiles=quantiles,
-        hyperparams={"objective": "quantile", "early_stopping_rounds": early_stopping_rounds},
+        hyperparams={"objective": "quantile", "n_estimators": 10, "early_stopping_rounds": early_stopping_rounds},
     )
 
     # Act
