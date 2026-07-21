@@ -984,6 +984,12 @@ window.runMermaid = runMermaid;</script>
         <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Fraction of features used when constructing each tree. Range: (0,1]&quot;</span><span class="p">,</span>
     <span class="p">)</span>
 
+    <span class="c1"># Early Stopping</span>
+    <span class="n">early_stopping_rounds</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Training will stop if performance doesn&#39;t improve for this many rounds. Requires validation data.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
 <div class="viewcode-block" id="LGBMHyperParams.forecaster_class">
 <a class="viewcode-back" href="../../../../api/generated/openstef_models.models.forecasting.lgbm_forecaster.LGBMHyperParams.html#openstef_models.models.forecasting.lgbm_forecaster.LGBMHyperParams.forecaster_class">[docs]</a>
     <span class="nd">@classmethod</span>
@@ -1063,10 +1069,6 @@ window.runMermaid = runMermaid;</script>
         <span class="n">alias</span><span class="o">=</span><span class="s2">&quot;seed&quot;</span><span class="p">,</span>
         <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Random seed for reproducibility.&quot;</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">early_stopping_rounds</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
-        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Training stops if performance doesn&#39;t improve for this many rounds.&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
 
     <span class="n">_lgbm_model</span><span class="p">:</span> <span class="n">MultiQuantileRegressor</span> <span class="o">=</span> <span class="n">PrivateAttr</span><span class="p">()</span>
 
@@ -1110,7 +1112,7 @@ window.runMermaid = runMermaid;</script>
             <span class="s2">&quot;colsample_bytree&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">hyperparams</span><span class="o">.</span><span class="n">colsample_bytree</span><span class="p">,</span>
             <span class="c1"># General parameters</span>
             <span class="s2">&quot;random_state&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">,</span>
-            <span class="s2">&quot;early_stopping_rounds&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">early_stopping_rounds</span><span class="p">,</span>
+            <span class="s2">&quot;early_stopping_rounds&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">hyperparams</span><span class="o">.</span><span class="n">early_stopping_rounds</span><span class="p">,</span>
             <span class="s2">&quot;verbosity&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbosity</span><span class="p">,</span>
             <span class="s2">&quot;n_jobs&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span><span class="p">,</span>
         <span class="p">}</span>
