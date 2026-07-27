@@ -249,6 +249,11 @@ def test_available_at_and_lead_time_series_equivalence():
         available_at_dataset.lead_time_series,
         horizon_dataset.lead_time_series,
         check_names=False,
+        # available_at_dataset derives lead_time_series from a datetime64 subtraction while
+        # horizon_dataset stores it directly as the raw (pandas-inferred) timedelta64 column;
+        # pandas independently picks the coarsest sufficient resolution for each ("us" vs
+        # "s"), so the values are equivalent even though the exact dtype differs.
+        check_dtype=False,
     )
 
 

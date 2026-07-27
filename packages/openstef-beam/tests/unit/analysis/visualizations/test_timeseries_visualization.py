@@ -14,6 +14,7 @@ from openstef_beam.analysis.visualizations import TimeSeriesVisualization
 from openstef_beam.analysis.visualizations.base import AnalysisAggregation, ReportTuple, RunName
 from openstef_beam.evaluation.models.report import EvaluationSubsetReport
 from openstef_core.testing import IsSamePandas
+from openstef_core.utils import not_none
 from tests.utils.mocks import MockFigure
 
 
@@ -79,7 +80,9 @@ def test_create_by_none_generates_single_target_time_series(
 
     # Assert
     # Verify all expected calls are made with correct parameters
-    mock_add_measurements.assert_called_once_with(sample_evaluation_report.subset.target_series)
+    mock_add_measurements.assert_called_once_with(
+        IsSamePandas(pandas_obj=not_none(sample_evaluation_report.subset.target_series))
+    )
     mock_add_model.assert_called_once_with(
         model_name="TestRun", quantiles=IsSamePandas(pandas_obj=sample_evaluation_report.subset.quantiles_data)
     )
@@ -122,7 +125,9 @@ def test_create_by_run_generates_multi_run_comparison(
 
     # Assert
     # Verify measurements are shared and limits use first target's value
-    mock_add_measurements.assert_called_once_with(sample_evaluation_report.subset.target_series)
+    mock_add_measurements.assert_called_once_with(
+        IsSamePandas(pandas_obj=not_none(sample_evaluation_report.subset.target_series))
+    )
     mock_add_limit.assert_has_calls(
         [
             call(value=100.0, name="Upper Limit"),  # First target's limit, not 150.0
