@@ -111,6 +111,12 @@ class LGBMHyperParams(HyperParams):
         description="Fraction of features used when constructing each tree. Range: (0,1]",
     )
 
+    # Early Stopping
+    early_stopping_rounds: int | None = Field(
+        default=None,
+        description="Training will stop if performance doesn't improve for this many rounds. Requires validation data.",
+    )
+
     @classmethod
     def forecaster_class(cls) -> "type[LGBMForecaster]":
         """Create a LightGBM forecaster instance from this configuration.
@@ -184,10 +190,6 @@ class LGBMForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
         alias="seed",
         description="Random seed for reproducibility.",
     )
-    early_stopping_rounds: int | None = Field(
-        default=None,
-        description="Training stops if performance doesn't improve for this many rounds.",
-    )
 
     _lgbm_model: MultiQuantileRegressor = PrivateAttr()
 
@@ -229,7 +231,7 @@ class LGBMForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
             "colsample_bytree": self.hyperparams.colsample_bytree,
             # General parameters
             "random_state": self.random_state,
-            "early_stopping_rounds": self.early_stopping_rounds,
+            "early_stopping_rounds": self.hyperparams.early_stopping_rounds,
             "verbosity": self.verbosity,
             "n_jobs": self.n_jobs,
         }
