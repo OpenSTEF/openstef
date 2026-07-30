@@ -504,7 +504,7 @@ def riqd(
     return float(riqd)
 
 
-def r2(  # noqa: PLR0911
+def r2(  # noqa: PLR0911 (too many return statements - intentional to handle edge cases like scikit-learn)
     y_true: npt.NDArray[np.floating],
     y_pred: npt.NDArray[np.floating],
     *,
