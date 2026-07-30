@@ -25,9 +25,6 @@ from openstef_core.types import Quantile
 _Q_05 = Quantile(0.05)
 _Q_95 = Quantile(0.95)
 
-# R² is undefined for fewer than this many samples (variance needs at least two points).
-_MIN_R2_SAMPLES = 2
-
 
 def completeness(
     y: npt.NDArray[np.floating],
@@ -507,7 +504,7 @@ def riqd(
     return float(riqd)
 
 
-def r2(
+def r2(  # noqa: PLR0911
     y_true: npt.NDArray[np.floating],
     y_pred: npt.NDArray[np.floating],
     *,
@@ -555,18 +552,37 @@ def r2(
         >>> isinstance(score, float)
         True
     """
+    # This metric currently supports one-dimensional series only.
+    if y_true.ndim != 1 or y_pred.ndim != 1:
+        return float("nan")
+
+    if y_true.shape != y_pred.shape:
+        return float("nan")
+
     # R² is undefined for fewer than two samples; match scikit-learn, which
     # returns NaN (with a warning) in that case.
-    if len(y_true) < _MIN_R2_SAMPLES or len(y_pred) < _MIN_R2_SAMPLES:
+    if len(y_true) < 2 or len(y_pred) < 2:  # noqa: PLR2004 (constants would be less readable)
         return float("NaN")
 
     y_true = np.asarray(y_true, dtype=float)
     y_pred = np.asarray(y_pred, dtype=float)
-    weights = np.ones_like(y_true) if sample_weights is None else np.asarray(sample_weights, dtype=float)
+    if sample_weights is None:
+        weights = np.ones_like(y_true)
+    else:
+        weights = np.asarray(sample_weights, dtype=float)
+        if weights.shape != y_true.shape:
+            return float("nan")
+
+    weight_sum = np.sum(weights)
+    if not np.isfinite(weight_sum) or weight_sum == 0.0:
+        return float("nan")
 
     weighted_mean = np.average(y_true, weights=weights)
     residual_sum = float(np.sum(weights * (y_true - y_pred) ** 2))
     total_sum = float(np.sum(weights * (y_true - weighted_mean) ** 2))
+
+    if not np.isfinite(residual_sum) or not np.isfinite(total_sum):
+        return float("nan")
 
     # Constant y_true: match scikit-learn (1.0 for a perfect fit, else 0.0).
     if total_sum == 0.0:

@@ -652,3 +652,10 @@ def test_r2_undefined_for_fewer_than_two_samples():
     """Fewer than two samples returns NaN (R² undefined, matches scikit-learn)."""
     assert np.isnan(r2(np.array([]), np.array([])))
     assert np.isnan(r2(np.array([5.0]), np.array([5.0])))
+
+
+def test_r2_constant_target():
+    y_true = np.array([5.0, 5.0, 5.0])
+
+    assert r2(y_true, y_true) == pytest.approx(1.0)
+    assert r2(y_true, np.array([5.0, 5.0, 6.0])) == pytest.approx(0.0)
