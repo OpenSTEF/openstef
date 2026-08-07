@@ -1,0 +1,52 @@
+# docs/automation.yml — last-match-wins mode rules
+#
+# Determines how the pipeline treats each docs file.
+# Rules are evaluated in order; the LAST matching rule wins.
+#
+# Modes:
+#   manual     — never touch (human-owned pages: index, api, contribute)
+#   edit       — patch on relevant changes (existing content-rich pages)
+#   regenerate — always rebuild from scratch (requires a brief in pages.yml)
+
+rules:
+  # Default: all RST and Markdown files are editable
+  - pattern: "**/*.rst"
+    mode: edit
+  - pattern: "**/*.md"
+    mode: edit
+
+  # README is explicitly governed — change mode here to edit/regenerate/manual
+  - pattern: "README.md"
+    mode: edit
+
+  # Notebooks are human-authored — never touch
+  - pattern: "**/*.ipynb"
+    mode: manual
+
+  # API reference is auto-generated separately — never touch
+  - pattern: "docs/source/api/**"
+    mode: manual
+
+  # Contribute section is human-owned — never touch
+  - pattern: "docs/source/contribute/**"
+    mode: manual
+
+  # Top-level index is human-owned — never touch
+  - pattern: "docs/source/index.rst"
+    mode: manual
+
+  # Sphinx templates are internal build files — never touch
+  - pattern: "docs/source/_templates/**"
+    mode: manual
+
+  # Section index stubs are navigation scaffolding — human-owned
+  - pattern: "docs/source/**/index.rst"
+    mode: manual
+
+  # Project meta pages (license, maintainers, committee, etc.) are static — never touch
+  - pattern: "docs/source/project/**"
+    mode: manual
+
+  # # Installation guide is always regenerated from pyproject.toml
+  # - pattern: "docs/source/user_guide/getting_started/installation.rst"
+  #   mode: regenerate

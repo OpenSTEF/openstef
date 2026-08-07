@@ -1,0 +1,306 @@
+# docs/pages.yml — catalog of pages the pipeline writes
+#
+# Every page the pipeline is allowed to create or edit must be listed here.
+# Pages not listed are treated as untracked (soft flag, not blocked).
+# Pages listed as manual in automation.yml are excluded automatically.
+#
+# Fields:
+#   path        — repo-relative path to the RST file
+#   title       — canonical page title (used to normalise the RST heading)
+#   page_type   — sub_page | section_index | standalone (default: sub_page)
+#   purpose     — what this page should explain (passed to LLM as generation brief)
+#   diagrams    — list of Mermaid diagram descriptions to auto-generate (optional)
+
+pages:
+  # ── Repository README ──────────────────────────────────────────────────────
+
+  - path: README.md
+    title: OpenSTEF
+    page_type: standalone
+    purpose: >
+      The front door of the project. Keep it short and scannable (under two
+      minutes to read). Required sections in order: (1) Logo at the top.
+      (2) Status badges (build, license, version). (3) What is OpenSTEF —
+      max 4 sentences, link to the OpenSTEF website. (4) Brief monorepo
+      overview — how the repository is structured. (5) How to Install —
+      copy-paste-ready pip commands. (6) Examples — link to the examples/
+      folder. (7) License — state license, link to LICENSE file. (8)
+      Contributing — link to .github contributing pages, do not duplicate
+      inline. (9) Citations — BibTeX entry or DOI link. (10) Contact —
+      link to support page. Design principle: link out, do not duplicate
+      content that lives in the docs.
+
+  # ── Getting Started ────────────────────────────────────────────────────────
+
+  - path: docs/source/user_guide/getting_started/migration.rst
+    title: Migrating from OpenSTEF 3
+    page_type: sub_page
+    purpose: >
+      Help v3 users understand what changed and how to adapt their code.
+      v3 was a single `openstef` package with pipeline/task API plus `openstef-dbc`
+      for database access. v4 is a multi-package workspace that separates concerns.
+      Cover: (1) Why the split happened: core types vs models vs evaluation vs
+      orchestration are now independent. (2) Configuration: `PredictionJobDataClass`
+      became `ForecastingWorkflowConfig` (a full Pydantic model). Show a before/after
+      snippet. (3) Data: raw DataFrames became `TimeSeriesDataset`. (4) API: the
+      pipeline/task pattern became Workflows where users own I/O. (5) Database
+      connector: `openstef-dbc` has no v4 equivalent — users write their own data
+      integration. (6) Model type renames: 'xgb' → 'xgboost', 'lgb' → 'lgbm'.
+      (7) A migration checklist. Package mapping: openstef (core ML) → openstef-models,
+      openstef (data classes) → openstef-core, openstef (evaluation) → openstef-beam,
+      (new) → openstef-meta, openstef-dbc → no equivalent.
+    diagrams:
+      - >
+        Left-to-right graph showing v3 monolith splitting into v4 packages.
+        The v3 'openstef' box has arrows to openstef-models (Core ML), openstef-core
+        (Data Classes), openstef-beam (Evaluation), openstef-meta (New).
+        A separate 'openstef-dbc' box has an arrow to 'Your own I/O layer'
+        with a note 'v4 does not include a database connector'.
+
+  - path: docs/source/user_guide/getting_started/installation.rst
+    title: Installation
+    page_type: sub_page
+    purpose: >
+      Step-by-step installation guide generated from pyproject.toml.
+      pip commands for each package (openstef-core, openstef-models, openstef-beam,
+      openstef-meta), optional extras, and a quick-start snippet showing the
+      minimal working import. Note the meta-package openstef installs all sub-packages.
+
+  - path: docs/source/user_guide/getting_started/quick_start_tutorial.ipynb
+    title: Quick Start
+    page_type: sub_page
+    purpose: >
+      Train your first model and make a forecast in under 5 minutes.
+      This notebook is human-authored and managed manually — listed here
+      so neighbouring pages know it exists and can reference it without
+      duplicating its content.
+
+  - path: docs/source/user_guide/getting_started/foundation_model_forecasting_quickstart.ipynb
+    title: Foundation Model Quickstart
+    page_type: sub_page
+    purpose: >
+      Forecast with a pretrained foundation model in a few minutes — no
+      per-target training required. This notebook is human-authored and
+      managed manually — listed here so neighbouring pages know it exists
+      and can reference it without duplicating its content.
+
+  # ── Concepts ───────────────────────────────────────────────────────────────
+
+  - path: docs/source/user_guide/concepts/intro_to_energy_forecasting.rst
+    title: Intro to Energy Forecasting
+    page_type: sub_page
+    purpose: >
+      Context for the rest of the docs. What is short-term load forecasting and
+      why do grid operators need it? What input signals matter (load history, weather
+      forecasts, calendar features, market prices) and why each contributes. What
+      'horizon' means (15 minutes to 48 hours) and why accuracy degrades with lead time.
+      Practical difficulties: unpredictable consumers, aggregation level effects,
+      capacity changes. Keep short and focused. No diagram needed.
+
+  - path: docs/source/user_guide/concepts/models.rst
+    title: Models
+    page_type: sub_page
+    purpose: >
+      Overview of available models with selection guidance. Explain the containment
+      hierarchy: Forecaster (pure ML predictor) → ForecastingModel (adds pre/post
+      TransformPipelines) → CustomForecastingWorkflow (adds callbacks, model_id,
+      lifecycle) → Presets (opinionated factories via ForecastingWorkflowConfig).
+      Then a model-selection comparison table: Ensemble (preferred, tree+linear),
+      GBLinear (congestion management, extrapolation), LGBMLinear (balance),
+      XGBoost/LGBM (general-purpose), MedianForecaster (stable loads baseline),
+      FlatlinerForecaster and ConstantQuantileForecaster (fallback). All support
+      quantile forecasting. Link to API reference per model.
+    diagrams:
+      - >
+        Nested boxes showing containment (innermost to outermost): Forecaster
+        (pure ML predictor, e.g., XGBoostForecaster) is innermost.
+        ForecastingModel wraps Forecaster and adds preprocessing and postprocessing
+        TransformPipelines. CustomForecastingWorkflow wraps ForecastingModel and
+        adds callbacks, model_id, and lifecycle management. Outside, Presets
+        (ForecastingWorkflowConfig + create_forecasting_workflow factory) construct
+        a fully-wired Workflow from configuration. No data flow arrows — this is
+        purely about what-contains-what.
+
+  - path: docs/source/user_guide/concepts/metalearning.rst
+    title: Metalearning
+    page_type: sub_page
+    purpose: >
+      Explain metalearning as implemented in openstef-meta. Key insight: ensemble
+      models combine complementary strengths — tree-based models capture non-linear
+      patterns but cannot extrapolate; linear models can extrapolate but not learn
+      non-linear patterns. Architecture: EnsembleForecastingModel fans out to N
+      parallel per-forecaster pipelines. ForecastCombiner produces the final forecast.
+      Two strategies: WeightsCombiner (LGBM classifier per quantile, soft probability
+      weighting) and StackingCombiner (meta-regressor takes base predictions as input).
+      Link to ensemble_forecasting tutorial.
+    diagrams:
+      - >
+        EnsembleForecastingModel prediction flow: TimeSeriesDataset → shared
+        preprocessing TransformPipeline → fans out to N parallel paths
+        [per-forecaster preprocessing → Forecaster] for each base model →
+        merge into EnsembleForecastDataset → ForecastCombiner →
+        final ForecastDataset.
+      - >
+        Two formula-style diagrams side by side. WeightsCombiner: base predictions →
+        LGBM classifier per quantile → predict_proba → soft probability weights →
+        weighted average = final forecast. StackingCombiner: base predictions per
+        quantile (as input features) → meta-regressor → direct final quantile
+        prediction.
+
+  - path: docs/source/user_guide/concepts/beam.rst
+    title: BEAM
+    page_type: sub_page
+    purpose: >
+      Explain BEAM (Backtesting, Evaluation, Analysis, and Metrics). BenchmarkPipeline
+      orchestrates sequential stages per target: (A) BacktestPipeline steps through
+      data via BacktestEventGenerator, using BacktestForecasterMixin with
+      RestrictedHorizonVersionedTimeSeries to prevent data leakage. Output:
+      predictions as TimeSeriesDataset. (B) EvaluationPipeline segments by
+      available_at x lead_time x time_windows, computes configurable metrics.
+      Output: EvaluationReport. (C) AnalysisPipeline produces HTML visualisations.
+      BenchmarkStorage persists outputs. Value: fair, reproducible model comparison.
+      Link to backtesting guide for practical usage.
+    diagrams:
+      - >
+        BenchmarkPipeline as outer orchestrator containing the sequential per-target
+        flow: TargetProvider feeds data → ForecasterFactory creates BacktestForecasterMixin
+        → BacktestPipeline produces predictions (TimeSeriesDataset) →
+        EvaluationPipeline produces EvaluationReport → AnalysisPipeline produces
+        visualisations (AnalysisOutput). BenchmarkStorage persists after each stage.
+
+  - path: docs/source/user_guide/concepts/component_splitting.rst
+    title: Component Splitting
+    page_type: sub_page
+    purpose: >
+      Explain what component splitting is and why operators need it. A grid operator
+      sees aggregated load but needs to understand the constituents (solar, wind,
+      base industrial, residential). Component splitting decomposes an aggregated
+      forecast into constituents using known profiles or ratios. Critical: this does
+      NOT improve forecast accuracy — the forecast is made on aggregated load first,
+      then decomposed. Use cases: grid planning, congestion analysis, understanding
+      generation mix, regulatory reporting.
+
+  - path: docs/source/user_guide/concepts/foundation_models.rst
+    title: Foundation Models
+    page_type: sub_page
+    purpose: >
+      Zero-shot pretrained forecasting on an ONNX runtime — no per-target
+      training required. Explain what a foundation model is in the OpenSTEF
+      context, how the ONNX runtime is used for inference, what fields control model 
+      selection and execution providers (CPU, CUDA, CoreML), and how batching works 
+      across multiple targets. Cover the tradeoff vs trained models: faster 
+      deployment, no training data needed, but less adaptation to local patterns. 
+
+  # ── Guides ─────────────────────────────────────────────────────────────────
+
+  - path: docs/source/user_guide/guides/forecasting.rst
+    title: Forecasting
+    page_type: sub_page
+    purpose: >
+      The central how-to-forecast page — architecture and design decisions, not
+      runnable code (tutorials cover that). What OpenSTEF needs: datetime-indexed
+      data with a 'load' column, weather features, declared sample_interval.
+      What it returns: ForecastDataset with point forecast and optional quantiles.
+      Recommend Presets for production, Workflow for research. Data requirements:
+      expected columns, time zones, sample_interval. Fit/predict lifecycle at
+      Workflow level: fit (preprocessing → forecaster.fit → callbacks),
+      predict (preprocessing → forecaster.predict → postprocessing → callbacks).
+      Model reuse: if a recent model exists in storage, workflow skips retraining.
+      Link to forecasting_quickstart and custom_pipeline tutorials.
+    diagrams:
+      - >
+        Two parallel flows. Fit path: Historical TimeSeriesDataset →
+        preprocessing TransformPipeline (validation → feature engineering →
+        standardisation) → ForecastInputDataset → Forecaster.fit() → trained model
+        → callbacks (MLflow storage). Predict path: New TimeSeriesDataset → same
+        preprocessing → ForecastInputDataset → Forecaster.predict() → raw
+        ForecastDataset → postprocessing TransformPipeline (quantile sorting,
+        confidence intervals) → final ForecastDataset → callbacks (logging).
+        Workflow wraps both paths.
+
+  - path: docs/source/user_guide/guides/feature_engineering_tutorial.ipynb
+    title: Feature Engineering
+    page_type: sub_page
+    purpose: >
+      Create, select, and manage features for your models.
+
+  - path: docs/source/user_guide/guides/datasets_tutorial.ipynb
+    title: Datasets
+    page_type: sub_page
+    purpose: >
+      Prepare and validate input data for training and prediction.
+
+  - path: docs/source/user_guide/guides/probabilistic_forecasting.rst
+    title: Probabilistic Forecasting
+    page_type: sub_page
+    purpose: >
+      Why: a point forecast is not enough — grid operators need uncertainty ranges
+      for reserve planning, congestion management, and market bidding. How OpenSTEF
+      provides this: all models support quantile forecasting via the quantiles field
+      on ForecastingWorkflowConfig. XGBoost uses pinball loss, GBLinear uses
+      reg:quantileerror, LGBM uses MultiQuantileRegressor. Isotonic calibration:
+      IsotonicQuantileCalibrator is a postprocessing Transform that maps predicted
+      values to observed quantile levels using sklearn IsotonicRegression, restoring
+      proper coverage while enforcing monotonicity. Link to quantile_calibration
+      tutorial and IsotonicQuantileCalibrator API reference.
+
+  - path: docs/source/user_guide/guides/reliability_fallback.rst
+    title: Reliability and Fallback
+    page_type: sub_page
+    purpose: >
+      Operational reality: data feeds fail — meters flatline, weather APIs go down,
+      data arrives late. The system must detect and respond gracefully. Validation
+      transforms: FlatlineChecker (configurable via flatliner_threshold,
+      detect_non_zero_flatliner), CompletenessChecker (completeness_threshold).
+      Fallback strategies: FlatlinerForecaster (constant prediction on flatline),
+      ConstantQuantileForecaster (minimal forecast on low data availability,
+      configured via completeness_threshold_target_constant_quantile). All configured
+      in ForecastingWorkflowConfig; the preset factory switches automatically based
+      on data quality checks.
+
+  - path: docs/source/user_guide/guides/backtesting.ipynb
+    title: Backtesting
+    page_type: sub_page
+    purpose: >
+      Practical guide: how to evaluate your model on historical data before trusting
+      it in production. Configure BacktestForecasterMixin (RestrictedHorizonVersionedTimeSeries
+      prevents lookahead). Run BacktestPipeline stepping through history via
+      BacktestEventGenerator (BacktestConfig with predict_interval and train_interval).
+      Then EvaluationPipeline segments by available_at x lead_time x time_windows.
+      Interpreting results: per-window vs aggregated metrics, what good looks like
+      for energy forecasting. Link to BEAM concept page and backtesting_quickstart
+      tutorial.
+
+  - path: docs/source/user_guide/guides/deployment.rst
+    title: Deployment
+    page_type: sub_page
+    purpose: >
+      How the library works in different deployment contexts without prescribing a
+      single approach. OpenSTEF is a pure ML library with no built-in scheduling,
+      orchestration, or data storage. Three common strategies: (1) Scheduled notebooks
+      (training + forecasting notebooks with data integration, run on Sagemaker /
+      Databricks). (2) DAG-based orchestration (Airflow, Dagster, Prefect — separate
+      data integration, training, prediction stages). (3) Queued execution (per-location
+      tasks dispatched to workers, optimised for large-scale operations). Data sources:
+      link Open-Meteo for weather (free, global), KNMI for NL-specific weather. Model
+      storage: MLflow model registry via MLFlowStorageCallback handles versioning and
+      reuse. Storage is pluggable — users implement custom callbacks. OpenSTEF is
+      modular: custom callbacks, storage backends, and integration layers are
+      encouraged.
+
+  - path: docs/source/user_guide/guides/foundation_model_forecasting.ipynb
+    title: Foundation Model Forecasting
+    page_type: sub_page
+    purpose: >
+      Checkpoints, execution providers for your hardware, batching, and
+      backtesting with a pretrained foundation model. 
+
+  - path: docs/source/user_guide/logging.rst
+    title: Logging
+    page_type: sub_page
+    purpose: >
+      How to configure logging for OpenSTEF applications. Cover the default
+      NullHandler behaviour, the logger naming hierarchy and what each level
+      emits, common configuration patterns for development and production
+      (including structured JSON output), and troubleshooting tips for missing
+      or excessive output.
