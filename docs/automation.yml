@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2026 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+#
+# SPDX-License-Identifier: MPL-2.0
+
 # docs/automation.yml — last-match-wins mode rules
 #
 # Determines how the pipeline treats each docs file.

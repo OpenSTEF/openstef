@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2026 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+#
+# SPDX-License-Identifier: MPL-2.0
+
 # docs/pages.yml — catalog of pages the pipeline writes
 #
 # Every page the pipeline is allowed to create or edit must be listed here.
