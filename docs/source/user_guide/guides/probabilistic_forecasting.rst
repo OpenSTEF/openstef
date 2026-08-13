@@ -252,6 +252,7 @@ calibrator on those held-out predictions:
 
 .. code-block:: python
 
+   from openstef_core.datasets import ForecastDataset
    from openstef_core.types import Quantile
    from openstef_models.transforms.postprocessing import MapieQuantileCalibrator
 
@@ -272,10 +273,20 @@ calibrator on those held-out predictions:
    # 3. Generate forecasts on the held-out calibration period.
    cal_forecasts = workflow.predict(input_data_cal)
 
-   # 4. Fit the calibrator on the held-out forecasts and their true targets.
-   calibrator.fit(cal_forecasts, input_data_cal[target_col])
+   # 4. Attach the observed actuals to the forecast dataset so that the
+   #    calibrator can compute residuals.  ``target_column`` must be the name
+   #    of the column that holds the observed values (default: "load").
+   cal_forecasts.data[cal_forecasts.target_column] = input_data_cal[target_col]
+   cal_dataset = ForecastDataset(
+       data=cal_forecasts.data,
+       sample_interval=cal_forecasts.sample_interval,
+       target_column=cal_forecasts.target_column,
+   )
 
-   # 5. Append the fitted calibrator to the postprocessing pipeline so that
+   # 5. Fit the calibrator on the held-out ForecastDataset (predictions + actuals).
+   calibrator.fit(cal_dataset)
+
+   # 6. Append the fitted calibrator to the postprocessing pipeline so that
    #    subsequent calls to workflow.predict() apply the correction.
    workflow.model.postprocessing.transforms.append(calibrator)
 
