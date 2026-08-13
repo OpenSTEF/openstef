@@ -233,28 +233,52 @@ produce quantile crossings.
 For the underlying conformal prediction concepts and calibration details, see
 the `MAPIE documentation <https://mapie.readthedocs.io/en/stable/>`_.
 
-Add it to the postprocessing pipeline in the same way as the isotonic
-calibrator:
+Usage: Fitting on a Held-Out Calibration Period
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. warning::
+
+   Appending :class:`~openstef_models.transforms.postprocessing.MapieQuantileCalibrator`
+   to the postprocessing pipeline and then calling ``workflow.fit()`` **does not**
+   provide an independent calibration set. ``ForecastingModel.fit`` fits
+   postprocessing transforms on predictions for ``input_data_train``, the same
+   rows used to train the forecaster. This results in in-sample residual
+   calibration rather than split conformal calibration, which can collapse
+   corrections for an overfit model.
+
+To satisfy split-conformal calibration assumptions, reserve a separate
+calibration period, predict it with the already-fitted forecaster, and fit the
+calibrator on those held-out predictions:
 
 .. code-block:: python
 
    from openstef_core.types import Quantile
    from openstef_models.transforms.postprocessing import MapieQuantileCalibrator
 
-   workflow.model.postprocessing.transforms.append(
-       MapieQuantileCalibrator(
-           quantiles=[
-               Quantile(0.1),
-               Quantile(0.3),
-               Quantile(0.5),
-               Quantile(0.7),
-               Quantile(0.9),
-           ],
-       )
+   # 1. Fit the forecaster on the training split (without the calibrator).
+   workflow.fit(input_data_train)
+
+   # 2. Create a held-out calibration split that the forecaster has never seen.
+   calibrator = MapieQuantileCalibrator(
+       quantiles=[
+           Quantile(0.1),
+           Quantile(0.3),
+           Quantile(0.5),
+           Quantile(0.7),
+           Quantile(0.9),
+       ],
    )
 
-As with the isotonic calibrator, the transform must be fitted before prediction
-and the calibration data should be representative of the deployment period.
+   # 3. Generate forecasts on the held-out calibration period.
+   cal_forecasts = workflow.predict(input_data_cal)
+
+   # 4. Fit the calibrator on the held-out forecasts and their true targets.
+   calibrator.fit(cal_forecasts, input_data_cal[target_col])
+
+   # 5. Append the fitted calibrator to the postprocessing pipeline so that
+   #    subsequent calls to workflow.predict() apply the correction.
+   workflow.model.postprocessing.transforms.append(calibrator)
+
 MAPIE calibration corrects marginal quantile coverage; it does not guarantee
 conditional calibration for every time of day, season, or weather regime. The
 postprocessing pipeline can still apply :class:`~openstef_models.transforms.postprocessing.quantile_sorter.QuantileSorter`
