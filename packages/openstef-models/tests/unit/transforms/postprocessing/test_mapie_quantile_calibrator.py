@@ -5,6 +5,7 @@
 import numpy as np
 import pandas as pd
 import pytest
+from pydantic import ValidationError
 
 from openstef_core.datasets import ForecastDataset
 from openstef_core.exceptions import NotFittedError
@@ -49,10 +50,8 @@ def test_mapie_calibrator_requires_fit_before_transform() -> None:
 
 
 def test_mapie_calibrator_rejects_duplicate_quantiles() -> None:
-    calibrator = MapieQuantileCalibrator(quantiles=[Quantile(0.1), Quantile(0.1)])
-
-    with pytest.raises(ValueError, match="unique quantiles"):
-        calibrator.fit(_dataset(np.ones((1, 3)), np.ones(1)))
+    with pytest.raises(ValidationError, match="unique quantiles"):
+        MapieQuantileCalibrator(quantiles=[Quantile(0.1), Quantile(0.1)])
 
 
 def test_mapie_calibrator_calibrates_each_requested_quantile_independently() -> None:

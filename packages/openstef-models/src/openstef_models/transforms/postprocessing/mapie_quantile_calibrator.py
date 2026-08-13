@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 from mapie.conformity_scores import BaseRegressionScore
 from mapie.regression import SplitConformalRegressor
-from pydantic import BaseModel, Field, PrivateAttr
+from pydantic import BaseModel, Field, PrivateAttr, field_validator
 from sklearn.base import BaseEstimator, RegressorMixin
 
 from openstef_core.datasets import ForecastDataset
@@ -80,6 +80,13 @@ class MapieQuantileCalibrator(BaseModel, Transform[ForecastDataset, ForecastData
     _corrections: dict[str, float] = PrivateAttr(default_factory=dict)
     _quantile_columns: list[str] = PrivateAttr(default_factory=list[str])
     _is_fitted: bool = PrivateAttr(default=False)
+
+    @field_validator("quantiles")
+    @classmethod
+    def _validate_configured_quantiles(cls, quantiles: list[Quantile] | None) -> list[Quantile] | None:
+        if quantiles is not None:
+            cls._validate_quantiles(quantiles)
+        return quantiles
 
     @property
     @override
