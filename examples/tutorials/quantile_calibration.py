@@ -285,7 +285,7 @@ fig.add_trace(
         x=expected,
         y=observed_mapie,
         mode="markers+lines",
-        name="MAPIE",
+        name="After MAPIE calibration",
         marker={"size": 12, "color": "green", "symbol": "diamond"},
         line={"color": "green", "width": 2, "dash": "dash"},
     )
