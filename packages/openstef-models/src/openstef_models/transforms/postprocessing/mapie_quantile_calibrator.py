@@ -144,6 +144,13 @@ class MapieQuantileCalibrator(BaseModel, Transform[ForecastDataset, ForecastData
         for column in self._calibrators:
             prediction = self._prediction_estimators[column].predict(data.data)
             predictions[column] = prediction + self._corrections[column]
+
+        # Independent corrections can introduce quantile crossings. Restore the
+        # invariant expected from a quantile forecast after applying them.
+        predictions[self._quantile_columns] = np.sort(
+            predictions[self._quantile_columns].to_numpy(),
+            axis=1,
+        )
         return data._copy_with_data(data=predictions)  # noqa: SLF001 - safe - invariant preserved
 
 
