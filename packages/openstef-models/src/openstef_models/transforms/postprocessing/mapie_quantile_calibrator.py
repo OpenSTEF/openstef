@@ -2,7 +2,11 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-"""Conformal quantile calibration for probabilistic forecasts."""
+"""Conformal quantile calibration for probabilistic forecasts.
+
+This module provides a postprocessing transform that calibrates each requested
+forecast quantile independently using signed MAPIE residuals.
+"""
 
 from typing import Any, override
 
@@ -23,25 +27,35 @@ class _StoredPredictionEstimator(BaseEstimator, RegressorMixin):
     """Expose a stored forecast column through MAPIE's estimator interface."""
 
     def __init__(self, prediction_column: str) -> None:
+        """Initialize an estimator that reads predictions from one dataframe column."""
         self.prediction_column = prediction_column
         self.fitted_ = True
 
     def fit(self, x: object, y: object) -> "_StoredPredictionEstimator":
+        """Return the estimator unchanged because forecasts are already available."""
         del x, y
         return self
 
     def predict(self, X: pd.DataFrame) -> np.ndarray:
+        """Return stored predictions for the column configured at initialization."""
         return X[self.prediction_column].to_numpy()
 
 
 class _SignedResidualScore(BaseRegressionScore):
-    """Use signed residuals to calibrate one quantile at a time."""
+    """Use signed residuals to calibrate one quantile at a time.
+
+    A positive score means that the observed value is above the forecast. MAPIE
+    can therefore estimate a one-sided correction for each quantile instead of
+    constructing a symmetric prediction interval.
+    """
 
     def __init__(self) -> None:
+        """Initialize a non-symmetric conformity score."""
         super().__init__(sym=False)
 
     @override
     def get_signed_conformity_scores(self, y: np.ndarray, y_pred: np.ndarray, **kwargs: Any) -> np.ndarray:
+        """Return signed residuals with positive values above the forecast."""
         del kwargs
         return y - y_pred
 
@@ -49,6 +63,7 @@ class _SignedResidualScore(BaseRegressionScore):
     def get_estimation_distribution(
         self, y_pred: np.ndarray, conformity_scores: np.ndarray, **kwargs: Any
     ) -> np.ndarray:
+        """Reconstruct observed values from predictions and signed residuals."""
         del kwargs
         return y_pred + conformity_scores
 
@@ -84,6 +99,7 @@ class MapieQuantileCalibrator(BaseModel, Transform[ForecastDataset, ForecastData
     @field_validator("quantiles")
     @classmethod
     def _validate_configured_quantiles(cls, quantiles: list[Quantile] | None) -> list[Quantile] | None:
+        """Validate explicitly configured quantiles when the model is created."""
         if quantiles is not None:
             cls._validate_quantiles(quantiles)
         return quantiles
@@ -95,6 +111,12 @@ class MapieQuantileCalibrator(BaseModel, Transform[ForecastDataset, ForecastData
 
     @override
     def fit(self, data: ForecastDataset) -> None:
+        """Learn one conformal correction for every requested forecast quantile.
+
+        The input dataset must contain both forecast quantile columns and the
+        observed target. Rows with missing values in any required column are
+        excluded from calibration.
+        """
         if data.target_series is None:
             raise ValueError("Input data must contain target series for calibration.")
 
@@ -117,6 +139,7 @@ class MapieQuantileCalibrator(BaseModel, Transform[ForecastDataset, ForecastData
         self._quantile_levels = quantile_levels
         self._corrections = {}
         for column in quantile_columns:
+            # Use a separate estimator so MAPIE can calculate residuals for this quantile only.
             estimator = _StoredPredictionEstimator(column)
             calibrator = SplitConformalRegressor(
                 estimator=estimator,
@@ -128,6 +151,7 @@ class MapieQuantileCalibrator(BaseModel, Transform[ForecastDataset, ForecastData
             self._calibrators[column] = calibrator
             self._prediction_estimators[column] = estimator
             n_samples = len(calibrator.conformity_scores)
+            # Select the finite-sample order statistic required for one-sided coverage.
             correction_level = min(
                 np.ceil(quantile_levels[column] * (n_samples + 1)) / n_samples,
                 1.0,
@@ -140,6 +164,7 @@ class MapieQuantileCalibrator(BaseModel, Transform[ForecastDataset, ForecastData
 
     @staticmethod
     def _validate_quantiles(quantiles: list[Quantile]) -> list[str]:
+        """Validate quantile levels and return their canonical column names."""
         values = sorted(float(quantile) for quantile in quantiles)
         if not values or any(value <= 0 or value >= 1 for value in values) or len(set(values)) != len(values):
             raise ValueError("MAPIE requires one or more unique quantiles strictly between 0 and 1.")
@@ -147,6 +172,7 @@ class MapieQuantileCalibrator(BaseModel, Transform[ForecastDataset, ForecastData
 
     @override
     def transform(self, data: ForecastDataset) -> ForecastDataset:
+        """Apply learned corrections and restore monotonic quantile ordering."""
         if not self._is_fitted or not self._calibrators:
             raise NotFittedError(self.__class__.__name__)
 

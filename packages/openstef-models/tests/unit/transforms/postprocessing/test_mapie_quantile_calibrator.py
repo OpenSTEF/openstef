@@ -14,6 +14,7 @@ from openstef_models.transforms.postprocessing import MapieQuantileCalibrator
 
 
 def _dataset(predictions: np.ndarray, actuals: np.ndarray) -> ForecastDataset:
+    """Build a forecast dataset for the requested test quantile layout."""
     quantile_levels = [0.1, 0.5, 0.9] if predictions.shape[1] == 3 else [0.1, 0.3, 0.5, 0.7, 0.9]
     return ForecastDataset(
         data=pd.DataFrame(
@@ -27,6 +28,7 @@ def _dataset(predictions: np.ndarray, actuals: np.ndarray) -> ForecastDataset:
 
 
 def test_mapie_calibrator_conformalizes_outer_quantiles() -> None:
+    """Test that calibration changes the lower and upper quantile forecasts."""
     predictions = np.column_stack([np.zeros(100), np.full(100, 5.0), np.full(100, 10.0)])
     actuals = np.concatenate([np.full(90, 5.0), np.full(10, 20.0)])
     calibration = _dataset(predictions, actuals)
@@ -43,6 +45,7 @@ def test_mapie_calibrator_conformalizes_outer_quantiles() -> None:
 
 
 def test_mapie_calibrator_requires_fit_before_transform() -> None:
+    """Test that transforming before fitting raises the standard exception."""
     calibrator = MapieQuantileCalibrator()
 
     with pytest.raises(NotFittedError):
@@ -50,11 +53,13 @@ def test_mapie_calibrator_requires_fit_before_transform() -> None:
 
 
 def test_mapie_calibrator_rejects_duplicate_quantiles() -> None:
+    """Test that duplicate quantile levels are rejected during construction."""
     with pytest.raises(ValidationError, match="unique quantiles"):
         MapieQuantileCalibrator(quantiles=[Quantile(0.1), Quantile(0.1)])
 
 
 def test_mapie_calibrator_calibrates_each_requested_quantile_independently() -> None:
+    """Test that arbitrary requested quantiles are calibrated independently."""
     predictions = np.column_stack(
         [np.zeros(100), np.full(100, 5.0), np.full(100, 10.0), np.full(100, 15.0), np.full(100, 20.0)]
     )
@@ -79,6 +84,7 @@ def test_mapie_calibrator_calibrates_each_requested_quantile_independently() -> 
 
 
 def test_mapie_calibrator_restores_quantile_ordering_after_independent_corrections() -> None:
+    """Test that independent corrections cannot leave quantile crossings."""
     predictions = np.tile([0.0, 10.0, 20.0], (100, 1))
     actuals = np.concatenate([np.full(90, 30.0), np.full(10, 0.0)])
     calibration = _dataset(predictions, actuals)
