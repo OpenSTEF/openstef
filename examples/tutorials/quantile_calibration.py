@@ -153,15 +153,16 @@ print(calibration_df.to_string(index=False))
 # ## Add isotonic and MAPIE calibration
 #
 # [`IsotonicQuantileCalibrator`](https://openstef.github.io/openstef/api/generated/openstef_models.transforms.postprocessing.IsotonicQuantileCalibrator.html) learns a
-# monotonic mapping from predicted quantiles to observed quantile levels.
+# monotonic mapping from predicted quantiles to observed quantile levels. It is
+# appended to the workflow's postprocessing pipeline and fitted on training-set
+# predictions automatically.
 # [`MapieQuantileCalibrator`](https://openstef.github.io/openstef/api/generated/openstef_models.transforms.postprocessing.MapieQuantileCalibrator.html)
 # instead fits an independent signed conformal residual correction for every
-# requested quantile. Both transforms fit on the workflow's validation split
-# and correct each quantile during prediction. MAPIE supports arbitrary unique
-# quantile sets; it is not limited to a P10/P50/P90 interval.
-#
-# We create a second workflow identical to the first, but with the calibrator
-# appended to its postprocessing pipeline.
+# requested quantile. MAPIE requires a **held-out** calibration set (not the
+# training data) to satisfy split-conformal guarantees, so it is fitted
+# separately on a dedicated calibration window rather than inside the workflow.
+# MAPIE supports arbitrary unique quantile sets; it is not limited to a
+# P10/P50/P90 interval.
 
 # %%
 from openstef_models.transforms.postprocessing import IsotonicQuantileCalibrator
@@ -189,19 +190,36 @@ assert len(forecast_cal.data) > 100, f"Expected >100 calibrated forecast rows, g
 # MAPIE uses a separate signed residual correction for each requested quantile.
 # It supports arbitrary unique quantile sets, so it is not restricted to
 # complementary outer quantiles around P50.
+#
+# Split-conformal calibration requires a **held-out** calibration period that
+# the forecaster was not trained on. We carve out a calibration window just
+# after the training cutoff, predict it with the fitted workflow, and fit
+# `MapieQuantileCalibrator` on those out-of-sample residuals. The calibrator
+# is then applied to the final holdout forecast.
 
 # %%
 from openstef_models.transforms.postprocessing import MapieQuantileCalibrator
 
+# Reserve the first 4 days after training as a held-out calibration period.
+cal_end = train_end + timedelta(days=4)
+calibration_dataset = dataset.filter_by_range(
+    start=train_end - timedelta(days=14),
+    end=cal_end,
+)
+
+# Fit the forecaster on training data only (no postprocessing calibrator yet).
 config_mapie = config.model_copy(update={"model_id": "mapie_calibrated_gblinear"})
 workflow_mapie = create_forecasting_workflow(config=config_mapie)
-workflow_mapie.model.postprocessing.transforms = [
-    *workflow_mapie.model.postprocessing.transforms,
-    MapieQuantileCalibrator(quantiles=quantiles),
-]
-
 workflow_mapie.fit(train_dataset)
-forecast_mapie = workflow_mapie.predict(predict_dataset, forecast_start=train_end)
+
+# Predict the held-out calibration window and fit MAPIE on those out-of-sample residuals.
+cal_forecast = workflow_mapie.predict(calibration_dataset, forecast_start=train_end)
+mapie_calibrator = MapieQuantileCalibrator(quantiles=quantiles)
+mapie_calibrator.fit(cal_forecast)
+
+# Apply the calibrator to the evaluation holdout.
+forecast_mapie_raw = workflow_mapie.predict(predict_dataset, forecast_start=train_end)
+forecast_mapie = mapie_calibrator.transform(forecast_mapie_raw)
 
 # %% tags=["remove-cell"]
 assert len(forecast_mapie.data) > 100, f"Expected >100 MAPIE forecast rows, got {len(forecast_mapie.data)}"
