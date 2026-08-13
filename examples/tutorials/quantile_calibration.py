@@ -59,6 +59,9 @@ logger = setup_notebook_logging(
 # See `examples/benchmarks/` for production-scale runs.
 # ```
 #
+# MAPIE is optional. Install it with ``uv add "openstef[calibration]"`` or
+# ``pip install "openstef[calibration]"`` before running the MAPIE section.
+#
 # **Key API references:**
 # [`IsotonicQuantileCalibrator`](https://openstef.github.io/openstef/api/generated/openstef_models.transforms.postprocessing.IsotonicQuantileCalibrator.html)
 # · [`MapieQuantileCalibrator`](https://openstef.github.io/openstef/api/generated/openstef_models.transforms.postprocessing.MapieQuantileCalibrator.html)

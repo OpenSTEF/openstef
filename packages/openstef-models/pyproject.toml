@@ -26,7 +26,6 @@ classifiers = [
 ]
 dependencies = [
   "holidays>=0.79",
-  "mapie>=1.5,<2",
   "mlflow-skinny>=3,<4",
   "openstef-beam>=4,<5",
   "openstef-core>=4,<5",
@@ -35,6 +34,7 @@ dependencies = [
   "scikit-learn>=1.7.1,<1.8",
   "scipy>=1.16.3,<2",
 ]
+optional-dependencies.calibration = [ "mapie>=1.5,<2" ]
 optional-dependencies.lgbm = [
   "lightgbm>=4.6",
 ]

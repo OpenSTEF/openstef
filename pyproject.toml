@@ -32,11 +32,14 @@ optional-dependencies.all = [
   "openstef-core",
   "openstef-foundation-models[cpu]",
   "openstef-meta",
-  "openstef-models[xgb-cpu]",
+  "openstef-models[calibration,xgb-cpu]",
 ]
 optional-dependencies.beam = [
   "huggingface-hub>=0.35.3",
   "openstef-beam",
+]
+optional-dependencies.calibration = [
+  "openstef-models[calibration]",
 ]
 optional-dependencies.foundation-models = [
   "openstef-foundation-models[cpu]",
@@ -96,14 +99,14 @@ features-cpu = [
   "openstef-core[benchmark]",
   "openstef-foundation-models[cpu]",
   "openstef-meta",
-  "openstef-models[lgbm,tuning,xgb-cpu]",
+  "openstef-models[calibration,lgbm,tuning,xgb-cpu]",
 ]
 features-gpu = [
   "openstef-beam[all]",
   "openstef-core[benchmark]",
   "openstef-foundation-models[gpu]",
   "openstef-meta",
-  "openstef-models[lgbm,tuning,xgb-gpu]",
+  "openstef-models[calibration,lgbm,tuning,xgb-gpu]",
 ]
 lint = [
   "licensecheck>=2025.1",
