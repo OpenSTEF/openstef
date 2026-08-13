@@ -17,10 +17,26 @@ auto-downloaded from HuggingFace.
 uv run python -m examples.benchmarks.liander2024.run_xgboost_gblinear_benchmark
 ```
 
+For a comparison of isotonic and MAPIE quantile calibration on a GBLinear run,
+install the calibration extra and run:
+
+```bash
+uv run --extra calibration python -m examples.benchmarks.liander2024.run_calibration_benchmark
+```
+
+The same benchmark is available as the
+`run_calibration_benchmark.ipynb` notebook for interactive exploration.
+
+This calibration benchmark keeps its calibration window separate from the
+final holdout and writes `metrics.csv`, `metadata.json`, and `timeseries.png` to
+`benchmark_results/calibration/`. It is intended for method comparison, not as
+a production-scale model benchmark.
+
 ```{toctree}
 :maxdepth: 1
 
 XGBoost & GBLinear <run_xgboost_gblinear_benchmark>
 Ensemble Models <run_ensemble_benchmark>
+Calibration <run_calibration_benchmark>
 Compare Results <compare_benchmark_runs>
 ```
