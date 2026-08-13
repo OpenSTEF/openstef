@@ -201,7 +201,8 @@ assert len(forecast_cal.data) > 100, f"Expected >100 calibrated forecast rows, g
 # %%
 from openstef_models.transforms.postprocessing import MapieQuantileCalibrator
 
-# Reserve the first 4 days after training as a held-out calibration period.
+# Include 14 days of history so the forecaster can predict the held-out
+# four-day calibration period immediately after training.
 calibration_dataset = dataset.filter_by_range(
     start=train_end - timedelta(days=14),
     end=cal_end,
