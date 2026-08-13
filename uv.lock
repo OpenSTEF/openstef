@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 2
 requires-python = ">=3.12, <4.0"
 resolution-markers = [
     "python_full_version >= '3.14'",
@@ -3109,6 +3109,20 @@ wheels = [
 ]
 
 [[package]]
+name = "mapie"
+version = "1.5.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy" },
+    { name = "scikit-learn" },
+    { name = "scipy" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/1f/d5/4c800e1fbf6d24598662b30901bb928a61b23b06fd1ac86610f344448953/mapie-1.5.0.tar.gz", hash = "sha256:1b6a81797d549b0333d6f6865bd3bca4d26c41037f111fd84160ea87a70c6d72", size = 10162410, upload-time = "2026-08-05T13:28:18.639Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c8/65/c19e5f89552138eb2abc9ae4925822f4f1cea4cca4d17c61aa7a2b29a4f0/mapie-1.5.0-py3-none-any.whl", hash = "sha256:dfc74fc62d5276ec8ab9aa2d9e53cfeb9901fe1df27f8785e724939b6a512483", size = 555626, upload-time = "2026-08-05T13:28:16.446Z" },
+]
+
+[[package]]
 name = "markdown"
 version = "3.10.2"
 source = { registry = "https://pypi.org/simple" }
@@ -4298,8 +4312,8 @@ requires-dist = [
     { name = "celery", extras = ["redis"], marker = "extra == 'celery'", specifier = ">=5.4" },
     { name = "dagster", marker = "extra == 'dagster'", specifier = ">=1.9" },
     { name = "dagster-webserver", marker = "extra == 'dagster'", specifier = ">=1.9" },
-    { name = "openstef-core", extras = ["benchmark"], editable = "packages/openstef-core" },
-    { name = "openstef-models", extras = ["xgb-cpu"], editable = "packages/openstef-models" },
+    { name = "openstef-core", extras = ["benchmark"] },
+    { name = "openstef-models", extras = ["xgb-cpu"] },
     { name = "pydantic-settings", specifier = ">=2.14,<3" },
 ]
 provides-extras = ["airflow", "celery", "dagster"]
@@ -4454,6 +4468,7 @@ version = "0.0.0"
 source = { editable = "packages/openstef-models" }
 dependencies = [
     { name = "holidays" },
+    { name = "mapie" },
     { name = "mlflow-skinny" },
     { name = "openstef-beam" },
     { name = "openstef-core" },
@@ -4482,6 +4497,7 @@ xgb-gpu = [
 requires-dist = [
     { name = "holidays", specifier = ">=0.79" },
     { name = "lightgbm", marker = "extra == 'lgbm'", specifier = ">=4.6" },
+    { name = "mapie", specifier = ">=1.5,<2" },
     { name = "mlflow-skinny", specifier = ">=3,<4" },
     { name = "openstef-beam", editable = "packages/openstef-beam" },
     { name = "openstef-core", editable = "packages/openstef-core" },

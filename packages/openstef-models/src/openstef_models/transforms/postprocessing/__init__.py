@@ -11,6 +11,7 @@ operate on ForecastDataset objects after the core prediction step.
 
 from openstef_models.transforms.postprocessing.confidence_interval_applicator import ConfidenceIntervalApplicator
 from openstef_models.transforms.postprocessing.isotonic_quantile_calibrator import IsotonicQuantileCalibrator
+from openstef_models.transforms.postprocessing.mapie_quantile_calibrator import MapieQuantileCalibrator
 from openstef_models.transforms.postprocessing.quantile_sorter import QuantileSorter
 
-__all__ = ["ConfidenceIntervalApplicator", "IsotonicQuantileCalibrator", "QuantileSorter"]
+__all__ = ["ConfidenceIntervalApplicator", "IsotonicQuantileCalibrator", "MapieQuantileCalibrator", "QuantileSorter"]
