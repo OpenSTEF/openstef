@@ -6,21 +6,28 @@
 
 This module provides a postprocessing transform that calibrates each requested
 forecast quantile independently using signed MAPIE residuals.
+
+MAPIE is an optional dependency. Install ``openstef-models[calibration]``
+before importing this module.
 """
 
 from typing import Any, override
 
 import numpy as np
 import pandas as pd
-from mapie.conformity_scores import BaseRegressionScore
-from mapie.regression import SplitConformalRegressor
 from pydantic import BaseModel, Field, PrivateAttr, field_validator
 from sklearn.base import BaseEstimator, RegressorMixin
 
 from openstef_core.datasets import ForecastDataset
-from openstef_core.exceptions import NotFittedError
+from openstef_core.exceptions import MissingExtraError, NotFittedError
 from openstef_core.mixins import Transform
 from openstef_core.types import Quantile
+
+try:
+    from mapie.conformity_scores import BaseRegressionScore
+    from mapie.regression import SplitConformalRegressor
+except ImportError as err:
+    raise MissingExtraError("mapie", "openstef-models", install_extra="calibration") from err
 
 
 class _StoredPredictionEstimator(BaseEstimator, RegressorMixin):
