@@ -208,6 +208,19 @@ assert len(forecast_mapie.data) > 100, f"Expected >100 MAPIE forecast rows, got 
 
 # %% [markdown]
 # ## Compare calibration before and after
+#
+# The following table and plot compare the uncalibrated forecast with both
+# postprocessing approaches on the same holdout rows.
+#
+# ### Isotonic calibration
+#
+# Isotonic calibration learns a monotonic mapping for each quantile. The
+# ``observed (isotonic)`` and ``error (isotonic)`` columns show its effect.
+#
+# ### MAPIE calibration
+#
+# MAPIE applies an independent conformal residual correction to each quantile.
+# The ``observed (MAPIE)`` and ``error (MAPIE)`` columns show its effect.
 
 # %%
 forecast_cal_aligned = forecast_cal.data.loc[actuals.index]
@@ -261,7 +274,7 @@ fig.add_trace(
         x=expected,
         y=observed_cal,
         mode="markers+lines",
-        name="After calibration",
+        name="After isotonic calibration",
         marker={"size": 12, "color": "blue"},
         line={"color": "blue", "width": 2},
     )
