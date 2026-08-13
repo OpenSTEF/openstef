@@ -88,11 +88,12 @@ dataset = load_liander_dataset()
 
 train_start = datetime.fromisoformat("2024-03-01T00:00:00Z")
 train_end = train_start + timedelta(days=45)
-forecast_end = train_end + timedelta(days=7)
+cal_end = train_end + timedelta(days=4)
+forecast_end = cal_end + timedelta(days=7)
 
 train_dataset = dataset.filter_by_range(start=train_start, end=train_end)
 predict_dataset = dataset.filter_by_range(
-    start=train_end - timedelta(days=14),
+    start=cal_end - timedelta(days=14),
     end=forecast_end,
 )
 
@@ -116,7 +117,7 @@ config = ForecastingWorkflowConfig(
 
 workflow_uncal = create_forecasting_workflow(config=config)
 workflow_uncal.fit(train_dataset)
-forecast_uncal = workflow_uncal.predict(predict_dataset, forecast_start=train_end)
+forecast_uncal = workflow_uncal.predict(predict_dataset, forecast_start=cal_end)
 
 print(f"Forecast rows: {len(forecast_uncal.data)}")
 
@@ -179,7 +180,7 @@ workflow_cal.model.postprocessing.transforms.append(
 )
 
 workflow_cal.fit(train_dataset)
-forecast_cal = workflow_cal.predict(predict_dataset, forecast_start=train_end)
+forecast_cal = workflow_cal.predict(predict_dataset, forecast_start=cal_end)
 
 # %% tags=["remove-cell"]
 assert len(forecast_cal.data) > 100, f"Expected >100 calibrated forecast rows, got {len(forecast_cal.data)}"
@@ -201,7 +202,6 @@ assert len(forecast_cal.data) > 100, f"Expected >100 calibrated forecast rows, g
 from openstef_models.transforms.postprocessing import MapieQuantileCalibrator
 
 # Reserve the first 4 days after training as a held-out calibration period.
-cal_end = train_end + timedelta(days=4)
 calibration_dataset = dataset.filter_by_range(
     start=train_end - timedelta(days=14),
     end=cal_end,
@@ -218,7 +218,7 @@ mapie_calibrator = MapieQuantileCalibrator(quantiles=quantiles)
 mapie_calibrator.fit(cal_forecast)
 
 # Apply the calibrator to the evaluation holdout.
-forecast_mapie_raw = workflow_mapie.predict(predict_dataset, forecast_start=train_end)
+forecast_mapie_raw = workflow_mapie.predict(predict_dataset, forecast_start=cal_end)
 forecast_mapie = mapie_calibrator.transform(forecast_mapie_raw)
 
 # %% tags=["remove-cell"]
