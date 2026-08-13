@@ -26,6 +26,7 @@ classifiers = [
 ]
 dependencies = [
   "holidays>=0.79",
+  "mapie>=1.5,<2",
   "mlflow-skinny>=3,<4",
   "openstef-beam>=4,<5",
   "openstef-core>=4,<5",
