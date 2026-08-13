@@ -128,9 +128,12 @@ class MapieQuantileCalibrator(BaseModel, Transform[ForecastDataset, ForecastData
             self._calibrators[column] = calibrator
             self._prediction_estimators[column] = estimator
             n_samples = len(calibrator.conformity_scores)
-            correction_level = min(quantile_levels[column] * (n_samples + 1) / n_samples, 1.0)
+            correction_level = min(
+                np.ceil(quantile_levels[column] * (n_samples + 1)) / n_samples,
+                1.0,
+            )
             self._corrections[column] = float(
-                np.quantile(calibrator.conformity_scores, correction_level, method="higher")
+                np.quantile(calibrator.conformity_scores, correction_level, method="lower")
             )
         self._quantile_columns = quantile_columns
         self._is_fitted = True
