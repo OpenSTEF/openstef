@@ -1078,7 +1078,10 @@ window.runMermaid = runMermaid;</script>
         <span class="n">lag_df</span> <span class="o">=</span> <span class="n">input_data</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">new_index</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)[</span><span class="bp">self</span><span class="o">.</span><span class="n">_feature_names</span><span class="p">]</span>
 
         <span class="c1"># Convert the lag DataFrame to NumPy arrays for faster processing.</span>
-        <span class="n">lag_array</span> <span class="o">=</span> <span class="n">lag_df</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+        <span class="c1"># Copy explicitly: pandas Copy-on-Write may hand back a read-only view of the</span>
+        <span class="c1"># DataFrame&#39;s underlying block, but the autoregressive loop below fills the</span>
+        <span class="c1"># array in place (via _fill_diagonal_with_median), so it must own a writable copy.</span>
+        <span class="n">lag_array</span> <span class="o">=</span> <span class="n">lag_df</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="c1"># Initialize the prediction array with NaNs.</span>
         <span class="n">prediction</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">lag_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
 
