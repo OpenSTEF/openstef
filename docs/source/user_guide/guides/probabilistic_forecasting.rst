@@ -237,15 +237,6 @@ explicit opt-in, while downstream
 :class:`~openstef_models.transforms.postprocessing.quantile_sorter.QuantileSorter`
 owns the quantile-ordering invariant.
 
-This implementation differs from the existing
-:class:`~openstef_models.transforms.postprocessing.MapieQuantileCalibrator` in
-four deliberate ways:
-
-* it has no MAPIE runtime dependency;
-* it uses explicit asymmetric lower- and upper-tail formulas;
-* it leaves P50 unchanged unless requested; and
-* it does not sort independently corrected quantiles internally.
-
 The Alliander reference implementation additionally wraps each base forecaster
 and calibrates its predictions before ensemble combination. That placement is
 not equivalent to calibrating the final ensemble output. This OpenSTEF
