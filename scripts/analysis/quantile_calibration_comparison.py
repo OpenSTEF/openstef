@@ -36,6 +36,7 @@ from openstef_models.transforms.postprocessing import (
     ConformalizedQuantileCalibrator,
     IsotonicQuantileCalibrator,
     MapieQuantileCalibrator,
+    QuantileSorter,
 )
 
 QUANTILES = [Q(0.1), Q(0.5), Q(0.9)]
@@ -192,8 +193,8 @@ def run(args: argparse.Namespace) -> pd.DataFrame:
         holdout_start - timedelta(minutes=15),
     )
     holdout = make_calibration_dataset(raw_forecast, actuals, holdout_start, holdout_end)
-    forecasts = {"raw": holdout.data}
     results = [score("raw", holdout.data)]
+    plot_forecasts = {"raw": holdout.data}
 
     calibrators = {
         "isotonic": IsotonicQuantileCalibrator(
@@ -206,14 +207,16 @@ def run(args: argparse.Namespace) -> pd.DataFrame:
     for name, calibrator in calibrators.items():
         calibrator.fit(calibration)
         calibrated = calibrator.transform(holdout)
-        forecasts[name] = calibrated.data
         results.append(score(name, calibrated.data))
+        sorted_calibrated = QuantileSorter().transform(calibrated)
+        results.append(score(f"{name}_sorted", sorted_calibrated.data))
+        plot_forecasts[name] = sorted_calibrated.data
 
     version, output_dir = next_output_dir(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=False)
     metrics = pd.DataFrame(results)
     metrics.to_csv(output_dir / "metrics.csv", index=False)
-    plot_comparison(holdout.data, forecasts, output_dir / "comparison.png")
+    plot_comparison(holdout.data, plot_forecasts, output_dir / "comparison.png")
     (output_dir / "metadata.json").write_text(
         json.dumps(
             {
