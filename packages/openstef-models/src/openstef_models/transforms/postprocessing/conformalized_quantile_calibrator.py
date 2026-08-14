@@ -14,7 +14,7 @@ from openstef_core.exceptions import NotFittedError
 from openstef_core.mixins import Transform
 from openstef_core.types import Quantile
 
-MEDIAN_QUANTILE = 0.5
+MEDIAN_QUANTILE = Quantile(0.5)
 
 
 def _conformal_quantile(scores: np.ndarray, level: float) -> float:
