@@ -201,7 +201,7 @@ def _get_extreme_days(
         raise TypeError("target_series must have a DatetimeIndex.")
 
     # Compute daily min and max once
-    daily_agg: pd.DataFrame = target_series.resample("1D").agg(["min", "max"])  # type: ignore
+    daily_agg: pd.DataFrame = target_series.resample("1D").agg(["min", "max"])
     n_days = len(daily_agg)
     n_extremes = max(int(fraction * n_days), 2)
 
