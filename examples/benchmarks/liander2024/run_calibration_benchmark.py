@@ -171,84 +171,84 @@ def plot_forecasts(
     plt.close(fig)
 
 
-# %%
-def run() -> pd.DataFrame:
-    """Run the calibration comparison and save its results."""
-    dataset = load_liander_dataset()
-    calibration_start = TRAIN_START + timedelta(days=TRAIN_DAYS)
-    holdout_start = calibration_start + timedelta(days=CALIBRATION_DAYS)
-    holdout_end = holdout_start + timedelta(days=HOLDOUT_DAYS)
-
-    train = dataset.filter_by_range(start=TRAIN_START, end=calibration_start)
-    prediction_input = dataset.filter_by_range(
-        start=calibration_start - timedelta(days=14),
-        end=holdout_end,
-    )
-    workflow = create_forecasting_workflow(config=make_config())
-    workflow.fit(train)
-    raw_forecast = workflow.predict(prediction_input, forecast_start=calibration_start).data
-    actuals = dataset.data["load"].reindex(raw_forecast.index)
-
-    calibration = window(raw_forecast, actuals, calibration_start, holdout_start - timedelta(minutes=15))
-    holdout = window(raw_forecast, actuals, holdout_start, holdout_end)
-    results = [score("raw", holdout)]
-
-    calibrators = {
-        "isotonic": IsotonicQuantileCalibrator(
-            quantiles=QUANTILES,
-            use_local_quantile_estimation=USE_LOCAL_ISOTONIC,
-        ),
-        "conformalized": ConformalizedQuantileCalibrator(quantiles=QUANTILES),
-    }
-    for name, calibrator in calibrators.items():
-        calibrator.fit(calibration)
-        transformed = calibrator.transform(holdout)
-        results.append(score(name, transformed))
-        if name == "conformalized" and SORT_QUANTILES:
-            results.append(score("conformalized_sorted", QuantileSorter().transform(transformed)))
-
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    plot_forecasts(holdout, calibrators, OUTPUT_DIR / "timeseries.png")
-    metrics = pd.DataFrame(results)
-    metrics.to_csv(OUTPUT_DIR / "metrics.csv", index=False)
-    (OUTPUT_DIR / "metadata.json").write_text(
-        json.dumps(
-            {
-                "dataset": "OpenSTEF/liander2024-stef-benchmark",
-                "train_start": TRAIN_START.isoformat(),
-                "calibration_start": calibration_start.isoformat(),
-                "holdout_start": holdout_start.isoformat(),
-                "holdout_end": holdout_end.isoformat(),
-                "train_days": TRAIN_DAYS,
-                "calibration_days": CALIBRATION_DAYS,
-                "holdout_days": HOLDOUT_DAYS,
-                "isotonic_use_local_quantile_estimation": USE_LOCAL_ISOTONIC,
-                "sort_quantiles": SORT_QUANTILES,
-                "quantiles": [float(q) for q in QUANTILES],
-            },
-            indent=2,
-        )
-    )
-    return metrics
-
+# %% [markdown]
+# ## Forecast and calibrate
+#
+# The benchmark uses the constants above. The calibration window is kept separate
+# from the final holdout.
 
 # %%
-def main() -> None:
-    """Run the benchmark and print its metrics."""
-    metrics = run()
-    print(metrics.to_string(index=False))
+dataset = load_liander_dataset()
+calibration_start = TRAIN_START + timedelta(days=TRAIN_DAYS)
+holdout_start = calibration_start + timedelta(days=CALIBRATION_DAYS)
+holdout_end = holdout_start + timedelta(days=HOLDOUT_DAYS)
 
+train = dataset.filter_by_range(start=TRAIN_START, end=calibration_start)
+prediction_input = dataset.filter_by_range(
+    start=calibration_start - timedelta(days=14),
+    end=holdout_end,
+)
+workflow = create_forecasting_workflow(config=make_config())
+workflow.fit(train)
+raw_forecast = workflow.predict(prediction_input, forecast_start=calibration_start).data
+actuals = dataset.data["load"].reindex(raw_forecast.index)
+
+calibration = window(raw_forecast, actuals, calibration_start, holdout_start - timedelta(minutes=15))
+holdout = window(raw_forecast, actuals, holdout_start, holdout_end)
+
+# %%
+calibrators = {
+    "isotonic": IsotonicQuantileCalibrator(
+        quantiles=QUANTILES,
+        use_local_quantile_estimation=USE_LOCAL_ISOTONIC,
+    ),
+    "conformalized": ConformalizedQuantileCalibrator(quantiles=QUANTILES),
+}
+
+for calibrator in calibrators.values():
+    calibrator.fit(calibration)
 
 # %% [markdown]
-# ## Interpret the result
+# ## Results
 #
-# Lower P50 MAE and MACE are generally better. P10 and P90 observed levels
-# should be close to 0.1 and 0.9, while P10-P90 coverage should be close to
-# 0.8. Compare interval width together with coverage; a wider interval can
-# improve coverage without improving sharpness. When `SORT_QUANTILES` is true,
-# the `conformalized_sorted` row reports the downstream-sorted output. The output
-# directory contains `metrics.csv`, `metadata.json`, and `timeseries.png`.
+# `QuantileSorter` is applied downstream when `SORT_QUANTILES` is true. The
+# direct and sorted conformalized outputs are both included in the metrics.
 
 # %%
-if __name__ == "__main__":
-    main()
+results = [score("raw", holdout)]
+for name, calibrator in calibrators.items():
+    transformed = calibrator.transform(holdout)
+    results.append(score(name, transformed))
+    if name == "conformalized" and SORT_QUANTILES:
+        results.append(score("conformalized_sorted", QuantileSorter().transform(transformed)))
+
+metrics = pd.DataFrame(results)
+print(metrics.to_string(index=False))
+
+# %% [markdown]
+# ## Plot
+
+# %%
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+plot_forecasts(holdout, calibrators, OUTPUT_DIR / "timeseries.png")
+
+# %%
+metrics.to_csv(OUTPUT_DIR / "metrics.csv", index=False)
+(OUTPUT_DIR / "metadata.json").write_text(
+    json.dumps(
+        {
+            "dataset": "OpenSTEF/liander2024-stef-benchmark",
+            "train_start": TRAIN_START.isoformat(),
+            "calibration_start": calibration_start.isoformat(),
+            "holdout_start": holdout_start.isoformat(),
+            "holdout_end": holdout_end.isoformat(),
+            "train_days": TRAIN_DAYS,
+            "calibration_days": CALIBRATION_DAYS,
+            "holdout_days": HOLDOUT_DAYS,
+            "isotonic_use_local_quantile_estimation": USE_LOCAL_ISOTONIC,
+            "sort_quantiles": SORT_QUANTILES,
+            "quantiles": [float(q) for q in QUANTILES],
+        },
+        indent=2,
+    )
+)
