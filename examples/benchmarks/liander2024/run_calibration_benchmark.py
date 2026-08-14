@@ -28,6 +28,8 @@ conformalized forecasts on a separate holdout.
 # 3. Fit isotonic and reference-aligned conformalized calibration independently
 #    on that calibration window.
 # 4. Evaluate raw, isotonic, and conformalized forecasts on a later holdout.
+# 5. Apply the downstream `QuantileSorter` to the conformalized output and
+#    compare the direct and sorted results.
 #
 # The reported metrics include P50 MAE, mean absolute calibration error (MACE),
 # observed quantile levels, P10-P90 coverage and width, and quantile ordering.
@@ -52,6 +54,7 @@ from openstef_models.presets.forecasting_workflow import GBLinearForecaster
 from openstef_models.transforms.postprocessing import (
     ConformalizedQuantileCalibrator,
     IsotonicQuantileCalibrator,
+    QuantileSorter,
 )
 
 # %%
@@ -139,12 +142,21 @@ def plot_forecasts(
     output_path: Path,
 ) -> None:
     """Save a representative holdout time-series plot for all methods."""
-    plot_data = holdout.data.join(
-        calibrators["isotonic"].transform(holdout).data.add_suffix("_isotonic"),
-        how="inner",
-    ).join(
-        calibrators["conformalized"].transform(holdout).data.add_suffix("_conformalized"),
-        how="inner",
+    conformalized = calibrators["conformalized"].transform(holdout)
+    conformalized_sorted = QuantileSorter().transform(conformalized)
+    plot_data = (
+        holdout.data.join(
+            calibrators["isotonic"].transform(holdout).data.add_suffix("_isotonic"),
+            how="inner",
+        )
+        .join(
+            conformalized.data.add_suffix("_conformalized"),
+            how="inner",
+        )
+        .join(
+            conformalized_sorted.data.add_suffix("_conformalized_sorted"),
+            how="inner",
+        )
     )
     plot_data = plot_data.iloc[: min(len(plot_data), 7 * 96)]
 
@@ -156,7 +168,14 @@ def plot_forecasts(
         plot_data.index,
         plot_data["quantile_P50_conformalized"],
         color="#d62728",
-        label="Conformalized P50",
+        label="Conformalized P50 (direct)",
+    )
+    ax.plot(
+        plot_data.index,
+        plot_data["quantile_P50_conformalized_sorted"],
+        color="#ff7f0e",
+        linestyle="--",
+        label="Conformalized P50 (sorted)",
     )
     ax.fill_between(
         plot_data.index,
@@ -172,7 +191,15 @@ def plot_forecasts(
         plot_data["quantile_P90_conformalized"],
         color="#d62728",
         alpha=0.12,
-        label="Conformalized P10-P90",
+        label="Conformalized P10-P90 (direct)",
+    )
+    ax.fill_between(
+        plot_data.index,
+        plot_data["quantile_P10_conformalized_sorted"],
+        plot_data["quantile_P90_conformalized_sorted"],
+        color="#ff7f0e",
+        alpha=0.08,
+        label="Conformalized P10-P90 (sorted)",
     )
     ax.set_title("Liander 2024 quantile calibration on the holdout period")
     ax.set_xlabel("Timestamp")
@@ -214,7 +241,10 @@ def run(args: argparse.Namespace) -> pd.DataFrame:
     }
     for name, calibrator in calibrators.items():
         calibrator.fit(calibration)
-        results.append(score(name, calibrator.transform(holdout)))
+        transformed = calibrator.transform(holdout)
+        results.append(score(name, transformed))
+        if name == "conformalized":
+            results.append(score("conformalized_sorted", QuantileSorter().transform(transformed)))
 
     args.output_dir.mkdir(parents=True, exist_ok=True)
     plot_forecasts(holdout, calibrators, args.output_dir / "timeseries.png")
@@ -253,8 +283,11 @@ def main() -> None:
 # Lower P50 MAE and MACE are generally better. P10 and P90 observed levels
 # should be close to 0.1 and 0.9, while P10-P90 coverage should be close to
 # 0.8. Compare interval width together with coverage; a wider interval can
-# improve coverage without improving sharpness. The output directory contains
-# `metrics.csv`, `metadata.json`, and `timeseries.png`.
+# improve coverage without improving sharpness. The `conformalized_sorted` row
+# and orange dashed plot lines show the effect of downstream quantile sorting:
+# ordering violations should be removed, while other metrics can change because
+# sorting changes the values assigned to the named quantile columns. The output
+# directory contains `metrics.csv`, `metadata.json`, and `timeseries.png`.
 
 # %%
 if "get_ipython" in globals():
