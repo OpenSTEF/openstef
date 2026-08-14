@@ -297,6 +297,58 @@ after calibration to enforce row-wise quantile ordering.
 
 For a complete worked example showing calibration before and after, including diagnostic plots, see :doc:`/tutorials/quantile_calibration`.
 
+Reference-Aligned Conformalized Quantile Calibration
+----------------------------------------------------
+
+OpenSTEF also provides a dependency-free
+:class:`~openstef_models.transforms.postprocessing.ConformalizedQuantileCalibrator`
+that follows the calibration mathematics of the Alliander reference
+implementation. It is a postprocessing transform over a
+``ForecastDataset``:
+
+1. Fit the forecaster and generate forecasts for a time-ordered calibration
+   period.
+2. Fit the calibrator on those forecasts and the corresponding actuals.
+3. Apply the fitted corrections to later forecast datasets.
+
+The correction is asymmetric by tail. For a lower quantile ``q < 0.5``, the
+calibrator uses ``forecast - actual`` scores and subtracts the finite-sample
+quantile at ``1 - q``. For an upper quantile ``q >= 0.5``, it uses ``actual -
+forecast`` scores and adds the finite-sample quantile at ``q``. The finite-sample
+level is adjusted with ``min(level * (n + 1) / n, 1)`` and estimated with
+NumPy's ``method="higher"`` convention.
+
+By default, P50 is unchanged and quantile columns are not sorted inside the
+calibrator. This preserves the reference semantics: median calibration is an
+explicit opt-in, while downstream
+:class:`~openstef_models.transforms.postprocessing.quantile_sorter.QuantileSorter`
+owns the quantile-ordering invariant.
+
+This implementation differs from the existing
+:class:`~openstef_models.transforms.postprocessing.MapieQuantileCalibrator` in
+four deliberate ways:
+
+* it has no MAPIE runtime dependency;
+* it uses explicit asymmetric lower- and upper-tail formulas;
+* it leaves P50 unchanged unless requested; and
+* it does not sort independently corrected quantiles internally.
+
+The Alliander reference implementation additionally wraps each base forecaster
+and calibrates its predictions before ensemble combination. That placement is
+not equivalent to calibrating the final ensemble output. This OpenSTEF
+transform implements the postprocessing part requested by the issue, while the
+reference wrapper remains a separate architectural option. Both placements
+should be evaluated independently, because ``C(E(f))`` and
+``E(C_1(f_1), C_2(f_2))`` generally produce different forecasts.
+
+.. code-block:: python
+
+   from openstef_models.transforms.postprocessing import ConformalizedQuantileCalibrator
+
+   calibrator = ConformalizedQuantileCalibrator(quantiles=quantiles)
+   calibrator.fit(calibration_forecasts_with_actuals)
+   calibrated_forecasts = calibrator.transform(forecasts)
+
 Evaluating Probabilistic Forecasts
 -----------------------------------
 
