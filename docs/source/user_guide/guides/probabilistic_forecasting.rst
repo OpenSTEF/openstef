@@ -237,14 +237,6 @@ explicit opt-in, while downstream
 :class:`~openstef_models.transforms.postprocessing.quantile_sorter.QuantileSorter`
 owns the quantile-ordering invariant.
 
-The Alliander reference implementation additionally wraps each base forecaster
-and calibrates its predictions before ensemble combination. That placement is
-not equivalent to calibrating the final ensemble output. This OpenSTEF
-transform implements the postprocessing part requested by the issue, while the
-reference wrapper remains a separate architectural option. Both placements
-should be evaluated independently, because ``C(E(f))`` and
-``E(C_1(f_1), C_2(f_2))`` generally produce different forecasts.
-
 .. code-block:: python
 
    from openstef_models.transforms.postprocessing import ConformalizedQuantileCalibrator
