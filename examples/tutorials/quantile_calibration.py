@@ -44,7 +44,7 @@ logger = setup_notebook_logging(
 # # Quantile Calibration
 #
 # Improve the reliability of probabilistic forecasts using isotonic and
-# reference-aligned conformal
+# asymmetric conformal
 # quantile calibration. A well-calibrated P10 quantile should exceed actual
 # values roughly 10 % of the time — this tutorial shows how to measure and
 # correct deviations.
@@ -52,7 +52,7 @@ logger = setup_notebook_logging(
 # **What you'll learn:**
 #
 # - Measure quantile calibration with observed coverage
-# - Add isotonic and reference-aligned conformal calibration as postprocessing steps
+# - Add isotonic and asymmetric conformal calibration as postprocessing steps
 # - Compare before/after calibration on real data
 #
 # ```{note}
@@ -150,14 +150,14 @@ print("Calibration before isotonic correction:")
 print(calibration_df.to_string(index=False))
 
 # %% [markdown]
-# ## Add isotonic and reference-aligned conformal calibration
+# ## Add isotonic and asymmetric conformal calibration
 #
 # [`IsotonicQuantileCalibrator`](https://openstef.github.io/openstef/api/generated/openstef_models.transforms.postprocessing.IsotonicQuantileCalibrator.html) learns a
 # monotonic mapping from predicted quantiles to observed quantile levels. It is
 # appended to the workflow's postprocessing pipeline and fitted on training-set
 # predictions automatically.
 # [`ConformalizedQuantileCalibrator`](https://openstef.github.io/openstef/api/generated/openstef_models.transforms.postprocessing.ConformalizedQuantileCalibrator.html)
-# instead applies reference-aligned asymmetric conformal corrections. It leaves
+# instead applies asymmetric conformal corrections. It leaves
 # P50 unchanged by default and delegates quantile ordering to a downstream
 # `QuantileSorter`.
 
@@ -182,7 +182,7 @@ forecast_cal = workflow_cal.predict(predict_dataset, forecast_start=cal_end)
 assert len(forecast_cal.data) > 100, f"Expected >100 calibrated forecast rows, got {len(forecast_cal.data)}"
 
 # %% [markdown]
-# ### Calibrate with the reference-aligned conformal transform
+# ### Calibrate with the asymmetric conformal transform
 #
 # Split-conformal calibration requires a **held-out** calibration period that
 # the forecaster was not trained on. We predict that period with the fitted
@@ -220,10 +220,10 @@ assert len(forecast_conformalized.data) > 100, "Expected >100 conformalized fore
 # Isotonic calibration learns a monotonic mapping for each quantile. The
 # ``observed (isotonic)`` and ``error (isotonic)`` columns show its effect.
 #
-# ### Reference-aligned conformal calibration
+# ### Asymmetric conformal calibration
 #
 # The ``observed (conformalized)`` and ``error (conformalized)`` columns show
-# the effect of the asymmetric reference-aligned corrections.
+# the effect of the asymmetric corrections.
 
 # %%
 forecast_cal_aligned = forecast_cal.data.loc[actuals.index]
@@ -308,7 +308,7 @@ fig.show()
 # %% [markdown]
 # Points closer to the diagonal indicate better calibration. Isotonic regression
 # learns a monotonic value mapping, while the conformalized calibrator applies
-# asymmetric reference-aligned corrections. Compare both methods on a separate
+# asymmetric corrections. Compare both methods on a separate
 # holdout period before selecting one for production. To measure
 # calibration stability over longer time horizons, combine this with a
 # {doc}`backtesting_quickstart`.

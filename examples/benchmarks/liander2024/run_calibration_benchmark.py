@@ -5,7 +5,7 @@
 """Liander 2024 benchmark for quantile calibration methods.
 
 This development benchmark trains one GBLinear forecaster, reserves a held-out
-calibration window, and compares uncalibrated, isotonic, and reference-aligned
+calibration window, and compares uncalibrated, isotonic, and asymmetric
 conformalized forecasts on a separate holdout.
 """
 
@@ -25,7 +25,7 @@ conformalized forecasts on a separate holdout.
 #
 # 1. Fit GBLinear on the training window.
 # 2. Predict a held-out calibration window immediately after training.
-# 3. Fit isotonic and reference-aligned conformalized calibration independently
+# 3. Fit isotonic and asymmetric conformalized calibration independently
 #    on that calibration window.
 # 4. Evaluate raw, isotonic, and conformalized forecasts on a later holdout.
 # 5. Optionally apply the downstream `QuantileSorter` to the conformalized output

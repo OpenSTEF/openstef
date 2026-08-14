@@ -206,12 +206,12 @@ When ``use_local_quantile_estimation=True``, the calibrator estimates observed q
 
    The calibrator must be fitted (via ``workflow.fit()``) before it can be used for prediction. Calling ``predict()`` on a workflow with an unfitted calibrator will raise a :class:`~openstef_core.exceptions.NotFittedError`.
 
-For a complete worked example showing isotonic and reference-aligned conformal
+For a complete worked example showing isotonic and asymmetric conformal
 calibration before and after, including diagnostic plots, see
 :doc:`/tutorials/quantile_calibration`.
 
-Reference-Aligned Conformalized Quantile Calibration
-----------------------------------------------------
+Conformalized Quantile Calibration
+----------------------------------
 
 OpenSTEF also provides a dependency-free
 :class:`~openstef_models.transforms.postprocessing.ConformalizedQuantileCalibrator`
@@ -232,7 +232,7 @@ level is adjusted with ``min(level * (n + 1) / n, 1)`` and estimated with
 NumPy's ``method="higher"`` convention.
 
 By default, P50 is unchanged and quantile columns are not sorted inside the
-calibrator. This preserves the reference semantics: median calibration is an
+calibrator. This preserves the specified semantics: median calibration is an
 explicit opt-in, while downstream
 :class:`~openstef_models.transforms.postprocessing.quantile_sorter.QuantileSorter`
 owns the quantile-ordering invariant.
