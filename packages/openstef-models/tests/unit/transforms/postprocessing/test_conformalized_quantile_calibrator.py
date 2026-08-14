@@ -85,7 +85,7 @@ def test_conformalized_calibrator_skips_sparse_quantiles() -> None:
             np.full(101, 10.0),
         ]
     )
-    actuals = np.concatenate([np.full(100, 1.0), [20.0]])
+    actuals = np.full(101, 20.0)
     calibration = _dataset(predictions, actuals)
     forecast = _dataset(np.array([[0.0, 5.0, 10.0]]), np.array([5.0]))
 
@@ -97,7 +97,7 @@ def test_conformalized_calibrator_skips_sparse_quantiles() -> None:
     result = calibrator.transform(forecast)
 
     np.testing.assert_allclose(result.data["quantile_P10"], [0.0])
-    np.testing.assert_allclose(result.data["quantile_P90"], [1.0])
+    np.testing.assert_allclose(result.data["quantile_P90"], [20.0])
 
 
 def test_conformalized_calibrator_does_not_sort_quantiles() -> None:
