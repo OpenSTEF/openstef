@@ -57,7 +57,6 @@ logger = setup_notebook_logging(
 #
 # ```{note}
 # This tutorial uses a small data slice for fast execution.
-# See `examples/benchmarks/` for production-scale runs.
 # ```
 #
 # **Key API references:**
