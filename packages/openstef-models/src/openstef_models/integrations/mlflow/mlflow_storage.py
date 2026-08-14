@@ -22,7 +22,7 @@ from urllib.parse import urlparse
 from mlflow import MlflowClient
 from mlflow.entities import Metric, Param, Run
 from mlflow.exceptions import MlflowException
-from pydantic import Field, PrivateAttr
+from pydantic import ConfigDict, Field, PrivateAttr
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.exceptions import ModelNotFoundError
@@ -31,7 +31,7 @@ from openstef_models.integrations.joblib import JoblibModelSerializer
 from openstef_models.mixins import ModelIdentifier, ModelSerializer
 
 
-def normalize_tracking_uri(uri: str) -> str:
+def normalize_tracking_uri(uri: str, exceptions: Sequence[str] = []) -> str:
     r"""Normalize a tracking URI to a file:/// URI when it refers to a local path.
 
     MLflow's model registry rejects bare Windows paths (e.g. ``D:\mlflow``) because
@@ -44,10 +44,13 @@ def normalize_tracking_uri(uri: str) -> str:
 
     Args:
         uri: Raw tracking URI string, may be a path or a proper URI.
+        exceptions: List of URI to treat as urls even if they have no scheme
 
     Returns:
         A ``file:///`` URI for local paths, or the original URI for remote schemes.
     """
+    if uri in exceptions:
+        return uri
     scheme = urlparse(uri).scheme
     # Empty scheme → relative/absolute POSIX path.
     # Single-letter scheme → Windows drive letter (e.g. "D" from "D:\\...").
@@ -63,9 +66,33 @@ class MLFlowStorage(BaseConfig):
     Handles creation, storage, and retrieval of MLflow runs including models,
     training data, metrics, and hyperparameters. Organizes artifacts locally
     before uploading to MLflow tracking server.
+
+    ``tracking_uri`` configures the Tracking backend that stores experiments and
+    runs. ``registry_uri`` optionally configures a separate Model Registry
+    backend; if it is omitted, MLflow uses the registry associated with the
+    tracking backend. ``artifact_location`` configures the artifact root for
+    experiments created by this instance.
+
+    Typical configurations:
+
+    tracking_uri="sqlite:///mlflow.db", # Local SQLite tracking backend with separate local artifacts
+    tracking_uri="https://mlflow.example.com", # Remote MLflow Tracking Server with S3 artifacts
+    tracking_uri="databricks", # Databricks MLflow Tracking Server with DBFS artifacts
+
+    A caller may provide ``client`` to use an already configured
+    :class:`mlflow.MlflowClient`. When supplied, it takes precedence over
+    ``tracking_uri`` and ``registry_uri`` and is excluded from serialized model
+    configuration.
     """
 
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
     tracking_uri: str = Field(default="./mlflow", description="MLflow tracking server URI.")
+    registry_uri: str | None = Field(default=None, description="MLflow tracking server URI.")
+
+    # Excluded from model_dump(), JSON serialization, and config persistence.
+    client: MlflowClient | None = Field(default=None, exclude=True, repr=False)
+
     local_artifacts_path: Path = Field(
         default=Path("./mlflow_artifacts_local"), description="Local path for storing MLflow artifacts before upload."
     )
@@ -86,6 +113,11 @@ class MLFlowStorage(BaseConfig):
 
     model_serializer: ModelSerializer = Field(default_factory=JoblibModelSerializer)
 
+    uri_exceptions: Sequence[str] = Field(
+        default=["databricks"],
+        description="List of URI treat as urls even if they have no scheme",
+    )
+
     _client: MlflowClient = PrivateAttr()
     _logger: logging.Logger = PrivateAttr(default=logging.getLogger(__name__))
 
@@ -95,8 +127,17 @@ class MLFlowStorage(BaseConfig):
             # Suppress MLflow's stdout messages (emoji URLs)
             os.environ.setdefault("MLFLOW_SUPPRESS_PRINTING_URL_TO_STDOUT", "true")
             os.environ.setdefault("MLFLOW_ENABLE_ARTIFACTS_PROGRESS_BAR", "false")
+
+        if self.client is not None:
+            self._client = self.client
+            return
+
         self.tracking_uri = normalize_tracking_uri(self.tracking_uri)
-        self._client = MlflowClient(tracking_uri=self.tracking_uri)
+        self.registry_uri = normalize_tracking_uri(self.registry_uri) if self.registry_uri else None
+        self._client = MlflowClient(
+            tracking_uri=self.tracking_uri,
+            registry_uri=self.registry_uri,
+        )
 
     def create_run(
         self,
