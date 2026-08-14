@@ -39,6 +39,7 @@ class ConformalizedQuantileCalibrator(BaseModel, Transform[ForecastDataset, Fore
 
     quantiles: list[Quantile] | None = Field(default=None)
     conformalize_median: bool = Field(default=False)
+    min_calibration_samples: int = Field(default=100, ge=1)
 
     _corrections: dict[str, float] = PrivateAttr(default_factory=dict)
     _is_fitted: bool = PrivateAttr(default=False)
@@ -72,6 +73,10 @@ class ConformalizedQuantileCalibrator(BaseModel, Transform[ForecastDataset, Fore
 
         actuals = data.target_series.to_numpy()
         self._corrections = {}
+        if np.count_nonzero(~np.isnan(actuals)) < self.min_calibration_samples:
+            self._is_fitted = True
+            return
+
         for column in quantile_columns:
             quantile = float(Quantile.parse(column))
             if quantile == MEDIAN_QUANTILE and not self.conformalize_median:
