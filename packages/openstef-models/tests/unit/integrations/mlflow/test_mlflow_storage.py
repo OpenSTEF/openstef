@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, cast
 
+from mlflow import MlflowClient
 import pytest
 
 from openstef_core.mixins import HyperParams, Stateful
@@ -47,6 +48,20 @@ def storage(tmp_path: Path) -> MLFlowStorage:
 def model_id() -> str:
     """Return consistent model identifier for tests."""
     return "test_model_123"
+
+def test_construct_from_mlflow(tmp_path: Path, model_id: str):
+    """Test that experiment_name_prefix is prepended to experiment names."""
+    # Arrange
+    mlflow_client = MlflowClient(tracking_uri=f"sqlite:///{tmp_path / 'mlflow.db'}")
+
+    # Act
+    storage = MLFlowStorage(
+        tracking_uri=f"sqlite:///{tmp_path / 'mlflow.db'}",
+        client=mlflow_client,
+    )
+
+    # Assert
+    assert storage._client is mlflow_client
 
 
 def test_create_run(storage: MLFlowStorage, model_id: str):
@@ -194,12 +209,15 @@ def test_search_run__returns_matching_run(storage: MLFlowStorage, model_id: str)
         pytest.param("https://mlflow.example.com:5000", "https://mlflow.example.com:5000", id="https-port"),
         pytest.param("sqlite:///mlflow.db", "sqlite:///mlflow.db", id="sqlite"),
         pytest.param("postgresql://user:pass@host/db", "postgresql://user:pass@host/db", id="postgresql"),
+        pytest.param("databricks", "databricks", id="databricks"),
     ],
 )
 def test_normalize_tracking_uri(uri: str, expected: str):
     """Local paths become file:/// URIs; remote/database URIs pass through unchanged."""
     # Act
-    result = normalize_tracking_uri(uri)
+    result = normalize_tracking_uri(
+        uri, exceptions=["databricks"]
+    )  # databricks is a special case that should not be normalized
 
     # Assert
     if expected == "file:///":
