@@ -158,7 +158,12 @@ def test_median_handles_all_missing_data():
             {
                 "quantile_P50": [],
             },
-            index=pd.DatetimeIndex([], freq="h"),
+            # Slice `index` rather than building a bare `DatetimeIndex([], freq="h")` so the
+            # (empty) expected index shares its dtype resolution with the one produced by the
+            # real prediction pipeline (pandas infers datetime64 resolution from context, and
+            # an index with no data to infer from does not necessarily match one derived from
+            # actual timestamps).
+            index=index[:0],
         ),
         sample_interval=training_input_data.sample_interval,
         forecast_start=training_input_data.forecast_start,

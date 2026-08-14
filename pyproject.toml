@@ -118,7 +118,7 @@ notebooks = [
 ]
 typecheck = [
   "microsoft-python-type-stubs",
-  "pandas-stubs>=2.3.0.250703,<3", # match the pandas <3 pin
+  "pandas-stubs>=2.3.0.250703",
   "scipy-stubs>=1.16.2.4",
   "ty>=0.0.48",
 ]

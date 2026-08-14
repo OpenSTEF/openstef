@@ -30,7 +30,7 @@ def sample_forecast_input_dataset() -> ForecastInputDataset:
                 "feature2": feature_2,
                 "feature3": feature_3,
             },
-            index=pd.date_range(start=start_date, periods=num_samples, freq="1d"),
+            index=pd.date_range(start=start_date, periods=num_samples, freq="1D"),
         ),
         sample_interval=timedelta(days=1),
         target_column="load",
