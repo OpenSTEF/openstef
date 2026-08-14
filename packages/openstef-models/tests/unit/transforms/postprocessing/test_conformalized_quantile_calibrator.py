@@ -100,6 +100,28 @@ def test_conformalized_calibrator_skips_only_sparse_quantiles() -> None:
     np.testing.assert_allclose(result.data["quantile_P90"], [20.0])
 
 
+def test_conformalized_calibrator_skips_quantiles_missing_from_data() -> None:
+    """Test that configured quantiles absent from the data are skipped."""
+    calibration = ForecastDataset(
+        data=pd.DataFrame(
+            {
+                "quantile_P90": np.full(2, 10.0),
+                "load": np.full(2, 20.0),
+            },
+            index=pd.date_range("2025-01-01", periods=2, freq="h"),
+        )
+    )
+    calibrator = ConformalizedQuantileCalibrator(
+        quantiles=[Quantile(0.1), Quantile(0.9)],
+        min_calibration_samples=1,
+    )
+
+    calibrator.fit(calibration)
+    result = calibrator.transform(calibration)
+
+    np.testing.assert_allclose(result.data["quantile_P90"], [20.0, 20.0])
+
+
 def test_conformalized_calibrator_does_not_sort_quantiles() -> None:
     """Test that ordering remains the responsibility of a downstream sorter."""
     predictions = np.column_stack([np.full(2, 10.0), np.zeros(2), np.full(2, 5.0)])

@@ -215,8 +215,8 @@ Conformalized Quantile Calibration
 
 OpenSTEF also provides a dependency-free
 :class:`~openstef_models.transforms.postprocessing.ConformalizedQuantileCalibrator`
-that follows the calibration mathematics of the Alliander reference
-implementation. It is a postprocessing transform over a
+that implements asymmetric finite-sample conformal calibration. It is a
+postprocessing transform over a
 ``ForecastDataset``:
 
 1. Fit the forecaster and generate forecasts for a time-ordered calibration

@@ -7,7 +7,7 @@
 from typing import override
 
 import numpy as np
-from pydantic import BaseModel, Field, PrivateAttr, field_validator
+from pydantic import BaseModel, Field, PrivateAttr
 
 from openstef_core.datasets import ForecastDataset
 from openstef_core.exceptions import NotFittedError
@@ -48,14 +48,6 @@ class ConformalizedQuantileCalibrator(BaseModel, Transform[ForecastDataset, Fore
     _corrections: dict[str, float] = PrivateAttr(default_factory=dict)
     _is_fitted: bool = PrivateAttr(default=False)
 
-    @field_validator("quantiles")
-    @classmethod
-    def _validate_configured_quantiles(cls, quantiles: list[Quantile] | None) -> list[Quantile] | None:
-        """Validate explicitly configured quantiles when the model is created."""
-        if quantiles is not None:
-            cls._validate_quantiles(quantiles)
-        return quantiles
-
     @property
     @override
     def is_fitted(self) -> bool:
@@ -69,11 +61,8 @@ class ConformalizedQuantileCalibrator(BaseModel, Transform[ForecastDataset, Fore
             raise ValueError("Input data must contain target series for calibration.")
 
         quantiles_to_fit = self.quantiles if self.quantiles is not None else data.quantiles
-        quantile_columns = self._validate_quantiles(quantiles_to_fit)
-        missing_columns = [column for column in quantile_columns if column not in data.data.columns]
-        if missing_columns:
-            missing_columns_message = f"Quantile columns not found in data: {missing_columns}."
-            raise ValueError(missing_columns_message)
+        if not quantiles_to_fit:
+            raise ValueError("No quantiles found to calibrate.")
 
         self._is_fitted = False
         actuals = data.target_series.to_numpy()
@@ -82,8 +71,10 @@ class ConformalizedQuantileCalibrator(BaseModel, Transform[ForecastDataset, Fore
             self._is_fitted = True
             return
 
-        for column in quantile_columns:
-            quantile = float(Quantile.parse(column))
+        for quantile in quantiles_to_fit:
+            column = quantile.format()
+            if column not in data.data.columns:
+                continue
             if quantile == MEDIAN_QUANTILE and not self.conformalize_median:
                 continue
 
@@ -103,13 +94,6 @@ class ConformalizedQuantileCalibrator(BaseModel, Transform[ForecastDataset, Fore
 
         self._is_fitted = True
 
-    @staticmethod
-    def _validate_quantiles(quantiles: list[Quantile]) -> list[str]:
-        """Validate quantile levels and return canonical column names."""
-        values = sorted(float(quantile) for quantile in quantiles)
-        if not values or any(value <= 0 or value >= 1 for value in values) or len(set(values)) != len(values):
-            raise ValueError("Conformal calibration requires unique quantiles strictly between 0 and 1.")
-        return [Quantile(value).format() for value in values]
 
     @override
     def transform(self, data: ForecastDataset) -> ForecastDataset:
