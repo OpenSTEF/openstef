@@ -32,6 +32,7 @@ conformalized forecasts on a separate holdout.
 # The reported metrics include P50 MAE, mean absolute calibration error (MACE),
 # observed quantile levels, P10-P90 coverage and width, and quantile ordering.
 
+# %%
 from __future__ import annotations
 
 import argparse
@@ -53,10 +54,16 @@ from openstef_models.transforms.postprocessing import (
     IsotonicQuantileCalibrator,
 )
 
+# %%
 QUANTILES = [Q(0.1), Q(0.5), Q(0.9)]
 TRAIN_START = datetime.fromisoformat("2024-03-01T00:00:00+00:00")
+TRAIN_DAYS = 45
+CALIBRATION_DAYS = 7
+HOLDOUT_DAYS = 7
+OUTPUT_DIR = Path("benchmark_results/calibration")
 
 
+# %%
 def parse_args() -> argparse.Namespace:
     """Parse benchmark options."""
     parser = argparse.ArgumentParser(description=__doc__)
@@ -125,6 +132,7 @@ def score(method: str, dataset: ForecastDataset) -> dict[str, float | int | str]
     }
 
 
+# %%
 def plot_forecasts(
     holdout: ForecastDataset,
     calibrators: dict[str, IsotonicQuantileCalibrator | ConformalizedQuantileCalibrator],
@@ -175,6 +183,7 @@ def plot_forecasts(
     plt.close(fig)
 
 
+# %%
 def run(args: argparse.Namespace) -> pd.DataFrame:
     """Run the calibration comparison and save its results."""
     dataset = load_liander_dataset()
@@ -231,11 +240,33 @@ def run(args: argparse.Namespace) -> pd.DataFrame:
     return metrics
 
 
+# %%
 def main() -> None:
     """Run the benchmark and print its metrics."""
     metrics = run(parse_args())
     sys.stdout.write(f"{metrics.to_string(index=False)}\n")
 
 
-if __name__ == "__main__":
+# %% [markdown]
+# ## Interpret the result
+#
+# Lower P50 MAE and MACE are generally better. P10 and P90 observed levels
+# should be close to 0.1 and 0.9, while P10-P90 coverage should be close to
+# 0.8. Compare interval width together with coverage; a wider interval can
+# improve coverage without improving sharpness. The output directory contains
+# `metrics.csv`, `metadata.json`, and `timeseries.png`.
+
+# %%
+if "get_ipython" in globals():
+    metrics = run(
+        argparse.Namespace(
+            output_dir=OUTPUT_DIR,
+            train_days=TRAIN_DAYS,
+            calibration_days=CALIBRATION_DAYS,
+            holdout_days=HOLDOUT_DAYS,
+            local_isotonic=True,
+        )
+    )
+    print(metrics.to_string(index=False))
+elif __name__ == "__main__":
     main()
