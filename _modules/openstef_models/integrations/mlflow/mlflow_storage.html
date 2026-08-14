@@ -893,7 +893,7 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">MlflowClient</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.entities</span><span class="w"> </span><span class="kn">import</span> <span class="n">Metric</span><span class="p">,</span> <span class="n">Param</span><span class="p">,</span> <span class="n">Run</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mlflow.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">MlflowException</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">Field</span><span class="p">,</span> <span class="n">PrivateAttr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConfigDict</span><span class="p">,</span> <span class="n">Field</span><span class="p">,</span> <span class="n">PrivateAttr</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.base_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseConfig</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelNotFoundError</span>
@@ -904,7 +904,7 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="normalize_tracking_uri">
 <a class="viewcode-back" href="../../../../api/generated/openstef_models.integrations.mlflow.mlflow_storage.normalize_tracking_uri.html#openstef_models.integrations.mlflow.normalize_tracking_uri">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">normalize_tracking_uri</span><span class="p">(</span><span class="n">uri</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">normalize_tracking_uri</span><span class="p">(</span><span class="n">uri</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">exceptions</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Normalize a tracking URI to a file:/// URI when it refers to a local path.</span>
 
 <span class="sd">    MLflow&#39;s model registry rejects bare Windows paths (e.g. ``D:\mlflow``) because</span>
@@ -917,10 +917,13 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">    Args:</span>
 <span class="sd">        uri: Raw tracking URI string, may be a path or a proper URI.</span>
+<span class="sd">        exceptions: List of URI to treat as urls even if they have no scheme</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        A ``file:///`` URI for local paths, or the original URI for remote schemes.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">uri</span> <span class="ow">in</span> <span class="n">exceptions</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">uri</span>
     <span class="n">scheme</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">uri</span><span class="p">)</span><span class="o">.</span><span class="n">scheme</span>
     <span class="c1"># Empty scheme → relative/absolute POSIX path.</span>
     <span class="c1"># Single-letter scheme → Windows drive letter (e.g. &quot;D&quot; from &quot;D:\\...&quot;).</span>
@@ -939,9 +942,33 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    Handles creation, storage, and retrieval of MLflow runs including models,</span>
 <span class="sd">    training data, metrics, and hyperparameters. Organizes artifacts locally</span>
 <span class="sd">    before uploading to MLflow tracking server.</span>
+
+<span class="sd">    ``tracking_uri`` configures the Tracking backend that stores experiments and</span>
+<span class="sd">    runs. ``registry_uri`` optionally configures a separate Model Registry</span>
+<span class="sd">    backend; if it is omitted, MLflow uses the registry associated with the</span>
+<span class="sd">    tracking backend. ``artifact_location`` configures the artifact root for</span>
+<span class="sd">    experiments created by this instance.</span>
+
+<span class="sd">    Typical configurations:</span>
+
+<span class="sd">    tracking_uri=&quot;sqlite:///mlflow.db&quot;, # Local SQLite tracking backend with separate local artifacts</span>
+<span class="sd">    tracking_uri=&quot;https://mlflow.example.com&quot;, # Remote MLflow Tracking Server with S3 artifacts</span>
+<span class="sd">    tracking_uri=&quot;databricks&quot;, # Databricks MLflow Tracking Server with DBFS artifacts</span>
+
+<span class="sd">    A caller may provide ``client`` to use an already configured</span>
+<span class="sd">    :class:`mlflow.MlflowClient`. When supplied, it takes precedence over</span>
+<span class="sd">    ``tracking_uri`` and ``registry_uri`` and is excluded from serialized model</span>
+<span class="sd">    configuration.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">arbitrary_types_allowed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
     <span class="n">tracking_uri</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s2">&quot;./mlflow&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;MLflow tracking server URI.&quot;</span><span class="p">)</span>
+    <span class="n">registry_uri</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;MLflow tracking server URI.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Excluded from model_dump(), JSON serialization, and config persistence.</span>
+    <span class="n">client</span><span class="p">:</span> <span class="n">MlflowClient</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
     <span class="n">local_artifacts_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
         <span class="n">default</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;./mlflow_artifacts_local&quot;</span><span class="p">),</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Local path for storing MLflow artifacts before upload.&quot;</span>
     <span class="p">)</span>
@@ -962,6 +989,11 @@ window.runMermaid = runMermaid;</script>
 
     <span class="n">model_serializer</span><span class="p">:</span> <span class="n">ModelSerializer</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">JoblibModelSerializer</span><span class="p">)</span>
 
+    <span class="n">uri_exceptions</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;databricks&quot;</span><span class="p">],</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;List of URI treat as urls even if they have no scheme&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
     <span class="n">_client</span><span class="p">:</span> <span class="n">MlflowClient</span> <span class="o">=</span> <span class="n">PrivateAttr</span><span class="p">()</span>
     <span class="n">_logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">=</span> <span class="n">PrivateAttr</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">))</span>
 
@@ -973,8 +1005,17 @@ window.runMermaid = runMermaid;</script>
             <span class="c1"># Suppress MLflow&#39;s stdout messages (emoji URLs)</span>
             <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;MLFLOW_SUPPRESS_PRINTING_URL_TO_STDOUT&quot;</span><span class="p">,</span> <span class="s2">&quot;true&quot;</span><span class="p">)</span>
             <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;MLFLOW_ENABLE_ARTIFACTS_PROGRESS_BAR&quot;</span><span class="p">,</span> <span class="s2">&quot;false&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span>
+            <span class="k">return</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">tracking_uri</span> <span class="o">=</span> <span class="n">normalize_tracking_uri</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tracking_uri</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="n">MlflowClient</span><span class="p">(</span><span class="n">tracking_uri</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">tracking_uri</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">registry_uri</span> <span class="o">=</span> <span class="n">normalize_tracking_uri</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">registry_uri</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">registry_uri</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_client</span> <span class="o">=</span> <span class="n">MlflowClient</span><span class="p">(</span>
+            <span class="n">tracking_uri</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">tracking_uri</span><span class="p">,</span>
+            <span class="n">registry_uri</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">registry_uri</span><span class="p">,</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="MLFlowStorage.create_run">
