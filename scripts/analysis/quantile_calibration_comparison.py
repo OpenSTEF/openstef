@@ -33,6 +33,7 @@ from openstef_core.types import LeadTime, Q
 from openstef_models.presets import ForecastingWorkflowConfig, create_forecasting_workflow
 from openstef_models.presets.forecasting_workflow import GBLinearForecaster
 from openstef_models.transforms.postprocessing import (
+    ConformalizedQuantileCalibrator,
     IsotonicQuantileCalibrator,
     MapieQuantileCalibrator,
 )
@@ -132,7 +133,12 @@ def plot_comparison(
     """Plot actuals, median forecasts, and P10-P90 intervals."""
     figure, axis = plt.subplots(figsize=(14, 6))
     axis.plot(holdout.index, holdout["load"] / 1e6, color="black", linewidth=1.5, label="Actual load")
-    colors = {"raw": "tab:blue", "isotonic": "tab:orange", "mapie": "tab:green"}
+    colors = {
+        "raw": "tab:blue",
+        "isotonic": "tab:orange",
+        "mapie": "tab:green",
+        "conformalized": "tab:red",
+    }
     for name, forecast in forecasts.items():
         color = colors[name]
         axis.plot(
@@ -195,6 +201,7 @@ def run(args: argparse.Namespace) -> pd.DataFrame:
             use_local_quantile_estimation=args.local_isotonic,
         ),
         "mapie": MapieQuantileCalibrator(quantiles=QUANTILES),
+        "conformalized": ConformalizedQuantileCalibrator(quantiles=QUANTILES),
     }
     for name, calibrator in calibrators.items():
         calibrator.fit(calibration)

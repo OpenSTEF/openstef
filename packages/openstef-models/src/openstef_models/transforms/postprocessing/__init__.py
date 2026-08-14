@@ -12,6 +12,7 @@ operate on ForecastDataset objects after the core prediction step.
 from typing import TYPE_CHECKING
 
 from openstef_models.transforms.postprocessing.confidence_interval_applicator import ConfidenceIntervalApplicator
+from openstef_models.transforms.postprocessing.conformalized_quantile_calibrator import ConformalizedQuantileCalibrator
 from openstef_models.transforms.postprocessing.isotonic_quantile_calibrator import IsotonicQuantileCalibrator
 from openstef_models.transforms.postprocessing.quantile_sorter import QuantileSorter
 
@@ -32,4 +33,10 @@ def __getattr__(name: str) -> object:
     raise AttributeError(message)
 
 
-__all__ = ["ConfidenceIntervalApplicator", "IsotonicQuantileCalibrator", "MapieQuantileCalibrator", "QuantileSorter"]
+__all__ = [
+    "ConfidenceIntervalApplicator",
+    "ConformalizedQuantileCalibrator",
+    "IsotonicQuantileCalibrator",
+    "MapieQuantileCalibrator",
+    "QuantileSorter",
+]
