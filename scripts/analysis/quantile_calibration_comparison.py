@@ -72,7 +72,12 @@ def make_config() -> ForecastingWorkflowConfig:
         pressure_column="surface_pressure",
         verbosity=0,
         mlflow_storage=None,
-        gblinear_hyperparams=GBLinearForecaster.HyperParams(n_steps=50),
+        gblinear_hyperparams=GBLinearForecaster.HyperParams(
+            n_steps=50,
+            updater="coord_descent",
+            feature_selector="cyclic",
+            random_state=42,
+        ),
     )
 
 
@@ -229,6 +234,10 @@ def run(args: argparse.Namespace) -> pd.DataFrame:
                 "calibration_days": args.calibration_days,
                 "holdout_days": args.holdout_days,
                 "isotonic_use_local_quantile_estimation": args.local_isotonic,
+                "gblinear_n_steps": 50,
+                "gblinear_updater": "coord_descent",
+                "gblinear_feature_selector": "cyclic",
+                "gblinear_random_state": 42,
                 "quantiles": [float(q) for q in QUANTILES],
             },
             indent=2,
