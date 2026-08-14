@@ -6,8 +6,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, cast
 
-from mlflow import MlflowClient
 import pytest
+from mlflow import MlflowClient
 
 from openstef_core.mixins import HyperParams, Stateful
 from openstef_models.integrations.mlflow import MLFlowStorage
@@ -48,6 +48,7 @@ def storage(tmp_path: Path) -> MLFlowStorage:
 def model_id() -> str:
     """Return consistent model identifier for tests."""
     return "test_model_123"
+
 
 def test_construct_from_mlflow(tmp_path: Path, model_id: str):
     """Test that experiment_name_prefix is prepended to experiment names."""
