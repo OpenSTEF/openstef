@@ -66,6 +66,23 @@ class MLFlowStorage(BaseConfig):
     Handles creation, storage, and retrieval of MLflow runs including models,
     training data, metrics, and hyperparameters. Organizes artifacts locally
     before uploading to MLflow tracking server.
+
+    ``tracking_uri`` configures the Tracking backend that stores experiments and
+    runs. ``registry_uri`` optionally configures a separate Model Registry
+    backend; if it is omitted, MLflow uses the registry associated with the
+    tracking backend. ``artifact_location`` configures the artifact root for
+    experiments created by this instance.
+
+    Typical configurations:
+
+    tracking_uri="sqlite:///mlflow.db", # Local SQLite tracking backend with separate local artifacts
+    tracking_uri="https://mlflow.example.com", # Remote MLflow Tracking Server with S3 artifacts
+    tracking_uri="databricks", # Databricks MLflow Tracking Server with DBFS artifacts
+
+    A caller may provide ``client`` to use an already configured
+    :class:`mlflow.MlflowClient`. When supplied, it takes precedence over
+    ``tracking_uri`` and ``registry_uri`` and is excluded from serialized model
+    configuration.
     """
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
