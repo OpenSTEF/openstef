@@ -207,6 +207,8 @@ def plot_forecasts(
     ax.grid(visible=True, alpha=0.25)
     ax.legend(ncol=3, loc="upper left")
     fig.savefig(output_path, dpi=150)
+    if "get_ipython" in globals():
+        plt.show()
     plt.close(fig)
 
 
