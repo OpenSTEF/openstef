@@ -35,6 +35,10 @@ class ConformalizedQuantileCalibrator(BaseModel, Transform[ForecastDataset, Fore
     Args:
         quantiles: Quantiles to calibrate. If None, all input quantiles are used.
         conformalize_median: Whether to apply the upper-tail correction to P50.
+        min_calibration_samples: Minimum number of valid calibration pairs required
+            before fitting a correction for a quantile. Quantiles with fewer valid
+            pairs are left unchanged; if all quantiles are skipped, fitting becomes
+            a no-op calibrator.
     """
 
     quantiles: list[Quantile] | None = Field(default=None)
@@ -71,6 +75,7 @@ class ConformalizedQuantileCalibrator(BaseModel, Transform[ForecastDataset, Fore
             missing_columns_message = f"Quantile columns not found in data: {missing_columns}."
             raise ValueError(missing_columns_message)
 
+        self._is_fitted = False
         actuals = data.target_series.to_numpy()
         self._corrections = {}
         if np.count_nonzero(~np.isnan(actuals)) < self.min_calibration_samples:
@@ -86,9 +91,8 @@ class ConformalizedQuantileCalibrator(BaseModel, Transform[ForecastDataset, Fore
             valid = ~(np.isnan(predictions) | np.isnan(actuals))
             predictions_valid = predictions[valid]
             actuals_valid = actuals[valid]
-            if predictions_valid.size == 0:
-                no_data_message = f"No valid data points for quantile {column}."
-                raise ValueError(no_data_message)
+            if predictions_valid.size < self.min_calibration_samples:
+                continue
 
             if quantile < MEDIAN_QUANTILE:
                 scores = predictions_valid - actuals_valid

@@ -76,6 +76,30 @@ def test_conformalized_calibrator_skips_short_calibration_windows() -> None:
     np.testing.assert_allclose(result.data["quantile_P90"], [10.0])
 
 
+def test_conformalized_calibrator_skips_sparse_quantiles() -> None:
+    """Test that per-quantile sparse predictions are left unchanged."""
+    predictions = np.column_stack(
+        [
+            np.concatenate([np.zeros(100), [np.nan]]),
+            np.full(101, 5.0),
+            np.full(101, 10.0),
+        ]
+    )
+    actuals = np.concatenate([np.full(100, 1.0), [20.0]])
+    calibration = _dataset(predictions, actuals)
+    forecast = _dataset(np.array([[0.0, 5.0, 10.0]]), np.array([5.0]))
+
+    calibrator = ConformalizedQuantileCalibrator(
+        quantiles=[Quantile(0.1), Quantile(0.5), Quantile(0.9)],
+        min_calibration_samples=101,
+    )
+    calibrator.fit(calibration)
+    result = calibrator.transform(forecast)
+
+    np.testing.assert_allclose(result.data["quantile_P10"], [0.0])
+    np.testing.assert_allclose(result.data["quantile_P90"], [1.0])
+
+
 def test_conformalized_calibrator_does_not_sort_quantiles() -> None:
     """Test that ordering remains the responsibility of a downstream sorter."""
     predictions = np.column_stack([np.full(2, 10.0), np.zeros(2), np.full(2, 5.0)])
