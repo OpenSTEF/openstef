@@ -4098,8 +4098,8 @@ requires-dist = [
     { name = "openstef-foundation-models", extras = ["cpu"], marker = "extra == 'foundation-models'", editable = "packages/openstef-foundation-models" },
     { name = "openstef-meta", marker = "extra == 'all'", editable = "packages/openstef-meta" },
     { name = "openstef-meta", marker = "extra == 'meta'", editable = "packages/openstef-meta" },
-    { name = "openstef-models", extras = ["calibration", "xgb-cpu"], marker = "extra == 'all'", editable = "packages/openstef-models" },
     { name = "openstef-models", extras = ["xgb-cpu"], editable = "packages/openstef-models" },
+    { name = "openstef-models", extras = ["xgb-cpu"], marker = "extra == 'all'", editable = "packages/openstef-models" },
     { name = "openstef-models", extras = ["xgb-cpu"], marker = "extra == 'models'", editable = "packages/openstef-models" },
 ]
 provides-extras = ["all", "beam", "foundation-models", "meta", "models"]
@@ -4124,7 +4124,7 @@ dev = [
     { name = "openstef-docs", editable = "docs" },
     { name = "openstef-foundation-models", extras = ["cpu"], editable = "packages/openstef-foundation-models" },
     { name = "openstef-meta", editable = "packages/openstef-meta" },
-    { name = "openstef-models", extras = ["calibration", "lgbm", "tuning", "xgb-cpu"], editable = "packages/openstef-models" },
+    { name = "openstef-models", extras = ["lgbm", "tuning", "xgb-cpu"], editable = "packages/openstef-models" },
     { name = "pandas-stubs", specifier = ">=2.3.0.250703,<3" },
     { name = "poethepoet", specifier = ">=0.36" },
     { name = "pypi-attestations", specifier = ">=0.0.21" },
@@ -4151,7 +4151,7 @@ dev-gpu = [
     { name = "openstef-docs", editable = "docs" },
     { name = "openstef-foundation-models", extras = ["gpu"], editable = "packages/openstef-foundation-models" },
     { name = "openstef-meta", editable = "packages/openstef-meta" },
-    { name = "openstef-models", extras = ["calibration", "lgbm", "tuning", "xgb-gpu"], editable = "packages/openstef-models" },
+    { name = "openstef-models", extras = ["lgbm", "tuning", "xgb-gpu"], editable = "packages/openstef-models" },
     { name = "pandas-stubs", specifier = ">=2.3.0.250703,<3" },
     { name = "poethepoet", specifier = ">=0.36" },
     { name = "pypi-attestations", specifier = ">=0.0.21" },
@@ -4171,14 +4171,14 @@ features-cpu = [
     { name = "openstef-core", extras = ["benchmark"], editable = "packages/openstef-core" },
     { name = "openstef-foundation-models", extras = ["cpu"], editable = "packages/openstef-foundation-models" },
     { name = "openstef-meta", editable = "packages/openstef-meta" },
-    { name = "openstef-models", extras = ["calibration", "lgbm", "tuning", "xgb-cpu"], editable = "packages/openstef-models" },
+    { name = "openstef-models", extras = ["lgbm", "tuning", "xgb-cpu"], editable = "packages/openstef-models" },
 ]
 features-gpu = [
     { name = "openstef-beam", extras = ["all"], editable = "packages/openstef-beam" },
     { name = "openstef-core", extras = ["benchmark"], editable = "packages/openstef-core" },
     { name = "openstef-foundation-models", extras = ["gpu"], editable = "packages/openstef-foundation-models" },
     { name = "openstef-meta", editable = "packages/openstef-meta" },
-    { name = "openstef-models", extras = ["calibration", "lgbm", "tuning", "xgb-gpu"], editable = "packages/openstef-models" },
+    { name = "openstef-models", extras = ["lgbm", "tuning", "xgb-gpu"], editable = "packages/openstef-models" },
 ]
 lint = [
     { name = "licensecheck", specifier = ">=2025.1" },
@@ -4298,8 +4298,8 @@ requires-dist = [
     { name = "celery", extras = ["redis"], marker = "extra == 'celery'", specifier = ">=5.4" },
     { name = "dagster", marker = "extra == 'dagster'", specifier = ">=1.9" },
     { name = "dagster-webserver", marker = "extra == 'dagster'", specifier = ">=1.9" },
-    { name = "openstef-core", extras = ["benchmark"] },
-    { name = "openstef-models", extras = ["xgb-cpu"] },
+    { name = "openstef-core", extras = ["benchmark"], editable = "packages/openstef-core" },
+    { name = "openstef-models", extras = ["xgb-cpu"], editable = "packages/openstef-models" },
     { name = "pydantic-settings", specifier = ">=2.14,<3" },
 ]
 provides-extras = ["airflow", "celery", "dagster"]
