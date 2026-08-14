@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-"""Benchmark isotonic and MAPIE quantile calibration on a holdout period.
+"""Benchmark isotonic and reference-aligned conformal calibration on a holdout period.
 
 This is an exploratory follow-up benchmark, separate from the documentation
 Tutorial. It keeps calibration rows separate from the final holdout and writes
@@ -35,7 +35,6 @@ from openstef_models.presets.forecasting_workflow import GBLinearForecaster
 from openstef_models.transforms.postprocessing import (
     ConformalizedQuantileCalibrator,
     IsotonicQuantileCalibrator,
-    MapieQuantileCalibrator,
     QuantileSorter,
 )
 
@@ -142,7 +141,6 @@ def plot_comparison(
     colors = {
         "raw": "tab:blue",
         "isotonic": "tab:orange",
-        "mapie": "tab:green",
         "conformalized": "tab:red",
     }
     for name, forecast in forecasts.items():
@@ -206,7 +204,6 @@ def run(args: argparse.Namespace) -> pd.DataFrame:
             quantiles=QUANTILES,
             use_local_quantile_estimation=args.local_isotonic,
         ),
-        "mapie": MapieQuantileCalibrator(quantiles=QUANTILES),
         "conformalized": ConformalizedQuantileCalibrator(quantiles=QUANTILES),
     }
     for name, calibrator in calibrators.items():

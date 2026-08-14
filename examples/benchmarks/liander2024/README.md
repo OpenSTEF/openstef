@@ -17,11 +17,11 @@ auto-downloaded from HuggingFace.
 uv run python -m examples.benchmarks.liander2024.run_xgboost_gblinear_benchmark
 ```
 
-For a comparison of isotonic and MAPIE quantile calibration on a GBLinear run,
-install the calibration extra and run:
+For a comparison of isotonic and reference-aligned conformal quantile
+calibration on a GBLinear run, use:
 
 ```bash
-uv run --extra calibration python -m examples.benchmarks.liander2024.run_calibration_benchmark
+uv run python -m examples.benchmarks.liander2024.run_calibration_benchmark
 ```
 
 The same benchmark is available as the

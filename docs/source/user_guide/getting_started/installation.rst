@@ -245,17 +245,10 @@ Feature extras are additive — combine as many as you need:
      - LightGBM forecasters
    * - ``openstef-models[tuning]``
      - Optuna hyperparameter tuning
-   * - ``openstef-models[calibration]``
-     - MAPIE quantile calibration
    * - ``openstef-core[benchmark]``
      - Benchmark dataset loaders (HuggingFace Hub)
    * - ``openstef-beam[all]``
      - All BEAM baselines plus S3 storage
-
-MAPIE quantile calibration is optional. Install it together with the OpenSTEF
-meta-package using ``pip install "openstef[calibration]"`` or
-``uv add "openstef[calibration]"``. The regular ``openstef`` and
-``openstef-models`` installations do not install MAPIE.
 
 Development Installation
 ========================

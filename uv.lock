@@ -3109,20 +3109,6 @@ wheels = [
 ]
 
 [[package]]
-name = "mapie"
-version = "1.5.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "numpy" },
-    { name = "scikit-learn" },
-    { name = "scipy" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/1f/d5/4c800e1fbf6d24598662b30901bb928a61b23b06fd1ac86610f344448953/mapie-1.5.0.tar.gz", hash = "sha256:1b6a81797d549b0333d6f6865bd3bca4d26c41037f111fd84160ea87a70c6d72", size = 10162410, upload-time = "2026-08-05T13:28:18.639Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/c8/65/c19e5f89552138eb2abc9ae4925822f4f1cea4cca4d17c61aa7a2b29a4f0/mapie-1.5.0-py3-none-any.whl", hash = "sha256:dfc74fc62d5276ec8ab9aa2d9e53cfeb9901fe1df27f8785e724939b6a512483", size = 555626, upload-time = "2026-08-05T13:28:16.446Z" },
-]
-
-[[package]]
 name = "markdown"
 version = "3.10.2"
 source = { registry = "https://pypi.org/simple" }
@@ -3970,15 +3956,12 @@ all = [
     { name = "openstef-foundation-models" },
     { name = "openstef-foundation-models", extra = ["cpu"], marker = "(extra == 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-15-openstef-models-xgb-gpu') or (extra != 'extra-15-openstef-models-xgb-gpu' and extra == 'extra-26-openstef-foundation-models-cpu') or (extra != 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-26-openstef-foundation-models-cpu')" },
     { name = "openstef-meta" },
-    { name = "openstef-models", extra = ["calibration"] },
+    { name = "openstef-models" },
     { name = "openstef-models", extra = ["xgb-cpu"], marker = "extra == 'extra-15-openstef-models-xgb-cpu' or (extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu')" },
 ]
 beam = [
     { name = "huggingface-hub" },
     { name = "openstef-beam" },
-]
-calibration = [
-    { name = "openstef-models", extra = ["calibration"] },
 ]
 foundation-models = [
     { name = "openstef-foundation-models" },
@@ -4015,7 +3998,7 @@ dev = [
     { name = "openstef-foundation-models" },
     { name = "openstef-foundation-models", extra = ["cpu"], marker = "(extra == 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-15-openstef-models-xgb-gpu') or (extra != 'extra-15-openstef-models-xgb-gpu' and extra == 'extra-26-openstef-foundation-models-cpu') or (extra != 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-26-openstef-foundation-models-cpu')" },
     { name = "openstef-meta" },
-    { name = "openstef-models", extra = ["calibration", "lgbm", "tuning"] },
+    { name = "openstef-models", extra = ["lgbm", "tuning"] },
     { name = "openstef-models", extra = ["xgb-cpu"], marker = "extra == 'extra-15-openstef-models-xgb-cpu' or (extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu')" },
     { name = "pandas-stubs" },
     { name = "poethepoet" },
@@ -4044,7 +4027,7 @@ dev-gpu = [
     { name = "openstef-foundation-models" },
     { name = "openstef-foundation-models", extra = ["gpu"], marker = "(extra == 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-15-openstef-models-xgb-gpu') or (extra != 'extra-15-openstef-models-xgb-gpu' and extra == 'extra-26-openstef-foundation-models-gpu') or (extra != 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-26-openstef-foundation-models-gpu')" },
     { name = "openstef-meta" },
-    { name = "openstef-models", extra = ["calibration", "lgbm", "tuning"] },
+    { name = "openstef-models", extra = ["lgbm", "tuning"] },
     { name = "openstef-models", extra = ["xgb-gpu"], marker = "extra == 'extra-15-openstef-models-xgb-gpu' or (extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu')" },
     { name = "pandas-stubs" },
     { name = "poethepoet" },
@@ -4068,7 +4051,7 @@ features-cpu = [
     { name = "openstef-foundation-models" },
     { name = "openstef-foundation-models", extra = ["cpu"], marker = "(extra == 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-15-openstef-models-xgb-gpu') or (extra != 'extra-15-openstef-models-xgb-gpu' and extra == 'extra-26-openstef-foundation-models-cpu') or (extra != 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-26-openstef-foundation-models-cpu')" },
     { name = "openstef-meta" },
-    { name = "openstef-models", extra = ["calibration", "lgbm", "tuning"] },
+    { name = "openstef-models", extra = ["lgbm", "tuning"] },
     { name = "openstef-models", extra = ["xgb-cpu"], marker = "extra == 'extra-15-openstef-models-xgb-cpu' or (extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu')" },
 ]
 features-gpu = [
@@ -4077,7 +4060,7 @@ features-gpu = [
     { name = "openstef-foundation-models" },
     { name = "openstef-foundation-models", extra = ["gpu"], marker = "(extra == 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-15-openstef-models-xgb-gpu') or (extra != 'extra-15-openstef-models-xgb-gpu' and extra == 'extra-26-openstef-foundation-models-gpu') or (extra != 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-26-openstef-foundation-models-gpu')" },
     { name = "openstef-meta" },
-    { name = "openstef-models", extra = ["calibration", "lgbm", "tuning"] },
+    { name = "openstef-models", extra = ["lgbm", "tuning"] },
     { name = "openstef-models", extra = ["xgb-gpu"], marker = "extra == 'extra-15-openstef-models-xgb-gpu' or (extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu')" },
 ]
 lint = [
@@ -4115,12 +4098,11 @@ requires-dist = [
     { name = "openstef-foundation-models", extras = ["cpu"], marker = "extra == 'foundation-models'", editable = "packages/openstef-foundation-models" },
     { name = "openstef-meta", marker = "extra == 'all'", editable = "packages/openstef-meta" },
     { name = "openstef-meta", marker = "extra == 'meta'", editable = "packages/openstef-meta" },
-    { name = "openstef-models", extras = ["calibration"], marker = "extra == 'calibration'", editable = "packages/openstef-models" },
     { name = "openstef-models", extras = ["calibration", "xgb-cpu"], marker = "extra == 'all'", editable = "packages/openstef-models" },
     { name = "openstef-models", extras = ["xgb-cpu"], editable = "packages/openstef-models" },
     { name = "openstef-models", extras = ["xgb-cpu"], marker = "extra == 'models'", editable = "packages/openstef-models" },
 ]
-provides-extras = ["all", "beam", "foundation-models", "meta", "models", "calibration"]
+provides-extras = ["all", "beam", "foundation-models", "meta", "models"]
 
 [package.metadata.requires-dev]
 build = [
@@ -4482,9 +4464,6 @@ dependencies = [
 ]
 
 [package.optional-dependencies]
-calibration = [
-    { name = "mapie" },
-]
 lgbm = [
     { name = "lightgbm" },
 ]
@@ -4503,7 +4482,6 @@ xgb-gpu = [
 requires-dist = [
     { name = "holidays", specifier = ">=0.79" },
     { name = "lightgbm", marker = "extra == 'lgbm'", specifier = ">=4.6" },
-    { name = "mapie", marker = "extra == 'calibration'", specifier = ">=1.5,<2" },
     { name = "mlflow-skinny", specifier = ">=3,<4" },
     { name = "openstef-beam", editable = "packages/openstef-beam" },
     { name = "openstef-core", editable = "packages/openstef-core" },
@@ -4516,7 +4494,7 @@ requires-dist = [
     { name = "xgboost", marker = "extra == 'xgb-gpu'", specifier = ">=3,<4" },
     { name = "xgboost-cpu", marker = "(sys_platform == 'linux' and extra == 'xgb-cpu') or (sys_platform == 'win32' and extra == 'xgb-cpu')", specifier = ">=3,<4" },
 ]
-provides-extras = ["calibration", "lgbm", "tuning", "xgb-cpu", "xgb-gpu"]
+provides-extras = ["lgbm", "tuning", "xgb-cpu", "xgb-gpu"]
 
 [[package]]
 name = "opentelemetry-api"

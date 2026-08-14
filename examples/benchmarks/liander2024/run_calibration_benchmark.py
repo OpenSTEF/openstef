@@ -5,8 +5,8 @@
 """Liander 2024 benchmark for quantile calibration methods.
 
 This benchmark trains one GBLinear forecaster, reserves a held-out calibration
-window, and compares uncalibrated, isotonic, and MAPIE forecasts on a separate
-holdout.
+window, and compares uncalibrated, isotonic, and reference-aligned conformal
+forecasts on a separate holdout.
 """
 
 from __future__ import annotations
@@ -25,7 +25,10 @@ from openstef_core.testing import load_liander_dataset
 from openstef_core.types import LeadTime, Q
 from openstef_models.presets import ForecastingWorkflowConfig, create_forecasting_workflow
 from openstef_models.presets.forecasting_workflow import GBLinearForecaster
-from openstef_models.transforms.postprocessing import IsotonicQuantileCalibrator, MapieQuantileCalibrator
+from openstef_models.transforms.postprocessing import (
+    ConformalizedQuantileCalibrator,
+    IsotonicQuantileCalibrator,
+)
 
 QUANTILES = [Q(0.1), Q(0.5), Q(0.9)]
 TRAIN_START = datetime.fromisoformat("2024-03-01T00:00:00+00:00")
@@ -101,7 +104,7 @@ def score(method: str, dataset: ForecastDataset) -> dict[str, float | int | str]
 
 def plot_forecasts(
     holdout: ForecastDataset,
-    calibrators: dict[str, IsotonicQuantileCalibrator | MapieQuantileCalibrator],
+    calibrators: dict[str, IsotonicQuantileCalibrator | ConformalizedQuantileCalibrator],
     output_path: Path,
 ) -> None:
     """Save a representative holdout time-series plot for all methods."""
@@ -109,7 +112,7 @@ def plot_forecasts(
         calibrators["isotonic"].transform(holdout).data.add_suffix("_isotonic"),
         how="inner",
     ).join(
-        calibrators["mapie"].transform(holdout).data.add_suffix("_mapie"),
+        calibrators["conformalized"].transform(holdout).data.add_suffix("_conformalized"),
         how="inner",
     )
     plot_data = plot_data.iloc[: min(len(plot_data), 7 * 96)]
@@ -118,7 +121,12 @@ def plot_forecasts(
     ax.plot(plot_data.index, plot_data["load"], color="black", linewidth=1.5, label="Actual")
     ax.plot(plot_data.index, plot_data["quantile_P50"], color="#7f8c8d", label="Raw P50")
     ax.plot(plot_data.index, plot_data["quantile_P50_isotonic"], color="#1f77b4", label="Isotonic P50")
-    ax.plot(plot_data.index, plot_data["quantile_P50_mapie"], color="#d62728", label="MAPIE P50")
+    ax.plot(
+        plot_data.index,
+        plot_data["quantile_P50_conformalized"],
+        color="#d62728",
+        label="Conformalized P50",
+    )
     ax.fill_between(
         plot_data.index,
         plot_data["quantile_P10_isotonic"],
@@ -129,11 +137,11 @@ def plot_forecasts(
     )
     ax.fill_between(
         plot_data.index,
-        plot_data["quantile_P10_mapie"],
-        plot_data["quantile_P90_mapie"],
+        plot_data["quantile_P10_conformalized"],
+        plot_data["quantile_P90_conformalized"],
         color="#d62728",
         alpha=0.12,
-        label="MAPIE P10-P90",
+        label="Conformalized P10-P90",
     )
     ax.set_title("Liander 2024 quantile calibration on the holdout period")
     ax.set_xlabel("Timestamp")
@@ -170,7 +178,7 @@ def run(args: argparse.Namespace) -> pd.DataFrame:
             quantiles=QUANTILES,
             use_local_quantile_estimation=args.local_isotonic,
         ),
-        "mapie": MapieQuantileCalibrator(quantiles=QUANTILES),
+        "conformalized": ConformalizedQuantileCalibrator(quantiles=QUANTILES),
     }
     for name, calibrator in calibrators.items():
         calibrator.fit(calibration)

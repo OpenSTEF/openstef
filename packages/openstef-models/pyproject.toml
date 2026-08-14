@@ -34,7 +34,6 @@ dependencies = [
   "scikit-learn>=1.7.1,<1.8",
   "scipy>=1.16.3,<2",
 ]
-optional-dependencies.calibration = [ "mapie>=1.5,<2" ]
 optional-dependencies.lgbm = [
   "lightgbm>=4.6",
 ]
