@@ -318,3 +318,4 @@ If your v3 code relied on ``openstef-dbc``:
 3. **Configuration storage** -- serialize
    :class:`~openstef_models.presets.ForecastingWorkflowConfig` to/from your config
    store (JSON, YAML, database row).
+```

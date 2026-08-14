@@ -122,11 +122,32 @@ Any source that returns a time series compatible with your sample interval works
 Model Storage with MLflow
 -------------------------
 
-OpenSTEF supports MLflow as a model registry backend through :class:`~openstef_models.integrations.mlflow.mlflow_storage_callback.MLFlowStorageCallback`. This callback hooks into the workflow lifecycle to automatically store trained models, log metrics, and retrieve previously trained models for reuse.
+OpenSTEF supports MLflow as a model registry backend through :class:`~openstef_models.integrations.mlflow.MLFlowStorageCallback`. This callback hooks into the workflow lifecycle to automatically store trained models, log metrics, and retrieve previously trained models for reuse.
+
+The underlying :class:`~openstef_models.integrations.mlflow.MLFlowStorage` class
+manages the connection to the MLflow tracking server. It can be configured with a
+``tracking_uri`` string for standard deployments, or constructed with an existing
+:class:`mlflow.MlflowClient` instance for environments that manage their own MLflow
+connections (such as Databricks-managed MLflow):
 
 .. code-block:: python
 
-   from openstef_models.integrations.mlflow.mlflow_storage_callback import MLFlowStorageCallback
+   from openstef_models.integrations.mlflow import MLFlowStorage
+
+   # Standard: provide a tracking URI
+   storage = MLFlowStorage(tracking_uri="https://mlflow.example.com")
+
+   # Databricks or custom: provide a pre-configured client
+   storage = MLFlowStorage(client=my_existing_mlflow_client)
+
+When a ``client`` is supplied, it takes precedence over ``tracking_uri`` and
+``registry_uri``.
+
+The callback is then wired into the workflow:
+
+.. code-block:: python
+
+   from openstef_models.integrations.mlflow import MLFlowStorageCallback
 
    callback = MLFlowStorageCallback(
        storage=my_mlflow_storage,
@@ -191,3 +212,4 @@ OpenSTEF is designed to be composed. If your deployment needs something the libr
 - Add custom preprocessing transforms to the model pipeline (see :doc:`/user_guide/concepts/models`).
 
 For how the forecasting workflow itself is structured (model creation, training, prediction), see :doc:`/user_guide/guides/forecasting`.
+```

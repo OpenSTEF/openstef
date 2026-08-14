@@ -250,6 +250,20 @@ Feature extras are additive — combine as many as you need:
    * - ``openstef-beam[all]``
      - All BEAM baselines plus S3 storage
 
+Pandas Compatibility
+--------------------
+
+OpenSTEF supports pandas 2.x and pandas 3.x (the dependency is pinned to
+``pandas >=2.3.1, <4``). A fresh install may resolve to pandas 3.0+, which enables
+Copy-on-Write semantics by default.
+
+.. warning::
+   If your existing code relies on pandas 2.x mutable-view behaviour (e.g. modifying a
+   slice of a DataFrame in place and expecting the parent to change), pandas 3.0 will
+   silently produce different results. Pin ``pandas<3`` in your own project constraints
+   until you have verified compatibility, or update your code to avoid in-place mutation
+   of views.
+
 Development Installation
 ========================
 
