@@ -76,8 +76,8 @@ def test_conformalized_calibrator_skips_short_calibration_windows() -> None:
     np.testing.assert_allclose(result.data["quantile_P90"], [10.0])
 
 
-def test_conformalized_calibrator_skips_sparse_quantiles() -> None:
-    """Test that per-quantile sparse predictions are left unchanged."""
+def test_conformalized_calibrator_skips_only_sparse_quantiles() -> None:
+    """Test that sparse quantiles are skipped while sufficiently populated ones calibrate."""
     predictions = np.column_stack(
         [
             np.concatenate([np.zeros(100), [np.nan]]),
