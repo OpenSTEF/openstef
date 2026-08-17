@@ -94,7 +94,6 @@ class ConformalizedQuantileCalibrator(BaseModel, Transform[ForecastDataset, Fore
 
         self._is_fitted = True
 
-
     @override
     def transform(self, data: ForecastDataset) -> ForecastDataset:
         """Apply fitted corrections without changing quantile ordering."""
