@@ -94,7 +94,7 @@ class MultiQuantileRegressor(BaseEstimator, RegressorMixin):
                 model.set_params(early_stopping_rounds=None)
 
             if eval_set is not None and self.learner_eval_sample_weight_param is not None:
-                fit_signature = inspect.signature(model.fit)
+                fit_signature = inspect.signature(getattr(model, 'fit'))
                 has_eval_x_param = "eval_X" in fit_signature.parameters
 
                 if has_eval_x_param:
