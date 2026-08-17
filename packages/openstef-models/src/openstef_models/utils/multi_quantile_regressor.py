@@ -94,15 +94,15 @@ class MultiQuantileRegressor(BaseEstimator, RegressorMixin):
                 model.set_params(early_stopping_rounds=None)
 
             if eval_set is not None and self.learner_eval_sample_weight_param is not None:
-                fit_signature = inspect.signature(getattr(model, 'fit'))
+                fit_signature = inspect.signature(getattr(model, "fit"))  # noqa: B009
                 has_eval_x_param = "eval_X" in fit_signature.parameters
 
                 if has_eval_x_param:
                     # Extract X and y from eval_set tuples for LightGBM
-                    eval_X = tuple((x_array if eval_x is X else np.asarray(eval_x)) for eval_x, _ in eval_set)
-                    eval_y = tuple(eval_y for _, eval_y in eval_set)
-                    kwargs["eval_X"] = eval_X
-                    kwargs["eval_y"] = eval_y
+                    eval_x_data = tuple((x_array if eval_x is X else np.asarray(eval_x)) for eval_x, _ in eval_set)
+                    eval_y_data = tuple(eval_y for _, eval_y in eval_set)
+                    kwargs["eval_X"] = eval_x_data
+                    kwargs["eval_y"] = eval_y_data
                     kwargs["eval_sample_weight"] = eval_sample_weight
                 else:
                     # XGBoost uses eval_set
