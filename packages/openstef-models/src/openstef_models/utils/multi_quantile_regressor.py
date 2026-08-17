@@ -83,12 +83,12 @@ class MultiQuantileRegressor(BaseEstimator, RegressorMixin):
             eval_set: Evaluation set for early stopping.
             eval_sample_weight: Sample weights for evaluation data.
         """
+        # Pass model-specific eval arguments
+        kwargs = {}
+
         x_array = np.asarray(X)
 
         for model in self._models:
-            # Initialize fresh kwargs for each model to avoid cross-contamination
-            kwargs = {}
-
             # Check if early stopping is supported
             if eval_set is None and "early_stopping_rounds" in self.hyperparams:
                 model.set_params(early_stopping_rounds=None)
