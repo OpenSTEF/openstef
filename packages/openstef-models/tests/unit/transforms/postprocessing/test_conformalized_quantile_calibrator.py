@@ -4,6 +4,7 @@
 
 import numpy as np
 import pandas as pd
+import pytest
 
 from openstef_core.datasets import ForecastDataset
 from openstef_core.types import Quantile
@@ -76,7 +77,7 @@ def test_conformalized_calibrator_skips_short_calibration_windows() -> None:
     np.testing.assert_allclose(result.data["quantile_P90"], [10.0])
 
 
-def test_conformalized_calibrator_skips_only_sparse_quantiles() -> None:
+def test_conformalized_calibrator_skips_only_sparse_quantiles(caplog: pytest.LogCaptureFixture) -> None:
     """Test that sparse quantiles are skipped while sufficiently populated ones calibrate."""
     predictions = np.column_stack(
         [
@@ -98,6 +99,7 @@ def test_conformalized_calibrator_skips_only_sparse_quantiles() -> None:
 
     np.testing.assert_allclose(result.data["quantile_P10"], [0.0])
     np.testing.assert_allclose(result.data["quantile_P90"], [20.0])
+    assert "Skipping calibration for quantile quantile_P10" in caplog.text
 
 
 def test_conformalized_calibrator_skips_quantiles_missing_from_data() -> None:

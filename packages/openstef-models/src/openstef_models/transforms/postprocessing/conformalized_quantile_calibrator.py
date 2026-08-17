@@ -4,6 +4,7 @@
 
 """Asymmetric conformal quantile calibration without external dependencies."""
 
+import logging
 from typing import override
 
 import numpy as np
@@ -47,6 +48,7 @@ class ConformalizedQuantileCalibrator(BaseModel, Transform[ForecastDataset, Fore
 
     _corrections: dict[str, float] = PrivateAttr(default_factory=dict)
     _is_fitted: bool = PrivateAttr(default=False)
+    _logger: logging.Logger = PrivateAttr(default=logging.getLogger(__name__))
 
     @property
     @override
@@ -67,9 +69,6 @@ class ConformalizedQuantileCalibrator(BaseModel, Transform[ForecastDataset, Fore
         self._is_fitted = False
         actuals = data.target_series.to_numpy()
         self._corrections = {}
-        if np.count_nonzero(~np.isnan(actuals)) < self.min_calibration_samples:
-            self._is_fitted = True
-            return
 
         for quantile in quantiles_to_fit:
             column = quantile.format()
@@ -83,6 +82,12 @@ class ConformalizedQuantileCalibrator(BaseModel, Transform[ForecastDataset, Fore
             predictions_valid = predictions[valid]
             actuals_valid = actuals[valid]
             if predictions_valid.size < self.min_calibration_samples:
+                self._logger.warning(
+                    "Skipping calibration for quantile %s: not enough data points (found %d, require %d).",
+                    column,
+                    predictions_valid.size,
+                    self.min_calibration_samples,
+                )
                 continue
 
             if quantile < MEDIAN_QUANTILE:
