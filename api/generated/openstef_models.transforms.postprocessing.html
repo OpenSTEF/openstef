@@ -697,9 +697,11 @@
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="openstef_models.transforms.html">transforms</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l3 current active has-children"><a class="current reference internal" href="#">postprocessing</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.postprocessing.confidence_interval_applicator.html">confidence_interval_applicator</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.postprocessing.conformalized_quantile_calibrator.html">conformalized_quantile_calibrator</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.postprocessing.isotonic_quantile_calibrator.html">isotonic_quantile_calibrator</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.postprocessing.quantile_sorter.html">quantile_sorter</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.postprocessing.ConfidenceIntervalApplicator.html">ConfidenceIntervalApplicator</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.postprocessing.ConformalizedQuantileCalibrator.html">ConformalizedQuantileCalibrator</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.postprocessing.IsotonicQuantileCalibrator.html">IsotonicQuantileCalibrator</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.postprocessing.QuantileSorter.html">QuantileSorter</a></li>
 </ul>
@@ -1258,10 +1260,13 @@ operate on ForecastDataset objects after the core prediction step.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="openstef_models.transforms.postprocessing.confidence_interval_applicator.html#module-openstef_models.transforms.postprocessing.confidence_interval_applicator" title="openstef_models.transforms.postprocessing.confidence_interval_applicator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">openstef_models.transforms.postprocessing.confidence_interval_applicator</span></code></a></p></td>
 <td><p>Confidence interval generation for probabilistic forecasts.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="openstef_models.transforms.postprocessing.isotonic_quantile_calibrator.html#module-openstef_models.transforms.postprocessing.isotonic_quantile_calibrator" title="openstef_models.transforms.postprocessing.isotonic_quantile_calibrator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">openstef_models.transforms.postprocessing.isotonic_quantile_calibrator</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="openstef_models.transforms.postprocessing.conformalized_quantile_calibrator.html#module-openstef_models.transforms.postprocessing.conformalized_quantile_calibrator" title="openstef_models.transforms.postprocessing.conformalized_quantile_calibrator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">openstef_models.transforms.postprocessing.conformalized_quantile_calibrator</span></code></a></p></td>
+<td><p>Asymmetric conformal quantile calibration without external dependencies.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="openstef_models.transforms.postprocessing.isotonic_quantile_calibrator.html#module-openstef_models.transforms.postprocessing.isotonic_quantile_calibrator" title="openstef_models.transforms.postprocessing.isotonic_quantile_calibrator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">openstef_models.transforms.postprocessing.isotonic_quantile_calibrator</span></code></a></p></td>
 <td><p>Isotonic quantile calibration for probabilistic forecasts.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="openstef_models.transforms.postprocessing.quantile_sorter.html#module-openstef_models.transforms.postprocessing.quantile_sorter" title="openstef_models.transforms.postprocessing.quantile_sorter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">openstef_models.transforms.postprocessing.quantile_sorter</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="openstef_models.transforms.postprocessing.quantile_sorter.html#module-openstef_models.transforms.postprocessing.quantile_sorter" title="openstef_models.transforms.postprocessing.quantile_sorter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">openstef_models.transforms.postprocessing.quantile_sorter</span></code></a></p></td>
 <td><p>Quantile forecast ordering correction.</p></td>
 </tr>
 </tbody>
@@ -1275,10 +1280,13 @@ operate on ForecastDataset objects after the core prediction step.</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ConfidenceIntervalApplicator</span></code>(**data)</p></td>
 <td><p>Add quantile predictions to forecasts based on learned uncertainty patterns.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">IsotonicQuantileCalibrator</span></code>(**data)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ConformalizedQuantileCalibrator</span></code>(**data)</p></td>
+<td><p>Apply asymmetric split-conformal corrections to forecast quantiles.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">IsotonicQuantileCalibrator</span></code>(**data)</p></td>
 <td><p>Calibrate quantile predictions using isotonic regression.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">QuantileSorter</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">QuantileSorter</span></code>()</p></td>
 <td><p>Sort quantile forecasts to enforce monotonic ordering.</p></td>
 </tr>
 </tbody>

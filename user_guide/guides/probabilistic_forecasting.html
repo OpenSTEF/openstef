@@ -681,8 +681,42 @@ covers 60% of outcomes); below means <em>under-predicting</em>.</span><a class="
 <p class="admonition-title">Warning</p>
 <p>The calibrator must be fitted (via <code class="docutils literal notranslate"><span class="pre">workflow.fit()</span></code>) before it can be used for prediction. Calling <code class="docutils literal notranslate"><span class="pre">predict()</span></code> on a workflow with an unfitted calibrator will raise a <a class="reference internal" href="../../api/generated/openstef_core.exceptions.NotFittedError.html#openstef_core.exceptions.NotFittedError" title="openstef_core.exceptions.NotFittedError"><code class="xref py py-class docutils literal notranslate"><span class="pre">NotFittedError</span></code></a>.</p>
 </div>
-<p>For a complete worked example showing calibration before and after, including diagnostic plots, see <a class="reference internal" href="../../tutorials/quantile_calibration.html"><span class="doc">Quantile Calibration</span></a>.</p>
+<p>For a complete worked example showing isotonic and asymmetric conformal
+calibration before and after, including diagnostic plots, see
+<a class="reference internal" href="../../tutorials/quantile_calibration.html"><span class="doc">Quantile Calibration</span></a>.</p>
 </section>
+</section>
+<section id="conformalized-quantile-calibration">
+<h2>Conformalized Quantile Calibration<a class="headerlink" href="#conformalized-quantile-calibration" title="Link to this heading">#</a></h2>
+<p>OpenSTEF also provides a dependency-free
+<code class="xref py py-class docutils literal notranslate"><span class="pre">ConformalizedQuantileCalibrator</span></code>
+that implements asymmetric finite-sample conformal calibration. It is a
+postprocessing transform over a
+<code class="docutils literal notranslate"><span class="pre">ForecastDataset</span></code>:</p>
+<ol class="arabic simple">
+<li><p>Fit the forecaster and generate forecasts for a time-ordered calibration
+period.</p></li>
+<li><p>Fit the calibrator on those forecasts and the corresponding actuals.</p></li>
+<li><p>Apply the fitted corrections to later forecast datasets.</p></li>
+</ol>
+<p>The correction is asymmetric by tail. For a lower quantile <code class="docutils literal notranslate"><span class="pre">q</span> <span class="pre">&lt;</span> <span class="pre">0.5</span></code>, the
+calibrator uses <code class="docutils literal notranslate"><span class="pre">forecast</span> <span class="pre">-</span> <span class="pre">actual</span></code> scores and subtracts the finite-sample
+quantile at <code class="docutils literal notranslate"><span class="pre">1</span> <span class="pre">-</span> <span class="pre">q</span></code>. For an upper quantile <code class="docutils literal notranslate"><span class="pre">q</span> <span class="pre">&gt;=</span> <span class="pre">0.5</span></code>, it uses <code class="docutils literal notranslate"><span class="pre">actual</span> <span class="pre">-</span>
+<span class="pre">forecast</span></code> scores and adds the finite-sample quantile at <code class="docutils literal notranslate"><span class="pre">q</span></code>. The finite-sample
+level is adjusted with <code class="docutils literal notranslate"><span class="pre">min(level</span> <span class="pre">*</span> <span class="pre">(n</span> <span class="pre">+</span> <span class="pre">1)</span> <span class="pre">/</span> <span class="pre">n,</span> <span class="pre">1)</span></code> and estimated with
+NumPy’s <code class="docutils literal notranslate"><span class="pre">method=&quot;higher&quot;</span></code> convention.</p>
+<p>By default, P50 is unchanged and quantile columns are not sorted inside the
+calibrator. This preserves the specified semantics: median calibration is an
+explicit opt-in, while downstream
+<code class="xref py py-class docutils literal notranslate"><span class="pre">QuantileSorter</span></code>
+owns the quantile-ordering invariant.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.transforms.postprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConformalizedQuantileCalibrator</span>
+
+<span class="n">calibrator</span> <span class="o">=</span> <span class="n">ConformalizedQuantileCalibrator</span><span class="p">(</span><span class="n">quantiles</span><span class="o">=</span><span class="n">quantiles</span><span class="p">)</span>
+<span class="n">calibrator</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">calibration_forecasts_with_actuals</span><span class="p">)</span>
+<span class="n">calibrated_forecasts</span> <span class="o">=</span> <span class="n">calibrator</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">forecasts</span><span class="p">)</span>
+</pre></div>
+</div>
 </section>
 <section id="evaluating-probabilistic-forecasts">
 <h2>Evaluating Probabilistic Forecasts<a class="headerlink" href="#evaluating-probabilistic-forecasts" title="Link to this heading">#</a></h2>
@@ -765,6 +799,7 @@ covers 60% of outcomes); below means <em>under-predicting</em>.</span><a class="
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#adding-calibration-to-a-workflow">Adding Calibration to a Workflow</a></li>
 </ul>
 </li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#conformalized-quantile-calibration">Conformalized Quantile Calibration</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#evaluating-probabilistic-forecasts">Evaluating Probabilistic Forecasts</a></li>
 </ul>
   </nav></div>

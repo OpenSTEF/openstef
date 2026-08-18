@@ -496,23 +496,24 @@
                   
   <section class="tex2jax_ignore mathjax_ignore" id="quantile-calibration">
 <h1>Quantile Calibration<a class="headerlink" href="#quantile-calibration" title="Link to this heading">#</a></h1>
-<p>Improve the reliability of probabilistic forecasts using isotonic quantile
-calibration.  A well-calibrated P10 quantile should exceed actual values
-roughly 10 % of the time — this tutorial shows how to measure and correct
-deviations.</p>
+<p>Improve the reliability of probabilistic forecasts using isotonic and
+asymmetric conformal
+quantile calibration. A well-calibrated P10 quantile should exceed actual
+values roughly 10 % of the time — this tutorial shows how to measure and
+correct deviations.</p>
 <p><strong>What you’ll learn:</strong></p>
 <ul class="simple">
 <li><p>Measure quantile calibration with observed coverage</p></li>
-<li><p>Add isotonic calibration as a postprocessing step</p></li>
+<li><p>Add isotonic and asymmetric conformal calibration as postprocessing steps</p></li>
 <li><p>Compare before/after calibration on real data</p></li>
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This tutorial uses a small data slice for fast execution.
-See <code class="docutils literal notranslate"><span class="pre">examples/benchmarks/</span></code> for production-scale runs.</p>
+<p>This tutorial uses a small data slice for fast execution.</p>
 </div>
 <p><strong>Key API references:</strong>
 <a class="reference external" href="https://openstef.github.io/openstef/api/generated/openstef_models.transforms.postprocessing.IsotonicQuantileCalibrator.html"><code class="docutils literal notranslate"><span class="pre">IsotonicQuantileCalibrator</span></code></a>
+· <a class="reference external" href="https://openstef.github.io/openstef/api/generated/openstef_models.transforms.postprocessing.ConformalizedQuantileCalibrator.html"><code class="docutils literal notranslate"><span class="pre">ConformalizedQuantileCalibrator</span></code></a>
 · <a class="reference external" href="https://openstef.github.io/openstef/api/generated/openstef_models.presets.ForecastingWorkflowConfig.html"><code class="docutils literal notranslate"><span class="pre">ForecastingWorkflowConfig</span></code></a></p>
 <section id="load-data-and-train-an-uncalibrated-model">
 <h2>Load data and train an uncalibrated model<a class="headerlink" href="#load-data-and-train-an-uncalibrated-model" title="Link to this heading">#</a></h2>
@@ -536,11 +537,12 @@ defines the model architecture and quantile levels.</p>
 
 <span class="n">train_start</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="s2">&quot;2024-03-01T00:00:00Z&quot;</span><span class="p">)</span>
 <span class="n">train_end</span> <span class="o">=</span> <span class="n">train_start</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">45</span><span class="p">)</span>
-<span class="n">forecast_end</span> <span class="o">=</span> <span class="n">train_end</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+<span class="n">cal_end</span> <span class="o">=</span> <span class="n">train_end</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="n">forecast_end</span> <span class="o">=</span> <span class="n">cal_end</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
 
 <span class="n">train_dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">filter_by_range</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">train_start</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">train_end</span><span class="p">)</span>
 <span class="n">predict_dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">filter_by_range</span><span class="p">(</span>
-    <span class="n">start</span><span class="o">=</span><span class="n">train_end</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">14</span><span class="p">),</span>
+    <span class="n">start</span><span class="o">=</span><span class="n">cal_end</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">14</span><span class="p">),</span>
     <span class="n">end</span><span class="o">=</span><span class="n">forecast_end</span><span class="p">,</span>
 <span class="p">)</span>
 
@@ -564,7 +566,7 @@ defines the model architecture and quantile levels.</p>
 
 <span class="n">workflow_uncal</span> <span class="o">=</span> <span class="n">create_forecasting_workflow</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
 <span class="n">workflow_uncal</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">)</span>
-<span class="n">forecast_uncal</span> <span class="o">=</span> <span class="n">workflow_uncal</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">predict_dataset</span><span class="p">,</span> <span class="n">forecast_start</span><span class="o">=</span><span class="n">train_end</span><span class="p">)</span>
+<span class="n">forecast_uncal</span> <span class="o">=</span> <span class="n">workflow_uncal</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">predict_dataset</span><span class="p">,</span> <span class="n">forecast_start</span><span class="o">=</span><span class="n">cal_end</span><span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Forecast rows: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">forecast_uncal</span><span class="o">.</span><span class="n">data</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
@@ -607,22 +609,24 @@ level.</p>
 <div class="cell_output docutils container">
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Calibration before isotonic correction:
 quantile  expected  observed     error
-     P10       0.1  0.001488 -0.098512
-     P50       0.5  0.438988 -0.061012
-     P90       0.9  0.854167 -0.045833
+     P10       0.1  0.022321 -0.077679
+     P50       0.5  0.208333 -0.291667
+     P90       0.9  0.828869 -0.071131
 </pre></div>
 </div>
 </div>
 </div>
 </section>
-<section id="add-isotonic-calibration">
-<h2>Add isotonic calibration<a class="headerlink" href="#add-isotonic-calibration" title="Link to this heading">#</a></h2>
-<p><a class="reference external" href="https://openstef.github.io/openstef/api/generated/openstef_models.transforms.postprocessing.IsotonicQuantileCalibrator.html"><code class="docutils literal notranslate"><span class="pre">IsotonicQuantileCalibrator</span></code></a> is a postprocessing transform that learns a
-monotonic mapping from predicted quantiles to observed quantile levels.
-During training it fits on the validation split; during prediction it
-corrects each quantile value.</p>
-<p>We create a second workflow identical to the first, but with the calibrator
-appended to its postprocessing pipeline.</p>
+<section id="add-isotonic-and-asymmetric-conformal-calibration">
+<h2>Add isotonic and asymmetric conformal calibration<a class="headerlink" href="#add-isotonic-and-asymmetric-conformal-calibration" title="Link to this heading">#</a></h2>
+<p><a class="reference external" href="https://openstef.github.io/openstef/api/generated/openstef_models.transforms.postprocessing.IsotonicQuantileCalibrator.html"><code class="docutils literal notranslate"><span class="pre">IsotonicQuantileCalibrator</span></code></a> learns a
+monotonic mapping from predicted quantiles to observed quantile levels. It is
+appended to the workflow’s postprocessing pipeline and fitted on training-set
+predictions automatically.
+<a class="reference external" href="https://openstef.github.io/openstef/api/generated/openstef_models.transforms.postprocessing.ConformalizedQuantileCalibrator.html"><code class="docutils literal notranslate"><span class="pre">ConformalizedQuantileCalibrator</span></code></a>
+instead applies asymmetric conformal corrections. It leaves
+P50 unchanged by default and delegates quantile ordering to a downstream
+<code class="docutils literal notranslate"><span class="pre">QuantileSorter</span></code>.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.transforms.postprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">IsotonicQuantileCalibrator</span>
@@ -639,28 +643,73 @@ appended to its postprocessing pipeline.</p>
 <span class="p">)</span>
 
 <span class="n">workflow_cal</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">)</span>
-<span class="n">forecast_cal</span> <span class="o">=</span> <span class="n">workflow_cal</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">predict_dataset</span><span class="p">,</span> <span class="n">forecast_start</span><span class="o">=</span><span class="n">train_end</span><span class="p">)</span>
+<span class="n">forecast_cal</span> <span class="o">=</span> <span class="n">workflow_cal</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">predict_dataset</span><span class="p">,</span> <span class="n">forecast_start</span><span class="o">=</span><span class="n">cal_end</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<section id="calibrate-with-the-asymmetric-conformal-transform">
+<h3>Calibrate with the asymmetric conformal transform<a class="headerlink" href="#calibrate-with-the-asymmetric-conformal-transform" title="Link to this heading">#</a></h3>
+<p>Split-conformal calibration requires a <strong>held-out</strong> calibration period that
+the forecaster was not trained on. We predict that period with the fitted
+workflow, attach the observed target, and fit the calibrator before applying
+it to the final holdout forecast.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.transforms.postprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConformalizedQuantileCalibrator</span>
+
+<span class="n">calibration_dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">filter_by_range</span><span class="p">(</span>
+    <span class="n">start</span><span class="o">=</span><span class="n">train_end</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">14</span><span class="p">),</span>
+    <span class="n">end</span><span class="o">=</span><span class="n">cal_end</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">workflow_conformalized</span> <span class="o">=</span> <span class="n">create_forecasting_workflow</span><span class="p">(</span>
+    <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">model_copy</span><span class="p">(</span><span class="n">update</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;model_id&quot;</span><span class="p">:</span> <span class="s2">&quot;conformalized_gblinear&quot;</span><span class="p">})</span>
+<span class="p">)</span>
+<span class="n">workflow_conformalized</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">)</span>
+<span class="n">cal_forecast</span> <span class="o">=</span> <span class="n">workflow_conformalized</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">calibration_dataset</span><span class="p">,</span> <span class="n">forecast_start</span><span class="o">=</span><span class="n">train_end</span><span class="p">)</span>
+<span class="n">conformalized_calibrator</span> <span class="o">=</span> <span class="n">ConformalizedQuantileCalibrator</span><span class="p">(</span><span class="n">quantiles</span><span class="o">=</span><span class="n">quantiles</span><span class="p">)</span>
+<span class="n">conformalized_calibrator</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">cal_forecast</span><span class="p">)</span>
+<span class="n">forecast_conformalized_raw</span> <span class="o">=</span> <span class="n">workflow_conformalized</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">predict_dataset</span><span class="p">,</span> <span class="n">forecast_start</span><span class="o">=</span><span class="n">cal_end</span><span class="p">)</span>
+<span class="n">forecast_conformalized</span> <span class="o">=</span> <span class="n">conformalized_calibrator</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">forecast_conformalized_raw</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 </div>
 </section>
+</section>
 <section id="compare-calibration-before-and-after">
 <h2>Compare calibration before and after<a class="headerlink" href="#compare-calibration-before-and-after" title="Link to this heading">#</a></h2>
+<p>The following table and plot compare the uncalibrated forecast with both
+postprocessing approaches on the same holdout rows.</p>
+<section id="isotonic-calibration">
+<h3>Isotonic calibration<a class="headerlink" href="#isotonic-calibration" title="Link to this heading">#</a></h3>
+<p>Isotonic calibration learns a monotonic mapping for each quantile. The
+<code class="docutils literal notranslate"><span class="pre">observed</span> <span class="pre">(isotonic)</span></code> and <code class="docutils literal notranslate"><span class="pre">error</span> <span class="pre">(isotonic)</span></code> columns show its effect.</p>
+</section>
+<section id="asymmetric-conformal-calibration">
+<h3>Asymmetric conformal calibration<a class="headerlink" href="#asymmetric-conformal-calibration" title="Link to this heading">#</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">observed</span> <span class="pre">(conformalized)</span></code> and <code class="docutils literal notranslate"><span class="pre">error</span> <span class="pre">(conformalized)</span></code> columns show
+the effect of the asymmetric corrections.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">forecast_cal_aligned</span> <span class="o">=</span> <span class="n">forecast_cal</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">actuals</span><span class="o">.</span><span class="n">index</span><span class="p">]</span>
+<span class="n">forecast_conformalized_aligned</span> <span class="o">=</span> <span class="n">forecast_conformalized</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">actuals</span><span class="o">.</span><span class="n">index</span><span class="p">]</span>
 
 <span class="n">observed_cal</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">((</span><span class="n">actuals</span> <span class="o">&lt;=</span> <span class="n">forecast_cal_aligned</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;quantile_P</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">q</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">quantiles</span><span class="p">]</span>
+<span class="n">observed_conformalized</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="nb">float</span><span class="p">((</span><span class="n">actuals</span> <span class="o">&lt;=</span> <span class="n">forecast_conformalized_aligned</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;quantile_P</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">q</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">quantiles</span>
+<span class="p">]</span>
 
 <span class="n">comparison_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
     <span class="p">{</span>
         <span class="s2">&quot;quantile&quot;</span><span class="p">:</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;P</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">q</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">quantiles</span><span class="p">],</span>
         <span class="s2">&quot;expected&quot;</span><span class="p">:</span> <span class="n">expected</span><span class="p">,</span>
         <span class="s2">&quot;observed (before)&quot;</span><span class="p">:</span> <span class="n">observed_uncal</span><span class="p">,</span>
-        <span class="s2">&quot;observed (after)&quot;</span><span class="p">:</span> <span class="n">observed_cal</span><span class="p">,</span>
+        <span class="s2">&quot;observed (isotonic)&quot;</span><span class="p">:</span> <span class="n">observed_cal</span><span class="p">,</span>
+        <span class="s2">&quot;observed (conformalized)&quot;</span><span class="p">:</span> <span class="n">observed_conformalized</span><span class="p">,</span>
         <span class="s2">&quot;error (before)&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">o</span> <span class="o">-</span> <span class="n">e</span> <span class="k">for</span> <span class="n">o</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">observed_uncal</span><span class="p">,</span> <span class="n">expected</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)],</span>
-        <span class="s2">&quot;error (after)&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">o</span> <span class="o">-</span> <span class="n">e</span> <span class="k">for</span> <span class="n">o</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">observed_cal</span><span class="p">,</span> <span class="n">expected</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)],</span>
+        <span class="s2">&quot;error (isotonic)&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">o</span> <span class="o">-</span> <span class="n">e</span> <span class="k">for</span> <span class="n">o</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">observed_cal</span><span class="p">,</span> <span class="n">expected</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)],</span>
+        <span class="s2">&quot;error (conformalized)&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">o</span> <span class="o">-</span> <span class="n">e</span> <span class="k">for</span> <span class="n">o</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">observed_conformalized</span><span class="p">,</span> <span class="n">expected</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)],</span>
     <span class="p">}</span>
 <span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">comparison_df</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
@@ -668,10 +717,10 @@ appended to its postprocessing pipeline.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>quantile  expected  observed (before)  observed (after)  error (before)  error (after)
-     P10       0.1           0.001488          0.074405       -0.098512      -0.025595
-     P50       0.5           0.438988          0.497024       -0.061012      -0.002976
-     P90       0.9           0.854167          0.875000       -0.045833      -0.025000
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>quantile  expected  observed (before)  observed (isotonic)  observed (conformalized)  error (before)  error (isotonic)  error (conformalized)
+     P10       0.1           0.022321             0.089286                  0.141369       -0.077679         -0.010714               0.041369
+     P50       0.5           0.208333             0.394345                  0.318452       -0.291667         -0.105655              -0.181548
+     P90       0.9           0.828869             0.866071                  0.779762       -0.071131         -0.033929              -0.120238
 </pre></div>
 </div>
 </div>
@@ -711,9 +760,20 @@ appended to its postprocessing pipeline.</p>
         <span class="n">x</span><span class="o">=</span><span class="n">expected</span><span class="p">,</span>
         <span class="n">y</span><span class="o">=</span><span class="n">observed_cal</span><span class="p">,</span>
         <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;markers+lines&quot;</span><span class="p">,</span>
-        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;After calibration&quot;</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;After isotonic calibration&quot;</span><span class="p">,</span>
         <span class="n">marker</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;blue&quot;</span><span class="p">},</span>
         <span class="n">line</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">},</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+
+<span class="n">fig</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span>
+    <span class="n">go</span><span class="o">.</span><span class="n">Scatter</span><span class="p">(</span>
+        <span class="n">x</span><span class="o">=</span><span class="n">expected</span><span class="p">,</span>
+        <span class="n">y</span><span class="o">=</span><span class="n">observed_conformalized</span><span class="p">,</span>
+        <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;markers+lines&quot;</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;After conformalized calibration&quot;</span><span class="p">,</span>
+        <span class="n">marker</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;green&quot;</span><span class="p">,</span> <span class="s2">&quot;symbol&quot;</span><span class="p">:</span> <span class="s2">&quot;diamond&quot;</span><span class="p">},</span>
+        <span class="n">line</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;green&quot;</span><span class="p">,</span> <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;dash&quot;</span><span class="p">:</span> <span class="s2">&quot;dash&quot;</span><span class="p">},</span>
     <span class="p">)</span>
 <span class="p">)</span>
 
@@ -732,13 +792,16 @@ appended to its postprocessing pipeline.</p>
 </div>
 </details>
 <div class="cell_output docutils container">
-<img alt="../_images/771b4d146cccec4f3833042177bd98ab5f4b94c5603f4f7ade4592b256224b59.png" src="../_images/771b4d146cccec4f3833042177bd98ab5f4b94c5603f4f7ade4592b256224b59.png" />
+<img alt="../_images/c51d19e1fd720fb6fd25ece0c59afda65bb1c4f31aa90ef8ab33d4e1d74ab499.png" src="../_images/c51d19e1fd720fb6fd25ece0c59afda65bb1c4f31aa90ef8ab33d4e1d74ab499.png" />
 </div>
 </div>
-<p>Points closer to the diagonal indicate better calibration.  The isotonic
-correction pulls the observed coverage towards the expected level, improving
-the reliability of uncertainty estimates.  To measure calibration stability
-over longer time horizons, combine this with a <a class="reference internal" href="backtesting_quickstart.html"><span class="doc">Backtesting Quickstart</span></a>.</p>
+<p>Points closer to the diagonal indicate better calibration. Isotonic regression
+learns a monotonic value mapping, while the conformalized calibrator applies
+asymmetric corrections. Compare both methods on a separate
+holdout period before selecting one for production. To measure
+calibration stability over longer time horizons, combine this with a
+<a class="reference internal" href="backtesting_quickstart.html"><span class="doc">Backtesting Quickstart</span></a>.</p>
+</section>
 </section>
 <section id="next-steps">
 <h2>Next steps<a class="headerlink" href="#next-steps" title="Link to this heading">#</a></h2>
@@ -800,8 +863,15 @@ for combined accuracy and reliable uncertainty.</p></li>
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#load-data-and-train-an-uncalibrated-model">Load data and train an uncalibrated model</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#measure-calibration-quality">Measure calibration quality</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#add-isotonic-calibration">Add isotonic calibration</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compare-calibration-before-and-after">Compare calibration before and after</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#add-isotonic-and-asymmetric-conformal-calibration">Add isotonic and asymmetric conformal calibration</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#calibrate-with-the-asymmetric-conformal-transform">Calibrate with the asymmetric conformal transform</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compare-calibration-before-and-after">Compare calibration before and after</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#isotonic-calibration">Isotonic calibration</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#asymmetric-conformal-calibration">Asymmetric conformal calibration</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#next-steps">Next steps</a></li>
 </ul>
   </nav></div>
