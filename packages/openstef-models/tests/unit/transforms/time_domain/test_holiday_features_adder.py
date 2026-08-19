@@ -27,8 +27,8 @@ NL_2025_HOLIDAYS = [
     (date(2025, 4, 26), "King's Day", "king_s_day"),
     (date(2025, 5, 5), "Liberation Day", "liberation_day"),
     (date(2025, 5, 29), "Ascension Day", "ascension_day"),
-    (date(2025, 6, 8), "Whit Sunday", "whit_sunday"),
-    (date(2025, 6, 9), "Whit Monday", "whit_monday"),
+    (date(2025, 6, 8), "Pentecost", "pentecost"),
+    (date(2025, 6, 9), "Pentecost Monday", "pentecost_monday"),
     (date(2025, 12, 25), "Christmas Day", "christmas_day"),
     (date(2025, 12, 26), "Second Day of Christmas", "second_day_of_christmas"),
 ]
