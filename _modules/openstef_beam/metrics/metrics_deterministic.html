@@ -890,7 +890,6 @@ window.runMermaid = runMermaid;</script>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">npt</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">r2_score</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Quantile</span>
 
@@ -1421,16 +1420,30 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">    well observed outcomes are replicated by the model, based on the proportion</span>
 <span class="sd">    of total variation of outcomes explained by the model.</span>
 
+<span class="sd">    Structurally invalid inputs, such as incompatible shapes or unsupported</span>
+<span class="sd">    dimensions, raise ValueError. Statistically unusable data, such as fewer</span>
+<span class="sd">    than two samples or non-finite values, returns NaN.</span>
+
 <span class="sd">    Args:</span>
 <span class="sd">        y_true: Ground truth values with shape (num_samples,).</span>
 <span class="sd">        y_pred: Predicted values with shape (num_samples,).</span>
-<span class="sd">        sample_weights: Optional weights for each sample with shape (num_samples,).</span>
-<span class="sd">            If None, all samples are weighted equally.</span>
+<span class="sd">        sample_weights: Optional weights for each sample with shape</span>
+<span class="sd">            (num_samples,). If None, all samples are weighted equally.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        The R² score as a float. Best possible score is 1.0, and it can be negative</span>
-<span class="sd">        (because the model can be arbitrarily worse). A constant model that always</span>
-<span class="sd">        predicts the mean of y_true would get an R² score of 0.0.</span>
+<span class="sd">        The R² score as a float. The best possible score is 1.0, and the score</span>
+<span class="sd">        can be negative because a model can perform arbitrarily worse than a</span>
+<span class="sd">        constant mean predictor. Fewer than two samples or non-finite data</span>
+<span class="sd">        returns NaN.</span>
+
+<span class="sd">        For a constant target, this function follows scikit-learn&#39;s default</span>
+<span class="sd">        finite behavior: a perfect prediction returns 1.0 and an imperfect</span>
+<span class="sd">        prediction returns 0.0.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If the inputs are not one-dimensional, if y_true and y_pred</span>
+<span class="sd">            have different shapes, or if sample_weights does not have the same</span>
+<span class="sd">            one-dimensional shape as y_true.</span>
 
 <span class="sd">    Example:</span>
 <span class="sd">        Basic usage with energy load data</span>
@@ -1455,10 +1468,58 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        &gt;&gt;&gt; isinstance(score, float)</span>
 <span class="sd">        True</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">y_true</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">y_pred</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;NaN&quot;</span><span class="p">)</span>
+    <span class="n">y_true</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">y_pred</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">y_pred</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">r2_score</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weights</span><span class="p">))</span></div>
+    <span class="c1"># Structural contract violations should fail loudly. In particular,</span>
+    <span class="c1"># rejecting dimensions explicitly prevents unintended NumPy broadcasting.</span>
+    <span class="k">if</span> <span class="n">y_true</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">y_pred</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">error_msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;y_true and y_pred must be one-dimensional; got shapes </span><span class="si">{</span><span class="n">y_true</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">y_pred</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">y_true</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">y_pred</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+        <span class="n">error_msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;y_true and y_pred must have the same shape; got </span><span class="si">{</span><span class="n">y_true</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">y_pred</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">sample_weights</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">y_true</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">sample_weights</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">weights</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">weights</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">y_true</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+            <span class="n">error_msg</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;sample_weights must be one-dimensional and have the same &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;shape as y_true; got </span><span class="si">{</span><span class="n">weights</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">y_true</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
+
+    <span class="c1"># R² is statistically undefined with fewer than two observations.</span>
+    <span class="k">if</span> <span class="n">y_true</span><span class="o">.</span><span class="n">size</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>  <span class="c1"># noqa: PLR2004 (hardcoded constant is too trivial to warrant a named constant)</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;nan&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Non-finite values represent unusable metric data rather than a structural</span>
+    <span class="c1"># programming error. Propagate that condition as an undefined metric.</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">y_true</span><span class="p">))</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">y_pred</span><span class="p">))</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">weights</span><span class="p">))):</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;nan&quot;</span><span class="p">)</span>
+
+    <span class="n">weight_sum</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">weights</span><span class="p">))</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">weight_sum</span><span class="p">)</span> <span class="ow">or</span> <span class="n">weight_sum</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;nan&quot;</span><span class="p">)</span>
+
+    <span class="n">weighted_mean</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">))</span>
+    <span class="n">residual_sum</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">weights</span> <span class="o">*</span> <span class="p">(</span><span class="n">y_true</span> <span class="o">-</span> <span class="n">y_pred</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="n">total_sum</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">weights</span> <span class="o">*</span> <span class="p">(</span><span class="n">y_true</span> <span class="o">-</span> <span class="n">weighted_mean</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">residual_sum</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">total_sum</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;nan&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Match scikit-learn&#39;s default force_finite=True behavior for a constant</span>
+    <span class="c1"># target: perfect predictions score 1.0, otherwise the score is 0.0.</span>
+    <span class="k">if</span> <span class="n">total_sum</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">1.0</span> <span class="k">if</span> <span class="n">residual_sum</span> <span class="o">==</span> <span class="mf">0.0</span> <span class="k">else</span> <span class="mf">0.0</span>
+
+    <span class="n">score</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">residual_sum</span> <span class="o">/</span> <span class="n">total_sum</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">score</span><span class="p">)</span> <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">score</span><span class="p">)</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;nan&quot;</span><span class="p">)</span></div>
 
 
 
