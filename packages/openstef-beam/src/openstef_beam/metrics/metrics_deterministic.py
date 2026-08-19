@@ -19,7 +19,6 @@ from typing import NamedTuple
 
 import numpy as np
 import numpy.typing as npt
-from sklearn.metrics import r2_score
 
 from openstef_core.types import Quantile
 
@@ -518,16 +517,30 @@ def r2(
     well observed outcomes are replicated by the model, based on the proportion
     of total variation of outcomes explained by the model.
 
+    Structurally invalid inputs, such as incompatible shapes or unsupported
+    dimensions, raise ValueError. Statistically unusable data, such as fewer
+    than two samples or non-finite values, returns NaN.
+
     Args:
         y_true: Ground truth values with shape (num_samples,).
         y_pred: Predicted values with shape (num_samples,).
-        sample_weights: Optional weights for each sample with shape (num_samples,).
-            If None, all samples are weighted equally.
+        sample_weights: Optional weights for each sample with shape
+            (num_samples,). If None, all samples are weighted equally.
 
     Returns:
-        The R² score as a float. Best possible score is 1.0, and it can be negative
-        (because the model can be arbitrarily worse). A constant model that always
-        predicts the mean of y_true would get an R² score of 0.0.
+        The R² score as a float. The best possible score is 1.0, and the score
+        can be negative because a model can perform arbitrarily worse than a
+        constant mean predictor. Fewer than two samples or non-finite data
+        returns NaN.
+
+        For a constant target, this function follows scikit-learn's default
+        finite behavior: a perfect prediction returns 1.0 and an imperfect
+        prediction returns 0.0.
+
+    Raises:
+        ValueError: If the inputs are not one-dimensional, if y_true and y_pred
+            have different shapes, or if sample_weights does not have the same
+            one-dimensional shape as y_true.
 
     Example:
         Basic usage with energy load data
@@ -552,10 +565,58 @@ def r2(
         >>> isinstance(score, float)
         True
     """
-    if len(y_true) == 0 or len(y_pred) == 0:
-        return float("NaN")
+    y_true = np.asarray(y_true, dtype=float)
+    y_pred = np.asarray(y_pred, dtype=float)
 
-    return float(r2_score(y_true, y_pred, sample_weight=sample_weights))
+    # Structural contract violations should fail loudly. In particular,
+    # rejecting dimensions explicitly prevents unintended NumPy broadcasting.
+    if y_true.ndim != 1 or y_pred.ndim != 1:
+        error_msg = f"y_true and y_pred must be one-dimensional; got shapes {y_true.shape} and {y_pred.shape}"
+        raise ValueError(error_msg)
+
+    if y_true.shape != y_pred.shape:
+        error_msg = f"y_true and y_pred must have the same shape; got {y_true.shape} and {y_pred.shape}"
+        raise ValueError(error_msg)
+
+    if sample_weights is None:
+        weights = np.ones_like(y_true)
+    else:
+        weights = np.asarray(sample_weights, dtype=float)
+
+        if weights.ndim != 1 or weights.shape != y_true.shape:
+            error_msg = (
+                f"sample_weights must be one-dimensional and have the same "
+                f"shape as y_true; got {weights.shape} and {y_true.shape}"
+            )
+            raise ValueError(error_msg)
+
+    # R² is statistically undefined with fewer than two observations.
+    if y_true.size < 2:  # noqa: PLR2004 (hardcoded constant is too trivial to warrant a named constant)
+        return float("nan")
+
+    # Non-finite values represent unusable metric data rather than a structural
+    # programming error. Propagate that condition as an undefined metric.
+    if not (np.all(np.isfinite(y_true)) and np.all(np.isfinite(y_pred)) and np.all(np.isfinite(weights))):
+        return float("nan")
+
+    weight_sum = float(np.sum(weights))
+    if not np.isfinite(weight_sum) or weight_sum == 0.0:
+        return float("nan")
+
+    weighted_mean = float(np.average(y_true, weights=weights))
+    residual_sum = float(np.sum(weights * (y_true - y_pred) ** 2))
+    total_sum = float(np.sum(weights * (y_true - weighted_mean) ** 2))
+
+    if not np.isfinite(residual_sum) or not np.isfinite(total_sum):
+        return float("nan")
+
+    # Match scikit-learn's default force_finite=True behavior for a constant
+    # target: perfect predictions score 1.0, otherwise the score is 0.0.
+    if total_sum == 0.0:
+        return 1.0 if residual_sum == 0.0 else 0.0
+
+    score = 1.0 - residual_sum / total_sum
+    return float(score) if np.isfinite(score) else float("nan")
 
 
 def pinball_loss(
