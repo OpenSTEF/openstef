@@ -301,20 +301,20 @@ wheels = [
 
 [[package]]
 name = "apache-airflow"
-version = "3.2.2"
+version = "3.3.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "apache-airflow-core" },
     { name = "apache-airflow-task-sdk" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/cc/ff/b4b06d87bf5ca41492a264ee43cdcbf1caaa55d9bacbaf1d4ef62ed49ef7/apache_airflow-3.2.2.tar.gz", hash = "sha256:5625a596be4a3b96d93d401412bd41a28181ff32ef1219af277ab1d42453b8d6", size = 30640, upload-time = "2026-05-29T05:20:10.088Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/05/f4/025fc6e41878ae075bfd50136542071abaac5ead6a967b53a878b4efbca8/apache_airflow-3.3.1.tar.gz", hash = "sha256:a62ee9c46b7b8c919a46a88ee9346e0b36bc4ff10d6f9ac7cde5a6165da52164", size = 31054, upload-time = "2026-08-12T08:10:24.808Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/d5/d9/34567a04e07e6a8acde4f3a96410c9aab29b88a58f5405d8165b8d1124f4/apache_airflow-3.2.2-py3-none-any.whl", hash = "sha256:5fe8f4ca7c930cf2ec5b4f0485074fff8c01f906b6a945ac5add3a760a9aac17", size = 12970, upload-time = "2026-05-29T05:19:55.297Z" },
+    { url = "https://files.pythonhosted.org/packages/46/a5/018810c3fe96f9d57377a7d5ca303c51231fe367bf16c34402fb1eb91e55/apache_airflow-3.3.1-py3-none-any.whl", hash = "sha256:0c047c0a0415b100d2966b35d0f0c191013dc996e7645023178c770296ce8602", size = 13048, upload-time = "2026-08-12T08:10:18.204Z" },
 ]
 
 [[package]]
 name = "apache-airflow-core"
-version = "3.2.2"
+version = "3.3.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "a2wsgi" },
@@ -340,6 +340,7 @@ dependencies = [
     { name = "fastapi", extra = ["standard-no-fastapi-cloud-cli"] },
     { name = "httpx" },
     { name = "importlib-metadata" },
+    { name = "isoduration" },
     { name = "itsdangerous" },
     { name = "jinja2" },
     { name = "jsonschema" },
@@ -382,9 +383,9 @@ dependencies = [
     { name = "uuid6" },
     { name = "uvicorn" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/e6/5b/c168601bac11a91b3baa3c3b7d66e806fb9bd31e72699c6d09fee8a14582/apache_airflow_core-3.2.2.tar.gz", hash = "sha256:5473699fca8b9b64680d24c6fd2adbf1ad1168facc849cdfaec0f9715d76d7a1", size = 6451753, upload-time = "2026-05-29T05:20:38.777Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/37/42/d1d5f2e6172398ed4b5864a3f262eddd89008f8445678934c94eabdcee9d/apache_airflow_core-3.3.1.tar.gz", hash = "sha256:0c4ae4f3aea72dc2087b615305ea97ff0247b266bf6fa6661877ce1e1d9a951b", size = 7373613, upload-time = "2026-08-12T08:10:26.454Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ca/63/8cb6a31954f40517fdd905113e0fef0fad46275c1b4c128b7bc916933768/apache_airflow_core-3.2.2-py3-none-any.whl", hash = "sha256:877be429d59193b5e9aab1ae69f44066134bf483c633e9f7c59a9220ebfcc013", size = 6102519, upload-time = "2026-05-29T05:20:08.257Z" },
+    { url = "https://files.pythonhosted.org/packages/2f/e4/910a68502da13948877c91d6b605ea5f0988962792b0b3191025eb8d4423/apache_airflow_core-3.3.1-py3-none-any.whl", hash = "sha256:28c6aa88bdd47a4401436f1bfefbc979236de16fa4962d408218c67b8f9a00b8", size = 6875541, upload-time = "2026-08-12T08:10:22.343Z" },
 ]
 
 [[package]]
@@ -458,7 +459,7 @@ wheels = [
 
 [[package]]
 name = "apache-airflow-task-sdk"
-version = "1.2.2"
+version = "1.3.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "apache-airflow-core" },
@@ -469,10 +470,12 @@ dependencies = [
     { name = "fsspec" },
     { name = "greenback" },
     { name = "httpx" },
+    { name = "isoduration" },
     { name = "jinja2" },
     { name = "jsonschema" },
     { name = "methodtools" },
     { name = "msgspec" },
+    { name = "opentelemetry-api" },
     { name = "packaging" },
     { name = "pathspec" },
     { name = "pendulum" },
@@ -485,9 +488,9 @@ dependencies = [
     { name = "tenacity" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/7a/05/7dbae857bd82cc4a768bd13e8dccd90515cce4eac8ab0bfb3023008fdc6a/apache_airflow_task_sdk-1.2.2.tar.gz", hash = "sha256:3c8b3c4c86fe97dad5779004218c351cfd85f3dfc5a3f68b86127f266f9b286a", size = 1519184, upload-time = "2026-05-29T05:20:53.526Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/64/cb/00745b7e24958923d6422fc43deb3df94577dc3916edfa6330e3047dcdad/apache_airflow_task_sdk-1.3.1.tar.gz", hash = "sha256:21c1086c133ede94defde2b455541cadadf564f7e6d189d1af22c6ef186bb6e3", size = 1707061, upload-time = "2026-08-12T08:10:41.99Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/43/ca/478018625c726131f9ea774eb839642ebeba09588792a56d5f7cd7f4e301/apache_airflow_task_sdk-1.2.2-py3-none-any.whl", hash = "sha256:709552227b8139b1264413fdc4f0ef3034dd0519c8adeaffd0c9c908a608e6c5", size = 492829, upload-time = "2026-05-29T05:20:51.182Z" },
+    { url = "https://files.pythonhosted.org/packages/4d/5b/a97a9a6afacb9b2e1bfe5f3e3aef05aec9f966a41a6f2d17cdfa8b5702e2/apache_airflow_task_sdk-1.3.1-py3-none-any.whl", hash = "sha256:4c5619ce9bdc0f76becd4fe2d0c85aea0667ef6c213e8c8785ecdcc01176d41b", size = 604503, upload-time = "2026-08-12T08:10:39.565Z" },
 ]
 
 [[package]]
@@ -742,7 +745,7 @@ wheels = [
 
 [[package]]
 name = "cadwyn"
-version = "7.1.0"
+version = "7.0.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "fastapi" },
@@ -752,9 +755,9 @@ dependencies = [
     { name = "typing-extensions" },
     { name = "typing-inspection" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/eb/74/b557960408e3577d57eb9b5a677d081bc36d2fc5b02cfd15791de35a3257/cadwyn-7.1.0.tar.gz", hash = "sha256:0272361a7c97723a9639258a7e1f02c7832b24b7929ac3f3be805eb9de53a550", size = 666212, upload-time = "2026-06-15T18:42:00.757Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/80/31/9a986a9fe20c6b52bde0dd23c9fc002388ab0c8f7b30a37217b07aa1875f/cadwyn-7.0.0.tar.gz", hash = "sha256:3b57549a37e218dffb55ac5d188639de0516207f05642b084f23627c5a44d614", size = 662353, upload-time = "2026-06-06T16:34:39.492Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/b8/53/a7d4153847692d59de6cfd7b41a26c66dd633b2bda5e098305819f50c0ad/cadwyn-7.1.0-py3-none-any.whl", hash = "sha256:a72859c326e10dce63cbe360bf0aa88ffd2785be7024b3baafe49be25e2be3d6", size = 62227, upload-time = "2026-06-15T18:41:59.496Z" },
+    { url = "https://files.pythonhosted.org/packages/73/c4/efee5781dc8b3a50fd876d413cad6db6ee69e1f21d5a07ca469cec03cd22/cadwyn-7.0.0-py3-none-any.whl", hash = "sha256:727d3c444ae992bb2a238246d13f173e4802c92e1c901458975549e6f0522560", size = 61194, upload-time = "2026-06-06T16:34:37.768Z" },
 ]
 
 [[package]]
@@ -1581,7 +1584,7 @@ wheels = [
 
 [[package]]
 name = "fastapi"
-version = "0.138.0"
+version = "0.136.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "annotated-doc" },
@@ -1590,9 +1593,9 @@ dependencies = [
     { name = "typing-extensions" },
     { name = "typing-inspection" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/5b/58/ff455d9fe47c60abadb34b9e05a304b1f05f5ab8000ac01565156b6f5e43/fastapi-0.138.0.tar.gz", hash = "sha256:d445a4877636ad191e7053e08c9bf98cb921a6756776848400bb773d1740c061", size = 419240, upload-time = "2026-06-20T01:18:05.259Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/81/2d/ff8d91d7b564d464629a0fd50a4489c97fcb836ac230bf3a7269232a9b1f/fastapi-0.136.3.tar.gz", hash = "sha256:e487fae93ad408e6f47641ee4dfe389864fd7bec92e547ea8498fc13f43e83ab", size = 396410, upload-time = "2026-05-23T18:53:15.192Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/6c/ff/8496d9847a5fedae775eb49460722d3efaa80487854273e9647ae876218c/fastapi-0.138.0-py3-none-any.whl", hash = "sha256:b6f54fd1bd72c80b0f899f172c61a600f6f7af9b43d4d772a018f35624048cb0", size = 126779, upload-time = "2026-06-20T01:18:03.483Z" },
+    { url = "https://files.pythonhosted.org/packages/e0/82/45359b62a067409bd929ae8a56b8ed13e5a8c8a61194b3c236920999ab83/fastapi-0.136.3-py3-none-any.whl", hash = "sha256:3d2a69bdf04b7e9f3afa292c3bc7a98816bbfafa10bc9b45f3f3700d2f761620", size = 117481, upload-time = "2026-05-23T18:53:16.924Z" },
 ]
 
 [package.optional-dependencies]
@@ -6819,11 +6822,11 @@ wheels = [
 
 [[package]]
 name = "structlog"
-version = "25.5.0"
+version = "26.1.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/ef/52/9ba0f43b686e7f3ddfeaa78ac3af750292662284b3661e91ad5494f21dbc/structlog-25.5.0.tar.gz", hash = "sha256:098522a3bebed9153d4570c6d0288abf80a031dfdb2048d59a49e9dc2190fc98", size = 1460830, upload-time = "2025-10-27T08:28:23.028Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/5e/89/b4a0bcfdf4f71a3dea31379f095929613d7e4528a0996bca6aa964cd0dca/structlog-26.1.0.tar.gz", hash = "sha256:f63a716cbd1b1291cf7661de7794b455acfa4c43c5bcf1630e6ad5ddc1adb3b7", size = 1459881, upload-time = "2026-06-06T07:33:39.348Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/a8/45/a132b9074aa18e799b891b91ad72133c98d8042c70f6240e4c5f9dabee2f/structlog-25.5.0-py3-none-any.whl", hash = "sha256:a8453e9b9e636ec59bd9e79bbd4a72f025981b3ba0f5837aebf48f02f37a7f9f", size = 72510, upload-time = "2025-10-27T08:28:21.535Z" },
+    { url = "https://files.pythonhosted.org/packages/a9/18/489c97b834dfff9cf2fc2507cede4bcd4b11e67f84bc462acd1992496f86/structlog-26.1.0-py3-none-any.whl", hash = "sha256:e081a26d6c373e6d201eca24eede26d8ffab07f88f477822e679183428d3d91e", size = 73764, upload-time = "2026-06-06T07:33:38.046Z" },
 ]
 
 [[package]]
