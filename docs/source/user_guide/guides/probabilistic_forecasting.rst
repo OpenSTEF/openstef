@@ -211,7 +211,7 @@ calibration before and after, including diagnostic plots, see
 :doc:`/tutorials/quantile_calibration`.
 
 Conformalized Quantile Calibration
-----------------------------------
+-----------------------------------
 
 OpenSTEF also provides a dependency-free
 :class:`~openstef_models.transforms.postprocessing.ConformalizedQuantileCalibrator`
@@ -264,3 +264,4 @@ See :doc:`/user_guide/guides/backtesting_tutorial` for how to evaluate forecast 
    - :doc:`/user_guide/concepts/models` for understanding how different model types compare.
    - :doc:`/user_guide/guides/backtesting_tutorial` for evaluating forecast performance systematically.
    - :doc:`/user_guide/guides/reliability_fallback` for operational concerns like fallback behavior when data is missing.
+```

@@ -233,3 +233,4 @@ benchmarks (hundreds of targets, multiple models) remain tractable.
    - :ref:`concept_metalearning` for how BEAM results inform model selection decisions.
    - :doc:`/user_guide/guides/backtesting_tutorial` for a hands-on walkthrough of setting up and running a backtest.
    - :doc:`/api/beam` for the full openstef-beam API reference.
+```

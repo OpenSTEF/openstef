@@ -113,7 +113,7 @@ The ``fit()`` method returns a :class:`~openstef_models.models.forecasting_model
 
 1. **Preprocessing**: New data passes through the same preprocessing pipeline used during training, ensuring feature consistency.
 2. **Forecaster.predict()**: The model generates raw predictions.
-3. **Postprocessing**: A separate :class:`~openstef_core.mixins.transform.TransformPipeline` applies quantile sorting (via :class:`~openstef_models.transforms.postprocessing.quantile_sorter.QuantileSorter`) and confidence interval construction (via :class:`~openstef_models.transforms.postprocessing.confidence_interval_applicator.ConfidenceIntervalApplicator`).
+3. **Postprocessing**: A separate :class:`~openstef_core.mixins.transform.TransformPipeline` applies quantile sorting (via :class:`~openstef_models.transforms.postprocessing.quantile_sorter.QuantileSorter`) and confidence interval construction (via :class:`~openstef_models.transforms.postprocessing.confidence_interval_applicator.ConfidenceIntervalApplicator`). Optional calibration transforms such as :class:`~openstef_models.transforms.postprocessing.IsotonicQuantileCalibrator` or :class:`~openstef_models.transforms.postprocessing.ConformalizedQuantileCalibrator` can be appended to this pipeline for improved quantile reliability; see :doc:`/user_guide/guides/probabilistic_forecasting` for details.
 4. **Callbacks**: The final :class:`~openstef_core.datasets.validated_datasets.ForecastDataset` is passed to callbacks for logging or downstream delivery.
 
 Model Reuse
@@ -154,3 +154,4 @@ For a complete walkthrough with real data, see :doc:`/tutorials/forecasting_quic
    - :doc:`/user_guide/guides/probabilistic_forecasting` for quantile forecasts and calibration.
    - :doc:`/user_guide/guides/deployment` for integrating forecasting into production systems.
    - :doc:`/user_guide/guides/backtesting_tutorial` for a hands-on backtest walkthrough; see also :ref:`concept_beam` for the broader framework.
+```
