@@ -28,6 +28,7 @@ from openstef_beam.metrics import (
     precision_recall,
     r2,
     rcrps,
+    rcs,
     relative_pinball_loss,
     riqd,
     rmae,
@@ -699,6 +700,78 @@ class RIQDProvider(MetricProvider):
         return metrics
 
 
+class RCSProvider(MetricProvider):
+    """Provides Regression Coverage Score metrics.
+
+    Measures the fraction of observed values inside symmetric prediction
+    intervals, such as P10-P90. For each quantile, finds its symmetric
+    counterpart and computes RCS between them.
+    """
+
+    @property
+    @override
+    def metric_names(self) -> frozenset[str]:
+        return frozenset({"RCS"})
+
+    median_quantile: Quantile = Quantile(0.5)
+
+    @override
+    def compute_probabilistic(
+        self,
+        y_true: npt.NDArray[np.floating],
+        y_pred: npt.NDArray[np.floating],
+        quantiles: list[Quantile],
+    ) -> QuantileMetricsDict:
+        """Compute RCS for each quantile by finding its symmetric counterpart.
+
+        For each quantile q, finds the symmetric quantile (1-q) and computes
+        RCS between them. Only processes quantiles for which a symmetric
+        counterpart is available.
+
+        Args:
+            y_true: True values, 1D array of shape (num_samples,).
+            y_pred: Predicted values, 2D array of shape (num_samples, num_quantiles).
+            quantiles: Quantiles used for prediction, sequence of length (num_quantiles,).
+
+        Returns:
+            QuantileMetricsDict containing RCS metrics for each processable quantile.
+        """
+        metrics: QuantileMetricsDict = {}
+
+        for i, quantile in enumerate(quantiles):
+            if self.quantiles is not None and quantile not in self.quantiles:
+                continue
+
+            symmetric_quantile = 1.0 - quantile
+
+            if np.isclose(quantile, symmetric_quantile, atol=1e-6):
+                continue  # skip if same quantile (e.g., 0.5)
+
+            symmetric_indices = np.nonzero(np.isclose(quantiles, symmetric_quantile, atol=1e-6))[0]
+
+            if len(symmetric_indices) == 0:
+                continue  # no symmetric quantile found, skip
+
+            symmetric_idx = symmetric_indices[0]
+
+            if quantile < self.median_quantile:
+                lower_pred = y_pred[:, i]
+                upper_pred = y_pred[:, symmetric_idx]
+            else:
+                lower_pred = y_pred[:, symmetric_idx]
+                upper_pred = y_pred[:, i]
+
+            metrics[quantile] = {
+                "RCS": rcs(
+                    y_true=y_true,
+                    y_pred_lower_q=lower_pred,
+                    y_pred_upper_q=upper_pred,
+                )
+            }
+
+        return metrics
+
+
 class RelativePinballLossProvider(MetricProvider):
     """Provides Relative Pinball Loss metrics for quantile predictions.
 
@@ -748,6 +821,7 @@ __all__ = [
     "PeakMetricProvider",
     "R2Provider",
     "RCRPSProvider",
+    "RCSProvider",
     "RIQDProvider",
     "RMAEPeakHoursProvider",
     "RMAEProvider",
