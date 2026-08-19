@@ -134,6 +134,8 @@ maintain consistency between levels.
      - ``reg:quantileerror`` objective
      - Fast iteration on linear-tractable problems, or as a robust baseline.
      - Uses XGBoost's built-in quantile regression for linear boosters.
+       Quantile levels are sorted internally before training, so input order
+       does not matter.
    * - **LightGBM**
      - ``MultiQuantileRegressor``
      - Large feature sets where LightGBM's training speed pays off.
@@ -264,3 +266,4 @@ See :doc:`/user_guide/guides/backtesting_tutorial` for how to evaluate forecast 
    - :doc:`/user_guide/concepts/models` for understanding how different model types compare.
    - :doc:`/user_guide/guides/backtesting_tutorial` for evaluating forecast performance systematically.
    - :doc:`/user_guide/guides/reliability_fallback` for operational concerns like fallback behavior when data is missing.
+```

@@ -205,3 +205,4 @@ Most users start with Presets and only drop down to lower levels when they need
 custom behavior. The component boundaries are designed so you can replace one piece
 (e.g., swap a Forecaster or add a Transform) without rewriting the rest of the
 pipeline.
+```
