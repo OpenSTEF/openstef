@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Ask a question on Slack
+    url: https://slack.lfenergy.org/
+    about: Join the #openstef channel on the LF Energy Slack workspace for questions and discussion.
+  - name: Four-weekly co-coding meetings
+    url: https://lf-energy.atlassian.net/wiki/spaces/OS/pages/32278358/Four-weekly+community+meeting
+    about: Join a community meeting to get help or discuss ideas in real time.
+  - name: Documentation
+    url: https://openstef.github.io/openstef/
+    about: Check the docs, user guide, and API reference before opening an issue.

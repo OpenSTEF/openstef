@@ -16,25 +16,32 @@ def combine_forecast_input_datasets(
     Args:
         input_data: ForecastInputDataset containing base forecaster predictions.
         additional_features: Optional ForecastInputDataset containing additional features to combine.
-        join: Type of join to perform on the datasets. Defaults to "inner".
+        join: How to combine the datasets. "inner" (default) keeps only shared timestamps. "left"
+            keeps the full ``input_data`` index authoritative, aligning additional features onto it
+            and leaving uncovered rows as NaN.
 
     Returns:
         Combined ForecastInputDataset containing both input data and additional features.
     """
     if not isinstance(additional_features, ForecastInputDataset):
         return input_data
-    if join != "inner":
-        raise NotImplementedError("Only 'inner' join is currently supported.")
+    if join not in ("inner", "left"):
+        raise NotImplementedError("Only 'inner' and 'left' joins are currently supported.")
     df_additional = additional_features.data
     if input_data.target_column in df_additional.columns:
         df_additional = df_additional.drop(columns=[input_data.target_column])
 
     df_input = input_data.data
-    df = pd.concat(
-        [df_input, df_additional],
-        axis=1,
-        join="inner",
-    )
+    if join == "left":
+        # Base predictions stay authoritative: additional features are aligned onto the base
+        # index, so rows lacking features are kept (as NaN) rather than dropped.
+        df = df_input.join(df_additional, how="left")
+    else:
+        df = pd.concat(
+            [df_input, df_additional],
+            axis=1,
+            join="inner",
+        )
 
     return ForecastInputDataset(
         data=df,

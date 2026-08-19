@@ -117,3 +117,28 @@ def test_is_fitted_true_after_fit(dataset: tuple[pd.DataFrame, pd.Series], basel
 
     # Assert
     assert model.is_fitted
+
+
+def test_fit_forwards_eval_set_for_early_stopping_lgbm(dataset: tuple[pd.DataFrame, pd.Series]):
+    # Arrange
+    quantiles = [Quantile(0.1), Quantile(0.5), Quantile(0.9)]
+    early_stopping_rounds = 3
+    X, y = dataset
+    y = y.to_numpy()
+    X_train, y_train = X.iloc[:80], y[:80]  # noqa: N806
+    X_val, y_val = X.iloc[80:], y[80:]  # noqa: N806
+    model = MultiQuantileRegressor(
+        base_learner=LGBMRegressor,
+        quantile_param="alpha",
+        quantiles=quantiles,
+        hyperparams={"objective": "quantile", "n_estimators": 10, "early_stopping_rounds": early_stopping_rounds},
+    )
+
+    # Act
+    model.fit(X_train, y_train, eval_set=[(X_train, y_train), (X_val, y_val)])
+
+    # Assert
+    for estimator in model.models:
+        assert isinstance(estimator, LGBMRegressor)
+        assert estimator.get_params()["early_stopping_rounds"] == early_stopping_rounds
+        assert estimator.evals_result_

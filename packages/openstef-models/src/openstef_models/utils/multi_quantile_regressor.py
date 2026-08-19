@@ -84,6 +84,9 @@ class MultiQuantileRegressor(BaseEstimator, RegressorMixin):
         """
         # Pass model-specific eval arguments
         kwargs = {}
+
+        x_array = np.asarray(X)
+
         for model in self._models:
             # Check if early stopping is supported
             # Check that eval_set is supported
@@ -91,21 +94,20 @@ class MultiQuantileRegressor(BaseEstimator, RegressorMixin):
                 model.set_params(early_stopping_rounds=None)
 
             if eval_set is not None and self.learner_eval_sample_weight_param is not None:
+                kwargs["eval_set"] = [
+                    (x_array if eval_x is X else np.asarray(eval_x), eval_y) for eval_x, eval_y in eval_set
+                ]
                 kwargs[self.learner_eval_sample_weight_param] = eval_sample_weight
-
-            if "early_stopping_rounds" in self.hyperparams and self.learner_eval_sample_weight_param is not None:
-                model.set_params(early_stopping_rounds=self.hyperparams["early_stopping_rounds"])
+                if "early_stopping_rounds" in self.hyperparams:
+                    model.set_params(early_stopping_rounds=self.hyperparams["early_stopping_rounds"])
 
             if feature_name:
                 self.model_feature_names = feature_name
             else:
                 self.model_feature_names = []
 
-            if eval_sample_weight is not None and self.learner_eval_sample_weight_param:
-                kwargs[self.learner_eval_sample_weight_param] = eval_sample_weight
-
             model.fit(  # type: ignore
-                X=np.asarray(X),
+                X=x_array,
                 y=y,
                 sample_weight=sample_weight,
                 **kwargs,

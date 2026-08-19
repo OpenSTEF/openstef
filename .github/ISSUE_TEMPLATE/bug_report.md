@@ -1,31 +1,70 @@
 ---
 name: Bug report
-about: Create a report to help us improve
+about: Report a problem with OpenSTEF to help us reproduce and fix it
 title: ''
-labels: ''
+labels: ['bug']
+type: Bug
 assignees: ''
-
 ---
 
-**Describe the bug**
-A clear and concise description of what the bug is.
+<!--
+Thanks for taking the time to file a bug report! Please search existing
+issues first to avoid duplicates: https://github.com/OpenSTEF/openstef/issues
+-->
 
-**To Reproduce**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
+## Describe the bug and its impact
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
+<!-- A clear and concise description of the bug, and how it affects you as an OpenSTEF user. -->
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
+## Affected package(s)
 
-**Desktop (please complete the following information):**
- - OS: [e.g. iOS]
- - Browser [e.g. chrome, safari]
- - Version [e.g. 22]
+<!-- Check all that apply. -->
 
+- [ ] openstef-core
+- [ ] openstef-models
+- [ ] openstef-beam
+- [ ] openstef-foundation-models
+- [ ] openstef-meta
+- [ ] examples / deployment
+- [ ] docs
+- [ ] not sure
 
-**Additional context**
-Add any other context about the problem here.
+## Steps / code to reproduce
+
+<!--
+A minimal, self-contained code example that reproduces the problem. Prefer
+synthetic data (e.g. numpy/pandas generated data) over external files. If the
+bug only reproduces with realistic load/weather shapes, you can also point to
+the published Liander benchmark dataset:
+https://huggingface.co/datasets/OpenSTEF/liander2024-energy-forecasting-benchmark
+-->
+
+```python
+# Minimal example to reproduce the bug
+```
+
+## Expected behavior
+
+## Actual behavior
+
+<!-- If an exception was raised, please include the full traceback. -->
+
+```python-traceback
+Paste the full traceback here
+```
+
+## Environment
+
+<!-- OpenSTEF package version(s) (`uv pip list | grep openstef`), Python version, and OS. -->
+
+```shell
+openstef-core:
+Python:
+OS:
+```
+
+## Additional context
+
+## Would you be interested in submitting a fix?
+
+- [ ] I'd be interested in opening a PR for this once triaged

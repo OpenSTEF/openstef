@@ -276,12 +276,15 @@ class WeightsCombiner(ForecastCombiner):
     def _prepare_input_data(
         dataset: ForecastInputDataset, additional_features: ForecastInputDataset | None
     ) -> pd.DataFrame:
-        df = dataset.input_data(start=dataset.index[0])
-        if additional_features is not None:
-            df_a = additional_features.input_data(start=dataset.index[0])
-            df = pd.concat([df, df_a], axis=1, join="inner")
+        # Left join keeps the full base-prediction index authoritative: rows without additional
+        # features are retained (as NaN) instead of dropped, so every base prediction still
+        # receives weights and is never zeroed out.
+        combined = combine_forecast_input_datasets(
+            input_data=dataset, additional_features=additional_features, join="left"
+        )
+        df = combined.input_data()
         if df.empty:
-            msg = "No overlapping timestamps between base predictions and additional features after inner join."
+            msg = "No base predictions available to combine."
             raise InsufficientlyCompleteError(msg)
         return df
 
@@ -299,10 +302,10 @@ class WeightsCombiner(ForecastCombiner):
             is_max: pd.DataFrame = weights.eq(weights.max(axis=1), axis=0)
             weights = is_max.div(weights.sum(axis=1), axis=0)
 
-        # Reindex weights to predictions so that rows without additional_features
-        # (dropped by _prepare_input_data's inner join) get zero weight.
+        # Weights are already aligned to the full base-prediction index (left join in
+        # _prepare_input_data), so valid base forecasts are never zeroed out for rows
+        # lacking additional features.
         predictions = dataset.input_data()
-        weights = weights.reindex(predictions.index, fill_value=0.0)
         return nan_aware_weighted_mean(predictions, weights)
 
     @override
