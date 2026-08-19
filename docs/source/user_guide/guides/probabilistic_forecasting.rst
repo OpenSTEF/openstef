@@ -206,7 +206,44 @@ When ``use_local_quantile_estimation=True``, the calibrator estimates observed q
 
    The calibrator must be fitted (via ``workflow.fit()``) before it can be used for prediction. Calling ``predict()`` on a workflow with an unfitted calibrator will raise a :class:`~openstef_core.exceptions.NotFittedError`.
 
-For a complete worked example showing calibration before and after, including diagnostic plots, see :doc:`/tutorials/quantile_calibration`.
+For a complete worked example showing isotonic and asymmetric conformal
+calibration before and after, including diagnostic plots, see
+:doc:`/tutorials/quantile_calibration`.
+
+Conformalized Quantile Calibration
+----------------------------------
+
+OpenSTEF also provides a dependency-free
+:class:`~openstef_models.transforms.postprocessing.ConformalizedQuantileCalibrator`
+that implements asymmetric finite-sample conformal calibration. It is a
+postprocessing transform over a
+``ForecastDataset``:
+
+1. Fit the forecaster and generate forecasts for a time-ordered calibration
+   period.
+2. Fit the calibrator on those forecasts and the corresponding actuals.
+3. Apply the fitted corrections to later forecast datasets.
+
+The correction is asymmetric by tail. For a lower quantile ``q < 0.5``, the
+calibrator uses ``forecast - actual`` scores and subtracts the finite-sample
+quantile at ``1 - q``. For an upper quantile ``q >= 0.5``, it uses ``actual -
+forecast`` scores and adds the finite-sample quantile at ``q``. The finite-sample
+level is adjusted with ``min(level * (n + 1) / n, 1)`` and estimated with
+NumPy's ``method="higher"`` convention.
+
+By default, P50 is unchanged and quantile columns are not sorted inside the
+calibrator. This preserves the specified semantics: median calibration is an
+explicit opt-in, while downstream
+:class:`~openstef_models.transforms.postprocessing.quantile_sorter.QuantileSorter`
+owns the quantile-ordering invariant.
+
+.. code-block:: python
+
+   from openstef_models.transforms.postprocessing import ConformalizedQuantileCalibrator
+
+   calibrator = ConformalizedQuantileCalibrator(quantiles=quantiles)
+   calibrator.fit(calibration_forecasts_with_actuals)
+   calibrated_forecasts = calibrator.transform(forecasts)
 
 Evaluating Probabilistic Forecasts
 -----------------------------------
