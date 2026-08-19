@@ -192,6 +192,9 @@ ini_options.filterwarnings = [
   # that Python cannot propagate. Scope the ignore to CPython's fixed ctypes-callback
   # wording so genuine unraisable exceptions still fail.
   "ignore:.*Exception ignored on calling ctypes callback function.*:pytest.PytestUnraisableExceptionWarning",
+  # joblib upstream: NumPy 2.5+ deprecated array.shape assignment. joblib 1.5.3 uses this
+  # in its unpickling code and cannot be fixed without upgrading joblib (not yet available).
+  "ignore:.*Setting the shape on a NumPy array has been deprecated.*:DeprecationWarning:joblib",
   # Ignore fork() deprecation warning from multiprocessing on macOS
   # This warning occurs when pytest (multi-threaded) spawns processes using fork()
   # Using spawn instead breaks test infrastructure (fixtures not picklable)
