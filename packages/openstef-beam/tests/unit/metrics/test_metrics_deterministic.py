@@ -15,6 +15,7 @@ from openstef_beam.metrics import (
     mape,
     pinball_loss,
     precision_recall,
+    r2,
     relative_pinball_loss,
     riqd,
     rmae,
@@ -624,3 +625,37 @@ def test_pinball_loss_various(
 
     # Assert
     assert abs(result - expected) < 1e-8, f"Expected {expected} but got {result}"
+
+
+def test_r2_perfect_and_constant_predictor():
+    """R² is 1.0 for a perfect fit and 0.0 for a constant mean predictor."""
+    y_true = np.array([1.0, 2.0, 3.0, 4.0])
+
+    assert r2(y_true, y_true) == pytest.approx(1.0)
+    assert r2(y_true, np.full_like(y_true, y_true.mean())) == pytest.approx(0.0)
+
+
+def test_r2_matches_known_values():
+    """R² matches hand-computed values, including a sample-weighted case."""
+    # 1 - 1.5 / 29.1875
+    assert r2(np.array([3.0, -0.5, 2.0, 7.0]), np.array([2.5, 0.0, 2.0, 8.0])) == pytest.approx(0.948608, abs=1e-5)
+    # Weighted: weighted mean 2.25, residual sum 2.0, total sum 2.75 -> 1 - 2 / 2.75
+    weighted = r2(
+        np.array([1.0, 2.0, 3.0]),
+        np.array([1.0, 2.0, 4.0]),
+        sample_weights=np.array([1.0, 1.0, 2.0]),
+    )
+    assert weighted == pytest.approx(0.272727, abs=1e-5)
+
+
+def test_r2_undefined_for_fewer_than_two_samples():
+    """Fewer than two samples returns NaN (R² undefined, matches scikit-learn)."""
+    assert np.isnan(r2(np.array([]), np.array([])))
+    assert np.isnan(r2(np.array([5.0]), np.array([5.0])))
+
+
+def test_r2_constant_target():
+    y_true = np.array([5.0, 5.0, 5.0])
+
+    assert r2(y_true, y_true) == pytest.approx(1.0)
+    assert r2(y_true, np.array([5.0, 5.0, 6.0])) == pytest.approx(0.0)
