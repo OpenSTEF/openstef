@@ -16,6 +16,7 @@ from openstef_beam.metrics import (
     pinball_loss,
     precision_recall,
     r2,
+    rcs,
     relative_pinball_loss,
     riqd,
     rmae,
@@ -458,6 +459,22 @@ def test_riqd_returns_nan_when_inputs_empty() -> None:
 
     # Assert
     assert np.isnan(result)
+
+
+def test_rcs() -> None:
+    """Test the regression coverage score with a sample prediction interval."""
+    y_true = np.array([100.0, 120.0, 110.0, 130.0])
+    y_pred_lower_q = np.array([90.0, 115.0, 105.0, 125.0])
+    y_pred_upper_q = np.array([110.0, 125.0, 115.0, 128.0])
+
+    result = rcs(
+        y_true=y_true,
+        y_pred_lower_q=y_pred_lower_q,
+        y_pred_upper_q=y_pred_upper_q,
+    )
+
+    assert isinstance(result, float)
+    assert result == 0.75
 
 
 @pytest.mark.parametrize(
