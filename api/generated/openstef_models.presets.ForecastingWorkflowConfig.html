@@ -1448,6 +1448,12 @@ hyperparameters, location information, data columns, and feature engineering set
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="openstef_models.presets.ForecastingWorkflowConfig.outlier_strictness_n_std">
+<span class="sig-name descname"><span class="pre">outlier_strictness_n_std</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><a class="headerlink" href="#openstef_models.presets.ForecastingWorkflowConfig.outlier_strictness_n_std" title="Link to this definition">#</a></dt>
+<dd><p>Number of standard deviations for outlier detection (lower = stricter bounds). Only used when nan_on_outlier_features is enabled.</p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="openstef_models.presets.ForecastingWorkflowConfig.max_day_lags">
 <span class="sig-name descname"><span class="pre">max_day_lags</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><a class="headerlink" href="#openstef_models.presets.ForecastingWorkflowConfig.max_day_lags" title="Link to this definition">#</a></dt>
 <dd><p>Maximum number of days to look back for day-based lags. Default is 14 days (two weekly cycles). Set to 7 for a single weekly cycle.</p>
@@ -1626,6 +1632,7 @@ hyperparameters, location information, data columns, and feature engineering set
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.presets.ForecastingWorkflowConfig.rolling_aggregate_features"><code class="docutils literal notranslate"><span class="pre">ForecastingWorkflowConfig.rolling_aggregate_features</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.presets.ForecastingWorkflowConfig.clip_features"><code class="docutils literal notranslate"><span class="pre">ForecastingWorkflowConfig.clip_features</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.presets.ForecastingWorkflowConfig.nan_on_outlier_features"><code class="docutils literal notranslate"><span class="pre">ForecastingWorkflowConfig.nan_on_outlier_features</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.presets.ForecastingWorkflowConfig.outlier_strictness_n_std"><code class="docutils literal notranslate"><span class="pre">ForecastingWorkflowConfig.outlier_strictness_n_std</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.presets.ForecastingWorkflowConfig.max_day_lags"><code class="docutils literal notranslate"><span class="pre">ForecastingWorkflowConfig.max_day_lags</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.presets.ForecastingWorkflowConfig.sample_weight_config"><code class="docutils literal notranslate"><span class="pre">ForecastingWorkflowConfig.sample_weight_config</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef_models.presets.ForecastingWorkflowConfig.data_splitter"><code class="docutils literal notranslate"><span class="pre">ForecastingWorkflowConfig.data_splitter</span></code></a></li>

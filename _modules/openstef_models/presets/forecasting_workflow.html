@@ -1109,6 +1109,14 @@ window.runMermaid = runMermaid;</script>
         <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Feature selection for which features to replace out-of-range values with NaN. &quot;</span>
         <span class="s2">&quot;Defaults to no features (disabled).&quot;</span><span class="p">,</span>
     <span class="p">)</span>
+    <span class="n">outlier_strictness_n_std</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Number of standard deviations for outlier detection (lower = stricter bounds). &quot;</span>
+            <span class="s2">&quot;Only used when nan_on_outlier_features is enabled.&quot;</span>
+        <span class="p">),</span>
+        <span class="n">gt</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="p">)</span>
     <span class="n">max_day_lags</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
         <span class="n">default</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span>
         <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Maximum number of days to look back for day-based lags. &quot;</span>
@@ -1291,7 +1299,14 @@ window.runMermaid = runMermaid;</script>
     <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s2">&quot;xgboost&quot;</span><span class="p">:</span>
         <span class="n">nan_outlier_handlers</span> <span class="o">=</span> <span class="p">[</span>
             <span class="o">*</span><span class="p">(</span>
-                <span class="p">[</span><span class="n">OutlierHandler</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;standard&quot;</span><span class="p">,</span> <span class="n">selection</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">nan_on_outlier_features</span><span class="p">,</span> <span class="n">outlier_action</span><span class="o">=</span><span class="s2">&quot;nan&quot;</span><span class="p">)]</span>
+                <span class="p">[</span>
+                    <span class="n">OutlierHandler</span><span class="p">(</span>
+                        <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;standard&quot;</span><span class="p">,</span>
+                        <span class="n">selection</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">nan_on_outlier_features</span><span class="p">,</span>
+                        <span class="n">outlier_action</span><span class="o">=</span><span class="s2">&quot;nan&quot;</span><span class="p">,</span>
+                        <span class="n">n_std</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">outlier_strictness_n_std</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">]</span>
                 <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">nan_on_outlier_features</span> <span class="o">!=</span> <span class="n">FeatureSelection</span><span class="o">.</span><span class="n">NONE</span>
                 <span class="k">else</span> <span class="p">[]</span>
             <span class="p">),</span>
