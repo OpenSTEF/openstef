@@ -1052,8 +1052,12 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../../api/generated/openstef_models.transforms.time_domain.lags_adder.LagsAdder.html#openstef_models.transforms.time_domain.LagsAdder.features_added">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">features_added</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="c1"># Return all possible feature names from all lags</span>
-        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_lag_feature</span><span class="p">(</span><span class="n">lag</span><span class="p">)</span> <span class="k">for</span> <span class="n">lag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lags</span><span class="p">]</span></div>
+        <span class="c1"># transform() only materializes lags that fall within a horizon&#39;s valid</span>
+        <span class="c1"># window (&gt;= horizon and &lt;= history_available); a configured lag outside</span>
+        <span class="c1"># every horizon&#39;s window is never added. Mirror that here so the declared</span>
+        <span class="c1"># features match the columns transform() actually produces.</span>
+        <span class="n">materialized_lags</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">({</span><span class="n">lag</span> <span class="k">for</span> <span class="n">lags</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_horizon_lags</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">for</span> <span class="n">lag</span> <span class="ow">in</span> <span class="n">lags</span><span class="p">},</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_lag_feature</span><span class="p">(</span><span class="n">lag</span><span class="p">)</span> <span class="k">for</span> <span class="n">lag</span> <span class="ow">in</span> <span class="n">materialized_lags</span><span class="p">]</span></div>
 </div>
 
 
