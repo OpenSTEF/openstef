@@ -227,8 +227,8 @@ class PeakMetricProvider(MetricProvider):
         )
 
         metrics: MetricsDict = {}
-        metrics["num_predicted_peaks"] = cm.true_positives.sum() + cm.false_positives.sum()
-        metrics["num_true_peaks"] = cm.true_positives.sum() + cm.false_negatives.sum()
+        metrics["num_predicted_peaks"] = int(cm.true_positives.sum() + cm.false_positives.sum())
+        metrics["num_true_peaks"] = int(cm.true_positives.sum() + cm.false_negatives.sum())
         peak_pr = precision_recall(cm, effective=False)
         effective_pr = precision_recall(cm, effective=True)
         metrics["precision"], metrics["recall"] = peak_pr
