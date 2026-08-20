@@ -7530,37 +7530,37 @@ wheels = [
 
 [[package]]
 name = "xgboost"
-version = "3.4.0"
+version = "3.4.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "numpy", marker = "(sys_platform != 'emscripten' and sys_platform != 'win32' and extra == 'extra-15-openstef-models-xgb-cpu') or (sys_platform == 'emscripten' and extra == 'extra-15-openstef-models-xgb-gpu') or (sys_platform == 'win32' and extra == 'extra-15-openstef-models-xgb-gpu') or (sys_platform == 'emscripten' and extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu') or (sys_platform == 'win32' and extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu') or (extra != 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-15-openstef-models-xgb-gpu') or (extra != 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu')" },
     { name = "nvidia-nccl-cu13", marker = "sys_platform == 'linux' or (extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu')" },
     { name = "scipy", marker = "(sys_platform != 'emscripten' and sys_platform != 'win32' and extra == 'extra-15-openstef-models-xgb-cpu') or (sys_platform == 'emscripten' and extra == 'extra-15-openstef-models-xgb-gpu') or (sys_platform == 'win32' and extra == 'extra-15-openstef-models-xgb-gpu') or (sys_platform == 'emscripten' and extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu') or (sys_platform == 'win32' and extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu') or (extra != 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-15-openstef-models-xgb-gpu') or (extra != 'extra-15-openstef-models-xgb-cpu' and extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu')" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/7d/11/2b1de4cb9b7eeb042ca49c7d3b3ed2b77e7645ee6c0f99cf616716f3e8d7/xgboost-3.4.0.tar.gz", hash = "sha256:a6b5d114e7186b5a68c5b08b42297fc76c8c5d7292294220cdb12a6efd59977e", size = 1231819, upload-time = "2026-08-04T11:14:57.216Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/38/a9/295320f741c5be4be996c73ee65a2a11852028c50daa7229adb0d61c330b/xgboost-3.4.1.tar.gz", hash = "sha256:6968a4c71efdfa859df0dfcad0d99211c95c28c4ffd6aecff46efff77d18026a", size = 1231819, upload-time = "2026-08-15T08:39:21.197Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/3e/27/3172bd833a41815ffed3757be5077bbb66a34afb389393606518b1889741/xgboost-3.4.0-py3-none-macosx_10_15_x86_64.whl", hash = "sha256:bc7aeee7c72e827f6406e8dc1f56c4c13d2ff2470fc6b4093b07c1e84b6c3920", size = 2541629, upload-time = "2026-08-04T11:13:50.234Z" },
-    { url = "https://files.pythonhosted.org/packages/b6/0f/a4628c03bcc85b16dced3854af2bcb8f3bb8deac718c1bcb5e12740ec5d5/xgboost-3.4.0-py3-none-macosx_12_0_arm64.whl", hash = "sha256:7c328ab0fe446883271aab194ce1e4f49b37b4bd919a258a3ca74fb83e64029c", size = 2365529, upload-time = "2026-08-04T11:13:53.05Z" },
-    { url = "https://files.pythonhosted.org/packages/69/49/49d43a6244877904eb3df40d064303114a7f921d4bf730ab55b169e1f9dc/xgboost-3.4.0-py3-none-manylinux_2_28_aarch64.whl", hash = "sha256:1aaf7fb7af8ab306b1ef20f9576dbc1a06a7a42d2a366169650d024138d39638", size = 57196337, upload-time = "2026-08-04T11:14:09.981Z" },
-    { url = "https://files.pythonhosted.org/packages/ae/1b/d631cf47b046ba9fae9c86bf2dba88bec3c2f42173d5216fe81fb9be729c/xgboost-3.4.0-py3-none-manylinux_2_28_x86_64.whl", hash = "sha256:ba132153e3c696f090be808bc42b8e4248932ab9a4ee66441154c954789b507c", size = 57615296, upload-time = "2026-08-04T11:14:30.855Z" },
-    { url = "https://files.pythonhosted.org/packages/89/97/838165ec9399aa5e6add044f05b64d877d45125adeda15869021b9e625ce/xgboost-3.4.0-py3-none-win_amd64.whl", hash = "sha256:23c62770c38fb9acd8b40d6c7df6de8fa077ef7afcb84aafd898faabbec639f9", size = 48935508, upload-time = "2026-08-04T11:14:50.954Z" },
-    { url = "https://files.pythonhosted.org/packages/56/84/92c3af9c167815a15cfa09e5579d6cc604dc6f08b1ae061b3756274cf530/xgboost-3.4.0-py3-none-win_arm64.whl", hash = "sha256:9cdc68b992e55717438122174e2b3d9527c59882818fb954a329a62786012709", size = 2094191, upload-time = "2026-08-04T11:14:55.472Z" },
+    { url = "https://files.pythonhosted.org/packages/57/ea/0bdcd374241a86f1986e87e272516f0a70d841c3aa86aa9ca167fb651573/xgboost-3.4.1-py3-none-macosx_10_15_x86_64.whl", hash = "sha256:1ea15f15f661825b6a67d87674fb9604a1abb38dd0d4c5cf0486fc85f5203e83", size = 2541584, upload-time = "2026-08-15T08:38:48.484Z" },
+    { url = "https://files.pythonhosted.org/packages/f7/94/e5c37a8972ad780edc1d8459d1931356344ca133f7f99ba9cfda516b5bba/xgboost-3.4.1-py3-none-macosx_12_0_arm64.whl", hash = "sha256:a7afd7dbace0951c93aa85ffe046e54bc40893f5b51cd3e7991eb157bf9c7c7c", size = 2365501, upload-time = "2026-08-15T08:38:52.366Z" },
+    { url = "https://files.pythonhosted.org/packages/a7/11/4ff1f36ca5c32c642c71c88bec1508ee98b2c3b1e9eb169e8c82de303522/xgboost-3.4.1-py3-none-manylinux_2_28_aarch64.whl", hash = "sha256:7faaf99de26719c22bfae883a02bd56b5a3c2203122616e563cc72b7191b5c96", size = 57196172, upload-time = "2026-08-15T08:39:03.288Z" },
+    { url = "https://files.pythonhosted.org/packages/99/c7/bd05c5c430feb347aa040fcc8870135d70b256718deee9bc7d2ca74a77ff/xgboost-3.4.1-py3-none-manylinux_2_28_x86_64.whl", hash = "sha256:6adf2afa396da2ae8ed30295b50b99d4712eed9a6e0ce6cfe069290e4335e51f", size = 57615456, upload-time = "2026-08-15T08:39:09.983Z" },
+    { url = "https://files.pythonhosted.org/packages/2f/3c/925394671f6a1668e2a71886de66e80be694eaf37f615cec74eefaf43107/xgboost-3.4.1-py3-none-win_amd64.whl", hash = "sha256:2d30fa513673101f542fdcbd18f30c8f96c064046f798635ac08663e9969f81b", size = 48942686, upload-time = "2026-08-15T08:39:16.182Z" },
+    { url = "https://files.pythonhosted.org/packages/90/2f/f2fbe984ca095709fd246546125e78834740f347e3aa7561a22a1e928510/xgboost-3.4.1-py3-none-win_arm64.whl", hash = "sha256:e9312b30e5679d27c1d8b9ee97e092b964d960a672d5d406d9fb3cd0845c9797", size = 2094178, upload-time = "2026-08-15T08:39:19.308Z" },
 ]
 
 [[package]]
 name = "xgboost-cpu"
-version = "3.4.0"
+version = "3.4.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "numpy", marker = "sys_platform != 'emscripten' or (extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu')" },
     { name = "scipy", marker = "sys_platform != 'emscripten' or (extra == 'extra-26-openstef-foundation-models-cpu' and extra == 'extra-26-openstef-foundation-models-gpu')" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/de/17/bc5021799fd948d6364446b9ca633e0287ad91de1dae13d8be35e7976a58/xgboost_cpu-3.4.0.tar.gz", hash = "sha256:d65e8045f25e28f631da33ac5a51e305937bb81e3911ac9141823dbc4da1a0bb", size = 1232160, upload-time = "2026-08-04T11:10:19.658Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/99/98/c35e165aff81e43b43411662219764abbd246adae2547d360b23194cf75f/xgboost_cpu-3.4.1.tar.gz", hash = "sha256:ee0b249eaa962837cdc4e67adfec54567bfe7386337f3c3a3ce5d68909492e81", size = 1232193, upload-time = "2026-08-15T08:38:40.845Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/13/76/8eb0a5b7b2fff189ac89a2d71044ceaaf4d618bb7edc83a2838ec0a451de/xgboost_cpu-3.4.0-py3-none-manylinux_2_28_aarch64.whl", hash = "sha256:454eb0cac636cc34714e3bc92d9eb25f172ca0f971cdaaf658fa40e3324eb063", size = 5386247, upload-time = "2026-08-04T11:10:08.759Z" },
-    { url = "https://files.pythonhosted.org/packages/9b/df/86f85297045552cb294ad642ac44b72baf19153d60e792faa2bee572c760/xgboost_cpu-3.4.0-py3-none-manylinux_2_28_x86_64.whl", hash = "sha256:9818d48e5277527015419073a418a76c99cf5b094dbf1287533ea6a9f0b86301", size = 5796110, upload-time = "2026-08-04T11:10:12.478Z" },
-    { url = "https://files.pythonhosted.org/packages/62/89/ce79089ed5310446dc2f59c4288f5780548fb5f1d930d5b65a78f5813240/xgboost_cpu-3.4.0-py3-none-win_amd64.whl", hash = "sha256:45ab4ec708617ba4144ac821ca34a3a54648fe7e43e909dfcefaedd9f697b65d", size = 2163532, upload-time = "2026-08-04T11:10:15.202Z" },
-    { url = "https://files.pythonhosted.org/packages/cc/8a/10a5f3786da9b97376f09c65f15f61cce2edc65fc6de313a38d4da87e1cd/xgboost_cpu-3.4.0-py3-none-win_arm64.whl", hash = "sha256:3d6f202b79edb8c9a2067fcb61022995a02208e070a1333ebd85967fd6b60595", size = 2094444, upload-time = "2026-08-04T11:10:17.49Z" },
+    { url = "https://files.pythonhosted.org/packages/5d/bc/3662cad8486e26547600aed7a333c95b1c930af927f45eff0f41e68d034f/xgboost_cpu-3.4.1-py3-none-manylinux_2_28_aarch64.whl", hash = "sha256:47b81860b18056f9425b34fe2905343bc7ee0118122ae09cf2e31c305ed49877", size = 5386310, upload-time = "2026-08-15T08:35:07.687Z" },
+    { url = "https://files.pythonhosted.org/packages/c4/aa/80fab64b1a7b0a89e3bf657edcd4a802fad6026a7586d4e0eaec3b6a40d3/xgboost_cpu-3.4.1-py3-none-manylinux_2_28_x86_64.whl", hash = "sha256:1f16331f5c6beb2b40fbd4bf2834333062d93c9eb38b76186a5c206841dc1809", size = 5796137, upload-time = "2026-08-15T08:36:53.585Z" },
+    { url = "https://files.pythonhosted.org/packages/5e/0c/fa38470b4036c4650f3a12cb911913768fdda97f9d59e1c85a854aa10acb/xgboost_cpu-3.4.1-py3-none-win_amd64.whl", hash = "sha256:ceb0f7c786511e1876df6ca83a6f837a3187159bde51d8dcc5cdf5e2de76e366", size = 2163579, upload-time = "2026-08-15T08:37:34.89Z" },
+    { url = "https://files.pythonhosted.org/packages/df/f6/e821f4ee40454a058dc5f3903648cc4f7fadef23ed237cb2337de7345791/xgboost_cpu-3.4.1-py3-none-win_arm64.whl", hash = "sha256:24347f435ba6e9919c9102684f8b353bf43d9951184ef0e71b148673ed14306d", size = 2094432, upload-time = "2026-08-15T08:38:11.681Z" },
 ]
 
 [[package]]
