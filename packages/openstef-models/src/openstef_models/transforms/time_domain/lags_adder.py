@@ -248,8 +248,12 @@ class LagsAdder(BaseConfig, TimeSeriesTransform):
 
     @override
     def features_added(self) -> list[str]:
-        # Return all possible feature names from all lags
-        return [self._lag_feature(lag) for lag in self._lags]
+        # transform() only materializes lags that fall within a horizon's valid
+        # window (>= horizon and <= history_available); a configured lag outside
+        # every horizon's window is never added. Mirror that here so the declared
+        # features match the columns transform() actually produces.
+        materialized_lags = sorted({lag for lags in self._horizon_lags.values() for lag in lags}, reverse=True)
+        return [self._lag_feature(lag) for lag in materialized_lags]
 
 
 def generate_minute_lags(min_horizon: timedelta) -> list[timedelta]:
