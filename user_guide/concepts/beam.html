@@ -994,16 +994,33 @@ and model drift mean that aggregate metrics can hide periods of poor performance
 </ul>
 <p><strong>Configurable metrics.</strong> Metrics are supplied as provider objects. BEAM includes
 providers such as <code class="docutils literal notranslate"><span class="pre">RMAEProvider</span></code> (Relative Mean Absolute Error) and <code class="docutils literal notranslate"><span class="pre">RCRPSProvider</span></code>
-(Relative Continuous Ranked Probability Score) for probabilistic evaluation. You can
-implement custom providers to add domain-specific metrics.</p>
+(Relative Continuous Ranked Probability Score) for probabilistic evaluation. Interval
+metrics such as <code class="docutils literal notranslate"><span class="pre">RCSProvider</span></code> and
+<code class="docutils literal notranslate"><span class="pre">RIQDProvider</span></code> help assess quantile calibration and sharpness for symmetric
+quantile ranges. You can implement custom providers to add domain-specific metrics.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.evaluation</span><span class="w"> </span><span class="kn">import</span> <span class="n">EvaluationConfig</span><span class="p">,</span> <span class="n">EvaluationPipeline</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.evaluation.metric_providers</span><span class="w"> </span><span class="kn">import</span> <span class="n">RMAEProvider</span><span class="p">,</span> <span class="n">RCRPSProvider</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.evaluation.metric_providers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">RCRPSProvider</span><span class="p">,</span>
+    <span class="n">RCSProvider</span><span class="p">,</span>
+    <span class="n">RMAEProvider</span><span class="p">,</span>
+    <span class="n">RIQDProvider</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="n">eval_pipeline</span> <span class="o">=</span> <span class="n">EvaluationPipeline</span><span class="p">(</span>
     <span class="n">config</span><span class="o">=</span><span class="n">EvaluationConfig</span><span class="p">(),</span>
     <span class="n">quantiles</span><span class="o">=</span><span class="n">forecaster</span><span class="o">.</span><span class="n">quantiles</span><span class="p">,</span>
-    <span class="n">window_metric_providers</span><span class="o">=</span><span class="p">[</span><span class="n">RMAEProvider</span><span class="p">(),</span> <span class="n">RCRPSProvider</span><span class="p">()],</span>
-    <span class="n">global_metric_providers</span><span class="o">=</span><span class="p">[</span><span class="n">RMAEProvider</span><span class="p">(),</span> <span class="n">RCRPSProvider</span><span class="p">()],</span>
+    <span class="n">window_metric_providers</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">RMAEProvider</span><span class="p">(),</span>
+        <span class="n">RCRPSProvider</span><span class="p">(),</span>
+        <span class="n">RCSProvider</span><span class="p">(),</span>
+        <span class="n">RIQDProvider</span><span class="p">(),</span>
+    <span class="p">],</span>
+    <span class="n">global_metric_providers</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">RMAEProvider</span><span class="p">(),</span>
+        <span class="n">RCRPSProvider</span><span class="p">(),</span>
+        <span class="n">RCSProvider</span><span class="p">(),</span>
+        <span class="n">RIQDProvider</span><span class="p">(),</span>
+    <span class="p">],</span>
 <span class="p">)</span>
 </pre></div>
 </div>

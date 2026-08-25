@@ -1325,6 +1325,47 @@ window.runMermaid = runMermaid;</script>
 
 
 
+<div class="viewcode-block" id="rcs">
+<a class="viewcode-back" href="../../../api/generated/openstef_beam.metrics.rcs.html#openstef_beam.metrics.rcs">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">rcs</span><span class="p">(</span>
+    <span class="n">y_true</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
+    <span class="n">y_pred_lower_q</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
+    <span class="n">y_pred_upper_q</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate the Regression Coverage Score (RCS) for prediction intervals.</span>
+
+<span class="sd">    RCS measures the fraction of observed values that fall within the predicted</span>
+<span class="sd">    lower and upper quantile bounds. A calibrated 90% prediction interval should</span>
+<span class="sd">    have an RCS close to 0.9.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        y_true: Observed values with shape (num_samples,).</span>
+<span class="sd">        y_pred_lower_q: Predicted values of lower quantile with shape (num_samples,).</span>
+<span class="sd">        y_pred_upper_q: Predicted values of upper quantile with shape (num_samples,).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The fraction of observations inside the interval. Values closer to the</span>
+<span class="sd">        nominal interval coverage indicate better calibration.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        Evaluate coverage of a P10-P90 prediction interval</span>
+
+<span class="sd">        &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">        &gt;&gt;&gt; y_true = np.array([100, 120, 110, 130])</span>
+<span class="sd">        &gt;&gt;&gt; y_pred_lower_q = np.array([90, 115, 105, 125])</span>
+<span class="sd">        &gt;&gt;&gt; y_pred_upper_q = np.array([110, 125, 115, 128])</span>
+<span class="sd">        &gt;&gt;&gt; rcs(y_true, y_pred_lower_q, y_pred_upper_q)</span>
+<span class="sd">        0.75</span>
+
+<span class="sd">    Note:</span>
+<span class="sd">        The interval bounds are inclusive: observations equal to either bound</span>
+<span class="sd">        are counted as covered.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">is_in_interval</span> <span class="o">=</span> <span class="p">(</span><span class="n">y_true</span> <span class="o">&gt;=</span> <span class="n">y_pred_lower_q</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">y_true</span> <span class="o">&lt;=</span> <span class="n">y_pred_upper_q</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">is_in_interval</span><span class="p">))</span></div>
+
+
+
 <div class="viewcode-block" id="r2">
 <a class="viewcode-back" href="../../../api/generated/openstef_beam.metrics.r2.html#openstef_beam.metrics.r2">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">r2</span><span class="p">(</span>

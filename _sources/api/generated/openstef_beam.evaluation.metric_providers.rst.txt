@@ -37,6 +37,7 @@ Classes
    PeakMetricProvider
    R2Provider
    RCRPSProvider
+   RCSProvider
    RIQDProvider
    RMAEPeakHoursProvider
    RMAEProvider

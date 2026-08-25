@@ -57,6 +57,7 @@ Functions
    precision_recall
    r2
    rcrps
+   rcs
    relative_pinball_loss
    riqd
    rmae

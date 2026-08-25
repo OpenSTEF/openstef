@@ -1,0 +1,10 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+compute_symmetric_quantile_metrics
+==================================
+
+.. currentmodule:: openstef_beam.evaluation.evaluation_helper
+
+.. autofunction:: compute_symmetric_quantile_metrics

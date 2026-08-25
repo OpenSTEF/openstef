@@ -30,6 +30,7 @@ Submodules
    :toctree: .
    :template: module_overview.rst
 
+   openstef_beam.evaluation.evaluation_helper
    openstef_beam.evaluation.evaluation_pipeline
    openstef_beam.evaluation.models
    openstef_beam.evaluation.window_iterators

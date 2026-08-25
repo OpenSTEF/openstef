@@ -37,6 +37,7 @@ Functions
    pinball_loss
    precision_recall
    r2
+   rcs
    relative_pinball_loss
    riqd
    rmae

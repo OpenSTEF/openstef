@@ -807,6 +807,7 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">Field</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.evaluation.evaluation_helper</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_symmetric_quantile_metrics</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.evaluation.models.subset</span><span class="w"> </span><span class="kn">import</span> <span class="n">MetricsDict</span><span class="p">,</span> <span class="n">QuantileMetricsDict</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">completeness</span><span class="p">,</span>
@@ -819,6 +820,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">precision_recall</span><span class="p">,</span>
     <span class="n">r2</span><span class="p">,</span>
     <span class="n">rcrps</span><span class="p">,</span>
+    <span class="n">rcs</span><span class="p">,</span>
     <span class="n">relative_pinball_loss</span><span class="p">,</span>
     <span class="n">riqd</span><span class="p">,</span>
     <span class="n">rmae</span><span class="p">,</span>
@@ -1485,8 +1487,6 @@ window.runMermaid = runMermaid;</script>
     <span class="k">def</span><span class="w"> </span><span class="nf">metric_names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="k">return</span> <span class="nb">frozenset</span><span class="p">({</span><span class="s2">&quot;rIQD&quot;</span><span class="p">})</span>
 
-    <span class="n">median_quantile</span><span class="p">:</span> <span class="n">Quantile</span> <span class="o">=</span> <span class="n">Quantile</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
-
     <span class="n">measurement_range_lower_q</span><span class="p">:</span> <span class="n">Quantile</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
         <span class="n">default</span><span class="o">=</span><span class="n">Quantile</span><span class="p">(</span><span class="mf">0.05</span><span class="p">),</span>
         <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Lower quantile bound for measurement range normalization.&quot;</span><span class="p">,</span>
@@ -1519,42 +1519,66 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        Returns:</span>
 <span class="sd">            QuantileMetricsDict containing rIQD metrics for each processable quantile.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">metrics</span><span class="p">:</span> <span class="n">QuantileMetricsDict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">return</span> <span class="n">compute_symmetric_quantile_metrics</span><span class="p">(</span>
+            <span class="n">y_true</span><span class="o">=</span><span class="n">y_true</span><span class="p">,</span>
+            <span class="n">y_pred</span><span class="o">=</span><span class="n">y_pred</span><span class="p">,</span>
+            <span class="n">quantiles</span><span class="o">=</span><span class="n">quantiles</span><span class="p">,</span>
+            <span class="n">selected_quantiles</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">quantiles</span><span class="p">,</span>
+            <span class="n">metric_name</span><span class="o">=</span><span class="s2">&quot;rIQD&quot;</span><span class="p">,</span>
+            <span class="n">metric</span><span class="o">=</span><span class="n">riqd</span><span class="p">,</span>
+            <span class="n">measurement_range_lower_q</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">measurement_range_lower_q</span><span class="p">,</span>
+            <span class="n">measurement_range_upper_q</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">measurement_range_upper_q</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
 
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">quantile</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">quantiles</span><span class="p">):</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">quantiles</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">quantile</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">quantiles</span><span class="p">:</span>
-                <span class="k">continue</span>
 
-            <span class="n">symmetric_quantile</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">quantile</span>
 
-            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">quantile</span><span class="p">,</span> <span class="n">symmetric_quantile</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">):</span>
-                <span class="k">continue</span>  <span class="c1"># skip if same quantile (e.g., 0.5)</span>
+<div class="viewcode-block" id="RCSProvider">
+<a class="viewcode-back" href="../../../api/generated/openstef_beam.evaluation.metric_providers.RCSProvider.html#openstef_beam.evaluation.metric_providers.RCSProvider">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">RCSProvider</span><span class="p">(</span><span class="n">MetricProvider</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Provides Regression Coverage Score metrics.</span>
 
-            <span class="n">symmetric_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">quantiles</span><span class="p">,</span> <span class="n">symmetric_quantile</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+<span class="sd">    Measures the fraction of observed values inside symmetric prediction</span>
+<span class="sd">    intervals, such as P10-P90. For each quantile, finds its symmetric</span>
+<span class="sd">    counterpart and computes RCS between them.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">symmetric_indices</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="k">continue</span>  <span class="c1"># no symmetric quantile found, skip</span>
+    <span class="nd">@property</span>
+    <span class="nd">@override</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">metric_names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="nb">frozenset</span><span class="p">({</span><span class="s2">&quot;RCS&quot;</span><span class="p">})</span>
 
-            <span class="n">symmetric_idx</span> <span class="o">=</span> <span class="n">symmetric_indices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<div class="viewcode-block" id="RCSProvider.compute_probabilistic">
+<a class="viewcode-back" href="../../../api/generated/openstef_beam.evaluation.metric_providers.RCSProvider.html#openstef_beam.evaluation.metric_providers.RCSProvider.compute_probabilistic">[docs]</a>
+    <span class="nd">@override</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_probabilistic</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">y_true</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
+        <span class="n">y_pred</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
+        <span class="n">quantiles</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Quantile</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QuantileMetricsDict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute RCS for each quantile by finding its symmetric counterpart.</span>
 
-            <span class="k">if</span> <span class="n">quantile</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">median_quantile</span><span class="p">:</span>
-                <span class="n">lower_pred</span> <span class="o">=</span> <span class="n">y_pred</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span>
-                <span class="n">upper_pred</span> <span class="o">=</span> <span class="n">y_pred</span><span class="p">[:,</span> <span class="n">symmetric_idx</span><span class="p">]</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">lower_pred</span> <span class="o">=</span> <span class="n">y_pred</span><span class="p">[:,</span> <span class="n">symmetric_idx</span><span class="p">]</span>
-                <span class="n">upper_pred</span> <span class="o">=</span> <span class="n">y_pred</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span>
+<span class="sd">        For each quantile q, finds the symmetric quantile (1-q) and computes</span>
+<span class="sd">        RCS between them. Only processes quantiles for which a symmetric</span>
+<span class="sd">        counterpart is available.</span>
 
-            <span class="n">metrics</span><span class="p">[</span><span class="n">quantile</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">&quot;rIQD&quot;</span><span class="p">:</span> <span class="n">riqd</span><span class="p">(</span>
-                    <span class="n">y_true</span><span class="o">=</span><span class="n">y_true</span><span class="p">,</span>
-                    <span class="n">y_pred_lower_q</span><span class="o">=</span><span class="n">lower_pred</span><span class="p">,</span>
-                    <span class="n">y_pred_upper_q</span><span class="o">=</span><span class="n">upper_pred</span><span class="p">,</span>
-                    <span class="n">measurement_range_lower_q</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">measurement_range_lower_q</span><span class="p">,</span>
-                    <span class="n">measurement_range_upper_q</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">measurement_range_upper_q</span><span class="p">,</span>
-                <span class="p">)</span>
-            <span class="p">}</span>
+<span class="sd">        Args:</span>
+<span class="sd">            y_true: True values, 1D array of shape (num_samples,).</span>
+<span class="sd">            y_pred: Predicted values, 2D array of shape (num_samples, num_quantiles).</span>
+<span class="sd">            quantiles: Quantiles used for prediction, sequence of length (num_quantiles,).</span>
 
-        <span class="k">return</span> <span class="n">metrics</span></div>
+<span class="sd">        Returns:</span>
+<span class="sd">            QuantileMetricsDict containing RCS metrics for each processable quantile.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">compute_symmetric_quantile_metrics</span><span class="p">(</span>
+            <span class="n">y_true</span><span class="o">=</span><span class="n">y_true</span><span class="p">,</span>
+            <span class="n">y_pred</span><span class="o">=</span><span class="n">y_pred</span><span class="p">,</span>
+            <span class="n">quantiles</span><span class="o">=</span><span class="n">quantiles</span><span class="p">,</span>
+            <span class="n">selected_quantiles</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">quantiles</span><span class="p">,</span>
+            <span class="n">metric_name</span><span class="o">=</span><span class="s2">&quot;RCS&quot;</span><span class="p">,</span>
+            <span class="n">metric</span><span class="o">=</span><span class="n">rcs</span><span class="p">,</span>
+        <span class="p">)</span></div>
 </div>
 
 
@@ -1614,6 +1638,7 @@ window.runMermaid = runMermaid;</script>
     <span class="s2">&quot;PeakMetricProvider&quot;</span><span class="p">,</span>
     <span class="s2">&quot;R2Provider&quot;</span><span class="p">,</span>
     <span class="s2">&quot;RCRPSProvider&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;RCSProvider&quot;</span><span class="p">,</span>
     <span class="s2">&quot;RIQDProvider&quot;</span><span class="p">,</span>
     <span class="s2">&quot;RMAEPeakHoursProvider&quot;</span><span class="p">,</span>
     <span class="s2">&quot;RMAEProvider&quot;</span><span class="p">,</span>

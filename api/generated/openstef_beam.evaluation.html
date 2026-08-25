@@ -61,7 +61,7 @@
     <link rel="icon" href="../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="evaluation_pipeline" href="openstef_beam.evaluation.evaluation_pipeline.html" />
+    <link rel="next" title="evaluation_helper" href="openstef_beam.evaluation.evaluation_helper.html" />
     <link rel="prev" title="VisualizationOutput" href="openstef_beam.analysis.VisualizationOutput.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -818,6 +818,7 @@
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.metrics.metrics_deterministic.pinball_loss.html">pinball_loss</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.metrics.metrics_deterministic.precision_recall.html">precision_recall</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.metrics.metrics_deterministic.r2.html">r2</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.metrics.metrics_deterministic.rcs.html">rcs</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.metrics.metrics_deterministic.relative_pinball_loss.html">relative_pinball_loss</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.metrics.metrics_deterministic.riqd.html">riqd</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.metrics.metrics_deterministic.rmae.html">rmae</a></li>
@@ -849,6 +850,7 @@
 <li class="toctree-l3"><a class="reference internal" href="openstef_beam.metrics.precision_recall.html">precision_recall</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_beam.metrics.r2.html">r2</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_beam.metrics.rcrps.html">rcrps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="openstef_beam.metrics.rcs.html">rcs</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_beam.metrics.relative_pinball_loss.html">relative_pinball_loss</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_beam.metrics.riqd.html">riqd</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_beam.metrics.rmae.html">rmae</a></li>
@@ -950,6 +952,10 @@
 </ul>
 </details></li>
 <li class="toctree-l2 current active has-children"><a class="current reference internal" href="#">evaluation</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="openstef_beam.evaluation.evaluation_helper.html">evaluation_helper</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.evaluation_helper.compute_symmetric_quantile_metrics.html">compute_symmetric_quantile_metrics</a></li>
+</ul>
+</details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_beam.evaluation.evaluation_pipeline.html">evaluation_pipeline</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.evaluation_pipeline.EvaluationConfig.html">EvaluationConfig</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.evaluation_pipeline.EvaluationPipeline.html">EvaluationPipeline</a></li>
@@ -978,6 +984,7 @@
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.metric_providers.PeakMetricProvider.html">PeakMetricProvider</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.metric_providers.R2Provider.html">R2Provider</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.metric_providers.RCRPSProvider.html">RCRPSProvider</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.metric_providers.RCSProvider.html">RCSProvider</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.metric_providers.RIQDProvider.html">RIQDProvider</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.metric_providers.RMAEPeakHoursProvider.html">RMAEPeakHoursProvider</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.metric_providers.RMAEProvider.html">RMAEProvider</a></li>
@@ -1268,13 +1275,16 @@ be fed into the analysis module for visualization and further interpretation.</p
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="openstef_beam.evaluation.evaluation_pipeline.html#module-openstef_beam.evaluation.evaluation_pipeline" title="openstef_beam.evaluation.evaluation_pipeline"><code class="xref py py-obj docutils literal notranslate"><span class="pre">openstef_beam.evaluation.evaluation_pipeline</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="openstef_beam.evaluation.evaluation_helper.html#module-openstef_beam.evaluation.evaluation_helper" title="openstef_beam.evaluation.evaluation_helper"><code class="xref py py-obj docutils literal notranslate"><span class="pre">openstef_beam.evaluation.evaluation_helper</span></code></a></p></td>
+<td><p>Helper functions shared between evaluation metric providers.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="openstef_beam.evaluation.evaluation_pipeline.html#module-openstef_beam.evaluation.evaluation_pipeline" title="openstef_beam.evaluation.evaluation_pipeline"><code class="xref py py-obj docutils literal notranslate"><span class="pre">openstef_beam.evaluation.evaluation_pipeline</span></code></a></p></td>
 <td><p>Comprehensive evaluation pipeline for probabilistic forecasting models.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="openstef_beam.evaluation.models.html#module-openstef_beam.evaluation.models" title="openstef_beam.evaluation.models"><code class="xref py py-obj docutils literal notranslate"><span class="pre">openstef_beam.evaluation.models</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="openstef_beam.evaluation.models.html#module-openstef_beam.evaluation.models" title="openstef_beam.evaluation.models"><code class="xref py py-obj docutils literal notranslate"><span class="pre">openstef_beam.evaluation.models</span></code></a></p></td>
 <td><p>Data models for evaluation pipeline components.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="openstef_beam.evaluation.window_iterators.html#module-openstef_beam.evaluation.window_iterators" title="openstef_beam.evaluation.window_iterators"><code class="xref py py-obj docutils literal notranslate"><span class="pre">openstef_beam.evaluation.window_iterators</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="openstef_beam.evaluation.window_iterators.html#module-openstef_beam.evaluation.window_iterators" title="openstef_beam.evaluation.window_iterators"><code class="xref py py-obj docutils literal notranslate"><span class="pre">openstef_beam.evaluation.window_iterators</span></code></a></p></td>
 <td><p>Window-based iteration utilities for evaluation data segmentation.</p></td>
 </tr>
 </tbody>
@@ -1337,11 +1347,11 @@ be fed into the analysis module for visualization and further interpretation.</p
       </div>
     </a>
     <a class="right-next"
-       href="openstef_beam.evaluation.evaluation_pipeline.html"
+       href="openstef_beam.evaluation.evaluation_helper.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">evaluation_pipeline</p>
+        <p class="prev-next-title">evaluation_helper</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

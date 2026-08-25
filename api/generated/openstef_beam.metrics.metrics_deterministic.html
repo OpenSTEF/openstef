@@ -818,6 +818,7 @@
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.metrics.metrics_deterministic.pinball_loss.html">pinball_loss</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.metrics.metrics_deterministic.precision_recall.html">precision_recall</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.metrics.metrics_deterministic.r2.html">r2</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.metrics.metrics_deterministic.rcs.html">rcs</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.metrics.metrics_deterministic.relative_pinball_loss.html">relative_pinball_loss</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.metrics.metrics_deterministic.riqd.html">riqd</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.metrics.metrics_deterministic.rmae.html">rmae</a></li>
@@ -849,6 +850,7 @@
 <li class="toctree-l3"><a class="reference internal" href="openstef_beam.metrics.precision_recall.html">precision_recall</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_beam.metrics.r2.html">r2</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_beam.metrics.rcrps.html">rcrps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="openstef_beam.metrics.rcs.html">rcs</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_beam.metrics.relative_pinball_loss.html">relative_pinball_loss</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_beam.metrics.riqd.html">riqd</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_beam.metrics.rmae.html">rmae</a></li>
@@ -950,6 +952,10 @@
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="openstef_beam.evaluation.html">evaluation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="openstef_beam.evaluation.evaluation_helper.html">evaluation_helper</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.evaluation_helper.compute_symmetric_quantile_metrics.html">compute_symmetric_quantile_metrics</a></li>
+</ul>
+</details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_beam.evaluation.evaluation_pipeline.html">evaluation_pipeline</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.evaluation_pipeline.EvaluationConfig.html">EvaluationConfig</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.evaluation_pipeline.EvaluationPipeline.html">EvaluationPipeline</a></li>
@@ -978,6 +984,7 @@
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.metric_providers.PeakMetricProvider.html">PeakMetricProvider</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.metric_providers.R2Provider.html">R2Provider</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.metric_providers.RCRPSProvider.html">RCRPSProvider</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.metric_providers.RCSProvider.html">RCSProvider</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.metric_providers.RIQDProvider.html">RIQDProvider</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.metric_providers.RMAEPeakHoursProvider.html">RMAEPeakHoursProvider</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.metric_providers.RMAEProvider.html">RMAEProvider</a></li>
@@ -1290,13 +1297,16 @@ attention to peak load events that are critical for energy system operations.</p
 <tr class="row-even"><td><p><a class="reference internal" href="openstef_beam.metrics.metrics_deterministic.r2.html#openstef_beam.metrics.metrics_deterministic.r2" title="openstef_beam.metrics.metrics_deterministic.r2"><code class="xref py py-obj docutils literal notranslate"><span class="pre">r2</span></code></a>(y_true, y_pred, *[, sample_weights])</p></td>
 <td><p>Calculate the R² (coefficient of determination) score.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="openstef_beam.metrics.metrics_deterministic.relative_pinball_loss.html#openstef_beam.metrics.metrics_deterministic.relative_pinball_loss" title="openstef_beam.metrics.metrics_deterministic.relative_pinball_loss"><code class="xref py py-obj docutils literal notranslate"><span class="pre">relative_pinball_loss</span></code></a>(y_true, y_pred, *, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="openstef_beam.metrics.metrics_deterministic.rcs.html#openstef_beam.metrics.metrics_deterministic.rcs" title="openstef_beam.metrics.metrics_deterministic.rcs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rcs</span></code></a>(y_true, y_pred_lower_q, y_pred_upper_q)</p></td>
+<td><p>Calculate the Regression Coverage Score (RCS) for prediction intervals.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="openstef_beam.metrics.metrics_deterministic.relative_pinball_loss.html#openstef_beam.metrics.metrics_deterministic.relative_pinball_loss" title="openstef_beam.metrics.metrics_deterministic.relative_pinball_loss"><code class="xref py py-obj docutils literal notranslate"><span class="pre">relative_pinball_loss</span></code></a>(y_true, y_pred, *, ...)</p></td>
 <td><p>Calculate the relative Pinball Loss (also known as relative Quantile Loss).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="openstef_beam.metrics.metrics_deterministic.riqd.html#openstef_beam.metrics.metrics_deterministic.riqd" title="openstef_beam.metrics.metrics_deterministic.riqd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">riqd</span></code></a>(y_true, y_pred_lower_q, y_pred_upper_q, *)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="openstef_beam.metrics.metrics_deterministic.riqd.html#openstef_beam.metrics.metrics_deterministic.riqd" title="openstef_beam.metrics.metrics_deterministic.riqd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">riqd</span></code></a>(y_true, y_pred_lower_q, y_pred_upper_q, *)</p></td>
 <td><p>Calculate the relative Inter Quantile Distance (rIQD).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="openstef_beam.metrics.metrics_deterministic.rmae.html#openstef_beam.metrics.metrics_deterministic.rmae" title="openstef_beam.metrics.metrics_deterministic.rmae"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rmae</span></code></a>(y_true, y_pred, *[, lower_quantile, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="openstef_beam.metrics.metrics_deterministic.rmae.html#openstef_beam.metrics.metrics_deterministic.rmae" title="openstef_beam.metrics.metrics_deterministic.rmae"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rmae</span></code></a>(y_true, y_pred, *[, lower_quantile, ...])</p></td>
 <td><p>Calculate the relative Mean Absolute Error (rMAE) using percentiles for range calculation.</p></td>
 </tr>
 </tbody>
