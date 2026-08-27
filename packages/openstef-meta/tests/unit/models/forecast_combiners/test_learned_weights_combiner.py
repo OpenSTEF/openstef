@@ -215,3 +215,107 @@ def test_predict_renormalizes_weights_when_base_model_predictions_are_nan() -> N
     assert nan_rows["quantile_P50"].mean() > 500, (
         "Predictions in the NaN region should not be systematically scaled down"
     )
+
+
+def _make_three_forecaster_dataset(winners: list[str], index: pd.DatetimeIndex) -> EnsembleForecastDataset:
+    """Build a 3-forecaster ensemble dataset where `winners[i]` has the lowest error at row i.
+
+    Each forecaster predicts a constant offset from the target; the named winner at each
+    row gets a near-zero offset (best pinball loss), the others get a large offset.
+    """
+    target = pd.Series(1000.0, index=index)
+    data: dict[str, pd.Series] = {"load": target}
+    for name in ("Alpha", "Bravo", "Charlie"):
+        is_winner = pd.Series([w == name for w in winners], index=index)
+        offset = is_winner.map({True: 0.0, False: 500.0})
+        data[f"{name}__quantile_P50"] = target + offset
+
+    return EnsembleForecastDataset(data=pd.DataFrame(data), sample_interval=timedelta(minutes=15))
+
+
+def test_validate_labels_handles_subset_of_forecasters_never_winning() -> None:
+    """With 3+ forecasters, only some (not necessarily just one) may ever win.
+
+    Regression test: the degenerate-label guard used to only trigger when exactly one
+    unique label was observed, which crashed `predict_proba` when the fitted classifier
+    only ever saw 2 of 3 registered classes (a `ValueError` on shape mismatch). It must
+    generalize to "fewer distinct winners than registered forecasters".
+    """
+    index = pd.date_range("2023-01-01", periods=20, freq="15min")
+    # Charlie never wins; Alpha and Bravo alternate — 2 unique labels out of 3 registered.
+    winners = ["Alpha" if i % 2 == 0 else "Bravo" for i in range(20)]
+    dataset = _make_three_forecaster_dataset(winners, index)
+
+    combiner = WeightsCombiner(
+        hyperparams=LGBMCombinerHyperParams(n_leaves=5, n_estimators=10),
+        quantiles=[Q(0.5)],
+        horizons=[LeadTime(timedelta(days=1))],
+    )
+
+    # Act — should not raise even though Charlie is never a label
+    combiner.fit(dataset)
+    result = combiner.predict(dataset)
+
+    # Assert
+    assert combiner.is_fitted
+    assert not result.data.isna().any().any()
+
+
+def test_dummy_fallback_uses_actual_majority_winner_not_alphabetical_first() -> None:
+    """The DummyClassifier fallback must weight the real majority winner, not `classes_[0]`.
+
+    Regression test: when every sample is won by the same forecaster, `_predict_weights`
+    used to hardcode weight 1.0 on `self._label_encoder.classes_[0]` — the alphabetically
+    first registered forecaster name — regardless of which forecaster actually won. Use a
+    winner ("Charlie") that does not sort first alphabetically among the 3 names.
+    """
+    index = pd.date_range("2023-01-01", periods=20, freq="15min")
+    winners = ["Charlie"] * 20  # Alpha sorts first alphabetically, but never wins
+    dataset = _make_three_forecaster_dataset(winners, index)
+
+    combiner = WeightsCombiner(
+        hyperparams=LGBMCombinerHyperParams(n_leaves=5, n_estimators=10),
+        quantiles=[Q(0.5)],
+        horizons=[LeadTime(timedelta(days=1))],
+    )
+
+    combiner.fit(dataset)
+    result = combiner.predict(dataset)
+
+    # Assert — predictions should match Charlie's (the real winner), not Alpha's
+    charlie_predictions = dataset.data["Charlie__quantile_P50"]
+    alpha_predictions = dataset.data["Alpha__quantile_P50"]
+    pd.testing.assert_series_equal(
+        result.data["quantile_P50"], charlie_predictions, check_names=False, check_exact=False
+    )
+    assert not result.data["quantile_P50"].equals(alpha_predictions)
+
+
+def test_fit_trains_on_data_val_when_provided() -> None:
+    """`fit()` should learn weights from held-out `data_val`, not in-sample `data`.
+
+    Regression test: `data_val` used to be accepted but never referenced in `fit()`'s
+    body, so the combiner always trained on in-sample training predictions — which are
+    systematically over-optimistic for boosted/tree forecasters and bias the combiner
+    towards whichever forecaster overfits training data hardest. Here, "Alpha" wins
+    every training row but "Bravo" wins every validation row; a combiner trained on
+    `data_val` should learn to weight "Bravo", not "Alpha".
+    """
+    train_index = pd.date_range("2023-01-01", periods=20, freq="15min")
+    val_index = pd.date_range("2023-01-02", periods=20, freq="15min")
+    train_dataset = _make_three_forecaster_dataset(["Alpha"] * 20, train_index)
+    val_dataset = _make_three_forecaster_dataset(["Bravo"] * 20, val_index)
+
+    combiner = WeightsCombiner(
+        hyperparams=LGBMCombinerHyperParams(n_leaves=5, n_estimators=10),
+        quantiles=[Q(0.5)],
+        horizons=[LeadTime(timedelta(days=1))],
+    )
+
+    # Act
+    combiner.fit(train_dataset, data_val=val_dataset)
+    result = combiner.predict(val_dataset)
+
+    # Assert — combiner should have learned "Bravo" wins, matching the validation labels
+    bravo_predictions = val_dataset.data["Bravo__quantile_P50"]
+    pd.testing.assert_series_equal(result.data["quantile_P50"], bravo_predictions, check_names=False, check_exact=False)
