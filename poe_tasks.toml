@@ -160,13 +160,17 @@ args = [
 # Builds only the publishable distributions. `openstef-deployment-examples` is a workspace
 # member (so `uv run --package openstef-deployment-examples ...` works) but must NOT be
 # published to PyPI, so it is deliberately excluded here rather than using `--all-packages`.
+# The five real packages use the uv_build backend so they build under --require-hashes. The root
+# meta-package ships no module, so it stays on hatchling (uv_build requires a module); hatchling
+# can't build under --require-hashes (its isolated build deps aren't hash-pinned in uv.lock), so
+# the root is built without it — it contains only metadata, no code.
 help = "Build all publishable packages (excludes openstef-deployment-examples)"
 sequence = [
-  { cmd = "uv build --package openstef-core" },
-  { cmd = "uv build --package openstef-models" },
-  { cmd = "uv build --package openstef-beam" },
-  { cmd = "uv build --package openstef-foundation-models" },
-  { cmd = "uv build --package openstef-meta" },
+  { cmd = "uv build --package openstef-core --require-hashes" },
+  { cmd = "uv build --package openstef-models --require-hashes" },
+  { cmd = "uv build --package openstef-beam --require-hashes" },
+  { cmd = "uv build --package openstef-foundation-models --require-hashes" },
+  { cmd = "uv build --package openstef-meta --require-hashes" },
   { cmd = "uv build .", help = "Build root meta package separately (not a workspace member)" },
 ]
 
