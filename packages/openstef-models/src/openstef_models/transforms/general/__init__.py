@@ -20,6 +20,7 @@ from openstef_models.transforms.general.sample_weighter import SampleWeightConfi
 from openstef_models.transforms.general.scaler import Scaler
 from openstef_models.transforms.general.selector import Selector
 from openstef_models.transforms.general.shifter import Shifter
+from openstef_models.transforms.general.sklearn_adapter import SklearnTransformAdapter
 
 __all__ = [
     "OUTLIER_NAN_MASK_PREFIX",
@@ -34,4 +35,5 @@ __all__ = [
     "Scaler",
     "Selector",
     "Shifter",
+    "SklearnTransformAdapter",
 ]
