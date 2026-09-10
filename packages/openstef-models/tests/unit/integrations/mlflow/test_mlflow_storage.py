@@ -92,7 +92,7 @@ def test_create_run__experiment_prefix(tmp_path: Path, model_id: str):
 
     # Act
     run = storage.create_run(model_id=model_id)
-    experiment_id = cast(str, run.info.experiment_id)
+    experiment_id = run.info.experiment_id
 
     # Assert
     experiment = storage._client.get_experiment(experiment_id)
@@ -111,7 +111,7 @@ def test_create_run__artifact_location(tmp_path: Path, model_id: str):
 
     # Act
     run = storage.create_run(model_id=model_id)
-    experiment_id = cast(str, run.info.experiment_id)
+    experiment_id = run.info.experiment_id
 
     # Assert
     experiment = storage._client.get_experiment(experiment_id)
@@ -122,11 +122,11 @@ def test_create_run__reuses_experiment(storage: MLFlowStorage, model_id: str):
     """Test that multiple runs for same model_id share the same experiment."""
     # Arrange
     first_run = storage.create_run(model_id=model_id)
-    first_exp_id = cast(str, first_run.info.experiment_id)
+    first_exp_id = first_run.info.experiment_id
 
     # Act
     second_run = storage.create_run(model_id=model_id)
-    second_exp_id = cast(str, second_run.info.experiment_id)
+    second_exp_id = second_run.info.experiment_id
 
     # Assert
     assert first_exp_id == second_exp_id

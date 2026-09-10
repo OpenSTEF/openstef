@@ -171,7 +171,7 @@ class MLFlowStorage(BaseConfig):
                 tags=experiment_tags,
             )
         else:
-            experiment_id = cast(str, experiment.experiment_id)
+            experiment_id = experiment.experiment_id
 
         # Create run
         run = self._client.create_run(
