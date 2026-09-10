@@ -27,8 +27,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+  <link href="../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
@@ -38,10 +38,10 @@
     <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=3f5a9049" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <script defer src="../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
     <script src="../_static/documentation_options.js?v=7026087e"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
@@ -53,7 +53,7 @@
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'tutorials/quantile_calibration';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.21.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = '_static/versions.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -612,7 +612,7 @@ level.</p>
 quantile  expected  observed     error
      P10       0.1  0.025298 -0.074702
      P50       0.5  0.089286 -0.410714
-     P90       0.9  0.275298 -0.624702
+     P90       0.9  0.270833 -0.629167
 </pre></div>
 </div>
 </div>
@@ -719,9 +719,9 @@ the effect of the asymmetric corrections.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>quantile  expected  observed (before)  observed (isotonic)  observed (conformalized)  error (before)  error (isotonic)  error (conformalized)
-     P10       0.1           0.025298             0.077381                  0.098214       -0.074702         -0.022619              -0.001786
-     P50       0.5           0.089286             0.379464                  0.089286       -0.410714         -0.120536              -0.410714
-     P90       0.9           0.275298             0.921131                  0.898810       -0.624702          0.021131              -0.001190
+     P10       0.1           0.025298             0.075893                  0.098214       -0.074702         -0.024107              -0.001786
+     P50       0.5           0.089286             0.385417                  0.089286       -0.410714         -0.114583              -0.410714
+     P90       0.9           0.270833             0.921131                  0.897321       -0.629167          0.021131              -0.002679
 </pre></div>
 </div>
 </div>
@@ -793,7 +793,7 @@ the effect of the asymmetric corrections.</p>
 </div>
 </details>
 <div class="cell_output docutils container">
-<img alt="../_images/bb5c59c0a2488f6a34410cd554339cb66c8965b55a7b78bfe24045a10ddd0020.png" src="../_images/bb5c59c0a2488f6a34410cd554339cb66c8965b55a7b78bfe24045a10ddd0020.png" />
+<img alt="../_images/106f0ecbec771f2503d372b605cc246cf7be450009b9250d28c91038ea85b40b.png" src="../_images/106f0ecbec771f2503d372b605cc246cf7be450009b9250d28c91038ea85b40b.png" />
 </div>
 </div>
 <p>Points closer to the diagonal indicate better calibration. Isotonic regression
@@ -906,8 +906,8 @@ for combined accuracy and reliable uncertainty.</p></li>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
-<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
+  <script defer src="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -941,7 +941,7 @@ for combined accuracy and reliable uncertainty.</p></li>
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.20.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
 </p></div>
       
     </div>
