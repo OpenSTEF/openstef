@@ -26,7 +26,6 @@ import warnings
 from datetime import datetime, timedelta
 from pathlib import Path
 
-from openstef_beam.backtesting.backtest_pipeline import BacktestConfig
 import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
@@ -35,6 +34,7 @@ from openstef_beam.analysis.visualizations.grouped_target_metric_visualization i
 from openstef_beam.analysis.visualizations.quantile_probability_visualization import QuantileProbabilityVisualization
 from openstef_beam.analysis.visualizations.summary_table_visualization import SummaryTableVisualization
 from openstef_beam.analysis.visualizations.windowed_metric_visualization import WindowedMetricVisualization
+from openstef_beam.backtesting.backtest_pipeline import BacktestConfig
 
 # Keep tutorial output focused on the workshop results.
 warnings.filterwarnings("ignore")
@@ -513,9 +513,9 @@ ensemble_base_forecasts = ensemble_workflow.model._predict_forecasters(
 )
 base_p50 = ensemble_base_forecasts.get_base_predictions_for_quantile(Q(0.5)).data
 base_quantiles = {
-    model_name: ensemble_base_forecasts.data[
-        [f"{model_name}__{quantile.format()}" for quantile in QUANTILES]
-    ].rename(columns={f"{model_name}__{quantile.format()}": quantile.format() for quantile in QUANTILES})
+    model_name: ensemble_base_forecasts.data[[f"{model_name}__{quantile.format()}" for quantile in QUANTILES]].rename(
+        columns={f"{model_name}__{quantile.format()}": quantile.format() for quantile in QUANTILES}
+    )
     for model_name in ensemble_config.base_models
 }
 
@@ -699,6 +699,7 @@ storage_xgboost = LocalBenchmarkStorage(base_path=BENCHMARK_RESULTS_PATH_XGBOOST
 storage_gblinear = LocalBenchmarkStorage(base_path=BENCHMARK_RESULTS_PATH_GBLINEAR, skip_when_existing=False)
 storage_chronos = LocalBenchmarkStorage(base_path=BENCHMARK_RESULTS_PATH_CHRONOS, skip_when_existing=False)
 
+
 # Restrict the benchmark to the workshop target and period.
 class ShortBenchmarkTargetProvider(Liander2024TargetProvider):
     """One target with a short benchmark period for a fast workshop run."""
@@ -714,6 +715,7 @@ class ShortBenchmarkTargetProvider(Liander2024TargetProvider):
             item.benchmark_start = datetime.fromisoformat("2024-05-01T00:00:00Z")
             item.benchmark_end = datetime.fromisoformat("2024-05-29T23:59:59Z")
         return targets
+
 
 single_target_provider = ShortBenchmarkTargetProvider(
     data_dir=DATASET_DIR,
@@ -785,6 +787,7 @@ def create_workshop_benchmark_runner(
         callbacks=[StrictExecutionCallback()],
     )
 
+
 # %%
 # Run the classical-model backtests over the shortened benchmark period.
 # Define a shared runner call for each trainable model.
@@ -801,6 +804,7 @@ def run_benchmark(
         run_name=run_name,
         n_processes=1,
     )
+
 
 if RUN_BENCHMARK:
     run_benchmark(storage_xgboost, xgboost_config, "xgboost")
