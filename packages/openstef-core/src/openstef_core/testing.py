@@ -206,7 +206,11 @@ def load_liander_dataset(
             local_dir=local_dir,
         )
 
-    datasets = [VersionedTimeSeriesDataset.read_parquet(local_dir / f) for f in files_to_download]
+    datasets = [
+        VersionedTimeSeriesDataset.read_parquet(fp)
+        for f in files_to_download
+        if (fp := local_dir / f).suffix == ".parquet"
+    ]
     return VersionedTimeSeriesDataset.concat(datasets, mode="left").select_version()
 
 
