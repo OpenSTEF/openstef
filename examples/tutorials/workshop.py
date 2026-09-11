@@ -26,9 +26,9 @@ import warnings
 from datetime import datetime, timedelta
 from pathlib import Path
 
+from openstef_beam.backtesting.backtest_pipeline import BacktestConfig
 import plotly.express as px
 import plotly.graph_objects as go
-from lightgbm import register_logger
 from plotly.subplots import make_subplots
 
 from openstef_beam.analysis.visualizations.grouped_target_metric_visualization import GroupedTargetMetricVisualization
@@ -47,8 +47,8 @@ os.environ["MKL_NUM_THREADS"] = "1"
 # Configure the notebook renderer and log filters.
 from openstef_core.testing import configure_notebook_display, load_liander_dataset, setup_notebook_logging
 
-# Keep docs output static; set this to "notebook" for interactive plots locally.
-NOTEBOOK_RENDERER = "png"
+# Setting this to "notebook" for interactive plots for this workshop.
+NOTEBOOK_RENDERER = "notebook"
 configure_notebook_display(renderer=NOTEBOOK_RENDERER)
 logger = setup_notebook_logging(
     __name__,
@@ -64,32 +64,28 @@ logger = setup_notebook_logging(
         "lightgbm",
     ),
 )
-# Route LightGBM's native messages through the suppressed tutorial logger.
-register_logger(logging.getLogger("lightgbm"))
 logging.basicConfig(level=logging.WARNING, format="[%(asctime)s][%(levelname)s] %(message)s")
 
 # %% [markdown]
-# # OpenSTEF Workshop: Forecasting Energy for Solar Parks
+# # OpenSTEF Workshop: Forecasting Energy for a Solar Park
 #
 # This workshop follows one normalized solar park near Oosterwolde through a complete OpenSTEF workflow. We use the same target and forecast period while exploring the modular layers of OpenSTEF:
 #
 # 1. Explore real grid data: measurements, weather forecasts, profiles, and prices
 # 2. Train and explain a default XGBoost model
-# 3. Inspect the features created by preprocessing
-# 4. Train GBLinear and learn when to trust each model with `openstef-meta`
+# 3. Inspect preprocessing and explain the XGBoost forecast
+# 4. Train an XGBoost + GBLinear ensemble with `openstef-meta` and compare its predictions
 # 5. Forecast with Chronos-2 through `openstef-foundation-models`
-# 6. Compare the models with a short `openstef-beam` backtest
+# 6. Compare the output of the ensemble with Chronos-2
+# 7. Run an optional short `openstef-beam` backtest
 #
-# The point is to compare model behavior, not only to produce a score.
+# There are questions throughout the workshop to encourage active learning. Try to answer these as you go through the workshop.
 
 # %% [markdown]
-# ## Step 1 - Workshop Setup
-#
-# We configure thread settings to keep the notebook responsive when model training and backtesting use parallel numerical libraries.
+# ## Step 1 - Download the Benchmark Dataset
 #
 
 # %% [markdown]
-# ### 1.1 Download the Benchmark Dataset
 #
 # Download the files for one target through `load_liander_dataset`. The loader also fetches the shared profiles and prices, then caches everything in its default `./liander_dataset` directory.
 #
@@ -138,8 +134,8 @@ print(f"Benchmark period: {target.benchmark_start.date()} to {target.benchmark_e
 #
 #
 # - **Q2.2.1** What daily, seasonal, and event-driven patterns can you see?
-# - **Q2.2.2** Which deviations look predictable from the inputs?
-# - **Q2.2.3** Where would a forecast error matter most operationally?
+# - **Q2.2.2** Where would a forecast error matter most operationally?
+# - **Q2.2.3** If you zoom in, can you find unexpected deviations or anomalies in the measurements?
 
 # %% tags=["hide-input"]
 # Inspect the measured active-power signal and capacity limits.
@@ -172,7 +168,7 @@ fig.show()
 #
 #
 # - **Q2.3.1** Which weather variable appears most connected to the solar signal?
-# - **Q2.3.2** Do the forecasts look smooth, noisy, or systematically delayed?
+# - **Q2.3.2** Which weather variable would you expect to **not** impact the solar signal?
 # - **Q2.3.3** What would change if we used weather measurements instead of forecasts?
 
 # %% tags=["hide-input"]
@@ -223,8 +219,7 @@ fig.show()
 #
 #
 # - **Q2.4.1** What repeating patterns are visible in the two-week window?
-# - **Q2.4.2** Why could a shared profile help when the target's own history is incomplete?
-# - **Q2.4.3** Which assumption about the relationship between profile and target should we test?
+# - **Q2.4.2** To what extent would you expect the shared profiles to explain the target's load patterns?
 
 # %% tags=["hide-input"]
 # Inspect recurring profile features that can provide additional context.
@@ -250,8 +245,8 @@ fig.show()
 #
 #
 # - **Q2.5.1** Can you identify negative-price periods?
-# - **Q2.5.2** Do price changes line up with load dips, or is the relationship conditional?
-# - **Q2.5.3** What other explanation could account for a drop in production?
+# - **Q2.5.2** How do negative-price periods align with expected low-demand or high-generation times?
+# - **Q2.5.3** When can we expect high energy prices?
 
 # %% tags=["hide-input"]
 # Inspect day-ahead prices as an operational input.
@@ -276,7 +271,6 @@ fig.show()
 # ### 3.1 Training Window and Model Setup
 #
 # We now compose the aligned input datasets and choose one training and forecast period. XGBoost captures non-linear feature interactions well, but tree-based models do not extrapolate beyond values represented in training data.
-#
 #
 # - **Q3.1.1** Which patterns should trees capture well in a solar park?
 # - **Q3.1.2** Where might a tree-based model struggle, especially near unseen peaks?
@@ -352,7 +346,6 @@ print("Training complete.")
 # - **Q3.2.1** Where does the forecast track the measured signal, and where does it miss?
 # - **Q3.2.2** Are the uncertainty bands wider at moments where you expect more risk?
 # - **Q3.2.3** How often does the forecast cross an operational limit?
-# - **Q3.2.4** On this forecast day, could a production dip suggest self-curtailment, and what other signals would you inspect?
 
 # %% tags=["hide-input"]
 # Import the forecast dataset and plotting helper.
@@ -385,11 +378,9 @@ fig.show()
 #
 # Explainability connects a forecast back to the signals the model used. Global feature importance is a useful summary; per-timestep contributions show how those signals moved individual predictions.
 #
-#
 # - **Q3.3.1** Which features does the model find useful?
-# - **Q3.3.2** Do those features match your understanding of solar production and curtailment?
+# - **Q3.3.2** Do those features match your understanding of solar production?
 # - **Q3.3.3** Which features push an individual forecast up or down?
-# - **Q3.3.4** What test would you run before trusting a highly important feature or contribution?
 
 # %% tags=["hide-input"]
 # Import the explainability interfaces used below.
@@ -416,7 +407,6 @@ fig.show()
 # ### 3.4 Inspect Derived Features
 #
 # OpenSTEF's preprocessing pipeline derives features from raw data. The fitted result makes this modular step visible: selectors and feature adders prepare the input, a forecaster produces predictions, and postprocessing orders the quantiles.
-#
 #
 # - **Q3.4.1** Which columns are raw inputs and which were created by preprocessing?
 # - **Q3.4.2** Why do cyclic time features help represent daily or weekly behavior?
@@ -459,61 +449,21 @@ fig.update_layout(height=500, template="plotly_white", showlegend=True)
 fig.show()
 
 # %% [markdown]
-# ## Step 4 - GBLinear and Modular Preprocessing
+# ## Step 4 - Ensemble Learning: Learn Which Model to Trust
 #
-# ### 4.1 GBLinear Training
+# ### 4.1 Ensemble Training
 #
-# XGBoost trees cannot extrapolate beyond the training range. **GBLinear** is a gradient-boosted linear model that can extrapolate linearly, giving us a useful contrast with the tree baseline.
-#
-# We keep sample weighting out of this first comparison so the model differences stay easy to interpret. The important workshop point is the shared workflow shape: a preset assembles preprocessing, a forecaster, and postprocessing from configuration.
-#
-#
-# - **Q4.1.1** Which behavior should GBLinear capture that XGBoost may miss?
-# - **Q4.1.2** What does the fitted input reveal about work done before the model sees a row?
-# - **Q4.1.3** Which part of the workflow would you replace for custom preprocessing?
-
-# %% tags=["remove-stderr"]
-# Fit GBLinear as a contrasting model with linear extrapolation behavior.
-# Create the GBLinear workflow with the same inputs and quantiles.
-gbl_workflow = create_forecasting_workflow(
-    config=ForecastingWorkflowConfig(
-        model_id="demo_gblinear",
-        model="gblinear",
-        horizons=[FORECAST_HORIZON],
-        quantiles=QUANTILES,
-        target_column="load",
-        radiation_column="shortwave_radiation",
-        wind_speed_column="wind_speed_80m",
-        pressure_column="surface_pressure",
-        temperature_column="temperature_2m",
-        relative_humidity_column="relative_humidity_2m",
-        energy_price_column="EPEX_NL",
-        rolling_aggregate_features=["mean", "median", "max", "min"],
-        mlflow_storage=None,
-        verbosity=0,
-    )
-)
-
-# Fit GBLinear on the shared training data.
-print("Training GBLinear model...")
-gbl_fit_result = gbl_workflow.fit(train_dataset)
-print("Training complete.")
-
-# %% [markdown]
-# ## Step 5 - Ensemble Learning: Learn Which Model to Trust
-#
-# ### 5.1 Ensemble Training
-#
-# `openstef-meta` adds an ensemble workflow around the same forecasting components. The learned-weights combiner sees the base-model forecasts and learns which one to trust under different conditions.
+# `openstef-meta` adds an ensemble workflow around multiple base models. The learned-weights combiner sees the base-model forecasts and learns which one to trust under different conditions.
 #
 # Here the ensemble uses XGBoost and GBLinear. They share the common workflow configuration, while each model keeps its own forecasting behavior and model-specific preprocessing.
 #
 #
-# - **Q5.1.1** What does an ensemble add that simply averaging two forecasts would not?
-# - **Q5.1.2** When would you expect the ensemble to favor XGBoost, and when GBLinear?
-# - **Q5.1.3** What evidence would show that the combiner learned useful behavior instead of fitting noise?
+# - **Q4.1.1** What does an ensemble add that simply averaging two forecasts would not?
+# - **Q4.1.2** When would you expect the ensemble to favor tree-based models, and when linear models?
+# - **Q4.1.3** What evidence would show that the combiner learned useful behavior instead of fitting noise?
 
-# %% tags=["remove-stderr"]
+# %% tags=["remove-output"]
+# %%capture
 # Fit the learned ensemble and generate its forecast for comparison.
 # Define the two-model ensemble configuration.
 from openstef_meta.presets import EnsembleForecastingWorkflowConfig, create_ensemble_forecasting_workflow
@@ -547,18 +497,64 @@ print(f"Combiner: {ensemble_config.combiner_model}")
 print(f"Forecast rows: {len(ensemble_forecast.data):,}")
 
 # %% [markdown]
-# ## Step 6 - Foundation Model Forecasting with Chronos-2
+# ### 4.2 Base Models and Ensemble Forecasts
 #
-# ### 6.1 Chronos Forecasting
+# The ensemble trains XGBoost and GBLinear as base models, then combines their quantile forecasts. Plotting all three outputs together makes the learned combination visible.
+#
+# - **Q4.2.1** Where does the ensemble follow one base model more closely than the other?
+# - **Q4.2.2** Which forecast has the most useful uncertainty band for this target?
+# - **Q4.2.3** What would you inspect before deciding that the ensemble improves on both base models?
+
+# %% tags=["hide-input"]
+# Generate the fitted ensemble's base-model predictions for the same forecast origin.
+ensemble_base_forecasts = ensemble_workflow.model._predict_forecasters(
+    predict_dataset,
+    forecast_start=FORECAST_START,
+)
+base_p50 = ensemble_base_forecasts.get_base_predictions_for_quantile(Q(0.5)).data
+base_quantiles = {
+    model_name: ensemble_base_forecasts.data[
+        [f"{model_name}__{quantile.format()}" for quantile in QUANTILES]
+    ].rename(columns={f"{model_name}__{quantile.format()}": quantile.format() for quantile in QUANTILES})
+    for model_name in ensemble_config.base_models
+}
+
+# Plot both base models and the final ensemble on the forecast window.
+ensemble_plotter = (
+    ForecastTimeSeriesPlotter()
+    .add_measurements(measurements=forecast_dataset.data["load"])
+    .add_model(
+        model_name="XGBoost",
+        forecast=base_p50["xgboost"],
+        quantiles=base_quantiles["xgboost"],
+    )
+    .add_model(
+        model_name="GBLinear",
+        forecast=base_p50["gblinear"],
+        quantiles=base_quantiles["gblinear"],
+    )
+    .add_model(
+        model_name="Ensemble",
+        forecast=ensemble_forecast.median_series,
+        quantiles=ensemble_forecast.quantiles_data,
+    )
+)
+fig = ensemble_plotter.plot(title="XGBoost, GBLinear, and Ensemble Forecasts")
+fig.update_layout(height=550, yaxis_title="Load (normalized)")
+fig.show()
+
+# %% [markdown]
+# ## Step 5 - Foundation Model Forecasting with Chronos-2
+#
+# ### 5.1 Chronos Forecasting
 #
 # `openstef-foundation-models` adds Chronos-2, a pretrained foundation model for zero-shot probabilistic forecasting. It does not train on this target. Instead, it receives recent load history and known-future covariates, then produces a forecast through the same workflow interface.
 #
-# We use the compact published checkpoint so the workshop stays practical on CPU. Chronos is kept as a separate model in this comparison because the current meta ensemble API accepts trainable base-model names only.
+# We use the compact published checkpoint so the workshop stays practical on CPU.
 #
 #
-# - **Q6.1.1** What is different about zero-shot forecasting compared with fitting XGBoost or GBLinear here?
-# - **Q6.1.2** Which information can Chronos use after the forecast origin, and which would be leakage?
-# - **Q6.1.3** Does the Chronos forecast look like a local model or a broad prior over time-series behavior?
+# - **Q5.1.1** What is different about zero-shot forecasting compared with fitting e.g. XGBoost here?
+# - **Q5.1.2** Where does a foundation model like Chronos-2 get the required information to do inference from?
 
 # %%
 # Run the zero-shot Chronos workflow with the same forecast horizon.
@@ -602,45 +598,22 @@ print(f"Chronos model fitted: {chronos_workflow.model.is_fitted}")
 print(f"Forecast rows: {len(chronos_forecast.data):,}")
 
 # %% [markdown]
-# ## Step 7 - Compare the Forecasts
+# ## Step 6 - Compare the Ensemble with Chronos-2
 #
-# ### 7.1 Forecast Comparison
+# ### 6.1 Final Forecast Comparison
 #
-# Compare the XGBoost, GBLinear, learned ensemble, and Chronos-2 p50 forecasts at the same forecast origin. The models share the target and operational context, but they learn in different ways.
+# Compare the learned ensemble with the zero-shot Chronos-2 forecast at the same origin. The base-model comparison above explains how the ensemble is formed; this final figure compares the ensemble output with a separate forecasting approach.
 #
 #
-# - **Q7.1.1** Which model follows the actual signal most closely during this period?
-# - **Q7.1.2** Where do the models disagree, and what kind of uncertainty does that reveal?
-# - **Q7.1.3** Would you choose the best-looking median, the narrowest interval, or the most useful limit warnings?
+# - **Q6.1.1** Which forecast follows the measured signal most closely?
+# - **Q6.1.2** Where do the ensemble and Chronos-2 disagree most strongly?
+# - **Q6.1.3** Which uncertainty band would be more useful operationally, and why?
 
 # %% tags=["hide-input"]
-# Compare the models using only the forecast-window measurements.
-# Generate classical-model forecasts from the shared prediction context.
-# Compare the models using only the forecast-window measurements.
-# Generate classical-model forecasts from the shared prediction context.
-comparison_window = predict_dataset
-xgb_comparison_forecast: ForecastDataset = xgb_workflow.predict(
-    comparison_window,
-    forecast_start=FORECAST_START,
-)
-gbl_comparison_forecast: ForecastDataset = gbl_workflow.predict(
-    comparison_window,
-    forecast_start=FORECAST_START,
-)
-# Overlay each model's p50 and uncertainty bands.
-comparison_plotter = (
+# Compare only the final ensemble and Chronos-2 forecasts.
+final_comparison_plotter = (
     ForecastTimeSeriesPlotter()
     .add_measurements(measurements=forecast_dataset.data["load"])
-    .add_model(
-        model_name="XGBoost",
-        forecast=xgb_comparison_forecast.median_series,
-        quantiles=xgb_comparison_forecast.quantiles_data,
-    )
-    .add_model(
-        model_name="GBLinear",
-        forecast=gbl_comparison_forecast.median_series,
-        quantiles=gbl_comparison_forecast.quantiles_data,
-    )
     .add_model(
         model_name="Ensemble",
         forecast=ensemble_forecast.median_series,
@@ -652,26 +625,27 @@ comparison_plotter = (
         quantiles=chronos_forecast.quantiles_data,
     )
 )
-fig = comparison_plotter.plot(title="XGBoost, GBLinear, Ensemble, and Chronos-2")
+fig = final_comparison_plotter.plot(title="Ensemble and Chronos-2 Forecasts")
 fig.update_layout(height=550, yaxis_title="Load (normalized)")
 fig.show()
 
 # %% [markdown]
-# ## Step 8 - Short Backtest with OpenSTEF BEAM
+# ## Step 7 - Short Backtest with OpenSTEF BEAM
 #
-# ### 8.1 Backtest Configuration and Execution
+# ### 7.1 Backtest Configuration and Execution
 #
 # One forecast plot builds intuition, but it does not tell us how a model behaves across repeated forecast origins. `openstef-beam` provides the backtesting and evaluation workflow. We keep the same target and shorten the benchmark period for a workshop run.
 #
-# The short benchmark spans four weeks while keeping each forecast window at 7 days.
+# The short benchmark spans four weeks with weekly retraining and forecasting every 24 hours while keeping each forecast window at 7 days.
 #
+# ```{note}
 # The benchmark is disabled by default so documentation builds stay fast. To run it locally,
 # set `RUN_BENCHMARK = True` in the setup cell below and execute the benchmark cells.
+# ```
 #
-#
-# - **Q8.1.1** How would weekly retraining change the interpretation of the trainable-model results?
-# - **Q8.1.2** What should we check in the benchmark output before claiming one model is better?
-# - **Q8.1.3** Why must a backtest use the forecast version available at the time?
+# - **Q7.1.1** How many versions of a forecasted timestamp are there with forecasting every day with a forecast window of 7 days?
+# - **Q7.1.2** What should we check in the benchmark output before claiming one model is better?
+# - **Q7.1.3** Why must a backtest use the forecast version available at the time?
 
 
 # %%
@@ -683,7 +657,6 @@ from openstef_beam.benchmarking.baselines.openstef4 import create_openstef4_pres
 from openstef_beam.benchmarking.benchmark_pipeline import BenchmarkContext, BenchmarkPipeline
 from openstef_beam.benchmarking.benchmarks.liander2024 import (
     Liander2024Category,
-    create_liander2024_benchmark_runner,
 )
 from openstef_beam.benchmarking.callbacks.strict_execution_callback import StrictExecutionCallback
 from openstef_beam.benchmarking.models import BenchmarkTarget
@@ -752,7 +725,7 @@ assert len(targets) == 1, f"Expected 1 target, got {len(targets)}"
 print(f"Benchmarking: {targets[0].name}")
 print(f"Short benchmark period: {targets[0].benchmark_start.date()} to {targets[0].benchmark_end.date()}")
 
-# Evaluate one day at the selected day-ahead availability.
+# Evaluate over a 1-day evaluation window at the selected day-ahead availability.
 WORKSHOP_EVALUATION_CONFIG = EvaluationConfig(
     available_ats=[AvailableAt.from_string("D-1T06:00")],
     lead_times=[],
@@ -799,14 +772,18 @@ def create_workshop_benchmark_runner(
     storage: BenchmarkStorage,
 ) -> BenchmarkPipeline[BenchmarkTarget, list[Liander2024Category]]:
     """Create a runner with one-day evaluation metrics and all standard plots."""
-    runner = create_liander2024_benchmark_runner(
+    return BenchmarkPipeline[BenchmarkTarget, list[Liander2024Category]](
+        backtest_config=BacktestConfig(
+            prediction_sample_interval=timedelta(minutes=15),
+            predict_interval=timedelta(hours=24),
+            train_interval=timedelta(days=7),
+        ),
+        evaluation_config=WORKSHOP_EVALUATION_CONFIG,
+        analysis_config=WORKSHOP_ANALYSIS_CONFIG,
+        target_provider=single_target_provider,
         storage=storage,
         callbacks=[StrictExecutionCallback()],
-        target_provider=single_target_provider,
     )
-    runner.evaluation_config = WORKSHOP_EVALUATION_CONFIG
-    runner.analysis_config = WORKSHOP_ANALYSIS_CONFIG
-    return runner
 
 # %%
 # Run the classical-model backtests over the shortened benchmark period.
@@ -852,16 +829,21 @@ else:
     print("Benchmark skipped. Set RUN_BENCHMARK = True to run it locally.")
 
 # %% [markdown]
-# ## Step 9 - Compare Backtest Results
+# ## Step 8 - Compare Backtest Results
 #
-# ### 9.1 Metrics and Reports
+# ### 8.1 Metrics and Reports
 #
-# `BenchmarkComparisonPipeline` turns stored BEAM runs into standardized reports with time-series views, grouped metrics, summary tables, and operational limit analysis.
+# In order to compare different benchmark runs, we use the `BenchmarkComparisonPipeline` to generate standardized reports.
 #
 #
-# - **Q9.1.1** In `summary.html`, which model has the lowest rMAE and rCRPS? Are they the same model?
-# - **Q9.1.2** In `rMAE_windowed_1D.html`, does the ranking stay stable through the benchmark period?
-# - **Q9.1.3** Does the output structure make the result easy to reproduce and audit?
+# ```{note}
+# The benchmark results above are generated only when the backtest is run in a notebook.
+# They are not generated on the documentation page.
+# ```
+#
+# - **Q8.1.1** In `summary.html`, which model has the lowest rMAE and rCRPS? Are they the same model?
+# - **Q8.1.2** In `rMAE_windowed_1D.html`, does the ranking stay stable through the benchmark period?
+# - **Q8.1.3** Does the output structure make the result easy to reproduce and audit?
 
 # %%
 # Generate the comparison reports for all completed benchmark runs.
@@ -889,26 +871,6 @@ else:
     print("Comparison skipped because RUN_BENCHMARK is False.")
 
 # %% [markdown]
-# ## Step 10 - Workshop Summary
-#
-# ### 10.1 Questions to Close With
-#
-# This workshop followed one target through OpenSTEF's modular forecasting stack:
-#
-# 1. Explored target measurements, versioned weather, profiles, and prices
-# 2. Trained and explained XGBoost
-# 3. Inspected preprocessing and derived features
-# 4. Trained GBLinear as a contrasting extrapolating model
-# 5. Built an ensemble with `openstef-meta`
-# 6. Forecast with Chronos-2 through `openstef-foundation-models`
-# 7. Backtested XGBoost, GBLinear, and Chronos-2 with `openstef-beam`
-#
-# The conclusion should be supported by the forecast plot and the BEAM reports for this target and period.
-#
-# - **Q10.1.1** Which model would you deploy for this target, and which evidence supports that choice?
-# - **Q10.1.2** What would you change first for a second target: data selection, preprocessing, model, or benchmark period?
-# - **Q10.1.3** Which OpenSTEF package owns each capability, and how does the modular setup make that boundary visible?
-#
 # #### Output Structure
 #
 # ```text
@@ -922,3 +884,22 @@ else:
 #         ├── rMAE_grouped.html
 #         └── summary.html
 # ```
+# %% [markdown]
+# ## Step 9 - Workshop Summary
+#
+#
+# This workshop followed one target through OpenSTEF's modular forecasting stack:
+#
+# 1. Explored target measurements, versioned weather, profiles, and prices
+# 2. Trained and explained XGBoost
+# 3. Inspected preprocessing and derived features
+# 4. Built an ensemble with XGBoost and GBLinear through `openstef-meta`
+# 5. Forecast with Chronos-2 through `openstef-foundation-models`
+# 6. Compared the ensemble with Chronos-2
+# 7. Backtested XGBoost, GBLinear, and Chronos-2 with `openstef-beam`
+#
+# Some final questions below to round-up this workshop.
+#
+# - **Q9.1.1** Which model would you deploy for this target, and which evidence supports that choice?
+# - **Q9.1.2** What would you change first for a second target: data selection, preprocessing, model, or benchmark period?
+# - **Q9.1.3** What does the modularity of OpenSTEF enable in terms of model development and benchmarking?
