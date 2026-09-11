@@ -1016,7 +1016,11 @@ window.runMermaid = runMermaid;</script>
             <span class="n">local_dir</span><span class="o">=</span><span class="n">local_dir</span><span class="p">,</span>
         <span class="p">)</span>
 
-    <span class="n">datasets</span> <span class="o">=</span> <span class="p">[</span><span class="n">VersionedTimeSeriesDataset</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">local_dir</span> <span class="o">/</span> <span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files_to_download</span><span class="p">]</span>
+    <span class="n">datasets</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">VersionedTimeSeriesDataset</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files_to_download</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">fp</span> <span class="o">:=</span> <span class="n">local_dir</span> <span class="o">/</span> <span class="n">f</span><span class="p">)</span><span class="o">.</span><span class="n">suffix</span> <span class="o">==</span> <span class="s2">&quot;.parquet&quot;</span>
+    <span class="p">]</span>
     <span class="k">return</span> <span class="n">VersionedTimeSeriesDataset</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">select_version</span><span class="p">()</span></div>
 
 
