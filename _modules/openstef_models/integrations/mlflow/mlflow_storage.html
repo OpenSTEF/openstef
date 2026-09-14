@@ -820,6 +820,7 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.base_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseConfig</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelNotFoundError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.mixins</span><span class="w"> </span><span class="kn">import</span> <span class="n">HyperParams</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.utils.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">safe_path_join</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.integrations.joblib</span><span class="w"> </span><span class="kn">import</span> <span class="n">JoblibModelSerializer</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.mixins</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelIdentifier</span><span class="p">,</span> <span class="n">ModelSerializer</span>
 
@@ -1195,11 +1196,11 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        Returns:</span>
 <span class="sd">            Absolute path to the artifacts directory.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">local_artifacts_path</span> <span class="o">/</span> <span class="nb">str</span><span class="p">(</span><span class="n">model_id</span><span class="p">)</span>
+        <span class="n">path_components</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">model_id</span><span class="p">)]</span>
         <span class="k">if</span> <span class="n">run_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">result</span> <span class="o">/=</span> <span class="n">run_id</span>
+            <span class="n">path_components</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">run_id</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">result</span></div>
+        <span class="k">return</span> <span class="n">safe_path_join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">local_artifacts_path</span><span class="p">,</span> <span class="o">*</span><span class="n">path_components</span><span class="p">)</span></div>
 </div>
 
 

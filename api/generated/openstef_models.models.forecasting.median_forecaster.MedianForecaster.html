@@ -468,6 +468,10 @@
 <li class="toctree-l4"><a class="reference internal" href="openstef_core.utils.pandas.unsafe_sorted_range_slice_idxs.html">unsafe_sorted_range_slice_idxs</a></li>
 </ul>
 </details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="openstef_core.utils.path.html">path</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef_core.utils.path.safe_path_join.html">safe_path_join</a></li>
+</ul>
+</details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_core.utils.pydantic.html">pydantic</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="openstef_core.utils.pydantic.timedelta_from_isoformat.html">timedelta_from_isoformat</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_core.utils.pydantic.timedelta_to_isoformat.html">timedelta_to_isoformat</a></li>
@@ -1265,7 +1269,7 @@
 <h1>MedianForecaster<a class="headerlink" href="#medianforecaster" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">openstef_models.models.forecasting.median_forecaster.</span></span><span class="sig-name descname"><span class="pre">MedianForecaster</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/openstef_models/models/forecasting/median_forecaster.html#MedianForecaster"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">openstef_models.models.forecasting.median_forecaster.</span></span><span class="sig-name descname"><span class="pre">MedianForecaster</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/openstef_models/models/forecasting/median_forecaster.html#MedianForecaster"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Forecaster</span></code>, <a class="reference internal" href="openstef_models.explainability.ExplainableForecaster.html#openstef_models.explainability.ExplainableForecaster" title="openstef_models.explainability.mixins.ExplainableForecaster"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExplainableForecaster</span></code></a>, <a class="reference internal" href="openstef_models.explainability.ContributionsMixin.html#openstef_models.explainability.ContributionsMixin" title="openstef_models.explainability.mixins.ContributionsMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">ContributionsMixin</span></code></a></p>
 <p>Median forecaster using lag features for predictions.</p>
 <p>This forecaster predicts the median value based on specified lag features.
@@ -1292,12 +1296,12 @@ It is particularly useful for signals with slow dynamics or state-switching beha
 
 <dl class="py attribute">
 <dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">quantiles</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="openstef_core.types.Quantile.html#openstef_core.types.Quantile" title="openstef_core.types.Quantile"><span class="pre">Quantile</span></a><span class="p"><span class="pre">]</span></span></span></dt>
+<span class="sig-name descname"><span class="pre">quantiles</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="openstef_core.types.Quantile.html#openstef_core.types.Quantile" title="openstef_core.types.Quantile"><span class="pre">Quantile</span></a><span class="p"><span class="pre">]</span></span></span></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">horizons</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="openstef_core.types.LeadTime.html#openstef_core.types.LeadTime" title="openstef_core.types.LeadTime"><span class="pre">LeadTime</span></a><span class="p"><span class="pre">]</span></span></span></dt>
+<span class="sig-name descname"><span class="pre">horizons</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="openstef_core.types.LeadTime.html#openstef_core.types.LeadTime" title="openstef_core.types.LeadTime"><span class="pre">LeadTime</span></a><span class="p"><span class="pre">]</span></span></span></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -1316,7 +1320,7 @@ while each subclass keeps full type safety on its own field.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">is_fitted</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">is_fitted</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span></dt>
 <dd><p>Check if the predictor has been fitted.</p>
 </dd></dl>
 
@@ -1370,8 +1374,8 @@ If all lag features are NaN, the regressor will return NaN.</p>
 </dd>
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#AttributeError" title="(in Python v3.14)"><strong>AttributeError</strong></a> – If the model is not fitted yet.</p></li>
-<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If the input data is missing any of the required lag features.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#AttributeError" title="(in Python v3.14)"><strong>AttributeError</strong></a> – If the model is not fitted yet.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If the input data is missing any of the required lag features.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -1382,7 +1386,7 @@ If all lag features are NaN, the regressor will return NaN.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="openstef_core.datasets.ForecastInputDataset.html#openstef_core.datasets.ForecastInputDataset" title="openstef_core.datasets.validated_datasets.ForecastInputDataset"><span class="pre">ForecastInputDataset</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_val</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="openstef_core.datasets.ForecastInputDataset.html#openstef_core.datasets.ForecastInputDataset" title="openstef_core.datasets.validated_datasets.ForecastInputDataset"><span class="pre">ForecastInputDataset</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/openstef_models/models/forecasting/median_forecaster.html#MedianForecaster.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="openstef_core.datasets.ForecastInputDataset.html#openstef_core.datasets.ForecastInputDataset" title="openstef_core.datasets.validated_datasets.ForecastInputDataset"><span class="pre">ForecastInputDataset</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_val</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="openstef_core.datasets.ForecastInputDataset.html#openstef_core.datasets.ForecastInputDataset" title="openstef_core.datasets.validated_datasets.ForecastInputDataset"><span class="pre">ForecastInputDataset</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../../_modules/openstef_models/models/forecasting/median_forecaster.html#MedianForecaster.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>Fit the median forecaster.</p>
 <p>This regressor does not need any fitting,
 but it does need to know the feature names of the lag features and the order of these.</p>
@@ -1394,19 +1398,19 @@ For example, <code class="docutils literal notranslate"><span class="pre">T-1min
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>data</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="openstef_core.datasets.ForecastInputDataset.html#openstef_core.datasets.ForecastInputDataset" title="openstef_core.datasets.validated_datasets.ForecastInputDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">ForecastInputDataset</span></code></a></span>) – The training data containing lag features.</p></li>
-<li><p><strong>data_val</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="openstef_core.datasets.ForecastInputDataset.html#openstef_core.datasets.ForecastInputDataset" title="openstef_core.datasets.validated_datasets.ForecastInputDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">ForecastInputDataset</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – Optional validation data, not used in this regressor.</p></li>
+<li><p><strong>data_val</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="openstef_core.datasets.ForecastInputDataset.html#openstef_core.datasets.ForecastInputDataset" title="openstef_core.datasets.validated_datasets.ForecastInputDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">ForecastInputDataset</span></code></a> | <a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – Optional validation data, not used in this regressor.</p></li>
 <li><p><strong>data</strong></p></li>
 <li><p><strong>data_val</strong></p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
-<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If the input data frequency does not match the model frequency.</p></li>
-<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If no lag features are found in the input data.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If the input data frequency does not match the model frequency.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If no lag features are found in the input data.</p></li>
 </ul>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span></p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1433,7 +1437,7 @@ For example, <code class="docutils literal notranslate"><span class="pre">T-1min
 
 <dl class="py method">
 <dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">model_post_init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span></dt>
+<span class="sig-name descname"><span class="pre">model_post_init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span></span></dt>
 <dd><p>This function is meant to behave like a BaseModel method to initialize private attributes.</p>
 <p>It takes context as an argument since that’s what pydantic-core passes when calling it.</p>
 <dl class="field-list simple">
@@ -1446,7 +1450,7 @@ For example, <code class="docutils literal notranslate"><span class="pre">T-1min
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span></p>
 </dd>
 </dl>
 </dd></dl>

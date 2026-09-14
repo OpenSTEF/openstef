@@ -803,7 +803,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">override</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">assert_never</span><span class="p">,</span> <span class="n">override</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.analysis</span><span class="w"> </span><span class="kn">import</span> <span class="n">AnalysisOutput</span><span class="p">,</span> <span class="n">AnalysisScope</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.analysis.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">AnalysisAggregation</span>
@@ -811,6 +811,7 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.benchmarking.storage.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BenchmarkStorage</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.evaluation</span><span class="w"> </span><span class="kn">import</span> <span class="n">EvaluationReport</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">TimeSeriesDataset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.utils.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">safe_path_join</span>
 
 
 <div class="viewcode-block" id="LocalBenchmarkStorage">
@@ -946,12 +947,12 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.storage.local_storage.LocalBenchmarkStorage.html#openstef_beam.benchmarking.LocalBenchmarkStorage.get_predictions_path_for_target">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_predictions_path_for_target</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the path for storing predictions for a target.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">base_path</span>
-            <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">backtest_dirname</span>
-            <span class="o">/</span> <span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">group_name</span><span class="p">)</span>
-            <span class="o">/</span> <span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-            <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">predictions_filename</span>
+        <span class="k">return</span> <span class="n">safe_path_join</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">base_path</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">backtest_dirname</span><span class="p">,</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">group_name</span><span class="p">),</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">predictions_filename</span><span class="p">,</span>
         <span class="p">)</span></div>
 
 
@@ -959,7 +960,12 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../../api/generated/openstef_beam.benchmarking.storage.local_storage.LocalBenchmarkStorage.html#openstef_beam.benchmarking.LocalBenchmarkStorage.get_evaluations_path_for_target">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_evaluations_path_for_target</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the path for storing evaluation results for a target.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_path</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluations_dirname</span> <span class="o">/</span> <span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">group_name</span><span class="p">)</span> <span class="o">/</span> <span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">safe_path_join</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">base_path</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">evaluations_dirname</span><span class="p">,</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">group_name</span><span class="p">),</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="LocalBenchmarkStorage.get_analysis_path">
@@ -970,24 +976,18 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        Returns:</span>
 <span class="sd">            Path: Directory path where analysis results should be stored.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">base_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_path</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">analysis_dirname</span>
-        <span class="k">if</span> <span class="n">scope</span><span class="o">.</span><span class="n">aggregation</span> <span class="o">==</span> <span class="n">AnalysisAggregation</span><span class="o">.</span><span class="n">NONE</span><span class="p">:</span>
-            <span class="n">output_dir</span> <span class="o">=</span> <span class="n">base_dir</span> <span class="o">/</span> <span class="nb">str</span><span class="p">(</span><span class="n">scope</span><span class="o">.</span><span class="n">group_name</span><span class="p">)</span> <span class="o">/</span> <span class="nb">str</span><span class="p">(</span><span class="n">scope</span><span class="o">.</span><span class="n">target_name</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">scope</span><span class="o">.</span><span class="n">aggregation</span> <span class="o">==</span> <span class="n">AnalysisAggregation</span><span class="o">.</span><span class="n">TARGET</span><span class="p">:</span>
-            <span class="n">output_dir</span> <span class="o">=</span> <span class="n">base_dir</span> <span class="o">/</span> <span class="nb">str</span><span class="p">(</span><span class="n">scope</span><span class="o">.</span><span class="n">group_name</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;global&quot;</span>
-        <span class="k">elif</span> <span class="n">scope</span><span class="o">.</span><span class="n">aggregation</span> <span class="o">==</span> <span class="n">AnalysisAggregation</span><span class="o">.</span><span class="n">GROUP</span><span class="p">:</span>
-            <span class="n">output_dir</span> <span class="o">=</span> <span class="n">base_dir</span> <span class="o">/</span> <span class="s2">&quot;global&quot;</span>
-        <span class="k">elif</span> <span class="n">scope</span><span class="o">.</span><span class="n">aggregation</span> <span class="o">==</span> <span class="n">AnalysisAggregation</span><span class="o">.</span><span class="n">RUN_AND_NONE</span><span class="p">:</span>
-            <span class="n">output_dir</span> <span class="o">=</span> <span class="n">base_dir</span> <span class="o">/</span> <span class="nb">str</span><span class="p">(</span><span class="n">scope</span><span class="o">.</span><span class="n">group_name</span><span class="p">)</span> <span class="o">/</span> <span class="nb">str</span><span class="p">(</span><span class="n">scope</span><span class="o">.</span><span class="n">target_name</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">scope</span><span class="o">.</span><span class="n">aggregation</span> <span class="o">==</span> <span class="n">AnalysisAggregation</span><span class="o">.</span><span class="n">RUN_AND_GROUP</span><span class="p">:</span>
-            <span class="n">output_dir</span> <span class="o">=</span> <span class="n">base_dir</span> <span class="o">/</span> <span class="s2">&quot;global&quot;</span>
-        <span class="k">elif</span> <span class="n">scope</span><span class="o">.</span><span class="n">aggregation</span> <span class="o">==</span> <span class="n">AnalysisAggregation</span><span class="o">.</span><span class="n">RUN_AND_TARGET</span><span class="p">:</span>
-            <span class="n">output_dir</span> <span class="o">=</span> <span class="n">base_dir</span> <span class="o">/</span> <span class="nb">str</span><span class="p">(</span><span class="n">scope</span><span class="o">.</span><span class="n">group_name</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;global&quot;</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># Default case for any new or unexpected aggregation types</span>
-            <span class="n">output_dir</span> <span class="o">=</span> <span class="n">base_dir</span>
+        <span class="n">path_components</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">analysis_dirname</span><span class="p">]</span>
+        <span class="k">match</span> <span class="n">scope</span><span class="o">.</span><span class="n">aggregation</span><span class="p">:</span>
+            <span class="k">case</span> <span class="n">AnalysisAggregation</span><span class="o">.</span><span class="n">NONE</span> <span class="o">|</span> <span class="n">AnalysisAggregation</span><span class="o">.</span><span class="n">RUN_AND_NONE</span><span class="p">:</span>
+                <span class="n">path_components</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">scope</span><span class="o">.</span><span class="n">group_name</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">scope</span><span class="o">.</span><span class="n">target_name</span><span class="p">)])</span>
+            <span class="k">case</span> <span class="n">AnalysisAggregation</span><span class="o">.</span><span class="n">TARGET</span> <span class="o">|</span> <span class="n">AnalysisAggregation</span><span class="o">.</span><span class="n">RUN_AND_TARGET</span><span class="p">:</span>
+                <span class="n">path_components</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">scope</span><span class="o">.</span><span class="n">group_name</span><span class="p">),</span> <span class="s2">&quot;global&quot;</span><span class="p">])</span>
+            <span class="k">case</span> <span class="n">AnalysisAggregation</span><span class="o">.</span><span class="n">GROUP</span> <span class="o">|</span> <span class="n">AnalysisAggregation</span><span class="o">.</span><span class="n">RUN_AND_GROUP</span><span class="p">:</span>
+                <span class="n">path_components</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;global&quot;</span><span class="p">)</span>
+            <span class="k">case</span> <span class="n">aggregation</span><span class="p">:</span>
+                <span class="n">assert_never</span><span class="p">(</span><span class="n">aggregation</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">output_dir</span></div>
+        <span class="k">return</span> <span class="n">safe_path_join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_path</span><span class="p">,</span> <span class="o">*</span><span class="n">path_components</span><span class="p">)</span></div>
 </div>
 
 

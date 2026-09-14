@@ -468,6 +468,10 @@
 <li class="toctree-l4"><a class="reference internal" href="openstef_core.utils.pandas.unsafe_sorted_range_slice_idxs.html">unsafe_sorted_range_slice_idxs</a></li>
 </ul>
 </details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="openstef_core.utils.path.html">path</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef_core.utils.path.safe_path_join.html">safe_path_join</a></li>
+</ul>
+</details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_core.utils.pydantic.html">pydantic</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="openstef_core.utils.pydantic.timedelta_from_isoformat.html">timedelta_from_isoformat</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_core.utils.pydantic.timedelta_to_isoformat.html">timedelta_to_isoformat</a></li>
@@ -1265,12 +1269,12 @@
 <h1>sanitize_holiday_name<a class="headerlink" href="#sanitize-holiday-name" title="Link to this heading">#</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef_models.transforms.time_domain.holiday_features_adder.sanitize_holiday_name">
-<span class="sig-prename descclassname"><span class="pre">openstef_models.transforms.time_domain.holiday_features_adder.</span></span><span class="sig-name descname"><span class="pre">sanitize_holiday_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">holiday_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../../_modules/openstef_models/transforms/time_domain/holiday_features_adder.html#sanitize_holiday_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_models.transforms.time_domain.holiday_features_adder.sanitize_holiday_name" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">openstef_models.transforms.time_domain.holiday_features_adder.</span></span><span class="sig-name descname"><span class="pre">sanitize_holiday_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">holiday_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../../_modules/openstef_models/transforms/time_domain/holiday_features_adder.html#sanitize_holiday_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_models.transforms.time_domain.holiday_features_adder.sanitize_holiday_name" title="Link to this definition">#</a></dt>
 <dd><p>Convert holiday name to a valid Python identifier for feature names.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>holiday_name</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Original holiday name from holidays library.</p></li>
+<li><p><strong>holiday_name</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Original holiday name from holidays library.</p></li>
 <li><p><strong>holiday_name</strong></p></li>
 </ul>
 </dd>
@@ -1278,7 +1282,7 @@
 <dd class="field-even"><p>Sanitized feature name (lowercase, underscores, no special chars).</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span></p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span></p>
 </dd>
 </dl>
 </dd></dl>

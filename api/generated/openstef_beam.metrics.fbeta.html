@@ -468,6 +468,10 @@
 <li class="toctree-l4"><a class="reference internal" href="openstef_core.utils.pandas.unsafe_sorted_range_slice_idxs.html">unsafe_sorted_range_slice_idxs</a></li>
 </ul>
 </details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="openstef_core.utils.path.html">path</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef_core.utils.path.safe_path_join.html">safe_path_join</a></li>
+</ul>
+</details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_core.utils.pydantic.html">pydantic</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="openstef_core.utils.pydantic.timedelta_from_isoformat.html">timedelta_from_isoformat</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_core.utils.pydantic.timedelta_to_isoformat.html">timedelta_to_isoformat</a></li>
@@ -1259,7 +1263,7 @@
 <h1>fbeta<a class="headerlink" href="#fbeta" title="Link to this heading">#</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="openstef_beam.metrics.fbeta">
-<span class="sig-prename descclassname"><span class="pre">openstef_beam.metrics.</span></span><span class="sig-name descname"><span class="pre">fbeta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">precision_recall</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="openstef_beam.metrics.PrecisionRecall.html#openstef_beam.metrics.PrecisionRecall" title="openstef_beam.metrics.metrics_deterministic.PrecisionRecall"><span class="pre">PrecisionRecall</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="reference internal" href="../../_modules/openstef_beam/metrics/metrics_deterministic.html#fbeta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_beam.metrics.fbeta" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">openstef_beam.metrics.</span></span><span class="sig-name descname"><span class="pre">fbeta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">precision_recall</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="openstef_beam.metrics.PrecisionRecall.html#openstef_beam.metrics.PrecisionRecall" title="openstef_beam.metrics.metrics_deterministic.PrecisionRecall"><span class="pre">PrecisionRecall</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><a class="reference internal" href="../../_modules/openstef_beam/metrics/metrics_deterministic.html#fbeta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openstef_beam.metrics.fbeta" title="Link to this definition">#</a></dt>
 <dd><p>Calculate the F-beta score from precision and recall metrics.</p>
 <p>The F-beta score is a weighted harmonic mean of precision and recall,
 allowing for different emphasis on recall versus precision based on
@@ -1269,7 +1273,7 @@ the beta parameter.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>precision_recall</strong> (<a class="reference internal" href="openstef_beam.metrics.PrecisionRecall.html#openstef_beam.metrics.PrecisionRecall" title="openstef_beam.metrics.metrics_deterministic.PrecisionRecall"><em>PrecisionRecall</em></a>) – Container with precision and recall values from
 the precision_recall function.</p></li>
-<li><p><strong>beta</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – Weight parameter controlling the relative importance of recall.
+<li><p><strong>beta</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><em>float</em></a>) – Weight parameter controlling the relative importance of recall.
 Values &gt; 1 favor recall, values &lt; 1 favor precision.
 Common values: 0.5 (favor precision), 1.0 (balanced F1), 2.0 (favor recall).</p></li>
 </ul>
@@ -1279,7 +1283,7 @@ Common values: 0.5 (favor precision), 1.0 (balanced F1), 2.0 (favor recall).</p>
 precision and recall are zero.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)">float</a></p>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)">float</a></p>
 </dd>
 </dl>
 <p class="rubric">Example</p>
@@ -1306,11 +1310,11 @@ In energy forecasting, beta &gt; 1 is often preferred to minimize missed peaks.<
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>precision_recall</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="openstef_beam.metrics.PrecisionRecall.html#openstef_beam.metrics.PrecisionRecall" title="openstef_beam.metrics.metrics_deterministic.PrecisionRecall"><code class="xref py py-class docutils literal notranslate"><span class="pre">PrecisionRecall</span></code></a></span>)</p></li>
-<li><p><strong>beta</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></span>)</p></li>
+<li><p><strong>beta</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></span>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></span></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></span></p>
 </dd>
 </dl>
 </dd></dl>

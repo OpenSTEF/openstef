@@ -826,6 +826,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">RMAEProvider</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">AvailableAt</span><span class="p">,</span> <span class="n">Quantile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.utils.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">safe_path_join</span>
 
 <span class="nb">type</span> <span class="n">Liander2024Category</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;mv_feeder&quot;</span><span class="p">,</span> <span class="s2">&quot;station_installation&quot;</span><span class="p">,</span> <span class="s2">&quot;transformer&quot;</span><span class="p">,</span> <span class="s2">&quot;solar_park&quot;</span><span class="p">,</span> <span class="s2">&quot;wind_park&quot;</span><span class="p">]</span>
 
@@ -884,20 +885,20 @@ window.runMermaid = runMermaid;</script>
 
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_measurements_path_for_target</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span>
-            <span class="o">/</span> <span class="s2">&quot;load_measurements&quot;</span>
-            <span class="o">/</span> <span class="n">target</span><span class="o">.</span><span class="n">group_name</span>
-            <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">measurements_path_template</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">target</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">safe_path_join</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span>
+            <span class="s2">&quot;load_measurements&quot;</span><span class="p">,</span>
+            <span class="n">target</span><span class="o">.</span><span class="n">group_name</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">measurements_path_template</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">target</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
         <span class="p">)</span>
 
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_weather_path_for_target</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">BenchmarkTarget</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span>
-            <span class="o">/</span> <span class="s2">&quot;weather_forecasts_versioned&quot;</span>
-            <span class="o">/</span> <span class="n">target</span><span class="o">.</span><span class="n">group_name</span>
-            <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">weather_path_template</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">target</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">safe_path_join</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">,</span>
+            <span class="s2">&quot;weather_forecasts_versioned&quot;</span><span class="p">,</span>
+            <span class="n">target</span><span class="o">.</span><span class="n">group_name</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">weather_path_template</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">target</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
         <span class="p">)</span></div>
 
 
