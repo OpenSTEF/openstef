@@ -33,6 +33,7 @@ from openstef_beam.evaluation.metric_providers import (
     RMAEProvider,
 )
 from openstef_core.types import AvailableAt, Quantile
+from openstef_core.utils.path import safe_path_join
 
 type Liander2024Category = Literal["mv_feeder", "station_installation", "transformer", "solar_park", "wind_park"]
 
@@ -83,20 +84,20 @@ class Liander2024TargetProvider(SimpleTargetProvider[BenchmarkTarget, list[Liand
 
     @override
     def _get_measurements_path_for_target(self, target: BenchmarkTarget) -> Path:
-        return (
-            self.data_dir
-            / "load_measurements"
-            / target.group_name
-            / self.measurements_path_template.format(name=target.name)
+        return safe_path_join(
+            self.data_dir,
+            "load_measurements",
+            target.group_name,
+            self.measurements_path_template.format(name=target.name),
         )
 
     @override
     def _get_weather_path_for_target(self, target: BenchmarkTarget) -> Path:
-        return (
-            self.data_dir
-            / "weather_forecasts_versioned"
-            / target.group_name
-            / self.weather_path_template.format(name=target.name)
+        return safe_path_join(
+            self.data_dir,
+            "weather_forecasts_versioned",
+            target.group_name,
+            self.weather_path_template.format(name=target.name),
         )
 
 
