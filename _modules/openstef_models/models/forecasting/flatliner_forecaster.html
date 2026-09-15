@@ -801,7 +801,8 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">when a flatline (non-)zero measurement is observed in the past and expected in the future.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">override</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">timedelta</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">cast</span><span class="p">,</span> <span class="n">override</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">Field</span><span class="p">,</span> <span class="n">PrivateAttr</span>
@@ -819,8 +820,9 @@ window.runMermaid = runMermaid;</script>
 <span class="k">class</span><span class="w"> </span><span class="nc">FlatlinerForecaster</span><span class="p">(</span><span class="n">Forecaster</span><span class="p">,</span> <span class="n">ExplainableForecaster</span><span class="p">,</span> <span class="n">ContributionsMixin</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Flatliner forecaster that predicts a flatline of zeros or median.</span>
 
-<span class="sd">    A simple forecasting model that always predicts zero (or the median of historical</span>
-<span class="sd">    load measurements if configured) for all horizons and quantiles.</span>
+<span class="sd">    A simple forecasting model that always predicts zero (or a median load value if</span>
+<span class="sd">    configured) for all horizons and quantiles. The median can be calculated over</span>
+<span class="sd">    a trailing window when the fallback is responding to a recent flatline.</span>
 
 <span class="sd">    Invariants:</span>
 <span class="sd">        - Configuration quantiles determine the number of prediction outputs</span>
@@ -843,6 +845,10 @@ window.runMermaid = runMermaid;</script>
     <span class="n">predict_median</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">description</span><span class="o">=</span><span class="s2">&quot;If True, predict the median of load measurements instead of zero.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">median_window</span><span class="p">:</span> <span class="n">timedelta</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Optional trailing window for the median load estimate; None uses all available measurements.&quot;</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="n">hyperparams</span><span class="p">:</span> <span class="n">HyperParams</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
@@ -873,7 +879,13 @@ window.runMermaid = runMermaid;</script>
         <span class="n">data_val</span><span class="p">:</span> <span class="n">ForecastInputDataset</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict_median</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_median_value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">target_series</span><span class="o">.</span><span class="n">median</span><span class="p">())</span></div>
+            <span class="n">target_series</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">target_series</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">median_window</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">last_valid_index</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">target_series</span><span class="o">.</span><span class="n">last_valid_index</span><span class="p">())</span>
+                <span class="k">if</span> <span class="n">last_valid_index</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">window_start</span> <span class="o">=</span> <span class="n">last_valid_index</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">median_window</span>
+                    <span class="n">target_series</span> <span class="o">=</span> <span class="n">target_series</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">window_start</span><span class="p">:</span><span class="n">last_valid_index</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_median_value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">target_series</span><span class="o">.</span><span class="n">median</span><span class="p">())</span></div>
 
 
 <div class="viewcode-block" id="FlatlinerForecaster.predict">
