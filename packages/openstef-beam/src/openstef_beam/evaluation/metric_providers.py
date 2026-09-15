@@ -16,6 +16,7 @@ import numpy.typing as npt
 import pandas as pd
 from pydantic import Field
 
+from openstef_beam.evaluation.evaluation_helper import compute_symmetric_quantile_metrics
 from openstef_beam.evaluation.models.subset import MetricsDict, QuantileMetricsDict
 from openstef_beam.metrics import (
     completeness,
@@ -28,6 +29,7 @@ from openstef_beam.metrics import (
     precision_recall,
     r2,
     rcrps,
+    rcs,
     relative_pinball_loss,
     riqd,
     rmae,
@@ -227,8 +229,8 @@ class PeakMetricProvider(MetricProvider):
         )
 
         metrics: MetricsDict = {}
-        metrics["num_predicted_peaks"] = cm.true_positives.sum() + cm.false_positives.sum()
-        metrics["num_true_peaks"] = cm.true_positives.sum() + cm.false_negatives.sum()
+        metrics["num_predicted_peaks"] = int(cm.true_positives.sum() + cm.false_positives.sum())
+        metrics["num_true_peaks"] = int(cm.true_positives.sum() + cm.false_negatives.sum())
         peak_pr = precision_recall(cm, effective=False)
         effective_pr = precision_recall(cm, effective=True)
         metrics["precision"], metrics["recall"] = peak_pr
@@ -629,8 +631,6 @@ class RIQDProvider(MetricProvider):
     def metric_names(self) -> frozenset[str]:
         return frozenset({"rIQD"})
 
-    median_quantile: Quantile = Quantile(0.5)
-
     measurement_range_lower_q: Quantile = Field(
         default=Quantile(0.05),
         description="Lower quantile bound for measurement range normalization.",
@@ -661,42 +661,60 @@ class RIQDProvider(MetricProvider):
         Returns:
             QuantileMetricsDict containing rIQD metrics for each processable quantile.
         """
-        metrics: QuantileMetricsDict = {}
+        return compute_symmetric_quantile_metrics(
+            y_true=y_true,
+            y_pred=y_pred,
+            quantiles=quantiles,
+            selected_quantiles=self.quantiles,
+            metric_name="rIQD",
+            metric=riqd,
+            measurement_range_lower_q=self.measurement_range_lower_q,
+            measurement_range_upper_q=self.measurement_range_upper_q,
+        )
 
-        for i, quantile in enumerate(quantiles):
-            if self.quantiles is not None and quantile not in self.quantiles:
-                continue
 
-            symmetric_quantile = 1.0 - quantile
+class RCSProvider(MetricProvider):
+    """Provides Regression Coverage Score metrics.
 
-            if np.isclose(quantile, symmetric_quantile, atol=1e-6):
-                continue  # skip if same quantile (e.g., 0.5)
+    Measures the fraction of observed values inside symmetric prediction
+    intervals, such as P10-P90. For each quantile, finds its symmetric
+    counterpart and computes RCS between them.
+    """
 
-            symmetric_indices = np.nonzero(np.isclose(quantiles, symmetric_quantile, atol=1e-6))[0]
+    @property
+    @override
+    def metric_names(self) -> frozenset[str]:
+        return frozenset({"RCS"})
 
-            if len(symmetric_indices) == 0:
-                continue  # no symmetric quantile found, skip
+    @override
+    def compute_probabilistic(
+        self,
+        y_true: npt.NDArray[np.floating],
+        y_pred: npt.NDArray[np.floating],
+        quantiles: list[Quantile],
+    ) -> QuantileMetricsDict:
+        """Compute RCS for each quantile by finding its symmetric counterpart.
 
-            symmetric_idx = symmetric_indices[0]
+        For each quantile q, finds the symmetric quantile (1-q) and computes
+        RCS between them. Only processes quantiles for which a symmetric
+        counterpart is available.
 
-            if quantile < self.median_quantile:
-                lower_pred = y_pred[:, i]
-                upper_pred = y_pred[:, symmetric_idx]
-            else:
-                lower_pred = y_pred[:, symmetric_idx]
-                upper_pred = y_pred[:, i]
+        Args:
+            y_true: True values, 1D array of shape (num_samples,).
+            y_pred: Predicted values, 2D array of shape (num_samples, num_quantiles).
+            quantiles: Quantiles used for prediction, sequence of length (num_quantiles,).
 
-            metrics[quantile] = {
-                "rIQD": riqd(
-                    y_true=y_true,
-                    y_pred_lower_q=lower_pred,
-                    y_pred_upper_q=upper_pred,
-                    measurement_range_lower_q=self.measurement_range_lower_q,
-                    measurement_range_upper_q=self.measurement_range_upper_q,
-                )
-            }
-
-        return metrics
+        Returns:
+            QuantileMetricsDict containing RCS metrics for each processable quantile.
+        """
+        return compute_symmetric_quantile_metrics(
+            y_true=y_true,
+            y_pred=y_pred,
+            quantiles=quantiles,
+            selected_quantiles=self.quantiles,
+            metric_name="RCS",
+            metric=rcs,
+        )
 
 
 class RelativePinballLossProvider(MetricProvider):
@@ -748,6 +766,7 @@ __all__ = [
     "PeakMetricProvider",
     "R2Provider",
     "RCRPSProvider",
+    "RCSProvider",
     "RIQDProvider",
     "RMAEPeakHoursProvider",
     "RMAEProvider",

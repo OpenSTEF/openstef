@@ -476,6 +476,65 @@ def test_lags_adder__fallback_multiple_lags():
     assert transformed.data["load_lag_P2D"].iloc[14] == pytest.approx(6.0)
 
 
+def test_features_added_matches_transform_output_single_horizon():
+    """features_added() must list exactly the lag columns transform() creates.
+
+    Regression: features_added() previously returned every configured lag, including
+    lags outside the horizon's valid window (below the horizon, or beyond
+    history_available) that transform() never materializes, so it advertised columns
+    that were never added -- a contract mismatch for consumers that build feature
+    selections or validate columns from it.
+    """
+    # Arrange
+    dataset = create_timeseries_dataset(
+        index=pd.date_range("2025-01-01", periods=5, freq="1D"),
+        load=[10, 20, 30, 40, 50],
+        sample_interval=timedelta(days=1),
+    )
+    adder = LagsAdder(
+        history_available=timedelta(days=10),
+        horizons=[LeadTime(value=timedelta(days=2))],
+        add_trivial_lags=False,
+        # 1D is below the 2D horizon and 30D exceeds the 10D history -> both dropped by transform().
+        custom_lags=[timedelta(days=1), timedelta(days=3), timedelta(days=30)],
+    )
+
+    # Act
+    transformed = adder.transform(dataset)
+    added_columns = [col for col in transformed.data.columns if col not in dataset.data.columns]
+
+    # Assert -- declared features equal the columns actually added, and only the in-window lag remains.
+    assert adder.features_added() == added_columns
+    assert adder.features_added() == ["load_lag_P3D"]
+
+
+def test_features_added_matches_transform_output_multiple_horizons():
+    """features_added() must equal the union of columns transform() creates across horizons."""
+    # Arrange
+    index = pd.date_range("2025-01-01", periods=3, freq="1D", name="timestamp")
+    dataset = create_timeseries_dataset(
+        index=pd.DatetimeIndex(list(index) * 2),
+        horizons=[timedelta(days=2)] * 3 + [timedelta(days=5)] * 3,
+        load=[10, 20, 30, 10, 20, 30],
+        sample_interval=timedelta(days=1),
+    )
+    adder = LagsAdder(
+        history_available=timedelta(days=10),
+        horizons=[LeadTime(value=timedelta(days=2)), LeadTime(value=timedelta(days=5))],
+        add_trivial_lags=False,
+        # 1D is below both horizons and 30D exceeds history; 3D and 7D are materialized (3D only for the 2D horizon).
+        custom_lags=[timedelta(days=1), timedelta(days=3), timedelta(days=7), timedelta(days=30)],
+    )
+
+    # Act
+    transformed = adder.transform(dataset)
+    added_columns = {col for col in transformed.data.columns if col not in dataset.data.columns}
+
+    # Assert -- declared features match the union of created columns (order-independent).
+    assert set(adder.features_added()) == added_columns
+    assert set(adder.features_added()) == {"load_lag_P7D", "load_lag_P3D"}
+
+
 def test_add_lags_for_multiple_horizons():
     """Test that lags are calculated correctly for multiple horizons."""
     # Arrange (time series dataset with four different horizons)

@@ -27,6 +27,7 @@ from openstef_beam.benchmarking.models import BenchmarkTarget
 from openstef_beam.evaluation.metric_providers import MetricProvider
 from openstef_core.base_model import BaseConfig, read_yaml_config
 from openstef_core.datasets import VersionedTimeSeriesDataset
+from openstef_core.utils.path import safe_path_join
 
 
 class TargetProviderConfig(BaseConfig):
@@ -271,7 +272,11 @@ class SimpleTargetProvider[T: BenchmarkTarget, F](TargetProvider[T, F]):
         return self.metrics if isinstance(self.metrics, list) else self.metrics(target)  # ty: ignore[invalid-return-type]
 
     def _get_measurements_path_for_target(self, target: T) -> Path:
-        return self.data_dir / str(target.group_name) / self.measurements_path_template.format(name=target.name)
+        return safe_path_join(
+            self.data_dir,
+            str(target.group_name),
+            self.measurements_path_template.format(name=target.name),
+        )
 
     @override
     def get_measurements_for_target(self, target: T) -> VersionedTimeSeriesDataset:
@@ -310,7 +315,11 @@ class SimpleTargetProvider[T: BenchmarkTarget, F](TargetProvider[T, F]):
         )
 
     def _get_weather_path_for_target(self, target: T) -> Path:
-        return self.data_dir / str(target.group_name) / self.weather_path_template.format(name=target.name)
+        return safe_path_join(
+            self.data_dir,
+            str(target.group_name),
+            self.weather_path_template.format(name=target.name),
+        )
 
     def get_weather_for_target(self, target: T) -> VersionedTimeSeriesDataset:
         """Load weather features from target-specific Parquet file.

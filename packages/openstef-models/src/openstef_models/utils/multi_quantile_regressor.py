@@ -6,6 +6,7 @@
 Designed to work with scikit-learn compatible regressors that support quantile regression.
 """
 
+import inspect
 import logging
 
 import numpy as np
@@ -89,15 +90,27 @@ class MultiQuantileRegressor(BaseEstimator, RegressorMixin):
 
         for model in self._models:
             # Check if early stopping is supported
-            # Check that eval_set is supported
             if eval_set is None and "early_stopping_rounds" in self.hyperparams:
                 model.set_params(early_stopping_rounds=None)
 
             if eval_set is not None and self.learner_eval_sample_weight_param is not None:
-                kwargs["eval_set"] = [
-                    (x_array if eval_x is X else np.asarray(eval_x), eval_y) for eval_x, eval_y in eval_set
-                ]
-                kwargs[self.learner_eval_sample_weight_param] = eval_sample_weight
+                fit_signature = inspect.signature(getattr(model, "fit"))  # noqa: B009
+                has_eval_x_param = "eval_X" in fit_signature.parameters
+
+                if has_eval_x_param:
+                    # Extract X and y from eval_set tuples for LightGBM
+                    eval_x_data = tuple((x_array if eval_x is X else np.asarray(eval_x)) for eval_x, _ in eval_set)
+                    eval_y_data = tuple(eval_y for _, eval_y in eval_set)
+                    kwargs["eval_X"] = eval_x_data
+                    kwargs["eval_y"] = eval_y_data
+                    kwargs["eval_sample_weight"] = eval_sample_weight
+                else:
+                    # XGBoost uses eval_set
+                    kwargs["eval_set"] = [
+                        (x_array if eval_x is X else np.asarray(eval_x), eval_y) for eval_x, eval_y in eval_set
+                    ]
+                    kwargs[self.learner_eval_sample_weight_param] = eval_sample_weight
+
                 if "early_stopping_rounds" in self.hyperparams:
                     model.set_params(early_stopping_rounds=self.hyperparams["early_stopping_rounds"])
 

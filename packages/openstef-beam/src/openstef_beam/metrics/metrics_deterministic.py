@@ -504,6 +504,44 @@ def riqd(
     return float(riqd)
 
 
+def rcs(
+    y_true: npt.NDArray[np.floating],
+    y_pred_lower_q: npt.NDArray[np.floating],
+    y_pred_upper_q: npt.NDArray[np.floating],
+) -> float:
+    """Calculate the Regression Coverage Score (RCS) for prediction intervals.
+
+    RCS measures the fraction of observed values that fall within the predicted
+    lower and upper quantile bounds. A calibrated 90% prediction interval should
+    have an RCS close to 0.9.
+
+    Args:
+        y_true: Observed values with shape (num_samples,).
+        y_pred_lower_q: Predicted values of lower quantile with shape (num_samples,).
+        y_pred_upper_q: Predicted values of upper quantile with shape (num_samples,).
+
+    Returns:
+        The fraction of observations inside the interval. Values closer to the
+        nominal interval coverage indicate better calibration.
+
+    Example:
+        Evaluate coverage of a P10-P90 prediction interval
+
+        >>> import numpy as np
+        >>> y_true = np.array([100, 120, 110, 130])
+        >>> y_pred_lower_q = np.array([90, 115, 105, 125])
+        >>> y_pred_upper_q = np.array([110, 125, 115, 128])
+        >>> rcs(y_true, y_pred_lower_q, y_pred_upper_q)
+        0.75
+
+    Note:
+        The interval bounds are inclusive: observations equal to either bound
+        are counted as covered.
+    """
+    is_in_interval = (y_true >= y_pred_lower_q) & (y_true <= y_pred_upper_q)
+    return float(np.mean(is_in_interval))
+
+
 def r2(
     y_true: npt.NDArray[np.floating],
     y_pred: npt.NDArray[np.floating],

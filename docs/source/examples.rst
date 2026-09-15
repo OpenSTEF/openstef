@@ -31,7 +31,7 @@ Getting Started
      - Learn how versioned time series data works and why it matters for honest forecasting.
 
 Training & Forecasting
-^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^
 
 .. list-table::
    :header-rows: 1
@@ -77,7 +77,7 @@ the docs build — run them locally to reproduce results.
    :header-rows: 1
    :widths: 30 70
 
-   * - Benchmark
+   * - Tutorial
      - Description
    * - :doc:`Benchmarking Guide <benchmarks/README>`
      - Overview of the benchmarking framework and how to interpret results.
@@ -85,6 +85,19 @@ the docs build — run them locally to reproduce results.
      - Full benchmark on Liander's MV feeder dataset comparing XGBoost, LightGBM, and linear baselines.
    * - :doc:`Build Your Own <benchmarks/custom/README>`
      - Template for creating custom benchmarks on your own data.
+
+
+Workshop
+^^^^^^^^
+
+.. list-table::
+   :header-rows: 1
+   :widths: 30 70
+
+   * - Tutorial
+     - Description
+  * - :doc:`OpenSTEF workshop <tutorials/workshop>`
+     - Gain full understanding of the full OpenSTEF workflow by following a solar-park target through the full forecasting pipeline and answering questions.
 
 
 .. toctree::
@@ -124,3 +137,10 @@ the docs build — run them locally to reproduce results.
    Benchmarking Guide <benchmarks/README>
    Liander 2024 <benchmarks/liander2024/README>
    Build Your Own <benchmarks/custom/README>
+
+.. toctree::
+    :maxdepth: 1
+    :hidden:
+    :caption: Workshop
+
+    OpenSTEF workshop <tutorials/workshop>

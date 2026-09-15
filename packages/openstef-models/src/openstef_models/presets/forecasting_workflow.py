@@ -233,6 +233,14 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
         description="Feature selection for which features to replace out-of-range values with NaN. "
         "Defaults to no features (disabled).",
     )
+    outlier_strictness_n_std: float = Field(
+        default=2.0,
+        description=(
+            "Number of standard deviations for outlier detection (lower = stricter bounds). "
+            "Only used when nan_on_outlier_features is enabled."
+        ),
+        gt=0,
+    )
     max_day_lags: int = Field(
         default=14,
         description="Maximum number of days to look back for day-based lags. "
@@ -412,7 +420,14 @@ def create_forecasting_workflow(
     if config.model == "xgboost":
         nan_outlier_handlers = [
             *(
-                [OutlierHandler(mode="standard", selection=config.nan_on_outlier_features, outlier_action="nan")]
+                [
+                    OutlierHandler(
+                        mode="standard",
+                        selection=config.nan_on_outlier_features,
+                        outlier_action="nan",
+                        n_std=config.outlier_strictness_n_std,
+                    )
+                ]
                 if config.nan_on_outlier_features != FeatureSelection.NONE
                 else []
             ),

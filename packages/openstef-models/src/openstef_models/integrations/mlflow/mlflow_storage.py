@@ -27,6 +27,7 @@ from pydantic import ConfigDict, Field, PrivateAttr
 from openstef_core.base_model import BaseConfig
 from openstef_core.exceptions import ModelNotFoundError
 from openstef_core.mixins import HyperParams
+from openstef_core.utils.path import safe_path_join
 from openstef_models.integrations.joblib import JoblibModelSerializer
 from openstef_models.mixins import ModelIdentifier, ModelSerializer
 
@@ -171,7 +172,7 @@ class MLFlowStorage(BaseConfig):
                 tags=experiment_tags,
             )
         else:
-            experiment_id = cast(str, experiment.experiment_id)
+            experiment_id = experiment.experiment_id
 
         # Create run
         run = self._client.create_run(
@@ -371,11 +372,11 @@ class MLFlowStorage(BaseConfig):
         Returns:
             Absolute path to the artifacts directory.
         """
-        result = self.local_artifacts_path / str(model_id)
+        path_components = [str(model_id)]
         if run_id is not None:
-            result /= run_id
+            path_components.append(run_id)
 
-        return result
+        return safe_path_join(self.local_artifacts_path, *path_components)
 
 
 __all__ = ["MLFlowStorage", "normalize_tracking_uri"]
