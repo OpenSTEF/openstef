@@ -4629,7 +4629,7 @@ wheels = [
 
 [[package]]
 name = "optuna"
-version = "4.9.0"
+version = "5.0.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "alembic" },
@@ -4640,9 +4640,9 @@ dependencies = [
     { name = "sqlalchemy" },
     { name = "tqdm" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/f4/aa/05f5e3f662cc96a4c478fc3446b8ed6359825a2b504ecb614a9ac84e4a4d/optuna-4.9.0.tar.gz", hash = "sha256:b322e5cbdf1655fb84c37646c4a7a1f391de1b47806bbe222e015825d0a82b87", size = 485834, upload-time = "2026-06-01T06:23:30.424Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/27/6d/7bd33b5ed3a83f1c1517fb20c54c7dbf59e6c76430d9b26d3205074ff6b0/optuna-5.0.0.tar.gz", hash = "sha256:358bb878b7b1e20e90dc944ac4261796dd3d5c2b7860aa960a08fc10e0b5beff", size = 508726, upload-time = "2026-09-07T05:16:21.136Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ab/f3/e5fcd5d9b15771ed6dc10e3a7eeddc672e418f4f4c4653d216cc1d857e2d/optuna-4.9.0-py3-none-any.whl", hash = "sha256:f52f3be6148654850c92a5860d398fd88ec6b2c84ab68d9c3d07dcff02e7afee", size = 425553, upload-time = "2026-06-01T06:23:28.804Z" },
+    { url = "https://files.pythonhosted.org/packages/90/e5/7c5e8cdda8c9f0cd8aca0a376dee9cff6b8c30692cf614960d9e80f59689/optuna-5.0.0-py3-none-any.whl", hash = "sha256:5fff892ae6baf4948c810c5b8635ec67e08efb0709b41cb73b14e30391d44720", size = 442352, upload-time = "2026-09-07T05:16:19.943Z" },
 ]
 
 [[package]]
