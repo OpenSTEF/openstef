@@ -21,8 +21,6 @@ dependencies = [
 ]
 optional-dependencies.tutorials = [
   "jupyter>=1.1.1",
-  # kaleido 1.4.0 serializes pandas Timestamp values in figure specs
-  # (plotly/Kaleido#461). See OpenSTEF/openstef#938.
   "kaleido>=1.4",
   "openstef-core[benchmark]",
 ]

@@ -23,9 +23,6 @@ dependencies = [
   "ipython>=9.4",
   "jupyter-cache>=1",
   "jupytext>=1.16",
-  # kaleido 1.4.0 serializes pandas Timestamp values in figure specs
-  # (plotly/Kaleido#461), which is what kept us on the deprecated v0.2.x.
-  # See OpenSTEF/openstef#938.
   "kaleido>=1.4",
   "matplotlib>=3.10.5",
   "myst-nb>=1.2",
