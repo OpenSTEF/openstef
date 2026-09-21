@@ -139,7 +139,10 @@ gaps. OpenSTEF provides two purpose-built models for this:
      - The load signal is flatlining (sensor likely broken or connection
        decommissioned)
      - Constant zero across all horizons and quantiles. With
-       ``predict_median=True``, the historical median instead.
+       ``predict_median=True``, a recent median of the load signal instead.
+       The ``median_window`` parameter controls how far back the median
+       calculation looks; when ``None`` (the default), all available
+       measurements are used.
    * - :class:`~openstef_models.models.forecasting.constant_quantile_forecaster.ConstantQuantileForecaster`
      - Data is so sparse that a time-aware forecast is impossible
      - Constant quantile values derived from whatever training data is
@@ -159,6 +162,14 @@ when building the workflow.
    different to make its operational meaning clearer in configuration:
    "should the flatliner predict a non-zero value (the median) instead of
    the default zero."
+
+   The ``median_window`` parameter on
+   :class:`~openstef_models.models.forecasting.flatliner_forecaster.FlatlinerForecaster`
+   accepts an optional :class:`~datetime.timedelta` that limits the median
+   calculation to a trailing window of recent data. This avoids stale
+   predictions when historical load levels have shifted significantly over
+   time. When set to ``None``, the median is computed over all available
+   training data.
 
 How Selection Actually Works
 ----------------------------
@@ -251,7 +262,9 @@ semantics from primary forecasts:
 
 - **FlatlinerForecaster output**: all quantiles collapse to the same constant
   value. The forecast says "we believe this connection is inactive or the
-  meter is broken."
+  meter is broken." When ``predict_median=True``, the constant value is a
+  recent median of the load signal (scoped by ``median_window`` if set),
+  rather than zero.
 - **ConstantQuantileForecaster output**: quantiles reflect the historical
   distribution but carry no temporal structure. The forecast says "we lack
   sufficient data for a time-aware prediction."
