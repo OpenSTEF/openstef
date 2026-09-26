@@ -2,8 +2,8 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 [build-system]
-build-backend = "hatchling.build"
-requires = [ "hatchling" ]
+build-backend = "uv_build"
+requires = [ "uv_build<0.12" ]
 
 [project]
 name = "openstef-meta"
@@ -33,6 +33,3 @@ urls.Documentation = "https://openstef.github.io/openstef/index.html"
 urls.Homepage = "https://lfenergy.org/projects/openstef/"
 urls.Issues = "https://github.com/OpenSTEF/openstef/issues"
 urls.Repository = "https://github.com/OpenSTEF/openstef"
-
-[tool.hatch]
-build.targets.wheel.packages = [ "src/openstef_meta" ]
