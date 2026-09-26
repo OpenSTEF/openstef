@@ -160,6 +160,12 @@ class WeightsCombiner(ForecastCombiner):
     A classifier predicts per-timestep model weights.  Depending on ``hard_selection``,
     the combiner either picks the best forecaster (hard) or blends using predicted
     probabilities (soft).
+
+    When ``data_val`` is supplied to :meth:`fit`, the classifier is trained on those
+    held-out predictions instead of the in-sample training predictions. In-sample
+    predictions from boosted/tree forecasters are systematically over-optimistic, which
+    would otherwise bias the combiner towards whichever forecaster overfits the training
+    data hardest, regardless of true out-of-sample skill.
     """
 
     hyperparams: HyperParams = Field(
@@ -181,6 +187,7 @@ class WeightsCombiner(ForecastCombiner):
     _is_fitted: bool = PrivateAttr(default=False)
     _feature_names: list[str] = PrivateAttr(default_factory=list[str])
     _models: dict[Quantile, ClassifierMixin] = PrivateAttr(default_factory=dict[Quantile, ClassifierMixin])
+    _dummy_fallback_label: dict[Quantile, str] = PrivateAttr(default_factory=dict[Quantile, str])
 
     @override
     def model_post_init(self, _context: object, /) -> None:
@@ -211,11 +218,16 @@ class WeightsCombiner(ForecastCombiner):
         data_val: EnsembleForecastDataset | None = None,
         additional_features: ForecastInputDataset | None = None,
     ) -> None:
-        self._label_encoder.fit(data.forecaster_names)
+        # Prefer genuine held-out predictions when available: in-sample predictions from
+        # boosted/tree forecasters are systematically over-optimistic, which biases the
+        # "who wins" classifier towards whichever forecaster overfits training data hardest.
+        effective_data = data_val if data_val is not None else data
+
+        self._label_encoder.fit(effective_data.forecaster_names)
 
         feature_names: list[str] = []
         for q in self.quantiles:
-            base_data = data.get_base_predictions_for_quantile(quantile=q)
+            base_data = effective_data.get_base_predictions_for_quantile(quantile=q)
             labels = self._classify_best_forecaster(base_data, quantile=q)
             combined_data = combine_forecast_input_datasets(
                 input_data=base_data,
@@ -256,17 +268,32 @@ class WeightsCombiner(ForecastCombiner):
         return losses.idxmin(axis=1)
 
     def _validate_labels(self, labels: pd.Series, quantile: Quantile) -> None:
-        # Fall back to DummyClassifier when one forecaster dominates — sklearn classifiers need ≥2 classes
-        if len(labels.unique()) == 1:
-            logger.warning("Quantile %s has only 1 class — switching to DummyClassifier.", quantile.format())
+        # Fall back to DummyClassifier whenever fewer forecasters ever win than are registered —
+        # sklearn classifiers need to see every class at least once. With only 2 forecasters this
+        # only happens when one wins every sample, but with 3+ it's common for a subset (not
+        # necessarily just one) to never win, so the guard must generalize beyond "exactly 1 label".
+        n_seen = len(labels.unique())
+        n_registered = len(self._label_encoder.classes_)
+        if n_seen < n_registered:
+            majority_label = str(labels.value_counts().idxmax())
+            logger.warning(
+                "Quantile %s: only %d/%d forecasters ever win — switching to DummyClassifier (majority winner: '%s').",
+                quantile.format(),
+                n_seen,
+                n_registered,
+                majority_label,
+            )
             self._models[quantile] = DummyClassifier(strategy="most_frequent")
+            self._dummy_fallback_label[quantile] = majority_label
 
     def _predict_weights(self, base_predictions: pd.DataFrame, quantile: Quantile) -> pd.DataFrame:
         model = self._models[quantile]
         if isinstance(model, DummyClassifier):
-            # DummyClassifier has no predict_proba — construct one-hot weights manually
-            weights_array = pd.DataFrame(0, index=base_predictions.index, columns=self._label_encoder.classes_)
-            weights_array[self._label_encoder.classes_[0]] = 1.0
+            # DummyClassifier has no predict_proba — use the recorded majority winner rather than
+            # assuming the alphabetically-first registered forecaster name is the actual winner.
+            fallback_label = self._dummy_fallback_label.get(quantile, self._label_encoder.classes_[0])
+            weights_array = pd.DataFrame(0.0, index=base_predictions.index, columns=self._label_encoder.classes_)
+            weights_array[fallback_label] = 1.0
         else:
             weights_array = model.predict_proba(base_predictions)  # ty: ignore[unresolved-attribute]
 
