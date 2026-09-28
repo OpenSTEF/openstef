@@ -1,0 +1,104 @@
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+#
+# SPDX-License-Identifier: MPL-2.0
+
+name: uv Audit and Targeted Upgrade
+on:
+  workflow_call:
+    secrets:
+      token:
+        description: "Token used to push the fix branch and open the PR. Defaults to GITHUB_TOKEN."
+        required: false
+
+jobs:
+  uv-audit:
+    name: uv Audit
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout # Must be done before using composite actions
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          show-progress: false # very verbose for not much
+          token: ${{ secrets.token || secrets.GITHUB_TOKEN }}
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          activate-environment: true
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv sync --frozen --all-groups
+
+      - name: Run uv audit
+        id: audit
+        shell: bash
+        run: |
+          uv audit --preview-features audit-command --preview-features malware-check \
+            --output-format json > uv_audit_report.json || true
+
+          UPGRADE=$(jq -r '[.vulnerabilities[]? | select(.fix_versions | length > 0) | .dependency.name] | unique | .[]' uv_audit_report.json)
+          NO_FIX=$(jq -r '[.vulnerabilities[]? | select(.fix_versions | length == 0) | .dependency.name] | unique | .[]' uv_audit_report.json)
+
+          echo "Upgrade: $UPGRADE"
+          echo "No fix available: $NO_FIX"
+
+          if [ -z "$UPGRADE" ]; then
+            echo "No packages to upgrade."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          ARGS=()
+          for pkg in $UPGRADE; do
+            ARGS+=(--upgrade-package "$pkg")
+          done
+
+          uv lock "${ARGS[@]}" | tee uv_audit_upgrade.txt
+
+          if git diff --quiet -- uv.lock; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build PR body
+        if: steps.audit.outputs.changed == 'true'
+        run: |
+          {
+            echo "## uv audit — targeted dependency fixes"
+            if [ -f uv_audit_upgrade.txt ]; then
+              echo "### uv lock output"
+              echo '```'
+              cat uv_audit_upgrade.txt
+              echo '```'
+            fi
+          } > pr_body.md
+
+      - name: Commit and push branch
+        if: steps.audit.outputs.changed == 'true'
+        run: |
+          BRANCH="automated/uv-audit-fix-$(date +%Y%m%d%H%M%S)"
+          echo "BRANCH=$BRANCH" >> "$GITHUB_ENV"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+          git add uv.lock uv_audit_report.json
+          [ -f uv_audit_upgrade.txt ] && git add uv_audit_upgrade.txt
+          git commit -m "fix(deps): patch vulnerable packages found by uv audit"
+          git push origin "$BRANCH"
+
+      - name: Create pull request
+        if: steps.audit.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.token || secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr create \
+            --title "security: uv audit targeted dependency fixes" \
+            --body-file pr_body.md \
+            --base "${{ github.ref_name }}" \
+            --head "$BRANCH" \
+            --label security --label dependencies --label automated
