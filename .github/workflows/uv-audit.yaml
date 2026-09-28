@@ -8,6 +8,9 @@ on:
   schedule:
     - cron: '0 6 * * *' # Every day at 06:00 UTC
   workflow_dispatch:
+  push: # TEMPORARY: lets us trigger real runs from this PR branch, since workflow_dispatch only works once merged to the default branch. Remove before merging.
+    branches:
+      - ci/uv-audit-workflow
 
 permissions:
   contents: write

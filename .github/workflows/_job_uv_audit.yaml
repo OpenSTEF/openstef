@@ -108,6 +108,8 @@ jobs:
               cat uv_audit_upgrade.txt
               echo '```'
             fi
+            echo "### Commands"
+            echo "This PR is regenerated automatically and safe to edit — if you push a commit here, automation pauses so your changes aren't overwritten. Comment \`/uv-audit rebase\` to discard your edits and let automation take over again."
           } > pr_body.md
 
       - name: Commit and push branch
