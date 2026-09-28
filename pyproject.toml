@@ -229,6 +229,9 @@ report.sort = "-Miss"
 include = [ "poe_tasks.toml", "examples/deployment/poe_tasks.toml" ]
 
 [tool.licensecheck]
+# `requirements_paths` is set via CLI flags in poe_tasks.toml, not here: licensecheck's CLI
+# unconditionally overrides this config value back to ["pyproject.toml"] whenever
+# --requirements-paths isn't passed explicitly, silently ignoring this section.
 # Pycountry is LGPL-2.1 according to pypi.
 # MPL 2.0 lists explicitly that it is compatible with LGPL-2.1 and later, so we ignore it here (due to false positive).
 ignore_packages = [
