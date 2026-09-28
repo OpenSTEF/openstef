@@ -37,8 +37,7 @@ jobs:
         id: audit
         shell: bash
         run: |
-          uv audit --preview-features audit-command --preview-features malware-check \
-            --output-format json > uv_audit_report.json || true
+          uv audit --preview-features audit,json-output --output-format json > uv_audit_report.json || true
 
           UPGRADE=$(jq -r '[.vulnerabilities[]? | select(.fix_versions | length > 0) | .dependency.name] | unique | .[]' uv_audit_report.json)
           NO_FIX=$(jq -r '[.vulnerabilities[]? | select(.fix_versions | length == 0) | .dependency.name] | unique | .[]' uv_audit_report.json)
