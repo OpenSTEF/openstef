@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-name: uv Audit Rebase
+name: uv Audit Recreate
 
 on:
   issue_comment:
@@ -13,12 +13,12 @@ permissions:
   pull-requests: write
 
 jobs:
-  rebase:
+  recreate:
     name: Resume uv audit automation
     # Only maintainers can trigger this, since it force-pushes and re-runs a job with write access.
     if: >
       github.event.issue.pull_request != null &&
-      contains(github.event.comment.body, '/uv-audit rebase') &&
+      contains(github.event.comment.body, '/uv-audit recreate') &&
       contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association)
     runs-on: ubuntu-latest
     permissions:
@@ -31,7 +31,7 @@ jobs:
         run: |
           HEAD_REF=$(gh pr view "${{ github.event.issue.number }}" --repo "${{ github.repository }}" --json headRefName --jq .headRefName)
           if [ "$HEAD_REF" != "automated/uv-audit-fix" ]; then
-            echo "::error::/uv-audit rebase only works on the automated uv-audit PR (head ref was '$HEAD_REF')."
+            echo "::error::/uv-audit recreate only works on the automated uv-audit PR (head ref was '$HEAD_REF')."
             exit 1
           fi
 
@@ -44,8 +44,8 @@ jobs:
 
   uv-audit:
     name: uv Audit
-    needs: rebase
+    needs: recreate
     uses: ./.github/workflows/_job_uv_audit.yaml
     with:
-      rebase: true
+      force: true
     secrets: inherit

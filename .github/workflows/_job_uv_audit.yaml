@@ -11,6 +11,11 @@ on:
         type: boolean
         required: false
         default: false
+      rebase:
+        description: "Skip the manual-edit guard and replay manual commits on top of a freshly regenerated fix, instead of discarding them."
+        type: boolean
+        required: false
+        default: false
     secrets:
       token:
         description: "Token used to push the fix branch and open the PR. Defaults to GITHUB_TOKEN."
@@ -75,8 +80,8 @@ jobs:
           BRANCH="automated/uv-audit-fix"
           echo "BRANCH=$BRANCH" >> "$GITHUB_ENV"
 
-          if [ "${{ inputs.force }}" = "true" ]; then
-            echo "Force requested; skipping the manual-edit check."
+          if [ "${{ inputs.force }}" = "true" ] || [ "${{ inputs.rebase }}" = "true" ]; then
+            echo "Force/rebase requested; skipping the manual-edit check."
             echo "skip=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
@@ -106,17 +111,47 @@ jobs:
               echo '```'
             fi
             echo "### Commands"
-            echo "This PR is regenerated automatically and safe to edit — if you push a commit here, automation pauses so your changes aren't overwritten. Comment \`/uv-audit rebase\` to discard your edits and let automation take over again."
+            echo "This PR is regenerated automatically and safe to edit — if you push a commit here, automation pauses so your changes aren't overwritten. Comment \`/uv-audit rebase\` to replay your edits on top of a refreshed fix, or \`/uv-audit recreate\` to discard your edits and let automation take over again."
           } > pr_body.md
 
       - name: Commit and push branch
-        if: steps.audit.outputs.changed == 'true' && steps.guard.outputs.skip != 'true'
+        if: steps.audit.outputs.changed == 'true' && steps.guard.outputs.skip != 'true' && inputs.rebase != true
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git checkout -B "$BRANCH"
           git add uv.lock
           git commit -m "deps(security): patch vulnerable packages found by uv audit"
+          git push --force origin "$BRANCH"
+
+      - name: Rebase manual edits onto refreshed fix
+        if: steps.audit.outputs.changed == 'true' && steps.guard.outputs.skip != 'true' && inputs.rebase == true
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # The default checkout is shallow; rebase needs the branch's full history.
+          git fetch --unshallow origin 2>/dev/null || git fetch origin
+          git fetch origin "$BRANCH"
+
+          git checkout -b uv-audit-fix-new
+          git add uv.lock
+          git commit -m "deps(security): patch vulnerable packages found by uv audit"
+          NEW_COMMIT=$(git rev-parse HEAD)
+
+          OLD_COMMIT=$(git log "origin/$BRANCH" --author='github-actions[bot]' -1 --format=%H)
+          if [ -z "$OLD_COMMIT" ]; then
+            echo "::error::No prior automated commit found on $BRANCH to rebase onto. Comment /uv-audit recreate instead."
+            exit 1
+          fi
+
+          git checkout -B "$BRANCH" "origin/$BRANCH"
+          if ! git rebase --onto "$NEW_COMMIT" "$OLD_COMMIT" "$BRANCH"; then
+            git rebase --abort
+            echo "::error::Rebase failed: your edits conflict with the refreshed fix. Resolve manually, or comment /uv-audit recreate to discard your edits."
+            exit 1
+          fi
+
           git push --force origin "$BRANCH"
 
       - name: Create pull request
