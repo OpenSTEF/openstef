@@ -5,6 +5,12 @@
 name: uv Audit and Targeted Upgrade
 on:
   workflow_call:
+    inputs:
+      force:
+        description: "Skip the manual-edit guard and overwrite the automated branch/PR."
+        type: boolean
+        required: false
+        default: false
     secrets:
       token:
         description: "Token used to push the fix branch and open the PR. Defaults to GITHUB_TOKEN."
@@ -71,6 +77,12 @@ jobs:
           # Fixed branch name: reused/force-pushed each run so we update one PR instead of piling up new ones.
           BRANCH="automated/uv-audit-fix"
           echo "BRANCH=$BRANCH" >> "$GITHUB_ENV"
+
+          if [ "${{ inputs.force }}" = "true" ]; then
+            echo "Force requested; skipping the manual-edit check."
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
 
           git fetch origin "$BRANCH" 2>/dev/null || true
 
