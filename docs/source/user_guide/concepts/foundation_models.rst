@@ -116,3 +116,4 @@ covers choosing the hardware yourself and matching model size to machine.
    - :doc:`Foundation Model Forecasting Quickstart </user_guide/getting_started/foundation_model_forecasting_quickstart>` to produce a forecast end-to-end.
    - :doc:`Foundation Model Forecasting guide </user_guide/guides/foundation_model_forecasting>` for checkpoints, hardware, batching, and backtesting.
    - :doc:`API reference </api/foundation_models>` for the ``openstef-foundation-models`` package.
+```
