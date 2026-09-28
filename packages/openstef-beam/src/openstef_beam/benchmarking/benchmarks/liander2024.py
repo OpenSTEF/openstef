@@ -192,6 +192,7 @@ def create_liander2024_benchmark_runner(
     storage: BenchmarkStorage | None = None,
     callbacks: list[BenchmarkCallback] | None = None,
     target_provider: Liander2024TargetProvider | None = None,
+    revision: str = "dce7fe9bbae0d62288986fa97fa1ee7e9d3b7044",
 ) -> BenchmarkPipeline[BenchmarkTarget, list[Liander2024Category]]:
     """Create benchmark pipeline for Liander2024 dataset.
 
@@ -200,6 +201,7 @@ def create_liander2024_benchmark_runner(
         storage: Storage backend for results.
         callbacks: Callbacks to use during benchmarking.
         target_provider: Custom target provider. Creates default if None.
+        revision: Specific revision of the dataset to use.
 
     Returns:
         Configured benchmark pipeline.
@@ -212,10 +214,7 @@ def create_liander2024_benchmark_runner(
     """
     if data_dir is None:
         data_dir = Path(
-            snapshot_download(
-                repo_id="OpenSTEF/liander2024-stef-benchmark",
-                repo_type="dataset",
-            )
+            snapshot_download(repo_id="OpenSTEF/liander2024-stef-benchmark", repo_type="dataset", revision=revision)
         )
 
     return BenchmarkPipeline[BenchmarkTarget, list[Liander2024Category]](
