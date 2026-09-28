@@ -173,7 +173,7 @@ class QuantileCalibrationBoxVisualization(VisualizationProvider):
 
         # Use the first run name for the title (if available)
         first_group = next(iter(reports.values()), None)
-        run_name = first_group[0][0].run_name if first_group and first_group[0] else ""
+        run_name = first_group[0][0].run_name if first_group else ""
 
         for report_list in reports.values():
             for _metadata, report in report_list:

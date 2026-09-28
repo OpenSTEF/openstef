@@ -20,7 +20,10 @@ args = [ { name = "check", type = "boolean", help = "Does not correct files, onl
 
 [tool.poe.tasks.format-pyproject]
 help = "Format pyproject.toml (with pyproject-fmt)"
-cmd = 'pyproject-fmt ${check:+ --check} -n pyproject.toml packages/*/pyproject.toml'
+# Invoked once per file (not as one multi-file call): pyproject-fmt only honors
+# the first file's [tool.pyproject-fmt] config when given multiple files at once,
+# silently ignoring each subsequent package's own overrides (e.g. max_supported_python).
+shell = 'for f in pyproject.toml packages/*/pyproject.toml; do pyproject-fmt ${check:+ --check} -n "$f"; done'
 args = [ { name = "check", type = "boolean", help = "Does not correct files, only warns" } ]
 
 [tool.poe.tasks.lock]

@@ -262,14 +262,14 @@ class SimpleTargetProvider[T: BenchmarkTarget, F](TargetProvider[T, F]):
 
     @override
     def get_targets(self, filter_args: F | None = None) -> list[T]:
-        return read_yaml_config(
+        return read_yaml_config(  # ty: ignore[unsound-return-statement]
             path=self.data_dir / self.targets_file_path,
             class_type=TypeAdapter(list[self.get_target_class]),  # ty: ignore[invalid-type-form]
         )
 
     @override
     def get_metrics_for_target(self, target: T) -> list[MetricProvider]:
-        return self.metrics if isinstance(self.metrics, list) else self.metrics(target)  # ty: ignore[invalid-return-type]
+        return self.metrics if isinstance(self.metrics, list) else self.metrics(target)  # ty: ignore[unsound-return-statement]
 
     def _get_measurements_path_for_target(self, target: T) -> Path:
         return safe_path_join(

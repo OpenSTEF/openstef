@@ -106,7 +106,7 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
             )
             self._logger.info(
                 "Found previous MLflow run %s for model %s ended at %s",
-                cast(str, run.info.run_id),
+                run.info.run_id,
                 context.workflow.model_id,
                 run_end_datetime,
             )
@@ -190,7 +190,7 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
         if not isinstance(old_model, BaseForecastingModel):
             self._logger.warning(
                 "Loaded model from run %s is not a BaseForecastingModel, cannot use for prediction",
-                cast(str, run.info.run_id),
+                run.info.run_id,
             )
             return
 
@@ -206,7 +206,7 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
         if run is None:
             return
 
-        run_id = cast(str, run.info.run_id)
+        run_id = run.info.run_id
 
         if not self._check_tags_compatible(
             run_tags=run.data.tags,

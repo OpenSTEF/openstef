@@ -23,6 +23,7 @@ classifiers = [
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
   "Programming Language :: Python :: 3.14",
+  "Programming Language :: Python :: 3.15",
 ]
 dependencies = [
   "openstef-core>=4,<5",
@@ -50,3 +51,6 @@ build.targets.wheel.packages = [ "src/openstef_beam" ]
 sources.openstef-core = { workspace = true }
 sources.openstef-meta = { workspace = true }
 sources.openstef-models = { workspace = true }
+
+[tool.pyproject-fmt]
+max_supported_python = "3.15"

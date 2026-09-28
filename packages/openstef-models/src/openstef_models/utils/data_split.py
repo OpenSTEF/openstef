@@ -333,7 +333,7 @@ class DataSplitter(BaseConfig):
         if input_data_test.index.empty:
             input_data_test = None
 
-        return (input_data_train, input_data_val, input_data_test)
+        return cast("tuple[T, T | None, T | None]", (input_data_train, input_data_val, input_data_test))
 
 
 __all__ = [
