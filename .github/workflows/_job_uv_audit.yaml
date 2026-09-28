@@ -80,24 +80,33 @@ jobs:
       - name: Commit and push branch
         if: steps.audit.outputs.changed == 'true'
         run: |
-          BRANCH="automated/uv-audit-fix-$(date +%Y%m%d%H%M%S)"
+          # Fixed branch name: reused/force-pushed each run so we update one PR instead of piling up new ones.
+          BRANCH="automated/uv-audit-fix"
           echo "BRANCH=$BRANCH" >> "$GITHUB_ENV"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git checkout -b "$BRANCH"
+          git checkout -B "$BRANCH"
           git add uv.lock uv_audit_report.json
           [ -f uv_audit_upgrade.txt ] && git add uv_audit_upgrade.txt
           git commit -m "fix(deps): patch vulnerable packages found by uv audit"
-          git push origin "$BRANCH"
+          git push --force origin "$BRANCH"
 
       - name: Create pull request
         if: steps.audit.outputs.changed == 'true'
         env:
           GH_TOKEN: ${{ secrets.token || secrets.GITHUB_TOKEN }}
         run: |
-          gh pr create \
-            --title "security: uv audit targeted dependency fixes" \
-            --body-file pr_body.md \
-            --base "${{ github.ref_name }}" \
-            --head "$BRANCH" \
-            --label security --label dependencies --label automated
+          PR_NUMBER=$(gh pr list --head "$BRANCH" --state open --json number --jq '.[0].number // empty')
+
+          if [ -n "$PR_NUMBER" ]; then
+            gh pr edit "$PR_NUMBER" \
+              --title "security: uv audit targeted dependency fixes" \
+              --body-file pr_body.md
+          else
+            gh pr create \
+              --title "security: uv audit targeted dependency fixes" \
+              --body-file pr_body.md \
+              --base "${{ github.ref_name }}" \
+              --head "$BRANCH" \
+              --label security --label dependencies --label automated
+          fi
