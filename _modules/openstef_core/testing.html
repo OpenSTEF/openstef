@@ -973,6 +973,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">repo_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">LIANDER_DATASET_REPO_ID</span><span class="p">,</span>
     <span class="n">local_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;./liander_dataset&quot;</span><span class="p">),</span>
     <span class="n">extra_files</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">revision</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;dce7fe9bbae0d62288986fa97fa1ee7e9d3b7044&quot;</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TimeSeriesDataset</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Download and combine the Liander benchmark dataset into a single TimeSeriesDataset.</span>
 
@@ -984,6 +985,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        repo_id: HuggingFace dataset repository ID.</span>
 <span class="sd">        local_dir: Local directory for caching downloaded files.</span>
 <span class="sd">        extra_files: Additional parquet files to download and include (paths relative to repo root).</span>
+<span class="sd">        revision: Specific revision of the dataset to use.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Combined dataset with all features aligned by timestamp.</span>
@@ -1014,6 +1016,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>
             <span class="n">repo_type</span><span class="o">=</span><span class="s2">&quot;dataset&quot;</span><span class="p">,</span>
             <span class="n">local_dir</span><span class="o">=</span><span class="n">local_dir</span><span class="p">,</span>
+            <span class="n">revision</span><span class="o">=</span><span class="n">revision</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="n">datasets</span> <span class="o">=</span> <span class="p">[</span>
