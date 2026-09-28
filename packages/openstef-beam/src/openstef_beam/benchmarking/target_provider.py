@@ -262,7 +262,7 @@ class SimpleTargetProvider[T: BenchmarkTarget, F](TargetProvider[T, F]):
 
     @override
     def get_targets(self, filter_args: F | None = None) -> list[T]:
-        return read_yaml_config(  # ty: ignore[unsound-return-statement]
+        return read_yaml_config(
             path=self.data_dir / self.targets_file_path,
             class_type=TypeAdapter(list[self.get_target_class]),  # ty: ignore[invalid-type-form]
         )
