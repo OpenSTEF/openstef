@@ -139,7 +139,7 @@ jobs:
           git commit -m "deps(security): patch vulnerable packages found by uv audit"
           NEW_COMMIT=$(git rev-parse HEAD)
 
-          OLD_COMMIT=$(git log "origin/$BRANCH" --author='github-actions[bot]' -1 --format=%H)
+          OLD_COMMIT=$(git log "origin/$BRANCH" --format='%H %ae' | awk '$2 == "github-actions[bot]@users.noreply.github.com" { print $1; exit }')
           if [ -z "$OLD_COMMIT" ]; then
             echo "::error::No prior automated commit found on $BRANCH to rebase onto. Comment /uv-audit recreate instead."
             exit 1
