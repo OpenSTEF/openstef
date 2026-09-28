@@ -81,13 +81,20 @@ class Chronos2(StrEnum):
     BASE = "chronos-2"
     SMALL = "chronos-2-small"
 
-    def checkpoint(self, variant: CheckpointVariant = CheckpointVariant.DYNAMIC) -> HubCheckpoint:
+    def checkpoint(
+        self,
+        variant: CheckpointVariant = CheckpointVariant.DYNAMIC,
+        revision: str | None = None,
+    ) -> HubCheckpoint:
         """Build the Hub checkpoint reference for this size and *variant*.
 
         Args:
             variant: Which published ONNX variant to load. Defaults to the
                 portable dynamic-shape build; pass :attr:`CheckpointVariant.STATIC`
                 (or :meth:`CheckpointVariant.recommended`) on macOS for CoreML.
+            revision: Git revision (branch, tag, or commit) to download. Defaults
+                to ``None``, which follows the latest revision. Pin this to a
+                trusted immutable commit when checkpoint integrity matters.
 
         Returns:
             A :class:`~openstef_foundation_models.models.checkpoint.HubCheckpoint`
@@ -96,6 +103,7 @@ class Chronos2(StrEnum):
         return HubCheckpoint(
             repo_id=f"{HF_NAMESPACE}/{self.value}-onnx",
             filename=f"{self.value}{variant.filename_suffix}.onnx",
+            revision=revision,
         )
 
 
