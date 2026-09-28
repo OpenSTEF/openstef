@@ -884,13 +884,20 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="Chronos2.checkpoint">
 <a class="viewcode-back" href="../../../api/generated/openstef_foundation_models.models.catalog.Chronos2.html#openstef_foundation_models.models.Chronos2.checkpoint">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">checkpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variant</span><span class="p">:</span> <span class="n">CheckpointVariant</span> <span class="o">=</span> <span class="n">CheckpointVariant</span><span class="o">.</span><span class="n">DYNAMIC</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HubCheckpoint</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">checkpoint</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">variant</span><span class="p">:</span> <span class="n">CheckpointVariant</span> <span class="o">=</span> <span class="n">CheckpointVariant</span><span class="o">.</span><span class="n">DYNAMIC</span><span class="p">,</span>
+        <span class="n">revision</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HubCheckpoint</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Build the Hub checkpoint reference for this size and *variant*.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            variant: Which published ONNX variant to load. Defaults to the</span>
 <span class="sd">                portable dynamic-shape build; pass :attr:`CheckpointVariant.STATIC`</span>
 <span class="sd">                (or :meth:`CheckpointVariant.recommended`) on macOS for CoreML.</span>
+<span class="sd">            revision: Git revision (branch, tag, or commit) to download. Defaults</span>
+<span class="sd">                to ``None``, which follows the latest revision. Pin this to a</span>
+<span class="sd">                trusted immutable commit when checkpoint integrity matters.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A :class:`~openstef_foundation_models.models.checkpoint.HubCheckpoint`</span>
@@ -899,6 +906,7 @@ window.runMermaid = runMermaid;</script>
         <span class="k">return</span> <span class="n">HubCheckpoint</span><span class="p">(</span>
             <span class="n">repo_id</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">HF_NAMESPACE</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">-onnx&quot;</span><span class="p">,</span>
             <span class="n">filename</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="si">}{</span><span class="n">variant</span><span class="o">.</span><span class="n">filename_suffix</span><span class="si">}</span><span class="s2">.onnx&quot;</span><span class="p">,</span>
+            <span class="n">revision</span><span class="o">=</span><span class="n">revision</span><span class="p">,</span>
         <span class="p">)</span></div>
 </div>
 
