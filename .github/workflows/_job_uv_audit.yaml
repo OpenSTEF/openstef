@@ -64,8 +64,29 @@ jobs:
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Build PR body
+      - name: Check for manual edits on automated branch
+        id: guard
         if: steps.audit.outputs.changed == 'true'
+        run: |
+          # Fixed branch name: reused/force-pushed each run so we update one PR instead of piling up new ones.
+          BRANCH="automated/uv-audit-fix"
+          echo "BRANCH=$BRANCH" >> "$GITHUB_ENV"
+
+          git fetch origin "$BRANCH" 2>/dev/null || true
+
+          if git rev-parse --verify "origin/$BRANCH" >/dev/null 2>&1; then
+            LAST_AUTHOR=$(git log -1 --format='%ae' "origin/$BRANCH")
+            if [ "$LAST_AUTHOR" != "github-actions[bot]@users.noreply.github.com" ]; then
+              echo "::warning::$BRANCH was manually edited (last commit by $LAST_AUTHOR); skipping automated update so the manual changes aren't overwritten. Merge or close the PR to resume automation."
+              echo "skip=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          fi
+
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+
+      - name: Build PR body
+        if: steps.audit.outputs.changed == 'true' && steps.guard.outputs.skip != 'true'
         run: |
           {
             echo "## uv audit — targeted dependency fixes"
@@ -78,11 +99,8 @@ jobs:
           } > pr_body.md
 
       - name: Commit and push branch
-        if: steps.audit.outputs.changed == 'true'
+        if: steps.audit.outputs.changed == 'true' && steps.guard.outputs.skip != 'true'
         run: |
-          # Fixed branch name: reused/force-pushed each run so we update one PR instead of piling up new ones.
-          BRANCH="automated/uv-audit-fix"
-          echo "BRANCH=$BRANCH" >> "$GITHUB_ENV"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git checkout -B "$BRANCH"
@@ -92,7 +110,7 @@ jobs:
           git push --force origin "$BRANCH"
 
       - name: Create pull request
-        if: steps.audit.outputs.changed == 'true'
+        if: steps.audit.outputs.changed == 'true' && steps.guard.outputs.skip != 'true'
         env:
           GH_TOKEN: ${{ secrets.token || secrets.GITHUB_TOKEN }}
         run: |
