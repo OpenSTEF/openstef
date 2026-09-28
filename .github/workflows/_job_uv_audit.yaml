@@ -59,7 +59,7 @@ jobs:
             ARGS+=(--upgrade-package "$pkg")
           done
 
-          uv lock "${ARGS[@]}" | tee uv_audit_upgrade.txt
+          uv lock "${ARGS[@]}" 2>&1 | tee uv_audit_upgrade.txt
 
           if git diff --quiet -- uv.lock; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
@@ -115,9 +115,8 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git checkout -B "$BRANCH"
-          git add uv.lock uv_audit_report.json
-          [ -f uv_audit_upgrade.txt ] && git add uv_audit_upgrade.txt
-          git commit -m "fix(deps): patch vulnerable packages found by uv audit"
+          git add uv.lock
+          git commit -m "deps(security): patch vulnerable packages found by uv audit"
           git push --force origin "$BRANCH"
 
       - name: Create pull request
@@ -129,11 +128,11 @@ jobs:
 
           if [ -n "$PR_NUMBER" ]; then
             gh pr edit "$PR_NUMBER" \
-              --title "security: uv audit targeted dependency fixes" \
+              --title "deps(security): uv audit targeted dependency fixes" \
               --body-file pr_body.md
           else
             gh pr create \
-              --title "security: uv audit targeted dependency fixes" \
+              --title "deps(security): uv audit targeted dependency fixes" \
               --body-file pr_body.md \
               --base "${{ github.ref_name }}" \
               --head "$BRANCH" \
