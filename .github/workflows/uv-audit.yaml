@@ -1,0 +1,20 @@
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+#
+# SPDX-License-Identifier: MPL-2.0
+
+name: uv Audit
+
+on:
+  schedule:
+    - cron: '0 6 * * *' # Every day at 06:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  uv-audit:
+    name: uv Audit
+    uses: ./.github/workflows/_job_uv_audit.yaml
+    secrets: inherit
