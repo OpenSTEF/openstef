@@ -288,18 +288,18 @@ def test_benchmark_runner_end_to_end(
 @pytest.fixture
 def mock_storage(mock_backtest_run: MagicMock, mock_eval_run: MagicMock) -> BenchmarkStorage:
     """Create a mock storage for testing runner storage interactions."""
-    storage: BenchmarkStorage = Mock(spec=BenchmarkStorage)
+    storage_mock = Mock(spec=BenchmarkStorage)
 
     # Configure storage to initially return False for has_* methods (nothing cached)
-    storage.has_backtest_output.return_value = False
-    storage.has_evaluation_output.return_value = False
-    storage.has_analysis_output.return_value = False
+    storage_mock.has_backtest_output.return_value = False
+    storage_mock.has_evaluation_output.return_value = False
+    storage_mock.has_analysis_output.return_value = False
 
     # Configure load methods to return the same mocked data as the pipeline mocks
-    storage.load_backtest_output.return_value = mock_backtest_run.return_value
-    storage.load_evaluation_output.return_value = mock_eval_run.return_value
+    storage_mock.load_backtest_output.return_value = mock_backtest_run.return_value
+    storage_mock.load_evaluation_output.return_value = mock_eval_run.return_value
 
-    return storage
+    return cast(BenchmarkStorage, storage_mock)
 
 
 def test_benchmark_runner_storage_integration(
@@ -338,9 +338,9 @@ def test_benchmark_runner_storage_integration(
     target = test_targets[0]
 
     # Check that storage was queried for existing outputs
-    cast(Mock, mock_storage.has_backtest_output).assert_called_with(target)
-    cast(Mock, mock_storage.has_evaluation_output).assert_called_with(target)
-    cast(Mock, mock_storage.has_analysis_output).assert_has_calls(
+    cast(Mock, mock_storage).has_backtest_output.assert_called_with(target)
+    cast(Mock, mock_storage).has_evaluation_output.assert_called_with(target)
+    cast(Mock, mock_storage).has_analysis_output.assert_has_calls(
         [
             call(
                 scope=AnalysisScope(
@@ -359,10 +359,10 @@ def test_benchmark_runner_storage_integration(
     )
 
     # Check that outputs were saved to storage
-    cast(Mock, mock_storage.save_backtest_output).assert_called_once_with(
+    cast(Mock, mock_storage).save_backtest_output.assert_called_once_with(
         target=target, output=mock_backtest_run.return_value
     )
-    cast(Mock, mock_storage.save_evaluation_output).assert_called_once_with(
+    cast(Mock, mock_storage).save_evaluation_output.assert_called_once_with(
         target=target, output=mock_eval_run.return_value
     )
     # Analysis might fail due to complex mock setup, so we don't enforce it being called

@@ -10,6 +10,7 @@ These utilities are used for persisting temporal metadata in dataset files.
 """
 
 from datetime import timedelta
+from typing import cast
 
 from pydantic import TypeAdapter
 
@@ -31,7 +32,7 @@ def timedelta_to_isoformat(td: timedelta) -> str:
         >>> timedelta_to_isoformat(td)
         'PT15M'
     """
-    return TypeAdapter(timedelta).dump_python(td, mode="json")
+    return cast(str, TypeAdapter(timedelta).dump_python(td, mode="json"))
 
 
 def timedelta_from_isoformat(s: str) -> timedelta:

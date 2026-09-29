@@ -125,13 +125,16 @@ class RadiationDerivedFeaturesAdder(BaseConfig, TimeSeriesTransform):
             tz=str(data.index.tz),
         )
 
-        solar_position: pd.DataFrame = pvlib.solarposition.get_solarposition(
-            time=data.index,
-            latitude=location.latitude,
-            longitude=location.longitude,
+        solar_position: pd.DataFrame = cast(
+            "pd.DataFrame",
+            pvlib.solarposition.get_solarposition(
+                time=data.index,
+                latitude=location.latitude,
+                longitude=location.longitude,
+            ),
         )
 
-        clearsky_radiation: pd.DataFrame = location.get_clearsky(data.index)
+        clearsky_radiation: pd.DataFrame = cast("pd.DataFrame", location.get_clearsky(data.index))
 
         dni = cast(
             pd.Series,

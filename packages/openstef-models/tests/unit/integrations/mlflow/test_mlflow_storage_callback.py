@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import time
 from datetime import timedelta
-from typing import TYPE_CHECKING, cast, override
+from typing import TYPE_CHECKING, override
 
 import pandas as pd
 import pytest
@@ -129,7 +129,7 @@ def test_mlflow_storage_callback__on_fit_end__stores_model_and_metrics(
     assert len(runs) == 1
 
     # Assert - Model can be loaded from the run
-    run_id = cast(str, runs[0].info.run_id)
+    run_id = runs[0].info.run_id
     loaded_model = callback.storage.load_run_model(model_id=workflow.model_id, run_id=run_id)
     assert isinstance(loaded_model, ForecastingModel)
     assert loaded_model.is_fitted

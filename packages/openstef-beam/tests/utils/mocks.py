@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-from typing import Any, cast, override
+from typing import Any, override
 
 import pandas as pd
 from pydantic import ConfigDict
@@ -23,7 +23,8 @@ class DummyMetricProvider(MetricProvider):
     @override
     def __call__(self, subset: ForecastDataset) -> QuantileMetricsDict:
         # Return metrics for global since test is not using actual quantile data
-        return cast(QuantileMetricsDict, {"global": {"dummy_metric": self.value}})
+        result: QuantileMetricsDict = {"global": {"dummy_metric": self.value}}
+        return result
 
 
 class MockMetricsProvider(MetricProvider):

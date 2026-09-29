@@ -11,7 +11,7 @@ operate on arbitrary config instances or Pydantic models / adapters.
 """
 
 from pathlib import Path
-from typing import Annotated, Any, Self, override
+from typing import Annotated, Any, Self, cast, override
 
 import yaml
 from pydantic import BaseModel as PydanticBaseModel
@@ -54,7 +54,7 @@ class BaseConfig(PydanticBaseModel):
         Returns:
             An instance of the config class populated with the file contents.
         """
-        return read_yaml_config(path, class_type=cls)
+        return cast(Self, read_yaml_config(path, class_type=cls))
 
     def write_yaml(self, path: Path) -> None:
         """Write this configuration to a YAML file.
