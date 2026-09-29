@@ -88,11 +88,18 @@ class StackingCombiner(ForecastCombiner):
     ) -> None:
         for q in self.quantiles:
             input_data = self._prepare_input(data, q, additional_features)
+            input_data = input_data.pipe_pandas(partial(pd.DataFrame.dropna, subset=[input_data.target_column]))
 
-            target_dropna = partial(pd.DataFrame.dropna, subset=[input_data.target_column])
-            input_data = input_data.pipe_pandas(target_dropna)
+            # Pass validation predictions through so meta-forecasters that support early
+            # stopping (e.g. LGBM/XGBoost) can use them, instead of always discarding data_val.
+            input_data_val = None
+            if data_val is not None:
+                input_data_val = self._prepare_input(data_val, q)
+                input_data_val = input_data_val.pipe_pandas(
+                    partial(pd.DataFrame.dropna, subset=[input_data_val.target_column])
+                )
 
-            self._models[q].fit(data=input_data, data_val=None)
+            self._models[q].fit(data=input_data, data_val=input_data_val)
 
     @override
     def predict(
