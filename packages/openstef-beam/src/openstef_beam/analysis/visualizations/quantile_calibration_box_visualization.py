@@ -173,6 +173,7 @@ class QuantileCalibrationBoxVisualization(VisualizationProvider):
 
         # Use the first run name for the title (if available)
         first_group = next(iter(reports.values()), None)
+        # Only check if first_group is non-None/non-empty; first_group[0] is a tuple so always truthy
         run_name = first_group[0][0].run_name if first_group else ""
 
         for report_list in reports.values():
