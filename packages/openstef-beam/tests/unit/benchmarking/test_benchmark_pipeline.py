@@ -288,18 +288,18 @@ def test_benchmark_runner_end_to_end(
 @pytest.fixture
 def mock_storage(mock_backtest_run: MagicMock, mock_eval_run: MagicMock) -> BenchmarkStorage:
     """Create a mock storage for testing runner storage interactions."""
-    storage: BenchmarkStorage = cast(BenchmarkStorage, Mock(spec=BenchmarkStorage))
+    storage_mock = Mock(spec=BenchmarkStorage)
 
     # Configure storage to initially return False for has_* methods (nothing cached)
-    storage.has_backtest_output.return_value = False
-    storage.has_evaluation_output.return_value = False
-    storage.has_analysis_output.return_value = False
+    storage_mock.has_backtest_output.return_value = False
+    storage_mock.has_evaluation_output.return_value = False
+    storage_mock.has_analysis_output.return_value = False
 
     # Configure load methods to return the same mocked data as the pipeline mocks
-    storage.load_backtest_output.return_value = mock_backtest_run.return_value
-    storage.load_evaluation_output.return_value = mock_eval_run.return_value
+    storage_mock.load_backtest_output.return_value = mock_backtest_run.return_value
+    storage_mock.load_evaluation_output.return_value = mock_eval_run.return_value
 
-    return storage
+    return cast(BenchmarkStorage, storage_mock)
 
 
 def test_benchmark_runner_storage_integration(
