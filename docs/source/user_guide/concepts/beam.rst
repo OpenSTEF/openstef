@@ -139,9 +139,10 @@ three dimensions. Each dimension answers a different operational question:
 **Configurable metrics.** Metrics are supplied as provider objects. BEAM includes
 providers such as ``RMAEProvider`` (Relative Mean Absolute Error) and ``RCRPSProvider``
 (Relative Continuous Ranked Probability Score) for probabilistic evaluation. Interval
-metrics such as ``RCSProvider`` and
-``RIQDProvider`` help assess quantile calibration and sharpness for symmetric
-quantile ranges. You can implement custom providers to add domain-specific metrics.
+metrics such as ``RCSProvider`` (Regression Coverage Score, measuring the fraction of
+observations inside predicted quantile bounds) and ``RIQDProvider`` (Relative Inter-Quantile
+Distance) help assess quantile calibration and sharpness for symmetric quantile ranges.
+You can implement custom providers to add domain-specific metrics.
 
 .. code-block:: python
 
