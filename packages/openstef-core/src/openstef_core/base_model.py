@@ -66,7 +66,7 @@ class BaseConfig(PydanticBaseModel):
         write_yaml_config(self, path)
 
 
-def write_yaml_config(config: BaseConfig | Sequence[BaseConfig], path: Path) -> None:
+def write_yaml_config(config: PydanticBaseModel | Sequence[PydanticBaseModel], path: Path) -> None:
     """Write a config or sequence of configs to a YAML file.
 
     Args:
@@ -83,7 +83,7 @@ def write_yaml_config(config: BaseConfig | Sequence[BaseConfig], path: Path) -> 
     """
     data = (
         config.model_dump(mode="json")
-        if isinstance(config, BaseConfig)
+        if isinstance(config, PydanticBaseModel)
         else [item.model_dump(mode="json") for item in config]
     )
     with path.open("w", encoding="utf-8") as f:
