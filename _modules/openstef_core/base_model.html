@@ -803,6 +803,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">operate on arbitrary config instances or Pydantic models / adapters.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Annotated</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Self</span><span class="p">,</span> <span class="n">cast</span><span class="p">,</span> <span class="n">override</span>
 
@@ -872,11 +873,11 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="write_yaml_config">
 <a class="viewcode-back" href="../../api/generated/openstef_core.base_model.write_yaml_config.html#openstef_core.base_model.write_yaml_config">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">write_yaml_config</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">BaseConfig</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Write the config to a YAML file.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">write_yaml_config</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">PydanticBaseModel</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">PydanticBaseModel</span><span class="p">],</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Write a config or sequence of configs to a YAML file.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        config: The configuration object to serialize.</span>
+<span class="sd">        config: The configuration object(s) to serialize.</span>
 <span class="sd">        path: Destination path for the YAML file (will be overwritten).</span>
 
 <span class="sd">    Example:</span>
@@ -887,8 +888,13 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        &gt;&gt;&gt; cfg = MyConfig(foo=123)</span>
 <span class="sd">        &gt;&gt;&gt; write_yaml_config(cfg, Path(&quot;/tmp/test.yaml&quot;))</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;json&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">PydanticBaseModel</span><span class="p">)</span>
+        <span class="k">else</span> <span class="p">[</span><span class="n">item</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;json&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">config</span><span class="p">]</span>
+    <span class="p">)</span>
     <span class="k">with</span> <span class="n">path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-        <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;json&quot;</span><span class="p">),</span> <span class="n">f</span><span class="p">,</span> <span class="n">allow_unicode</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+        <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">allow_unicode</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 
 
