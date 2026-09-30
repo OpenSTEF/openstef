@@ -29,6 +29,18 @@ def test_write_yaml_basic(tmp_path: Path):
     assert data == expected
 
 
+def test_write_yaml_sequence(tmp_path: Path):
+    """Writing a sequence preserves a top-level YAML list."""
+    configs = [SampleConfig(foo=1, bar="abc"), SampleConfig(foo=2, bar="def")]
+    path = tmp_path / "configs.yaml"
+
+    write_yaml_config(configs, path)
+
+    with path.open("r", encoding="utf-8") as f:
+        data = yaml.safe_load(f)
+    assert data == [config.model_dump(mode="json") for config in configs]
+
+
 def test_read_yaml_basic(tmp_path: Path):
     """Basic read via helper returns model instance."""
     # Arrange
