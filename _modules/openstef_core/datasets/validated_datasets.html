@@ -803,7 +803,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Self</span><span class="p">,</span> <span class="n">override</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Self</span><span class="p">,</span> <span class="n">cast</span><span class="p">,</span> <span class="n">override</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
@@ -878,6 +878,7 @@ window.runMermaid = runMermaid;</script>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">horizon_column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;horizon&quot;</span><span class="p">,</span>
         <span class="n">available_at_column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;available_at&quot;</span><span class="p">,</span>
+        <span class="n">is_sorted</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">check_frequency</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">sample_weight_column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;sample_weight&quot;</span><span class="p">,</span>
         <span class="n">target_column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;load&quot;</span><span class="p">,</span>
@@ -896,6 +897,7 @@ window.runMermaid = runMermaid;</script>
             <span class="n">sample_interval</span><span class="o">=</span><span class="n">sample_interval</span><span class="p">,</span>
             <span class="n">horizon_column</span><span class="o">=</span><span class="n">horizon_column</span><span class="p">,</span>
             <span class="n">available_at_column</span><span class="o">=</span><span class="n">available_at_column</span><span class="p">,</span>
+            <span class="n">is_sorted</span><span class="o">=</span><span class="n">is_sorted</span><span class="p">,</span>
             <span class="n">check_frequency</span><span class="o">=</span><span class="n">check_frequency</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_internal_columns</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sample_weight_column</span><span class="p">)</span>
@@ -909,7 +911,11 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        Returns:</span>
 <span class="sd">            Datetime indicating when the forecast period starts.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_forecast_start</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_forecast_start</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">to_pydatetime</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_forecast_start</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_forecast_start</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="k">else</span> <span class="n">cast</span><span class="p">(</span><span class="n">datetime</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">to_pydatetime</span><span class="p">())</span>
+        <span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">target_series</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
@@ -1070,6 +1076,8 @@ window.runMermaid = runMermaid;</script>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">horizon_column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;horizon&quot;</span><span class="p">,</span>
         <span class="n">available_at_column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;available_at&quot;</span><span class="p">,</span>
+        <span class="n">is_sorted</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">check_frequency</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">standard_deviation_column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;stdev&quot;</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="s2">&quot;forecast_start&quot;</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">attrs</span><span class="p">:</span>
@@ -1084,6 +1092,8 @@ window.runMermaid = runMermaid;</script>
             <span class="n">sample_interval</span><span class="o">=</span><span class="n">sample_interval</span><span class="p">,</span>
             <span class="n">horizon_column</span><span class="o">=</span><span class="n">horizon_column</span><span class="p">,</span>
             <span class="n">available_at_column</span><span class="o">=</span><span class="n">available_at_column</span><span class="p">,</span>
+            <span class="n">is_sorted</span><span class="o">=</span><span class="n">is_sorted</span><span class="p">,</span>
+            <span class="n">check_frequency</span><span class="o">=</span><span class="n">check_frequency</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="n">exclude_columns</span> <span class="o">=</span> <span class="p">{</span><span class="n">target_column</span><span class="p">,</span> <span class="n">standard_deviation_column</span><span class="p">}</span>
@@ -1281,6 +1291,8 @@ window.runMermaid = runMermaid;</script>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">horizon_column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;horizon&quot;</span><span class="p">,</span>
         <span class="n">available_at_column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;available_at&quot;</span><span class="p">,</span>
+        <span class="n">is_sorted</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">check_frequency</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">validate_required_columns</span><span class="p">(</span>
             <span class="n">data</span><span class="p">,</span>
@@ -1291,6 +1303,8 @@ window.runMermaid = runMermaid;</script>
             <span class="n">sample_interval</span><span class="o">=</span><span class="n">sample_interval</span><span class="p">,</span>
             <span class="n">horizon_column</span><span class="o">=</span><span class="n">horizon_column</span><span class="p">,</span>
             <span class="n">available_at_column</span><span class="o">=</span><span class="n">available_at_column</span><span class="p">,</span>
+            <span class="n">is_sorted</span><span class="o">=</span><span class="n">is_sorted</span><span class="p">,</span>
+            <span class="n">check_frequency</span><span class="o">=</span><span class="n">check_frequency</span><span class="p">,</span>
         <span class="p">)</span></div>
 </div>
 
@@ -1318,6 +1332,8 @@ window.runMermaid = runMermaid;</script>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">horizon_column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;horizon&quot;</span><span class="p">,</span>
         <span class="n">available_at_column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;available_at&quot;</span><span class="p">,</span>
+        <span class="n">is_sorted</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">check_frequency</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="s2">&quot;forecast_start&quot;</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">attrs</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">forecast_start</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;forecast_start&quot;</span><span class="p">])</span>
@@ -1330,6 +1346,8 @@ window.runMermaid = runMermaid;</script>
             <span class="n">sample_interval</span><span class="o">=</span><span class="n">sample_interval</span><span class="p">,</span>
             <span class="n">horizon_column</span><span class="o">=</span><span class="n">horizon_column</span><span class="p">,</span>
             <span class="n">available_at_column</span><span class="o">=</span><span class="n">available_at_column</span><span class="p">,</span>
+            <span class="n">is_sorted</span><span class="o">=</span><span class="n">is_sorted</span><span class="p">,</span>
+            <span class="n">check_frequency</span><span class="o">=</span><span class="n">check_frequency</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">quantile_feature_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_names</span> <span class="k">if</span> <span class="n">col</span> <span class="o">!=</span> <span class="n">target_column</span><span class="p">]</span>
 

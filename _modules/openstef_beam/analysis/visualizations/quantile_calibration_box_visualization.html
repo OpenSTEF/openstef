@@ -973,7 +973,8 @@ window.runMermaid = runMermaid;</script>
 
         <span class="c1"># Use the first run name for the title (if available)</span>
         <span class="n">first_group</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">reports</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="n">run_name</span> <span class="o">=</span> <span class="n">first_group</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">run_name</span> <span class="k">if</span> <span class="n">first_group</span> <span class="ow">and</span> <span class="n">first_group</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="c1"># Only check if first_group is non-None/non-empty; first_group[0] is a tuple so always truthy</span>
+        <span class="n">run_name</span> <span class="o">=</span> <span class="n">first_group</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">run_name</span> <span class="k">if</span> <span class="n">first_group</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
 
         <span class="k">for</span> <span class="n">report_list</span> <span class="ow">in</span> <span class="n">reports</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="k">for</span> <span class="n">_metadata</span><span class="p">,</span> <span class="n">report</span> <span class="ow">in</span> <span class="n">report_list</span><span class="p">:</span>

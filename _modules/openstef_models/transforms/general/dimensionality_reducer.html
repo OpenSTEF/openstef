@@ -801,7 +801,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">from scikit-learn to reduce the number of features in time series datasets.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">override</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">assert_never</span><span class="p">,</span> <span class="n">override</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">Field</span><span class="p">,</span> <span class="n">PrivateAttr</span>
@@ -934,7 +934,9 @@ window.runMermaid = runMermaid;</script>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;kernel_pca&quot;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_dimensionality_reducer</span> <span class="o">=</span> <span class="n">KernelPCA</span><span class="p">(</span>
                 <span class="n">n_components</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_components</span><span class="p">,</span> <span class="n">kernel</span><span class="o">=</span><span class="s2">&quot;rbf&quot;</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span>
-            <span class="p">)</span>  <span class="c1"># rbf for non-linear</span></div>
+            <span class="p">)</span>  <span class="c1"># rbf for non-linear</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">assert_never</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">method</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="DimensionalityReducer.features_added">

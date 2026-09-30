@@ -906,7 +906,7 @@ window.runMermaid = runMermaid;</script>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
                 <span class="s2">&quot;Found previous MLflow run </span><span class="si">%s</span><span class="s2"> for model </span><span class="si">%s</span><span class="s2"> ended at </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
-                <span class="n">cast</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">),</span>
+                <span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">,</span>
                 <span class="n">context</span><span class="o">.</span><span class="n">workflow</span><span class="o">.</span><span class="n">model_id</span><span class="p">,</span>
                 <span class="n">run_end_datetime</span><span class="p">,</span>
             <span class="p">)</span>
@@ -996,7 +996,7 @@ window.runMermaid = runMermaid;</script>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">old_model</span><span class="p">,</span> <span class="n">BaseForecastingModel</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                 <span class="s2">&quot;Loaded model from run </span><span class="si">%s</span><span class="s2"> is not a BaseForecastingModel, cannot use for prediction&quot;</span><span class="p">,</span>
-                <span class="n">cast</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">),</span>
+                <span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="k">return</span>
 
@@ -1013,7 +1013,7 @@ window.runMermaid = runMermaid;</script>
         <span class="k">if</span> <span class="n">run</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span>
 
-        <span class="n">run_id</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">)</span>
+        <span class="n">run_id</span> <span class="o">=</span> <span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_tags_compatible</span><span class="p">(</span>
             <span class="n">run_tags</span><span class="o">=</span><span class="n">run</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">tags</span><span class="p">,</span>

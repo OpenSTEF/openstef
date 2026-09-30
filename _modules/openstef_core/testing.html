@@ -885,7 +885,7 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="create_synthetic_forecasting_dataset">
 <a class="viewcode-back" href="../../api/generated/openstef_core.testing.create_synthetic_forecasting_dataset.html#openstef_core.testing.create_synthetic_forecasting_dataset">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">create_synthetic_forecasting_dataset</span><span class="p">(</span>  <span class="c1"># noqa: PLR0913 - complex function - testing utility</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_synthetic_forecasting_dataset</span><span class="p">(</span>  <span class="c1"># noqa: PLR0913, PLR0917 - testing utility keeps call sites straightforward</span>
     <span class="n">start</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="s2">&quot;2025-01-01T00:00:00+00:00&quot;</span><span class="p">),</span>  <span class="c1"># noqa: B008</span>
     <span class="n">length</span><span class="p">:</span> <span class="n">timedelta</span> <span class="o">=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">30</span> <span class="o">*</span> <span class="mi">9</span><span class="p">),</span>
     <span class="n">sample_interval</span><span class="p">:</span> <span class="n">timedelta</span> <span class="o">=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>

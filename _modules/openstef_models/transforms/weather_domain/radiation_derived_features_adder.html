@@ -922,13 +922,16 @@ window.runMermaid = runMermaid;</script>
             <span class="n">tz</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tz</span><span class="p">),</span>
         <span class="p">)</span>
 
-        <span class="n">solar_position</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">=</span> <span class="n">pvlib</span><span class="o">.</span><span class="n">solarposition</span><span class="o">.</span><span class="n">get_solarposition</span><span class="p">(</span>
-            <span class="n">time</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
-            <span class="n">latitude</span><span class="o">=</span><span class="n">location</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
-            <span class="n">longitude</span><span class="o">=</span><span class="n">location</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
+        <span class="n">solar_position</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span>
+            <span class="s2">&quot;pd.DataFrame&quot;</span><span class="p">,</span>
+            <span class="n">pvlib</span><span class="o">.</span><span class="n">solarposition</span><span class="o">.</span><span class="n">get_solarposition</span><span class="p">(</span>
+                <span class="n">time</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+                <span class="n">latitude</span><span class="o">=</span><span class="n">location</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
+                <span class="n">longitude</span><span class="o">=</span><span class="n">location</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
+            <span class="p">),</span>
         <span class="p">)</span>
 
-        <span class="n">clearsky_radiation</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">=</span> <span class="n">location</span><span class="o">.</span><span class="n">get_clearsky</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+        <span class="n">clearsky_radiation</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;pd.DataFrame&quot;</span><span class="p">,</span> <span class="n">location</span><span class="o">.</span><span class="n">get_clearsky</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="p">))</span>
 
         <span class="n">dni</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span>
             <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>

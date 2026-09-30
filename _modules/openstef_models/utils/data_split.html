@@ -1145,7 +1145,7 @@ window.runMermaid = runMermaid;</script>
         <span class="k">if</span> <span class="n">input_data_test</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
             <span class="n">input_data_test</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="k">return</span> <span class="p">(</span><span class="n">input_data_train</span><span class="p">,</span> <span class="n">input_data_val</span><span class="p">,</span> <span class="n">input_data_test</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;tuple[T, T | None, T | None]&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">input_data_train</span><span class="p">,</span> <span class="n">input_data_val</span><span class="p">,</span> <span class="n">input_data_test</span><span class="p">))</span></div>
 </div>
 
 

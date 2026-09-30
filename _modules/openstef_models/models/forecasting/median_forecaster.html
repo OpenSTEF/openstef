@@ -936,7 +936,7 @@ window.runMermaid = runMermaid;</script>
             <span class="k">return</span> <span class="n">lag_array</span>
 
         <span class="c1"># Ensure the end index does not exceed the array bounds.</span>
-        <span class="n">end</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">end</span><span class="p">,</span> <span class="n">lag_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">end</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">lag_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
 
         <span class="c1"># Get a view of the sub-array where the diagonal needs to be filled.</span>
         <span class="c1"># The slice represents future time steps (rows) and corresponding lag features (columns).</span>
