@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING, cast
 import plotly.graph_objects as go
 
 from openstef_core.datasets import TimeSeriesDataset  # noqa: TC001
-from openstef_models.explainability.plotters._layout import add_top_line, make_two_panel_time_figure
+from openstef_models.explainability.plotters.common import VerticalTwoPanelPlotLayout
 
 if TYPE_CHECKING:
     import pandas as pd
@@ -69,9 +69,9 @@ class ContributionsPlotter:
             if bias is not None:
                 prediction += bias
 
-            fig = make_two_panel_time_figure()
+            fig = VerticalTwoPanelPlotLayout.make_two_panel_time_figure()
 
-            add_top_line(fig, df.index, prediction)
+            VerticalTwoPanelPlotLayout.add_top_panel_line_plot(fig, df.index, prediction)
             fig.add_trace(heatmap, row=2, col=1)
 
             fig.update_layout(
