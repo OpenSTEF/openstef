@@ -673,5 +673,41 @@ class EnsembleForecastingModel(BaseForecastingModel):
             original_data=data,
         )
 
+    def predict_with_contributions(
+        self,
+        data: TimeSeriesDataset,
+        forecast_start: datetime | None = None,
+    ) -> tuple[ForecastDataset, TimeSeriesDataset]:
+        """Generate forecasts and per-model contributions in a single pass.
+
+        Args:
+            data: Input time series dataset.
+            forecast_start: Optional start time for forecasts.
+
+        Returns:
+            A tuple of ``(forecast, contributions)`` where *forecast* is the
+            ensemble prediction (a :class:`ForecastDataset`) and *contributions*
+            is the :class:`TimeSeriesDataset` returned by the configured combiner.
+            Its meaning depends on the combiner; for learned weights, columns
+            contain per-model selection weights.
+
+        Raises:
+            NotFittedError: If the model has not been fitted yet.
+        """
+        if not self.is_fitted:
+            raise NotFittedError(self.__class__.__name__)
+
+        ensemble_predictions = self._predict_forecasters(data=data, forecast_start=forecast_start)
+
+        forecast = self._predict_transform_combiner(
+            ensemble_dataset=ensemble_predictions,
+            original_data=data,
+        )
+        contributions = self._predict_contributions_combiner(
+            ensemble_dataset=ensemble_predictions,
+            original_data=data,
+        )
+        return forecast, contributions
+
 
 __all__ = ["EnsembleForecastingModel", "EnsembleModelFitResult", "ModelFitResult"]

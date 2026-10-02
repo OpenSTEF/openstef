@@ -8,7 +8,7 @@
 #       format_name: percent
 #       format_version: '1.3'
 #   kernelspec:
-#     display_name: .venv
+#     display_name: openstef (3.12.10)
 #     language: python
 #     name: python3
 # ---
@@ -22,6 +22,8 @@
 # %% tags=["remove-cell"]
 import warnings
 from typing import cast
+
+from openstef_meta.presets import EnsembleForecastingWorkflowConfig, create_ensemble_forecasting_workflow
 
 warnings.filterwarnings("ignore")
 
@@ -122,7 +124,7 @@ assert result is not None, "Training should produce a result"
 # tiles represent more influential features.
 
 # %% tags=["hide-input"]
-from openstef_models.explainability import ExplainableForecaster
+from openstef_models.explainability import ExplainableForecaster, ModelContributionsPlotter
 from openstef_models.models.forecasting_model import ForecastingModel
 
 forecaster = cast(ForecastingModel, workflow.model).forecaster
@@ -192,6 +194,47 @@ fig.show()
 fig = ContributionsPlotter.plot_waterfall(contributions, timestep=48, top_n=10)
 fig.update_layout(title="Prediction decomposition (timestep 48)", height=500)
 fig.show()
+
+# %% [markdown]
+# ## Ensemble model weights
+#
+# For each forecast quantile, a classifier estimates which base model is likely
+# to perform best. Its predicted probabilities become nonnegative model weights
+# that sum to one at each timestep. The top panel shows the ensemble forecast
+# for the selected quantile; the stacked area below shows each model's weight.
+# The plot defaults to P50 when no quantile is specified.
+
+# %% tags=["hide-input"]
+ensemble_workflow = create_ensemble_forecasting_workflow(
+    config=EnsembleForecastingWorkflowConfig(
+        model_id="example_gblinear_lgbm_ensemble",
+        ensemble_type="learned_weights",
+        base_models=["gblinear", "lgbm"],
+        combiner_model="lgbm",
+        quantiles=[Q(0.1), Q(0.5), Q(0.9)],
+        horizons=[LeadTime.from_string("PT36H")],
+        mlflow_storage=None,
+        temperature_column="temperature_2m",
+        relative_humidity_column="relative_humidity_2m",
+        wind_speed_column="wind_speed_10m",
+        radiation_column="shortwave_radiation",
+        pressure_column="surface_pressure",
+    )
+)
+ensemble_result = ensemble_workflow.fit(train_dataset)
+ensemble_forecast, model_weights = ensemble_workflow.model.predict_with_contributions(
+    predict_dataset, forecast_start=train_end
+)
+
+# %%
+fig = ModelContributionsPlotter.plot_stacked_area(
+    model_weights,
+    forecast=ensemble_forecast,
+    quantile=Q(0.5),
+)
+fig.update_layout(height=650)
+fig.show()
+# fig.write_html("ensemble_model_weights.html", include_plotlyjs=True)
 
 # %% [markdown]
 # ## Next steps
