@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 import pytest
 from mlflow import MlflowClient
@@ -72,7 +72,7 @@ def test_create_run(storage: MLFlowStorage, model_id: str):
 
     # Act
     run = storage.create_run(model_id=model_id, hyperparams=hyperparams)
-    run_id = cast(str, run.info.run_id)
+    run_id = run.info.run_id
 
     # Assert
     fetched_run = storage._client.get_run(run_id)
@@ -136,7 +136,7 @@ def test_model_roundtrip(storage: MLFlowStorage, model_id: str):
     """Test save and load roundtrip preserves model state."""
     # Arrange
     run = storage.create_run(model_id=model_id)
-    run_id = cast(str, run.info.run_id)
+    run_id = run.info.run_id
     original_model = SimpleStatefulModel()
     original_model.param_a = "trained_value"
     original_model.param_b = 99
@@ -156,13 +156,13 @@ def test_search_latest_runs(storage: MLFlowStorage, model_id: str):
     """Test that search_latest_runs returns only the most recent run."""
     # Arrange - Create multiple runs
     first_run = storage.create_run(model_id=model_id)
-    storage.finalize_run(model_id=model_id, run_id=cast(str, first_run.info.run_id))
+    storage.finalize_run(model_id=model_id, run_id=first_run.info.run_id)
 
     second_run = storage.create_run(model_id=model_id)
-    storage.finalize_run(model_id=model_id, run_id=cast(str, second_run.info.run_id))
+    storage.finalize_run(model_id=model_id, run_id=second_run.info.run_id)
 
     third_run = storage.create_run(model_id=model_id)
-    third_run_id = cast(str, third_run.info.run_id)
+    third_run_id = third_run.info.run_id
     storage.finalize_run(model_id=model_id, run_id=third_run_id)
 
     # Act
@@ -170,7 +170,7 @@ def test_search_latest_runs(storage: MLFlowStorage, model_id: str):
 
     # Assert - Should return only the most recent run
     assert len(latest_runs) == 1
-    assert cast(str, latest_runs[0].info.run_id) == third_run_id
+    assert latest_runs[0].info.run_id == third_run_id
 
 
 def test_search_latest_runs__no_experiment(storage: MLFlowStorage):
@@ -189,14 +189,14 @@ def test_search_run__returns_matching_run(storage: MLFlowStorage, model_id: str)
     # Arrange
     run_name = "my_training_run"
     created_run = storage.create_run(model_id=model_id, run_name=run_name)
-    created_run_id = cast(str, created_run.info.run_id)
+    created_run_id = created_run.info.run_id
 
     # Act
     found_run = storage.search_run(model_id=model_id, run_name=run_name)
 
     # Assert
     assert found_run is not None
-    assert cast(str, found_run.info.run_id) == created_run_id
+    assert found_run.info.run_id == created_run_id
 
 
 @pytest.mark.parametrize(

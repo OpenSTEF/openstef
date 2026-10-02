@@ -22,6 +22,8 @@ classifiers = [
   "Programming Language :: Python :: 3 :: Only",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Programming Language :: Python :: 3.15",
 ]
 dependencies = [
   "openstef-core",
@@ -150,20 +152,20 @@ workspace.members = [
 [tool.pyproject-fmt]
 column_width = 120
 indent = 2
-max_supported_python = "3.13"
+max_supported_python = "3.15"
 
 [tool.ty]
-src.exclude = [
-  "**/.venv/**",                    # never type-check files inside a virtualenv (e.g. a member's local .venv)
-  "**/openstef_deployment_runs/**", # deployment example run artifacts
-  "examples/tutorials/**/*.py",
-]
 src.include = [
   "examples/**/*.py",
   "packages/*/examples/**/*.py",
   "packages/*/src/**/*.py",
   "packages/*/tests/**/*.py",
   "tools/**/*.py",
+]
+src.exclude = [
+  "**/.venv/**",                    # never type-check files inside a virtualenv (e.g. a member's local .venv)
+  "**/openstef_deployment_runs/**", # deployment example run artifacts
+  "examples/tutorials/**/*.py",
 ]
 rules.all = "error"
 rules.possibly-missing-attribute = "ignore"  # ignored because large number of false positives, captured by ruff
@@ -203,12 +205,6 @@ ini_options.filterwarnings = [
 ini_options.doctest_optionflags = "NORMALIZE_WHITESPACE"
 
 [tool.coverage]
-run.omit = [
-  "examples/*",
-  "packages/*/src/examples/*",
-  "packages/*/src/tests/*",
-  "tests/*",
-]
 run.source = [
   "packages/openstef-beam/src",
   "packages/openstef-core/src",
@@ -216,10 +212,16 @@ run.source = [
   "packages/openstef-meta/src",
   "packages/openstef-models/src",
 ]
+run.omit = [
+  "examples/*",
+  "packages/*/src/examples/*",
+  "packages/*/src/tests/*",
+  "tests/*",
+]
 report.fail_under = 80
 report.omit = [ "packages/*/tests", "tests/*" ]
-report.show_missing = true
 report.skip_covered = true
+report.show_missing = true
 report.sort = "-Miss"
 
 [tool.poe]
@@ -229,6 +231,9 @@ report.sort = "-Miss"
 include = [ "poe_tasks.toml", "examples/deployment/poe_tasks.toml" ]
 
 [tool.licensecheck]
+# `requirements_paths` is set via CLI flags in poe_tasks.toml, not here: licensecheck's CLI
+# unconditionally overrides this config value back to ["pyproject.toml"] whenever
+# --requirements-paths isn't passed explicitly, silently ignoring this section.
 # Pycountry is LGPL-2.1 according to pypi.
 # MPL 2.0 lists explicitly that it is compatible with LGPL-2.1 and later, so we ignore it here (due to false positive).
 ignore_packages = [

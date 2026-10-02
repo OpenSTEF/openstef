@@ -8,7 +8,8 @@ Provides basic forecasting model that predict constant flatliner zero values. It
 when a flatline (non-)zero measurement is observed in the past and expected in the future.
 """
 
-from typing import override
+from datetime import timedelta
+from typing import cast, override
 
 import pandas as pd
 from pydantic import Field, PrivateAttr
@@ -24,8 +25,9 @@ MODEL_CODE_VERSION = 1
 class FlatlinerForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
     """Flatliner forecaster that predicts a flatline of zeros or median.
 
-    A simple forecasting model that always predicts zero (or the median of historical
-    load measurements if configured) for all horizons and quantiles.
+    A simple forecasting model that always predicts zero (or a median load value if
+    configured) for all horizons and quantiles. The median can be calculated over
+    a trailing window when the fallback is responding to a recent flatline.
 
     Invariants:
         - Configuration quantiles determine the number of prediction outputs
@@ -48,6 +50,10 @@ class FlatlinerForecaster(Forecaster, ExplainableForecaster, ContributionsMixin)
     predict_median: bool = Field(
         default=False,
         description="If True, predict the median of load measurements instead of zero.",
+    )
+    median_window: timedelta | None = Field(
+        default=None,
+        description="Optional trailing window for the median load estimate; None uses all available measurements.",
     )
 
     hyperparams: HyperParams = Field(
@@ -76,7 +82,13 @@ class FlatlinerForecaster(Forecaster, ExplainableForecaster, ContributionsMixin)
         data_val: ForecastInputDataset | None = None,
     ) -> None:
         if self.predict_median:
-            self._median_value = float(data.target_series.median())
+            target_series = data.target_series
+            if self.median_window is not None:
+                last_valid_index = cast(pd.Timestamp | None, target_series.last_valid_index())
+                if last_valid_index is not None:
+                    window_start = last_valid_index - self.median_window
+                    target_series = target_series.loc[window_start:last_valid_index]
+            self._median_value = float(target_series.median())
 
     @override
     def predict(self, data: ForecastInputDataset) -> ForecastDataset:

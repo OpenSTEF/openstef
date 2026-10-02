@@ -152,7 +152,7 @@ class FeatureSelection(BaseConfig):
             return self
 
         def _union(a: set[str] | None, b: set[str] | None) -> set[str] | None:
-            return None if a is None and b is None else (a or set()) | (b or set())
+            return None if a is None and b is None else (a or set[str]()) | (b or set[str]())
 
         return self.__class__(
             include=_union(self.include, other.include),

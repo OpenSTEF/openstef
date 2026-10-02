@@ -20,7 +20,10 @@ args = [ { name = "check", type = "boolean", help = "Does not correct files, onl
 
 [tool.poe.tasks.format-pyproject]
 help = "Format pyproject.toml (with pyproject-fmt)"
-cmd = 'pyproject-fmt ${check:+ --check} -n pyproject.toml packages/*/pyproject.toml'
+# Invoked once per file (not as one multi-file call): pyproject-fmt only honors
+# the first file's [tool.pyproject-fmt] config when given multiple files at once,
+# silently ignoring each subsequent package's own overrides (e.g. max_supported_python).
+shell = 'for f in pyproject.toml packages/*/pyproject.toml; do pyproject-fmt ${check:+ --check} -n "$f"; done'
 args = [ { name = "check", type = "boolean", help = "Does not correct files, only warns" } ]
 
 [tool.poe.tasks.lock]
@@ -91,12 +94,23 @@ switch = [
 
 [tool.poe.tasks.licensecheck]
 help = "Check licenses of dependencies for compatibility"
-cmd = 'licensecheck ${check:+ --show-only-failing --zero}'
+# --requirements-paths is required: our root pyproject.toml's only direct dependencies are our
+# own workspace packages (all in [tool.licensecheck] skip_dependencies), so licensecheck also
+# needs each workspace member's own pyproject.toml to find any real third-party dependencies.
+cmd = '''
+licensecheck
+  --requirements-paths pyproject.toml packages/openstef-beam/pyproject.toml packages/openstef-core/pyproject.toml packages/openstef-foundation-models/pyproject.toml packages/openstef-meta/pyproject.toml packages/openstef-models/pyproject.toml
+  ${check:+ --show-only-failing --zero}
+'''
 args = [ { name = "check", type = "boolean", help = "Does not correct files, only warns" } ]
 
 [tool.poe.tasks.licensecheck-third-party]
 help = "Check licenses of dependencies for compatibility"
-cmd = 'licensecheck --format markdown --file THIRD_PARTY_LICENSES.md'
+cmd = '''
+licensecheck
+  --requirements-paths pyproject.toml packages/openstef-beam/pyproject.toml packages/openstef-core/pyproject.toml packages/openstef-foundation-models/pyproject.toml packages/openstef-meta/pyproject.toml packages/openstef-models/pyproject.toml
+  --format markdown --file THIRD_PARTY_NOTICES.md
+'''
 
 [tool.poe.tasks.all]
 help = "Run all CI calls"

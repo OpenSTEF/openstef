@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import plotly.graph_objects as go
 
@@ -49,7 +49,7 @@ class ContributionsPlotter:
         bias = contributions.data[bias_column] if bias_column in contributions.data.columns else None
         cols_to_drop = [c for c in [target_column, bias_column] if c in contributions.data.columns]
         df = contributions.data.drop(columns=cols_to_drop)
-        ranked: list[str] = df.abs().mean().sort_values(ascending=False).head(top_n).index.tolist()
+        ranked: list[str] = cast("list[str]", df.abs().mean().sort_values(ascending=False).head(top_n).index.tolist())
 
         # Most-important feature at top of Y-axis
         y_labels = list(reversed(ranked))

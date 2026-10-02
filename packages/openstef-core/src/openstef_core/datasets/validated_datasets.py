@@ -10,7 +10,7 @@ validation to catch data quality issues early.
 """
 
 from datetime import datetime, timedelta
-from typing import Self, override
+from typing import Self, cast, override
 
 import numpy as np
 import pandas as pd
@@ -81,6 +81,7 @@ class ForecastInputDataset(TimeSeriesDataset):
         *,
         horizon_column: str = "horizon",
         available_at_column: str = "available_at",
+        is_sorted: bool = False,
         check_frequency: bool = False,
         sample_weight_column: str = "sample_weight",
         target_column: str = "load",
@@ -99,6 +100,7 @@ class ForecastInputDataset(TimeSeriesDataset):
             sample_interval=sample_interval,
             horizon_column=horizon_column,
             available_at_column=available_at_column,
+            is_sorted=is_sorted,
             check_frequency=check_frequency,
         )
         self._internal_columns.add(self.sample_weight_column)
@@ -111,7 +113,11 @@ class ForecastInputDataset(TimeSeriesDataset):
         Returns:
             Datetime indicating when the forecast period starts.
         """
-        return self._forecast_start if self._forecast_start is not None else self.data.index.min().to_pydatetime()
+        return (
+            self._forecast_start
+            if self._forecast_start is not None
+            else cast(datetime, self.data.index.min().to_pydatetime())
+        )
 
     @property
     def target_series(self) -> pd.Series:
@@ -255,6 +261,8 @@ class ForecastDataset(TimeSeriesDataset):
         *,
         horizon_column: str = "horizon",
         available_at_column: str = "available_at",
+        is_sorted: bool = False,
+        check_frequency: bool = False,
         standard_deviation_column: str = "stdev",
     ) -> None:
         if "forecast_start" in data.attrs:
@@ -269,6 +277,8 @@ class ForecastDataset(TimeSeriesDataset):
             sample_interval=sample_interval,
             horizon_column=horizon_column,
             available_at_column=available_at_column,
+            is_sorted=is_sorted,
+            check_frequency=check_frequency,
         )
 
         exclude_columns = {target_column, standard_deviation_column}
@@ -448,6 +458,8 @@ class EnergyComponentDataset(TimeSeriesDataset):
         *,
         horizon_column: str = "horizon",
         available_at_column: str = "available_at",
+        is_sorted: bool = False,
+        check_frequency: bool = False,
     ) -> None:
         validate_required_columns(
             data,
@@ -458,6 +470,8 @@ class EnergyComponentDataset(TimeSeriesDataset):
             sample_interval=sample_interval,
             horizon_column=horizon_column,
             available_at_column=available_at_column,
+            is_sorted=is_sorted,
+            check_frequency=check_frequency,
         )
 
 
@@ -479,6 +493,8 @@ class EnsembleForecastDataset(TimeSeriesDataset):
         *,
         horizon_column: str = "horizon",
         available_at_column: str = "available_at",
+        is_sorted: bool = False,
+        check_frequency: bool = False,
     ) -> None:
         if "forecast_start" in data.attrs:
             self.forecast_start = datetime.fromisoformat(data.attrs["forecast_start"])
@@ -491,6 +507,8 @@ class EnsembleForecastDataset(TimeSeriesDataset):
             sample_interval=sample_interval,
             horizon_column=horizon_column,
             available_at_column=available_at_column,
+            is_sorted=is_sorted,
+            check_frequency=check_frequency,
         )
         quantile_feature_names = [col for col in self.feature_names if col != target_column]
 

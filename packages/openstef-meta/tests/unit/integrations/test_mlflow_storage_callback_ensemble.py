@@ -212,7 +212,7 @@ def test_on_fit_end__stores_ensemble_model(
     runs = callback.storage.search_latest_runs(model_id=ensemble_workflow.model_id, limit=1)
     assert len(runs) == 1
 
-    run_id = cast(str, runs[0].info.run_id)
+    run_id = runs[0].info.run_id
     loaded_model = callback.storage.load_run_model(model_id=ensemble_workflow.model_id, run_id=run_id)
     assert isinstance(loaded_model, EnsembleForecastingModel)
     assert loaded_model.is_fitted

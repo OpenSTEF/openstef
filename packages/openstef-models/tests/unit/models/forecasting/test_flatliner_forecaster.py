@@ -10,6 +10,8 @@ import pytest
 from openstef_core.datasets.validated_datasets import ForecastInputDataset
 from openstef_core.types import LeadTime, Quantile
 from openstef_models.models.forecasting.flatliner_forecaster import FlatlinerForecaster
+from openstef_models.models.forecasting_model import ForecastingModel
+from openstef_models.presets import ForecastingWorkflowConfig, create_forecasting_workflow
 
 
 @pytest.fixture
@@ -64,3 +66,55 @@ def test_predict_returns_median_when_predict_median_is_true(sample_forecast_inpu
     assert isinstance(result.data, pd.DataFrame)
     assert (result.data == expected_median).all().all()
     assert set(result.data.columns) == {q.format() for q in forecaster.quantiles}
+
+
+@pytest.mark.parametrize(
+    ("load_values", "median_window", "expected_median"),
+    [
+        pytest.param([100.0, 110.0, 120.0, 7.0, 7.0, 7.0], timedelta(hours=2), 7.0, id="repeated-value"),
+        pytest.param([100.0, 110.0, 120.0, 6.0, 8.0], timedelta(hours=1), 7.0, id="two-different-values"),
+    ],
+)
+def test_predict_returns_recent_median_when_median_window_is_set(
+    load_values: list[float],
+    median_window: timedelta,
+    expected_median: float,
+) -> None:
+    # Arrange
+    index = pd.date_range("2025-01-01", periods=len(load_values), freq="h")
+    data = ForecastInputDataset(
+        data=pd.DataFrame({"load": load_values}, index=index),
+        sample_interval=timedelta(hours=1),
+    )
+    forecaster = FlatlinerForecaster(
+        quantiles=[Quantile(0.5)],
+        horizons=[LeadTime(timedelta(hours=1))],
+        predict_median=True,
+        median_window=median_window,
+    )
+
+    # Act
+    forecaster.fit(data)
+    result = forecaster.predict(data)
+
+    # Assert
+    assert (result.data == expected_median).all().all()
+
+
+def test_flatliner_workflow_uses_threshold_for_median_window() -> None:
+    # Arrange
+    config = ForecastingWorkflowConfig(
+        model_id="flatliner-test",
+        model="flatliner",
+        flatliner_threshold=timedelta(hours=6),
+        predict_nonzero_flatliner=True,
+        mlflow_storage=None,
+    )
+
+    # Act
+    workflow = create_forecasting_workflow(config)
+
+    # Assert
+    assert isinstance(workflow.model, ForecastingModel)
+    assert isinstance(workflow.model.forecaster, FlatlinerForecaster)
+    assert workflow.model.forecaster.median_window == timedelta(hours=6)

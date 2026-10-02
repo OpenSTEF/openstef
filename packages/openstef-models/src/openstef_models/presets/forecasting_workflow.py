@@ -566,6 +566,7 @@ def create_forecasting_workflow(
             quantiles=config.quantiles,
             horizons=config.horizons,
             predict_median=config.predict_nonzero_flatliner,
+            median_window=config.flatliner_threshold,
         )
         postprocessing = [
             QuantileSorter(),

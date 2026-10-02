@@ -13,7 +13,7 @@ OpenSTEF 4.0 is designed with a modular architecture that allows you to install 
 System Requirements
 ===================
 
-* Python 3.12 or higher (Python 3.13 supported)
+* Python 3.12 or higher (Python 3.13, 3.14, and 3.15 supported)
 * 64-bit operating system (Windows, macOS, or Linux)
 
 .. note::
