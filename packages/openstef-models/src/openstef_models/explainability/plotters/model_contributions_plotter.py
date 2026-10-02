@@ -12,7 +12,9 @@ import plotly.graph_objects as go
 
 from openstef_core.datasets.validated_datasets import ENSEMBLE_COLUMN_SEP
 from openstef_core.types import Q, Quantile
-from openstef_models.explainability.plotters._layout import add_top_line, make_two_panel_time_figure
+from openstef_models.explainability.plotters.common import (
+    VerticalTwoPanelPlotLayout,
+)
 
 if TYPE_CHECKING:
     from openstef_core.datasets import ForecastDataset, TimeSeriesDataset
@@ -80,8 +82,8 @@ class ModelContributionsPlotter:
 
         forecast_series = forecast.data[quantile.format()]
 
-        fig = make_two_panel_time_figure()
-        add_top_line(fig, forecast_series.index, forecast_series)
+        fig = VerticalTwoPanelPlotLayout.make_two_panel_time_figure()
+        VerticalTwoPanelPlotLayout.add_top_panel_line_plot(fig, forecast_series.index, forecast_series)
 
         for col, name in zip(selected_columns, trace_names, strict=True):
             fig.add_trace(
