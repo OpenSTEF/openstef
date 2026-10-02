@@ -36,11 +36,11 @@ class ModelContributionsPlotter:
         weight across models at each timestep.
 
         Args:
-            contributions: Output of
-                ``EnsembleForecastingModel.predict_contributions()`` or the
-                second element of
-                ``EnsembleForecastingModel.predict_with_contributions()``.
-                Columns are model selection weights per quantile.
+            contributions: Per-model selection weights from a learned-weights
+                ``EnsembleForecastingModel``. Use the result of
+                ``predict_contributions()`` or the second element of
+                ``predict_with_contributions()``. Columns contain model weights
+                for each forecast quantile.
             forecast: Output of
                 ``EnsembleForecastingModel.predict()`` or the first element
                 of ``EnsembleForecastingModel.predict_with_contributions()``.
