@@ -230,7 +230,7 @@ ensemble_forecast, model_weights = ensemble_workflow.model.predict_with_contribu
 fig = ModelContributionsPlotter.plot_stacked_area(
     model_weights,
     forecast=ensemble_forecast,
-    quantile=Q(0.5),
+    quantile=Q(0.1),
 )
 fig.update_layout(height=650)
 fig.show()
