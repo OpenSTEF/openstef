@@ -15,7 +15,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from openstef_core.datasets.validated_datasets import ForecastInputDataset
+from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.types import LeadTime, Quantile
 from openstef_foundation_models.inference.onnx_backend import OnnxBackend
 from openstef_foundation_models.models.checkpoint import CheckpointMetadata
@@ -173,6 +173,7 @@ def test_chronos2_predict_batch_matches_individual_predicts(onnx_backend: OnnxBa
     # Assert
     assert len(batched) == len(batch)
     for batched_forecast, single_forecast in zip(batched, individual, strict=True):
+        assert isinstance(batched_forecast, ForecastDataset)
         np.testing.assert_allclose(
             batched_forecast.quantiles_data.to_numpy(),
             single_forecast.quantiles_data.to_numpy(),

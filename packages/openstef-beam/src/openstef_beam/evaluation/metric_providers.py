@@ -136,7 +136,7 @@ class MetricProvider(BaseConfig):
         Override in subclasses to enable eager metric-name validation
         (e.g. in the hyperparameter tuner).
         """
-        return frozenset()
+        return frozenset[str]()
 
     def compute_deterministic(
         self,

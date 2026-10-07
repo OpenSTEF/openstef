@@ -5,6 +5,7 @@
 from pathlib import Path
 
 import yaml
+from pydantic import BaseModel as PydanticBaseModel
 from pydantic import TypeAdapter
 
 from openstef_core.base_model import BaseConfig, read_yaml_config, write_yaml_config
@@ -13,6 +14,10 @@ from openstef_core.base_model import BaseConfig, read_yaml_config, write_yaml_co
 class SampleConfig(BaseConfig):
     foo: int
     bar: str
+
+
+class PydanticConfig(PydanticBaseModel):
+    foo: int
 
 
 def test_write_yaml_basic(tmp_path: Path):
@@ -27,6 +32,30 @@ def test_write_yaml_basic(tmp_path: Path):
         data = yaml.safe_load(f)
     expected = cfg.model_dump(mode="json")
     assert data == expected
+
+
+def test_write_yaml_pydantic_model(tmp_path: Path):
+    """Writing a plain Pydantic model remains supported."""
+    config = PydanticConfig(foo=1)
+    path = tmp_path / "pydantic_config.yaml"
+
+    write_yaml_config(config, path)
+
+    with path.open("r", encoding="utf-8") as f:
+        data = yaml.safe_load(f)
+    assert data == config.model_dump(mode="json")
+
+
+def test_write_yaml_sequence(tmp_path: Path):
+    """Writing a sequence preserves a top-level YAML list."""
+    configs = [SampleConfig(foo=1, bar="abc"), SampleConfig(foo=2, bar="def")]
+    path = tmp_path / "configs.yaml"
+
+    write_yaml_config(configs, path)
+
+    with path.open("r", encoding="utf-8") as f:
+        data = yaml.safe_load(f)
+    assert data == [config.model_dump(mode="json") for config in configs]
 
 
 def test_read_yaml_basic(tmp_path: Path):

@@ -6,6 +6,7 @@ import tempfile
 from collections.abc import Callable
 from datetime import datetime, timedelta
 from pathlib import Path
+from typing import cast
 from unittest.mock import Mock
 
 import pandas as pd
@@ -200,7 +201,7 @@ def test_save_evaluation_creates_directory_structure(
 def test_save_analysis_output_creates_files(local_storage: LocalBenchmarkStorage, target: BenchmarkTarget):
     """Test that analysis output saves visualization files."""
     # Arrange
-    mock_output: VisualizationOutput = Mock(spec=VisualizationOutput)
+    mock_output: VisualizationOutput = cast(VisualizationOutput, Mock(spec=VisualizationOutput))
     mock_output.name = "test_chart"
     mock_output.write_html = Mock()
     filter_value = LeadTime(timedelta(days=1))

@@ -78,7 +78,7 @@ def create_timeseries_dataset(
     )
 
 
-def create_synthetic_forecasting_dataset(  # noqa: PLR0913 - complex function - testing utility
+def create_synthetic_forecasting_dataset(  # noqa: PLR0913, PLR0917 - testing utility keeps call sites straightforward
     start: datetime = datetime.fromisoformat("2025-01-01T00:00:00+00:00"),  # noqa: B008
     length: timedelta = timedelta(days=30 * 9),
     sample_interval: timedelta = timedelta(hours=1),
@@ -163,6 +163,7 @@ def load_liander_dataset(
     repo_id: str = LIANDER_DATASET_REPO_ID,
     local_dir: Path = Path("./liander_dataset"),
     extra_files: list[str] | None = None,
+    revision: str = "dce7fe9bbae0d62288986fa97fa1ee7e9d3b7044",
 ) -> TimeSeriesDataset:
     """Download and combine the Liander benchmark dataset into a single TimeSeriesDataset.
 
@@ -174,6 +175,7 @@ def load_liander_dataset(
         repo_id: HuggingFace dataset repository ID.
         local_dir: Local directory for caching downloaded files.
         extra_files: Additional parquet files to download and include (paths relative to repo root).
+        revision: Specific revision of the dataset to use.
 
     Returns:
         Combined dataset with all features aligned by timestamp.
@@ -204,6 +206,7 @@ def load_liander_dataset(
             filename=filename,
             repo_type="dataset",
             local_dir=local_dir,
+            revision=revision,
         )
 
     datasets = [

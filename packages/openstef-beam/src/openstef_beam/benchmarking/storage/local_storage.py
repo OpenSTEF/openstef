@@ -10,7 +10,7 @@ directory hierarchy that supports efficient retrieval and conditional processing
 """
 
 from pathlib import Path
-from typing import override
+from typing import assert_never, override
 
 from openstef_beam.analysis import AnalysisOutput, AnalysisScope
 from openstef_beam.analysis.models import AnalysisAggregation
@@ -18,6 +18,7 @@ from openstef_beam.benchmarking.models import BenchmarkTarget
 from openstef_beam.benchmarking.storage.base import BenchmarkStorage
 from openstef_beam.evaluation import EvaluationReport
 from openstef_core.datasets import TimeSeriesDataset
+from openstef_core.utils.path import safe_path_join
 
 
 class LocalBenchmarkStorage(BenchmarkStorage):
@@ -122,17 +123,22 @@ class LocalBenchmarkStorage(BenchmarkStorage):
 
     def get_predictions_path_for_target(self, target: BenchmarkTarget) -> Path:
         """Returns the path for storing predictions for a target."""
-        return (
-            self.base_path
-            / self.backtest_dirname
-            / str(target.group_name)
-            / str(target.name)
-            / self.predictions_filename
+        return safe_path_join(
+            self.base_path,
+            self.backtest_dirname,
+            str(target.group_name),
+            str(target.name),
+            self.predictions_filename,
         )
 
     def get_evaluations_path_for_target(self, target: BenchmarkTarget) -> Path:
         """Returns the path for storing evaluation results for a target."""
-        return self.base_path / self.evaluations_dirname / str(target.group_name) / str(target.name)
+        return safe_path_join(
+            self.base_path,
+            self.evaluations_dirname,
+            str(target.group_name),
+            str(target.name),
+        )
 
     def get_analysis_path(self, scope: AnalysisScope) -> Path:
         """Get the file path for storing analysis output based on aggregation scope.
@@ -140,24 +146,18 @@ class LocalBenchmarkStorage(BenchmarkStorage):
         Returns:
             Path: Directory path where analysis results should be stored.
         """
-        base_dir = self.base_path / self.analysis_dirname
-        if scope.aggregation == AnalysisAggregation.NONE:
-            output_dir = base_dir / str(scope.group_name) / str(scope.target_name)
-        elif scope.aggregation == AnalysisAggregation.TARGET:
-            output_dir = base_dir / str(scope.group_name) / "global"
-        elif scope.aggregation == AnalysisAggregation.GROUP:
-            output_dir = base_dir / "global"
-        elif scope.aggregation == AnalysisAggregation.RUN_AND_NONE:
-            output_dir = base_dir / str(scope.group_name) / str(scope.target_name)
-        elif scope.aggregation == AnalysisAggregation.RUN_AND_GROUP:
-            output_dir = base_dir / "global"
-        elif scope.aggregation == AnalysisAggregation.RUN_AND_TARGET:
-            output_dir = base_dir / str(scope.group_name) / "global"
-        else:
-            # Default case for any new or unexpected aggregation types
-            output_dir = base_dir
+        path_components = [self.analysis_dirname]
+        match scope.aggregation:
+            case AnalysisAggregation.NONE | AnalysisAggregation.RUN_AND_NONE:
+                path_components.extend([str(scope.group_name), str(scope.target_name)])
+            case AnalysisAggregation.TARGET | AnalysisAggregation.RUN_AND_TARGET:
+                path_components.extend([str(scope.group_name), "global"])
+            case AnalysisAggregation.GROUP | AnalysisAggregation.RUN_AND_GROUP:
+                path_components.append("global")
+            case aggregation:
+                assert_never(aggregation)
 
-        return output_dir
+        return safe_path_join(self.base_path, *path_components)
 
 
 __all__ = ["LocalBenchmarkStorage"]

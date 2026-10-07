@@ -10,8 +10,9 @@ exposes two helper functions `write_yaml_config` and `read_yaml_config` that
 operate on arbitrary config instances or Pydantic models / adapters.
 """
 
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Annotated, Any, Self, override
+from typing import Annotated, Any, Self, cast, override
 
 import yaml
 from pydantic import BaseModel as PydanticBaseModel
@@ -54,7 +55,7 @@ class BaseConfig(PydanticBaseModel):
         Returns:
             An instance of the config class populated with the file contents.
         """
-        return read_yaml_config(path, class_type=cls)
+        return cast(Self, read_yaml_config(path, class_type=cls))
 
     def write_yaml(self, path: Path) -> None:
         """Write this configuration to a YAML file.
@@ -65,11 +66,11 @@ class BaseConfig(PydanticBaseModel):
         write_yaml_config(self, path)
 
 
-def write_yaml_config(config: BaseConfig, path: Path) -> None:
-    """Write the config to a YAML file.
+def write_yaml_config(config: PydanticBaseModel | Sequence[PydanticBaseModel], path: Path) -> None:
+    """Write a config or sequence of configs to a YAML file.
 
     Args:
-        config: The configuration object to serialize.
+        config: The configuration object(s) to serialize.
         path: Destination path for the YAML file (will be overwritten).
 
     Example:
@@ -80,8 +81,13 @@ def write_yaml_config(config: BaseConfig, path: Path) -> None:
         >>> cfg = MyConfig(foo=123)
         >>> write_yaml_config(cfg, Path("/tmp/test.yaml"))
     """
+    data = (
+        config.model_dump(mode="json")
+        if isinstance(config, PydanticBaseModel)
+        else [item.model_dump(mode="json") for item in config]
+    )
     with path.open("w", encoding="utf-8") as f:
-        yaml.dump(config.model_dump(mode="json"), f, allow_unicode=True)
+        yaml.dump(data, f, allow_unicode=True)
 
 
 def read_yaml_config[T: BaseConfig, U](path: Path, class_type: type[T] | TypeAdapter[U]) -> T | U:
