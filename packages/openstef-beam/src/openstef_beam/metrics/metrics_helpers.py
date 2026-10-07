@@ -12,6 +12,11 @@ import numpy.typing as npt
 from openstef_core.types import Quantile
 
 
+def equals_zero(number: float) -> bool:
+    """Check if a floating-point number is effectively zero, considering floating-point precision."""
+    return bool(np.isclose(number, 0.0, rtol=1e-09, atol=1e-09))
+
+
 def represented_interval_weights(
     quantiles: Sequence[Quantile],
 ) -> npt.NDArray[np.floating]:

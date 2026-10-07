@@ -20,6 +20,7 @@ from typing import NamedTuple
 import numpy as np
 import numpy.typing as npt
 
+from openstef_beam.metrics.metrics_helpers import equals_zero
 from openstef_core.types import Quantile
 
 _Q_05 = Quantile(0.05)
@@ -638,7 +639,7 @@ def r2(
         return float("nan")
 
     weight_sum = float(np.sum(weights))
-    if not np.isfinite(weight_sum) or weight_sum == 0.0:
+    if not np.isfinite(weight_sum) or equals_zero(weight_sum):
         return float("nan")
 
     weighted_mean = float(np.average(y_true, weights=weights))
@@ -650,8 +651,8 @@ def r2(
 
     # Match scikit-learn's default force_finite=True behavior for a constant
     # target: perfect predictions score 1.0, otherwise the score is 0.0.
-    if total_sum == 0.0:
-        return 1.0 if residual_sum == 0.0 else 0.0
+    if equals_zero(total_sum):
+        return 1.0 if equals_zero(residual_sum) else 0.0
 
     score = 1.0 - residual_sum / total_sum
     return float(score) if np.isfinite(score) else float("nan")
