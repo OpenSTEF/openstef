@@ -805,6 +805,14 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Quantile</span>
 
 
+<div class="viewcode-block" id="equals_zero">
+<a class="viewcode-back" href="../../../api/generated/openstef_beam.metrics.metrics_helpers.equals_zero.html#openstef_beam.metrics.metrics_helpers.equals_zero">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">equals_zero</span><span class="p">(</span><span class="n">number</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if a floating-point number is effectively zero, considering floating-point precision.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">number</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-09</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-09</span><span class="p">))</span></div>
+
+
+
 <div class="viewcode-block" id="represented_interval_weights">
 <a class="viewcode-back" href="../../../api/generated/openstef_beam.metrics.metrics_helpers.represented_interval_weights.html#openstef_beam.metrics.metrics_helpers.represented_interval_weights">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">represented_interval_weights</span><span class="p">(</span>

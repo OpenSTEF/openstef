@@ -29,6 +29,7 @@ Functions
    :toctree: .
    :template: custom_function.rst
 
+   equals_zero
    represented_interval_weights
 
 
