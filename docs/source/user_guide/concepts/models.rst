@@ -140,6 +140,11 @@ Base Case forecasters, which produce only a single quantile.
      - Fallback
      - Multi
      - N/A
+   * - :class:`Flatliner <openstef_models.models.forecasting.flatliner_forecaster.FlatlinerForecaster>`
+     - Zero or recent-median prediction; configurable window
+     - Flatline detection fallback
+     - Multi
+     - N/A
    * - :class:`Median <openstef_models.models.forecasting.median_forecaster.MedianForecaster>`
      - Robust; minimal assumptions
      - Stable loads; baseline
@@ -175,7 +180,13 @@ reference.
 
 **Fallback/degraded mode**: The Constant Quantile forecaster learns fixed quantile values
 per hour of day. It requires no input features at prediction time, making it suitable
-as a last-resort fallback when data pipelines fail.
+as a last-resort fallback when data pipelines fail. The
+:class:`~openstef_models.models.forecasting.flatliner_forecaster.FlatlinerForecaster`
+serves a different fallback role: when a signal is detected as flatlined, it predicts
+zero or a recent median value. The ``median_window`` parameter controls the trailing
+window used for the median calculation, so the fallback reflects recent load levels
+rather than the full history. See :doc:`/user_guide/guides/reliability_fallback` for
+how these fallback forecasters integrate into the reliability workflow.
 
 
 Choosing Your Abstraction Level
@@ -205,3 +216,4 @@ Most users start with Presets and only drop down to lower levels when they need
 custom behavior. The component boundaries are designed so you can replace one piece
 (e.g., swap a Forecaster or add a Transform) without rewriting the rest of the
 pipeline.
+```
