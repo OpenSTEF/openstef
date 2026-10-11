@@ -253,15 +253,16 @@ Calibration quality can be assessed by comparing expected vs. observed quantile 
 Key metrics for probabilistic forecast quality include:
 
 - **Calibration error**: the difference between expected and observed coverage per quantile
-- **Regression Coverage Score (RCS)**: the fraction of actual values inside a prediction interval such as P10-P90
+- **Regression Coverage Score (RCS)**: the fraction of actual values falling within a symmetric prediction interval (e.g., P10-P90). A calibrated 90% interval should yield an RCS close to 0.9. Available in BEAM evaluation pipelines via :class:`~openstef_beam.evaluation.metric_providers.RCSProvider`.
 - **Sharpness**: the width of prediction intervals (narrower is better, given proper calibration)
 - **Pinball loss**: the proper scoring rule for quantile forecasts, penalizing both miscalibration and lack of sharpness
 
-See :doc:`/user_guide/guides/backtesting_tutorial` for how to evaluate forecast quality on historical data.
+See :doc:`/user_guide/guides/backtesting` for how to evaluate forecast quality on historical data.
 
 .. seealso::
 
    - :doc:`/user_guide/guides/forecasting` for the overall forecasting workflow (fitting, predicting, model selection).
    - :doc:`/user_guide/concepts/models` for understanding how different model types compare.
-   - :doc:`/user_guide/guides/backtesting_tutorial` for evaluating forecast performance systematically.
+   - :doc:`/user_guide/guides/backtesting` for evaluating forecast performance systematically.
    - :doc:`/user_guide/guides/reliability_fallback` for operational concerns like fallback behavior when data is missing.
+```
