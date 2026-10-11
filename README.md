@@ -1,3 +1,19 @@
+Now I have enough information. Let me analyze what needs to change in the README:
+
+1. **Python version badge**: The current badge says `Python 3.12+`. The release notes say "Documentation now lists Python 3.14 and 3.15 as supported versions." The badge `Python 3.12+` is still accurate since the minimum is still 3.12; the `+` already covers 3.14 and 3.15. **KEEP**.
+
+2. **scikit-learn dependency upper bound widened from <1.8 to <2**: This is an internal dependency change. The README doesn't mention scikit-learn version bounds. **KEEP**.
+
+3. **`write_yaml_config` function now accepts broader types**: This is an API enhancement. The README doesn't document this function. **KEEP**.
+
+4. **Python 3.14 and 3.15 as supported versions**: The README badge says `Python 3.12+` which already implies support for newer versions. However, since the docs now explicitly list 3.14 and 3.15, the badge is still correct. **KEEP**.
+
+All changes in this release are either internal, dependency-related, or API enhancements that don't affect the README content. The README doesn't need any changes.
+
+Wait, let me reconsider. The README has no explicit mention of supported Python versions beyond the badge. The badge says "Python 3.12+" which is still correct. The requirements line says "Python ≥3.12" which is also still correct. Nothing in the README needs updating.
+
+The file should be returned as-is:
+
 <!--
 SPDX-FileCopyrightText: 2017-2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
 
