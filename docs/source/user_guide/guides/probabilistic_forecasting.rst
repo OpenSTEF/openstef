@@ -147,6 +147,22 @@ maintain consistency between levels.
    ``0.5 * max_delta_step <= min(quantile, 1 - quantile)`` across your
    configured quantiles, otherwise training can diverge.
 
+Confidence Intervals from Forecast Errors
+-----------------------------------------
+
+As an alternative to model-native quantile regression,
+:class:`~openstef_models.transforms.postprocessing.confidence_interval_applicator.ConfidenceIntervalApplicator`
+generates quantile columns from a point forecast by learning hour-specific
+standard deviations of forecast errors. It assumes errors are approximately
+normally distributed and applies ``z``-score scaling per quantile level.
+
+During fitting, the applicator computes the standard deviation of forecast
+errors grouped by hour of day for each lead-time horizon. When a particular
+hour has too few samples to produce a reliable estimate, the applicator falls
+back to a pooled standard deviation computed across all hours for that horizon.
+This ensures that every hour receives a finite uncertainty estimate even when
+data is sparse.
+
 The Calibration Problem
 -----------------------
 
@@ -257,11 +273,11 @@ Key metrics for probabilistic forecast quality include:
 - **Sharpness**: the width of prediction intervals (narrower is better, given proper calibration)
 - **Pinball loss**: the proper scoring rule for quantile forecasts, penalizing both miscalibration and lack of sharpness
 
-See :doc:`/user_guide/guides/backtesting_tutorial` for how to evaluate forecast quality on historical data.
+See :doc:`/user_guide/guides/backtesting` for how to evaluate forecast quality on historical data.
 
 .. seealso::
 
    - :doc:`/user_guide/guides/forecasting` for the overall forecasting workflow (fitting, predicting, model selection).
    - :doc:`/user_guide/concepts/models` for understanding how different model types compare.
-   - :doc:`/user_guide/guides/backtesting_tutorial` for evaluating forecast performance systematically.
+   - :doc:`/user_guide/guides/backtesting` for evaluating forecast performance systematically.
    - :doc:`/user_guide/guides/reliability_fallback` for operational concerns like fallback behavior when data is missing.
