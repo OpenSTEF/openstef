@@ -5,9 +5,10 @@
 """Confidence interval generation for probabilistic forecasts.
 
 This module provides transforms for adding quantile predictions to forecasts based on
-learned hour-specific uncertainty patterns from validation data.
+learned hour-specific uncertainty patterns from forecast errors.
 """
 
+import logging
 from datetime import datetime
 from typing import cast, override
 
@@ -26,15 +27,15 @@ from openstef_core.utils.invariants import not_none
 class ConfidenceIntervalApplicator(BaseModel, Transform[ForecastDataset, ForecastDataset]):
     """Add quantile predictions to forecasts based on learned uncertainty patterns.
 
-    This transform learns hour-specific uncertainty from validation errors and applies
+    This transform learns hour-specific uncertainty from fit errors and applies
     it to new predictions to generate probabilistic forecasts.
 
     **How it works:**
 
     1. *Learning phase* (:meth:`fit`):
 
-       - Computes validation errors for each hour of day (0-23)
-       - Calculates standard deviation for each hour
+         - Computes fit errors for each hour of day (0-23)
+         - Uses pooled error variability when an hour has too few samples
        - For multi-horizon data, stores separate std for each horizon
 
     2. *Prediction phase* (:meth:`transform`):
@@ -82,6 +83,11 @@ class ConfidenceIntervalApplicator(BaseModel, Transform[ForecastDataset, Forecas
 
     _standard_deviation: pd.DataFrame = PrivateAttr(default_factory=pd.DataFrame)
     _is_fitted: bool = PrivateAttr(default=False)
+    _logger: logging.Logger = PrivateAttr()
+
+    @override
+    def model_post_init(self, _context: object, /) -> None:
+        self._logger = logging.getLogger(__name__)
 
     @property
     def standard_deviation(self) -> pd.DataFrame:
@@ -101,21 +107,48 @@ class ConfidenceIntervalApplicator(BaseModel, Transform[ForecastDataset, Forecas
 
     @override
     def fit(self, data: ForecastDataset) -> None:
+        self._is_fitted = False
+        self._standard_deviation = pd.DataFrame()
         if data.target_series is None:
             raise ValueError("Input data must contain target series for error computation.")
 
         # Compute hourly standard deviation for each horizon
         std_by_horizon: dict[str, pd.Series] = {}
+        pooled_horizons: list[str] = []
+        insufficient_horizons: list[str] = []
         for horizon in data.horizons or [LeadTime.from_string("PT0H")]:
             horizon_data = data.select_horizon(horizon)
             # Compute hourly standard deviation for each horizon
             errors = not_none(horizon_data.target_series) - horizon_data.median_series
             # Group by hour and compute std
-            std_by_horizon[str(horizon)] = errors.pipe(_calculate_hourly_std)
+            hourly_std = errors.pipe(_calculate_hourly_std)
+            if hourly_std.isna().any():
+                pooled_std = errors[np.isfinite(errors)].std()
+                if not np.isfinite(pooled_std):
+                    insufficient_horizons.append(str(horizon))
+                    continue
+                hourly_std = hourly_std.fillna(pooled_std)
+                pooled_horizons.append(str(horizon))
+            std_by_horizon[str(horizon)] = hourly_std
+
+        if insufficient_horizons:
+            warning_message = "Pooled uncertainty cannot be estimated for some horizons; forecasts will pass through."
+        elif pooled_horizons:
+            warning_message = "Some hourly groups are undersampled; pooled uncertainty is used for those horizons."
+        else:
+            warning_message = None
 
         # Group by hour and compute std
-        self._standard_deviation = pd.DataFrame(std_by_horizon)
+        if not insufficient_horizons:
+            self._standard_deviation = pd.DataFrame(std_by_horizon)
         self._is_fitted = True
+        if warning_message is not None:
+            self._logger.warning(
+                "%s Pooled horizons: %s. Insufficient horizons: %s.",
+                warning_message,
+                pooled_horizons,
+                insufficient_horizons,
+            )
 
     def _compute_stdev_series(self, forecast: ForecastDataset) -> pd.Series:
         horizon_strs = self._standard_deviation.columns.to_list()
@@ -150,7 +183,7 @@ class ConfidenceIntervalApplicator(BaseModel, Transform[ForecastDataset, Forecas
         if not self._is_fitted:
             raise NotFittedError(self.__class__.__name__)
 
-        if self.quantiles is None:
+        if self.quantiles is None or self._standard_deviation.empty:
             return data
 
         # Compute standard deviation series
@@ -169,6 +202,7 @@ class ConfidenceIntervalApplicator(BaseModel, Transform[ForecastDataset, Forecas
 
 def _calculate_hourly_std(errors: pd.Series) -> pd.Series:
     # Group errors by hour (0-23) and compute std for each hour
+    errors = errors[np.isfinite(errors)]
     return (
         errors.groupby(cast(pd.DatetimeIndex, errors.index).hour)
         .std()
