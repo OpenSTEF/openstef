@@ -491,14 +491,14 @@
                   
   <section id="logging">
 <span id="id1"></span><h1>Logging<a class="headerlink" href="#logging" title="Link to this heading">#</a></h1>
-<p>OpenSTEF uses Python’s standard <a class="reference external" href="https://docs.python.org/3/library/logging.html#module-logging" title="(in Python v3.14)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">logging</span></code></a> library and attaches no handlers
+<p>OpenSTEF uses Python’s standard <a class="reference external" href="https://docs.python.org/3/library/logging.html#module-logging" title="(in Python v3.15)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">logging</span></code></a> library and attaches no handlers
 by default. You stay in control: configure logging in your application before
 importing OpenSTEF modules and choose your own format, destinations, and levels.</p>
 <p>This page covers the logger naming convention, what each level emits, and
 common configuration patterns for development and production.</p>
 <section id="the-default-behavior">
 <h2>The Default Behavior<a class="headerlink" href="#the-default-behavior" title="Link to this heading">#</a></h2>
-<p>Each top-level OpenSTEF package installs a <a class="reference external" href="https://docs.python.org/3/library/logging.handlers.html#logging.NullHandler" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">logging.NullHandler</span></code></a> on its
+<p>Each top-level OpenSTEF package installs a <a class="reference external" href="https://docs.python.org/3/library/logging.handlers.html#logging.NullHandler" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">logging.NullHandler</span></code></a> on its
 root logger at import time. Until you configure logging yourself, OpenSTEF
 produces no output, not even uncaught warnings. This is the standard practice
 for Python libraries: the application, not the library, decides where logs go.</p>
@@ -663,7 +663,7 @@ standard logger hierarchy described above to whatever your stack uses.</p>
 <h3>No log output appearing<a class="headerlink" href="#no-log-output-appearing" title="Link to this heading">#</a></h3>
 <p>If you call OpenSTEF functions and see nothing:</p>
 <ol class="arabic">
-<li><p>Check that you actually called <a class="reference external" href="https://docs.python.org/3/library/logging.html#logging.basicConfig" title="(in Python v3.14)"><code class="xref py py-func docutils literal notranslate"><span class="pre">logging.basicConfig()</span></code></a> (or set up handlers
+<li><p>Check that you actually called <a class="reference external" href="https://docs.python.org/3/library/logging.html#logging.basicConfig" title="(in Python v3.15)"><code class="xref py py-func docutils literal notranslate"><span class="pre">logging.basicConfig()</span></code></a> (or set up handlers
 another way) <em>before</em> the OpenSTEF call.</p></li>
 <li><p>In notebooks, retry with <code class="docutils literal notranslate"><span class="pre">logging.basicConfig(...,</span> <span class="pre">force=True)</span></code> to override
 the kernel’s preconfigured root handler.</p></li>

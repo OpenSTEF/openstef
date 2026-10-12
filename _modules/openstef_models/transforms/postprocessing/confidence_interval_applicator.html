@@ -798,9 +798,10 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">&quot;&quot;&quot;Confidence interval generation for probabilistic forecasts.</span>
 
 <span class="sd">This module provides transforms for adding quantile predictions to forecasts based on</span>
-<span class="sd">learned hour-specific uncertainty patterns from validation data.</span>
+<span class="sd">learned hour-specific uncertainty patterns from forecast errors.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">cast</span><span class="p">,</span> <span class="n">override</span>
 
@@ -821,15 +822,15 @@ window.runMermaid = runMermaid;</script>
 <span class="k">class</span><span class="w"> </span><span class="nc">ConfidenceIntervalApplicator</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">,</span> <span class="n">Transform</span><span class="p">[</span><span class="n">ForecastDataset</span><span class="p">,</span> <span class="n">ForecastDataset</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Add quantile predictions to forecasts based on learned uncertainty patterns.</span>
 
-<span class="sd">    This transform learns hour-specific uncertainty from validation errors and applies</span>
+<span class="sd">    This transform learns hour-specific uncertainty from fit errors and applies</span>
 <span class="sd">    it to new predictions to generate probabilistic forecasts.</span>
 
 <span class="sd">    **How it works:**</span>
 
 <span class="sd">    1. *Learning phase* (:meth:`fit`):</span>
 
-<span class="sd">       - Computes validation errors for each hour of day (0-23)</span>
-<span class="sd">       - Calculates standard deviation for each hour</span>
+<span class="sd">         - Computes fit errors for each hour of day (0-23)</span>
+<span class="sd">         - Uses pooled error variability when an hour has too few samples</span>
 <span class="sd">       - For multi-horizon data, stores separate std for each horizon</span>
 
 <span class="sd">    2. *Prediction phase* (:meth:`transform`):</span>
@@ -877,6 +878,14 @@ window.runMermaid = runMermaid;</script>
 
     <span class="n">_standard_deviation</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">=</span> <span class="n">PrivateAttr</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span>
     <span class="n">_is_fitted</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">PrivateAttr</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">_logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span> <span class="o">=</span> <span class="n">PrivateAttr</span><span class="p">()</span>
+
+<div class="viewcode-block" id="ConfidenceIntervalApplicator.model_post_init">
+<a class="viewcode-back" href="../../../../api/generated/openstef_models.transforms.postprocessing.confidence_interval_applicator.ConfidenceIntervalApplicator.html#openstef_models.transforms.postprocessing.ConfidenceIntervalApplicator.model_post_init">[docs]</a>
+    <span class="nd">@override</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">model_post_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_context</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span></div>
+
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">standard_deviation</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
@@ -898,21 +907,48 @@ window.runMermaid = runMermaid;</script>
 <a class="viewcode-back" href="../../../../api/generated/openstef_models.transforms.postprocessing.confidence_interval_applicator.ConfidenceIntervalApplicator.html#openstef_models.transforms.postprocessing.ConfidenceIntervalApplicator.fit">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">ForecastDataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is_fitted</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_standard_deviation</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">target_series</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Input data must contain target series for error computation.&quot;</span><span class="p">)</span>
 
         <span class="c1"># Compute hourly standard deviation for each horizon</span>
         <span class="n">std_by_horizon</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">pooled_horizons</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">insufficient_horizons</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">horizon</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">horizons</span> <span class="ow">or</span> <span class="p">[</span><span class="n">LeadTime</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;PT0H&quot;</span><span class="p">)]:</span>
             <span class="n">horizon_data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">select_horizon</span><span class="p">(</span><span class="n">horizon</span><span class="p">)</span>
             <span class="c1"># Compute hourly standard deviation for each horizon</span>
             <span class="n">errors</span> <span class="o">=</span> <span class="n">not_none</span><span class="p">(</span><span class="n">horizon_data</span><span class="o">.</span><span class="n">target_series</span><span class="p">)</span> <span class="o">-</span> <span class="n">horizon_data</span><span class="o">.</span><span class="n">median_series</span>
             <span class="c1"># Group by hour and compute std</span>
-            <span class="n">std_by_horizon</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">horizon</span><span class="p">)]</span> <span class="o">=</span> <span class="n">errors</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">_calculate_hourly_std</span><span class="p">)</span>
+            <span class="n">hourly_std</span> <span class="o">=</span> <span class="n">errors</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">_calculate_hourly_std</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">hourly_std</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+                <span class="n">pooled_std</span> <span class="o">=</span> <span class="n">errors</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">errors</span><span class="p">)]</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">pooled_std</span><span class="p">):</span>
+                    <span class="n">insufficient_horizons</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">horizon</span><span class="p">))</span>
+                    <span class="k">continue</span>
+                <span class="n">hourly_std</span> <span class="o">=</span> <span class="n">hourly_std</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">pooled_std</span><span class="p">)</span>
+                <span class="n">pooled_horizons</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">horizon</span><span class="p">))</span>
+            <span class="n">std_by_horizon</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">horizon</span><span class="p">)]</span> <span class="o">=</span> <span class="n">hourly_std</span>
+
+        <span class="k">if</span> <span class="n">insufficient_horizons</span><span class="p">:</span>
+            <span class="n">warning_message</span> <span class="o">=</span> <span class="s2">&quot;Pooled uncertainty cannot be estimated for some horizons; forecasts will pass through.&quot;</span>
+        <span class="k">elif</span> <span class="n">pooled_horizons</span><span class="p">:</span>
+            <span class="n">warning_message</span> <span class="o">=</span> <span class="s2">&quot;Some hourly groups are undersampled; pooled uncertainty is used for those horizons.&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">warning_message</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="c1"># Group by hour and compute std</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_standard_deviation</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">std_by_horizon</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_is_fitted</span> <span class="o">=</span> <span class="kc">True</span></div>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">insufficient_horizons</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_standard_deviation</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">std_by_horizon</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is_fitted</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="n">warning_message</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> Pooled horizons: </span><span class="si">%s</span><span class="s2">. Insufficient horizons: </span><span class="si">%s</span><span class="s2">.&quot;</span><span class="p">,</span>
+                <span class="n">warning_message</span><span class="p">,</span>
+                <span class="n">pooled_horizons</span><span class="p">,</span>
+                <span class="n">insufficient_horizons</span><span class="p">,</span>
+            <span class="p">)</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_compute_stdev_series</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">forecast</span><span class="p">:</span> <span class="n">ForecastDataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
@@ -950,7 +986,7 @@ window.runMermaid = runMermaid;</script>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_fitted</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">NotFittedError</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">quantiles</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">quantiles</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_standard_deviation</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">data</span>
 
         <span class="c1"># Compute standard deviation series</span>
@@ -971,6 +1007,7 @@ window.runMermaid = runMermaid;</script>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_calculate_hourly_std</span><span class="p">(</span><span class="n">errors</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
     <span class="c1"># Group errors by hour (0-23) and compute std for each hour</span>
+    <span class="n">errors</span> <span class="o">=</span> <span class="n">errors</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">errors</span><span class="p">)]</span>
     <span class="k">return</span> <span class="p">(</span>
         <span class="n">errors</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">cast</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">,</span> <span class="n">errors</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">hour</span><span class="p">)</span>
         <span class="o">.</span><span class="n">std</span><span class="p">()</span>
