@@ -50,8 +50,7 @@ def test_linear_component_splitter__predict_returns_correct_components(
 ):
     """Test that predict returns wind, solar, and other components."""
     # Arrange
-    with pytest.warns(match="Trying to unpickle estimator"):
-        splitter = LinearComponentSplitter(config=sample_splitter_config)
+    splitter = LinearComponentSplitter(config=sample_splitter_config)
 
     # Act
     result = splitter.predict(sample_timeseries_dataset)
@@ -78,8 +77,7 @@ def test_linear_component_splitter__create_input_features(
 ):
     """Test that input features are created correctly."""
     # Arrange
-    with pytest.warns(match="Trying to unpickle estimator"):
-        splitter = LinearComponentSplitter(config=sample_splitter_config)
+    splitter = LinearComponentSplitter(config=sample_splitter_config)
 
     # Act
     input_features = splitter._create_input_features(sample_timeseries_dataset)
