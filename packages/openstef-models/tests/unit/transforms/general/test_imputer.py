@@ -267,7 +267,6 @@ def test_no_missing_values_data_preservation():
                 n_estimators=2,  # not many trees for test speed
                 max_depth=3,  # shallow tree for test speed
                 bootstrap=True,
-                max_samples=0.5,
                 n_jobs=1,
                 random_state=0,
             ),
@@ -279,7 +278,6 @@ def test_no_missing_values_data_preservation():
                 n_estimators=2,
                 max_depth=3,
                 bootstrap=True,
-                max_samples=0.5,
                 n_jobs=1,
                 random_state=0,
             ),

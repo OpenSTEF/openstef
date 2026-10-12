@@ -146,6 +146,12 @@ class LogisticCombinerHyperParams(HyperParams):
         """
         from sklearn.linear_model import LogisticRegression  # noqa: PLC0415
 
+        if self.penalty == "l2":
+            return LogisticRegression(
+                class_weight="balanced",
+                fit_intercept=self.fit_intercept,
+                C=self.c,
+            )
         return LogisticRegression(
             class_weight="balanced",
             fit_intercept=self.fit_intercept,

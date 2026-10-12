@@ -86,7 +86,8 @@ class LinearComponentSplitter(ComponentSplitter):
         ...     source_column="total_load",
         ...     components=[EnergyComponentType.SOLAR, EnergyComponentType.WIND, EnergyComponentType.OTHER],
         ... )
-        >>> splitter = LinearComponentSplitter(config)
+        >>> # Loading the bundled model requires a matching scikit-learn version.
+        >>> splitter = LinearComponentSplitter(config)  # doctest: +SKIP
         >>> components = splitter.predict(time_series_data)  # doctest: +SKIP
     """
 
