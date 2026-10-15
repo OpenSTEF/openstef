@@ -104,7 +104,8 @@ class AtmosphereDerivedFeaturesAdder(BaseConfig, TimeSeriesTransform):
 
     def _calculate_vapour_pressure(self, temperature: pd.Series, relative_humidity: pd.Series) -> pd.Series:
         saturation_vapour_pressure = self._calculate_saturation_vapour_pressure(temperature)
-        return relative_humidity * saturation_vapour_pressure
+        relative_humidity_fraction = relative_humidity / 100
+        return relative_humidity_fraction * saturation_vapour_pressure
 
     @staticmethod
     def _calculate_dewpoint(temperature: pd.Series, relative_humidity: pd.Series) -> pd.Series:
@@ -124,9 +125,9 @@ class AtmosphereDerivedFeaturesAdder(BaseConfig, TimeSeriesTransform):
         b: float = 17.625
 
         # Convert percentage to fraction
-        relative_humidity /= 100
+        relative_humidity_fraction = relative_humidity / 100
 
-        gamma = np.log(relative_humidity) + (b * temperature) / (c + temperature)
+        gamma = np.log(relative_humidity_fraction) + (b * temperature) / (c + temperature)
         return pd.Series(c * gamma / (b - gamma))
 
     def _calculate_air_density(
@@ -150,10 +151,10 @@ class AtmosphereDerivedFeaturesAdder(BaseConfig, TimeSeriesTransform):
         m_v: float = 0.018016  # kg/mol
         k: float = 273.15  # To convert Celsius to Kelvin
 
-        pressure *= 100  # Convert hPa to Pa
+        pressure_pa = pressure * 100
 
         vapour_pressure = self._calculate_vapour_pressure(temperature, relative_humidity)
-        dry_pressure: pd.Series[Any] = pressure - vapour_pressure
+        dry_pressure: pd.Series[Any] = pressure_pa - vapour_pressure
 
         return (dry_pressure * m_d + vapour_pressure * m_v) / (r * (temperature + k))
 
