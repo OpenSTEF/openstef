@@ -13,6 +13,7 @@ There are a few ways to connect with the OpenSTEF project:
 * Send a **direct message** to one of the most recent `contributors <https://github.com/OpenSTEF/openstef/graphs/contributors>`_.
 * Submit an **issue** at `GitHub <https://github.com/OpenSTEF/openstef/issues>`_.
 * Join the four-weekly **community meeting**. You can find information, including meeting invite links, on `our wiki page <https://wiki.lfenergy.org/display/OS/Four-weekly+community+meeting>`_.
+* Professional support is available through organizations listed in the `OpenSTEF Support Providers Directory <https://lf-energy.atlassian.net/wiki/spaces/OS/pages/1196883983/OpenSTEF+Support+Providers+Directory>`_.
 
 How to ask for help
 ^^^^^^^^^^^^^^^^^^^
