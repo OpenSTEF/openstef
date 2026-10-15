@@ -28,19 +28,26 @@ def align_datetime(timestamp: datetime, interval: timedelta, mode: Literal["ceil
     Raises:
         ValueError: If mode is not "ceil" or "floor".
     """
+    if mode not in {"ceil", "floor"}:
+        msg = f"Unknown alignment mode: {mode}"
+        raise ValueError(msg)
+
+    if timestamp.tzinfo is None:
+        # Naive datetimes carry no offset. Calling `.timestamp()` would apply the local UTC offset of the machine,
+        # which breaks alignment when that offset is not a multiple of the interval (e.g. UTC+05:30).
+        epoch = datetime(1970, 1, 1)  # noqa: DTZ001
+        elapsed = timestamp - epoch
+        steps = elapsed // interval if mode == "floor" else -(-elapsed // interval)
+        return epoch + steps * interval
+
     timestamp_epoch_seconds = timestamp.timestamp()
     interval_seconds = interval.total_seconds()
 
     if mode == "floor":
         aligned_secs = math.floor(timestamp_epoch_seconds / interval_seconds) * interval_seconds
-    elif mode == "ceil":
-        aligned_secs = math.ceil(timestamp_epoch_seconds / interval_seconds) * interval_seconds
     else:
-        msg = f"Unknown alignment mode: {mode}"
-        raise ValueError(msg)
+        aligned_secs = math.ceil(timestamp_epoch_seconds / interval_seconds) * interval_seconds
 
-    if timestamp.tzinfo is None:
-        return datetime.fromtimestamp(aligned_secs, tz=None)  # noqa: DTZ006
     return datetime.fromtimestamp(aligned_secs, tz=timestamp.tzinfo)
 
 
