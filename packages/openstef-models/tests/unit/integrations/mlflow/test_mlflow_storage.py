@@ -184,6 +184,7 @@ def test_load_run_model__rejects_incompatible_or_missing_openstef_version(
     remove_tag: bool,
 ) -> None:
     # Arrange
+    storage.enforce_version_compatibility = True
     run = storage.create_run(model_id=model_id)
     if remove_tag:
         storage._client.delete_tag(run.info.run_id, OPENSTEF_VERSION_TAG)
@@ -203,7 +204,7 @@ def test_load_run_model__allows_incompatible_version_when_enforcement_is_disable
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     # Arrange
-    storage.enforce_version_compatibility = False
+    assert storage.enforce_version_compatibility is False
     run = storage.create_run(model_id=model_id)
     incompatible_version = "9999.0.0"
     storage._client.set_tag(run.info.run_id, OPENSTEF_VERSION_TAG, incompatible_version)
@@ -232,6 +233,7 @@ def test_load_run_model__uses_provided_run_for_version_check(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     # Arrange
+    storage.enforce_version_compatibility = True
     run = storage.create_run(model_id=model_id)
     model = SimpleStatefulModel()
     storage.save_run_model(model_id=model_id, run_id=run.info.run_id, model=model)

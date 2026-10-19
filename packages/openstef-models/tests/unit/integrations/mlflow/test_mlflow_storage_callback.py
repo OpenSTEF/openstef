@@ -200,6 +200,7 @@ def test_mlflow_storage_callback__on_predict_start__rejects_incompatible_version
     sample_dataset: TimeSeriesDataset,
 ):
     # Arrange
+    callback.storage.enforce_version_compatibility = True
     callback.on_fit_end(context=WorkflowContext(workflow=workflow), result=fit_result)
     run = callback.storage.search_latest_runs(model_id=workflow.model_id)[0]
     runtime_version = Version(get_runtime_openstef_version())
@@ -225,6 +226,7 @@ def test_mlflow_storage_callback__on_predict_start__rejects_missing_version(
     sample_dataset: TimeSeriesDataset,
 ):
     # Arrange
+    callback.storage.enforce_version_compatibility = True
     callback.on_fit_end(context=WorkflowContext(workflow=workflow), result=fit_result)
     run = callback.storage.search_latest_runs(model_id=workflow.model_id)[0]
     callback.storage._client.delete_tag(run.info.run_id, OPENSTEF_VERSION_TAG)
@@ -247,6 +249,7 @@ def test_mlflow_storage_callback__on_fit_start__retries_incompatible_recent_mode
     fit_result: ModelFitResult,
 ):
     # Arrange
+    callback.storage.enforce_version_compatibility = True
     callback.on_fit_end(context=WorkflowContext(workflow=workflow), result=fit_result)
     run = callback.storage.search_latest_runs(model_id=workflow.model_id)[0]
     runtime_version = Version(get_runtime_openstef_version())
@@ -400,6 +403,7 @@ def test_mlflow_storage_callback__model_selection__ignores_incompatible_openstef
 ):
     # Arrange
     callback = MLFlowStorageCallback(storage=storage, model_selection_metric=(Q(0.5), "R2", "higher_is_better"))
+    storage.enforce_version_compatibility = True
     callback.on_fit_end(context=WorkflowContext(workflow=workflow), result=fit_result)
     run = storage.search_latest_runs(model_id=workflow.model_id)[0]
     runtime_version = Version(get_runtime_openstef_version())

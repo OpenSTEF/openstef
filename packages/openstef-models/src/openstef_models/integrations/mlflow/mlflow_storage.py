@@ -111,8 +111,8 @@ class MLFlowStorage(BaseConfig):
     )
     experiment_name_prefix: str = Field(default="", description="Prefix for MLflow experiment names.")
     enforce_version_compatibility: bool = Field(
-        default=True,
-        description="Reject MLflow models trained with an incompatible OpenSTEF major or minor version.",
+        default=False,
+        description="Opt in to rejecting MLflow models trained with an incompatible OpenSTEF major or minor version.",
     )
     # Artifact subdirectories
     data_path: str = Field(default="data", description="Subdirectory for storing training data artifacts.")
