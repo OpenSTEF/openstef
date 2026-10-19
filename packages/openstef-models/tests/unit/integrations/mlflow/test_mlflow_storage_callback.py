@@ -15,7 +15,7 @@ from pydantic import PrivateAttr
 
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
-from openstef_core.exceptions import ModelLoadingError, ModelNotFoundError, SkipFitting
+from openstef_core.exceptions import ModelNotFoundError, OpenSTEFVersionCompatibilityError, SkipFitting
 from openstef_core.mixins.predictor import HyperParams
 from openstef_core.types import LeadTime, Q
 from openstef_core.versioning import OPENSTEF_VERSION_TAG, get_runtime_openstef_version
@@ -205,7 +205,7 @@ def test_mlflow_storage_callback__on_predict_start__rejects_incompatible_version
     context = WorkflowContext(workflow=unfitted_workflow)
 
     # Act / Assert
-    with pytest.raises(ModelLoadingError, match="incompatible or missing OpenSTEF version tag"):
+    with pytest.raises(OpenSTEFVersionCompatibilityError, match="incompatible or missing OpenSTEF version tag"):
         callback.on_predict_start(context=context, data=sample_dataset)
 
 
@@ -228,7 +228,7 @@ def test_mlflow_storage_callback__on_predict_start__rejects_missing_version(
     context = WorkflowContext(workflow=unfitted_workflow)
 
     # Act / Assert
-    with pytest.raises(ModelLoadingError, match="incompatible or missing OpenSTEF version tag"):
+    with pytest.raises(OpenSTEFVersionCompatibilityError, match="incompatible or missing OpenSTEF version tag"):
         callback.on_predict_start(context=context, data=sample_dataset)
 
 
@@ -246,6 +246,24 @@ def test_mlflow_storage_callback__on_fit_start__retries_incompatible_recent_mode
 
     # Act
     callback.on_fit_start(context=WorkflowContext(workflow=workflow), data=fit_result.input_dataset)
+
+
+def test_mlflow_storage_callback__on_fit_start__allows_incompatible_recent_model_when_enforcement_is_disabled(
+    callback: MLFlowStorageCallback,
+    workflow: CustomForecastingWorkflow,
+    fit_result: ModelFitResult,
+):
+    # Arrange
+    callback.storage.enforce_version_compatibility = False
+    callback.on_fit_end(context=WorkflowContext(workflow=workflow), result=fit_result)
+    run = callback.storage.search_latest_runs(model_id=workflow.model_id)[0]
+    current_version = Version(get_runtime_openstef_version())
+    incompatible_version = f"{current_version.major + 1}.{current_version.minor}.0"
+    callback.storage._client.set_tag(run.info.run_id, OPENSTEF_VERSION_TAG, incompatible_version)
+
+    # Act / Assert
+    with pytest.raises(SkipFitting, match="recent enough"):
+        callback.on_fit_start(context=WorkflowContext(workflow=workflow), data=fit_result.input_dataset)
 
 
 @pytest.mark.parametrize(

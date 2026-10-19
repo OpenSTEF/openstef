@@ -25,7 +25,7 @@ from mlflow.exceptions import MlflowException
 from pydantic import ConfigDict, Field, PrivateAttr
 
 from openstef_core.base_model import BaseConfig
-from openstef_core.exceptions import ModelLoadingError, ModelNotFoundError
+from openstef_core.exceptions import ModelNotFoundError, OpenSTEFVersionCompatibilityError
 from openstef_core.mixins import HyperParams
 from openstef_core.utils.path import safe_path_join
 from openstef_core.versioning import (
@@ -110,6 +110,10 @@ class MLFlowStorage(BaseConfig):
         "self-contained — useful with a database tracking backend such as ``sqlite:///...``.",
     )
     experiment_name_prefix: str = Field(default="", description="Prefix for MLflow experiment names.")
+    enforce_version_compatibility: bool = Field(
+        default=True,
+        description="Reject MLflow models trained with an incompatible OpenSTEF major or minor version.",
+    )
     # Artifact subdirectories
     data_path: str = Field(default="data", description="Subdirectory for storing training data artifacts.")
     model_path: str = Field(default="model", description="Subdirectory for storing model artifacts.")
@@ -354,21 +358,23 @@ class MLFlowStorage(BaseConfig):
 
         Raises:
             ModelNotFoundError: If the model artifacts cannot be found in MLflow.
-            ModelLoadingError: If the run's OpenSTEF version is missing or incompatible.
+            OpenSTEFVersionCompatibilityError: If version compatibility enforcement is enabled and the run's
+                OpenSTEF version is missing or incompatible.
         """
         try:
             run = self._client.get_run(run_id)
         except MlflowException as e:
             raise ModelNotFoundError(model_id=model_id) from e
 
-        model_version = run.data.tags.get(OPENSTEF_VERSION_TAG)
-        runtime_version = get_runtime_openstef_version()
-        if not is_openstef_compatible(model_version=model_version, runtime_version=runtime_version):
-            error_message = (
-                f"MLflow run {run_id} has incompatible or missing OpenSTEF version tag {model_version!r}; "
-                f"runtime version is {runtime_version}."
-            )
-            raise ModelLoadingError(error_message)
+        if self.enforce_version_compatibility:
+            model_version = run.data.tags.get(OPENSTEF_VERSION_TAG)
+            runtime_version = get_runtime_openstef_version()
+            if not is_openstef_compatible(model_version=model_version, runtime_version=runtime_version):
+                raise OpenSTEFVersionCompatibilityError(
+                    run_id=run_id,
+                    model_version=model_version,
+                    runtime_version=runtime_version,
+                )
 
         try:
             with TemporaryDirectory() as tmpdir:

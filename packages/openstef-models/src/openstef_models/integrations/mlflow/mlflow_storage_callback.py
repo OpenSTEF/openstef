@@ -272,6 +272,9 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
         return next(iter(runs), None)
 
     def _is_openstef_compatible_run(self, run: Run) -> bool:
+        if not self.storage.enforce_version_compatibility:
+            return True
+
         model_version = run.data.tags.get(OPENSTEF_VERSION_TAG)
         runtime_version = get_runtime_openstef_version()
         compatible = is_openstef_compatible(model_version=model_version, runtime_version=runtime_version)

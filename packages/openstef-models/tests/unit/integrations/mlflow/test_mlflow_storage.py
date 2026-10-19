@@ -10,7 +10,7 @@ import pytest
 from mlflow import MlflowClient
 from packaging.version import Version
 
-from openstef_core.exceptions import ModelLoadingError
+from openstef_core.exceptions import OpenSTEFVersionCompatibilityError
 from openstef_core.mixins import HyperParams, Stateful
 from openstef_core.versioning import OPENSTEF_VERSION_TAG, get_runtime_openstef_version
 from openstef_models.integrations.mlflow import MLFlowStorage
@@ -191,8 +191,30 @@ def test_load_run_model__rejects_incompatible_or_missing_openstef_version(
         storage._client.set_tag(run.info.run_id, OPENSTEF_VERSION_TAG, incompatible_version)
 
     # Act / Assert
-    with pytest.raises(ModelLoadingError, match="incompatible or missing OpenSTEF version tag"):
+    with pytest.raises(OpenSTEFVersionCompatibilityError, match="incompatible or missing OpenSTEF version tag"):
         storage.load_run_model(run_id=run.info.run_id, model_id=model_id)
+
+
+def test_load_run_model__allows_incompatible_version_when_enforcement_is_disabled(
+    storage: MLFlowStorage,
+    model_id: str,
+) -> None:
+    # Arrange
+    storage.enforce_version_compatibility = False
+    run = storage.create_run(model_id=model_id)
+    incompatible_version = "9999.0.0"
+    storage._client.set_tag(run.info.run_id, OPENSTEF_VERSION_TAG, incompatible_version)
+    original_model = SimpleStatefulModel()
+    original_model.param_a = "trained_value"
+    storage.save_run_model(model_id=model_id, run_id=run.info.run_id, model=original_model)
+    storage.finalize_run(model_id=model_id, run_id=run.info.run_id)
+
+    # Act
+    loaded_model = storage.load_run_model(run_id=run.info.run_id, model_id=model_id)
+
+    # Assert
+    assert isinstance(loaded_model, SimpleStatefulModel)
+    assert loaded_model.param_a == "trained_value"
 
 
 def test_search_latest_runs(storage: MLFlowStorage, model_id: str):

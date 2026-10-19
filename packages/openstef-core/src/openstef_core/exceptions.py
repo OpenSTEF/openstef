@@ -135,6 +135,26 @@ class ModelLoadingError(Exception):
     """Exception raised when a model fails to load properly."""
 
 
+class OpenSTEFVersionCompatibilityError(ModelLoadingError):
+    """Exception raised when an MLflow model was created with an incompatible OpenSTEF version."""
+
+    def __init__(self, run_id: str, model_version: str | None, runtime_version: str):
+        """Initialize the exception with the model run and version details.
+
+        Args:
+            run_id: MLflow run that contains the incompatible model.
+            model_version: OpenSTEF version recorded on the run, if present.
+            runtime_version: OpenSTEF version used by the current process.
+        """
+        self.run_id = run_id
+        self.model_version = model_version
+        self.runtime_version = runtime_version
+        super().__init__(
+            f"MLflow run {run_id} has incompatible or missing OpenSTEF version tag {model_version!r}; "
+            f"runtime version is {runtime_version}."
+        )
+
+
 class NotFittedError(Exception):
     """Exception raised when a model or a transform is used before being fitted."""
 
@@ -216,6 +236,7 @@ __all__ = [
     "ModelLoadingError",
     "ModelNotFoundError",
     "NotFittedError",
+    "OpenSTEFVersionCompatibilityError",
     "PredictError",
     "TimeSeriesValidationError",
     "UnreachableStateError",

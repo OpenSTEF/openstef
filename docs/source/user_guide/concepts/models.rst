@@ -87,10 +87,18 @@ Each OpenSTEF consumer decides how to handle an ``x`` bump. OpenSTEF's built-in 
 compatibility check treats changes to ``m`` or ``x`` as incompatible; ``y`` may differ.
 
 * Training runs record the installed ``openstef-core`` version in the ``openstef_version`` tag.
-* Models with missing, invalid, or incompatible tags are not loaded. Incompatible runs do not
-  suppress retraining and are skipped during model selection.
+* By default, models with missing, invalid, or incompatible tags are not loaded.
+  :class:`~openstef_core.exceptions.OpenSTEFVersionCompatibilityError` is raised and can be
+  caught specifically; it is also a :class:`~openstef_core.exceptions.ModelLoadingError`.
+* Set ``MLFlowStorage(enforce_version_compatibility=False)`` to opt out of the built-in check.
+  Runs continue to be tagged, but version compatibility will not block loading, reuse, or
+  model selection.
+* The load-time check happens after the prediction workflow is invoked. Applications that fetch
+  expensive input data should check the stored version before fetching data and starting prediction.
+* Incompatible runs do not suppress retraining and are skipped during model selection when
+  compatibility enforcement is enabled.
 * Runs created before version tagging have no version tag. Retrain those models before using
-  them with this compatibility check.
+  them with the default compatibility check.
 
 Presets
 ^^^^^^^
