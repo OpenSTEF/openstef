@@ -29,6 +29,8 @@ from openstef_models.workflows.custom_forecasting_workflow import CustomForecast
 if TYPE_CHECKING:
     from pathlib import Path
 
+    from mlflow.entities import Run
+
 
 class SimpleTestForecaster(Forecaster):
     """Simple forecaster for testing that stores and restores median value."""
@@ -142,6 +144,7 @@ def test_mlflow_storage_callback__on_predict_start__loads_model_when_not_fitted(
     workflow: CustomForecastingWorkflow,
     fit_result: ModelFitResult,
     sample_dataset: TimeSeriesDataset,
+    monkeypatch: pytest.MonkeyPatch,
 ):
     """Test that on_predict_start loads model from MLflow when not fitted."""
     # Arrange - Store a fitted model first
@@ -157,6 +160,12 @@ def test_mlflow_storage_callback__on_predict_start__loads_model_when_not_fitted(
         ),
     )
     unfitted_context = WorkflowContext(workflow=unfitted_workflow)
+
+    def unexpected_get_run(run_id: str) -> Run:
+        message = f"Unexpected metadata lookup for run {run_id}."
+        raise AssertionError(message)
+
+    monkeypatch.setattr(callback.storage._client, "get_run", unexpected_get_run)
 
     # Act
     callback.on_predict_start(context=unfitted_context, data=sample_dataset)
@@ -307,6 +316,7 @@ def test_mlflow_storage_callback__model_selection__keeps_better_model(
     workflow: CustomForecastingWorkflow,
     fit_result: ModelFitResult,
     sample_dataset: TimeSeriesDataset,
+    monkeypatch: pytest.MonkeyPatch,
 ):
     """Test that model selection keeps the better performing model."""
     # Arrange - Create callback with R2 metric (capital letters)
@@ -336,6 +346,12 @@ def test_mlflow_storage_callback__model_selection__keeps_better_model(
 
     worse_workflow = CustomForecastingWorkflow(model_id="test_model", model=worse_model)
     worse_context = WorkflowContext(workflow=worse_workflow)
+
+    def unexpected_get_run(run_id: str) -> Run:
+        message = f"Unexpected metadata lookup for run {run_id}."
+        raise AssertionError(message)
+
+    monkeypatch.setattr(storage._client, "get_run", unexpected_get_run)
 
     # Act & Assert - Should raise SkipFitting because new model is worse
     with pytest.raises(SkipFitting, match="New model did not improve"):

@@ -19,6 +19,8 @@ from openstef_models.integrations.mlflow.mlflow_storage import normalize_trackin
 if TYPE_CHECKING:
     from pathlib import Path
 
+    from mlflow.entities import Run
+
 
 class SimpleHyperParams(HyperParams):
     """Simple hyperparameters for testing."""
@@ -198,6 +200,7 @@ def test_load_run_model__rejects_incompatible_or_missing_openstef_version(
 def test_load_run_model__allows_incompatible_version_when_enforcement_is_disabled(
     storage: MLFlowStorage,
     model_id: str,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     # Arrange
     storage.enforce_version_compatibility = False
@@ -209,12 +212,42 @@ def test_load_run_model__allows_incompatible_version_when_enforcement_is_disable
     storage.save_run_model(model_id=model_id, run_id=run.info.run_id, model=original_model)
     storage.finalize_run(model_id=model_id, run_id=run.info.run_id)
 
+    def unexpected_get_run(run_id: str) -> Run:
+        message = f"Unexpected metadata lookup for run {run_id}."
+        raise AssertionError(message)
+
+    monkeypatch.setattr(storage._client, "get_run", unexpected_get_run)
+
     # Act
     loaded_model = storage.load_run_model(run_id=run.info.run_id, model_id=model_id)
 
     # Assert
     assert isinstance(loaded_model, SimpleStatefulModel)
     assert loaded_model.param_a == "trained_value"
+
+
+def test_load_run_model__uses_provided_run_for_version_check(
+    storage: MLFlowStorage,
+    model_id: str,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # Arrange
+    run = storage.create_run(model_id=model_id)
+    model = SimpleStatefulModel()
+    storage.save_run_model(model_id=model_id, run_id=run.info.run_id, model=model)
+    storage.finalize_run(model_id=model_id, run_id=run.info.run_id)
+
+    def unexpected_get_run(run_id: str) -> Run:
+        message = f"Unexpected metadata lookup for run {run_id}."
+        raise AssertionError(message)
+
+    monkeypatch.setattr(storage._client, "get_run", unexpected_get_run)
+
+    # Act
+    loaded_model = storage.load_run_model(run_id=run.info.run_id, model_id=model_id, run=run)
+
+    # Assert
+    assert isinstance(loaded_model, SimpleStatefulModel)
 
 
 def test_search_latest_runs(storage: MLFlowStorage, model_id: str):

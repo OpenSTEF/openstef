@@ -343,7 +343,7 @@ class MLFlowStorage(BaseConfig):
         with Path(model_path / f"model.{self.model_serializer.extension}").open("wb") as f:
             self.model_serializer.serialize(model, file=f)
 
-    def load_run_model(self, run_id: str, model_id: ModelIdentifier) -> object:
+    def load_run_model(self, run_id: str, model_id: ModelIdentifier, run: Run | None = None) -> object:
         """Load a trained model from MLflow artifacts.
 
         Downloads model artifacts from MLflow and deserializes them into the
@@ -352,6 +352,7 @@ class MLFlowStorage(BaseConfig):
         Args:
             run_id: MLflow run ID containing the model artifacts.
             model_id: Model identifier for locating artifact paths.
+            run: Already-fetched MLflow run, if available.
 
         Returns:
             Model instance with restored state from the run.
@@ -361,12 +362,16 @@ class MLFlowStorage(BaseConfig):
             OpenSTEFVersionCompatibilityError: If version compatibility enforcement is enabled and the run's
                 OpenSTEF version is missing or incompatible.
         """
-        try:
-            run = self._client.get_run(run_id)
-        except MlflowException as e:
-            raise ModelNotFoundError(model_id=model_id) from e
-
         if self.enforce_version_compatibility:
+            if run is None:
+                try:
+                    run = self._client.get_run(run_id)
+                except MlflowException as e:
+                    raise ModelNotFoundError(model_id=model_id) from e
+            elif run.info.run_id != run_id:
+                message = f"Provided MLflow run ID {run.info.run_id!r} does not match {run_id!r}."
+                raise ValueError(message)
+
             model_version = run.data.tags.get(OPENSTEF_VERSION_TAG)
             runtime_version = get_runtime_openstef_version()
             if not is_openstef_compatible(model_version=model_version, runtime_version=runtime_version):

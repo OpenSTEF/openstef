@@ -42,6 +42,7 @@ from openstef_core.datasets.versioned_timeseries_dataset import (
 from openstef_core.exceptions import (
     MissingColumnsError,
     ModelNotFoundError,
+    OpenSTEFVersionCompatibilityError,
     SkipFitting,
 )
 from openstef_core.types import Q, QuantileOrGlobal
@@ -189,7 +190,7 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
             raise ModelNotFoundError(model_id=context.workflow.model_id)
 
         run_id: str = run.info.run_id
-        old_model = self.storage.load_run_model(run_id=run_id, model_id=context.workflow.model_id)
+        old_model = self.storage.load_run_model(run_id=run_id, model_id=context.workflow.model_id, run=run)
 
         if not isinstance(old_model, BaseForecastingModel):
             self._logger.warning(
@@ -212,9 +213,6 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
 
         run_id = run.info.run_id
 
-        if not self._is_openstef_compatible_run(run):
-            return
-
         if not self._check_tags_compatible(
             run_tags=run.data.tags,
             new_tags=workflow.model.tags,
@@ -225,7 +223,7 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
         new_model = workflow.model
         new_metrics = result.metrics_full
 
-        old_model = self._try_load_model(run_id=run_id, model_id=workflow.model_id)
+        old_model = self._try_load_model(run=run, model_id=workflow.model_id)
 
         if old_model is None:
             return
@@ -287,14 +285,23 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
             )
         return compatible
 
-    def _try_load_model(self, run_id: str, model_id: str) -> BaseForecastingModel | None:
+    def _try_load_model(self, run: Run, model_id: str) -> BaseForecastingModel | None:
         """Try to load a model from MLflow, returning None on failure.
 
         Returns:
             The loaded model, or None if loading failed.
         """
+        run_id = run.info.run_id
         try:
-            old_model = self.storage.load_run_model(run_id=run_id, model_id=model_id)
+            old_model = self.storage.load_run_model(run_id=run_id, model_id=model_id, run=run)
+        except OpenSTEFVersionCompatibilityError as e:
+            self._logger.warning(
+                "Could not load model from previous run %s for model %s due to incompatible OpenSTEF version: %s",
+                run_id,
+                model_id,
+                e,
+            )
+            return None
         except ModelNotFoundError:
             self._logger.warning(
                 "Could not load model from previous run %s for model %s, skipping model selection",

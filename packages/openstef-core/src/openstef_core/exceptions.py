@@ -149,10 +149,11 @@ class OpenSTEFVersionCompatibilityError(ModelLoadingError):
         self.run_id = run_id
         self.model_version = model_version
         self.runtime_version = runtime_version
-        super().__init__(
+        message = (
             f"MLflow run {run_id} has incompatible or missing OpenSTEF version tag {model_version!r}; "
             f"runtime version is {runtime_version}."
         )
+        super().__init__(message)
 
 
 class NotFittedError(Exception):
