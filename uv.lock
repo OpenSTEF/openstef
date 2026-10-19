@@ -4326,6 +4326,7 @@ source = { editable = "packages/openstef-core" }
 dependencies = [
     { name = "joblib" },
     { name = "numpy" },
+    { name = "packaging" },
     { name = "pandas" },
     { name = "pyarrow" },
     { name = "pydantic" },
@@ -4342,6 +4343,7 @@ requires-dist = [
     { name = "huggingface-hub", marker = "extra == 'benchmark'", specifier = ">=1.2.2" },
     { name = "joblib", specifier = ">=1,<2" },
     { name = "numpy", specifier = ">=2.3.2,<3" },
+    { name = "packaging", specifier = ">=25" },
     { name = "pandas", specifier = ">=2.3.1,<4" },
     { name = "pyarrow", specifier = ">=21" },
     { name = "pydantic", specifier = ">=2.12.4,<3" },
@@ -4570,9 +4572,9 @@ requires-dist = [
     { name = "pycountry", specifier = ">=24.6.1" },
     { name = "scikit-learn", specifier = ">=1.7.1,<2" },
     { name = "scipy", specifier = ">=1.16.3,<2" },
-    { name = "xgboost", marker = "sys_platform == 'darwin' and extra == 'xgb-cpu'", specifier = ">=3.2.0,<4" },
-    { name = "xgboost", marker = "extra == 'xgb-gpu'", specifier = ">=3.2.0,<4" },
-    { name = "xgboost-cpu", marker = "(sys_platform == 'linux' and extra == 'xgb-cpu') or (sys_platform == 'win32' and extra == 'xgb-cpu')", specifier = ">=3.2.0,<4" },
+    { name = "xgboost", marker = "sys_platform == 'darwin' and extra == 'xgb-cpu'", specifier = ">=3.2,<4" },
+    { name = "xgboost", marker = "extra == 'xgb-gpu'", specifier = ">=3.2,<4" },
+    { name = "xgboost-cpu", marker = "(sys_platform == 'linux' and extra == 'xgb-cpu') or (sys_platform == 'win32' and extra == 'xgb-cpu')", specifier = ">=3.2,<4" },
 ]
 provides-extras = ["lgbm", "tuning", "xgb-cpu", "xgb-gpu"]
 

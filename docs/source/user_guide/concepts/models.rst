@@ -74,6 +74,24 @@ management: callbacks for MLflow storage, model reuse logic, model selection,
 performance monitoring, experiment tagging, and run naming. This is where operational
 concerns live - the Model stays focused on prediction.
 
+OpenSTEF Version Compatibility
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+OpenSTEF versions use the ``m.x.y`` format:
+
+* ``y`` bumps are backward-compatible; existing models remain compatible.
+* ``x`` bumps may affect model compatibility, while the code remains usable.
+* ``m`` bumps signal major software changes that require substantial code changes.
+
+Each OpenSTEF consumer decides how to handle an ``x`` bump. OpenSTEF's built-in MLflow
+compatibility check treats changes to ``m`` or ``x`` as incompatible; ``y`` may differ.
+
+* Training runs record the installed ``openstef-core`` version in the ``openstef_version`` tag.
+* Models with missing, invalid, or incompatible tags are not loaded. Incompatible runs do not
+  suppress retraining and are skipped during model selection.
+* Runs created before version tagging have no version tag. Retrain those models before using
+  them with this compatibility check.
+
 Presets
 ^^^^^^^
 

@@ -8,8 +8,11 @@ from typing import TYPE_CHECKING
 
 import pytest
 from mlflow import MlflowClient
+from packaging.version import Version
 
+from openstef_core.exceptions import ModelLoadingError
 from openstef_core.mixins import HyperParams, Stateful
+from openstef_core.versioning import OPENSTEF_VERSION_TAG, get_runtime_openstef_version
 from openstef_models.integrations.mlflow import MLFlowStorage
 from openstef_models.integrations.mlflow.mlflow_storage import normalize_tracking_uri
 
@@ -78,6 +81,19 @@ def test_create_run(storage: MLFlowStorage, model_id: str):
     fetched_run = storage._client.get_run(run_id)
     assert fetched_run.data.params["learning_rate"] == "0.05"
     assert fetched_run.data.params["max_depth"] == "10"
+
+
+def test_create_run__sets_authoritative_openstef_version_tag(storage: MLFlowStorage, model_id: str):
+    # Arrange
+    tags = {OPENSTEF_VERSION_TAG: "0.0.0", "custom_tag": "custom_value"}
+
+    # Act
+    run = storage.create_run(model_id=model_id, tags=tags)
+    stored_run = storage._client.get_run(run.info.run_id)
+
+    # Assert
+    assert stored_run.data.tags[OPENSTEF_VERSION_TAG] == get_runtime_openstef_version()
+    assert stored_run.data.tags["custom_tag"] == "custom_value"
 
 
 def test_create_run__experiment_prefix(tmp_path: Path, model_id: str):
@@ -150,6 +166,33 @@ def test_model_roundtrip(storage: MLFlowStorage, model_id: str):
     assert isinstance(loaded_model, SimpleStatefulModel)
     assert loaded_model.param_a == "trained_value"
     assert loaded_model.param_b == 99
+
+
+@pytest.mark.parametrize(
+    ("model_version", "remove_tag"),
+    [
+        pytest.param("9999.0.0", False, id="incompatible-version"),
+        pytest.param(None, True, id="missing-version"),
+    ],
+)
+def test_load_run_model__rejects_incompatible_or_missing_openstef_version(
+    storage: MLFlowStorage,
+    model_id: str,
+    model_version: str | None,
+    remove_tag: bool,
+) -> None:
+    # Arrange
+    run = storage.create_run(model_id=model_id)
+    if remove_tag:
+        storage._client.delete_tag(run.info.run_id, OPENSTEF_VERSION_TAG)
+    else:
+        current_version = Version(get_runtime_openstef_version())
+        incompatible_version = f"{current_version.major + 1}.{current_version.minor}.0"
+        storage._client.set_tag(run.info.run_id, OPENSTEF_VERSION_TAG, incompatible_version)
+
+    # Act / Assert
+    with pytest.raises(ModelLoadingError, match="incompatible or missing OpenSTEF version tag"):
+        storage.load_run_model(run_id=run.info.run_id, model_id=model_id)
 
 
 def test_search_latest_runs(storage: MLFlowStorage, model_id: str):
