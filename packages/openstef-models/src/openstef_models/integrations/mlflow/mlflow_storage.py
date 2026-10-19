@@ -359,18 +359,20 @@ class MLFlowStorage(BaseConfig):
 
         Raises:
             ModelNotFoundError: If the model artifacts cannot be found in MLflow.
+            ValueError: If the provided run does not match ``run_id``.
             OpenSTEFVersionCompatibilityError: If version compatibility enforcement is enabled and the run's
                 OpenSTEF version is missing or incompatible.
         """
+        if run is not None and run.info.run_id != run_id:
+            message = f"Provided MLflow run ID {run.info.run_id!r} does not match {run_id!r}."
+            raise ValueError(message)
+
         if self.enforce_version_compatibility:
             if run is None:
                 try:
                     run = self._client.get_run(run_id)
                 except MlflowException as e:
                     raise ModelNotFoundError(model_id=model_id) from e
-            elif run.info.run_id != run_id:
-                message = f"Provided MLflow run ID {run.info.run_id!r} does not match {run_id!r}."
-                raise ValueError(message)
 
             model_version = run.data.tags.get(OPENSTEF_VERSION_TAG)
             runtime_version = get_runtime_openstef_version()

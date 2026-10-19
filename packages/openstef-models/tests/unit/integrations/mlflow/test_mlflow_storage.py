@@ -250,6 +250,20 @@ def test_load_run_model__uses_provided_run_for_version_check(
     assert isinstance(loaded_model, SimpleStatefulModel)
 
 
+def test_load_run_model__rejects_mismatched_provided_run_when_compatibility_is_disabled(
+    storage: MLFlowStorage,
+    model_id: str,
+) -> None:
+    # Arrange
+    storage.enforce_version_compatibility = False
+    requested_run = storage.create_run(model_id=model_id)
+    provided_run = storage.create_run(model_id=model_id)
+
+    # Act / Assert
+    with pytest.raises(ValueError, match="does not match"):
+        storage.load_run_model(run_id=requested_run.info.run_id, model_id=model_id, run=provided_run)
+
+
 def test_search_latest_runs(storage: MLFlowStorage, model_id: str):
     """Test that search_latest_runs returns only the most recent run."""
     # Arrange - Create multiple runs
