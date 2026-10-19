@@ -46,7 +46,7 @@ from openstef_core.exceptions import (
     SkipFitting,
 )
 from openstef_core.types import Q, QuantileOrGlobal
-from openstef_core.versioning import OPENSTEF_VERSION_TAG, get_runtime_openstef_version, is_openstef_compatible
+from openstef_core.versioning import OPENSTEF_VERSION_TAG, is_openstef_compatible
 from openstef_models.integrations.mlflow.mlflow_storage import MLFlowStorage
 from openstef_models.mixins.callbacks import WorkflowContext
 from openstef_models.models.forecasting_model import BaseForecastingModel, ModelFitResult
@@ -274,14 +274,12 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
             return True
 
         model_version = run.data.tags.get(OPENSTEF_VERSION_TAG)
-        runtime_version = get_runtime_openstef_version()
-        compatible = is_openstef_compatible(model_version=model_version, runtime_version=runtime_version)
+        compatible = is_openstef_compatible(model_version=model_version)
         if not compatible:
             self._logger.warning(
-                "MLflow run %s has incompatible OpenSTEF version tag %r; runtime version is %s",
+                "MLflow run %s has incompatible OpenSTEF version tag %r",
                 run.info.run_id,
                 model_version,
-                runtime_version,
             )
         return compatible
 
