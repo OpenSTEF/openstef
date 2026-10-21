@@ -140,8 +140,18 @@ OpenSTEF supports MLflow as a model registry backend through :class:`~openstef_m
 The callback handles:
 
 - **Model versioning**: each training run produces a new model version in the MLflow registry.
+- **Version tagging**: trained models are automatically tagged with the OpenSTEF version that created them (using :data:`~openstef_core.versioning.OPENSTEF_VERSION_TAG`), enabling provenance tracking across upgrades.
+- **Version compatibility**: when loading a model, the callback checks that the model was created with a compatible OpenSTEF major version. Incompatible models raise :class:`~openstef_core.exceptions.OpenSTEFVersionCompatibilityError` with the run ID and version details. You can also check compatibility programmatically with :func:`~openstef_core.versioning.is_openstef_compatible`.
 - **Model reuse**: if a recently trained model exists and ``model_reuse_enable=True``, the workflow skips retraining.
 - **Model selection**: optionally compares new models against previous versions using a configurable metric.
+
+.. warning::
+
+   Models trained with a previous OpenSTEF major version will be rejected at load time
+   because they lack the version tag or carry an incompatible one. After upgrading to a
+   new major version, you must retrain all models so they are tagged with the current
+   version. Plan upgrades accordingly, especially in large-scale deployments with many
+   stored model artifacts.
 
 This mechanism works identically across all three deployment strategies. Whether you run in a notebook or a distributed queue, the same callback persists and retrieves models.
 
