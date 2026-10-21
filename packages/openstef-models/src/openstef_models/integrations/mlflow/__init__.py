@@ -15,7 +15,9 @@ Note:
     requiring model versioning, experiment tracking, and centralized storage.
 """
 
-from .mlflow_storage import MLFlowStorage
+from .mlflow_storage import (
+    MLFlowStorage,
+)
 from .mlflow_storage_callback import (
     MLFlowStorageCallback,
 )
