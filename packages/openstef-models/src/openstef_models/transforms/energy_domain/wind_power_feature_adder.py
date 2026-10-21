@@ -109,7 +109,8 @@ class WindPowerFeatureAdder(BaseConfig, TimeSeriesTransform):
         Returns:
             A series of wind power values in Watt.
         """
-        generated_power = self.rated_power / (1 + np.exp(-self.steepness * (wind_speed_hub_height - self.slope_center)))
+        wind_speed_values = wind_speed_hub_height.to_numpy(dtype=np.float64, na_value=np.nan)
+        generated_power = self.rated_power / (1 + np.exp(-self.steepness * (wind_speed_values - self.slope_center)))
         return pd.Series(generated_power, index=wind_speed_hub_height.index)
 
     @override

@@ -18,6 +18,7 @@ from pydantic import Field, PrivateAttr
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.transforms import TimeSeriesTransform
+from openstef_core.utils.pandas import as_float_series
 
 type AirRelatedFeatureName = Literal["saturation_vapour_pressure", "vapour_pressure", "dewpoint", "air_density"]
 
@@ -100,9 +101,11 @@ class AtmosphereDerivedFeaturesAdder(BaseConfig, TimeSeriesTransform):
         d: float = 257.14
 
         # Calculate saturation vapor pressure and convert from kPa to Pa
+        temperature = as_float_series(temperature)
         return pd.Series(a * np.exp((b - temperature / c) * (temperature / (d + temperature))) * 1000)
 
     def _calculate_vapour_pressure(self, temperature: pd.Series, relative_humidity: pd.Series) -> pd.Series:
+        relative_humidity = as_float_series(relative_humidity)
         saturation_vapour_pressure = self._calculate_saturation_vapour_pressure(temperature)
         relative_humidity_fraction = relative_humidity / 100
         return relative_humidity_fraction * saturation_vapour_pressure
@@ -125,6 +128,8 @@ class AtmosphereDerivedFeaturesAdder(BaseConfig, TimeSeriesTransform):
         b: float = 17.625
 
         # Convert percentage to fraction
+        temperature = as_float_series(temperature)
+        relative_humidity = as_float_series(relative_humidity)
         relative_humidity_fraction = relative_humidity / 100
 
         gamma = np.log(relative_humidity_fraction) + (b * temperature) / (c + temperature)
@@ -151,6 +156,9 @@ class AtmosphereDerivedFeaturesAdder(BaseConfig, TimeSeriesTransform):
         m_v: float = 0.018016  # kg/mol
         k: float = 273.15  # To convert Celsius to Kelvin
 
+        temperature = as_float_series(temperature)
+        relative_humidity = as_float_series(relative_humidity)
+        pressure = as_float_series(pressure)
         pressure_pa = pressure * 100
 
         vapour_pressure = self._calculate_vapour_pressure(temperature, relative_humidity)
