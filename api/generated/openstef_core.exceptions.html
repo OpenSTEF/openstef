@@ -506,6 +506,7 @@
 <li class="toctree-l3"><a class="reference internal" href="openstef_core.exceptions.ModelLoadingError.html">ModelLoadingError</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_core.exceptions.ModelNotFoundError.html">ModelNotFoundError</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_core.exceptions.NotFittedError.html">NotFittedError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="openstef_core.exceptions.OpenSTEFVersionCompatibilityError.html">OpenSTEFVersionCompatibilityError</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_core.exceptions.PredictError.html">PredictError</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_core.exceptions.TimeSeriesValidationError.html">TimeSeriesValidationError</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_core.exceptions.UnreachableStateError.html">UnreachableStateError</a></li>
@@ -571,6 +572,11 @@
 <li class="toctree-l3"><a class="reference internal" href="openstef_core.types.LeadTime.html">LeadTime</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_core.types.Q.html">Q</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_core.types.Quantile.html">Quantile</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="openstef_core.versioning.html">versioning</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="openstef_core.versioning.get_runtime_openstef_version.html">get_runtime_openstef_version</a></li>
+<li class="toctree-l3"><a class="reference internal" href="openstef_core.versioning.is_openstef_compatible.html">is_openstef_compatible</a></li>
 </ul>
 </details></li>
 </ul>
@@ -1294,13 +1300,16 @@ package to provide clear error reporting and handling for common failure cases.<
 <tr class="row-odd"><td><p><a class="reference internal" href="openstef_core.exceptions.NotFittedError.html#openstef_core.exceptions.NotFittedError" title="openstef_core.exceptions.NotFittedError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NotFittedError</span></code></a>(component_class)</p></td>
 <td><p>Exception raised when a model or a transform is used before being fitted.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="openstef_core.exceptions.PredictError.html#openstef_core.exceptions.PredictError" title="openstef_core.exceptions.PredictError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PredictError</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="openstef_core.exceptions.OpenSTEFVersionCompatibilityError.html#openstef_core.exceptions.OpenSTEFVersionCompatibilityError" title="openstef_core.exceptions.OpenSTEFVersionCompatibilityError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OpenSTEFVersionCompatibilityError</span></code></a>(run_id, ...)</p></td>
+<td><p>Exception raised when an MLflow model was created with an incompatible OpenSTEF version.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="openstef_core.exceptions.PredictError.html#openstef_core.exceptions.PredictError" title="openstef_core.exceptions.PredictError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PredictError</span></code></a></p></td>
 <td><p>Exception raised for errors during forecasting operations.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="openstef_core.exceptions.TimeSeriesValidationError.html#openstef_core.exceptions.TimeSeriesValidationError" title="openstef_core.exceptions.TimeSeriesValidationError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TimeSeriesValidationError</span></code></a>(message)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="openstef_core.exceptions.TimeSeriesValidationError.html#openstef_core.exceptions.TimeSeriesValidationError" title="openstef_core.exceptions.TimeSeriesValidationError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TimeSeriesValidationError</span></code></a>(message)</p></td>
 <td><p>Exception raised for validation errors in time series datasets.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="openstef_core.exceptions.UnreachableStateError.html#openstef_core.exceptions.UnreachableStateError" title="openstef_core.exceptions.UnreachableStateError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UnreachableStateError</span></code></a>(message)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="openstef_core.exceptions.UnreachableStateError.html#openstef_core.exceptions.UnreachableStateError" title="openstef_core.exceptions.UnreachableStateError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UnreachableStateError</span></code></a>(message)</p></td>
 <td><p>Exception raised when a code path that should be unreachable is executed.</p></td>
 </tr>
 </tbody>

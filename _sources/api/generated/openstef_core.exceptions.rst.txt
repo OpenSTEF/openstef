@@ -45,6 +45,7 @@ Classes
    ModelLoadingError
    ModelNotFoundError
    NotFittedError
+   OpenSTEFVersionCompatibilityError
    PredictError
    TimeSeriesValidationError
    UnreachableStateError

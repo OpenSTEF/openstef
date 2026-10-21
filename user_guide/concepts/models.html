@@ -925,6 +925,35 @@ management: callbacks for MLflow storage, model reuse logic, model selection,
 performance monitoring, experiment tagging, and run naming. This is where operational
 concerns live - the Model stays focused on prediction.</p>
 </section>
+<section id="openstef-version-compatibility">
+<h3>OpenSTEF Version Compatibility<a class="headerlink" href="#openstef-version-compatibility" title="Link to this heading">#</a></h3>
+<p>OpenSTEF versions use the <code class="docutils literal notranslate"><span class="pre">m.x.y</span></code> format:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">y</span></code> bumps are backward-compatible; existing models remain compatible.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">x</span></code> bumps may affect model compatibility, while the code remains usable.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">m</span></code> bumps signal major software changes that require substantial code changes.</p></li>
+</ul>
+<p>Each OpenSTEF consumer decides how to handle an <code class="docutils literal notranslate"><span class="pre">x</span></code> bump. OpenSTEF’s built-in MLflow
+compatibility check treats changes to <code class="docutils literal notranslate"><span class="pre">m</span></code> or <code class="docutils literal notranslate"><span class="pre">x</span></code> as incompatible; <code class="docutils literal notranslate"><span class="pre">y</span></code> may differ.</p>
+<ul class="simple">
+<li><p>Training runs record the installed <code class="docutils literal notranslate"><span class="pre">openstef-core</span></code> version in the <code class="docutils literal notranslate"><span class="pre">openstef_version</span></code> tag.</p></li>
+<li><p>Version enforcement is opt-in for the initial release. Enable it with
+<code class="docutils literal notranslate"><span class="pre">MLFlowStorage(enforce_version_compatibility=True)</span></code> to reject models with missing, invalid,
+or incompatible tags.
+<a class="reference internal" href="../../api/generated/openstef_core.exceptions.OpenSTEFVersionCompatibilityError.html#openstef_core.exceptions.OpenSTEFVersionCompatibilityError" title="openstef_core.exceptions.OpenSTEFVersionCompatibilityError"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpenSTEFVersionCompatibilityError</span></code></a> is raised and can be
+caught specifically; it is also a <a class="reference internal" href="../../api/generated/openstef_core.exceptions.ModelLoadingError.html#openstef_core.exceptions.ModelLoadingError" title="openstef_core.exceptions.ModelLoadingError"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelLoadingError</span></code></a>.</p></li>
+<li><p>Runs are tagged even when enforcement is disabled. Without enforcement, version compatibility
+does not block loading, reuse, or model selection.</p></li>
+<li><p>The load-time check happens after the prediction workflow is invoked. Applications that fetch
+expensive input data should check the stored version before fetching data and starting prediction.</p></li>
+<li><p>Incompatible runs do not suppress retraining and are skipped during model selection when
+compatibility enforcement is enabled.</p></li>
+<li><p>Runs created before version tagging have no version tag. Retrain those models before using
+them with compatibility enforcement enabled.</p></li>
+</ul>
+<p>The opt-in default is temporary. A follow-up release is planned to enable enforcement by default;
+consumers can then opt out by setting <code class="docutils literal notranslate"><span class="pre">MLFlowStorage(enforce_version_compatibility=False)</span></code>.</p>
+</section>
 <section id="presets">
 <h3>Presets<a class="headerlink" href="#presets" title="Link to this heading">#</a></h3>
 <p>For production use, <a class="reference internal" href="../../api/generated/openstef_models.presets.create_forecasting_workflow.html#openstef_models.presets.create_forecasting_workflow" title="openstef_models.presets.create_forecasting_workflow"><code class="xref py py-func docutils literal notranslate"><span class="pre">create_forecasting_workflow()</span></code></a> is an opinionated factory that
@@ -1133,6 +1162,7 @@ pipeline.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#transforms">Transforms</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#model">Model</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#workflow">Workflow</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#openstef-version-compatibility">OpenSTEF Version Compatibility</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#presets">Presets</a></li>
 </ul>
 </li>

@@ -74,6 +74,36 @@ management: callbacks for MLflow storage, model reuse logic, model selection,
 performance monitoring, experiment tagging, and run naming. This is where operational
 concerns live - the Model stays focused on prediction.
 
+OpenSTEF Version Compatibility
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+OpenSTEF versions use the ``m.x.y`` format:
+
+* ``y`` bumps are backward-compatible; existing models remain compatible.
+* ``x`` bumps may affect model compatibility, while the code remains usable.
+* ``m`` bumps signal major software changes that require substantial code changes.
+
+Each OpenSTEF consumer decides how to handle an ``x`` bump. OpenSTEF's built-in MLflow
+compatibility check treats changes to ``m`` or ``x`` as incompatible; ``y`` may differ.
+
+* Training runs record the installed ``openstef-core`` version in the ``openstef_version`` tag.
+* Version enforcement is opt-in for the initial release. Enable it with
+  ``MLFlowStorage(enforce_version_compatibility=True)`` to reject models with missing, invalid,
+  or incompatible tags.
+  :class:`~openstef_core.exceptions.OpenSTEFVersionCompatibilityError` is raised and can be
+  caught specifically; it is also a :class:`~openstef_core.exceptions.ModelLoadingError`.
+* Runs are tagged even when enforcement is disabled. Without enforcement, version compatibility
+  does not block loading, reuse, or model selection.
+* The load-time check happens after the prediction workflow is invoked. Applications that fetch
+  expensive input data should check the stored version before fetching data and starting prediction.
+* Incompatible runs do not suppress retraining and are skipped during model selection when
+  compatibility enforcement is enabled.
+* Runs created before version tagging have no version tag. Retrain those models before using
+  them with compatibility enforcement enabled.
+
+The opt-in default is temporary. A follow-up release is planned to enable enforcement by default;
+consumers can then opt out by setting ``MLFlowStorage(enforce_version_compatibility=False)``.
+
 Presets
 ^^^^^^^
 

@@ -818,9 +818,14 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConfigDict</span><span class="p">,</span> <span class="n">Field</span><span class="p">,</span> <span class="n">PrivateAttr</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.base_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseConfig</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelNotFoundError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelNotFoundError</span><span class="p">,</span> <span class="n">OpenSTEFVersionCompatibilityError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.mixins</span><span class="w"> </span><span class="kn">import</span> <span class="n">HyperParams</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.utils.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">safe_path_join</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.versioning</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">OPENSTEF_VERSION_TAG</span><span class="p">,</span>
+    <span class="n">get_runtime_openstef_version</span><span class="p">,</span>
+    <span class="n">is_openstef_compatible</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.integrations.joblib</span><span class="w"> </span><span class="kn">import</span> <span class="n">JoblibModelSerializer</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.mixins</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelIdentifier</span><span class="p">,</span> <span class="n">ModelSerializer</span>
 
@@ -903,6 +908,10 @@ window.runMermaid = runMermaid;</script>
         <span class="s2">&quot;self-contained — useful with a database tracking backend such as ``sqlite:///...``.&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">experiment_name_prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Prefix for MLflow experiment names.&quot;</span><span class="p">)</span>
+    <span class="n">enforce_version_compatibility</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Opt in to rejecting MLflow models trained with an incompatible OpenSTEF major or minor version.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
     <span class="c1"># Artifact subdirectories</span>
     <span class="n">data_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Subdirectory for storing training data artifacts.&quot;</span><span class="p">)</span>
     <span class="n">model_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s2">&quot;model&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Subdirectory for storing model artifacts.&quot;</span><span class="p">)</span>
@@ -978,9 +987,10 @@ window.runMermaid = runMermaid;</script>
             <span class="n">experiment_id</span> <span class="o">=</span> <span class="n">experiment</span><span class="o">.</span><span class="n">experiment_id</span>
 
         <span class="c1"># Create run</span>
+        <span class="n">run_tags</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="p">(</span><span class="n">tags</span> <span class="ow">or</span> <span class="p">{}),</span> <span class="n">OPENSTEF_VERSION_TAG</span><span class="p">:</span> <span class="n">get_runtime_openstef_version</span><span class="p">()}</span>
         <span class="n">run</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">create_run</span><span class="p">(</span>
             <span class="n">experiment_id</span><span class="o">=</span><span class="n">experiment_id</span><span class="p">,</span>
-            <span class="n">tags</span><span class="o">=</span><span class="n">tags</span><span class="p">,</span>
+            <span class="n">tags</span><span class="o">=</span><span class="n">run_tags</span><span class="p">,</span>
             <span class="n">run_name</span><span class="o">=</span><span class="n">run_name</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">run_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span>
@@ -1154,7 +1164,7 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="MLFlowStorage.load_run_model">
 <a class="viewcode-back" href="../../../../api/generated/openstef_models.integrations.mlflow.mlflow_storage.MLFlowStorage.html#openstef_models.integrations.mlflow.MLFlowStorage.load_run_model">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">load_run_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">model_id</span><span class="p">:</span> <span class="n">ModelIdentifier</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">object</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_run_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">model_id</span><span class="p">:</span> <span class="n">ModelIdentifier</span><span class="p">,</span> <span class="n">run</span><span class="p">:</span> <span class="n">Run</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">object</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Load a trained model from MLflow artifacts.</span>
 
 <span class="sd">        Downloads model artifacts from MLflow and deserializes them into the</span>
@@ -1163,13 +1173,37 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        Args:</span>
 <span class="sd">            run_id: MLflow run ID containing the model artifacts.</span>
 <span class="sd">            model_id: Model identifier for locating artifact paths.</span>
+<span class="sd">            run: Already-fetched MLflow run, if available.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Model instance with restored state from the run.</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            ModelNotFoundError: If the model artifacts cannot be found in MLflow.</span>
+<span class="sd">            ValueError: If the provided run does not match ``run_id``.</span>
+<span class="sd">            OpenSTEFVersionCompatibilityError: If version compatibility enforcement is enabled and the run&#39;s</span>
+<span class="sd">                OpenSTEF version is missing or incompatible.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">run</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span> <span class="o">!=</span> <span class="n">run_id</span><span class="p">:</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Provided MLflow run ID </span><span class="si">{</span><span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="si">!r}</span><span class="s2"> does not match </span><span class="si">{</span><span class="n">run_id</span><span class="si">!r}</span><span class="s2">.&quot;</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enforce_version_compatibility</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">run</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">run</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">get_run</span><span class="p">(</span><span class="n">run_id</span><span class="p">)</span>
+                <span class="k">except</span> <span class="n">MlflowException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">ModelNotFoundError</span><span class="p">(</span><span class="n">model_id</span><span class="o">=</span><span class="n">model_id</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+
+            <span class="n">model_version</span> <span class="o">=</span> <span class="n">run</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">tags</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">OPENSTEF_VERSION_TAG</span><span class="p">)</span>
+            <span class="n">runtime_version</span> <span class="o">=</span> <span class="n">get_runtime_openstef_version</span><span class="p">()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">is_openstef_compatible</span><span class="p">(</span><span class="n">model_version</span><span class="o">=</span><span class="n">model_version</span><span class="p">,</span> <span class="n">runtime_version</span><span class="o">=</span><span class="n">runtime_version</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">OpenSTEFVersionCompatibilityError</span><span class="p">(</span>
+                    <span class="n">run_id</span><span class="o">=</span><span class="n">run_id</span><span class="p">,</span>
+                    <span class="n">model_version</span><span class="o">=</span><span class="n">model_version</span><span class="p">,</span>
+                    <span class="n">runtime_version</span><span class="o">=</span><span class="n">runtime_version</span><span class="p">,</span>
+                <span class="p">)</span>
+
         <span class="k">try</span><span class="p">:</span>
             <span class="k">with</span> <span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmpdir</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_client</span><span class="o">.</span><span class="n">download_artifacts</span><span class="p">(</span><span class="n">run_id</span><span class="o">=</span><span class="n">run_id</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model_path</span><span class="p">,</span> <span class="n">dst_path</span><span class="o">=</span><span class="n">tmpdir</span><span class="p">)</span>

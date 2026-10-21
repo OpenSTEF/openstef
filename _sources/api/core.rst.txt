@@ -24,3 +24,4 @@ Core data structures, datasets, and utilities for OpenSTEF.
    testing
    transforms
    types
+   versioning

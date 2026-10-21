@@ -506,6 +506,7 @@
 <li class="toctree-l3"><a class="reference internal" href="openstef_core.exceptions.ModelLoadingError.html">ModelLoadingError</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_core.exceptions.ModelNotFoundError.html">ModelNotFoundError</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_core.exceptions.NotFittedError.html">NotFittedError</a></li>
+<li class="toctree-l3"><a class="reference internal" href="openstef_core.exceptions.OpenSTEFVersionCompatibilityError.html">OpenSTEFVersionCompatibilityError</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_core.exceptions.PredictError.html">PredictError</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_core.exceptions.TimeSeriesValidationError.html">TimeSeriesValidationError</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_core.exceptions.UnreachableStateError.html">UnreachableStateError</a></li>
@@ -571,6 +572,11 @@
 <li class="toctree-l3"><a class="reference internal" href="openstef_core.types.LeadTime.html">LeadTime</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_core.types.Q.html">Q</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_core.types.Quantile.html">Quantile</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="openstef_core.versioning.html">versioning</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="openstef_core.versioning.get_runtime_openstef_version.html">get_runtime_openstef_version</a></li>
+<li class="toctree-l3"><a class="reference internal" href="openstef_core.versioning.is_openstef_compatible.html">is_openstef_compatible</a></li>
 </ul>
 </details></li>
 </ul>
@@ -1333,6 +1339,11 @@ configuration.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">enforce_version_compatibility</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><span class="pre">bool</span></a></span></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
 <span class="sig-name descname"><span class="pre">data_path</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span></dt>
 <dd></dd></dl>
 
@@ -1525,7 +1536,7 @@ finalize_run is called.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py">
-<span class="sig-name descname"><span class="pre">load_run_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ModelIdentifier</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.15)"><span class="pre">object</span></a></span></span><a class="reference internal" href="../../_modules/openstef_models/integrations/mlflow/mlflow_storage.html#MLFlowStorage.load_run_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<span class="sig-name descname"><span class="pre">load_run_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ModelIdentifier</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Run</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.15)"><span class="pre">object</span></a></span></span><a class="reference internal" href="../../_modules/openstef_models/integrations/mlflow/mlflow_storage.html#MLFlowStorage.load_run_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>Load a trained model from MLflow artifacts.</p>
 <p>Downloads model artifacts from MLflow and deserializes them into the
 provided model instance, restoring its trained state.</p>
@@ -1534,15 +1545,22 @@ provided model instance, restoring its trained state.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>run_id</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – MLflow run ID containing the model artifacts.</p></li>
 <li><p><strong>model_id</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Model identifier for locating artifact paths.</p></li>
+<li><p><strong>run</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Run</span></code> | <a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – Already-fetched MLflow run, if available.</p></li>
 <li><p><strong>run_id</strong></p></li>
 <li><p><strong>model_id</strong></p></li>
+<li><p><strong>run</strong></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Model instance with restored state from the run.</p>
 </dd>
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="openstef_core.exceptions.ModelNotFoundError.html#openstef_core.exceptions.ModelNotFoundError" title="openstef_core.exceptions.ModelNotFoundError"><strong>ModelNotFoundError</strong></a> – If the model artifacts cannot be found in MLflow.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><a class="reference internal" href="openstef_core.exceptions.ModelNotFoundError.html#openstef_core.exceptions.ModelNotFoundError" title="openstef_core.exceptions.ModelNotFoundError"><strong>ModelNotFoundError</strong></a> – If the model artifacts cannot be found in MLflow.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.15)"><strong>ValueError</strong></a> – If the provided run does not match <code class="docutils literal notranslate"><span class="pre">run_id</span></code>.</p></li>
+<li><p><a class="reference internal" href="openstef_core.exceptions.OpenSTEFVersionCompatibilityError.html#openstef_core.exceptions.OpenSTEFVersionCompatibilityError" title="openstef_core.exceptions.OpenSTEFVersionCompatibilityError"><strong>OpenSTEFVersionCompatibilityError</strong></a> – If version compatibility enforcement is enabled and the run’s
+    OpenSTEF version is missing or incompatible.</p></li>
+</ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#object" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></span></p>

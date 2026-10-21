@@ -835,9 +835,11 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">MissingColumnsError</span><span class="p">,</span>
     <span class="n">ModelNotFoundError</span><span class="p">,</span>
+    <span class="n">OpenSTEFVersionCompatibilityError</span><span class="p">,</span>
     <span class="n">SkipFitting</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Q</span><span class="p">,</span> <span class="n">QuantileOrGlobal</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.versioning</span><span class="w"> </span><span class="kn">import</span> <span class="n">OPENSTEF_VERSION_TAG</span><span class="p">,</span> <span class="n">is_openstef_compatible</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.integrations.mlflow.mlflow_storage</span><span class="w"> </span><span class="kn">import</span> <span class="n">MLFlowStorage</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.mixins.callbacks</span><span class="w"> </span><span class="kn">import</span> <span class="n">WorkflowContext</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.models.forecasting_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseForecastingModel</span><span class="p">,</span> <span class="n">ModelFitResult</span>
@@ -899,6 +901,9 @@ window.runMermaid = runMermaid;</script>
         <span class="n">run</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_run</span><span class="p">(</span><span class="n">model_id</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">workflow</span><span class="o">.</span><span class="n">model_id</span><span class="p">,</span> <span class="n">run_name</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">workflow</span><span class="o">.</span><span class="n">run_name</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">run</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_openstef_compatible_run</span><span class="p">(</span><span class="n">run</span><span class="p">):</span>
+                <span class="k">return</span>
+
             <span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">tz</span><span class="o">=</span><span class="n">UTC</span><span class="p">)</span>
             <span class="n">end_time_millis</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">end_time</span><span class="p">)</span>
             <span class="n">run_end_datetime</span> <span class="o">=</span> <span class="p">(</span>
@@ -991,7 +996,7 @@ window.runMermaid = runMermaid;</script>
             <span class="k">raise</span> <span class="n">ModelNotFoundError</span><span class="p">(</span><span class="n">model_id</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">workflow</span><span class="o">.</span><span class="n">model_id</span><span class="p">)</span>
 
         <span class="n">run_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span>
-        <span class="n">old_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">storage</span><span class="o">.</span><span class="n">load_run_model</span><span class="p">(</span><span class="n">run_id</span><span class="o">=</span><span class="n">run_id</span><span class="p">,</span> <span class="n">model_id</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">workflow</span><span class="o">.</span><span class="n">model_id</span><span class="p">)</span>
+        <span class="n">old_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">storage</span><span class="o">.</span><span class="n">load_run_model</span><span class="p">(</span><span class="n">run_id</span><span class="o">=</span><span class="n">run_id</span><span class="p">,</span> <span class="n">model_id</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">workflow</span><span class="o">.</span><span class="n">model_id</span><span class="p">,</span> <span class="n">run</span><span class="o">=</span><span class="n">run</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">old_model</span><span class="p">,</span> <span class="n">BaseForecastingModel</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
@@ -1025,7 +1030,7 @@ window.runMermaid = runMermaid;</script>
         <span class="n">new_model</span> <span class="o">=</span> <span class="n">workflow</span><span class="o">.</span><span class="n">model</span>
         <span class="n">new_metrics</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">metrics_full</span>
 
-        <span class="n">old_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_try_load_model</span><span class="p">(</span><span class="n">run_id</span><span class="o">=</span><span class="n">run_id</span><span class="p">,</span> <span class="n">model_id</span><span class="o">=</span><span class="n">workflow</span><span class="o">.</span><span class="n">model_id</span><span class="p">)</span>
+        <span class="n">old_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_try_load_model</span><span class="p">(</span><span class="n">run</span><span class="o">=</span><span class="n">run</span><span class="p">,</span> <span class="n">model_id</span><span class="o">=</span><span class="n">workflow</span><span class="o">.</span><span class="n">model_id</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">old_model</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span>
@@ -1071,14 +1076,37 @@ window.runMermaid = runMermaid;</script>
         <span class="n">runs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">storage</span><span class="o">.</span><span class="n">search_latest_runs</span><span class="p">(</span><span class="n">model_id</span><span class="o">=</span><span class="n">model_id</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">runs</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_try_load_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">model_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaseForecastingModel</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_is_openstef_compatible_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run</span><span class="p">:</span> <span class="n">Run</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">storage</span><span class="o">.</span><span class="n">enforce_version_compatibility</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="n">model_version</span> <span class="o">=</span> <span class="n">run</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">tags</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">OPENSTEF_VERSION_TAG</span><span class="p">)</span>
+        <span class="n">compatible</span> <span class="o">=</span> <span class="n">is_openstef_compatible</span><span class="p">(</span><span class="n">model_version</span><span class="o">=</span><span class="n">model_version</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">compatible</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;MLflow run </span><span class="si">%s</span><span class="s2"> has incompatible OpenSTEF version tag </span><span class="si">%r</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span><span class="p">,</span>
+                <span class="n">model_version</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">compatible</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_try_load_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run</span><span class="p">:</span> <span class="n">Run</span><span class="p">,</span> <span class="n">model_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaseForecastingModel</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Try to load a model from MLflow, returning None on failure.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The loaded model, or None if loading failed.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">run_id</span> <span class="o">=</span> <span class="n">run</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">run_id</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">old_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">storage</span><span class="o">.</span><span class="n">load_run_model</span><span class="p">(</span><span class="n">run_id</span><span class="o">=</span><span class="n">run_id</span><span class="p">,</span> <span class="n">model_id</span><span class="o">=</span><span class="n">model_id</span><span class="p">)</span>
+            <span class="n">old_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">storage</span><span class="o">.</span><span class="n">load_run_model</span><span class="p">(</span><span class="n">run_id</span><span class="o">=</span><span class="n">run_id</span><span class="p">,</span> <span class="n">model_id</span><span class="o">=</span><span class="n">model_id</span><span class="p">,</span> <span class="n">run</span><span class="o">=</span><span class="n">run</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">OpenSTEFVersionCompatibilityError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;Could not load model from previous run </span><span class="si">%s</span><span class="s2"> for model </span><span class="si">%s</span><span class="s2"> due to incompatible OpenSTEF version: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">run_id</span><span class="p">,</span>
+                <span class="n">model_id</span><span class="p">,</span>
+                <span class="n">e</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
         <span class="k">except</span> <span class="n">ModelNotFoundError</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                 <span class="s2">&quot;Could not load model from previous run </span><span class="si">%s</span><span class="s2"> for model </span><span class="si">%s</span><span class="s2">, skipping model selection&quot;</span><span class="p">,</span>
@@ -1123,7 +1151,7 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        Returns:</span>
 <span class="sd">            True if tags are compatible, False otherwise.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">old_tags</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">run_tags</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="s2">&quot;mlflow.runName&quot;</span><span class="p">}</span>
+        <span class="n">old_tags</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">run_tags</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;mlflow.runName&quot;</span><span class="p">,</span> <span class="n">OPENSTEF_VERSION_TAG</span><span class="p">}}</span>
 
         <span class="k">if</span> <span class="n">old_tags</span> <span class="o">==</span> <span class="n">new_tags</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">True</span>
