@@ -811,6 +811,7 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.base_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseConfig</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">TimeSeriesDataset</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">TimeSeriesTransform</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.utils.pandas</span><span class="w"> </span><span class="kn">import</span> <span class="n">as_float_series</span>
 
 <span class="nb">type</span> <span class="n">AirRelatedFeatureName</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;saturation_vapour_pressure&quot;</span><span class="p">,</span> <span class="s2">&quot;vapour_pressure&quot;</span><span class="p">,</span> <span class="s2">&quot;dewpoint&quot;</span><span class="p">,</span> <span class="s2">&quot;air_density&quot;</span><span class="p">]</span>
 
@@ -895,9 +896,11 @@ window.runMermaid = runMermaid;</script>
         <span class="n">d</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">257.14</span>
 
         <span class="c1"># Calculate saturation vapor pressure and convert from kPa to Pa</span>
+        <span class="n">temperature</span> <span class="o">=</span> <span class="n">as_float_series</span><span class="p">(</span><span class="n">temperature</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">((</span><span class="n">b</span> <span class="o">-</span> <span class="n">temperature</span> <span class="o">/</span> <span class="n">c</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">temperature</span> <span class="o">/</span> <span class="p">(</span><span class="n">d</span> <span class="o">+</span> <span class="n">temperature</span><span class="p">)))</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_calculate_vapour_pressure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">temperature</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">relative_humidity</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
+        <span class="n">relative_humidity</span> <span class="o">=</span> <span class="n">as_float_series</span><span class="p">(</span><span class="n">relative_humidity</span><span class="p">)</span>
         <span class="n">saturation_vapour_pressure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calculate_saturation_vapour_pressure</span><span class="p">(</span><span class="n">temperature</span><span class="p">)</span>
         <span class="n">relative_humidity_fraction</span> <span class="o">=</span> <span class="n">relative_humidity</span> <span class="o">/</span> <span class="mi">100</span>
         <span class="k">return</span> <span class="n">relative_humidity_fraction</span> <span class="o">*</span> <span class="n">saturation_vapour_pressure</span>
@@ -920,6 +923,8 @@ window.runMermaid = runMermaid;</script>
         <span class="n">b</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">17.625</span>
 
         <span class="c1"># Convert percentage to fraction</span>
+        <span class="n">temperature</span> <span class="o">=</span> <span class="n">as_float_series</span><span class="p">(</span><span class="n">temperature</span><span class="p">)</span>
+        <span class="n">relative_humidity</span> <span class="o">=</span> <span class="n">as_float_series</span><span class="p">(</span><span class="n">relative_humidity</span><span class="p">)</span>
         <span class="n">relative_humidity_fraction</span> <span class="o">=</span> <span class="n">relative_humidity</span> <span class="o">/</span> <span class="mi">100</span>
 
         <span class="n">gamma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">relative_humidity_fraction</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">b</span> <span class="o">*</span> <span class="n">temperature</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">c</span> <span class="o">+</span> <span class="n">temperature</span><span class="p">)</span>
@@ -946,6 +951,9 @@ window.runMermaid = runMermaid;</script>
         <span class="n">m_v</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.018016</span>  <span class="c1"># kg/mol</span>
         <span class="n">k</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">273.15</span>  <span class="c1"># To convert Celsius to Kelvin</span>
 
+        <span class="n">temperature</span> <span class="o">=</span> <span class="n">as_float_series</span><span class="p">(</span><span class="n">temperature</span><span class="p">)</span>
+        <span class="n">relative_humidity</span> <span class="o">=</span> <span class="n">as_float_series</span><span class="p">(</span><span class="n">relative_humidity</span><span class="p">)</span>
+        <span class="n">pressure</span> <span class="o">=</span> <span class="n">as_float_series</span><span class="p">(</span><span class="n">pressure</span><span class="p">)</span>
         <span class="n">pressure_pa</span> <span class="o">=</span> <span class="n">pressure</span> <span class="o">*</span> <span class="mi">100</span>
 
         <span class="n">vapour_pressure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calculate_vapour_pressure</span><span class="p">(</span><span class="n">temperature</span><span class="p">,</span> <span class="n">relative_humidity</span><span class="p">)</span>

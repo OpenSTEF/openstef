@@ -29,6 +29,7 @@ Functions
    :toctree: .
    :template: custom_function.rst
 
+   as_float_series
    combine_timeseries_indexes
    nan_aware_weighted_mean
    normalize_to_unit_sum
