@@ -81,6 +81,14 @@ class AtmosphereDerivedFeaturesAdder(BaseConfig, TimeSeriesTransform):
     _logger: logging.Logger = PrivateAttr(default=logging.getLogger(__name__))
 
     @staticmethod
+    def _as_float_series(values: pd.Series) -> pd.Series:
+        return pd.Series(
+            values.to_numpy(dtype=np.float64, na_value=np.nan),
+            index=values.index,
+            name=values.name,
+        )
+
+    @staticmethod
     def _calculate_saturation_vapour_pressure(temperature: pd.Series) -> pd.Series:
         """Calculate saturation vapour pressure of water using the Buck equation.
 
@@ -100,9 +108,11 @@ class AtmosphereDerivedFeaturesAdder(BaseConfig, TimeSeriesTransform):
         d: float = 257.14
 
         # Calculate saturation vapor pressure and convert from kPa to Pa
+        temperature = AtmosphereDerivedFeaturesAdder._as_float_series(temperature)
         return pd.Series(a * np.exp((b - temperature / c) * (temperature / (d + temperature))) * 1000)
 
     def _calculate_vapour_pressure(self, temperature: pd.Series, relative_humidity: pd.Series) -> pd.Series:
+        relative_humidity = self._as_float_series(relative_humidity)
         saturation_vapour_pressure = self._calculate_saturation_vapour_pressure(temperature)
         relative_humidity_fraction = relative_humidity / 100
         return relative_humidity_fraction * saturation_vapour_pressure
@@ -125,6 +135,8 @@ class AtmosphereDerivedFeaturesAdder(BaseConfig, TimeSeriesTransform):
         b: float = 17.625
 
         # Convert percentage to fraction
+        temperature = AtmosphereDerivedFeaturesAdder._as_float_series(temperature)
+        relative_humidity = AtmosphereDerivedFeaturesAdder._as_float_series(relative_humidity)
         relative_humidity_fraction = relative_humidity / 100
 
         gamma = np.log(relative_humidity_fraction) + (b * temperature) / (c + temperature)
@@ -151,6 +163,9 @@ class AtmosphereDerivedFeaturesAdder(BaseConfig, TimeSeriesTransform):
         m_v: float = 0.018016  # kg/mol
         k: float = 273.15  # To convert Celsius to Kelvin
 
+        temperature = self._as_float_series(temperature)
+        relative_humidity = self._as_float_series(relative_humidity)
+        pressure = self._as_float_series(pressure)
         pressure_pa = pressure * 100
 
         vapour_pressure = self._calculate_vapour_pressure(temperature, relative_humidity)
