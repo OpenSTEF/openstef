@@ -1487,6 +1487,45 @@ window.runMermaid = runMermaid;</script>
             <span class="n">ensemble_dataset</span><span class="o">=</span><span class="n">ensemble_predictions</span><span class="p">,</span>
             <span class="n">original_data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
         <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="EnsembleForecastingModel.predict_with_contributions">
+<a class="viewcode-back" href="../../../api/generated/openstef_meta.models.ensemble_forecasting_model.EnsembleForecastingModel.html#openstef_meta.models.ensemble_forecasting_model.EnsembleForecastingModel.predict_with_contributions">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">predict_with_contributions</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">data</span><span class="p">:</span> <span class="n">TimeSeriesDataset</span><span class="p">,</span>
+        <span class="n">forecast_start</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ForecastDataset</span><span class="p">,</span> <span class="n">TimeSeriesDataset</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate forecasts and per-model contributions in a single pass.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data: Input time series dataset.</span>
+<span class="sd">            forecast_start: Optional start time for forecasts.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A tuple of ``(forecast, contributions)`` where *forecast* is the</span>
+<span class="sd">            ensemble prediction (a :class:`ForecastDataset`) and *contributions*</span>
+<span class="sd">            is the :class:`TimeSeriesDataset` returned by the configured combiner.</span>
+<span class="sd">            Its meaning depends on the combiner; for learned weights, columns</span>
+<span class="sd">            contain per-model selection weights.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            NotFittedError: If the model has not been fitted yet.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_fitted</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">NotFittedError</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+
+        <span class="n">ensemble_predictions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_predict_forecasters</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">forecast_start</span><span class="o">=</span><span class="n">forecast_start</span><span class="p">)</span>
+
+        <span class="n">forecast</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_predict_transform_combiner</span><span class="p">(</span>
+            <span class="n">ensemble_dataset</span><span class="o">=</span><span class="n">ensemble_predictions</span><span class="p">,</span>
+            <span class="n">original_data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">contributions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_predict_contributions_combiner</span><span class="p">(</span>
+            <span class="n">ensemble_dataset</span><span class="o">=</span><span class="n">ensemble_predictions</span><span class="p">,</span>
+            <span class="n">original_data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">forecast</span><span class="p">,</span> <span class="n">contributions</span></div>
 </div>
 
 

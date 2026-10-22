@@ -659,16 +659,20 @@
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_models.explainability.plotters.html">plotters</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.explainability.plotters.common.html">common</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.explainability.plotters.contributions_plotter.html">contributions_plotter</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.explainability.plotters.feature_importance_plotter.html">feature_importance_plotter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.explainability.plotters.model_contributions_plotter.html">model_contributions_plotter</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.explainability.plotters.ContributionsPlotter.html">ContributionsPlotter</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.explainability.plotters.FeatureImportancePlotter.html">FeatureImportancePlotter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.explainability.plotters.ModelContributionsPlotter.html">ModelContributionsPlotter</a></li>
 </ul>
 </details></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_models.explainability.ContributionsMixin.html">ContributionsMixin</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_models.explainability.ContributionsPlotter.html">ContributionsPlotter</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_models.explainability.ExplainableForecaster.html">ExplainableForecaster</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_models.explainability.FeatureImportancePlotter.html">FeatureImportancePlotter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="openstef_models.explainability.ModelContributionsPlotter.html">ModelContributionsPlotter</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="openstef_models.mixins.html">mixins</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -1522,6 +1526,35 @@ the target column, and trims history via the shared base <code class="docutils l
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeSeriesDataset</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">predict_with_contributions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><span class="pre">TimeSeriesDataset</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">forecast_start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.15)"><span class="pre">datetime</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="openstef_core.datasets.ForecastDataset.html#openstef_core.datasets.ForecastDataset" title="openstef_core.datasets.validated_datasets.ForecastDataset"><span class="pre">ForecastDataset</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><span class="pre">TimeSeriesDataset</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/openstef_meta/models/ensemble_forecasting_model.html#EnsembleForecastingModel.predict_with_contributions"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Generate forecasts and per-model contributions in a single pass.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeSeriesDataset</span></code></a></span>) – Input time series dataset.</p></li>
+<li><p><strong>forecast_start</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code></a> | <a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – Optional start time for forecasts.</p></li>
+<li><p><strong>data</strong></p></li>
+<li><p><strong>forecast_start</strong></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple of <code class="docutils literal notranslate"><span class="pre">(forecast,</span> <span class="pre">contributions)</span></code> where <em>forecast</em> is the
+ensemble prediction (a <code class="xref py py-class docutils literal notranslate"><span class="pre">ForecastDataset</span></code>) and <em>contributions</em>
+is the <code class="xref py py-class docutils literal notranslate"><span class="pre">TimeSeriesDataset</span></code> returned by the configured combiner.
+Its meaning depends on the combiner; for learned weights, columns
+contain per-model selection weights.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="openstef_core.exceptions.NotFittedError.html#openstef_core.exceptions.NotFittedError" title="openstef_core.exceptions.NotFittedError"><strong>NotFittedError</strong></a> – If the model has not been fitted yet.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a>[<a class="reference internal" href="openstef_core.datasets.ForecastDataset.html#openstef_core.datasets.ForecastDataset" title="openstef_core.datasets.validated_datasets.ForecastDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">ForecastDataset</span></code></a>, <a class="reference internal" href="openstef_core.datasets.TimeSeriesDataset.html#openstef_core.datasets.TimeSeriesDataset" title="openstef_core.datasets.timeseries_dataset.TimeSeriesDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">TimeSeriesDataset</span></code></a>]</span></p>
 </dd>
 </dl>
 </dd></dl>

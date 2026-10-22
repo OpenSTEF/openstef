@@ -49,6 +49,7 @@ Classes
    ContributionsPlotter
    ExplainableForecaster
    FeatureImportancePlotter
+   ModelContributionsPlotter
 
 
 

@@ -659,16 +659,20 @@
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_models.explainability.plotters.html">plotters</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.explainability.plotters.common.html">common</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.explainability.plotters.contributions_plotter.html">contributions_plotter</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.explainability.plotters.feature_importance_plotter.html">feature_importance_plotter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.explainability.plotters.model_contributions_plotter.html">model_contributions_plotter</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.explainability.plotters.ContributionsPlotter.html">ContributionsPlotter</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.explainability.plotters.FeatureImportancePlotter.html">FeatureImportancePlotter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.explainability.plotters.ModelContributionsPlotter.html">ModelContributionsPlotter</a></li>
 </ul>
 </details></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_models.explainability.ContributionsMixin.html">ContributionsMixin</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_models.explainability.ContributionsPlotter.html">ContributionsPlotter</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_models.explainability.ExplainableForecaster.html">ExplainableForecaster</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_models.explainability.FeatureImportancePlotter.html">FeatureImportancePlotter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="openstef_models.explainability.ModelContributionsPlotter.html">ModelContributionsPlotter</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="openstef_models.mixins.html">mixins</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -1413,7 +1417,7 @@ It allows the predictor to learn parameters from the training data.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">feature_importances</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.6)"><span class="pre">DataFrame</span></a></span></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">feature_importances</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1)"><span class="pre">DataFrame</span></a></span></dt>
 <dd><p>Get feature importance scores for this model.</p>
 <p>Returns DataFrame with feature names as index and quantiles as columns.
 Each quantile represents the importance distribution across multiple
