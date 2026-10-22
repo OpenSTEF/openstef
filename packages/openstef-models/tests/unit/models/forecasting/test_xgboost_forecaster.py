@@ -6,6 +6,7 @@ from datetime import timedelta
 
 import pandas as pd
 import pytest
+import xgboost as xgb
 
 from openstef_core.datasets import ForecastInputDataset
 from openstef_core.exceptions import NotFittedError
@@ -27,6 +28,17 @@ def base_config() -> XGBoostForecaster:
         ),
         verbosity=0,  # Quiet for tests
     )
+
+
+def test_xgboost__preserves_feature_names_for_pandas_dataframe() -> None:
+    # Arrange
+    features = pd.DataFrame({"temperature": [1.0], "humidity": [2.0]})
+
+    # Act
+    matrix = xgb.DMatrix(features)
+
+    # Assert
+    assert matrix.feature_names == list(features.columns)
 
 
 def test_xgboost_forecaster__fit_predict(

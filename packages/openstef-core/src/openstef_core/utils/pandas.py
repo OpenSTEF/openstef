@@ -12,7 +12,20 @@ from collections.abc import Callable, Sequence
 from datetime import datetime
 from typing import cast
 
+import numpy as np
 import pandas as pd
+
+
+def as_float_series(values: pd.Series) -> pd.Series:
+    """Return a float64 Series with missing values represented as NumPy NaN.
+
+    The returned Series preserves the input index and name.
+    """
+    return pd.Series(
+        values.to_numpy(dtype=np.float64, na_value=np.nan),
+        index=values.index,
+        name=values.name,
+    )
 
 
 def unsafe_sorted_range_slice_idxs(
