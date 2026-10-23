@@ -41,6 +41,8 @@ Training & Forecasting
      - Description
    * - :doc:`Custom Pipeline <tutorials/custom_pipeline>`
      - Build a forecasting workflow from scratch with custom transforms, feature selection, and callbacks.
+   * - :doc:`Custom Forecaster <tutorials/custom_forecaster>`
+     - Write your own ``Forecaster`` class and use it in a workflow, with a weekly profile model as example.
    * - :doc:`Feature Engineering <tutorials/feature_engineering>`
      - Explore transforms by domain, apply them individually, and compose preprocessing pipelines.
    * - :doc:`Ensemble Forecasting <tutorials/ensemble_forecasting>`
@@ -115,6 +117,7 @@ Workshop
    :caption: Training & Forecasting
 
    Custom Pipeline <tutorials/custom_pipeline>
+   Custom Forecaster <tutorials/custom_forecaster>
    Feature Engineering <tutorials/feature_engineering>
    Ensemble Forecasting <tutorials/ensemble_forecasting>
    Hyperparameter Tuning <tutorials/hyperparameter_tuning_with_optuna>
