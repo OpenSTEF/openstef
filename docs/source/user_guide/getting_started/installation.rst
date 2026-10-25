@@ -221,6 +221,12 @@ a resolver refuses to install both at once.
      - ``[xgb-cpu]``
      - ``[xgb-gpu]``
 
+.. note::
+
+   The ``[xgb-cpu]`` and ``[xgb-gpu]`` extras require XGBoost >= 3.2. If you are
+   upgrading from an earlier version of OpenSTEF that allowed XGBoost 3.0 or 3.1,
+   you must upgrade XGBoost: ``pip install --upgrade "xgboost>=3.2"``.
+
 .. code-block:: bash
 
     # CPU build (works on every platform; the flavour the meta-package ships)
