@@ -107,7 +107,7 @@ catalog = {
     # Default: base model, dynamic shapes.
     "default (base, dynamic)": Chronos2.BASE.checkpoint(),
     # Smaller model, faster to download and run.
-    "small": Chronos2.SMALL.checkpoint(),
+    "small": Chronos2.SMALL.checkpoint(revision="d7743f169215d59270490bfc096bc9454821e8ef"),
     # Static shapes, which the default policy needs to pick CoreML on macOS.
     "base, static": Chronos2.BASE.checkpoint(CheckpointVariant.STATIC),
     # Let the host choose: static on macOS, dynamic elsewhere.
@@ -187,7 +187,7 @@ HORIZON = LeadTime.from_string("P7D")
 
 cpu_workflow = create_forecasting_workflow(
     ForecastingWorkflowConfig(
-        checkpoint=Chronos2.SMALL.checkpoint(),
+        checkpoint=Chronos2.SMALL.checkpoint(revision="d7743f169215d59270490bfc096bc9454821e8ef"),
         quantiles=[Q(0.5)],
         horizons=[HORIZON],
         target_column="load",

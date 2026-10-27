@@ -574,7 +574,7 @@ from openstef_models.utils.feature_selection import Include
 # Configure Chronos with the target and known-future weather features.
 chronos_config = FoundationForecastingWorkflowConfig(
     model="chronos2",
-    checkpoint=Chronos2.SMALL.checkpoint(),
+    checkpoint=Chronos2.SMALL.checkpoint(revision="d7743f169215d59270490bfc096bc9454821e8ef"),
     quantiles=QUANTILES,
     horizons=[FORECAST_HORIZON],
     target_column="load",
