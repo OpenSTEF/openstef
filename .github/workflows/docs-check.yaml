@@ -64,7 +64,7 @@ jobs:
         uses: actions/cache/restore@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
         with:
           path: docs/build/.jupyter_cache
-          key: jupyter-execution-${{ runner.os }}-${{ hashFiles('.python-version', 'uv.lock', 'pyproject.toml', 'poe_tasks.toml', 'docs/pyproject.toml', 'docs/source/conf.py', 'docs/sync_sources.py', 'examples/**/*', 'packages/**/src/**/*', 'packages/**/pyproject.toml') }}
+          key: jupyter-execution-${{ runner.os }}-${{ hashFiles('.python-version', 'uv.lock', 'pyproject.toml', 'poe_tasks.toml', 'docs/pyproject.toml', 'docs/source/conf.py', 'docs/sync_sources.py', 'examples/**/*', 'packages/**/src/**/*', 'packages/**/pyproject.toml', '!examples/**/__pycache__/**', '!examples/**/*.pyc', '!packages/**/src/**/__pycache__/**', '!packages/**/src/**/*.pyc') }}
 
       - name: Build Sphinx documentation
         run: poe docs
@@ -81,7 +81,7 @@ jobs:
         uses: actions/cache/save@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
         with:
           path: docs/build/.jupyter_cache
-          key: jupyter-execution-${{ runner.os }}-${{ hashFiles('.python-version', 'uv.lock', 'pyproject.toml', 'poe_tasks.toml', 'docs/pyproject.toml', 'docs/source/conf.py', 'docs/sync_sources.py', 'examples/**/*', 'packages/**/src/**/*', 'packages/**/pyproject.toml') }}
+          key: jupyter-execution-${{ runner.os }}-${{ hashFiles('.python-version', 'uv.lock', 'pyproject.toml', 'poe_tasks.toml', 'docs/pyproject.toml', 'docs/source/conf.py', 'docs/sync_sources.py', 'examples/**/*', 'packages/**/src/**/*', 'packages/**/pyproject.toml', '!examples/**/__pycache__/**', '!examples/**/*.pyc', '!packages/**/src/**/__pycache__/**', '!packages/**/src/**/*.pyc') }}
 
       - name: Upload built docs
         if: ${{ always() }}
