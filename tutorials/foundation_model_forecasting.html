@@ -558,11 +558,13 @@ build shown first below.</p>
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">openstef_foundation_models.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">CheckpointVariant</span><span class="p">,</span> <span class="n">Chronos2</span>
 
+<span class="n">CHRONOS2_SMALL_REVISION</span> <span class="o">=</span> <span class="s2">&quot;d7743f169215d59270490bfc096bc9454821e8ef&quot;</span>
+
 <span class="n">catalog</span> <span class="o">=</span> <span class="p">{</span>
     <span class="c1"># Default: base model, dynamic shapes.</span>
     <span class="s2">&quot;default (base, dynamic)&quot;</span><span class="p">:</span> <span class="n">Chronos2</span><span class="o">.</span><span class="n">BASE</span><span class="o">.</span><span class="n">checkpoint</span><span class="p">(),</span>
     <span class="c1"># Smaller model, faster to download and run.</span>
-    <span class="s2">&quot;small&quot;</span><span class="p">:</span> <span class="n">Chronos2</span><span class="o">.</span><span class="n">SMALL</span><span class="o">.</span><span class="n">checkpoint</span><span class="p">(),</span>
+    <span class="s2">&quot;small&quot;</span><span class="p">:</span> <span class="n">Chronos2</span><span class="o">.</span><span class="n">SMALL</span><span class="o">.</span><span class="n">checkpoint</span><span class="p">(</span><span class="n">revision</span><span class="o">=</span><span class="n">CHRONOS2_SMALL_REVISION</span><span class="p">),</span>
     <span class="c1"># Static shapes, which the default policy needs to pick CoreML on macOS.</span>
     <span class="s2">&quot;base, static&quot;</span><span class="p">:</span> <span class="n">Chronos2</span><span class="o">.</span><span class="n">BASE</span><span class="o">.</span><span class="n">checkpoint</span><span class="p">(</span><span class="n">CheckpointVariant</span><span class="o">.</span><span class="n">STATIC</span><span class="p">),</span>
     <span class="c1"># Let the host choose: static on macOS, dynamic elsewhere.</span>
@@ -607,7 +609,7 @@ the files, so this validates the wiring without a model present.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2026-10-26 16:23:23.098894361 [W:onnxruntime:Default, device_discovery.cc:146 GetPciBusId] Skipping pci_bus_id for PCI path at &quot;/sys/devices/LNXSYSTM:00/LNXSYBUS:00/ACPI0004:00/MSFT1000:00/5620e0c7-8062-4dce-aeb7-520c7ef76171&quot; because filename &quot;5620e0c7-8062-4dce-aeb7-520c7ef76171&quot; did not match expected pattern of [0-9a-f]+:[0-9a-f]+:[0-9a-f]+[.][0-9a-f]+
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2026-10-29 12:15:53.801869970 [W:onnxruntime:Default, device_discovery.cc:146 GetPciBusId] Skipping pci_bus_id for PCI path at &quot;/sys/devices/LNXSYSTM:00/LNXSYBUS:00/ACPI0004:00/MSFT1000:00/5620e0c7-8062-4dce-aeb7-520c7ef76171&quot; because filename &quot;5620e0c7-8062-4dce-aeb7-520c7ef76171&quot; did not match expected pattern of [0-9a-f]+:[0-9a-f]+:[0-9a-f]+[.][0-9a-f]+
 </pre></div>
 </div>
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>kind=&#39;local&#39; path=PosixPath(&#39;artifacts/chronos-2.onnx&#39;) metadata_path=PosixPath(&#39;artifacts/chronos-2.metadata.json&#39;)
@@ -693,7 +695,7 @@ including this docs build, then forecast one short window to confirm the wiring 
 
 <span class="n">cpu_workflow</span> <span class="o">=</span> <span class="n">create_forecasting_workflow</span><span class="p">(</span>
     <span class="n">ForecastingWorkflowConfig</span><span class="p">(</span>
-        <span class="n">checkpoint</span><span class="o">=</span><span class="n">Chronos2</span><span class="o">.</span><span class="n">SMALL</span><span class="o">.</span><span class="n">checkpoint</span><span class="p">(),</span>
+        <span class="n">checkpoint</span><span class="o">=</span><span class="n">Chronos2</span><span class="o">.</span><span class="n">SMALL</span><span class="o">.</span><span class="n">checkpoint</span><span class="p">(</span><span class="n">revision</span><span class="o">=</span><span class="n">CHRONOS2_SMALL_REVISION</span><span class="p">),</span>
         <span class="n">quantiles</span><span class="o">=</span><span class="p">[</span><span class="n">Q</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)],</span>
         <span class="n">horizons</span><span class="o">=</span><span class="p">[</span><span class="n">HORIZON</span><span class="p">],</span>
         <span class="n">target_column</span><span class="o">=</span><span class="s2">&quot;load&quot;</span><span class="p">,</span>
@@ -707,28 +709,28 @@ including this docs build, then forecast one short window to confirm the wiring 
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-10-26 16:23:24,154][INFO] HTTP Request: HEAD https://huggingface.co/OpenSTEF/chronos-2-small-onnx/resolve/main/chronos-2-small.onnx &quot;HTTP/1.1 302 Found&quot;
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-10-29 12:15:54,887][INFO] HTTP Request: HEAD https://huggingface.co/OpenSTEF/chronos-2-small-onnx/resolve/d7743f169215d59270490bfc096bc9454821e8ef/chronos-2-small.onnx &quot;HTTP/1.1 302 Found&quot;
 </pre></div>
 </div>
 <div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
 </pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-10-26 16:23:24,179][INFO] HTTP Request: GET https://huggingface.co/api/models/OpenSTEF/chronos-2-small-onnx/xet-read-token/d7743f169215d59270490bfc096bc9454821e8ef &quot;HTTP/1.1 200 OK&quot;
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-10-29 12:15:54,967][INFO] HTTP Request: GET https://huggingface.co/api/models/OpenSTEF/chronos-2-small-onnx/xet-read-token/d7743f169215d59270490bfc096bc9454821e8ef &quot;HTTP/1.1 200 OK&quot;
 </pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-10-26 16:23:28,561][INFO] HTTP Request: HEAD https://huggingface.co/OpenSTEF/chronos-2-small-onnx/resolve/main/chronos-2-small.metadata.json &quot;HTTP/1.1 307 Temporary Redirect&quot;
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-10-29 12:15:57,879][INFO] HTTP Request: HEAD https://huggingface.co/OpenSTEF/chronos-2-small-onnx/resolve/d7743f169215d59270490bfc096bc9454821e8ef/chronos-2-small.metadata.json &quot;HTTP/1.1 307 Temporary Redirect&quot;
 </pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-10-26 16:23:28,567][INFO] HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/OpenSTEF/chronos-2-small-onnx/d7743f169215d59270490bfc096bc9454821e8ef/chronos-2-small.metadata.json?%2FOpenSTEF%2Fchronos-2-small-onnx%2Fresolve%2Fmain%2Fchronos-2-small.metadata.json=&amp;etag=%225b275da15d36465e7521f2f25424ae2a59fb5cc5%22 &quot;HTTP/1.1 200 OK&quot;
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-10-29 12:15:57,886][INFO] HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/OpenSTEF/chronos-2-small-onnx/d7743f169215d59270490bfc096bc9454821e8ef/chronos-2-small.metadata.json?%2FOpenSTEF%2Fchronos-2-small-onnx%2Fresolve%2Fd7743f169215d59270490bfc096bc9454821e8ef%2Fchronos-2-small.metadata.json=&amp;etag=%225b275da15d36465e7521f2f25424ae2a59fb5cc5%22 &quot;HTTP/1.1 200 OK&quot;
 </pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-10-26 16:23:28,575][INFO] HTTP Request: GET https://huggingface.co/api/resolve-cache/models/OpenSTEF/chronos-2-small-onnx/d7743f169215d59270490bfc096bc9454821e8ef/chronos-2-small.metadata.json?%2FOpenSTEF%2Fchronos-2-small-onnx%2Fresolve%2Fmain%2Fchronos-2-small.metadata.json=&amp;etag=%225b275da15d36465e7521f2f25424ae2a59fb5cc5%22 &quot;HTTP/1.1 200 OK&quot;
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-10-29 12:15:57,893][INFO] HTTP Request: GET https://huggingface.co/api/resolve-cache/models/OpenSTEF/chronos-2-small-onnx/d7743f169215d59270490bfc096bc9454821e8ef/chronos-2-small.metadata.json?%2FOpenSTEF%2Fchronos-2-small-onnx%2Fresolve%2Fd7743f169215d59270490bfc096bc9454821e8ef%2Fchronos-2-small.metadata.json=&amp;etag=%225b275da15d36465e7521f2f25424ae2a59fb5cc5%22 &quot;HTTP/1.1 200 OK&quot;
 </pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-10-26 16:23:28,576][INFO] Using explicit execution-provider chain [&#39;CPUExecutionProvider&#39;] for checkpoint &#39;chronos2&#39;.
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-10-29 12:15:57,895][INFO] Using explicit execution-provider chain [&#39;CPUExecutionProvider&#39;] for checkpoint &#39;chronos2&#39;.
 </pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-10-26 16:23:28,859][INFO] ONNX Runtime session built; realized providers: [&#39;CPUExecutionProvider&#39;].
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-10-29 12:15:58,179][INFO] ONNX Runtime session built; realized providers: [&#39;CPUExecutionProvider&#39;].
 </pre></div>
 </div>
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>is_fitted: True  quantiles: [0.5]

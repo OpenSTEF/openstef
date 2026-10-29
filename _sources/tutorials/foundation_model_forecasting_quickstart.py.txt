@@ -94,12 +94,14 @@ from openstef_foundation_models.presets.forecasting_workflow import (
 )
 from openstef_models.utils.feature_selection import Include
 
+CHRONOS2_SMALL_REVISION = "d7743f169215d59270490bfc096bc9454821e8ef"
+
 HORIZON = LeadTime.from_string("P7D")
 
 workflow = create_forecasting_workflow(
     ForecastingWorkflowConfig(
         model="chronos2",
-        checkpoint=Chronos2.SMALL.checkpoint(),
+        checkpoint=Chronos2.SMALL.checkpoint(revision=CHRONOS2_SMALL_REVISION),
         quantiles=[Q(0.3), Q(0.5), Q(0.7)],
         horizons=[HORIZON],
         target_column="load",
