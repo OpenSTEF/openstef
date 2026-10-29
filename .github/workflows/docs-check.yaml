@@ -49,8 +49,39 @@ jobs:
       - name: Install dependencies
         run: uv sync --frozen --no-install-project
 
+      - name: Restore Sphinx doctree cache
+        id: sphinx-doctrees
+        uses: actions/cache/restore@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
+        with:
+          path: docs/build/doctrees
+          key: sphinx-doctrees-${{ runner.os }}-${{ hashFiles('uv.lock', 'docs/pyproject.toml', 'docs/source/conf.py', 'poe_tasks.toml') }}-${{ github.ref }}-${{ github.sha }}
+          restore-keys: |
+            sphinx-doctrees-${{ runner.os }}-${{ hashFiles('uv.lock', 'docs/pyproject.toml', 'docs/source/conf.py', 'poe_tasks.toml') }}-${{ github.ref }}-
+            sphinx-doctrees-${{ runner.os }}-${{ hashFiles('uv.lock', 'docs/pyproject.toml', 'docs/source/conf.py', 'poe_tasks.toml') }}-
+
+      - name: Restore Jupyter execution cache
+        id: jupyter-execution
+        uses: actions/cache/restore@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
+        with:
+          path: docs/build/.jupyter_cache
+          key: jupyter-execution-${{ runner.os }}-${{ hashFiles('.python-version', 'uv.lock', 'pyproject.toml', 'poe_tasks.toml', 'docs/pyproject.toml', 'docs/source/conf.py', 'docs/sync_sources.py', 'examples/**/*', 'packages/**/src/**/*', 'packages/**/pyproject.toml', '!examples/**/__pycache__/**', '!examples/**/*.pyc', '!packages/**/src/**/__pycache__/**', '!packages/**/src/**/*.pyc') }}
+
       - name: Build Sphinx documentation
         run: poe docs
+
+      - name: Save Sphinx doctree cache
+        if: ${{ success() && steps.sphinx-doctrees.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
+        with:
+          path: docs/build/doctrees
+          key: sphinx-doctrees-${{ runner.os }}-${{ hashFiles('uv.lock', 'docs/pyproject.toml', 'docs/source/conf.py', 'poe_tasks.toml') }}-${{ github.ref }}-${{ github.sha }}
+
+      - name: Save Jupyter execution cache
+        if: ${{ success() && steps.jupyter-execution.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
+        with:
+          path: docs/build/.jupyter_cache
+          key: jupyter-execution-${{ runner.os }}-${{ hashFiles('.python-version', 'uv.lock', 'pyproject.toml', 'poe_tasks.toml', 'docs/pyproject.toml', 'docs/source/conf.py', 'docs/sync_sources.py', 'examples/**/*', 'packages/**/src/**/*', 'packages/**/pyproject.toml', '!examples/**/__pycache__/**', '!examples/**/*.pyc', '!packages/**/src/**/__pycache__/**', '!packages/**/src/**/*.pyc') }}
 
       - name: Upload built docs
         if: ${{ always() }}
