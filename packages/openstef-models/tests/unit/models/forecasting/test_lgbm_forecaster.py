@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 from datetime import timedelta
+from typing import Literal
 
 import pandas as pd
 import pytest
@@ -36,6 +37,22 @@ def test_initialization(base_config: LGBMForecaster):
     # Assert
     assert isinstance(forecaster, LGBMForecaster)
     assert forecaster.hyperparams.n_estimators == 100
+
+
+@pytest.mark.parametrize("importance_type", ["split", "gain"])
+def test_lgbm_forecaster__importance_type_is_passed_to_models(importance_type: Literal["split", "gain"]) -> None:
+    forecaster = LGBMForecaster(
+        quantiles=[Q(0.1), Q(0.5), Q(0.9)],
+        horizons=[LeadTime(timedelta(days=1))],
+        hyperparams=LGBMHyperParams(importance_type=importance_type),
+    )
+
+    assert all(model.get_params()["importance_type"] == importance_type for model in forecaster._lgbm_model.models)
+
+
+def test_lgbm_forecaster__importance_type_defaults_to_split(base_config: LGBMForecaster) -> None:
+    assert base_config.hyperparams.importance_type == "split"
+    assert all(model.get_params()["importance_type"] == "split" for model in base_config._lgbm_model.models)
 
 
 def test_quantile_lgbm_forecaster__fit_predict(
