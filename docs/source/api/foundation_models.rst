@@ -19,8 +19,9 @@ The package is split into four subpackages:
 - ``models`` holds the checkpoint catalog (:class:`~openstef_foundation_models.models.catalog.Chronos2`,
   :class:`~openstef_foundation_models.models.catalog.CheckpointVariant`), the checkpoint
   resolution types, and the :class:`~openstef_foundation_models.models.forecasting.chronos2_forecaster.Chronos2Forecaster`.
-- ``presets`` holds :class:`~openstef_foundation_models.presets.forecasting_workflow.ForecastingWorkflowConfig`
-  and :func:`~openstef_foundation_models.presets.forecasting_workflow.create_forecasting_workflow`,
+- ``presets`` holds :class:`~openstef_foundation_models.presets.forecasting_workflow.ForecastingWorkflowConfig`,
+  :class:`~openstef_foundation_models.presets.forecasting_workflow.BackendConfigProtocol`, and
+  :func:`~openstef_foundation_models.presets.forecasting_workflow.create_forecasting_workflow`,
   the one-call path from config to a runnable workflow.
 - ``inference`` holds the :class:`~openstef_foundation_models.inference.backend.InferenceBackend`
   protocol, the ONNX backend, the execution-provider configs, and the host-aware
