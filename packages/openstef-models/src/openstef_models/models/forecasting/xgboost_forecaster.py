@@ -21,7 +21,12 @@ from openstef_core.exceptions import MissingExtraError, NotFittedError
 from openstef_core.mixins.param_ranges import CategoricalRange, FloatRange, IntRange
 from openstef_core.mixins.predictor import HyperParams
 from openstef_core.utils.pandas import normalize_to_unit_sum
-from openstef_models.explainability.mixins import ContributionsMixin, ExplainableForecaster
+from openstef_models.explainability.mixins import (
+    ContributionsMixin,
+    ExplainableForecaster,
+    LearningCurveMixin,
+    build_learning_curves,
+)
 from openstef_models.models.forecasting.forecaster import Forecaster
 from openstef_models.utils.evaluation_functions import EvaluationFunctionType, get_evaluation_function
 from openstef_models.utils.loss_functions import (
@@ -188,7 +193,7 @@ class XGBoostHyperParams(HyperParams):
 MODEL_CODE_VERSION = 1
 
 
-class XGBoostForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
+class XGBoostForecaster(Forecaster, ExplainableForecaster, ContributionsMixin, LearningCurveMixin):
     """XGBoost-based forecaster for probabilistic energy forecasting.
 
     Implements gradient boosting trees using XGBoost for multi-quantile forecasting.
@@ -409,6 +414,13 @@ class XGBoostForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
         weights_df.columns.name = "quantiles"
 
         return weights_df.pipe(normalize_to_unit_sum)
+
+    @property
+    @override
+    def learning_curves(self) -> pd.DataFrame:
+        if not self.is_fitted:
+            raise NotFittedError(self.__class__.__name__)
+        return build_learning_curves(self._xgboost_model.evals_result())
 
 
 __all__ = ["XGBoostForecaster", "XGBoostHyperParams"]

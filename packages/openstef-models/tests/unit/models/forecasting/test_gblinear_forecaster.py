@@ -5,6 +5,7 @@
 from datetime import timedelta
 
 import pandas as pd
+import plotly.graph_objects as go
 import pytest
 
 from openstef_core.datasets import ForecastInputDataset
@@ -157,3 +158,70 @@ def test_gblinear_forecaster_predict_contributions(
 
     # Contributions (features + bias) should sum to approximately the prediction value
     assert not result.data.isna().any().any(), "Contributions should not contain NaN values"
+
+
+def test_gblinear_forecaster__learning_curves_not_fitted_raises_error(base_config: GBLinearForecaster):
+    """Test that learning_curves raises NotFittedError when called before fit()."""
+    # Arrange
+    forecaster = base_config.model_copy(deep=True)
+
+    # Act & Assert
+    with pytest.raises(NotFittedError, match="GBLinearForecaster"):
+        _ = forecaster.learning_curves
+
+
+def test_gblinear_forecaster__learning_curves_with_validation_data(
+    sample_forecast_input_dataset: ForecastInputDataset,
+    base_config: GBLinearForecaster,
+):
+    """Test that learning_curves holds the train and validation history recorded while fitting."""
+    # Arrange
+    forecaster = base_config.model_copy(deep=True)
+    forecaster.fit(sample_forecast_input_dataset, sample_forecast_input_dataset)
+    history = forecaster._gblinear_model.evals_result()  # pyright: ignore[reportPrivateUsage]
+
+    # Act
+    curves = forecaster.learning_curves
+
+    # Assert
+    assert list(curves.columns) == ["train", "validation"]
+    assert list(curves.index) == list(range(1, len(history["validation_0"]["mean_pinball_loss"]) + 1))
+    assert curves.index.name == "round"
+    assert curves["train"].tolist() == list(history["validation_0"]["mean_pinball_loss"])
+    assert curves["validation"].tolist() == list(history["validation_1"]["mean_pinball_loss"])
+    assert not curves.isna().any().any(), "Learning curves should not contain NaN values"
+
+
+def test_gblinear_forecaster__learning_curves_without_validation_data(
+    sample_forecast_input_dataset: ForecastInputDataset,
+    base_config: GBLinearForecaster,
+):
+    """Test that learning_curves only has a train column when no validation data was given."""
+    # Arrange
+    forecaster = base_config.model_copy(deep=True)
+    forecaster.fit(sample_forecast_input_dataset)
+
+    # Act
+    curves = forecaster.learning_curves
+
+    # Assert
+    assert list(curves.columns) == ["train"]
+    assert len(curves) > 0
+
+
+def test_gblinear_forecaster__plot_learning_curves(
+    sample_forecast_input_dataset: ForecastInputDataset,
+    base_config: GBLinearForecaster,
+):
+    """Test that plot_learning_curves returns a figure with train, validation and best round traces."""
+    # Arrange
+    forecaster = base_config.model_copy(deep=True)
+    forecaster.fit(sample_forecast_input_dataset, sample_forecast_input_dataset)
+
+    # Act
+    figure = forecaster.plot_learning_curves()
+
+    # Assert
+    assert isinstance(figure, go.Figure)
+    assert [trace.name for trace in figure.data[:2]] == ["train", "validation"]
+    assert len(figure.data) == 3, "Expected a train line, a validation line and a best round marker"
