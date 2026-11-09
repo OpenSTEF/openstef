@@ -50,6 +50,7 @@ logger = setup_notebook_logging(
 # **What you'll learn:**
 #
 # - Inspect global feature importance with an interactive treemap
+# - Spot overfitting with learning curves of the training and validation error
 # - Compute per-timestep feature contributions (SHAP values)
 # - Visualize contributions with heatmaps, waterfall charts, and bar charts
 #
@@ -131,6 +132,36 @@ explainable_model = cast(ExplainableForecaster, forecaster)
 fig = explainable_model.plot_feature_importances()
 fig.update_layout(title="Feature importance (treemap)", height=500)
 fig.show()
+
+# %% [markdown]
+# ## Learning curves
+#
+# A **learning curve** shows the model's error after each training round, once on
+# the data it learns from (train) and once on held-out data it never learns from
+# (validation).  If the train curve keeps falling while the validation curve stops
+# improving or starts to rise, the model is overfitting.  The star marks the round
+# with the lowest validation error.
+#
+# ```{note}
+# Learning curves are available for forecasters that implement `LearningCurveMixin`.
+# The forecasting workflow holds back part of the training data as validation data,
+# so both curves are shown here.
+# ```
+
+# %% tags=["hide-input"]
+from openstef_models.explainability import LearningCurveMixin
+
+learning_curve_model = cast(LearningCurveMixin, forecaster)
+curves = learning_curve_model.learning_curves
+print(f"Learning curves shape: {curves.shape}")
+
+fig = learning_curve_model.plot_learning_curves()
+fig.update_layout(title="Learning curves (GBLinear)", height=450)
+fig.show()
+
+# %% tags=["remove-cell"]
+assert {"train", "validation"} <= set(curves.columns), "Learning curves should have train and validation columns"
+assert len(curves) > 0, "Learning curves should have at least one round"
 
 # %% [markdown]
 # ## Feature contributions

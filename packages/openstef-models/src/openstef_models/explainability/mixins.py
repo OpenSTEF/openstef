@@ -9,6 +9,7 @@ and generate visualization plots.
 """
 
 from abc import ABC, abstractmethod
+from collections.abc import Mapping, Sequence
 from typing import Any, Literal
 
 import pandas as pd
@@ -18,6 +19,7 @@ from openstef_core.datasets import ForecastInputDataset, TimeSeriesDataset
 from openstef_core.types import Q, Quantile
 from openstef_models.explainability.plotters.contributions_plotter import ContributionsPlotter
 from openstef_models.explainability.plotters.feature_importance_plotter import FeatureImportancePlotter
+from openstef_models.explainability.plotters.learning_curve_plotter import LearningCurvePlotter
 
 
 class ExplainableForecaster(ABC):
@@ -124,3 +126,62 @@ class ContributionsMixin(ABC):
             msg = f"Unknown plot kind {kind!r}. Choose from {list(plotters)}"
             raise ValueError(msg)
         return plotters[kind](contributions=contributions, **kwargs)
+
+
+def build_learning_curves(evals_result: Mapping[str, Mapping[str, Sequence[float]]]) -> pd.DataFrame:
+    """Convert a boosting library's evaluation history into a learning curve table.
+
+    XGBoost and LightGBM store one entry per evaluation set, in the order the
+    sets were given to ``fit()``. OpenSTEF passes the training set first and,
+    when available, the validation set second, so the entries are mapped to
+    ``"train"`` and ``"validation"`` by position, not by name. If an entry holds
+    several metrics, only the first one is used.
+
+    Args:
+        evals_result: Evaluation history, for example ``model.evals_result()``.
+            Maps each evaluation set to a mapping of metric name to a list with
+            one value per boosting round.
+
+    Returns:
+        DataFrame indexed by boosting round (starting at 1) with a ``train``
+        column and, when validation data was given, a ``validation`` column.
+    """
+    set_names = ["train", "validation"]
+    curves = {
+        set_name: [float(value) for value in next(iter(metrics.values()))]
+        for set_name, metrics in zip(set_names, evals_result.values(), strict=False)
+    }
+    curves_df = pd.DataFrame(curves)
+    curves_df.index = pd.RangeIndex(start=1, stop=len(curves_df) + 1, name="round")
+    return curves_df
+
+
+class LearningCurveMixin(ABC):
+    """Mixin for forecasters that record their training progress.
+
+    Exposes the error after each boosting round on the training data and, when
+    validation data was given, on the validation data. Comparing both curves
+    makes overfitting visible: the training error keeps falling while the
+    validation error stops improving or rises.
+    """
+
+    @property
+    @abstractmethod
+    def learning_curves(self) -> pd.DataFrame:
+        """Per round error history recorded while fitting.
+
+        Returns:
+            DataFrame indexed by boosting round (starting at 1) with a ``train``
+            column and, when validation data was given, a ``validation`` column.
+            Values are the model's evaluation metric.
+        """
+        raise NotImplementedError
+
+    def plot_learning_curves(self) -> go.Figure:
+        """Plot the train and validation error per boosting round.
+
+        Returns:
+            Plotly Figure with one line per learning curve. When validation data
+            was given, the round with the lowest validation error is marked.
+        """
+        return LearningCurvePlotter().plot(curves=self.learning_curves)

@@ -25,7 +25,12 @@ from openstef_core.exceptions import InputValidationError, MissingExtraError, No
 from openstef_core.mixins.param_ranges import CategoricalRange, FloatRange, IntRange
 from openstef_core.mixins.predictor import HyperParams
 from openstef_core.utils.pandas import normalize_to_unit_sum
-from openstef_models.explainability.mixins import ContributionsMixin, ExplainableForecaster
+from openstef_models.explainability.mixins import (
+    ContributionsMixin,
+    ExplainableForecaster,
+    LearningCurveMixin,
+    build_learning_curves,
+)
 from openstef_models.models.forecasting.forecaster import Forecaster
 from openstef_models.utils.evaluation_functions import EvaluationFunctionType, get_evaluation_function
 from openstef_models.utils.loss_functions import (
@@ -109,7 +114,7 @@ class GBLinearHyperParams(HyperParams):
 MODEL_CODE_VERSION = 1
 
 
-class GBLinearForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
+class GBLinearForecaster(Forecaster, ExplainableForecaster, ContributionsMixin, LearningCurveMixin):
     """GBLinear-based forecaster for probabilistic energy forecasting.
 
     Implements gradient boosted linear models using XGBoost's `gblinear` booster for
@@ -333,3 +338,10 @@ class GBLinearForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
         weights_df.columns.name = "quantiles"
 
         return weights_df.pipe(normalize_to_unit_sum)
+
+    @property
+    @override
+    def learning_curves(self) -> pd.DataFrame:
+        if not self.is_fitted:
+            raise NotFittedError(self.__class__.__name__)
+        return build_learning_curves(self._gblinear_model.evals_result())
