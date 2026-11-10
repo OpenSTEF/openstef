@@ -168,17 +168,19 @@ from openstef_foundation_models.inference import CpuProvider, CudaProvider, Exec
 from openstef_foundation_models.presets import OnnxBackendConfig
 
 providers: list[ExecutionProvider] = [CudaProvider(device_id=0), CpuProvider()]
-gpu_config = ForecastingWorkflowConfig(backend=OnnxBackendConfig(providers=providers))
+provider_config = OnnxBackendConfig(providers=providers)
 ordered_providers = [provider.to_ort()[0] for provider in providers]
 print(f"ONNX Runtime will try these providers in order: {ordered_providers}")
-print(f"Pinned on the workflow config: {gpu_config.backend.providers is providers}")
+print(f"Pinned on the backend config: {provider_config.providers is providers}")
 
 
 # %% [markdown]
 # The config is only the recipe. `create_forecasting_workflow` turns it into a running
 # forecaster with that provider chain baked in, so you set the hardware once here and never
-# pass it again at predict time. Below we pin `CpuProvider` so the workflow runs anywhere,
-# including this docs build, then forecast one short window to confirm the wiring end to end.
+# pass it again at predict time. Build the backend once with the checkpoint, then pass that
+# ready backend to the workflow. Below we use the default ONNX backend so the workflow runs
+# anywhere, including this docs build, then forecast one short window to confirm the wiring
+# end to end.
 
 # %%
 from openstef_core.types import LeadTime, Q
@@ -194,7 +196,6 @@ cpu_workflow = create_forecasting_workflow(
         horizons=[HORIZON],
         target_column="load",
         selected_features=Include("load"),
-        backend=OnnxBackendConfig(providers=[CpuProvider()]),
     ),
 )
 # Zero-shot: the model is ready on construction, nothing to train.

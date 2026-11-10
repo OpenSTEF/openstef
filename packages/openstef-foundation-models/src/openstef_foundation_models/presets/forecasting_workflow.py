@@ -21,10 +21,9 @@ or pass a :class:`~openstef_foundation_models.models.checkpoint.LocalCheckpoint`
 to run a file already on disk.
 """
 
-from collections.abc import Mapping
-from typing import Annotated, Literal, Protocol, assert_never, runtime_checkable
+from typing import Annotated, Literal, assert_never
 
-from pydantic import BeforeValidator, ConfigDict, Field, WithJsonSchema
+from pydantic import ConfigDict, Field, WithJsonSchema
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.mixins import TransformPipeline
@@ -49,32 +48,6 @@ from openstef_models.workflows.custom_forecasting_workflow import (
 )
 
 
-@runtime_checkable
-class BackendConfigProtocol(Protocol):
-    """Configuration that can build an inference backend for a checkpoint.
-
-    The workflow only relies on this small contract, so third-party backends do
-    not need to inherit from an OpenSTEF class or be added to a registry. A
-    backend config owns *how* to run a checkpoint; the checkpoint itself is
-    passed to :meth:`build` by the workflow factory.
-    """
-
-    def build(self, checkpoint: CheckpointRef) -> InferenceBackend:
-        """Build a ready-to-run backend for *checkpoint*."""
-        ...
-
-
-class _ExistingBackendConfig:
-    """Adapt an already constructed backend to the config protocol."""
-
-    def __init__(self, backend: InferenceBackend) -> None:
-        self._backend = backend
-
-    def build(self, checkpoint: CheckpointRef) -> InferenceBackend:
-        _ = checkpoint
-        return self._backend
-
-
 class OnnxBackendConfig(BaseConfig):
     """Compute configuration for an ONNX Runtime inference backend.
 
@@ -82,8 +55,9 @@ class OnnxBackendConfig(BaseConfig):
     *which* weights: the checkpoint is supplied to :meth:`build` by the caller, so
     the same compute settings can run different checkpoints.
 
-    This is the default backend config. Other backend configs only need to
-    provide the same ``build(checkpoint)`` method.
+    This is a helper for callers that need to construct an ONNX backend with
+    non-default compute settings. The default workflow builds an ONNX backend
+    directly from :attr:`ForecastingWorkflowConfig.checkpoint`.
     """
 
     kind: Literal["onnx"] = Field(default="onnx", description="Discriminator tag for backend type.")
@@ -126,36 +100,15 @@ class OnnxBackendConfig(BaseConfig):
         )
 
 
-#: Backwards-compatible alias for the default backend configuration.
-BackendConfig = OnnxBackendConfig
-
-
-def _coerce_backend_config(value: object) -> object:
-    """Accept a ready backend or restore the built-in ONNX config.
-
-    Third-party backend configs are intentionally passed as Python objects: they
-    may contain runtime handles that are not YAML/JSON serializable. The built-in
-    ONNX config remains round-trippable through the usual ``kind`` tag.
-    """
-    if isinstance(value, InferenceBackend):
-        return _ExistingBackendConfig(value)
-    if isinstance(value, Mapping) and value.get("kind") == "onnx":
-        return OnnxBackendConfig.model_validate(value)
-    return value
-
-
-#: A backend config accepted by :class:`ForecastingWorkflowConfig`. The
-#: ``BeforeValidator`` keeps the default ONNX config deserializable while the
-#: protocol leaves room for out-of-tree backends. The explicit JSON Schema keeps
-#: arbitrary backend objects representable in generated configuration docs.
-BackendConfigField = Annotated[
-    BackendConfigProtocol,
-    BeforeValidator(_coerce_backend_config),
+#: A ready backend accepted by :class:`ForecastingWorkflowConfig`. The explicit
+#: JSON schema keeps the arbitrary protocol type representable in generated
+#: configuration docs.
+BackendField = Annotated[
+    InferenceBackend | None,
     WithJsonSchema(
         {
-            "type": "object",
-            "description": "A backend configuration with build(checkpoint), or a ready InferenceBackend. "
-            "Defaults to OnnxBackendConfig.",
+            "type": ["object", "null"],
+            "description": "A ready InferenceBackend, or None to build the default ONNX backend from the checkpoint.",
         }
     ),
 ]
@@ -167,15 +120,13 @@ class ForecastingWorkflowConfig(BaseConfig):
     Selects a model family and the checkpoint that backs it, the requested
     quantiles and horizons, the target column, and the columns to keep before
     forecasting. Every kept non-target column is treated as a known covariate, so
-    weather forecasts condition the prediction. Compute settings (execution
-    providers, session options) live on the nested :attr:`backend` config.
+    weather forecasts condition the prediction.
 
-    ``backend`` accepts any object implementing the small
-    :class:`BackendConfigProtocol`, or an already constructed
-    :class:`~openstef_foundation_models.inference.backend.InferenceBackend`, so a
-    backend hosted behind KServe, a custom in-process runtime, or any other
-    ``build(checkpoint)`` factory can be used without changing this config class.
-    The default remains :class:`OnnxBackendConfig`.
+    ``backend`` accepts a ready
+    :class:`~openstef_foundation_models.inference.backend.InferenceBackend`.
+    When it is ``None``, the workflow builds the default ONNX backend from
+    :attr:`checkpoint`. Callers that need non-default ONNX compute settings can
+    build the backend with :class:`OnnxBackendConfig` and pass the result in.
     """
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
@@ -206,11 +157,10 @@ class ForecastingWorkflowConfig(BaseConfig):
         "is forwarded to the model as a known covariate. Must include the target column.",
     )
 
-    backend: BackendConfigField = Field(
-        default_factory=OnnxBackendConfig,
-        description="Inference backend (compute) configuration. Any object implementing the "
-        "`BackendConfigProtocol.build(checkpoint)` protocol is accepted; the default is the local ONNX "
-        "Runtime backend.",
+    backend: BackendField = Field(
+        default=None,
+        description="Ready inference backend. When omitted, the workflow builds the default ONNX backend "
+        "from `checkpoint`.",
     )
 
     chronos2_hyperparams: Chronos2HyperParams = Field(
@@ -244,7 +194,9 @@ def create_forecasting_workflow(config: ForecastingWorkflowConfig) -> CustomFore
     """
     match config.model:
         case "chronos2":
-            model_backend = config.backend.build(config.checkpoint)
+            model_backend = config.backend
+            if model_backend is None:
+                model_backend = OnnxBackendConfig().build(config.checkpoint)
             forecaster = Chronos2Forecaster(
                 backend=model_backend,
                 quantiles=config.quantiles,
@@ -270,8 +222,6 @@ def create_forecasting_workflow(config: ForecastingWorkflowConfig) -> CustomFore
 
 
 __all__ = [
-    "BackendConfig",
-    "BackendConfigProtocol",
     "ForecastingWorkflowConfig",
     "OnnxBackendConfig",
     "create_forecasting_workflow",

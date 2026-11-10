@@ -66,17 +66,6 @@ class StubBackend:
         pass
 
 
-class StubBackendConfig:
-    """Out-of-tree backend config: intentionally does not inherit OpenSTEF types."""
-
-    def __init__(self, backend: StubBackend) -> None:
-        self._backend = backend
-
-    def build(self, checkpoint: object) -> StubBackend:
-        _ = checkpoint
-        return self._backend
-
-
 def _write_checkpoint(tmp_path: Path) -> LocalCheckpoint:
     """Write a dummy weights file and valid metadata JSON to *tmp_path*."""
     weights_path = tmp_path / "chronos-2.onnx"
@@ -134,26 +123,6 @@ def test_create_forecasting_workflow_selects_all_features_by_default(
     assert selector.selection == FeatureSelection.ALL
 
 
-def test_custom_backend_config_is_accepted_and_used() -> None:
-    """Any object implementing build(checkpoint) can replace the ONNX config."""
-    # Arrange
-    backend = StubBackend(_metadata())
-    backend_config = StubBackendConfig(backend)
-    config = ForecastingWorkflowConfig(
-        checkpoint=LocalCheckpoint(path=Path("chronos-2.onnx")),
-        backend=backend_config,
-    )
-
-    # Act
-    workflow = create_forecasting_workflow(config)
-
-    # Assert
-    forecaster = workflow.model.forecaster
-    assert isinstance(forecaster, Chronos2Forecaster)
-    assert forecaster.backend is backend
-    assert config.backend is backend_config
-
-
 def test_existing_backend_instance_is_accepted() -> None:
     """A ready InferenceBackend can be passed without a config wrapper."""
     # Arrange
@@ -173,34 +142,37 @@ def test_existing_backend_instance_is_accepted() -> None:
 
 
 def test_invalid_backend_config_is_rejected() -> None:
-    """An object without build() must not silently pass validation."""
+    """An object that is not an InferenceBackend must not pass validation."""
     with pytest.raises(ValidationError):
         ForecastingWorkflowConfig(backend=object())
 
 
-def test_explicit_onnx_backend_round_trips_through_json() -> None:
-    """The built-in backend stays serializable after relaxing the field type."""
+def test_default_backend_is_none_and_built_from_checkpoint(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The default config leaves backend unset and builds ONNX at factory time."""
     # Arrange
+    backend = StubBackend(_metadata())
+    monkeypatch.setattr(OnnxBackendConfig, "build", lambda _self, _checkpoint: backend)
     config = ForecastingWorkflowConfig(
         checkpoint=LocalCheckpoint(path=Path("chronos-2.onnx")),
-        backend=OnnxBackendConfig(),
     )
 
     # Act
-    restored = ForecastingWorkflowConfig.model_validate_json(config.model_dump_json())
+    workflow = create_forecasting_workflow(config)
 
     # Assert
-    assert isinstance(restored.backend, OnnxBackendConfig)
-    assert restored.backend == config.backend
+    assert config.backend is None
+    assert workflow.model.forecaster.backend is backend
 
 
 def test_backend_field_has_a_json_schema() -> None:
-    """Arbitrary backend objects still appear in generated configuration schemas."""
+    """Ready backend objects still appear in generated configuration schemas."""
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         schema = ForecastingWorkflowConfig.model_json_schema()
 
-    assert schema["properties"]["backend"]["type"] == "object"
+    assert schema["properties"]["backend"]["type"] == ["object", "null"]
 
 
 def test_onnx_backend_config_build_resolves_checkpoint_and_passes_options(
