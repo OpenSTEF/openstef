@@ -26,6 +26,7 @@ from openstef_beam.evaluation.models import (
     Window,
 )
 from openstef_beam.evaluation.models.subset import merge_quantile_metrics
+from openstef_beam.evaluation.reference_forecast import ReferenceForecastConfig, build_reference_forecast
 from openstef_beam.evaluation.window_iterators import iterate_subsets_by_window
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import ForecastDataset, ForecastInputDataset
@@ -54,6 +55,12 @@ class EvaluationConfig(BaseConfig):
     windows: list[Window] = Field(
         default=[Window(lag=timedelta(hours=0), size=timedelta(days=21))],
         description="Time windows for rolling evaluation periods",
+    )
+
+    reference_forecast: ReferenceForecastConfig | None = Field(
+        default=None,
+        description="Reference forecast that skill score metrics compare against. Required by "
+        "skill score metrics such as CRPSS, which report NaN without it",
     )
 
 
@@ -143,9 +150,10 @@ class EvaluationPipeline:
             raise MissingColumnsError(missing_columns=list(missing_quantiles))
 
         subsets: list[EvaluationSubsetReport] = []
+        ground_truth_data = self._prepare_ground_truth(ground_truth=ground_truth, target_column=target_column)
         for filtering, subset in self._iterate_subsets(
             predictions=predictions,
-            ground_truth=ground_truth,
+            ground_truth_data=ground_truth_data,
             evaluation_mask=evaluation_mask,
             target_column=target_column,
         ):
@@ -155,6 +163,8 @@ class EvaluationPipeline:
 
             subset_metrics = self._evaluate_subset(
                 subset=subset,
+                filtering=filtering,
+                measurements=ground_truth_data.target_series,
                 reference_date=reference_date,
             )
 
@@ -179,7 +189,8 @@ class EvaluationPipeline:
     ) -> EvaluationSubsetReport:
         """Evaluates a single evaluation subset.
 
-        Computes metrics for the provided subset without additional filtering.
+        Computes metrics for the provided subset without additional filtering. No
+        measurement history is available here, so skill score metrics report NaN.
 
         Args:
             filtering: The filtering criteria describing this subset.
@@ -197,6 +208,8 @@ class EvaluationPipeline:
 
         subset_metrics = self._evaluate_subset(
             subset=subset,
+            filtering=filtering,
+            measurements=None,
             reference_date=reference_date,
         )
 
@@ -206,27 +219,31 @@ class EvaluationPipeline:
             metrics=subset_metrics,
         )
 
-    def _iterate_subsets(
-        self,
-        predictions: TimeSeriesMixin,
-        ground_truth: TimeSeriesMixin,
-        target_column: str,
-        evaluation_mask: pd.DatetimeIndex | None = None,
-    ) -> Iterator[tuple[Filtering, ForecastDataset]]:
-        """Yields evaluation subsets filtered by available_at and lead_time.
+    def _prepare_ground_truth(self, ground_truth: TimeSeriesMixin, target_column: str) -> ForecastInputDataset:
+        """Selects the latest version of the ground truth and drops missing values.
 
-        For ground truth, the data with the latest lead time is used.
-
-        Yields:
-            Tuples of (filter_criteria, evaluation_subset)
+        Returns:
+            Ground truth covering the full period, including the context preceding evaluation.
         """
         ground_truth_data = ForecastInputDataset.from_timeseries(
             dataset=ground_truth.select_version(),
             target_column=target_column,
         )
         # Drop nans from ground truth to ensure clean join with predictions
-        ground_truth_data = ground_truth_data.pipe_pandas(pd.DataFrame.dropna)
+        return ground_truth_data.pipe_pandas(pd.DataFrame.dropna)
 
+    def _iterate_subsets(
+        self,
+        predictions: TimeSeriesMixin,
+        ground_truth_data: ForecastInputDataset,
+        target_column: str,
+        evaluation_mask: pd.DatetimeIndex | None = None,
+    ) -> Iterator[tuple[Filtering, ForecastDataset]]:
+        """Yields evaluation subsets filtered by available_at and lead_time.
+
+        Yields:
+            Tuples of (filter_criteria, evaluation_subset)
+        """
         for available_at in self.config.available_ats:
             predictions_filtered = predictions.filter_by_available_at(available_at=available_at).select_version()
             if evaluation_mask is not None:
@@ -266,6 +283,8 @@ class EvaluationPipeline:
     def _evaluate_subset(
         self,
         subset: ForecastDataset,
+        filtering: Filtering,
+        measurements: pd.Series | None = None,
         reference_date: datetime | None = None,
     ) -> list[SubsetMetric]:
         """Computes metrics for a given evaluation subset.
@@ -279,6 +298,14 @@ class EvaluationPipeline:
             and timestamp combination, plus the global metrics.
         """
         windowed_metrics: list[SubsetMetric] = []
+        reference: ForecastDataset | None = None
+        if self.config.reference_forecast is not None and measurements is not None:
+            reference = build_reference_forecast(
+                config=self.config.reference_forecast,
+                measurements=measurements,
+                subset=subset,
+                filtering=filtering,
+            )
 
         if len(self.window_metric_providers) > 0:
             for window in self.config.windows:
@@ -288,7 +315,13 @@ class EvaluationPipeline:
                             window=window,
                             timestamp=window_timestamp,
                             metrics=merge_quantile_metrics(
-                                [provider(window_subset) for provider in self.window_metric_providers]
+                                [
+                                    provider(
+                                        window_subset,
+                                        reference.filter_index(window_subset.index) if reference is not None else None,
+                                    )
+                                    for provider in self.window_metric_providers
+                                ]
                             ),
                         )
                         for window_timestamp, window_subset in iterate_subsets_by_window(
@@ -306,7 +339,9 @@ class EvaluationPipeline:
                 SubsetMetric(
                     window="global",
                     timestamp=cast("pd.Series[pd.Timestamp]", subset.index).min().to_pydatetime(),
-                    metrics=merge_quantile_metrics([provider(subset) for provider in self.global_metric_providers]),
+                    metrics=merge_quantile_metrics(
+                        [provider(subset, reference) for provider in self.global_metric_providers]
+                    ),
                 )
             )
         return windowed_metrics
