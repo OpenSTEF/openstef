@@ -35,26 +35,12 @@ from openstef_beam.metrics import (
     riqd,
     rmae,
 )
-from openstef_beam.metrics.metrics_probabilistic import QuantileWeightingMethod
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import ForecastDataset
 from openstef_core.types import Quantile
 from openstef_core.utils.invariants import not_none
 
 type MetricDirection = Literal["higher_is_better", "lower_is_better"]
-
-
-def reference_predictions(subset: ForecastDataset, reference: ForecastDataset | None) -> npt.NDArray[np.floating]:
-    """Align reference forecast predictions to an evaluation subset.
-
-    Returns:
-        Reference predictions with the same shape as the subset quantiles, filled with
-        NaN when no reference forecast is available.
-    """
-    if reference is None:
-        return np.full(subset.quantiles_data.shape, np.nan)
-
-    return reference.filter_quantiles(subset.quantiles).quantiles_data.to_numpy()
 
 
 class MetricProvider(BaseConfig):
@@ -105,8 +91,7 @@ class MetricProvider(BaseConfig):
 
         Args:
             subset: Evaluation subset containing predictions and ground truth data.
-            reference: Reference forecast aligned to the subset. Ignored by providers
-                that do not score against a reference.
+            reference: Optional aligned reference; ignored if unused by the provider.
 
         Returns:
             QuantileMetricsDict mapping quantile keys to computed metric values.
@@ -380,33 +365,19 @@ class RCRPSSampleWeightedProvider(MetricProvider):
 
 
 class CRPSSProvider(MetricProvider):
-    """Provides the Continuous Ranked Probability Skill Score.
-
-    Expresses the CRPS relative to the CRPS of a reference forecast, so that forecast
-    quality is measured as the improvement over a simple baseline rather than on a
-    scale that depends on the evaluated period.
-
-    Requires a reference forecast, which is configured through
-    EvaluationConfig.reference_forecast. Without one the metric is NaN.
-    """
+    """CRPS skill score relative to a reference forecast."""
 
     @property
     @override
     def metric_names(self) -> frozenset[str]:
         return frozenset({"CRPSS"})
 
-    method: QuantileWeightingMethod = Field(
-        default="interval",
-        description="Quantile weighting scheme used to aggregate pinball losses into CRPS.",
-    )
-
     @override
     def __call__(self, subset: ForecastDataset, reference: ForecastDataset | None = None) -> QuantileMetricsDict:
-        """Compute the CRPSS of an evaluation subset against its reference forecast.
+        """Compute global CRPSS against the reference forecast."""
+        if reference is None:
+            return {"global": {"CRPSS": float("NaN")}}
 
-        Returns:
-            QuantileMetricsDict containing the global CRPSS metric value.
-        """
         y_true: npt.NDArray[np.floating] = cast(pd.DataFrame, not_none(subset.target_series)).to_numpy()
 
         return {
@@ -414,40 +385,21 @@ class CRPSSProvider(MetricProvider):
                 "CRPSS": crpss(
                     y_true=y_true,
                     y_pred=subset.quantiles_data.to_numpy(),
-                    y_reference=reference_predictions(subset, reference),
+                    y_reference=reference.quantiles_data.to_numpy(),
                     quantiles=subset.quantiles,
-                    method=self.method,
                 )
             }
         }
 
 
 class CRPSSSampleWeightedProvider(MetricProvider):
-    """Provides the sample weighted Continuous Ranked Probability Skill Score.
-
-    Weights each timestamp by its magnitude relative to an upper quantile of the
-    reference forecast, so that high-load periods dominate the score. Anchoring the
-    weights on the reference rather than on the evaluated values keeps them comparable
-    across evaluation windows.
-
-    Requires a reference forecast, which is configured through
-    EvaluationConfig.reference_forecast. Without one the metric is NaN.
-    """
+    """CRPSS with sample weights scaled to an absolute reference-context quantile."""
 
     @property
     @override
     def metric_names(self) -> frozenset[str]:
         return frozenset({"CRPSS_sample_weighted"})
 
-    method: QuantileWeightingMethod = Field(
-        default="interval",
-        description="Quantile weighting scheme used to aggregate pinball losses into CRPS.",
-    )
-    weight_scale_quantile: Quantile = Field(
-        default=Quantile(0.99),
-        description="Quantile of the reference forecast that sample weights are scaled by. Must be "
-        "predicted by the reference forecast, see ReferenceForecastConfig.weight_scale_quantile.",
-    )
     a_min: float = Field(
         default=0.1,
         description="Minimum sample weight.",
@@ -463,17 +415,12 @@ class CRPSSSampleWeightedProvider(MetricProvider):
 
     @override
     def __call__(self, subset: ForecastDataset, reference: ForecastDataset | None = None) -> QuantileMetricsDict:
-        """Compute the sample weighted CRPSS of an evaluation subset against its reference forecast.
+        """Compute global sample-weighted CRPSS."""
+        if reference is None:
+            return {"global": {"CRPSS_sample_weighted": float("NaN")}}
 
-        Returns:
-            QuantileMetricsDict containing the global sample weighted CRPSS metric value.
-        """
         y_true: npt.NDArray[np.floating] = cast(pd.DataFrame, not_none(subset.target_series)).to_numpy()
-        weight_scale = (
-            np.abs(reference.data[self.weight_scale_quantile.format()].to_numpy())
-            if reference is not None
-            else np.full(len(subset.index), np.nan)
-        )
+        weight_scale = cast(pd.Series, not_none(reference.target_series)).to_numpy()
 
         sample_weights = np.clip(
             np.abs(y_true / weight_scale) ** self.exponent,
@@ -486,10 +433,9 @@ class CRPSSSampleWeightedProvider(MetricProvider):
                 "CRPSS_sample_weighted": crpss(
                     y_true=y_true,
                     y_pred=subset.quantiles_data.to_numpy(),
-                    y_reference=reference_predictions(subset, reference),
+                    y_reference=reference.quantiles_data.to_numpy(),
                     quantiles=subset.quantiles,
                     sample_weights=sample_weights,
-                    method=self.method,
                 )
             }
         }
@@ -608,7 +554,7 @@ class RMAEPeakHoursProvider(MetricProvider):
 
         Args:
             subset: Evaluation subset containing predictions and ground truth data.
-            reference: Reference forecast aligned to the subset. Unused by this provider.
+            reference: Unused by this provider.
 
         Returns:
             QuantileMetricsDict mapping peak/off-peak periods to computed metric values.

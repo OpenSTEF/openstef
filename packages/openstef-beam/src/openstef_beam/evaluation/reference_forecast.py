@@ -2,19 +2,10 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-"""Reference forecasts for skill score based evaluation metrics.
+"""Reference forecasts for skill metrics, built from data available at each forecast cutoff."""
 
-Skill scores express forecast quality relative to a simple reference forecast rather
-than on an absolute scale. This module builds such reference forecasts from the
-measurements that were available at the moment each forecast was made.
-
-The reference is recomputed at a fixed cadence, mirroring how forecasts are produced
-operationally: a forecast made on a given day can only use measurements up to its
-availability cutoff.
-"""
-
+import math
 from datetime import datetime, timedelta
-from typing import override
 
 import numpy as np
 import numpy.typing as npt
@@ -27,40 +18,29 @@ from openstef_core.datasets import ForecastDataset
 from openstef_core.types import AvailableAt, Quantile
 
 
-class ReferenceForecast(BaseConfig):
-    """Base class for reference forecasts used by skill score metrics.
+class ReferenceForecastConfig(BaseConfig):
+    """Settings for reference forecasts used by skill score metrics."""
 
-    Subclasses implement predict() to derive quantile predictions from the
-    measurements of a single context window.
-    """
-
-    def predict(
-        self,
-        measurements: pd.Series,
-        index: pd.DatetimeIndex,
-        quantiles: list[Quantile],
-    ) -> npt.NDArray[np.floating]:
-        """Predict quantile values for the given timestamps.
-
-        Args:
-            measurements: Observed values of the context window, without missing values.
-            index: Timestamps to predict for.
-            quantiles: Quantile levels to predict, in ascending order.
-
-        Returns:
-            Predicted quantiles with shape (num_timestamps, num_quantiles).
-        """
-        msg = "Subclasses should implement this method."
-        raise NotImplementedError(msg)
+    context_length: timedelta = Field(
+        default=timedelta(days=14),
+        description="Measurement history used for each reference forecast",
+    )
+    update_interval: timedelta = Field(
+        default=timedelta(hours=6),
+        description="Reference recomputation cadence; ideally matches the forecast cadence",
+    )
+    weight_scale_quantile: Quantile = Field(
+        default=Quantile(0.99),
+        description="Absolute context quantile used to scale sample weights",
+    )
+    minimum_coverage: float = Field(
+        default=0.9,
+        description="Minimum fraction of expected context samples required",
+    )
 
 
-class ConstantQuantileReference(ReferenceForecast):
-    """Reference forecast that repeats the quantiles of the context window.
-
-    Predicts a constant distribution derived from the observed values of the context
-    window, ignoring any time-dependent structure. This is the simplest non-trivial
-    probabilistic baseline: any skill over it comes from predicting variation rather
-    than the overall load level and spread.
+class ConstantQuantileReference:
+    """Constant quantile forecast derived from a context series.
 
     Example:
         >>> import pandas as pd
@@ -70,43 +50,20 @@ class ConstantQuantileReference(ReferenceForecast):
         ...     index=pd.date_range("2025-05-01", periods=3, freq="15min"),
         ... )
         >>> index = pd.date_range("2025-05-16", periods=2, freq="15min")
-        >>> ConstantQuantileReference().predict(measurements, index, [Quantile(0.5)])
+        >>> ConstantQuantileReference.predict(measurements, index, [Quantile(0.5)])
         array([[10.],
                [10.]])
     """
 
-    @override
+    @staticmethod
     def predict(
-        self,
         measurements: pd.Series,
         index: pd.DatetimeIndex,
         quantiles: list[Quantile],
     ) -> npt.NDArray[np.floating]:
-        values = np.asarray(measurements.quantile(list(quantiles)), dtype=float)
+        """Repeat context quantiles at the requested timestamps."""
+        values = np.asarray(measurements.quantile(quantiles), dtype=float)
         return np.tile(values, (len(index), 1))
-
-
-class ReferenceForecastConfig(BaseConfig):
-    """Configuration of the reference forecast that skill score metrics compare against."""
-
-    forecast: ReferenceForecast = Field(
-        default_factory=ConstantQuantileReference,
-        description="Reference forecast fitted on the measurements preceding each forecast moment",
-    )
-    context_length: timedelta = Field(
-        default=timedelta(days=14),
-        description="Duration of measurements each reference forecast is based on",
-    )
-    update_interval: timedelta = Field(
-        default=timedelta(days=1),
-        description="Cadence at which reference forecasts are recomputed. Should match the cadence "
-        "at which the evaluated forecasts were made",
-    )
-    weight_scale_quantile: Quantile = Field(
-        default=Quantile(0.99),
-        description="Additional quantile predicted by the reference forecast, used by sample weighted "
-        "skill score metrics to anchor their weights on the context period",
-    )
 
 
 def build_reference_forecast(
@@ -115,61 +72,47 @@ def build_reference_forecast(
     subset: ForecastDataset,
     filtering: Filtering,
 ) -> ForecastDataset:
-    """Build the reference forecast for an evaluation subset.
+    """Build a reference forecast aligned to an evaluation subset.
 
-    Timestamps are grouped by the moment their input data became available, rounded
-    down to the update interval. Each group is predicted by a reference fitted on the
-    measurements of the context window preceding that moment. To avoid using
-    measurements that were not yet available, a group's context window ends at the
-    earliest availability cutoff within that group.
+    Group timestamps by their availability cutoff, rounded down to ``update_interval``.
+    Each group uses the context ending at its earliest cutoff; groups below the coverage
+    threshold remain NaN.
 
     Args:
-        config: Settings controlling the reference forecast and its context windows.
-        measurements: Observed values over the evaluation period and the context
-            preceding it, without missing values.
-        subset: Evaluation subset to build the reference forecast for.
-        filtering: Filtering criteria the subset was selected with, determining when
-            the input data of each forecast became available.
+        config: Reference context, cadence, and coverage settings.
+        measurements: Observations used to fit each context; missing values are excluded.
+        subset: Forecasts to evaluate.
+        filtering: Rule for determining when forecast inputs became available.
 
     Returns:
-        Reference predictions aligned to the subset, NaN where the context window
-        contained no measurements. Covers the quantiles of the subset plus the
-        configured weight scale quantile.
+        Reference quantiles and context weight scales aligned to the subset.
     """
     index = subset.index
-    quantiles = sorted({*subset.quantiles, config.weight_scale_quantile})
+    quantiles = subset.quantiles
+    quantile_columns = [quantile.format() for quantile in quantiles]
     if isinstance(filtering, AvailableAt):
         cutoffs = pd.Series(filtering.apply_index(index), index=index)
     else:
         cutoffs = pd.Series(index - filtering.value, index=index)
 
-    positions = pd.Series(np.arange(len(index)), index=index)
-    predictions = np.full((len(index), len(quantiles)), np.nan)
+    data = pd.DataFrame(np.nan, index=index, columns=[*quantile_columns, "weight_scale"])
+    minimum_samples = math.ceil(config.minimum_coverage * config.context_length / subset.sample_interval)
 
     for _, group in cutoffs.groupby(cutoffs.dt.floor(config.update_interval)):
         cutoff: datetime = group.min()
-        context = measurements.loc[cutoff - config.context_length : cutoff]
-        if context.empty:
+        context = measurements.loc[cutoff - config.context_length : cutoff].dropna()
+        if context.empty or len(context) < minimum_samples:
             continue
 
         group_index = pd.DatetimeIndex(group.index)
-        predictions[positions[group_index].to_numpy()] = config.forecast.predict(
-            measurements=context,
-            index=group_index,
-            quantiles=quantiles,
-        )
+        data.loc[group_index, quantile_columns] = ConstantQuantileReference.predict(context, group_index, quantiles)
+        data.loc[group_index, "weight_scale"] = np.quantile(np.abs(context.to_numpy()), q=config.weight_scale_quantile)
 
-    return ForecastDataset.from_quantile_predictions(
-        predictions=predictions,
-        index=index,
-        quantiles=quantiles,
-        sample_interval=subset.sample_interval,
-    )
+    return ForecastDataset(data=data, sample_interval=subset.sample_interval, target_column="weight_scale")
 
 
 __all__ = [
     "ConstantQuantileReference",
-    "ReferenceForecast",
     "ReferenceForecastConfig",
     "build_reference_forecast",
 ]

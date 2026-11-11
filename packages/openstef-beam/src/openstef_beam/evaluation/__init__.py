@@ -32,7 +32,6 @@ from openstef_beam.evaluation.models import (
 )
 from openstef_beam.evaluation.reference_forecast import (
     ConstantQuantileReference,
-    ReferenceForecast,
     ReferenceForecastConfig,
 )
 
@@ -43,7 +42,6 @@ __all__ = [
     "EvaluationReport",
     "EvaluationSubsetReport",
     "Filtering",
-    "ReferenceForecast",
     "ReferenceForecastConfig",
     "SubsetMetric",
     "Window",

@@ -59,8 +59,7 @@ class EvaluationConfig(BaseConfig):
 
     reference_forecast: ReferenceForecastConfig | None = Field(
         default=None,
-        description="Reference forecast that skill score metrics compare against. Required by "
-        "skill score metrics such as CRPSS, which report NaN without it",
+        description="Reference for skill scores such as CRPSS; unset references yield NaN",
     )
 
 
@@ -150,7 +149,10 @@ class EvaluationPipeline:
             raise MissingColumnsError(missing_columns=list(missing_quantiles))
 
         subsets: list[EvaluationSubsetReport] = []
-        ground_truth_data = self._prepare_ground_truth(ground_truth=ground_truth, target_column=target_column)
+        ground_truth_data = ForecastInputDataset.from_timeseries(
+            dataset=ground_truth.select_version(),
+            target_column=target_column,
+        ).pipe_pandas(pd.DataFrame.dropna)
         for filtering, subset in self._iterate_subsets(
             predictions=predictions,
             ground_truth_data=ground_truth_data,
@@ -189,8 +191,7 @@ class EvaluationPipeline:
     ) -> EvaluationSubsetReport:
         """Evaluates a single evaluation subset.
 
-        Computes metrics for the provided subset without additional filtering. No
-        measurement history is available here, so skill score metrics report NaN.
+        Computes metrics for the provided subset without additional filtering.
 
         Args:
             filtering: The filtering criteria describing this subset.
@@ -209,7 +210,6 @@ class EvaluationPipeline:
         subset_metrics = self._evaluate_subset(
             subset=subset,
             filtering=filtering,
-            measurements=None,
             reference_date=reference_date,
         )
 
@@ -218,19 +218,6 @@ class EvaluationPipeline:
             subset=subset,
             metrics=subset_metrics,
         )
-
-    def _prepare_ground_truth(self, ground_truth: TimeSeriesMixin, target_column: str) -> ForecastInputDataset:
-        """Selects the latest version of the ground truth and drops missing values.
-
-        Returns:
-            Ground truth covering the full period, including the context preceding evaluation.
-        """
-        ground_truth_data = ForecastInputDataset.from_timeseries(
-            dataset=ground_truth.select_version(),
-            target_column=target_column,
-        )
-        # Drop nans from ground truth to ensure clean join with predictions
-        return ground_truth_data.pipe_pandas(pd.DataFrame.dropna)
 
     def _iterate_subsets(
         self,
