@@ -151,3 +151,21 @@ def test_ground_truth_with_nans_are_dropped(minimal_config: EvaluationConfig):
         target = subset_report.subset.target_series
         assert target is not None
         assert not target.isna().any()
+
+
+def test_issue_times_returns_availability_of_the_version_that_select_version_keeps():
+    # Arrange: three forecast runs cover the same timestamps; the last one is issued after the cutoff
+    index = pd.date_range("2020-01-02T00:00", periods=2, freq="h")
+    runs = [
+        create_timeseries_dataset(index=index, quantile_P50=[1.0, 2.0], available_at=pd.DatetimeIndex([issued] * 2))
+        for issued in ["2020-01-01T00:00", "2020-01-01T06:00", "2020-01-01T18:00"]
+    ]
+    predictions = TimeSeriesDataset(data=pd.concat([run.data for run in runs]), sample_interval=timedelta(hours=1))
+    filtered = predictions.filter_by_available_at(AvailableAt.from_string("D-1T12:00"))
+
+    # Act
+    issue_times = EvaluationPipeline._issue_times(filtered)  # noqa: SLF001
+
+    # Assert
+    assert issue_times is not None
+    assert issue_times.tolist() == [pd.Timestamp("2020-01-01T06:00")] * 2

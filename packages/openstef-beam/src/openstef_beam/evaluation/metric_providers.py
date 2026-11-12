@@ -83,7 +83,7 @@ class MetricProvider(BaseConfig):
         description="List of quantiles to compute metrics for. If None, all quantiles are processed.",
     )
 
-    def __call__(self, subset: ForecastDataset, reference: ForecastDataset | None = None) -> QuantileMetricsDict:  # noqa: ARG002 - only consumed by skill score providers
+    def __call__(self, subset: ForecastDataset, reference: ForecastDataset | None = None) -> QuantileMetricsDict:
         """Process an evaluation subset and return metrics.
 
         Extracts predictions and ground truth from the subset, then computes
@@ -96,6 +96,7 @@ class MetricProvider(BaseConfig):
         Returns:
             QuantileMetricsDict mapping quantile keys to computed metric values.
         """
+        _ = reference
         y_true: npt.NDArray[np.floating] = cast(
             pd.DataFrame, not_none(subset.target_series)
         ).to_numpy()  # type workaround

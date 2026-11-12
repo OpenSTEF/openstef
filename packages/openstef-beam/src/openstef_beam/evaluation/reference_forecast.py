@@ -5,17 +5,16 @@
 """Reference forecasts for skill metrics, built from data available at each forecast cutoff."""
 
 import math
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
 from pydantic import Field
 
-from openstef_beam.evaluation.models.window import Filtering
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import ForecastDataset
-from openstef_core.types import AvailableAt, Quantile
+from openstef_core.types import Quantile
 
 
 class ReferenceForecastConfig(BaseConfig):
@@ -24,10 +23,6 @@ class ReferenceForecastConfig(BaseConfig):
     context_length: timedelta = Field(
         default=timedelta(days=14),
         description="Measurement history used for each reference forecast",
-    )
-    update_interval: timedelta = Field(
-        default=timedelta(hours=6),
-        description="Reference recomputation cadence; ideally matches the forecast cadence",
     )
     weight_scale_quantile: Quantile = Field(
         default=Quantile(0.99),
@@ -70,19 +65,19 @@ def build_reference_forecast(
     config: ReferenceForecastConfig,
     measurements: pd.Series,
     subset: ForecastDataset,
-    filtering: Filtering,
+    issue_times: pd.Series,
 ) -> ForecastDataset:
     """Build a reference forecast aligned to an evaluation subset.
 
-    Group timestamps by their availability cutoff, rounded down to ``update_interval``.
-    Each group uses the context ending at its earliest cutoff; groups below the coverage
-    threshold remain NaN.
+    Samples whose forecasts were issued at the same time share one context ending at that
+    time, so the reference follows the forecaster's own cadence and never sees later
+    measurements. Contexts below the coverage threshold remain NaN.
 
     Args:
-        config: Reference context, cadence, and coverage settings.
+        config: Reference context and coverage settings.
         measurements: Observations used to fit each context; missing values are excluded.
         subset: Forecasts to evaluate.
-        filtering: Rule for determining when forecast inputs became available.
+        issue_times: Time each forecast in the subset was issued, indexed like the subset.
 
     Returns:
         Reference quantiles and context weight scales aligned to the subset.
@@ -90,17 +85,12 @@ def build_reference_forecast(
     index = subset.index
     quantiles = subset.quantiles
     quantile_columns = [quantile.format() for quantile in quantiles]
-    if isinstance(filtering, AvailableAt):
-        cutoffs = pd.Series(filtering.apply_index(index), index=index)
-    else:
-        cutoffs = pd.Series(index - filtering.value, index=index)
 
     data = pd.DataFrame(np.nan, index=index, columns=[*quantile_columns, "weight_scale"])
     minimum_samples = math.ceil(config.minimum_coverage * config.context_length / subset.sample_interval)
 
-    for _, group in cutoffs.groupby(cutoffs.dt.floor(config.update_interval)):
-        cutoff: datetime = group.min()
-        context = measurements.loc[cutoff - config.context_length : cutoff].dropna()
+    for issue_time, group in issue_times.groupby(issue_times):
+        context = measurements.loc[issue_time - config.context_length : issue_time].dropna()
         if context.empty or len(context) < minimum_samples:
             continue
 
