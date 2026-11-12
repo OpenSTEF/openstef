@@ -8,7 +8,7 @@ import functools
 import json
 from collections.abc import Sequence
 from datetime import datetime, timedelta
-from typing import Literal, Self, cast, override
+from typing import Literal, Self, assert_never, cast, override
 
 import pandas as pd
 from pydantic import FilePath
@@ -249,6 +249,8 @@ class VersionedTimeSeriesDataset(TimeSeriesMixin, DatasetMixin):
             index = datasets[0].index
         elif mode == "inner":
             index = functools.reduce(lambda x, y: x.intersection(y), [part.index.unique() for part in data_parts])
+        else:
+            assert_never(mode)
 
         return cls(
             data_parts=[TimeSeriesDataset(data=part.data.loc[part.index.isin(index)]) for part in data_parts],

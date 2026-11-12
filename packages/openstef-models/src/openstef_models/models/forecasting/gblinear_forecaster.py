@@ -201,7 +201,7 @@ class GBLinearForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
             # Boosting structure control
             feature_selector=self.hyperparams.feature_selector,
             updater=self.hyperparams.updater,
-            quantile_alpha=[float(q) for q in self.quantiles],
+            quantile_alpha=sorted([float(q) for q in self.quantiles]),
             top_k=self.hyperparams.top_k if self.hyperparams.feature_selector == "thrifty" else None,
             # Objective
             objective=get_objective_function(function_type=self.hyperparams.objective, quantiles=self.quantiles)

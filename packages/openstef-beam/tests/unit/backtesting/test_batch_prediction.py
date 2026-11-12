@@ -18,6 +18,7 @@ from openstef_beam.backtesting.backtest_forecaster.mixins import (
 )
 from openstef_beam.backtesting.restricted_horizon_timeseries import RestrictedHorizonVersionedTimeSeries
 from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesDataset
+from openstef_core.types import Quantile
 
 
 class MockModelConfig(BacktestForecasterConfig):
@@ -46,6 +47,11 @@ class MockModel(BacktestBatchForecasterMixin, BacktestForecasterMixin):
         self.fit_calls: list[datetime] = []
         self.predict_calls: list[datetime] = []
         self.predict_batch_calls: list[int] = []
+
+    @property
+    @override
+    def quantiles(self) -> list[Quantile]:
+        return [Quantile(0.5)]
 
     @override
     def fit(self, data: RestrictedHorizonVersionedTimeSeries) -> None:

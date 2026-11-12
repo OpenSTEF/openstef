@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 
 from datetime import timedelta
+from typing import cast
 
 import numpy as np
 import pandas as pd
@@ -23,7 +24,7 @@ from openstef_meta.models.forecast_combiners.learned_weights_combiner import (
 @pytest.fixture(params=["lgbm", "xgboost", "rf", "logistic"])
 def classifier(request: pytest.FixtureRequest) -> str:
     """Fixture to provide different classifier types for LearnedWeightsCombiner tests."""
-    return request.param
+    return cast(str, request.param)
 
 
 @pytest.fixture

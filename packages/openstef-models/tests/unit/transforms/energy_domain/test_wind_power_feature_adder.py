@@ -68,6 +68,23 @@ def test_calculate_wind_power(
     assert cast(pd.Series, result.index).equals(cast(pd.Series, wind_speed_series.index))
 
 
+def test_calculate_wind_power_with_object_dtype_values() -> None:
+    """Test wind power calculation with object-typed numbers and missing values."""
+    # Arrange
+    transform = WindPowerFeatureAdder()
+    index = pd.date_range("2025-01-01", periods=4, freq="h")
+    wind_speed_series = pd.Series([0.0, 8.07, pd.NA, 20.0], index=index, dtype=object)
+
+    # Act
+    result = transform._calculate_wind_power(wind_speed_series)
+
+    # Assert
+    assert result.iloc[0] == pytest.approx(1 / (1 + np.exp(0.664 * 8.07)))
+    assert result.iloc[1] == pytest.approx(0.5)
+    assert np.isnan(result.iloc[2])
+    assert result.iloc[3] == pytest.approx(1 / (1 + np.exp(-0.664 * (20.0 - 8.07))))
+
+
 def test_transform_preserves_original_data() -> None:
     """Test that transform preserves all original data columns."""
     # Arrange

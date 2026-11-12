@@ -4,17 +4,22 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 import pytest
 from mlflow import MlflowClient
+from packaging.version import Version
 
+from openstef_core.exceptions import OpenSTEFVersionCompatibilityError
 from openstef_core.mixins import HyperParams, Stateful
+from openstef_core.versioning import OPENSTEF_VERSION_TAG, get_runtime_openstef_version
 from openstef_models.integrations.mlflow import MLFlowStorage
 from openstef_models.integrations.mlflow.mlflow_storage import normalize_tracking_uri
 
 if TYPE_CHECKING:
     from pathlib import Path
+
+    from mlflow.entities import Run
 
 
 class SimpleHyperParams(HyperParams):
@@ -72,12 +77,25 @@ def test_create_run(storage: MLFlowStorage, model_id: str):
 
     # Act
     run = storage.create_run(model_id=model_id, hyperparams=hyperparams)
-    run_id = cast(str, run.info.run_id)
+    run_id = run.info.run_id
 
     # Assert
     fetched_run = storage._client.get_run(run_id)
     assert fetched_run.data.params["learning_rate"] == "0.05"
     assert fetched_run.data.params["max_depth"] == "10"
+
+
+def test_create_run__sets_authoritative_openstef_version_tag(storage: MLFlowStorage, model_id: str):
+    # Arrange
+    tags = {OPENSTEF_VERSION_TAG: "0.0.0", "custom_tag": "custom_value"}
+
+    # Act
+    run = storage.create_run(model_id=model_id, tags=tags)
+    stored_run = storage._client.get_run(run.info.run_id)
+
+    # Assert
+    assert stored_run.data.tags[OPENSTEF_VERSION_TAG] == get_runtime_openstef_version()
+    assert stored_run.data.tags["custom_tag"] == "custom_value"
 
 
 def test_create_run__experiment_prefix(tmp_path: Path, model_id: str):
@@ -92,7 +110,7 @@ def test_create_run__experiment_prefix(tmp_path: Path, model_id: str):
 
     # Act
     run = storage.create_run(model_id=model_id)
-    experiment_id = cast(str, run.info.experiment_id)
+    experiment_id = run.info.experiment_id
 
     # Assert
     experiment = storage._client.get_experiment(experiment_id)
@@ -111,7 +129,7 @@ def test_create_run__artifact_location(tmp_path: Path, model_id: str):
 
     # Act
     run = storage.create_run(model_id=model_id)
-    experiment_id = cast(str, run.info.experiment_id)
+    experiment_id = run.info.experiment_id
 
     # Assert
     experiment = storage._client.get_experiment(experiment_id)
@@ -122,11 +140,11 @@ def test_create_run__reuses_experiment(storage: MLFlowStorage, model_id: str):
     """Test that multiple runs for same model_id share the same experiment."""
     # Arrange
     first_run = storage.create_run(model_id=model_id)
-    first_exp_id = cast(str, first_run.info.experiment_id)
+    first_exp_id = first_run.info.experiment_id
 
     # Act
     second_run = storage.create_run(model_id=model_id)
-    second_exp_id = cast(str, second_run.info.experiment_id)
+    second_exp_id = second_run.info.experiment_id
 
     # Assert
     assert first_exp_id == second_exp_id
@@ -136,7 +154,7 @@ def test_model_roundtrip(storage: MLFlowStorage, model_id: str):
     """Test save and load roundtrip preserves model state."""
     # Arrange
     run = storage.create_run(model_id=model_id)
-    run_id = cast(str, run.info.run_id)
+    run_id = run.info.run_id
     original_model = SimpleStatefulModel()
     original_model.param_a = "trained_value"
     original_model.param_b = 99
@@ -152,17 +170,113 @@ def test_model_roundtrip(storage: MLFlowStorage, model_id: str):
     assert loaded_model.param_b == 99
 
 
+@pytest.mark.parametrize(
+    ("model_version", "remove_tag"),
+    [
+        pytest.param("9999.0.0", False, id="incompatible-version"),
+        pytest.param(None, True, id="missing-version"),
+    ],
+)
+def test_load_run_model__rejects_incompatible_or_missing_openstef_version(
+    storage: MLFlowStorage,
+    model_id: str,
+    model_version: str | None,
+    remove_tag: bool,
+) -> None:
+    # Arrange
+    storage.enforce_version_compatibility = True
+    run = storage.create_run(model_id=model_id)
+    if remove_tag:
+        storage._client.delete_tag(run.info.run_id, OPENSTEF_VERSION_TAG)
+    else:
+        current_version = Version(get_runtime_openstef_version())
+        incompatible_version = f"{current_version.major + 1}.{current_version.minor}.0"
+        storage._client.set_tag(run.info.run_id, OPENSTEF_VERSION_TAG, incompatible_version)
+
+    # Act / Assert
+    with pytest.raises(OpenSTEFVersionCompatibilityError, match="incompatible or missing OpenSTEF version tag"):
+        storage.load_run_model(run_id=run.info.run_id, model_id=model_id)
+
+
+def test_load_run_model__allows_incompatible_version_when_enforcement_is_disabled(
+    storage: MLFlowStorage,
+    model_id: str,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # Arrange
+    assert storage.enforce_version_compatibility is False
+    run = storage.create_run(model_id=model_id)
+    incompatible_version = "9999.0.0"
+    storage._client.set_tag(run.info.run_id, OPENSTEF_VERSION_TAG, incompatible_version)
+    original_model = SimpleStatefulModel()
+    original_model.param_a = "trained_value"
+    storage.save_run_model(model_id=model_id, run_id=run.info.run_id, model=original_model)
+    storage.finalize_run(model_id=model_id, run_id=run.info.run_id)
+
+    def unexpected_get_run(run_id: str) -> Run:
+        message = f"Unexpected metadata lookup for run {run_id}."
+        raise AssertionError(message)
+
+    monkeypatch.setattr(storage._client, "get_run", unexpected_get_run)
+
+    # Act
+    loaded_model = storage.load_run_model(run_id=run.info.run_id, model_id=model_id)
+
+    # Assert
+    assert isinstance(loaded_model, SimpleStatefulModel)
+    assert loaded_model.param_a == "trained_value"
+
+
+def test_load_run_model__uses_provided_run_for_version_check(
+    storage: MLFlowStorage,
+    model_id: str,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # Arrange
+    storage.enforce_version_compatibility = True
+    run = storage.create_run(model_id=model_id)
+    model = SimpleStatefulModel()
+    storage.save_run_model(model_id=model_id, run_id=run.info.run_id, model=model)
+    storage.finalize_run(model_id=model_id, run_id=run.info.run_id)
+
+    def unexpected_get_run(run_id: str) -> Run:
+        message = f"Unexpected metadata lookup for run {run_id}."
+        raise AssertionError(message)
+
+    monkeypatch.setattr(storage._client, "get_run", unexpected_get_run)
+
+    # Act
+    loaded_model = storage.load_run_model(run_id=run.info.run_id, model_id=model_id, run=run)
+
+    # Assert
+    assert isinstance(loaded_model, SimpleStatefulModel)
+
+
+def test_load_run_model__rejects_mismatched_provided_run_when_compatibility_is_disabled(
+    storage: MLFlowStorage,
+    model_id: str,
+) -> None:
+    # Arrange
+    storage.enforce_version_compatibility = False
+    requested_run = storage.create_run(model_id=model_id)
+    provided_run = storage.create_run(model_id=model_id)
+
+    # Act / Assert
+    with pytest.raises(ValueError, match="does not match"):
+        storage.load_run_model(run_id=requested_run.info.run_id, model_id=model_id, run=provided_run)
+
+
 def test_search_latest_runs(storage: MLFlowStorage, model_id: str):
     """Test that search_latest_runs returns only the most recent run."""
     # Arrange - Create multiple runs
     first_run = storage.create_run(model_id=model_id)
-    storage.finalize_run(model_id=model_id, run_id=cast(str, first_run.info.run_id))
+    storage.finalize_run(model_id=model_id, run_id=first_run.info.run_id)
 
     second_run = storage.create_run(model_id=model_id)
-    storage.finalize_run(model_id=model_id, run_id=cast(str, second_run.info.run_id))
+    storage.finalize_run(model_id=model_id, run_id=second_run.info.run_id)
 
     third_run = storage.create_run(model_id=model_id)
-    third_run_id = cast(str, third_run.info.run_id)
+    third_run_id = third_run.info.run_id
     storage.finalize_run(model_id=model_id, run_id=third_run_id)
 
     # Act
@@ -170,7 +284,7 @@ def test_search_latest_runs(storage: MLFlowStorage, model_id: str):
 
     # Assert - Should return only the most recent run
     assert len(latest_runs) == 1
-    assert cast(str, latest_runs[0].info.run_id) == third_run_id
+    assert latest_runs[0].info.run_id == third_run_id
 
 
 def test_search_latest_runs__no_experiment(storage: MLFlowStorage):
@@ -189,14 +303,14 @@ def test_search_run__returns_matching_run(storage: MLFlowStorage, model_id: str)
     # Arrange
     run_name = "my_training_run"
     created_run = storage.create_run(model_id=model_id, run_name=run_name)
-    created_run_id = cast(str, created_run.info.run_id)
+    created_run_id = created_run.info.run_id
 
     # Act
     found_run = storage.search_run(model_id=model_id, run_name=run_name)
 
     # Assert
     assert found_run is not None
-    assert cast(str, found_run.info.run_id) == created_run_id
+    assert found_run.info.run_id == created_run_id
 
 
 @pytest.mark.parametrize(

@@ -8,7 +8,7 @@ This module provides dimensionality reduction functionality. With a choice of va
 from scikit-learn to reduce the number of features in time series datasets.
 """
 
-from typing import TYPE_CHECKING, Any, Literal, override
+from typing import TYPE_CHECKING, Any, Literal, assert_never, override
 
 import pandas as pd
 from pydantic import Field, PrivateAttr
@@ -132,6 +132,8 @@ class DimensionalityReducer(BaseConfig, TimeSeriesTransform):
             self._dimensionality_reducer = KernelPCA(
                 n_components=self.n_components, kernel="rbf", random_state=self.random_state
             )  # rbf for non-linear
+        else:
+            assert_never(self.method)
 
     @override
     def features_added(self) -> list[str]:

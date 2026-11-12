@@ -8,7 +8,20 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from openstef_core.utils.pandas import nan_aware_weighted_mean
+from openstef_core.utils.pandas import as_float_series, nan_aware_weighted_mean
+
+
+def test_as_float_series_converts_values_and_preserves_metadata() -> None:
+    # Arrange
+    index = pd.date_range("2025-01-01", periods=2, freq="h", name="timestamp")
+    values = pd.Series([1.5, pd.NA], index=index, name="temperature", dtype=object)
+
+    # Act
+    result = as_float_series(values)
+
+    # Assert
+    expected = pd.Series([1.5, np.nan], index=index, name="temperature", dtype=np.float64)
+    pd.testing.assert_series_equal(result, expected)
 
 
 @pytest.mark.parametrize(

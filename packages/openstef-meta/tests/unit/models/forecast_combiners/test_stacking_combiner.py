@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: MPL-2.0
 
 from datetime import timedelta
+from typing import cast
 
 import numpy as np
 import pandas as pd
@@ -20,7 +21,7 @@ from openstef_models.models.forecasting.lgbm_forecaster import LGBMForecaster
 @pytest.fixture(params=["lgbm", "gblinear"])
 def regressor(request: pytest.FixtureRequest) -> str:
     """Fixture to provide different regressor types for Stacking tests."""
-    return request.param
+    return cast(str, request.param)
 
 
 def _make_template(regressor: str) -> GBLinearForecaster | LGBMForecaster:

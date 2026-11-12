@@ -58,7 +58,8 @@ class BacktestEventGenerator(BaseModel):
 
         train_events = list(self._train_iterator())
         if len(train_events) == 0:
-            return iter([])
+            no_events: list[BacktestEvent] = []
+            return iter(no_events)
 
         trained_timestamp = train_events[0].timestamp
         predict_events = [event for event in self._predict_iterator() if event.timestamp >= trained_timestamp]

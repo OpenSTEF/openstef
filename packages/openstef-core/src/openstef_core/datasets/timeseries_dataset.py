@@ -370,8 +370,8 @@ class TimeSeriesDataset(TimeSeriesMixin, DatasetMixin):
             else:
                 sample_interval = timedelta_from_isoformat(df.attrs.get("sample_interval", "PT15M"))
 
-        available_at_column = df.attrs.get("available_at_column", available_at_column)
-        horizon_column = df.attrs.get("horizon_column", horizon_column)
+        available_at_column = cast(str, df.attrs.get("available_at_column", available_at_column))
+        horizon_column = cast(str, df.attrs.get("horizon_column", horizon_column))
 
         return cls(
             data=df,

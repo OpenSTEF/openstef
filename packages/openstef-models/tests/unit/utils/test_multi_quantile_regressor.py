@@ -1,6 +1,8 @@
 # SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <short.term.energy.forecasts@alliander.com>
 #
 # SPDX-License-Identifier: MPL-2.0
+from typing import cast
+
 import pandas as pd
 import pytest
 from lightgbm import LGBMRegressor
@@ -35,7 +37,7 @@ def dataset() -> tuple[pd.DataFrame, pd.Series]:
 
 @pytest.fixture(params=["sklearn_quantile", "lgbm", "xgboost"])
 def baselearner_config(request: pytest.FixtureRequest) -> BaseLearnerConfig:
-    model: str = request.param
+    model = cast(str, request.param)
     if model == "sklearn_quantile":
         return BaseLearnerConfig(
             base_learner=QuantileRegressor,

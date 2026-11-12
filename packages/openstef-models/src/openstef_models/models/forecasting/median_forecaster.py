@@ -138,7 +138,7 @@ class MedianForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
             return lag_array
 
         # Ensure the end index does not exceed the array bounds.
-        end = min(end, lag_array.shape[0])
+        end = min(end, int(lag_array.shape[0]))
 
         # Get a view of the sub-array where the diagonal needs to be filled.
         # The slice represents future time steps (rows) and corresponding lag features (columns).

@@ -1,0 +1,51 @@
+# SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+#
+# SPDX-License-Identifier: MPL-2.0
+
+name: uv Audit Rebase
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  rebase:
+    name: Resume uv audit automation
+    # Only maintainers can trigger this, since it force-pushes and re-runs a job with write access.
+    if: >
+      github.event.issue.pull_request != null &&
+      contains(github.event.comment.body, '/uv-audit rebase') &&
+      contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association)
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      issues: write
+    steps:
+      - name: Verify comment targets the automated branch
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          HEAD_REF=$(gh pr view "${{ github.event.issue.number }}" --repo "${{ github.repository }}" --json headRefName --jq .headRefName)
+          if [ "$HEAD_REF" != "automated/uv-audit-fix" ]; then
+            echo "::error::/uv-audit rebase only works on the automated uv-audit PR (head ref was '$HEAD_REF')."
+            exit 1
+          fi
+
+      - name: Acknowledge
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api "repos/${{ github.repository }}/issues/comments/${{ github.event.comment.id }}/reactions" \
+            -f content='+1' --silent
+
+  uv-audit:
+    name: uv Audit
+    needs: rebase
+    uses: ./.github/workflows/_job_uv_audit.yaml
+    with:
+      rebase: true
+    secrets: inherit

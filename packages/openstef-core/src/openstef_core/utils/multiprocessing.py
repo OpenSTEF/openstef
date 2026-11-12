@@ -11,7 +11,7 @@ across multiple forecasting scenarios.
 
 import multiprocessing
 from collections.abc import Callable, Iterable
-from typing import Literal
+from typing import Literal, cast
 
 
 def run_parallel[T, R](
@@ -66,7 +66,9 @@ def run_parallel[T, R](
         from joblib import Parallel, delayed  # noqa: PLC0415
 
         # Use joblib with loky backend for robust process management
-        return Parallel(n_jobs=n_processes, backend="loky")(delayed(process_fn)(item) for item in items)
+        return cast(
+            "list[R]", Parallel(n_jobs=n_processes, backend="loky")(delayed(process_fn)(item) for item in items)
+        )
 
     # Auto-configure for macOS
     context = multiprocessing.get_context(method=mode)

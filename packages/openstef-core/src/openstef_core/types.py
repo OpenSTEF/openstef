@@ -17,7 +17,7 @@ from datetime import timezone as dt_timezone
 from decimal import Decimal
 from enum import StrEnum
 from functools import total_ordering
-from typing import Any, Literal, Self, override
+from typing import Any, Literal, Self, cast, override
 from zoneinfo import ZoneInfo
 
 import pandas as pd
@@ -62,7 +62,7 @@ class LeadTime(PydanticStringPrimitive):
         Returns:
             ISO 8601 formatted duration string.
         """
-        return TypeAdapter(timedelta).dump_python(self.value, mode="json")
+        return cast(str, TypeAdapter(timedelta).dump_python(self.value, mode="json"))
 
     @override
     def __repr__(self) -> str:

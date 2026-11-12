@@ -33,6 +33,7 @@ from openstef_beam.evaluation.metric_providers import (
     RMAEProvider,
 )
 from openstef_core.types import AvailableAt, Quantile
+from openstef_core.utils.path import safe_path_join
 
 type Liander2024Category = Literal["mv_feeder", "station_installation", "transformer", "solar_park", "wind_park"]
 
@@ -83,20 +84,20 @@ class Liander2024TargetProvider(SimpleTargetProvider[BenchmarkTarget, list[Liand
 
     @override
     def _get_measurements_path_for_target(self, target: BenchmarkTarget) -> Path:
-        return (
-            self.data_dir
-            / "load_measurements"
-            / target.group_name
-            / self.measurements_path_template.format(name=target.name)
+        return safe_path_join(
+            self.data_dir,
+            "load_measurements",
+            target.group_name,
+            self.measurements_path_template.format(name=target.name),
         )
 
     @override
     def _get_weather_path_for_target(self, target: BenchmarkTarget) -> Path:
-        return (
-            self.data_dir
-            / "weather_forecasts_versioned"
-            / target.group_name
-            / self.weather_path_template.format(name=target.name)
+        return safe_path_join(
+            self.data_dir,
+            "weather_forecasts_versioned",
+            target.group_name,
+            self.weather_path_template.format(name=target.name),
         )
 
 
@@ -191,6 +192,7 @@ def create_liander2024_benchmark_runner(
     storage: BenchmarkStorage | None = None,
     callbacks: list[BenchmarkCallback] | None = None,
     target_provider: Liander2024TargetProvider | None = None,
+    revision: str = "dce7fe9bbae0d62288986fa97fa1ee7e9d3b7044",
 ) -> BenchmarkPipeline[BenchmarkTarget, list[Liander2024Category]]:
     """Create benchmark pipeline for Liander2024 dataset.
 
@@ -199,6 +201,7 @@ def create_liander2024_benchmark_runner(
         storage: Storage backend for results.
         callbacks: Callbacks to use during benchmarking.
         target_provider: Custom target provider. Creates default if None.
+        revision: Specific revision of the dataset to use.
 
     Returns:
         Configured benchmark pipeline.
@@ -211,10 +214,7 @@ def create_liander2024_benchmark_runner(
     """
     if data_dir is None:
         data_dir = Path(
-            snapshot_download(
-                repo_id="OpenSTEF/liander2024-stef-benchmark",
-                repo_type="dataset",
-            )
+            snapshot_download(repo_id="OpenSTEF/liander2024-stef-benchmark", repo_type="dataset", revision=revision)
         )
 
     return BenchmarkPipeline[BenchmarkTarget, list[Liander2024Category]](

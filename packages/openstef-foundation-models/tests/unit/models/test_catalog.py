@@ -30,6 +30,12 @@ def test_metadata_filename_defaults_alongside_the_weights() -> None:
     assert checkpoint.metadata_filename is None
 
 
+def test_revision_is_forwarded_to_the_hub_checkpoint() -> None:
+    """A caller can pin the Hub checkpoint to a specific revision."""
+    checkpoint = Chronos2.BASE.checkpoint(revision="a1b2c3d4")
+    assert checkpoint.revision == "a1b2c3d4"
+
+
 def test_recommended_variant_is_static_on_macos(monkeypatch: pytest.MonkeyPatch) -> None:
     """macOS gets STATIC (so CoreML can engage); other platforms get DYNAMIC."""
     monkeypatch.setattr("platform.system", lambda: "Darwin")

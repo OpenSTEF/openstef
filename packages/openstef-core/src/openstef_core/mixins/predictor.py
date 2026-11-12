@@ -231,7 +231,7 @@ class HyperParams(BaseConfig):
                 else:
                     cleaned[key] = value
             data = cleaned
-        result: HyperParams = handler(data)
+        result: HyperParams = cast(HyperParams, handler(data))
         if instance_ranges and result.__pydantic_private__ is not None:
             result._instance_ranges = instance_ranges
         return result  # ty: ignore[invalid-return-type]
@@ -256,7 +256,7 @@ class HyperParams(BaseConfig):
             if override is not None:
                 if not override.tune:
                     continue
-                result[field_name] = override.resolve(tuning_range)  # type: ignore[arg-type]
+                result[field_name] = override.resolve(tuning_range)  # ty: ignore[invalid-argument-type]
             elif tuning_range is not None and tuning_range.tune:
                 result[field_name] = tuning_range
 

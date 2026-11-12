@@ -23,6 +23,7 @@ classifiers = [
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
   "Programming Language :: Python :: 3.14",
+  "Programming Language :: Python :: 3.15",
 ]
 dependencies = [
   "openstef-beam>=4,<5",
@@ -36,3 +37,6 @@ urls.Repository = "https://github.com/OpenSTEF/openstef"
 
 [tool.hatch]
 build.targets.wheel.packages = [ "src/openstef_meta" ]
+
+[tool.pyproject-fmt]
+max_supported_python = "3.15"

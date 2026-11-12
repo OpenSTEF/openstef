@@ -6,12 +6,12 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import plotly.graph_objects as go
-from plotly.subplots import make_subplots
 
 from openstef_core.datasets import TimeSeriesDataset  # noqa: TC001
+from openstef_models.explainability.plotters.common import VerticalTwoPanelPlotLayout
 
 if TYPE_CHECKING:
     import pandas as pd
@@ -49,7 +49,7 @@ class ContributionsPlotter:
         bias = contributions.data[bias_column] if bias_column in contributions.data.columns else None
         cols_to_drop = [c for c in [target_column, bias_column] if c in contributions.data.columns]
         df = contributions.data.drop(columns=cols_to_drop)
-        ranked: list[str] = df.abs().mean().sort_values(ascending=False).head(top_n).index.tolist()
+        ranked: list[str] = cast("list[str]", df.abs().mean().sort_values(ascending=False).head(top_n).index.tolist())
 
         # Most-important feature at top of Y-axis
         y_labels = list(reversed(ranked))
@@ -69,26 +69,9 @@ class ContributionsPlotter:
             if bias is not None:
                 prediction += bias
 
-            fig = make_subplots(
-                rows=2,
-                cols=1,
-                shared_xaxes=True,
-                row_heights=[0.2, 0.8],
-                vertical_spacing=0.03,
-            )
+            fig = VerticalTwoPanelPlotLayout.make_two_panel_time_figure()
 
-            fig.add_trace(
-                go.Scatter(
-                    x=df.index,
-                    y=prediction,
-                    mode="lines",
-                    name="Prediction",
-                    line={"color": "black", "width": 1.5},
-                    showlegend=False,
-                ),
-                row=1,
-                col=1,
-            )
+            VerticalTwoPanelPlotLayout.add_top_panel_line_plot(fig, df.index, prediction)
             fig.add_trace(heatmap, row=2, col=1)
 
             fig.update_layout(

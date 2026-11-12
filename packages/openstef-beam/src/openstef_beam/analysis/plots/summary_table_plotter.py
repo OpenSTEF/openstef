@@ -75,6 +75,7 @@ class SummaryTablePlotter:
                 ]
             )
             .hide(axis="index")
+            .format(escape="html")
             .to_html()
         )
 

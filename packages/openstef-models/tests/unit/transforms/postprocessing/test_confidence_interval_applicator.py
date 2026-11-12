@@ -191,6 +191,72 @@ def test_fit__computes_hourly_standard_deviation_correctly(
     assert not stdev_df.isna().any().any()
 
 
+def test_fit__uses_pooled_std_for_under_sampled_hours(
+    predictions: ForecastDataset,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """Missing and singleton hourly groups use pooled same-horizon uncertainty."""
+    # Arrange
+    index = pd.date_range("2026-01-01", periods=48, freq="1h").delete(29)
+    residuals = np.arange(len(index), dtype=float)
+    validation_predictions = ForecastDataset(
+        data=pd.DataFrame(
+            {
+                "load": residuals,
+                Quantile(0.5).format(): np.zeros(len(index)),
+                "horizon": [timedelta(hours=6)] * len(index),
+            },
+            index=index,
+        ),
+        sample_interval=timedelta(hours=1),
+        forecast_start=index[0],
+    )
+    applicator = ConfidenceIntervalApplicator(quantiles=[Quantile(0.5)])
+
+    # Act
+    applicator.fit(validation_predictions)
+    result = applicator.transform(predictions)
+
+    # Assert
+    pooled_std = pd.Series(residuals).std()
+    hourly_std = applicator.standard_deviation["PT6H"]
+    assert hourly_std.loc[5] == pooled_std
+    assert hourly_std.loc[0] == pd.Series([residuals[0], residuals[24]]).std()
+    assert result.data["stdev"].notna().all()
+    assert "pooled uncertainty is used" in caplog.text
+
+
+def test_fit__passes_through_when_pooled_std_is_unavailable(
+    predictions: ForecastDataset,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """One finite residual cannot estimate uncertainty and does not block forecasting."""
+    # Arrange
+    index = pd.date_range("2026-01-01", periods=1, freq="1h")
+    validation_predictions = ForecastDataset(
+        data=pd.DataFrame(
+            {
+                "load": [1.0],
+                Quantile(0.5).format(): [0.0],
+                "horizon": [timedelta(hours=6)],
+            },
+            index=index,
+        ),
+        sample_interval=timedelta(hours=1),
+        forecast_start=index[0],
+    )
+    applicator = ConfidenceIntervalApplicator(quantiles=[Quantile(0.5)])
+
+    # Act
+    applicator.fit(validation_predictions)
+    result = applicator.transform(predictions)
+
+    # Assert
+    assert applicator.is_fitted
+    pd.testing.assert_frame_equal(result.data, predictions.data)
+    assert "cannot be estimated" in caplog.text
+
+
 def test_transform__raises_error_when_not_fitted(
     predictions: ForecastDataset,
 ):

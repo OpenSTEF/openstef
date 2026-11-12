@@ -197,7 +197,9 @@ class HyperparameterTuner[ConfigT: BaseConfig](BaseConfig):
         if isinstance(tuning_range, IntRange) and tuning_range.low is not None and tuning_range.high is not None:
             return trial.suggest_int(trial_key, tuning_range.low, tuning_range.high, log=tuning_range.log)
         if isinstance(tuning_range, CategoricalRange) and tuning_range.choices is not None:
-            return trial.suggest_categorical(trial_key, list(tuning_range.choices))
+            return cast(
+                "bool | int | float | str | None", trial.suggest_categorical(trial_key, list(tuning_range.choices))
+            )
         return None
 
     def _evaluate_trial(

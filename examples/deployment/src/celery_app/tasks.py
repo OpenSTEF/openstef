@@ -27,7 +27,7 @@ from celery_app.app import app
 settings = Settings()
 
 
-@app.task
+@app.task  # ty: ignore[dynamic-function-decorator-return]
 def train_target(target: str) -> None:
     """Train and persist a model for one target."""
     dataset = pipeline.training_dataset(target, settings=settings)
@@ -35,7 +35,7 @@ def train_target(target: str) -> None:
     workflow.fit(dataset)
 
 
-@app.task
+@app.task  # ty: ignore[dynamic-function-decorator-return]
 def forecast_target(target: str) -> str:
     """Forecast one target, publish the result, and return its path."""
     dataset = pipeline.prediction_dataset(target, settings=settings)
@@ -44,13 +44,13 @@ def forecast_target(target: str) -> str:
     return str(services.publish_forecast(forecast, target, settings=settings))
 
 
-@app.task
+@app.task  # ty: ignore[dynamic-function-decorator-return]
 def train_all() -> None:
     """Fan out a training task per target."""
     group(train_target.s(target) for target in settings.targets).apply_async()
 
 
-@app.task
+@app.task  # ty: ignore[dynamic-function-decorator-return]
 def forecast_all() -> None:
     """Fan out a forecast task per target."""
     group(forecast_target.s(target) for target in settings.targets).apply_async()

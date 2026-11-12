@@ -121,7 +121,6 @@ class Imputer(BaseConfig, TimeSeriesTransform):
         ...         n_estimators=2,  # not many trees for test speed
         ...         max_depth=3,  # shallow tree for test speed
         ...         bootstrap=True,
-        ...         max_samples=0.5,
         ...         n_jobs=1,
         ...         random_state=0,
         ...     ),

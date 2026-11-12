@@ -253,6 +253,7 @@ Calibration quality can be assessed by comparing expected vs. observed quantile 
 Key metrics for probabilistic forecast quality include:
 
 - **Calibration error**: the difference between expected and observed coverage per quantile
+- **Regression Coverage Score (RCS)**: the fraction of actual values inside a prediction interval such as P10-P90
 - **Sharpness**: the width of prediction intervals (narrower is better, given proper calibration)
 - **Pinball loss**: the proper scoring rule for quantile forecasts, penalizing both miscalibration and lack of sharpness
 
