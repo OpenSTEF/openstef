@@ -4,14 +4,16 @@
 
 """Unit tests for SchoolHolidayFeatureAdder and OpenHolidaysClient. No test contacts the OpenHolidays API."""
 
-import io
 import json
 import logging
 import pickle
-import urllib.error
+import socket
+import threading
 import urllib.parse
-import urllib.request
+from collections import deque
+from collections.abc import Iterator
 from datetime import date, timedelta
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any, override
 from unittest.mock import patch
@@ -69,6 +71,62 @@ def _may() -> SchoolHolidayPeriod:
     return SchoolHolidayPeriod(start_date=date(2025, 5, 1), end_date=date(2025, 5, 2), name="May Holidays")
 
 
+def _unreachable_url() -> str:
+    """Return a localhost URL with nothing listening, so connections are refused."""
+    with socket.socket() as sock:
+        sock.bind(("127.0.0.1", 0))
+        port = sock.getsockname()[1]
+    return f"http://127.0.0.1:{port}/SchoolHolidays"
+
+
+class _HolidayServer:
+    """Local stand-in for the OpenHolidays API.
+
+    Replies to each request with the next queued (status, body) pair, or HTTP 500 once the queue is empty.
+    Records the path, query, and User-Agent of every request.
+    """
+
+    def __init__(self) -> None:
+        self.responses: deque[tuple[int, bytes]] = deque()
+        self.received: list[tuple[str, dict[str, list[str]], str | None]] = []
+        self._httpd = ThreadingHTTPServer(("127.0.0.1", 0), self._handler())
+        self._thread = threading.Thread(target=self._httpd.serve_forever, daemon=True)
+        self.url = f"http://127.0.0.1:{self._httpd.server_port}/SchoolHolidays"
+
+    def _handler(self) -> type[BaseHTTPRequestHandler]:
+        server = self
+
+        class Handler(BaseHTTPRequestHandler):
+            def do_GET(self) -> None:
+                parsed = urllib.parse.urlsplit(self.path)
+                server.received.append((parsed.path, urllib.parse.parse_qs(parsed.query), self.headers["User-Agent"]))
+                status, body = server.responses.popleft() if server.responses else (500, b"")
+                self.send_response(status)
+                self.send_header("Content-Type", "application/json")
+                self.send_header("Content-Length", str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+
+        return Handler
+
+    def start(self) -> None:
+        self._thread.start()
+
+    def stop(self) -> None:
+        self._httpd.shutdown()
+        self._httpd.server_close()
+
+
+@pytest.fixture
+def holiday_server() -> Iterator[_HolidayServer]:
+    server = _HolidayServer()
+    server.start()
+    try:
+        yield server
+    finally:
+        server.stop()
+
+
 class _RecordingClient(OpenHolidaysClient):
     """Client that returns canned periods and records each request instead of calling the API."""
 
@@ -99,9 +157,13 @@ def _fitted(
 class TestOpenHolidaysClient:
     """Tests for the HTTP client, its request model, and its response parsing."""
 
-    def test_sends_documented_query_and_user_agent(self) -> None:
+    def test_default_url_is_the_documented_endpoint(self) -> None:
+        assert OpenHolidaysClient().school_holidays_url == "https://openholidaysapi.org/SchoolHolidays"
+
+    def test_sends_documented_query_and_user_agent(self, holiday_server: _HolidayServer) -> None:
         # Arrange
-        client = OpenHolidaysClient()
+        client = OpenHolidaysClient(school_holidays_url=holiday_server.url)
+        holiday_server.responses.append((200, _body()))
         request = SchoolHolidaysRequest(
             country_iso_code="NL",
             valid_from=date(2025, 1, 1),
@@ -110,13 +172,12 @@ class TestOpenHolidaysClient:
         )
 
         # Act
-        with patch("urllib.request.urlopen", return_value=io.BytesIO(_body())) as urlopen:
-            client.get_school_holidays(request)
+        client.get_school_holidays(request)
 
         # Assert
-        sent = urlopen.call_args.args[0]
-        query = urllib.parse.parse_qs(urllib.parse.urlsplit(sent.full_url).query)
-        assert sent.full_url.startswith("https://openholidaysapi.org/SchoolHolidays?")
+        assert len(holiday_server.received) == 1
+        path, query, user_agent = holiday_server.received[0]
+        assert path == "/SchoolHolidays"
         assert query == {
             "countryIsoCode": ["NL"],
             "validFrom": ["2025-01-01"],
@@ -124,29 +185,29 @@ class TestOpenHolidaysClient:
             "subdivisionCode": ["NL-NH"],
             "languageIsoCode": ["EN"],
         }
-        assert sent.get_header("User-agent") == client.user_agent
-        assert urlopen.call_args.kwargs["timeout"] == client.timeout_seconds
+        assert user_agent == client.user_agent
 
-    def test_omits_subdivision_when_not_set(self) -> None:
+    def test_omits_subdivision_when_not_set(self, holiday_server: _HolidayServer) -> None:
         # Arrange
+        client = OpenHolidaysClient(school_holidays_url=holiday_server.url)
+        holiday_server.responses.append((200, _body()))
         request = SchoolHolidaysRequest(country_iso_code="DE", valid_from=date(2025, 1, 1), valid_to=date(2025, 12, 31))
 
         # Act
-        with patch("urllib.request.urlopen", return_value=io.BytesIO(_body())) as urlopen:
-            OpenHolidaysClient().get_school_holidays(request)
+        client.get_school_holidays(request)
 
         # Assert
-        query = urllib.parse.parse_qs(urllib.parse.urlsplit(urlopen.call_args.args[0].full_url).query)
+        _, query, _ = holiday_server.received[0]
         assert "subdivisionCode" not in query
 
-    def test_parses_response_into_periods(self) -> None:
+    def test_parses_response_into_periods(self, holiday_server: _HolidayServer) -> None:
         # Arrange
+        client = OpenHolidaysClient(school_holidays_url=holiday_server.url)
+        holiday_server.responses.append((200, _body(_api_item("2025-07-05", "2025-08-31"))))
         request = SchoolHolidaysRequest(country_iso_code="NL", valid_from=date(2025, 1, 1), valid_to=date(2025, 12, 31))
-        body = _body(_api_item("2025-07-05", "2025-08-31"))
 
         # Act
-        with patch("urllib.request.urlopen", return_value=io.BytesIO(body)):
-            periods = OpenHolidaysClient().get_school_holidays(request)
+        periods = client.get_school_holidays(request)
 
         # Assert
         assert periods == [
@@ -166,51 +227,64 @@ class TestOpenHolidaysClient:
             pytest.param([], "School holiday", id="no-names"),
         ],
     )
-    def test_chooses_holiday_name(self, names: list[dict[str, str]], expected: str) -> None:
+    def test_chooses_holiday_name(
+        self, holiday_server: _HolidayServer, names: list[dict[str, str]], expected: str
+    ) -> None:
         # Arrange
+        client = OpenHolidaysClient(school_holidays_url=holiday_server.url)
+        holiday_server.responses.append((200, _body(_api_item("2025-07-05", "2025-08-31", names))))
         request = SchoolHolidaysRequest(country_iso_code="NL", valid_from=date(2025, 1, 1), valid_to=date(2025, 12, 31))
 
         # Act
-        with patch(
-            "urllib.request.urlopen", return_value=io.BytesIO(_body(_api_item("2025-07-05", "2025-08-31", names)))
-        ):
-            periods = OpenHolidaysClient().get_school_holidays(request)
+        periods = client.get_school_holidays(request)
 
         # Assert
         assert [period.name for period in periods] == [expected]
 
-    def test_retries_after_network_error(self) -> None:
+    @pytest.mark.parametrize("status", [429, 500, 503], ids=["rate-limited", "server-error", "unavailable"])
+    def test_retries_transient_http_error(self, holiday_server: _HolidayServer, status: int) -> None:
         # Arrange
+        client = OpenHolidaysClient(school_holidays_url=holiday_server.url, retry_delay_seconds=0)
+        holiday_server.responses.extend([(status, b""), (200, _body(_api_item("2025-07-05", "2025-08-31")))])
         request = SchoolHolidaysRequest(country_iso_code="NL", valid_from=date(2025, 1, 1), valid_to=date(2025, 12, 31))
-        responses = [
-            urllib.error.URLError("temporary failure"),
-            io.BytesIO(_body(_api_item("2025-07-05", "2025-08-31"))),
-        ]
 
         # Act
-        with (
-            patch("urllib.request.urlopen", side_effect=responses) as urlopen,
-            patch("time.sleep") as sleep,
-        ):
-            periods = OpenHolidaysClient(retry_delay_seconds=2).get_school_holidays(request)
+        periods = client.get_school_holidays(request)
 
         # Assert
         assert len(periods) == 1
-        assert urlopen.call_count == 2
-        sleep.assert_called_once_with(2)
+        assert len(holiday_server.received) == 2
 
-    def test_raises_after_all_attempts_fail(self) -> None:
+    def test_connection_error_raises_fetch_error(self) -> None:
         # Arrange
+        client = OpenHolidaysClient(school_holidays_url=_unreachable_url(), max_attempts=2, retry_delay_seconds=0)
         request = SchoolHolidaysRequest(country_iso_code="NL", valid_from=date(2025, 1, 1), valid_to=date(2025, 12, 31))
 
         # Act / Assert
-        with (
-            patch("urllib.request.urlopen", side_effect=urllib.error.URLError("unreachable")) as urlopen,
-            patch("time.sleep"),
-            pytest.raises(SchoolHolidayFetchError),
-        ):
-            OpenHolidaysClient(max_attempts=3).get_school_holidays(request)
-        assert urlopen.call_count == 3
+        with pytest.raises(SchoolHolidayFetchError):
+            client.get_school_holidays(request)
+
+    def test_raises_after_all_attempts_fail(self, holiday_server: _HolidayServer) -> None:
+        # Arrange
+        client = OpenHolidaysClient(school_holidays_url=holiday_server.url, max_attempts=3, retry_delay_seconds=0)
+        holiday_server.responses.extend([(503, b"")] * 3)
+        request = SchoolHolidaysRequest(country_iso_code="NL", valid_from=date(2025, 1, 1), valid_to=date(2025, 12, 31))
+
+        # Act / Assert
+        with pytest.raises(SchoolHolidayFetchError):
+            client.get_school_holidays(request)
+        assert len(holiday_server.received) == 3
+
+    def test_client_error_is_not_retried(self, holiday_server: _HolidayServer) -> None:
+        # Arrange
+        client = OpenHolidaysClient(school_holidays_url=holiday_server.url, retry_delay_seconds=0)
+        holiday_server.responses.extend([(404, b""), (200, _body(_api_item("2025-07-05", "2025-08-31")))])
+        request = SchoolHolidaysRequest(country_iso_code="NL", valid_from=date(2025, 1, 1), valid_to=date(2025, 12, 31))
+
+        # Act / Assert
+        with pytest.raises(SchoolHolidayFetchError):
+            client.get_school_holidays(request)
+        assert len(holiday_server.received) == 1
 
     @pytest.mark.parametrize(
         "body",
@@ -220,17 +294,16 @@ class TestOpenHolidaysClient:
             pytest.param(b'[{"startDate": "2025-07-05"}]', id="missing-end-date"),
         ],
     )
-    def test_invalid_response_raises_without_retry(self, body: bytes) -> None:
+    def test_invalid_response_raises_without_retry(self, holiday_server: _HolidayServer, body: bytes) -> None:
         # Arrange
+        client = OpenHolidaysClient(school_holidays_url=holiday_server.url)
+        holiday_server.responses.append((200, body))
         request = SchoolHolidaysRequest(country_iso_code="NL", valid_from=date(2025, 1, 1), valid_to=date(2025, 12, 31))
 
         # Act / Assert
-        with (
-            patch("urllib.request.urlopen", return_value=io.BytesIO(body)) as urlopen,
-            pytest.raises(SchoolHolidayFetchError),
-        ):
-            OpenHolidaysClient().get_school_holidays(request)
-        assert urlopen.call_count == 1
+        with pytest.raises(SchoolHolidayFetchError):
+            client.get_school_holidays(request)
+        assert len(holiday_server.received) == 1
 
 
 class TestSchoolHolidayFeatureAdder:
@@ -254,30 +327,26 @@ class TestSchoolHolidayFeatureAdder:
         assert transform.covered_until == date(2027, 1, 10)
         assert transform.holidays == client.periods
 
-    def test_fit_with_default_client_makes_one_http_request(self) -> None:
+    def test_fit_with_default_client_makes_one_http_request(self, holiday_server: _HolidayServer) -> None:
         # Arrange
-        transform = SchoolHolidayFeatureAdder(country_code="NL")
+        client = OpenHolidaysClient(school_holidays_url=holiday_server.url)
+        transform = SchoolHolidayFeatureAdder(country_code="NL", client=client)
+        holiday_server.responses.append((200, _body(_api_item("2025-07-05", "2025-08-31"))))
 
         # Act
-        with patch(
-            "urllib.request.urlopen", return_value=io.BytesIO(_body(_api_item("2025-07-05", "2025-08-31")))
-        ) as urlopen:
-            transform.fit(_dataset("2025-01-01", periods=10))
+        transform.fit(_dataset("2025-01-01", periods=10))
 
         # Assert
-        assert urlopen.call_count == 1
+        assert len(holiday_server.received) == 1
         assert transform.is_fitted
 
     def test_fit_propagates_fetch_error(self) -> None:
         # Arrange
-        transform = SchoolHolidayFeatureAdder(country_code="NL")
+        client = OpenHolidaysClient(school_holidays_url=_unreachable_url(), retry_delay_seconds=0)
+        transform = SchoolHolidayFeatureAdder(country_code="NL", client=client)
 
         # Act / Assert
-        with (
-            patch("urllib.request.urlopen", side_effect=urllib.error.URLError("unreachable")),
-            patch("time.sleep"),
-            pytest.raises(SchoolHolidayFetchError),
-        ):
+        with pytest.raises(SchoolHolidayFetchError):
             transform.fit(_dataset("2025-01-01", periods=10))
         assert not transform.is_fitted
 
@@ -429,7 +498,7 @@ class TestSchoolHolidayFeatureAdder:
         loaded = SchoolHolidayFeatureAdder.from_csv(path, country_code=CountryAlpha2("NL"))
 
         # Act / Assert
-        with patch("urllib.request.urlopen", side_effect=AssertionError("network access")):
+        with patch("requests.Session.send", side_effect=AssertionError("network access")):
             TransformPipeline(transforms=[loaded]).fit(_dataset("2025-07-01", periods=3))
 
     def test_client_is_not_serialised(self) -> None:
@@ -507,7 +576,7 @@ class TestSchoolHolidayCsv:
         )
 
         # Act
-        with patch("urllib.request.urlopen", side_effect=AssertionError("network access")):
+        with patch("requests.Session.send", side_effect=AssertionError("network access")):
             loaded = SchoolHolidayFeatureAdder.from_csv(
                 path, country_code=CountryAlpha2("NL"), subdivision_code=subdivision_code
             )
@@ -530,7 +599,7 @@ class TestSchoolHolidayCsv:
         )
 
         # Act
-        with patch("urllib.request.urlopen", side_effect=AssertionError("network access")):
+        with patch("requests.Session.send", side_effect=AssertionError("network access")):
             loaded = SchoolHolidayFeatureAdder.from_csv(path, country_code=CountryAlpha2("NL"), one_hot_by_name=True)
             result = loaded.transform(_dataset("2025-04-30", periods=5))
 
@@ -595,7 +664,7 @@ class TestSchoolHolidayCsv:
         )
 
         # Act
-        with patch("urllib.request.urlopen", side_effect=AssertionError("network access")):
+        with patch("requests.Session.send", side_effect=AssertionError("network access")):
             loaded = SchoolHolidayFeatureAdder.from_csv(path, country_code=CountryAlpha2("NL"))
             result = loaded.transform(_dataset("2025-01-15", periods=3))
 

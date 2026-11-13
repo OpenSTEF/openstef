@@ -18,18 +18,18 @@ fitted transform.
 
 import logging
 import re
-import time
 import unicodedata
-import urllib.parse
-import urllib.request
 from datetime import date, timedelta
 from pathlib import Path
 from typing import Self, override
 
 import pandas as pd
+import requests
 from pydantic import ConfigDict, Field, PrivateAttr, TypeAdapter, ValidationError, field_validator, model_validator
 from pydantic.alias_generators import to_camel
 from pydantic_extra_types.country import CountryAlpha2
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import TimeSeriesDataset
@@ -128,12 +128,16 @@ class OpenHolidaysClient(BaseConfig):
     )
     timeout_seconds: float = Field(default=30, gt=0, description="Timeout for each HTTP request.")
     max_attempts: int = Field(default=2, ge=1, description="Maximum number of HTTP attempts per request.")
-    retry_delay_seconds: float = Field(default=2, ge=0, description="Delay between failed attempts.")
+    retry_delay_seconds: float = Field(
+        default=2,
+        ge=0,
+        description="Backoff factor between retries. The first retry is immediate; later waits grow exponentially.",
+    )
 
     def get_school_holidays(self, request: SchoolHolidaysRequest) -> list[SchoolHolidayPeriod]:
         """Retrieve school holiday periods that overlap the requested date range.
 
-        Makes one HTTP request, retried on network errors.
+        Makes one HTTP request. Connection errors and transient server responses (429, 5xx) are retried.
 
         Args:
             request: Query parameters for the endpoint.
@@ -153,28 +157,28 @@ class OpenHolidaysClient(BaseConfig):
         return [record.to_period() for record in records]
 
     def _get_body(self, request: SchoolHolidaysRequest) -> bytes:
-        query = urllib.parse.urlencode(request.model_dump(by_alias=True, exclude_none=True, mode="json"))
-        url = f"{self.school_holidays_url}?{query}"
-        http_request = urllib.request.Request(  # noqa: S310 - https endpoint from configuration
-            url,
-            headers={"Accept": "application/json", "User-Agent": self.user_agent},
+        retry = Retry(
+            total=self.max_attempts - 1,
+            backoff_factor=self.retry_delay_seconds,
+            status_forcelist=(429, 500, 502, 503, 504),
+            respect_retry_after_header=True,
         )
-        last_error: OSError | None = None
-        for attempt in range(1, self.max_attempts + 1):
+        with requests.Session() as session:
+            adapter = HTTPAdapter(max_retries=retry)
+            session.mount("https://", adapter)
+            session.mount("http://", adapter)
             try:
-                with urllib.request.urlopen(http_request, timeout=self.timeout_seconds) as response:  # noqa: S310 - https endpoint from configuration
-                    body = bytes(response.read())
-            except OSError as error:
-                last_error = error
-                _logger.warning(
-                    "Request to OpenHolidays API failed (attempt %d of %d): %s", attempt, self.max_attempts, error
+                response = session.get(
+                    self.school_holidays_url,
+                    params=request.model_dump(by_alias=True, exclude_none=True, mode="json"),
+                    headers={"Accept": "application/json", "User-Agent": self.user_agent},
+                    timeout=self.timeout_seconds,
                 )
-                if attempt < self.max_attempts:
-                    time.sleep(self.retry_delay_seconds)
-            else:
-                return body
-        msg = f"Failed to fetch school holidays from {url}"
-        raise SchoolHolidayFetchError(msg) from last_error
+                response.raise_for_status()
+            except requests.RequestException as error:
+                msg = f"Failed to fetch school holidays from {self.school_holidays_url}: {error}"
+                raise SchoolHolidayFetchError(msg) from error
+        return response.content
 
 
 class SchoolHolidayRow(BaseConfig):
