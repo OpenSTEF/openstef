@@ -50,7 +50,7 @@ logger = setup_notebook_logging(
 #
 # | Group | Transforms | Purpose |
 # |-------|-----------|---------|
-# | **Time Domain** | {class}`~openstef_models.transforms.time_domain.CyclicFeaturesAdder`, {class}`~openstef_models.transforms.time_domain.DatetimeFeaturesAdder`, {class}`~openstef_models.transforms.time_domain.HolidayFeatureAdder`, {class}`~openstef_models.transforms.time_domain.LagsAdder`, {class}`~openstef_models.transforms.time_domain.RollingAggregatesAdder`, {class}`~openstef_models.transforms.time_domain.VersionedLagsAdder` | Encode temporal patterns |
+# | **Time Domain** | {class}`~openstef_models.transforms.time_domain.CyclicFeaturesAdder`, {class}`~openstef_models.transforms.time_domain.DatetimeFeaturesAdder`, {class}`~openstef_models.transforms.time_domain.HolidayFeatureAdder`, {class}`~openstef_models.transforms.time_domain.SchoolHolidayFeatureAdder`, {class}`~openstef_models.transforms.time_domain.LagsAdder`, {class}`~openstef_models.transforms.time_domain.RollingAggregatesAdder`, {class}`~openstef_models.transforms.time_domain.VersionedLagsAdder` | Encode temporal patterns |
 # | **Weather Domain** | {class}`~openstef_models.transforms.weather_domain.DaylightFeatureAdder`, {class}`~openstef_models.transforms.weather_domain.AtmosphereDerivedFeaturesAdder`, {class}`~openstef_models.transforms.weather_domain.RadiationDerivedFeaturesAdder` | Derive meteorological features |
 # | **Energy Domain** | {class}`~openstef_models.transforms.energy_domain.WindPowerFeatureAdder` | Power curve estimation |
 # | **General** | {class}`~openstef_models.transforms.general.Imputer`, {class}`~openstef_models.transforms.general.Scaler`, {class}`~openstef_models.transforms.general.OutlierHandler`, {class}`~openstef_models.transforms.general.SampleWeighter`, {class}`~openstef_models.transforms.general.Selector`, {class}`~openstef_models.transforms.general.Shifter`, {class}`~openstef_models.transforms.general.DimensionalityReducer`, {class}`~openstef_models.transforms.general.EmptyFeatureRemover`, {class}`~openstef_models.transforms.general.Flagger`, {class}`~openstef_models.transforms.general.NaNDropper` | Data cleaning & normalization |
@@ -219,6 +219,62 @@ for col in holiday_cols:
         )
 fig.update_layout(height=400, template="plotly_white", title="Load Drops When Holiday Indicators Fire")
 fig.show()
+
+# %% [markdown]
+# ### {class}`~openstef_models.transforms.time_domain.SchoolHolidayFeatureAdder`
+#
+# **What:** Adds an `is_school_holiday` flag from regional school holiday
+# calendars. Dates come from the [OpenHolidays API](https://openholidaysapi.org),
+# which is fetched once during training and can be exported to CSV, so
+# forecasts never call the API. Set `one_hot_by_name=True` to also get one
+# column per holiday name (for example `is_school_holiday_may_holidays`).
+#
+# **Why for energy forecasting:** Schools close for weeks at a time, which
+# changes daytime load in households and in businesses that depend on school
+# activity. In the Netherlands, school holidays are set per region, so the
+# calendar is configured per subdivision.
+#
+# **Data attribution:** School holiday data from OpenHolidays API
+# (openholidaysapi.org), licensed under ODbL 1.0. Commercial use is permitted.
+
+# %%
+import tempfile
+from datetime import date
+from pathlib import Path
+
+from openstef_models.transforms.time_domain import SchoolHolidayFeatureAdder
+
+# Export once for a date range. This is the only API request in this tutorial.
+csv_path = Path(tempfile.gettempdir()) / "openstef_school_holidays_nl_nh_2024.csv"
+SchoolHolidayFeatureAdder(country_code="NL", subdivision_code="NL-NH").export_csv(
+    csv_path, start=date(2024, 1, 1), end=date(2024, 12, 31)
+)
+
+# Load from CSV. No network access and no fit step needed.
+school_holidays = SchoolHolidayFeatureAdder.from_csv(csv_path, country_code="NL", subdivision_code="NL-NH")
+
+# Late April to early May 2024 overlaps the May school holidays in NL-NH.
+holiday_window = dataset.filter_by_range(
+    start=datetime.fromisoformat("2024-04-20T00:00:00Z"),
+    end=datetime.fromisoformat("2024-05-10T00:00:00Z"),
+)
+result = school_holidays.transform(holiday_window)
+
+window_start = holiday_window.data.index[0].date()
+window_end = holiday_window.data.index[-1].date()
+print(f"Added columns: {school_holidays.features_added()}")
+print(f"School holiday rows in window: {int(result.data['is_school_holiday'].sum()):,}")
+for period in school_holidays.holidays:
+    if period.start_date <= window_end and period.end_date >= window_start:
+        print(f"  {period.name}: {period.start_date} to {period.end_date}")
+
+# Opt in to one 0/1 column per holiday name, so each break can get its own effect.
+named_holidays = SchoolHolidayFeatureAdder.from_csv(
+    csv_path, country_code="NL", subdivision_code="NL-NH", one_hot_by_name=True
+)
+named_result = named_holidays.transform(holiday_window)
+print(f"One-hot columns in window: {named_holidays.features_added()[1:]}")
+print(named_result.data[named_holidays.features_added()[1:]].sum().to_string())
 
 # %% [markdown]
 # ### {class}`~openstef_models.transforms.time_domain.LagsAdder`
@@ -1049,6 +1105,7 @@ print(calibrated.data[["quantile_P10", "quantile_P50", "quantile_P90"]].head())
 # |-------|-----------|--------------------------|-----|
 # | Time | {class}`~openstef_models.transforms.time_domain.CyclicFeaturesAdder` | Smooth daily/weekly encoding | {class}`~openstef_models.transforms.time_domain.CyclicFeaturesAdder` |
 # | Time | {class}`~openstef_models.transforms.time_domain.HolidayFeatureAdder` | Avoids overprediction on holidays | {class}`~openstef_models.transforms.time_domain.HolidayFeatureAdder` |
+# | Time | {class}`~openstef_models.transforms.time_domain.SchoolHolidayFeatureAdder` | Captures load shifts during school holidays | {class}`~openstef_models.transforms.time_domain.SchoolHolidayFeatureAdder` |
 # | Time | {class}`~openstef_models.transforms.time_domain.LagsAdder` | "Last Monday" predicts "this Monday" | {class}`~openstef_models.transforms.time_domain.LagsAdder` |
 # | Time | {class}`~openstef_models.transforms.time_domain.RollingAggregatesAdder` | Captures baseline trends | {class}`~openstef_models.transforms.time_domain.RollingAggregatesAdder` |
 # | Time | {class}`~openstef_models.transforms.time_domain.DatetimeFeaturesAdder` | Sharp tree splits on peak hours | {class}`~openstef_models.transforms.time_domain.DatetimeFeaturesAdder` |
