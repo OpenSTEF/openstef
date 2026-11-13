@@ -215,7 +215,10 @@ class SchoolHolidayFeatureAdder(BaseConfig, TimeSeriesTransform):
           country (and subdivision), 0 otherwise.
 
     With `one_hot_by_name=True`, one more column is added per holiday name, for example
-    is_school_holiday_may_holidays, with 1 on days of that holiday and 0 otherwise.
+    is_school_holiday_may_holidays, with 1 on days of that holiday and 0 otherwise. The names are
+    taken from the holidays known at fit time and stored with the model, sorted by name. The columns
+    therefore stay the same for any data passed to `transform`, even when no holiday falls in it.
+    A holiday name that was not present at fit time gets no column.
 
     Holidays are fetched in `fit` for the training period plus `years_ahead` years, so that
     forecasts can use holiday information for future dates. Dates outside the covered range
@@ -282,6 +285,7 @@ class SchoolHolidayFeatureAdder(BaseConfig, TimeSeriesTransform):
     _covered_until: date | None = PrivateAttr(default=None)
     _holidays: list[SchoolHolidayPeriod] = PrivateAttr(default_factory=list)
     _is_fitted: bool = PrivateAttr(default=False)
+    _holiday_slugs: list[str] = PrivateAttr(default_factory=list)
 
     @property
     def covered_from(self) -> date | None:
@@ -317,16 +321,17 @@ class SchoolHolidayFeatureAdder(BaseConfig, TimeSeriesTransform):
             SchoolHolidayFetchError: If the holidays cannot be retrieved.
             ConfigurationError: If `csv_path` was exported for a different country or subdivision.
         """
+        if self.is_fitted:
+            return
+
         if self.csv_path is not None:
-            self._load_csv(self.csv_path)
+            self._load_csv(path=self.csv_path)
             return
 
         start = data.index.min().date()
         end = (data.index.max() + pd.DateOffset(years=self.years_ahead)).date()
-        self._holidays = self.client.get_school_holidays(self._request(start, end))
-        self._covered_from = start
-        self._covered_until = end
-        self._is_fitted = True
+        holidays = self.client.get_school_holidays(self._request(start, end))
+        self._set_fitted_state(holidays, covered_from=start, covered_until=end)
 
     @override
     def transform(self, data: TimeSeriesDataset) -> TimeSeriesDataset:
@@ -372,11 +377,17 @@ class SchoolHolidayFeatureAdder(BaseConfig, TimeSeriesTransform):
         return list(self._feature_columns())
 
     def _feature_columns(self) -> dict[str, list[SchoolHolidayPeriod]]:
-        """Map each feature column to the holiday periods that set it to 1."""
-        columns: dict[str, list[SchoolHolidayPeriod]] = {self.feature_name: self.holidays}
+        """Map each feature column to the holiday periods that set it to 1.
+
+        The one-hot columns come from the names frozen at fit time, so they do not depend on
+        the holidays that happen to fall in the data being transformed.
+        """
+        columns: dict[str, list[SchoolHolidayPeriod]] = {self.feature_name: self._holidays}
         if self.one_hot_by_name:
-            for period in self.holidays:
-                columns.setdefault(f"{self.feature_name}_{self._name_slug(period.name)}", []).append(period)
+            for slug in self._holiday_slugs:
+                columns[f"{self.feature_name}_{slug}"] = [
+                    period for period in self._holidays if self._name_slug(period.name) == slug
+                ]
         return columns
 
     def export_csv(self, path: Path, start: date, end: date) -> None:
@@ -435,7 +446,7 @@ class SchoolHolidayFeatureAdder(BaseConfig, TimeSeriesTransform):
     def from_csv(
         cls,
         path: Path,
-        country_code: str,
+        country_code: CountryAlpha2,
         subdivision_code: str | None = None,
         *,
         one_hot_by_name: bool = False,
@@ -487,24 +498,35 @@ class SchoolHolidayFeatureAdder(BaseConfig, TimeSeriesTransform):
             raise ConfigurationError(msg) from error
 
         if not rows:
-            self._covered_from = None
-            self._covered_until = None
-            self._holidays = []
-        else:
-            first = rows[0]
-            if first.country_code != self.country_code or first.subdivision_code != self.subdivision_code:
-                msg = (
-                    f"{path} was exported for country {first.country_code} and subdivision {first.subdivision_code}, "
-                    f"but country {self.country_code} and subdivision {self.subdivision_code} are configured."
-                )
-                raise ConfigurationError(msg)
-            self._covered_from = first.covered_from
-            self._covered_until = first.covered_until
-            self._holidays = [
-                SchoolHolidayPeriod(start_date=row.start_date, end_date=row.end_date, name=row.name)
-                for row in rows
-                if row.start_date is not None and row.end_date is not None and row.name is not None
-            ]
+            self._set_fitted_state([], covered_from=None, covered_until=None)
+            return
+
+        first = rows[0]
+        if first.country_code != self.country_code or first.subdivision_code != self.subdivision_code:
+            msg = (
+                f"{path} was exported for country {first.country_code} and subdivision {first.subdivision_code}, "
+                f"but country {self.country_code} and subdivision {self.subdivision_code} are configured."
+            )
+            raise ConfigurationError(msg)
+        holidays = [
+            SchoolHolidayPeriod(start_date=row.start_date, end_date=row.end_date, name=row.name)
+            for row in rows
+            if row.start_date is not None and row.end_date is not None and row.name is not None
+        ]
+        self._set_fitted_state(holidays, covered_from=first.covered_from, covered_until=first.covered_until)
+
+    def _set_fitted_state(
+        self,
+        holidays: list[SchoolHolidayPeriod],
+        *,
+        covered_from: date | None,
+        covered_until: date | None,
+    ) -> None:
+        """Store the holidays and freeze the one-hot column names seen at fit time."""
+        self._holidays = holidays
+        self._covered_from = covered_from
+        self._covered_until = covered_until
+        self._holiday_slugs = sorted({self._name_slug(period.name) for period in holidays})
         self._is_fitted = True
 
     def _request(self, start: date, end: date) -> SchoolHolidaysRequest:

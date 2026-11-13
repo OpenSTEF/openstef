@@ -342,12 +342,36 @@ class TestSchoolHolidayFeatureAdder:
         # Assert
         assert transform.features_added() == [
             "is_school_holiday",
-            "is_school_holiday_summer_holidays",
             "is_school_holiday_may_holidays",
+            "is_school_holiday_summer_holidays",
         ]
         assert result.data["is_school_holiday"].tolist() == [0, 1, 1, 0, 0]
         assert result.data["is_school_holiday_may_holidays"].tolist() == [0, 1, 1, 0, 0]
         assert result.data["is_school_holiday_summer_holidays"].tolist() == [0, 0, 0, 0, 0]
+
+    def test_one_hot_columns_do_not_depend_on_holiday_input_order(self) -> None:
+        # Arrange
+        forward = _fitted([_summer(), _may()], one_hot_by_name=True)
+        reversed_order = _fitted([_may(), _summer()], one_hot_by_name=True)
+
+        # Act / Assert
+        assert forward.features_added() == reversed_order.features_added()
+
+    def test_one_hot_columns_stay_for_window_without_holidays(self) -> None:
+        # Arrange
+        transform = _fitted([_summer(), _may()], one_hot_by_name=True)
+
+        # Act
+        result = transform.transform(_dataset("2025-01-01", periods=3))
+
+        # Assert
+        assert transform.features_added() == [
+            "is_school_holiday",
+            "is_school_holiday_may_holidays",
+            "is_school_holiday_summer_holidays",
+        ]
+        assert result.data["is_school_holiday_may_holidays"].tolist() == [0, 0, 0]
+        assert result.data["is_school_holiday_summer_holidays"].tolist() == [0, 0, 0]
 
     def test_one_hot_groups_periods_with_the_same_name(self) -> None:
         # Arrange
@@ -510,10 +534,32 @@ class TestSchoolHolidayCsv:
         # Assert
         assert loaded.features_added() == [
             "is_school_holiday",
-            "is_school_holiday_summer_holidays",
             "is_school_holiday_may_holidays",
+            "is_school_holiday_summer_holidays",
         ]
         assert result.data["is_school_holiday_may_holidays"].tolist() == [0, 1, 1, 0, 0]
+
+    def test_one_hot_round_trip_keeps_columns_for_window_without_holidays(self, tmp_path: Path) -> None:
+        # Arrange
+        path = tmp_path / "holidays.csv"
+        client = _RecordingClient(periods=[_summer(), _may()])
+        SchoolHolidayFeatureAdder(country_code="NL", client=client).export_csv(
+            path, start=date(2025, 1, 1), end=date(2025, 12, 31)
+        )
+        loaded = SchoolHolidayFeatureAdder.from_csv(path, country_code="NL", one_hot_by_name=True)
+
+        # Act
+        restored = pickle.loads(pickle.dumps(loaded))  # noqa: S301
+        result = restored.transform(_dataset("2025-01-01", periods=3))
+
+        # Assert
+        assert restored.features_added() == [
+            "is_school_holiday",
+            "is_school_holiday_may_holidays",
+            "is_school_holiday_summer_holidays",
+        ]
+        assert result.data["is_school_holiday_may_holidays"].tolist() == [0, 0, 0]
+        assert result.data["is_school_holiday_summer_holidays"].tolist() == [0, 0, 0]
 
     @pytest.mark.parametrize(
         ("export_subdivision", "load_country", "load_subdivision"),
