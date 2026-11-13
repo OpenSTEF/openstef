@@ -49,6 +49,15 @@ class SchoolHolidayPeriod(BaseConfig):
     start_date: date = Field(description="First day of the holiday.")
     end_date: date = Field(description="Last day of the holiday.")
     name: str = Field(description="Holiday name, for example 'Summer Holidays'.")
+    subdivisions: list[str] = Field(
+        default_factory=list,
+        description="Subdivision codes of the regional group the holiday belongs to. Empty for nationwide holidays.",
+    )
+    group_code: str | None = Field(
+        default=None,
+        description="Index of the regional group of the holiday, set by the transform. "
+        "Groups are numbered from 0 in the order of their sorted subdivision codes.",
+    )
 
 
 class SchoolHolidaysRequest(BaseConfig):
@@ -105,7 +114,13 @@ class SchoolHolidayRecord(BaseConfig):
         """Convert to a period, using the English name when available."""
         english = next((text.text for text in self.name if text.language == "EN"), None)
         fallback = self.name[0].text if self.name else "School holiday"
-        return SchoolHolidayPeriod(start_date=self.start_date, end_date=self.end_date, name=english or fallback)
+        subdivisions = [] if self.nationwide else [subdivision.code for subdivision in self.subdivisions]
+        return SchoolHolidayPeriod(
+            start_date=self.start_date,
+            end_date=self.end_date,
+            name=english or fallback,
+            subdivisions=subdivisions,
+        )
 
 
 class OpenHolidaysClient(BaseConfig):
@@ -195,8 +210,13 @@ class SchoolHolidayRow(BaseConfig):
     start_date: date | None = Field(default=None, description="First day of the holiday, or None.")
     end_date: date | None = Field(default=None, description="Last day of the holiday, or None.")
     name: str | None = Field(default=None, description="Holiday name, or None.")
+    subdivisions: str | None = Field(
+        default=None,
+        description="Semicolon-separated subdivision codes the holiday applies to, or None for nationwide.",
+    )
+    group_code: str | None = Field(default=None, description="Regional group of the holiday, or None.")
 
-    @field_validator("subdivision_code", "start_date", "end_date", "name", mode="before")
+    @field_validator("subdivision_code", "start_date", "end_date", "name", "subdivisions", "group_code", mode="before")
     @classmethod
     def _empty_as_none(cls, value: object) -> object:
         return value or None
@@ -232,6 +252,14 @@ class SchoolHolidayFeatureAdder(BaseConfig, TimeSeriesTransform):
     Subdivision: for countries with regional school holidays (such as the Netherlands),
     set `subdivision_code` (for example 'NL-NH'). The API returns holidays that apply to that
     subdivision. Without it, the API returns holidays for all regions combined.
+
+    Regional groups: set `regional_groups=True` to add one column per regional holiday group instead
+    of the single feature, for example is_school_holiday_0 and is_school_holiday_1. Holidays are fetched
+    for all subdivisions, so the model can pick the schedule that fits a location without knowing its
+    province. A group is the set of subdivisions that share exactly the same holidays. Groups are
+    numbered from 0 in the order of their sorted subdivision codes, and holidays without subdivisions
+    form a group too. The membership of each group is kept in the transform, and in the CSV export's
+    `subdivisions` column. Requires `subdivision_code` to be None.
 
     Example:
         >>> import pandas as pd
@@ -275,6 +303,11 @@ class SchoolHolidayFeatureAdder(BaseConfig, TimeSeriesTransform):
         default=False,
         description="Also add one 0/1 column per holiday name, named '<feature_name>_<name slug>'.",
     )
+    regional_groups: bool = Field(
+        default=False,
+        description="Add one 0/1 column per regional holiday group, named '<feature_name>_<index>', instead of "
+        "the single feature. Fetches all subdivisions, so subdivision_code must be None.",
+    )
     csv_path: Path | None = Field(
         default=None,
         description="CSV written by export_csv. If set, fit reads the holidays from this file instead of the API.",
@@ -290,6 +323,14 @@ class SchoolHolidayFeatureAdder(BaseConfig, TimeSeriesTransform):
     _holidays: list[SchoolHolidayPeriod] = PrivateAttr(default_factory=list)
     _is_fitted: bool = PrivateAttr(default=False)
     _holiday_slugs: list[str] = PrivateAttr(default_factory=list)
+    _group_members: dict[str, frozenset[str]] = PrivateAttr(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _regional_groups_fetch_all_subdivisions(self) -> Self:
+        if self.regional_groups and self.subdivision_code is not None:
+            msg = "regional_groups fetches all subdivisions, so subdivision_code must be None."
+            raise ValueError(msg)
+        return self
 
     @property
     def covered_from(self) -> date | None:
@@ -334,7 +375,7 @@ class SchoolHolidayFeatureAdder(BaseConfig, TimeSeriesTransform):
 
         start = data.index.min().date()
         end = (data.index.max() + pd.DateOffset(years=self.years_ahead)).date()
-        holidays = self.client.get_school_holidays(self._request(start, end))
+        holidays = self._assign_groups(self.client.get_school_holidays(self._request(start, end)))
         self._set_fitted_state(holidays, covered_from=start, covered_until=end)
 
     @override
@@ -386,7 +427,14 @@ class SchoolHolidayFeatureAdder(BaseConfig, TimeSeriesTransform):
         The one-hot columns come from the names frozen at fit time, so they do not depend on
         the holidays that happen to fall in the data being transformed.
         """
-        columns: dict[str, list[SchoolHolidayPeriod]] = {self.feature_name: self._holidays}
+        columns: dict[str, list[SchoolHolidayPeriod]] = {}
+        if self.regional_groups:
+            for code in self._group_members:
+                columns[f"{self.feature_name}_{code}"] = [
+                    period for period in self._holidays if period.group_code == code
+                ]
+        else:
+            columns[self.feature_name] = self._holidays
         if self.one_hot_by_name:
             for slug in self._holiday_slugs:
                 columns[f"{self.feature_name}_{slug}"] = [
@@ -417,7 +465,7 @@ class SchoolHolidayFeatureAdder(BaseConfig, TimeSeriesTransform):
             msg = f"end ({end}) must not be before start ({start})."
             raise ValueError(msg)
 
-        periods = self.client.get_school_holidays(self._request(start, end))
+        periods = self._assign_groups(self.client.get_school_holidays(self._request(start, end)))
         rows = [
             SchoolHolidayRow(
                 country_code=self.country_code,
@@ -427,6 +475,8 @@ class SchoolHolidayFeatureAdder(BaseConfig, TimeSeriesTransform):
                 start_date=period.start_date,
                 end_date=period.end_date,
                 name=period.name,
+                subdivisions=";".join(period.subdivisions),
+                group_code=period.group_code,
             )
             for period in periods
         ]
@@ -454,6 +504,7 @@ class SchoolHolidayFeatureAdder(BaseConfig, TimeSeriesTransform):
         subdivision_code: str | None = None,
         *,
         one_hot_by_name: bool = False,
+        regional_groups: bool = False,
     ) -> Self:
         """Create a transform from a CSV file written by `export_csv`.
 
@@ -467,18 +518,21 @@ class SchoolHolidayFeatureAdder(BaseConfig, TimeSeriesTransform):
             country_code: Country the file must have been exported for.
             subdivision_code: Subdivision the file must have been exported for, or None.
             one_hot_by_name: Also add one 0/1 column per holiday name. See the class docstring.
+            regional_groups: Add one column per regional group. The file must have been exported
+                with `subdivision_code` None and must contain group codes. See the class docstring.
 
         Returns:
             A transform covering the date range of the file, with the holidays in the file.
 
         Raises:
-            ConfigurationError: If the file is malformed or was exported for a different
-                country or subdivision.
+            ConfigurationError: If the file is malformed, was exported for a different
+                country or subdivision, or lacks group codes when `regional_groups` is set.
         """
         transform = cls(
             country_code=country_code,
             subdivision_code=subdivision_code,
             one_hot_by_name=one_hot_by_name,
+            regional_groups=regional_groups,
             csv_path=path,
         )
         transform._load_csv(path)
@@ -512,11 +566,25 @@ class SchoolHolidayFeatureAdder(BaseConfig, TimeSeriesTransform):
                 f"but country {self.country_code} and subdivision {self.subdivision_code} are configured."
             )
             raise ConfigurationError(msg)
-        holidays = [
-            SchoolHolidayPeriod(start_date=row.start_date, end_date=row.end_date, name=row.name)
-            for row in rows
-            if row.start_date is not None and row.end_date is not None and row.name is not None
-        ]
+        holidays: list[SchoolHolidayPeriod] = []
+        for row in rows:
+            if row.start_date is None or row.end_date is None or row.name is None:
+                continue
+            if self.regional_groups and (row.group_code is None or not row.group_code.isdigit()):
+                msg = (
+                    f"{path} has holidays without a numeric group_code, so it was exported before regional groups "
+                    "were indexed. Re-export it with export_csv."
+                )
+                raise ConfigurationError(msg)
+            holidays.append(
+                SchoolHolidayPeriod(
+                    start_date=row.start_date,
+                    end_date=row.end_date,
+                    name=row.name,
+                    subdivisions=row.subdivisions.split(";") if row.subdivisions else [],
+                    group_code=row.group_code,
+                )
+            )
         self._set_fitted_state(holidays, covered_from=first.covered_from, covered_until=first.covered_until)
 
     def _set_fitted_state(
@@ -526,11 +594,16 @@ class SchoolHolidayFeatureAdder(BaseConfig, TimeSeriesTransform):
         covered_from: date | None,
         covered_until: date | None,
     ) -> None:
-        """Store the holidays and freeze the one-hot column names seen at fit time."""
+        """Store the holidays and freeze the column names seen at fit time: one-hot names and regional groups."""
         self._holidays = holidays
         self._covered_from = covered_from
         self._covered_until = covered_until
         self._holiday_slugs = sorted({self._name_slug(period.name) for period in holidays})
+        group_members: dict[str, frozenset[str]] = {}
+        for period in holidays:
+            if period.group_code is not None:
+                group_members[period.group_code] = frozenset(period.subdivisions)
+        self._group_members = dict(sorted(group_members.items(), key=lambda item: (len(item[0]), item[0])))
         self._is_fitted = True
 
     def _request(self, start: date, end: date) -> SchoolHolidaysRequest:
@@ -540,6 +613,34 @@ class SchoolHolidayFeatureAdder(BaseConfig, TimeSeriesTransform):
             valid_to=end,
             subdivision_code=self.subdivision_code,
         )
+
+    @staticmethod
+    def _assign_groups(periods: list[SchoolHolidayPeriod]) -> list[SchoolHolidayPeriod]:
+        """Set the regional group index and group subdivisions of each period.
+
+        Records with the same dates and name are one holiday, so their subdivisions are merged.
+        Holidays that cover exactly the same subdivisions form one group. Groups are numbered from 0
+        in the order of their sorted subdivision codes, so the numbering does not depend on the
+        order of the API response. A holiday without subdivisions is in the group with no members.
+        """
+        holiday_codes: dict[tuple[date, date, str], frozenset[str]] = {}
+        for period in periods:
+            key = (period.start_date, period.end_date, period.name)
+            holiday_codes[key] = holiday_codes.get(key, frozenset()) | frozenset(period.subdivisions)
+
+        group_index = {
+            members: str(index) for index, members in enumerate(sorted(set(holiday_codes.values()), key=sorted))
+        }
+
+        return [
+            period.model_copy(
+                update={
+                    "group_code": group_index[holiday_codes[(period.start_date, period.end_date, period.name)]],
+                    "subdivisions": sorted(holiday_codes[(period.start_date, period.end_date, period.name)]),
+                }
+            )
+            for period in periods
+        ]
 
     @staticmethod
     def _expand_dates(periods: list[SchoolHolidayPeriod]) -> set[date]:
@@ -577,10 +678,22 @@ class SchoolHolidayConfig(BaseConfig):
         default=False,
         description="Also add one 0/1 column per holiday name, named '<feature_name>_<name slug>'.",
     )
+    regional_groups: bool = Field(
+        default=False,
+        description="Add one 0/1 column per regional holiday group instead of the single feature. "
+        "Fetches all subdivisions, so subdivision_code must be None.",
+    )
     csv_path: Path | None = Field(
         default=None,
         description="CSV written by SchoolHolidayFeatureAdder.export_csv. If set, fit reads it instead of the API.",
     )
+
+    @model_validator(mode="after")
+    def _regional_groups_fetch_all_subdivisions(self) -> Self:
+        if self.regional_groups and self.subdivision_code is not None:
+            msg = "regional_groups fetches all subdivisions, so subdivision_code must be None."
+            raise ValueError(msg)
+        return self
 
     def create_transform(self) -> SchoolHolidayFeatureAdder:
         """Create a new school holiday transform with this configuration.
@@ -594,5 +707,6 @@ class SchoolHolidayConfig(BaseConfig):
             years_ahead=self.years_ahead,
             feature_name=self.feature_name,
             one_hot_by_name=self.one_hot_by_name,
+            regional_groups=self.regional_groups,
             csv_path=self.csv_path,
         )

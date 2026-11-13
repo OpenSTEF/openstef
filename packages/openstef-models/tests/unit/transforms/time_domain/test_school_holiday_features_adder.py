@@ -20,7 +20,7 @@ from unittest.mock import patch
 
 import pandas as pd
 import pytest
-from pydantic import Field
+from pydantic import Field, ValidationError
 from pydantic_extra_types.country import CountryAlpha2
 
 from openstef_core.datasets import TimeSeriesDataset
@@ -29,6 +29,7 @@ from openstef_core.mixins.transform import TransformPipeline
 from openstef_models.transforms.time_domain import SchoolHolidayFeatureAdder
 from openstef_models.transforms.time_domain.school_holiday_features_adder import (
     OpenHolidaysClient,
+    SchoolHolidayConfig,
     SchoolHolidayFetchError,
     SchoolHolidayPeriod,
     SchoolHolidaysRequest,
@@ -69,6 +70,11 @@ def _summer() -> SchoolHolidayPeriod:
 
 def _may() -> SchoolHolidayPeriod:
     return SchoolHolidayPeriod(start_date=date(2025, 5, 1), end_date=date(2025, 5, 2), name="May Holidays")
+
+
+def _nationwide(period: SchoolHolidayPeriod) -> SchoolHolidayPeriod:
+    """Expected form of a period without subdivisions after fit or CSV load: the only group, index 0."""
+    return period.model_copy(update={"group_code": "0"})
 
 
 def _unreachable_url() -> str:
@@ -211,7 +217,12 @@ class TestOpenHolidaysClient:
 
         # Assert
         assert periods == [
-            SchoolHolidayPeriod(start_date=date(2025, 7, 5), end_date=date(2025, 8, 31), name="Summer Holidays")
+            SchoolHolidayPeriod(
+                start_date=date(2025, 7, 5),
+                end_date=date(2025, 8, 31),
+                name="Summer Holidays",
+                subdivisions=["NL-NH"],
+            )
         ]
 
     @pytest.mark.parametrize(
@@ -325,7 +336,7 @@ class TestSchoolHolidayFeatureAdder:
         assert request.subdivision_code == "NL-NH"
         assert transform.covered_from == date(2025, 1, 1)
         assert transform.covered_until == date(2027, 1, 10)
-        assert transform.holidays == client.periods
+        assert transform.holidays == [_nationwide(_summer())]
 
     def test_fit_with_default_client_makes_one_http_request(self, holiday_server: _HolidayServer) -> None:
         # Arrange
@@ -537,6 +548,8 @@ class TestSchoolHolidayCsv:
             "start_date",
             "end_date",
             "name",
+            "subdivisions",
+            "group_code",
         ]
         assert frame["covered_from"].tolist() == ["2025-01-01", "2025-01-01"]
         assert frame["covered_until"].tolist() == ["2025-12-31", "2025-12-31"]
@@ -587,7 +600,7 @@ class TestSchoolHolidayCsv:
         assert loaded.subdivision_code == subdivision_code
         assert loaded.covered_from == date(2025, 1, 1)
         assert loaded.covered_until == date(2025, 12, 31)
-        assert loaded.holidays == client.periods
+        assert loaded.holidays == [_nationwide(_summer())]
         assert result.data["is_school_holiday"].tolist() == [0, 1, 1, 1, 0]
 
     def test_one_hot_round_trip_restores_name_columns(self, tmp_path: Path) -> None:
@@ -744,7 +757,7 @@ class TestSchoolHolidayCsv:
         assert client.requests == []
         assert transform.is_fitted
         assert transform.covered_until == date(2025, 12, 31)
-        assert transform.holidays == [_summer()]
+        assert transform.holidays == [_nationwide(_summer())]
 
     def test_fit_csv_path_rejects_other_country(self, tmp_path: Path) -> None:
         # Arrange
@@ -775,4 +788,179 @@ class TestSchoolHolidayCsv:
         assert restored.is_fitted
         assert restored.covered_from == date(2025, 1, 1)
         assert restored.covered_until == date(2025, 12, 31)
-        assert restored.holidays == [_summer()]
+        assert restored.holidays == [_nationwide(_summer())]
+
+
+def _autumn(start: date, end: date, *codes: str) -> SchoolHolidayPeriod:
+    return SchoolHolidayPeriod(start_date=start, end_date=end, name="Autumn", subdivisions=list(codes))
+
+
+def _ge_holiday() -> SchoolHolidayPeriod:
+    return _autumn(date(2025, 10, 20), date(2025, 10, 24), "NL-GE", "NL-GE-AR")
+
+
+def _dr_holiday() -> SchoolHolidayPeriod:
+    return _autumn(date(2025, 10, 27), date(2025, 10, 31), "NL-DR")
+
+
+class TestRegionalGroups:
+    """Tests for the opt-in regional_groups mode: one 0/1 column per regional holiday group."""
+
+    def test_adds_one_column_per_group_and_no_plain_column(self) -> None:
+        # Arrange
+        client = _RecordingClient(periods=[_ge_holiday(), _dr_holiday()])
+        transform = SchoolHolidayFeatureAdder(country_code="NL", regional_groups=True, client=client)
+        transform.fit(_dataset("2025-10-18", periods=15))
+
+        # Act
+        result = transform.transform(_dataset("2025-10-18", periods=15)).data
+
+        # Assert
+        assert "is_school_holiday" not in result.columns
+        # NL-DR sorts before NL-GE, so it is group 0 and NL-GE is group 1.
+        assert result["is_school_holiday_1"].tolist() == [0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0]
+        assert result["is_school_holiday_0"].tolist() == [0] * 9 + [1] * 5 + [0]
+
+    def test_holiday_without_subdivisions_gets_nationwide_column(self) -> None:
+        # Arrange
+        client = _RecordingClient(periods=[_summer()])
+        transform = SchoolHolidayFeatureAdder(country_code="NL", regional_groups=True, client=client)
+        transform.fit(_dataset("2025-06-30", periods=5))
+
+        # Act
+        result = transform.transform(_dataset("2025-06-30", periods=5)).data
+
+        # Assert
+        assert transform.features_added() == ["is_school_holiday_0"]
+        assert result["is_school_holiday_0"].tolist() == [0, 1, 1, 1, 0]
+
+    def test_records_of_the_same_holiday_merge_into_one_group(self) -> None:
+        # Arrange
+        client = _RecordingClient(
+            periods=[
+                _autumn(date(2025, 10, 20), date(2025, 10, 24), "NL-GE"),
+                _autumn(date(2025, 10, 20), date(2025, 10, 24), "NL-DR"),
+            ]
+        )
+        transform = SchoolHolidayFeatureAdder(country_code="NL", regional_groups=True, client=client)
+        transform.fit(_dataset("2025-10-18", periods=15))
+
+        # Act
+        result = transform.transform(_dataset("2025-10-18", periods=15)).data
+
+        # Assert
+        group_columns = [column for column in result.columns if column.startswith("is_school_holiday_")]
+        assert group_columns == ["is_school_holiday_0"]
+        assert result["is_school_holiday_0"].tolist() == [0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0]
+
+    def test_holidays_covering_the_same_subdivisions_share_a_group(self) -> None:
+        # Arrange
+        client = _RecordingClient(
+            periods=[
+                _autumn(date(2025, 10, 20), date(2025, 10, 24), "NL-GE", "NL-GE-AR"),
+                _autumn(date(2025, 10, 27), date(2025, 10, 31), "NL-GE", "NL-GE-AR"),
+            ]
+        )
+        transform = SchoolHolidayFeatureAdder(country_code="NL", regional_groups=True, client=client)
+        transform.fit(_dataset("2025-10-18", periods=15))
+
+        # Act
+        result = transform.transform(_dataset("2025-10-18", periods=15)).data
+
+        # Assert
+        assert transform.features_added() == ["is_school_holiday_0"]
+        assert result["is_school_holiday_0"].tolist() == [0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0]
+
+    def test_groups_are_numbered_by_sorted_subdivisions_not_api_order(self) -> None:
+        # Arrange
+        client = _RecordingClient(periods=[_dr_holiday(), _ge_holiday()])
+        transform = SchoolHolidayFeatureAdder(country_code="NL", regional_groups=True, client=client)
+
+        # Act
+        transform.fit(_dataset("2025-10-18", periods=15))
+
+        # Assert
+        assert transform.features_added() == ["is_school_holiday_0", "is_school_holiday_1"]
+        assert [(period.group_code, period.subdivisions) for period in transform.holidays] == [
+            ("0", ["NL-DR"]),
+            ("1", ["NL-GE", "NL-GE-AR"]),
+        ]
+
+    def test_group_membership_is_deducible_from_fitted_holidays(self) -> None:
+        # Arrange
+        client = _RecordingClient(periods=[_ge_holiday(), _dr_holiday()])
+        transform = SchoolHolidayFeatureAdder(country_code="NL", regional_groups=True, client=client)
+
+        # Act
+        transform.fit(_dataset("2025-10-18", periods=15))
+
+        # Assert
+        assert transform._group_members == {"0": frozenset({"NL-DR"}), "1": frozenset({"NL-GE", "NL-GE-AR"})}
+
+    def test_group_columns_stay_fixed_after_fit(self) -> None:
+        # Arrange
+        client = _RecordingClient(periods=[_ge_holiday(), _dr_holiday()])
+        transform = SchoolHolidayFeatureAdder(country_code="NL", regional_groups=True, client=client)
+        transform.fit(_dataset("2025-10-18", periods=15))
+
+        # Act
+        result = transform.transform(_dataset("2030-01-01", periods=5)).data
+
+        # Assert
+        group_columns = {column for column in result.columns if column.startswith("is_school_holiday_")}
+        assert group_columns == {"is_school_holiday_0", "is_school_holiday_1"}
+        assert not result[sorted(group_columns)].any().any()
+
+    def test_csv_round_trip_keeps_group_columns(self, tmp_path: Path) -> None:
+        # Arrange
+        path = tmp_path / "holidays.csv"
+        periods = [_ge_holiday(), _dr_holiday()]
+        SchoolHolidayFeatureAdder(
+            country_code="NL", regional_groups=True, client=_RecordingClient(periods=periods)
+        ).export_csv(path, start=date(2025, 1, 1), end=date(2025, 12, 31))
+        fitted = SchoolHolidayFeatureAdder(
+            country_code="NL", regional_groups=True, client=_RecordingClient(periods=periods)
+        )
+        fitted.fit(_dataset("2025-10-18", periods=15))
+
+        # Act
+        with patch("requests.Session.send", side_effect=AssertionError("network access")):
+            loaded = SchoolHolidayFeatureAdder.from_csv(path, country_code=CountryAlpha2("NL"), regional_groups=True)
+            result = loaded.transform(_dataset("2025-10-18", periods=15))
+
+        # Assert
+        pd.testing.assert_frame_equal(result.data, fitted.transform(_dataset("2025-10-18", periods=15)).data)
+
+    def test_regional_load_rejects_csv_without_group_codes(self, tmp_path: Path) -> None:
+        # Arrange
+        path = tmp_path / "holidays.csv"
+        path.write_text(
+            "country_code,subdivision_code,covered_from,covered_until,start_date,end_date,name\n"
+            "NL,,2025-01-01,2025-12-31,2025-07-01,2025-07-03,Summer Holidays\n"
+        )
+
+        # Act / Assert
+        with pytest.raises(ConfigurationError, match="exported before regional groups"):
+            SchoolHolidayFeatureAdder.from_csv(path, country_code=CountryAlpha2("NL"), regional_groups=True)
+        plain = SchoolHolidayFeatureAdder.from_csv(path, country_code=CountryAlpha2("NL"))
+        assert plain.holidays == [_summer()]
+
+    def test_regional_load_rejects_csv_with_name_based_group_codes(self, tmp_path: Path) -> None:
+        # Arrange
+        path = tmp_path / "holidays.csv"
+        path.write_text(
+            "country_code,subdivision_code,covered_from,covered_until,start_date,end_date,name,subdivisions,group_code\n"
+            "NL,,2025-01-01,2025-12-31,2025-10-20,2025-10-24,Autumn,NL-GE;NL-GE-AR,NL-GE\n"
+        )
+
+        # Act / Assert
+        with pytest.raises(ConfigurationError, match="exported before regional groups"):
+            SchoolHolidayFeatureAdder.from_csv(path, country_code=CountryAlpha2("NL"), regional_groups=True)
+
+    def test_rejects_subdivision_code_with_regional_groups(self) -> None:
+        with pytest.raises(ValidationError, match="subdivision_code must be None"):
+            SchoolHolidayFeatureAdder(country_code="NL", subdivision_code="NL-NH", regional_groups=True)
+
+    def test_config_rejects_subdivision_code_with_regional_groups(self) -> None:
+        with pytest.raises(ValidationError, match="subdivision_code must be None"):
+            SchoolHolidayConfig(country_code=CountryAlpha2("NL"), subdivision_code="NL-NH", regional_groups=True)

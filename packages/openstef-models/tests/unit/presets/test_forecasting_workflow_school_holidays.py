@@ -52,6 +52,15 @@ def test_school_holidays_add_configured_transform(
     assert transform.csv_path == Path("holidays.csv")
 
 
+def test_regional_groups_passes_through_to_transform() -> None:
+    school_holidays = SchoolHolidayConfig(country_code="NL", regional_groups=True)
+
+    (transform,) = _school_holiday_transforms("xgboost", school_holidays)
+
+    assert transform.regional_groups is True
+    assert transform.subdivision_code is None
+
+
 def test_create_transform_returns_new_instance_each_call() -> None:
     school_holidays = SchoolHolidayConfig(country_code="NL")
 
