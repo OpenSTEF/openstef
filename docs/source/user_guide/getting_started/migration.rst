@@ -15,6 +15,14 @@ begin with :doc:`/user_guide/getting_started/installation`.
    surface is intentionally different. Plan for a rewrite of integration code, not a
    find-and-replace.
 
+.. warning::
+
+   Models trained with OpenSTEF v3 cannot be loaded in v4. The new version
+   compatibility validation will reject any model that lacks a valid OpenSTEF version
+   tag or was created with an incompatible major version, raising
+   :class:`~openstef_core.exceptions.OpenSTEFVersionCompatibilityError`. You must
+   retrain all models after upgrading.
+
 Package Structure
 -----------------
 
@@ -46,6 +54,12 @@ In v3 these were all bundled in a single ``openstef`` package:
    * - ``openstef-dbc``
      - *No equivalent*
      - See :ref:`migration_dbc` below
+
+.. note::
+
+   The ``openstef-core`` package now requires ``packaging`` (>=25) as a dependency for
+   version parsing and compatibility checks. Verify that this does not conflict with
+   other packages in your environment.
 
 Configuration
 -------------
@@ -295,6 +309,32 @@ types; configure quantiles via the ``quantiles`` field instead.
    * - (new)
      - ``"lgbmlinear"``
      - LightGBM with linear learner
+
+Model Version Compatibility
+---------------------------
+
+V4 tracks which OpenSTEF version was used to train each model. When a model is saved
+to MLflow, it is automatically tagged with the current OpenSTEF version. At load time,
+the framework checks this tag and rejects models created with an incompatible major
+version.
+
+OpenSTEF uses a ``m.x.y`` versioning scheme where a change in the major segment
+(``m``) indicates a breaking change in model compatibility. Models trained under one
+major version cannot be loaded under a different major version.
+
+If you encounter :class:`~openstef_core.exceptions.OpenSTEFVersionCompatibilityError`
+after upgrading, the solution is to retrain the affected model. The error message
+includes the MLflow run ID and the mismatched version details to help you identify
+which model needs retraining.
+
+For programmatic version checks in custom integration code, the
+``openstef_core.versioning`` module provides:
+
+- ``get_runtime_openstef_version()`` to retrieve the current OpenSTEF version at
+  runtime.
+- ``is_openstef_compatible()`` to test whether a given version string is compatible
+  with the running version.
+- ``OPENSTEF_VERSION_TAG``, the MLflow tag key used to store version provenance.
 
 .. _migration_dbc:
 
