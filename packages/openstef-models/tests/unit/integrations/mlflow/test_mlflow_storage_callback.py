@@ -10,13 +10,15 @@ from typing import TYPE_CHECKING, override
 
 import pandas as pd
 import pytest
+from packaging.version import Version
 from pydantic import PrivateAttr
 
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.datasets.validated_datasets import ForecastDataset, ForecastInputDataset
-from openstef_core.exceptions import ModelNotFoundError, SkipFitting
+from openstef_core.exceptions import ModelNotFoundError, OpenSTEFVersionCompatibilityError, SkipFitting
 from openstef_core.mixins.predictor import HyperParams
 from openstef_core.types import LeadTime, Q
+from openstef_core.versioning import OPENSTEF_VERSION_TAG, get_runtime_openstef_version
 from openstef_models.integrations.mlflow import MLFlowStorage, MLFlowStorageCallback
 from openstef_models.mixins.callbacks import WorkflowContext
 from openstef_models.models.forecasting.forecaster import Forecaster
@@ -26,6 +28,8 @@ from openstef_models.workflows.custom_forecasting_workflow import CustomForecast
 
 if TYPE_CHECKING:
     from pathlib import Path
+
+    from mlflow.entities import Run
 
 
 class SimpleTestForecaster(Forecaster):
@@ -140,6 +144,7 @@ def test_mlflow_storage_callback__on_predict_start__loads_model_when_not_fitted(
     workflow: CustomForecastingWorkflow,
     fit_result: ModelFitResult,
     sample_dataset: TimeSeriesDataset,
+    monkeypatch: pytest.MonkeyPatch,
 ):
     """Test that on_predict_start loads model from MLflow when not fitted."""
     # Arrange - Store a fitted model first
@@ -155,6 +160,12 @@ def test_mlflow_storage_callback__on_predict_start__loads_model_when_not_fitted(
         ),
     )
     unfitted_context = WorkflowContext(workflow=unfitted_workflow)
+
+    def unexpected_get_run(run_id: str) -> Run:
+        message = f"Unexpected metadata lookup for run {run_id}."
+        raise AssertionError(message)
+
+    monkeypatch.setattr(callback.storage._client, "get_run", unexpected_get_run)
 
     # Act
     callback.on_predict_start(context=unfitted_context, data=sample_dataset)
@@ -180,6 +191,91 @@ def test_mlflow_storage_callback__on_predict_start__raises_error_when_no_model_e
     # Act & Assert
     with pytest.raises(ModelNotFoundError, match="nonexistent_model"):
         callback.on_predict_start(context=context, data=sample_dataset)
+
+
+def test_mlflow_storage_callback__on_predict_start__rejects_incompatible_version(
+    callback: MLFlowStorageCallback,
+    workflow: CustomForecastingWorkflow,
+    fit_result: ModelFitResult,
+    sample_dataset: TimeSeriesDataset,
+):
+    # Arrange
+    callback.storage.enforce_version_compatibility = True
+    callback.on_fit_end(context=WorkflowContext(workflow=workflow), result=fit_result)
+    run = callback.storage.search_latest_runs(model_id=workflow.model_id)[0]
+    runtime_version = Version(get_runtime_openstef_version())
+    incompatible_version = f"{runtime_version.major + 1}.{runtime_version.minor}.0"
+    callback.storage._client.set_tag(run.info.run_id, OPENSTEF_VERSION_TAG, incompatible_version)
+    unfitted_workflow = CustomForecastingWorkflow(
+        model_id=workflow.model_id,
+        model=ForecastingModel(
+            forecaster=SimpleTestForecaster(horizons=[LeadTime(timedelta(hours=1))], quantiles=[Q(0.5)]),
+        ),
+    )
+    context = WorkflowContext(workflow=unfitted_workflow)
+
+    # Act / Assert
+    with pytest.raises(OpenSTEFVersionCompatibilityError, match="incompatible or missing OpenSTEF version tag"):
+        callback.on_predict_start(context=context, data=sample_dataset)
+
+
+def test_mlflow_storage_callback__on_predict_start__rejects_missing_version(
+    callback: MLFlowStorageCallback,
+    workflow: CustomForecastingWorkflow,
+    fit_result: ModelFitResult,
+    sample_dataset: TimeSeriesDataset,
+):
+    # Arrange
+    callback.storage.enforce_version_compatibility = True
+    callback.on_fit_end(context=WorkflowContext(workflow=workflow), result=fit_result)
+    run = callback.storage.search_latest_runs(model_id=workflow.model_id)[0]
+    callback.storage._client.delete_tag(run.info.run_id, OPENSTEF_VERSION_TAG)
+    unfitted_workflow = CustomForecastingWorkflow(
+        model_id=workflow.model_id,
+        model=ForecastingModel(
+            forecaster=SimpleTestForecaster(horizons=[LeadTime(timedelta(hours=1))], quantiles=[Q(0.5)]),
+        ),
+    )
+    context = WorkflowContext(workflow=unfitted_workflow)
+
+    # Act / Assert
+    with pytest.raises(OpenSTEFVersionCompatibilityError, match="incompatible or missing OpenSTEF version tag"):
+        callback.on_predict_start(context=context, data=sample_dataset)
+
+
+def test_mlflow_storage_callback__on_fit_start__retries_incompatible_recent_model(
+    callback: MLFlowStorageCallback,
+    workflow: CustomForecastingWorkflow,
+    fit_result: ModelFitResult,
+):
+    # Arrange
+    callback.storage.enforce_version_compatibility = True
+    callback.on_fit_end(context=WorkflowContext(workflow=workflow), result=fit_result)
+    run = callback.storage.search_latest_runs(model_id=workflow.model_id)[0]
+    runtime_version = Version(get_runtime_openstef_version())
+    incompatible_version = f"{runtime_version.major + 1}.{runtime_version.minor}.0"
+    callback.storage._client.set_tag(run.info.run_id, OPENSTEF_VERSION_TAG, incompatible_version)
+
+    # Act
+    callback.on_fit_start(context=WorkflowContext(workflow=workflow), data=fit_result.input_dataset)
+
+
+def test_mlflow_storage_callback__on_fit_start__allows_incompatible_recent_model_when_enforcement_is_disabled(
+    callback: MLFlowStorageCallback,
+    workflow: CustomForecastingWorkflow,
+    fit_result: ModelFitResult,
+):
+    # Arrange
+    callback.storage.enforce_version_compatibility = False
+    callback.on_fit_end(context=WorkflowContext(workflow=workflow), result=fit_result)
+    run = callback.storage.search_latest_runs(model_id=workflow.model_id)[0]
+    current_version = Version(get_runtime_openstef_version())
+    incompatible_version = f"{current_version.major + 1}.{current_version.minor}.0"
+    callback.storage._client.set_tag(run.info.run_id, OPENSTEF_VERSION_TAG, incompatible_version)
+
+    # Act / Assert
+    with pytest.raises(SkipFitting, match="recent enough"):
+        callback.on_fit_start(context=WorkflowContext(workflow=workflow), data=fit_result.input_dataset)
 
 
 @pytest.mark.parametrize(
@@ -223,6 +319,7 @@ def test_mlflow_storage_callback__model_selection__keeps_better_model(
     workflow: CustomForecastingWorkflow,
     fit_result: ModelFitResult,
     sample_dataset: TimeSeriesDataset,
+    monkeypatch: pytest.MonkeyPatch,
 ):
     """Test that model selection keeps the better performing model."""
     # Arrange - Create callback with R2 metric (capital letters)
@@ -252,6 +349,12 @@ def test_mlflow_storage_callback__model_selection__keeps_better_model(
 
     worse_workflow = CustomForecastingWorkflow(model_id="test_model", model=worse_model)
     worse_context = WorkflowContext(workflow=worse_workflow)
+
+    def unexpected_get_run(run_id: str) -> Run:
+        message = f"Unexpected metadata lookup for run {run_id}."
+        raise AssertionError(message)
+
+    monkeypatch.setattr(storage._client, "get_run", unexpected_get_run)
 
     # Act & Assert - Should raise SkipFitting because new model is worse
     with pytest.raises(SkipFitting, match="New model did not improve"):
@@ -290,3 +393,35 @@ def test_mlflow_storage_callback__model_selection__skips_on_tag_change(
     # Assert - Should not raise SkipFitting because model changed
     assert result is None
     assert new_workflow.model == new_model
+
+
+def test_mlflow_storage_callback__model_selection__ignores_incompatible_openstef_version(
+    storage: MLFlowStorage,
+    workflow: CustomForecastingWorkflow,
+    fit_result: ModelFitResult,
+    sample_dataset: TimeSeriesDataset,
+):
+    # Arrange
+    callback = MLFlowStorageCallback(storage=storage, model_selection_metric=(Q(0.5), "R2", "higher_is_better"))
+    storage.enforce_version_compatibility = True
+    callback.on_fit_end(context=WorkflowContext(workflow=workflow), result=fit_result)
+    run = storage.search_latest_runs(model_id=workflow.model_id)[0]
+    runtime_version = Version(get_runtime_openstef_version())
+    incompatible_version = f"{runtime_version.major + 1}.{runtime_version.minor}.0"
+    storage._client.set_tag(run.info.run_id, OPENSTEF_VERSION_TAG, incompatible_version)
+
+    worse_forecaster = SimpleTestForecaster(horizons=[LeadTime(timedelta(hours=1))], quantiles=[Q(0.5)])
+    worse_forecaster._median_value = 50.0
+    worse_forecaster._is_fitted = True
+    worse_model = ForecastingModel(
+        forecaster=worse_forecaster,
+        data_splitter=DataSplitter(test_fraction=0.0, val_fraction=0.0),
+    )
+    worse_result = worse_model.fit(sample_dataset)
+    worse_workflow = CustomForecastingWorkflow(model_id=workflow.model_id, model=worse_model)
+
+    # Act
+    callback._run_model_selection(workflow=worse_workflow, result=worse_result)
+
+    # Assert
+    assert worse_workflow.model is worse_model

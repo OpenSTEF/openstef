@@ -42,9 +42,11 @@ from openstef_core.datasets.versioned_timeseries_dataset import (
 from openstef_core.exceptions import (
     MissingColumnsError,
     ModelNotFoundError,
+    OpenSTEFVersionCompatibilityError,
     SkipFitting,
 )
 from openstef_core.types import Q, QuantileOrGlobal
+from openstef_core.versioning import OPENSTEF_VERSION_TAG, is_openstef_compatible
 from openstef_models.integrations.mlflow.mlflow_storage import MLFlowStorage
 from openstef_models.mixins.callbacks import WorkflowContext
 from openstef_models.models.forecasting_model import BaseForecastingModel, ModelFitResult
@@ -99,6 +101,9 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
         run = self._find_run(model_id=context.workflow.model_id, run_name=context.workflow.run_name)
 
         if run is not None:
+            if not self._is_openstef_compatible_run(run):
+                return
+
             now = datetime.now(tz=UTC)
             end_time_millis = cast(float | None, run.info.end_time)
             run_end_datetime = (
@@ -185,7 +190,7 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
             raise ModelNotFoundError(model_id=context.workflow.model_id)
 
         run_id: str = run.info.run_id
-        old_model = self.storage.load_run_model(run_id=run_id, model_id=context.workflow.model_id)
+        old_model = self.storage.load_run_model(run_id=run_id, model_id=context.workflow.model_id, run=run)
 
         if not isinstance(old_model, BaseForecastingModel):
             self._logger.warning(
@@ -218,7 +223,7 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
         new_model = workflow.model
         new_metrics = result.metrics_full
 
-        old_model = self._try_load_model(run_id=run_id, model_id=workflow.model_id)
+        old_model = self._try_load_model(run=run, model_id=workflow.model_id)
 
         if old_model is None:
             return
@@ -264,14 +269,37 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
         runs = self.storage.search_latest_runs(model_id=model_id)
         return next(iter(runs), None)
 
-    def _try_load_model(self, run_id: str, model_id: str) -> BaseForecastingModel | None:
+    def _is_openstef_compatible_run(self, run: Run) -> bool:
+        if not self.storage.enforce_version_compatibility:
+            return True
+
+        model_version = run.data.tags.get(OPENSTEF_VERSION_TAG)
+        compatible = is_openstef_compatible(model_version=model_version)
+        if not compatible:
+            self._logger.warning(
+                "MLflow run %s has incompatible OpenSTEF version tag %r",
+                run.info.run_id,
+                model_version,
+            )
+        return compatible
+
+    def _try_load_model(self, run: Run, model_id: str) -> BaseForecastingModel | None:
         """Try to load a model from MLflow, returning None on failure.
 
         Returns:
             The loaded model, or None if loading failed.
         """
+        run_id = run.info.run_id
         try:
-            old_model = self.storage.load_run_model(run_id=run_id, model_id=model_id)
+            old_model = self.storage.load_run_model(run_id=run_id, model_id=model_id, run=run)
+        except OpenSTEFVersionCompatibilityError as e:
+            self._logger.warning(
+                "Could not load model from previous run %s for model %s due to incompatible OpenSTEF version: %s",
+                run_id,
+                model_id,
+                e,
+            )
+            return None
         except ModelNotFoundError:
             self._logger.warning(
                 "Could not load model from previous run %s for model %s, skipping model selection",
@@ -316,7 +344,7 @@ class MLFlowStorageCallback(BaseConfig, ForecastingCallback):
         Returns:
             True if tags are compatible, False otherwise.
         """
-        old_tags = {k: v for k, v in run_tags.items() if k != "mlflow.runName"}
+        old_tags = {k: v for k, v in run_tags.items() if k not in {"mlflow.runName", OPENSTEF_VERSION_TAG}}
 
         if old_tags == new_tags:
             return True

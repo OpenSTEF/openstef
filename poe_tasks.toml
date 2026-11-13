@@ -192,8 +192,8 @@ cmd = "python docs/sync_sources.py"
 help = "Build the documentation"
 control.expr = "serve"
 switch = [
-  { case = "True", cmd = "sphinx-autobuild docs/source docs/build/html --watch packages --watch examples" },
-  { cmd = "sphinx-build -b html docs/source docs/build/html" },
+  { case = "True", cmd = "sphinx-autobuild -d docs/build/doctrees docs/source docs/build/html --watch packages --watch examples" },
+  { cmd = "sphinx-build -b html -d docs/build/doctrees docs/source docs/build/html" },
 ]
 args = [
   { name = "serve", type = "boolean", default = false, help = "Serve the documentation with live reload" },
@@ -201,4 +201,4 @@ args = [
 
 [tool.poe.tasks.docs-clean]
 help = "Clean the documentation build artifacts"
-cmd = "rm -rf docs/build/html/* docs/source/api/generated"
+cmd = "rm -rf docs/build/html docs/build/doctrees docs/source/api/generated"

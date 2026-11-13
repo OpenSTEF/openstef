@@ -37,6 +37,33 @@ def test_transform_adds_all_features(sample_data: TimeSeriesDataset) -> None:
     pd.testing.assert_series_equal(result.data["pressure"], sample_data.data["pressure"])
 
 
+def test_transform_handles_object_dtype_inputs() -> None:
+    # Arrange
+    index = pd.date_range("2025-01-01", periods=2, freq="h")
+    data = pd.DataFrame(
+        {
+            "temperature": pd.Series([10.0, pd.NA], index=index, dtype=object),
+            "pressure": pd.Series([1013.0, pd.NA], index=index, dtype=object),
+            "relative_humidity": pd.Series([50.0, pd.NA], index=index, dtype=object),
+        },
+        index=index,
+    )
+    dataset = TimeSeriesDataset(data=data, sample_interval=timedelta(hours=1))
+    transform = AtmosphereDerivedFeaturesAdder()
+
+    # Act
+    result = transform.transform(dataset)
+
+    # Assert
+    derived_features = ["saturation_vapour_pressure", "vapour_pressure", "dewpoint", "air_density"]
+    for feature in derived_features:
+        assert result.data[feature].dtype == np.dtype("float64")
+        assert result.data[feature].iloc[0] > 0
+        assert pd.isna(result.data[feature].iloc[1])
+    assert result.data.index.equals(index)
+    assert dataset.data["temperature"].dtype == object
+
+
 def test_transform_included_features_subset(sample_data: TimeSeriesDataset) -> None:
     transform = AtmosphereDerivedFeaturesAdder(included_features=["dewpoint", "air_density"])
     result = transform.transform(sample_data)

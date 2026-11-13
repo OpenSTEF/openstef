@@ -25,9 +25,14 @@ from mlflow.exceptions import MlflowException
 from pydantic import ConfigDict, Field, PrivateAttr
 
 from openstef_core.base_model import BaseConfig
-from openstef_core.exceptions import ModelNotFoundError
+from openstef_core.exceptions import ModelNotFoundError, OpenSTEFVersionCompatibilityError
 from openstef_core.mixins import HyperParams
 from openstef_core.utils.path import safe_path_join
+from openstef_core.versioning import (
+    OPENSTEF_VERSION_TAG,
+    get_runtime_openstef_version,
+    is_openstef_compatible,
+)
 from openstef_models.integrations.joblib import JoblibModelSerializer
 from openstef_models.mixins import ModelIdentifier, ModelSerializer
 
@@ -105,6 +110,10 @@ class MLFlowStorage(BaseConfig):
         "self-contained — useful with a database tracking backend such as ``sqlite:///...``.",
     )
     experiment_name_prefix: str = Field(default="", description="Prefix for MLflow experiment names.")
+    enforce_version_compatibility: bool = Field(
+        default=False,
+        description="Opt in to rejecting MLflow models trained with an incompatible OpenSTEF major or minor version.",
+    )
     # Artifact subdirectories
     data_path: str = Field(default="data", description="Subdirectory for storing training data artifacts.")
     model_path: str = Field(default="model", description="Subdirectory for storing model artifacts.")
@@ -175,9 +184,10 @@ class MLFlowStorage(BaseConfig):
             experiment_id = experiment.experiment_id
 
         # Create run
+        run_tags = {**(tags or {}), OPENSTEF_VERSION_TAG: get_runtime_openstef_version()}
         run = self._client.create_run(
             experiment_id=experiment_id,
-            tags=tags,
+            tags=run_tags,
             run_name=run_name,
         )
         run_id: str = run.info.run_id
@@ -333,7 +343,7 @@ class MLFlowStorage(BaseConfig):
         with Path(model_path / f"model.{self.model_serializer.extension}").open("wb") as f:
             self.model_serializer.serialize(model, file=f)
 
-    def load_run_model(self, run_id: str, model_id: ModelIdentifier) -> object:
+    def load_run_model(self, run_id: str, model_id: ModelIdentifier, run: Run | None = None) -> object:
         """Load a trained model from MLflow artifacts.
 
         Downloads model artifacts from MLflow and deserializes them into the
@@ -342,13 +352,37 @@ class MLFlowStorage(BaseConfig):
         Args:
             run_id: MLflow run ID containing the model artifacts.
             model_id: Model identifier for locating artifact paths.
+            run: Already-fetched MLflow run, if available.
 
         Returns:
             Model instance with restored state from the run.
 
         Raises:
             ModelNotFoundError: If the model artifacts cannot be found in MLflow.
+            ValueError: If the provided run does not match ``run_id``.
+            OpenSTEFVersionCompatibilityError: If version compatibility enforcement is enabled and the run's
+                OpenSTEF version is missing or incompatible.
         """
+        if run is not None and run.info.run_id != run_id:
+            message = f"Provided MLflow run ID {run.info.run_id!r} does not match {run_id!r}."
+            raise ValueError(message)
+
+        if self.enforce_version_compatibility:
+            if run is None:
+                try:
+                    run = self._client.get_run(run_id)
+                except MlflowException as e:
+                    raise ModelNotFoundError(model_id=model_id) from e
+
+            model_version = run.data.tags.get(OPENSTEF_VERSION_TAG)
+            runtime_version = get_runtime_openstef_version()
+            if not is_openstef_compatible(model_version=model_version, runtime_version=runtime_version):
+                raise OpenSTEFVersionCompatibilityError(
+                    run_id=run_id,
+                    model_version=model_version,
+                    runtime_version=runtime_version,
+                )
+
         try:
             with TemporaryDirectory() as tmpdir:
                 self._client.download_artifacts(run_id=run_id, path=self.model_path, dst_path=tmpdir)

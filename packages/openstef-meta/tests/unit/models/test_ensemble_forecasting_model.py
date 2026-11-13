@@ -144,6 +144,23 @@ def test_forecasting_model__predict__raises_error_when_not_fitted(
         model.predict(data=sample_timeseries_dataset)
 
 
+def test_predict_with_contributions_matches_separate_calls(
+    sample_timeseries_dataset: TimeSeriesDataset, model: EnsembleForecastingModel
+) -> None:
+    """Combined prediction matches separate forecast and contribution calls."""
+    model.fit(data=sample_timeseries_dataset)
+    forecast_start = datetime.fromisoformat("2025-01-01T12:00:00")
+
+    forecast_combined, contributions_combined = model.predict_with_contributions(
+        sample_timeseries_dataset, forecast_start=forecast_start
+    )
+    forecast_separate = model.predict(sample_timeseries_dataset, forecast_start=forecast_start)
+    contributions_separate = model.predict_contributions(sample_timeseries_dataset, forecast_start=forecast_start)
+
+    pd.testing.assert_frame_equal(forecast_combined.data, forecast_separate.data)
+    pd.testing.assert_frame_equal(contributions_combined.data, contributions_separate.data)
+
+
 def test_forecasting_model__score__returns_metrics(
     sample_timeseries_dataset: TimeSeriesDataset, model: EnsembleForecastingModel
 ):
