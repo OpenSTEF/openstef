@@ -21,6 +21,7 @@ from openstef_beam.evaluation.models.subset import MetricsDict, QuantileMetricsD
 from openstef_beam.metrics import (
     completeness,
     confusion_matrix,
+    crpss,
     fbeta,
     mae,
     mape,
@@ -82,7 +83,7 @@ class MetricProvider(BaseConfig):
         description="List of quantiles to compute metrics for. If None, all quantiles are processed.",
     )
 
-    def __call__(self, subset: ForecastDataset) -> QuantileMetricsDict:
+    def __call__(self, subset: ForecastDataset, reference: ForecastDataset | None = None) -> QuantileMetricsDict:
         """Process an evaluation subset and return metrics.
 
         Extracts predictions and ground truth from the subset, then computes
@@ -90,10 +91,12 @@ class MetricProvider(BaseConfig):
 
         Args:
             subset: Evaluation subset containing predictions and ground truth data.
+            reference: Optional aligned reference; ignored if unused by the provider.
 
         Returns:
             QuantileMetricsDict mapping quantile keys to computed metric values.
         """
+        _ = reference
         y_true: npt.NDArray[np.floating] = cast(
             pd.DataFrame, not_none(subset.target_series)
         ).to_numpy()  # type workaround
@@ -362,6 +365,83 @@ class RCRPSSampleWeightedProvider(MetricProvider):
         }
 
 
+class CRPSSProvider(MetricProvider):
+    """CRPS skill score relative to a reference forecast."""
+
+    @property
+    @override
+    def metric_names(self) -> frozenset[str]:
+        return frozenset({"CRPSS"})
+
+    @override
+    def __call__(self, subset: ForecastDataset, reference: ForecastDataset | None = None) -> QuantileMetricsDict:
+        """Compute global CRPSS against the reference forecast."""
+        if reference is None:
+            return {"global": {"CRPSS": float("NaN")}}
+
+        y_true: npt.NDArray[np.floating] = cast(pd.DataFrame, not_none(subset.target_series)).to_numpy()
+
+        return {
+            "global": {
+                "CRPSS": crpss(
+                    y_true=y_true,
+                    y_pred=subset.quantiles_data.to_numpy(),
+                    y_reference=reference.quantiles_data.to_numpy(),
+                    quantiles=subset.quantiles,
+                )
+            }
+        }
+
+
+class CRPSSSampleWeightedProvider(MetricProvider):
+    """CRPSS with sample weights scaled to an absolute reference-context quantile."""
+
+    @property
+    @override
+    def metric_names(self) -> frozenset[str]:
+        return frozenset({"CRPSS_sample_weighted"})
+
+    a_min: float = Field(
+        default=0.1,
+        description="Minimum sample weight.",
+    )
+    a_max: float = Field(
+        default=1.0,
+        description="Maximum sample weight.",
+    )
+    exponent: float = Field(
+        default=1.0,
+        description="Exponent for sample weight calculation.",
+    )
+
+    @override
+    def __call__(self, subset: ForecastDataset, reference: ForecastDataset | None = None) -> QuantileMetricsDict:
+        """Compute global sample-weighted CRPSS."""
+        if reference is None:
+            return {"global": {"CRPSS_sample_weighted": float("NaN")}}
+
+        y_true: npt.NDArray[np.floating] = cast(pd.DataFrame, not_none(subset.target_series)).to_numpy()
+        weight_scale = cast(pd.Series, not_none(reference.target_series)).to_numpy()
+
+        sample_weights = np.clip(
+            np.abs(y_true / weight_scale) ** self.exponent,
+            a_min=self.a_min,
+            a_max=self.a_max,
+        )
+
+        return {
+            "global": {
+                "CRPSS_sample_weighted": crpss(
+                    y_true=y_true,
+                    y_pred=subset.quantiles_data.to_numpy(),
+                    y_reference=reference.quantiles_data.to_numpy(),
+                    quantiles=subset.quantiles,
+                    sample_weights=sample_weights,
+                )
+            }
+        }
+
+
 class MAEProvider(MetricProvider):
     """Provides Mean Absolute Error metrics.
 
@@ -467,7 +547,7 @@ class RMAEPeakHoursProvider(MetricProvider):
     )
 
     @override
-    def __call__(self, subset: ForecastDataset) -> QuantileMetricsDict:
+    def __call__(self, subset: ForecastDataset, reference: ForecastDataset | None = None) -> QuantileMetricsDict:
         """Process an evaluation subset and return metrics.
 
         Extracts predictions and ground truth from the subset, then computes
@@ -475,6 +555,7 @@ class RMAEPeakHoursProvider(MetricProvider):
 
         Args:
             subset: Evaluation subset containing predictions and ground truth data.
+            reference: Unused by this provider.
 
         Returns:
             QuantileMetricsDict mapping peak/off-peak periods to computed metric values.

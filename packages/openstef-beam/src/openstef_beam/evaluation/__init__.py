@@ -30,13 +30,19 @@ from openstef_beam.evaluation.models import (
     SubsetMetric,
     Window,
 )
+from openstef_beam.evaluation.reference_forecast import (
+    ConstantQuantileReference,
+    ReferenceForecastConfig,
+)
 
 __all__ = [
+    "ConstantQuantileReference",
     "EvaluationConfig",
     "EvaluationPipeline",
     "EvaluationReport",
     "EvaluationSubsetReport",
     "Filtering",
+    "ReferenceForecastConfig",
     "SubsetMetric",
     "Window",
     "metric_providers",

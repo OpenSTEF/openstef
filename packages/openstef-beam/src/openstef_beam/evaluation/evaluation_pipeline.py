@@ -12,6 +12,7 @@ analysis of how model performance varies across different operational conditions
 import logging
 from collections.abc import Iterator
 from datetime import datetime, timedelta
+from itertools import chain
 from typing import cast
 
 import pandas as pd
@@ -26,9 +27,15 @@ from openstef_beam.evaluation.models import (
     Window,
 )
 from openstef_beam.evaluation.models.subset import merge_quantile_metrics
+from openstef_beam.evaluation.reference_forecast import ReferenceForecastConfig, build_reference_forecast
 from openstef_beam.evaluation.window_iterators import iterate_subsets_by_window
 from openstef_core.base_model import BaseConfig
-from openstef_core.datasets import ForecastDataset, ForecastInputDataset
+from openstef_core.datasets import (
+    ForecastDataset,
+    ForecastInputDataset,
+    TimeSeriesDataset,
+    VersionedTimeSeriesDataset,
+)
 from openstef_core.datasets.mixins import TimeSeriesMixin
 from openstef_core.exceptions import MissingColumnsError
 from openstef_core.types import AvailableAt, LeadTime, Quantile
@@ -54,6 +61,11 @@ class EvaluationConfig(BaseConfig):
     windows: list[Window] = Field(
         default=[Window(lag=timedelta(hours=0), size=timedelta(days=21))],
         description="Time windows for rolling evaluation periods",
+    )
+
+    reference_forecast: ReferenceForecastConfig | None = Field(
+        default=None,
+        description="Reference for skill scores such as CRPSS; unset references yield NaN",
     )
 
 
@@ -143,9 +155,13 @@ class EvaluationPipeline:
             raise MissingColumnsError(missing_columns=list(missing_quantiles))
 
         subsets: list[EvaluationSubsetReport] = []
-        for filtering, subset in self._iterate_subsets(
+        ground_truth_data = ForecastInputDataset.from_timeseries(
+            dataset=ground_truth.select_version(),
+            target_column=target_column,
+        ).pipe_pandas(pd.DataFrame.dropna)
+        for filtering, subset, issue_times in self._iterate_subsets(
             predictions=predictions,
-            ground_truth=ground_truth,
+            ground_truth_data=ground_truth_data,
             evaluation_mask=evaluation_mask,
             target_column=target_column,
         ):
@@ -155,6 +171,11 @@ class EvaluationPipeline:
 
             subset_metrics = self._evaluate_subset(
                 subset=subset,
+                reference=self._build_reference(
+                    subset=subset,
+                    measurements=ground_truth_data.target_series,
+                    issue_times=issue_times,
+                ),
                 reference_date=reference_date,
             )
 
@@ -195,10 +216,7 @@ class EvaluationPipeline:
         if evaluation_mask is not None:
             subset = subset.filter_index(evaluation_mask)
 
-        subset_metrics = self._evaluate_subset(
-            subset=subset,
-            reference_date=reference_date,
-        )
+        subset_metrics = self._evaluate_subset(subset=subset, reference=None, reference_date=reference_date)
 
         return EvaluationSubsetReport(
             filtering=filtering,
@@ -209,63 +227,74 @@ class EvaluationPipeline:
     def _iterate_subsets(
         self,
         predictions: TimeSeriesMixin,
-        ground_truth: TimeSeriesMixin,
+        ground_truth_data: ForecastInputDataset,
         target_column: str,
         evaluation_mask: pd.DatetimeIndex | None = None,
-    ) -> Iterator[tuple[Filtering, ForecastDataset]]:
+    ) -> Iterator[tuple[Filtering, ForecastDataset, pd.Series | None]]:
         """Yields evaluation subsets filtered by available_at and lead_time.
 
-        For ground truth, the data with the latest lead time is used.
-
         Yields:
-            Tuples of (filter_criteria, evaluation_subset)
+            Tuples of (filter_criteria, evaluation_subset, issue_times), where issue_times holds the
+            time each forecast in the subset was issued, or None if the predictions are not versioned.
         """
-        ground_truth_data = ForecastInputDataset.from_timeseries(
-            dataset=ground_truth.select_version(),
-            target_column=target_column,
+        by_available_at = ((at, predictions.filter_by_available_at(at)) for at in self.config.available_ats)
+        by_lead_time = ((lt, predictions.filter_by_lead_time(lt)) for lt in self.config.lead_times)
+        filtered_predictions: Iterator[tuple[Filtering, TimeSeriesMixin]] = chain(by_available_at, by_lead_time)
+        for filtering, versions in filtered_predictions:
+            issue_times = self._issue_times(versions)
+            predictions_filtered = versions.select_version()
+            if evaluation_mask is not None:
+                predictions_filtered = predictions_filtered.filter_index(evaluation_mask)
+
+            # Remove target column from predictions to avoid duplication
+            if target_column in predictions_filtered.data.columns:
+                predictions_filtered = predictions_filtered.pipe_pandas(lambda df: df.drop(columns=[target_column]))
+
+            subset = ForecastDataset(
+                data=ground_truth_data.data.join(predictions_filtered.data, how="inner"),
+                sample_interval=predictions.sample_interval,
+                target_column=target_column,
+            ).filter_quantiles(quantiles=self.quantiles)
+            yield filtering, subset, None if issue_times is None else issue_times.reindex(subset.index)
+
+    @staticmethod
+    def _issue_times(versions: TimeSeriesMixin) -> pd.Series | None:
+        """Availability of the version that ``select_version`` keeps for each timestamp.
+
+        Returns:
+            Issue time per timestamp, or None if no part of the dataset is versioned.
+        """
+        parts = versions.data_parts if isinstance(versions, VersionedTimeSeriesDataset) else [versions]
+        issue_times = [
+            available_at[~part.index.duplicated(keep="first")]
+            for part in parts
+            if isinstance(part, TimeSeriesDataset) and (available_at := part.available_at_series) is not None
+        ]
+        return pd.concat(issue_times, axis=1).max(axis=1) if issue_times else None
+
+    def _build_reference(
+        self,
+        subset: ForecastDataset,
+        measurements: pd.Series,
+        issue_times: pd.Series | None,
+    ) -> ForecastDataset | None:
+        if self.config.reference_forecast is None:
+            return None
+        if issue_times is None:
+            _logger.warning("Predictions are not versioned; skipping the reference forecast.")
+            return None
+
+        return build_reference_forecast(
+            config=self.config.reference_forecast,
+            measurements=measurements,
+            subset=subset,
+            issue_times=issue_times,
         )
-        # Drop nans from ground truth to ensure clean join with predictions
-        ground_truth_data = ground_truth_data.pipe_pandas(pd.DataFrame.dropna)
-
-        for available_at in self.config.available_ats:
-            predictions_filtered = predictions.filter_by_available_at(available_at=available_at).select_version()
-            if evaluation_mask is not None:
-                predictions_filtered = predictions_filtered.filter_index(evaluation_mask)
-
-            # Remove target column from predictions to avoid duplication
-            if target_column in predictions_filtered.data.columns:
-                predictions_filtered = predictions_filtered.pipe_pandas(lambda df: df.drop(columns=[target_column]))
-
-            yield (
-                available_at,
-                ForecastDataset(
-                    data=ground_truth_data.data.join(predictions_filtered.data, how="inner"),
-                    sample_interval=predictions.sample_interval,
-                    target_column=target_column,
-                ).filter_quantiles(quantiles=self.quantiles),
-            )
-
-        for lead_time in self.config.lead_times:
-            predictions_filtered = predictions.filter_by_lead_time(lead_time=lead_time).select_version()
-            if evaluation_mask is not None:
-                predictions_filtered = predictions_filtered.filter_index(evaluation_mask)
-
-            # Remove target column from predictions to avoid duplication
-            if target_column in predictions_filtered.data.columns:
-                predictions_filtered = predictions_filtered.pipe_pandas(lambda df: df.drop(columns=[target_column]))
-
-            yield (
-                lead_time,
-                ForecastDataset(
-                    data=ground_truth_data.data.join(predictions_filtered.data, how="inner"),
-                    sample_interval=predictions.sample_interval,
-                    target_column=target_column,
-                ).filter_quantiles(quantiles=self.quantiles),
-            )
 
     def _evaluate_subset(
         self,
         subset: ForecastDataset,
+        reference: ForecastDataset | None,
         reference_date: datetime | None = None,
     ) -> list[SubsetMetric]:
         """Computes metrics for a given evaluation subset.
@@ -288,7 +317,13 @@ class EvaluationPipeline:
                             window=window,
                             timestamp=window_timestamp,
                             metrics=merge_quantile_metrics(
-                                [provider(window_subset) for provider in self.window_metric_providers]
+                                [
+                                    provider(
+                                        window_subset,
+                                        reference.filter_index(window_subset.index) if reference is not None else None,
+                                    )
+                                    for provider in self.window_metric_providers
+                                ]
                             ),
                         )
                         for window_timestamp, window_subset in iterate_subsets_by_window(
@@ -306,7 +341,9 @@ class EvaluationPipeline:
                 SubsetMetric(
                     window="global",
                     timestamp=cast("pd.Series[pd.Timestamp]", subset.index).min().to_pydatetime(),
-                    metrics=merge_quantile_metrics([provider(subset) for provider in self.global_metric_providers]),
+                    metrics=merge_quantile_metrics(
+                        [provider(subset, reference) for provider in self.global_metric_providers]
+                    ),
                 )
             )
         return windowed_metrics
