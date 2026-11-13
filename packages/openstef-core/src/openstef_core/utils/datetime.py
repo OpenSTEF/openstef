@@ -9,13 +9,17 @@ commonly used in energy forecasting workflows where data must be synchronized
 to regular time grids or specific analysis windows.
 """
 
-import math
 from datetime import datetime, time, timedelta
 from typing import Literal
 
+import pandas as pd
+
 
 def align_datetime(timestamp: datetime, interval: timedelta, mode: Literal["ceil", "floor"] = "ceil") -> datetime:
-    """Align timestamp using modulo approach.
+    """Align timestamp to an interval boundary.
+
+    Aware datetimes align on UTC epoch boundaries. Naive datetimes align on boundaries
+    relative to a naive epoch, so the result does not depend on the local time zone of the machine.
 
     Args:
         timestamp: The datetime to align.
@@ -32,23 +36,16 @@ def align_datetime(timestamp: datetime, interval: timedelta, mode: Literal["ceil
         msg = f"Unknown alignment mode: {mode}"
         raise ValueError(msg)
 
-    if timestamp.tzinfo is None:
-        # Naive datetimes carry no offset. Calling `.timestamp()` would apply the local UTC offset of the machine,
-        # which breaks alignment when that offset is not a multiple of the interval (e.g. UTC+05:30).
-        epoch = datetime(1970, 1, 1)  # noqa: DTZ001
-        elapsed = timestamp - epoch
-        steps = elapsed // interval if mode == "floor" else -(-elapsed // interval)
-        return epoch + steps * interval
+    aligned = pd.Timestamp(timestamp)
+    if timestamp.tzinfo is not None:
+        aligned = aligned.tz_convert("UTC")
 
-    timestamp_epoch_seconds = timestamp.timestamp()
-    interval_seconds = interval.total_seconds()
+    aligned = aligned.floor(interval) if mode == "floor" else aligned.ceil(interval)
 
-    if mode == "floor":
-        aligned_secs = math.floor(timestamp_epoch_seconds / interval_seconds) * interval_seconds
-    else:
-        aligned_secs = math.ceil(timestamp_epoch_seconds / interval_seconds) * interval_seconds
+    if timestamp.tzinfo is not None:
+        aligned = aligned.tz_convert(timestamp.tzinfo)
 
-    return datetime.fromtimestamp(aligned_secs, tz=timestamp.tzinfo)
+    return aligned.to_pydatetime()
 
 
 def align_datetime_to_time(timestamp: datetime, align_time: time, mode: Literal["ceil", "floor"] = "ceil") -> datetime:
