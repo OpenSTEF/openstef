@@ -758,12 +758,16 @@
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.time_domain.holiday_features_adder.html">holiday_features_adder</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.time_domain.lags_adder.html">lags_adder</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.time_domain.rolling_aggregates_adder.html">rolling_aggregates_adder</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.time_domain.school_holiday_features_adder.html">school_holiday_features_adder</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.time_domain.versioned_lags_adder.html">versioned_lags_adder</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.time_domain.CyclicFeaturesAdder.html">CyclicFeaturesAdder</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.time_domain.DatetimeFeaturesAdder.html">DatetimeFeaturesAdder</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.time_domain.HolidayFeatureAdder.html">HolidayFeatureAdder</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.time_domain.LagsAdder.html">LagsAdder</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.time_domain.RollingAggregatesAdder.html">RollingAggregatesAdder</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.time_domain.SchoolHolidayConfig.html">SchoolHolidayConfig</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.time_domain.SchoolHolidayFeatureAdder.html">SchoolHolidayFeatureAdder</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.time_domain.SchoolHolidayRow.html">SchoolHolidayRow</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_models.transforms.time_domain.VersionedLagsAdder.html">VersionedLagsAdder</a></li>
 </ul>
 </details></li>
@@ -1298,7 +1302,10 @@ forecasting models.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="openstef_models.transforms.time_domain.rolling_aggregates_adder.html#module-openstef_models.transforms.time_domain.rolling_aggregates_adder" title="openstef_models.transforms.time_domain.rolling_aggregates_adder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">openstef_models.transforms.time_domain.rolling_aggregates_adder</span></code></a></p></td>
 <td><p>Transform for adding rolling aggregate features to time series data.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="openstef_models.transforms.time_domain.versioned_lags_adder.html#module-openstef_models.transforms.time_domain.versioned_lags_adder" title="openstef_models.transforms.time_domain.versioned_lags_adder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">openstef_models.transforms.time_domain.versioned_lags_adder</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="openstef_models.transforms.time_domain.school_holiday_features_adder.html#module-openstef_models.transforms.time_domain.school_holiday_features_adder" title="openstef_models.transforms.time_domain.school_holiday_features_adder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">openstef_models.transforms.time_domain.school_holiday_features_adder</span></code></a></p></td>
+<td><p>Transform that adds school holiday features to time series data.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="openstef_models.transforms.time_domain.versioned_lags_adder.html#module-openstef_models.transforms.time_domain.versioned_lags_adder" title="openstef_models.transforms.time_domain.versioned_lags_adder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">openstef_models.transforms.time_domain.versioned_lags_adder</span></code></a></p></td>
 <td><p>Lag feature transforms for versioned time series data.</p></td>
 </tr>
 </tbody>
@@ -1324,7 +1331,16 @@ forecasting models.</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">RollingAggregatesAdder</span></code>(*, feature, horizons, ...)</p></td>
 <td><p>Transform that adds rolling aggregate features to time series data.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">VersionedLagsAdder</span></code>(*, feature[, lags])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">SchoolHolidayConfig</span></code>(*, country_code[, ...])</p></td>
+<td><p>Opt-in configuration for school holiday features.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">SchoolHolidayFeatureAdder</span></code>(*, country_code, ...)</p></td>
+<td><p>Transform that adds a school holiday indicator to time series data.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">SchoolHolidayRow</span></code>(*, country_code[, ...])</p></td>
+<td><p>One row of a CSV file written by <cite>SchoolHolidayFeatureAdder.export_csv</cite>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">VersionedLagsAdder</span></code>(*, feature[, lags])</p></td>
 <td><p>Create lag features while preserving data availability constraints.</p></td>
 </tr>
 </tbody>

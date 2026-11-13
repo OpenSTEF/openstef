@@ -34,6 +34,7 @@ Submodules
    openstef_models.transforms.time_domain.holiday_features_adder
    openstef_models.transforms.time_domain.lags_adder
    openstef_models.transforms.time_domain.rolling_aggregates_adder
+   openstef_models.transforms.time_domain.school_holiday_features_adder
    openstef_models.transforms.time_domain.versioned_lags_adder
 
 
@@ -53,6 +54,9 @@ Classes
    HolidayFeatureAdder
    LagsAdder
    RollingAggregatesAdder
+   SchoolHolidayConfig
+   SchoolHolidayFeatureAdder
+   SchoolHolidayRow
    VersionedLagsAdder
 
 

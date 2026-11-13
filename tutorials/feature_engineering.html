@@ -61,7 +61,7 @@
     <link rel="icon" href="../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Ensemble Forecasting" href="ensemble_forecasting.html" />
+    <link rel="next" title="School Holidays and a Christmas Forecast" href="school_holiday_forecasting.html" />
     <link rel="prev" title="Building a Custom Pipeline" href="custom_pipeline.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
@@ -406,6 +406,7 @@
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="custom_pipeline.html">Custom Pipeline</a></li>
 <li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">Feature Engineering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="school_holiday_forecasting.html">School Holidays and a Christmas Forecast</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ensemble_forecasting.html">Ensemble Forecasting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hyperparameter_tuning_with_optuna.html">Hyperparameter Tuning</a></li>
 <li class="toctree-l1"><a class="reference internal" href="foundation_model_forecasting_quickstart.html">Foundation Model Forecasting Quickstart</a></li>
@@ -514,7 +515,7 @@ patterns to a model — <strong>feature engineering</strong> makes them explicit
 </thead>
 <tbody>
 <tr class="row-even"><td><p><strong>Time Domain</strong></p></td>
-<td><p><code class="xref py py-class docutils literal notranslate"><span class="pre">CyclicFeaturesAdder</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DatetimeFeaturesAdder</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">HolidayFeatureAdder</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">LagsAdder</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RollingAggregatesAdder</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">VersionedLagsAdder</span></code></p></td>
+<td><p><code class="xref py py-class docutils literal notranslate"><span class="pre">CyclicFeaturesAdder</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">DatetimeFeaturesAdder</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">HolidayFeatureAdder</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">SchoolHolidayFeatureAdder</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">LagsAdder</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">RollingAggregatesAdder</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">VersionedLagsAdder</span></code></p></td>
 <td><p>Encode temporal patterns</p></td>
 </tr>
 <tr class="row-odd"><td><p><strong>Weather Domain</strong></p></td>
@@ -760,6 +761,145 @@ Friday and overpredict.</p>
 </details>
 <div class="cell_output docutils container">
 <img alt="../_images/aec4f10a73b19fea8bb0d55f14c339ae773d8cb7c86f98a46fc8e683b0f74e5c.png" src="../_images/aec4f10a73b19fea8bb0d55f14c339ae773d8cb7c86f98a46fc8e683b0f74e5c.png" />
+</div>
+</div>
+</section>
+<section id="schoolholidayfeatureadder">
+<h3><code class="xref py py-class docutils literal notranslate"><span class="pre">SchoolHolidayFeatureAdder</span></code><a class="headerlink" href="#schoolholidayfeatureadder" title="Link to this heading">#</a></h3>
+<p><strong>What:</strong> Adds an <code class="docutils literal notranslate"><span class="pre">is_school_holiday</span></code> flag from regional school holiday
+calendars. Dates come from the <a class="reference external" href="https://openholidaysapi.org">OpenHolidays API</a>,
+which is fetched once during training and can be exported to CSV, so
+forecasts never call the API. Set <code class="docutils literal notranslate"><span class="pre">one_hot_by_name=True</span></code> to also get one
+column per holiday name (for example <code class="docutils literal notranslate"><span class="pre">is_school_holiday_may_holidays</span></code>), or
+<code class="docutils literal notranslate"><span class="pre">regional_groups=True</span></code> to get one column per regional calendar when the
+region of a location is unknown.</p>
+<p><strong>Why for energy forecasting:</strong> Schools close for weeks at a time, which
+changes daytime load in households and in businesses that depend on school
+activity. In the Netherlands, school holidays are set per region, so the
+calendar is configured per subdivision.</p>
+<p><strong>Data attribution:</strong> School holiday data from OpenHolidays API
+(openholidaysapi.org), licensed under ODbL 1.0. Commercial use is permitted.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">date</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.transforms.time_domain</span><span class="w"> </span><span class="kn">import</span> <span class="n">SchoolHolidayFeatureAdder</span>
+
+<span class="c1"># Export once for a date range. This is the only API request in this tutorial.</span>
+<span class="n">csv_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tempfile</span><span class="o">.</span><span class="n">gettempdir</span><span class="p">())</span> <span class="o">/</span> <span class="s2">&quot;openstef_school_holidays_nl_nh_2024.csv&quot;</span>
+<span class="n">SchoolHolidayFeatureAdder</span><span class="p">(</span><span class="n">country_code</span><span class="o">=</span><span class="s2">&quot;NL&quot;</span><span class="p">,</span> <span class="n">subdivision_code</span><span class="o">=</span><span class="s2">&quot;NL-NH&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">export_csv</span><span class="p">(</span>
+    <span class="n">csv_path</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">date</span><span class="p">(</span><span class="mi">2024</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="n">date</span><span class="p">(</span><span class="mi">2024</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">31</span><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="c1"># Load from CSV. No network access and no fit step needed.</span>
+<span class="n">school_holidays</span> <span class="o">=</span> <span class="n">SchoolHolidayFeatureAdder</span><span class="o">.</span><span class="n">from_csv</span><span class="p">(</span><span class="n">csv_path</span><span class="p">,</span> <span class="n">country_code</span><span class="o">=</span><span class="s2">&quot;NL&quot;</span><span class="p">,</span> <span class="n">subdivision_code</span><span class="o">=</span><span class="s2">&quot;NL-NH&quot;</span><span class="p">)</span>
+
+<span class="c1"># Late April to early May 2024 overlaps the May school holidays in NL-NH.</span>
+<span class="n">holiday_window</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">filter_by_range</span><span class="p">(</span>
+    <span class="n">start</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="s2">&quot;2024-04-20T00:00:00Z&quot;</span><span class="p">),</span>
+    <span class="n">end</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="s2">&quot;2024-05-10T00:00:00Z&quot;</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">school_holidays</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">holiday_window</span><span class="p">)</span>
+
+<span class="n">window_start</span> <span class="o">=</span> <span class="n">holiday_window</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+<span class="n">window_end</span> <span class="o">=</span> <span class="n">holiday_window</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Added columns: </span><span class="si">{</span><span class="n">school_holidays</span><span class="o">.</span><span class="n">features_added</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;School holiday rows in window: </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;is_school_holiday&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">period</span> <span class="ow">in</span> <span class="n">school_holidays</span><span class="o">.</span><span class="n">holidays</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">period</span><span class="o">.</span><span class="n">start_date</span> <span class="o">&lt;=</span> <span class="n">window_end</span> <span class="ow">and</span> <span class="n">period</span><span class="o">.</span><span class="n">end_date</span> <span class="o">&gt;=</span> <span class="n">window_start</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">period</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">period</span><span class="o">.</span><span class="n">start_date</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">period</span><span class="o">.</span><span class="n">end_date</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># Opt in to one 0/1 column per holiday name, so each break can get its own effect.</span>
+<span class="n">named_holidays</span> <span class="o">=</span> <span class="n">SchoolHolidayFeatureAdder</span><span class="o">.</span><span class="n">from_csv</span><span class="p">(</span>
+    <span class="n">csv_path</span><span class="p">,</span> <span class="n">country_code</span><span class="o">=</span><span class="s2">&quot;NL&quot;</span><span class="p">,</span> <span class="n">subdivision_code</span><span class="o">=</span><span class="s2">&quot;NL-NH&quot;</span><span class="p">,</span> <span class="n">one_hot_by_name</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+<span class="n">named_result</span> <span class="o">=</span> <span class="n">named_holidays</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">holiday_window</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;One-hot columns in window: </span><span class="si">{</span><span class="n">named_holidays</span><span class="o">.</span><span class="n">features_added</span><span class="p">()[</span><span class="mi">1</span><span class="p">:]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">named_result</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">named_holidays</span><span class="o">.</span><span class="n">features_added</span><span class="p">()[</span><span class="mi">1</span><span class="p">:]]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">to_string</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Added columns: [&#39;is_school_holiday&#39;]
+School holiday rows in window: 864
+  May Holidays: 2024-04-27 to 2024-05-05
+One-hot columns in window: [&#39;is_school_holiday_autumn_holidays&#39;, &#39;is_school_holiday_christmas_holidays&#39;, &#39;is_school_holiday_may_holidays&#39;, &#39;is_school_holiday_spring_holidays&#39;, &#39;is_school_holiday_summer_holidays&#39;]
+is_school_holiday_autumn_holidays         0
+is_school_holiday_christmas_holidays      0
+is_school_holiday_may_holidays          864
+is_school_holiday_spring_holidays         0
+is_school_holiday_summer_holidays         0
+</pre></div>
+</div>
+</div>
+</div>
+<p><strong>Regional groups:</strong> When you don’t know which region a location belongs to,
+set <code class="docutils literal notranslate"><span class="pre">regional_groups=True</span></code>. The transform then adds one column per group of
+subdivisions that share a holiday calendar, and the model learns which group
+matters for each location. The export below fetches all Dutch subdivisions in
+one request. The plot shows each group over 2024. Each row lists its provinces.
+The north and south provinces follow different calendars, so their rows light
+up at different times.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">regional_csv_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tempfile</span><span class="o">.</span><span class="n">gettempdir</span><span class="p">())</span> <span class="o">/</span> <span class="s2">&quot;openstef_school_holidays_nl_regional_2024.csv&quot;</span>
+<span class="n">SchoolHolidayFeatureAdder</span><span class="p">(</span><span class="n">country_code</span><span class="o">=</span><span class="s2">&quot;NL&quot;</span><span class="p">,</span> <span class="n">regional_groups</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">export_csv</span><span class="p">(</span>
+    <span class="n">regional_csv_path</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">date</span><span class="p">(</span><span class="mi">2024</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="n">date</span><span class="p">(</span><span class="mi">2024</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">31</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="n">regional_holidays</span> <span class="o">=</span> <span class="n">SchoolHolidayFeatureAdder</span><span class="o">.</span><span class="n">from_csv</span><span class="p">(</span><span class="n">regional_csv_path</span><span class="p">,</span> <span class="n">country_code</span><span class="o">=</span><span class="s2">&quot;NL&quot;</span><span class="p">,</span> <span class="n">regional_groups</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Transform the whole of 2024 at hourly resolution, then keep one value per day.</span>
+<span class="n">year_index</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">date_range</span><span class="p">(</span><span class="s2">&quot;2024-01-01&quot;</span><span class="p">,</span> <span class="s2">&quot;2024-12-31 23:00&quot;</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="s2">&quot;1h&quot;</span><span class="p">,</span> <span class="n">tz</span><span class="o">=</span><span class="s2">&quot;UTC&quot;</span><span class="p">)</span>
+<span class="n">year</span> <span class="o">=</span> <span class="n">TimeSeriesDataset</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;load&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">},</span> <span class="n">index</span><span class="o">=</span><span class="n">year_index</span><span class="p">),</span> <span class="n">sample_interval</span><span class="o">=</span><span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+<span class="n">regional_columns</span> <span class="o">=</span> <span class="n">regional_holidays</span><span class="o">.</span><span class="n">features_added</span><span class="p">()</span>
+<span class="n">daily</span> <span class="o">=</span> <span class="n">regional_holidays</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">year</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">regional_columns</span><span class="p">]</span><span class="o">.</span><span class="n">resample</span><span class="p">(</span><span class="s2">&quot;D&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+
+<span class="c1"># Province codes per group, read from the public holiday periods. Group numbers</span>
+<span class="c1"># depend on the export, so read the province list rather than the number.</span>
+<span class="n">group_provinces</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">period</span> <span class="ow">in</span> <span class="n">regional_holidays</span><span class="o">.</span><span class="n">holidays</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">period</span><span class="o">.</span><span class="n">group_code</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">group_provinces</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">period</span><span class="o">.</span><span class="n">group_code</span><span class="p">,</span> <span class="nb">set</span><span class="p">())</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="n">code</span><span class="o">.</span><span class="n">removeprefix</span><span class="p">(</span><span class="s2">&quot;NL-&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">code</span> <span class="ow">in</span> <span class="n">period</span><span class="o">.</span><span class="n">subdivisions</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">code</span><span class="p">)</span> <span class="o">==</span> <span class="mi">5</span>
+        <span class="p">)</span>
+
+<span class="n">labels</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">column</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">group_provinces</span><span class="p">[</span><span class="n">column</span><span class="o">.</span><span class="n">removeprefix</span><span class="p">(</span><span class="s1">&#39;is_school_holiday_&#39;</span><span class="p">)]))</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">regional_columns</span>
+<span class="p">]</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">Figure</span><span class="p">(</span>
+    <span class="n">go</span><span class="o">.</span><span class="n">Heatmap</span><span class="p">(</span>
+        <span class="n">z</span><span class="o">=</span><span class="n">daily</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span>
+        <span class="n">x</span><span class="o">=</span><span class="n">daily</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+        <span class="n">y</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span>
+        <span class="n">zmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">zmax</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">colorscale</span><span class="o">=</span><span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;white&quot;</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;#1f77b4&quot;</span><span class="p">]],</span>
+        <span class="n">showscale</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Regional school holiday groups, 2024 (blue = holiday)&quot;</span><span class="p">,</span>
+    <span class="n">template</span><span class="o">=</span><span class="s2">&quot;plotly_white&quot;</span><span class="p">,</span>
+    <span class="n">height</span><span class="o">=</span><span class="mi">280</span><span class="p">,</span>
+    <span class="n">yaxis</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;automargin&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+<span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Holiday days in 2024 per group:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">daily</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span><span class="o">.</span><span class="n">to_string</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/327b6e7d823ffb5f835fda90aaf00c4adf66735be886cae1b2370d5ac94c5724.png" src="../_images/327b6e7d823ffb5f835fda90aaf00c4adf66735be886cae1b2370d5ac94c5724.png" />
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Holiday days in 2024 per group:
+is_school_holiday_0    89
+is_school_holiday_1    44
+is_school_holiday_2    62
+</pre></div>
+</div>
 </div>
 </div>
 </section>
@@ -2123,81 +2263,86 @@ timestamp
 <td><p><code class="xref py py-class docutils literal notranslate"><span class="pre">HolidayFeatureAdder</span></code></p></td>
 </tr>
 <tr class="row-even"><td><p>Time</p></td>
+<td><p><code class="xref py py-class docutils literal notranslate"><span class="pre">SchoolHolidayFeatureAdder</span></code></p></td>
+<td><p>Captures load shifts during school holidays</p></td>
+<td><p><code class="xref py py-class docutils literal notranslate"><span class="pre">SchoolHolidayFeatureAdder</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Time</p></td>
 <td><p><code class="xref py py-class docutils literal notranslate"><span class="pre">LagsAdder</span></code></p></td>
 <td><p>“Last Monday” predicts “this Monday”</p></td>
 <td><p><code class="xref py py-class docutils literal notranslate"><span class="pre">LagsAdder</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p>Time</p></td>
+<tr class="row-even"><td><p>Time</p></td>
 <td><p><code class="xref py py-class docutils literal notranslate"><span class="pre">RollingAggregatesAdder</span></code></p></td>
 <td><p>Captures baseline trends</p></td>
 <td><p><code class="xref py py-class docutils literal notranslate"><span class="pre">RollingAggregatesAdder</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p>Time</p></td>
+<tr class="row-odd"><td><p>Time</p></td>
 <td><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DatetimeFeaturesAdder</span></code></p></td>
 <td><p>Sharp tree splits on peak hours</p></td>
 <td><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DatetimeFeaturesAdder</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p>Time</p></td>
+<tr class="row-even"><td><p>Time</p></td>
 <td><p><code class="xref py py-class docutils literal notranslate"><span class="pre">VersionedLagsAdder</span></code></p></td>
 <td><p>Respects data availability for weather lags</p></td>
 <td><p><code class="xref py py-class docutils literal notranslate"><span class="pre">VersionedLagsAdder</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p>Weather</p></td>
+<tr class="row-odd"><td><p>Weather</p></td>
 <td><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DaylightFeatureAdder</span></code></p></td>
 <td><p>Seasonal lighting &amp; solar trends</p></td>
 <td><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DaylightFeatureAdder</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p>Weather</p></td>
+<tr class="row-even"><td><p>Weather</p></td>
 <td><p><code class="xref py py-class docutils literal notranslate"><span class="pre">AtmosphereDerivedFeaturesAdder</span></code></p></td>
 <td><p>Humidity/density signals</p></td>
 <td><p><code class="xref py py-class docutils literal notranslate"><span class="pre">AtmosphereDerivedFeaturesAdder</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p>Weather</p></td>
+<tr class="row-odd"><td><p>Weather</p></td>
 <td><p><code class="xref py py-class docutils literal notranslate"><span class="pre">RadiationDerivedFeaturesAdder</span></code></p></td>
 <td><p>Tilted irradiance = PV input</p></td>
 <td><p><code class="xref py py-class docutils literal notranslate"><span class="pre">RadiationDerivedFeaturesAdder</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p>Energy</p></td>
+<tr class="row-even"><td><p>Energy</p></td>
 <td><p><code class="xref py py-class docutils literal notranslate"><span class="pre">WindPowerFeatureAdder</span></code></p></td>
 <td><p>Non-linear power curve</p></td>
 <td><p><code class="xref py py-class docutils literal notranslate"><span class="pre">WindPowerFeatureAdder</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p>General</p></td>
+<tr class="row-odd"><td><p>General</p></td>
 <td><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Imputer</span></code></p></td>
 <td><p>Handles missing data</p></td>
 <td><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Imputer</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p>General</p></td>
+<tr class="row-even"><td><p>General</p></td>
 <td><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Scaler</span></code></p></td>
 <td><p>Normalizes feature scales</p></td>
 <td><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Scaler</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p>General</p></td>
+<tr class="row-odd"><td><p>General</p></td>
 <td><p><code class="xref py py-class docutils literal notranslate"><span class="pre">OutlierHandler</span></code></p></td>
 <td><p>Enforces plausible ranges</p></td>
 <td><p><code class="xref py py-class docutils literal notranslate"><span class="pre">OutlierHandler</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p>General</p></td>
+<tr class="row-even"><td><p>General</p></td>
 <td><p><code class="xref py py-class docutils literal notranslate"><span class="pre">SampleWeighter</span></code></p></td>
 <td><p>Emphasizes peak loads</p></td>
 <td><p><code class="xref py py-class docutils literal notranslate"><span class="pre">SampleWeighter</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p>Validation</p></td>
+<tr class="row-odd"><td><p>Validation</p></td>
 <td><p><code class="xref py py-class docutils literal notranslate"><span class="pre">CompletenessChecker</span></code></p></td>
 <td><p>Rejects incomplete data</p></td>
 <td><p><code class="xref py py-class docutils literal notranslate"><span class="pre">CompletenessChecker</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p>Validation</p></td>
+<tr class="row-even"><td><p>Validation</p></td>
 <td><p><code class="xref py py-class docutils literal notranslate"><span class="pre">FlatlineChecker</span></code></p></td>
 <td><p>Catches stuck sensors</p></td>
 <td><p><code class="xref py py-class docutils literal notranslate"><span class="pre">FlatlineChecker</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p>Validation</p></td>
+<tr class="row-odd"><td><p>Validation</p></td>
 <td><p><code class="xref py py-class docutils literal notranslate"><span class="pre">InputConsistencyChecker</span></code></p></td>
 <td><p>Guards schema drift</p></td>
 <td><p><code class="xref py py-class docutils literal notranslate"><span class="pre">InputConsistencyChecker</span></code></p></td>
 </tr>
-<tr class="row-odd"><td><p>Postprocessing</p></td>
+<tr class="row-even"><td><p>Postprocessing</p></td>
 <td><p><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantileSorter</span></code></p></td>
 <td><p>Valid prediction intervals</p></td>
 <td><p><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantileSorter</span></code></p></td>
@@ -2237,11 +2382,11 @@ timestamp
       </div>
     </a>
     <a class="right-next"
-       href="ensemble_forecasting.html"
+       href="school_holiday_forecasting.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Ensemble Forecasting</p>
+        <p class="prev-next-title">School Holidays and a Christmas Forecast</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -2268,6 +2413,7 @@ timestamp
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#time-domain-transforms">1. Time Domain Transforms</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#cyclicfeaturesadder"><code class="xref py py-class docutils literal notranslate"><span class="pre">CyclicFeaturesAdder</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#holidayfeatureadder"><code class="xref py py-class docutils literal notranslate"><span class="pre">HolidayFeatureAdder</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#schoolholidayfeatureadder"><code class="xref py py-class docutils literal notranslate"><span class="pre">SchoolHolidayFeatureAdder</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#lagsadder"><code class="xref py py-class docutils literal notranslate"><span class="pre">LagsAdder</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#rollingaggregatesadder"><code class="xref py py-class docutils literal notranslate"><span class="pre">RollingAggregatesAdder</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#datetimefeaturesadder"><code class="xref py py-class docutils literal notranslate"><span class="pre">DatetimeFeaturesAdder</span></code></a></li>

@@ -1,0 +1,1422 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>School Holidays and a Christmas Forecast &#8212; OpenSTEF 0.0.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx_autodoc_typehints.css?v=057ac668" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=3f5a9049" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
+
+    <script src="../_static/documentation_options.js?v=7026087e"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=97f0b27d"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'tutorials/school_holiday_forecasting';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.24.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = '_static/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Ensemble Forecasting" href="ensemble_forecasting.html" />
+    <link rel="prev" title="Feature Engineering for Energy Forecasting" href="feature_engineering.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.0.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/openstef-horizontal-color.svg" class="logo__image only-light" alt="OpenSTEF homepage"/>
+    <img src="../_static/openstef-horizontal-white.svg" class="logo__image only-dark pst-js-only" alt="OpenSTEF homepage"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api/index.html">
+    API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../project/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contribute/index.html">
+    Contributing
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/OpenSTEF/openstef" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.lfenergy.org/projects/openstef/" title="LFE Homepage" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-bolt fa-lg" aria-hidden="true"></i><span class="visually-hidden">LFE Homepage</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page" aria-expanded="false" aria-controls="pst-secondary-sidebar-modal">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../examples.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api/index.html">
+    API
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../project/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contribute/index.html">
+    Contributing
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/OpenSTEF/openstef" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://www.lfenergy.org/projects/openstef/" title="LFE Homepage" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-bolt fa-lg" aria-hidden="true"></i><span class="visually-hidden">LFE Homepage</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button type="button" id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar">
+  <svg class="pst-icon" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="forecasting_quickstart.html">Forecasting Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="backtesting_quickstart.html">Backtesting Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets.html">Understanding Datasets</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Training &amp; Forecasting</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="custom_pipeline.html">Custom Pipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="feature_engineering.html">Feature Engineering</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">School Holidays and a Christmas Forecast</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ensemble_forecasting.html">Ensemble Forecasting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hyperparameter_tuning_with_optuna.html">Hyperparameter Tuning</a></li>
+<li class="toctree-l1"><a class="reference internal" href="foundation_model_forecasting_quickstart.html">Foundation Model Forecasting Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="foundation_model_forecasting.html">Foundation Model Forecasting</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Evaluation &amp; Analysis</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="model_explainability.html">Model Explainability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quantile_calibration.html">Quantile Calibration</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Benchmarks</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../benchmarks/README.html">Benchmarking Guide</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../benchmarks/liander2024/README.html">Liander 2024</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks/liander2024/run_xgboost_gblinear_benchmark.html">XGBoost &amp; GBLinear</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks/liander2024/run_ensemble_benchmark.html">Ensemble Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks/liander2024/run_chronos2_benchmark.html">Chronos-2 (zero-shot)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks/liander2024/compare_benchmark_runs.html">Compare Results</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../benchmarks/custom/README.html">Build Your Own</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks/custom/custom_forecaster.html">Implement a Custom Forecaster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks/custom/custom_benchmark.html">Configure a Custom Benchmark</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks/custom/run_liander2024_benchmark.html">Run on Liander 2024 Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks/custom/run_custom_benchmark.html">Run on Your Own Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks/custom/evaluate_existing_forecasts.html">Evaluate Existing Forecasts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks/custom/compare_benchmark_runs.html">Compare Multiple Runs</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Workshop</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="workshop.html">OpenSTEF workshop</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-house"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../examples.html" class="nav-link">Examples</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">School Holidays and a Christmas Forecast</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="school-holidays-and-a-christmas-forecast">
+<h1>School Holidays and a Christmas Forecast<a class="headerlink" href="#school-holidays-and-a-christmas-forecast" title="Link to this heading">#</a></h1>
+<p>Does adding school holidays as a feature change a forecast over the Christmas break?
+This tutorial trains two GBLinear models on the same data. One uses school holiday
+features and one does not. Both forecast the week of 21 December 2024, which falls
+in the Christmas school holiday for the Noord-Holland region.</p>
+<p><strong>What you’ll learn:</strong></p>
+<ul class="simple">
+<li><p>Export school holidays once to CSV with <code class="docutils literal notranslate"><span class="pre">SchoolHolidayFeatureAdder.export_csv</span></code></p></li>
+<li><p>Enable school holiday features with <code class="docutils literal notranslate"><span class="pre">SchoolHolidayConfig</span></code> on a workflow</p></li>
+<li><p>Compare two forecasts side by side and measure whether the feature changes them</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is a single feeder over a short training window, so the result is one
+data point and not a general conclusion. The training window contains one school
+holiday period (autumn, 26 October to 3 November 2024).</p>
+</div>
+<p><strong>Data attribution:</strong> School holiday data from the
+<a class="reference external" href="https://openholidaysapi.org">OpenHolidays API</a>, licensed under ODbL 1.0.
+Commercial use is permitted with attribution.</p>
+<section id="load-the-dataset-and-define-the-windows">
+<h2>Load the dataset and define the windows<a class="headerlink" href="#load-the-dataset-and-define-the-windows" title="Link to this heading">#</a></h2>
+<p>We use the Liander 2024 dataset, the same as the
+<a class="reference internal" href="forecasting_quickstart.html"><span class="doc">Forecasting Quickstart</span></a>, but a different feeder. Feeders serve
+different customers, so a school holiday affects them differently. We picked
+Watergraafsmeer because its load dips most during the autumn holiday in the training
+window (about 16%, versus about 6% to 11% for most feeders). It is in Amsterdam,
+which is in the Noord-Holland school holiday region we configure below.</p>
+<ul class="simple">
+<li><p><strong>Training:</strong> 15 September to 21 December 2024. It includes the autumn school
+holiday (26 October to 3 November).</p></li>
+<li><p><strong>Forecast:</strong> 21 to 28 December 2024, inside the Christmas school holiday.</p></li>
+</ul>
+<p>The predict window includes 14 days of history before the forecast start for lag features.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.testing</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_liander_dataset</span>
+
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">load_liander_dataset</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="s2">&quot;mv_feeder/OS Watergraafsmeer&quot;</span><span class="p">)</span>
+
+<span class="n">train_start</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="s2">&quot;2024-09-15T00:00:00Z&quot;</span><span class="p">)</span>
+<span class="n">forecast_start</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="s2">&quot;2024-12-21T00:00:00Z&quot;</span><span class="p">)</span>
+<span class="n">forecast_end</span> <span class="o">=</span> <span class="n">forecast_start</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+
+<span class="n">train_dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">filter_by_range</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">train_start</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">forecast_start</span><span class="p">)</span>
+<span class="n">predict_dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">filter_by_range</span><span class="p">(</span>
+    <span class="n">start</span><span class="o">=</span><span class="n">forecast_start</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">14</span><span class="p">),</span>
+    <span class="n">end</span><span class="o">=</span><span class="n">forecast_end</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;Training:  </span><span class="si">{</span><span class="n">train_dataset</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> rows, &quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">train_dataset</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="si">:</span><span class="s2">%Y-%m-%d</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">train_dataset</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="si">:</span><span class="s2">%Y-%m-%d</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;Predict:   </span><span class="si">{</span><span class="n">predict_dataset</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> rows, &quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">predict_dataset</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="si">:</span><span class="s2">%Y-%m-%d</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">predict_dataset</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="si">:</span><span class="s2">%Y-%m-%d</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Training:  9,312 rows, 2024-09-15 to 2024-12-20
+Predict:   2,016 rows, 2024-12-07 to 2024-12-27
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="export-the-school-holidays-once">
+<h2>Export the school holidays once<a class="headerlink" href="#export-the-school-holidays-once" title="Link to this heading">#</a></h2>
+<p>The OpenHolidays API is free and public, so we ask it for one range of dates in one
+request and save the result to CSV. Workflows then read that file during <code class="docutils literal notranslate"><span class="pre">fit</span></code>, so
+neither training nor forecasting calls the API again. The file is cached in the
+system temp directory and is only requested if it is missing.</p>
+<p>The range covers the training window and the forecast window, with a margin on each side.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">date</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.transforms.time_domain</span><span class="w"> </span><span class="kn">import</span> <span class="n">SchoolHolidayConfig</span><span class="p">,</span> <span class="n">SchoolHolidayFeatureAdder</span>
+
+<span class="n">csv_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tempfile</span><span class="o">.</span><span class="n">gettempdir</span><span class="p">())</span> <span class="o">/</span> <span class="s2">&quot;openstef_school_holidays_nl_nh_2024_2025.csv&quot;</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">csv_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+    <span class="n">SchoolHolidayFeatureAdder</span><span class="p">(</span><span class="n">country_code</span><span class="o">=</span><span class="s2">&quot;NL&quot;</span><span class="p">,</span> <span class="n">subdivision_code</span><span class="o">=</span><span class="s2">&quot;NL-NH&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">export_csv</span><span class="p">(</span>
+        <span class="n">csv_path</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">date</span><span class="p">(</span><span class="mi">2024</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="n">date</span><span class="p">(</span><span class="mi">2025</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">31</span><span class="p">)</span>
+    <span class="p">)</span>
+
+<span class="n">holidays</span> <span class="o">=</span> <span class="n">SchoolHolidayFeatureAdder</span><span class="o">.</span><span class="n">from_csv</span><span class="p">(</span><span class="n">csv_path</span><span class="p">,</span> <span class="n">country_code</span><span class="o">=</span><span class="s2">&quot;NL&quot;</span><span class="p">,</span> <span class="n">subdivision_code</span><span class="o">=</span><span class="s2">&quot;NL-NH&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">period</span> <span class="ow">in</span> <span class="n">holidays</span><span class="o">.</span><span class="n">holidays</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">period</span><span class="o">.</span><span class="n">end_date</span> <span class="o">&gt;=</span> <span class="n">date</span><span class="p">(</span><span class="mi">2024</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="ow">and</span> <span class="n">period</span><span class="o">.</span><span class="n">start_date</span> <span class="o">&lt;=</span> <span class="n">date</span><span class="p">(</span><span class="mi">2025</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">period</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">period</span><span class="o">.</span><span class="n">start_date</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">period</span><span class="o">.</span><span class="n">end_date</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Summer Holidays: 2024-07-20 to 2024-09-01
+Autumn Holidays: 2024-10-26 to 2024-11-03
+Christmas Holidays: 2024-12-21 to 2025-01-05
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="configure-the-two-workflows">
+<h2>Configure the two workflows<a class="headerlink" href="#configure-the-two-workflows" title="Link to this heading">#</a></h2>
+<p>Both workflows use the same GBLinear configuration. The only difference is
+<code class="docutils literal notranslate"><span class="pre">school_holidays</span></code>. The baseline leaves it unset, and the holiday model sets it to a
+<a class="reference external" href="https://openstef.github.io/openstef/api/generated/openstef_models.transforms.time_domain.SchoolHolidayConfig.html"><code class="docutils literal notranslate"><span class="pre">SchoolHolidayConfig</span></code></a>
+that reads the CSV above.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">LeadTime</span><span class="p">,</span> <span class="n">Q</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.presets</span><span class="w"> </span><span class="kn">import</span> <span class="n">ForecastingWorkflowConfig</span><span class="p">,</span> <span class="n">create_forecasting_workflow</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.presets.forecasting_workflow</span><span class="w"> </span><span class="kn">import</span> <span class="n">GBLinearForecaster</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.workflows</span><span class="w"> </span><span class="kn">import</span> <span class="n">CustomForecastingWorkflow</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">build_workflow</span><span class="p">(</span>
+    <span class="n">model_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">school_holidays</span><span class="p">:</span> <span class="n">SchoolHolidayConfig</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">random_state</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CustomForecastingWorkflow</span><span class="p">:</span>
+    <span class="c1"># coord_descent is deterministic for a given seed. The default shotgun updater is not.</span>
+    <span class="k">return</span> <span class="n">create_forecasting_workflow</span><span class="p">(</span>
+        <span class="n">config</span><span class="o">=</span><span class="n">ForecastingWorkflowConfig</span><span class="p">(</span>
+            <span class="n">model_id</span><span class="o">=</span><span class="n">model_id</span><span class="p">,</span>
+            <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gblinear&quot;</span><span class="p">,</span>
+            <span class="n">horizons</span><span class="o">=</span><span class="p">[</span><span class="n">LeadTime</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;PT36H&quot;</span><span class="p">)],</span>
+            <span class="n">quantiles</span><span class="o">=</span><span class="p">[</span><span class="n">Q</span><span class="p">(</span><span class="mf">0.5</span><span class="p">),</span> <span class="n">Q</span><span class="p">(</span><span class="mf">0.1</span><span class="p">),</span> <span class="n">Q</span><span class="p">(</span><span class="mf">0.9</span><span class="p">)],</span>
+            <span class="n">target_column</span><span class="o">=</span><span class="s2">&quot;load&quot;</span><span class="p">,</span>
+            <span class="n">temperature_column</span><span class="o">=</span><span class="s2">&quot;temperature_2m&quot;</span><span class="p">,</span>
+            <span class="n">relative_humidity_column</span><span class="o">=</span><span class="s2">&quot;relative_humidity_2m&quot;</span><span class="p">,</span>
+            <span class="n">wind_speed_column</span><span class="o">=</span><span class="s2">&quot;wind_speed_10m&quot;</span><span class="p">,</span>
+            <span class="n">radiation_column</span><span class="o">=</span><span class="s2">&quot;shortwave_radiation&quot;</span><span class="p">,</span>
+            <span class="n">pressure_column</span><span class="o">=</span><span class="s2">&quot;surface_pressure&quot;</span><span class="p">,</span>
+            <span class="n">school_holidays</span><span class="o">=</span><span class="n">school_holidays</span><span class="p">,</span>
+            <span class="n">verbosity</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">mlflow_storage</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">gblinear_hyperparams</span><span class="o">=</span><span class="n">GBLinearForecaster</span><span class="o">.</span><span class="n">HyperParams</span><span class="p">(</span>
+                <span class="n">n_steps</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">updater</span><span class="o">=</span><span class="s2">&quot;coord_descent&quot;</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">random_state</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+
+
+<span class="n">holiday_config</span> <span class="o">=</span> <span class="n">SchoolHolidayConfig</span><span class="p">(</span><span class="n">country_code</span><span class="o">=</span><span class="s2">&quot;NL&quot;</span><span class="p">,</span> <span class="n">subdivision_code</span><span class="o">=</span><span class="s2">&quot;NL-NH&quot;</span><span class="p">,</span> <span class="n">csv_path</span><span class="o">=</span><span class="n">csv_path</span><span class="p">)</span>
+<span class="n">baseline_workflow</span> <span class="o">=</span> <span class="n">build_workflow</span><span class="p">(</span><span class="s2">&quot;christmas_gblinear_baseline&quot;</span><span class="p">,</span> <span class="n">school_holidays</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="n">holiday_workflow</span> <span class="o">=</span> <span class="n">build_workflow</span><span class="p">(</span><span class="s2">&quot;christmas_gblinear_school_holidays&quot;</span><span class="p">,</span> <span class="n">school_holidays</span><span class="o">=</span><span class="n">holiday_config</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="train-both-models">
+<h2>Train both models<a class="headerlink" href="#train-both-models" title="Link to this heading">#</a></h2>
+<p>Both models are fit on the same training data. The holiday model reads the CSV during
+<code class="docutils literal notranslate"><span class="pre">fit</span></code>, so the holiday feature set is fixed in the checkpoint.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">baseline_result</span> <span class="o">=</span> <span class="n">baseline_workflow</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">)</span>
+<span class="n">holiday_result</span> <span class="o">=</span> <span class="n">holiday_workflow</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">result</span> <span class="ow">in</span> <span class="p">[(</span><span class="s2">&quot;Baseline&quot;</span><span class="p">,</span> <span class="n">baseline_result</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;School holidays&quot;</span><span class="p">,</span> <span class="n">holiday_result</span><span class="p">)]:</span>
+    <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">result</span><span class="o">.</span><span class="n">metrics_test</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> test-set metrics:&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">metrics_test</span><span class="o">.</span><span class="n">to_dataframe</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:55:52,666][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:55:52,831][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:55:53,925][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:55:54,182][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:55:54,314][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:55:55,430][INFO] lag fallback applied
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="forecast-the-christmas-week">
+<h2>Forecast the Christmas week<a class="headerlink" href="#forecast-the-christmas-week" title="Link to this heading">#</a></h2>
+<p>Each model forecasts the same seven days, starting on the first day of the Christmas break.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">ForecastDataset</span>
+
+<span class="n">baseline_forecast</span><span class="p">:</span> <span class="n">ForecastDataset</span> <span class="o">=</span> <span class="n">baseline_workflow</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">predict_dataset</span><span class="p">,</span> <span class="n">forecast_start</span><span class="o">=</span><span class="n">forecast_start</span><span class="p">)</span>
+<span class="n">holiday_forecast</span><span class="p">:</span> <span class="n">ForecastDataset</span> <span class="o">=</span> <span class="n">holiday_workflow</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">predict_dataset</span><span class="p">,</span> <span class="n">forecast_start</span><span class="o">=</span><span class="n">forecast_start</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Baseline rows: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">baseline_forecast</span><span class="o">.</span><span class="n">data</span><span class="p">)</span><span class="si">}</span><span class="s2">, school holiday rows: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">holiday_forecast</span><span class="o">.</span><span class="n">data</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Baseline rows: 672, school holiday rows: 672
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="compare-the-two-forecasts">
+<h2>Compare the two forecasts<a class="headerlink" href="#compare-the-two-forecasts" title="Link to this heading">#</a></h2>
+<p>We score both forecasts against the measured load with two metrics from openstef-beam:</p>
+<ul class="simple">
+<li><p><strong>rMAE</strong> scores the median forecast. It is the mean absolute error divided by the range
+of the measured load in the window.</p></li>
+<li><p><strong>rCRPS</strong> scores all quantiles together. It is the continuous ranked probability score
+divided by the same range.</p></li>
+</ul>
+<p>Both are scale-free, and lower is better. Both models share the same measured load, so the
+normalizer is identical and the two scores compare directly. The difference between the two
+forecasts shows how much the holiday feature moves the prediction.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">rcrps</span><span class="p">,</span> <span class="n">rmae</span>
+
+<span class="n">actual</span> <span class="o">=</span> <span class="n">predict_dataset</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;load&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">forecast_start</span><span class="p">:</span><span class="n">forecast_end</span><span class="p">]</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">&quot;actual&quot;</span><span class="p">)</span>
+<span class="n">baseline_median</span> <span class="o">=</span> <span class="n">baseline_forecast</span><span class="o">.</span><span class="n">median_series</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">&quot;baseline&quot;</span><span class="p">)</span>
+<span class="n">holiday_median</span> <span class="o">=</span> <span class="n">holiday_forecast</span><span class="o">.</span><span class="n">median_series</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">&quot;school_holidays&quot;</span><span class="p">)</span>
+
+<span class="c1"># The Liander feeder stores load in watts, so convert to kilowatts for display.</span>
+<span class="n">comparison</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">actual</span><span class="p">,</span> <span class="n">baseline_median</span><span class="p">,</span> <span class="n">holiday_median</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span> <span class="o">/</span> <span class="mi">1000</span>
+<span class="n">comparison</span><span class="p">[</span><span class="s2">&quot;difference&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">comparison</span><span class="p">[</span><span class="s2">&quot;school_holidays&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">comparison</span><span class="p">[</span><span class="s2">&quot;baseline&quot;</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">score</span><span class="p">(</span><span class="n">forecast</span><span class="p">:</span> <span class="n">ForecastDataset</span><span class="p">,</span> <span class="n">actual</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+    <span class="n">quantiles</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">forecast</span><span class="o">.</span><span class="n">quantiles</span><span class="p">)</span>
+    <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">quantile</span><span class="o">.</span><span class="n">format</span><span class="p">()</span> <span class="k">for</span> <span class="n">quantile</span> <span class="ow">in</span> <span class="n">quantiles</span><span class="p">]</span>
+    <span class="n">aligned</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">actual</span><span class="p">,</span> <span class="n">forecast</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">columns</span><span class="p">]],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;rMAE&quot;</span><span class="p">:</span> <span class="n">rmae</span><span class="p">(</span><span class="n">aligned</span><span class="p">[</span><span class="s2">&quot;actual&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span> <span class="n">aligned</span><span class="p">[</span><span class="n">Q</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">()]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()),</span>
+        <span class="s2">&quot;rCRPS&quot;</span><span class="p">:</span> <span class="n">rcrps</span><span class="p">(</span><span class="n">aligned</span><span class="p">[</span><span class="s2">&quot;actual&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span> <span class="n">aligned</span><span class="p">[</span><span class="n">columns</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span> <span class="n">quantiles</span><span class="p">),</span>
+    <span class="p">}</span>
+
+
+<span class="n">summary</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;Baseline&quot;</span><span class="p">:</span> <span class="n">score</span><span class="p">(</span><span class="n">baseline_forecast</span><span class="p">,</span> <span class="n">actual</span><span class="p">),</span>
+        <span class="s2">&quot;School holidays&quot;</span><span class="p">:</span> <span class="n">score</span><span class="p">(</span><span class="n">holiday_forecast</span><span class="p">,</span> <span class="n">actual</span><span class="p">),</span>
+    <span class="p">}</span>
+<span class="p">)</span><span class="o">.</span><span class="n">T</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Compared rows: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">comparison</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">summary</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">to_string</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Mean difference, school holidays minus baseline: </span><span class="si">{</span><span class="n">comparison</span><span class="p">[</span><span class="s1">&#39;difference&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> kW&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Mean absolute difference between the two forecasts: </span><span class="si">{</span><span class="n">comparison</span><span class="p">[</span><span class="s1">&#39;difference&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> kW&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Largest absolute difference: </span><span class="si">{</span><span class="n">comparison</span><span class="p">[</span><span class="s1">&#39;difference&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> kW&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Compared rows: 672
+                   rMAE   rCRPS
+Baseline         0.3301  0.2404
+School holidays  0.2729  0.2042
+
+Mean difference, school holidays minus baseline: -57.628 kW
+Mean absolute difference between the two forecasts: 57.628 kW
+Largest absolute difference: 75.224 kW
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="visualize-the-comparison">
+<h2>Visualize the comparison<a class="headerlink" href="#visualize-the-comparison" title="Link to this heading">#</a></h2>
+<p>The top panel shows the measured load and both median forecasts. The bottom panel shows
+the difference, school holidays minus baseline.</p>
+<div class="cell tag_hide-input docutils container">
+<details class="admonition hide above-input">
+<summary aria-label="Toggle hidden content">
+<p class="collapsed admonition-title">Show code cell source</p>
+<p class="expanded admonition-title">Hide code cell source</p>
+</summary>
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">plotly.graph_objects</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">go</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">plotly.subplots</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_subplots</span>
+
+<span class="n">fig</span> <span class="o">=</span> <span class="n">make_subplots</span><span class="p">(</span>
+    <span class="n">rows</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">cols</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">shared_xaxes</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">vertical_spacing</span><span class="o">=</span><span class="mf">0.08</span><span class="p">,</span>
+    <span class="n">row_heights</span><span class="o">=</span><span class="p">[</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">],</span>
+    <span class="n">subplot_titles</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Forecast vs actuals&quot;</span><span class="p">,</span> <span class="s2">&quot;Difference (school holidays minus baseline)&quot;</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span>
+    <span class="n">go</span><span class="o">.</span><span class="n">Scatter</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">comparison</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">comparison</span><span class="p">[</span><span class="s2">&quot;actual&quot;</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Actual&quot;</span><span class="p">,</span> <span class="n">line</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;black&quot;</span><span class="p">}),</span> <span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">col</span><span class="o">=</span><span class="mi">1</span>
+<span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span>
+    <span class="n">go</span><span class="o">.</span><span class="n">Scatter</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">comparison</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">comparison</span><span class="p">[</span><span class="s2">&quot;baseline&quot;</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Baseline&quot;</span><span class="p">,</span> <span class="n">line</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;dash&quot;</span><span class="p">:</span> <span class="s2">&quot;dot&quot;</span><span class="p">}),</span> <span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">col</span><span class="o">=</span><span class="mi">1</span>
+<span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span>
+    <span class="n">go</span><span class="o">.</span><span class="n">Scatter</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">comparison</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">comparison</span><span class="p">[</span><span class="s2">&quot;school_holidays&quot;</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;School holidays&quot;</span><span class="p">),</span>
+    <span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">col</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span>
+    <span class="n">go</span><span class="o">.</span><span class="n">Scatter</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">comparison</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">comparison</span><span class="p">[</span><span class="s2">&quot;difference&quot;</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Difference&quot;</span><span class="p">,</span> <span class="n">line</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;firebrick&quot;</span><span class="p">}),</span>
+    <span class="n">row</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">col</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span> <span class="n">template</span><span class="o">=</span><span class="s2">&quot;plotly_white&quot;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Christmas week: with and without school holidays&quot;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">update_yaxes</span><span class="p">(</span><span class="n">title_text</span><span class="o">=</span><span class="s2">&quot;Load (kW)&quot;</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">col</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">update_yaxes</span><span class="p">(</span><span class="n">title_text</span><span class="o">=</span><span class="s2">&quot;kW&quot;</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">col</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</details>
+<div class="cell_output docutils container">
+<img alt="../_images/ec1650ab0fa86ca42bb362fe386908c1e3636ada331a1190e691233672898f2a.png" src="../_images/ec1650ab0fa86ca42bb362fe386908c1e3636ada331a1190e691233672898f2a.png" />
+</div>
+</div>
+</section>
+<section id="is-the-difference-more-than-noise">
+<h2>Is the difference more than noise?<a class="headerlink" href="#is-the-difference-more-than-noise" title="Link to this heading">#</a></h2>
+<p>A single fit can differ from another only because of its random seed. We refit both
+variants for five seeds, using the same seed for the baseline and the holiday model so each
+pair differs only in the school-holiday features. The spread of the paired difference across
+seeds shows how much of the gain is run variance.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="n">fit_rows</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">seed</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+    <span class="n">row</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;seed&quot;</span><span class="p">:</span> <span class="n">seed</span><span class="p">}</span>
+    <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">school_holidays</span> <span class="ow">in</span> <span class="p">[(</span><span class="s2">&quot;baseline&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;school_holidays&quot;</span><span class="p">,</span> <span class="n">holiday_config</span><span class="p">)]:</span>
+        <span class="n">workflow</span> <span class="o">=</span> <span class="n">build_workflow</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;christmas_gblinear_</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">_seed</span><span class="si">{</span><span class="n">seed</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">school_holidays</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
+        <span class="n">workflow</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">metric</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">score</span><span class="p">(</span><span class="n">workflow</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">predict_dataset</span><span class="p">,</span> <span class="n">forecast_start</span><span class="o">=</span><span class="n">forecast_start</span><span class="p">),</span> <span class="n">actual</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">row</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">metric</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+    <span class="n">fit_rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+
+<span class="n">fit_results</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">fit_rows</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">metric</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;rMAE&quot;</span><span class="p">,</span> <span class="s2">&quot;rCRPS&quot;</span><span class="p">]:</span>
+    <span class="n">fit_results</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">metric</span><span class="si">}</span><span class="s2">_difference&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">fit_results</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;school_holidays_</span><span class="si">{</span><span class="n">metric</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">fit_results</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;baseline_</span><span class="si">{</span><span class="n">metric</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">fit_results</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">metric</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;rMAE&quot;</span><span class="p">,</span> <span class="s2">&quot;rCRPS&quot;</span><span class="p">]:</span>
+    <span class="n">difference</span> <span class="o">=</span> <span class="n">fit_results</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">metric</span><span class="si">}</span><span class="s2">_difference&quot;</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">metric</span><span class="si">}</span><span class="s2"> difference (school holidays minus baseline): &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;mean </span><span class="si">{</span><span class="n">difference</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, std </span><span class="si">{</span><span class="n">difference</span><span class="o">.</span><span class="n">std</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:55:57,311][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:55:57,441][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:55:58,638][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:55:58,969][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:55:59,104][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:00,218][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:00,596][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:00,727][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:01,818][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:02,157][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:02,290][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:03,424][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:03,755][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:03,887][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:04,907][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:05,269][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:05,404][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:06,622][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:06,962][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:07,098][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:08,193][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:08,678][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:08,808][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:09,922][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:10,250][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:10,379][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:11,333][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:11,681][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:11,812][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:13,068][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> seed  baseline_rMAE  baseline_rCRPS  school_holidays_rMAE  school_holidays_rCRPS  rMAE_difference  rCRPS_difference
+    0         0.3301          0.2404                0.2729                 0.2042          -0.0571           -0.0362
+    1         0.3277          0.2387                0.2730                 0.2044          -0.0547           -0.0343
+    2         0.3351          0.2440                0.2728                 0.2044          -0.0623           -0.0395
+    3         0.3326          0.2419                0.2722                 0.2041          -0.0604           -0.0378
+    4         0.3300          0.2404                0.2720                 0.2043          -0.0580           -0.0361
+
+rMAE difference (school holidays minus baseline): mean -0.0585, std 0.0029
+rCRPS difference (school holidays minus baseline): mean -0.0368, std 0.0020
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="placebo-a-normal-school-week">
+<h2>Placebo: a normal school week<a class="headerlink" href="#placebo-a-normal-school-week" title="Link to this heading">#</a></h2>
+<p>If the gain above comes from the holiday, it should not appear in a week with no holiday.
+We retrain both models on data up to 9 December 2024 and forecast 9 to 16 December, a normal
+school week. Training still includes the autumn holiday, but not the Christmas one. We run the
+same five paired seeds.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">placebo_start</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="s2">&quot;2024-12-09T00:00:00Z&quot;</span><span class="p">)</span>
+<span class="n">placebo_end</span> <span class="o">=</span> <span class="n">placebo_start</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+<span class="n">placebo_train</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">filter_by_range</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">train_start</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">placebo_start</span><span class="p">)</span>
+<span class="n">placebo_predict</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">filter_by_range</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">placebo_start</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">14</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="n">placebo_end</span><span class="p">)</span>
+<span class="n">placebo_actual</span> <span class="o">=</span> <span class="n">placebo_predict</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;load&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">placebo_start</span><span class="p">:</span><span class="n">placebo_end</span><span class="p">]</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">&quot;actual&quot;</span><span class="p">)</span>
+
+<span class="n">placebo_rows</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">seed</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+    <span class="n">row</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;seed&quot;</span><span class="p">:</span> <span class="n">seed</span><span class="p">}</span>
+    <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">school_holidays</span> <span class="ow">in</span> <span class="p">[(</span><span class="s2">&quot;baseline&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;school_holidays&quot;</span><span class="p">,</span> <span class="n">holiday_config</span><span class="p">)]:</span>
+        <span class="n">workflow</span> <span class="o">=</span> <span class="n">build_workflow</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;placebo_gblinear_</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">_seed</span><span class="si">{</span><span class="n">seed</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">school_holidays</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
+        <span class="n">workflow</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">placebo_train</span><span class="p">)</span>
+        <span class="n">forecast</span> <span class="o">=</span> <span class="n">workflow</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">placebo_predict</span><span class="p">,</span> <span class="n">forecast_start</span><span class="o">=</span><span class="n">placebo_start</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">metric</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">score</span><span class="p">(</span><span class="n">forecast</span><span class="p">,</span> <span class="n">placebo_actual</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">row</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">metric</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+    <span class="n">placebo_rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+
+<span class="n">placebo_results</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">placebo_rows</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">metric</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;rMAE&quot;</span><span class="p">,</span> <span class="s2">&quot;rCRPS&quot;</span><span class="p">]:</span>
+    <span class="n">placebo_results</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">metric</span><span class="si">}</span><span class="s2">_difference&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">placebo_results</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;school_holidays_</span><span class="si">{</span><span class="n">metric</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">placebo_results</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;baseline_</span><span class="si">{</span><span class="n">metric</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">placebo_results</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">metric</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;rMAE&quot;</span><span class="p">,</span> <span class="s2">&quot;rCRPS&quot;</span><span class="p">]:</span>
+    <span class="n">difference</span> <span class="o">=</span> <span class="n">placebo_results</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">metric</span><span class="si">}</span><span class="s2">_difference&quot;</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">metric</span><span class="si">}</span><span class="s2"> difference, normal week (school holidays minus baseline): &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;mean </span><span class="si">{</span><span class="n">difference</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, std </span><span class="si">{</span><span class="n">difference</span><span class="o">.</span><span class="n">std</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;school holidays better in </span><span class="si">{</span><span class="p">(</span><span class="n">difference</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="si">}</span><span class="s2"> of </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">difference</span><span class="p">)</span><span class="si">}</span><span class="s2"> fits&quot;</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:13,406][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:13,522][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:14,561][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:14,861][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:14,979][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:16,081][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:16,451][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:16,566][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:17,569][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:17,869][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:17,987][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:18,957][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:19,257][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:19,372][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:20,266][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:20,570][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:20,689][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:21,704][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:22,012][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:22,131][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:23,027][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:23,470][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:23,596][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:24,603][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:24,920][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:25,042][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:25,900][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:26,200][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:26,319][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:27,422][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> seed  baseline_rMAE  baseline_rCRPS  school_holidays_rMAE  school_holidays_rCRPS  rMAE_difference  rCRPS_difference
+    0         0.2666          0.1502                0.2720                 0.1530           0.0055            0.0029
+    1         0.2665          0.1507                0.2705                 0.1527           0.0040            0.0020
+    2         0.2707          0.1524                0.2727                 0.1536           0.0020            0.0013
+    3         0.2680          0.1510                0.2707                 0.1524           0.0027            0.0014
+    4         0.2679          0.1508                0.2715                 0.1529           0.0036            0.0022
+
+rMAE difference, normal week (school holidays minus baseline): mean 0.0035, std 0.0013, school holidays better in 0 of 5 fits
+rCRPS difference, normal week (school holidays minus baseline): mean 0.0019, std 0.0006, school holidays better in 0 of 5 fits
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="regional-groups-when-the-region-is-unknown">
+<h2>Regional groups when the region is unknown<a class="headerlink" href="#regional-groups-when-the-region-is-unknown" title="Link to this heading">#</a></h2>
+<p>Choosing <code class="docutils literal notranslate"><span class="pre">NL-NH</span></code> assumes we know the region of the feeder. When that is not known, set
+<code class="docutils literal notranslate"><span class="pre">regional_groups=True</span></code>. The transform then adds one 0/1 column per group of subdivisions that
+share a holiday calendar, and the model learns which group matters for this feeder. Columns are
+numbered by the sorted subdivision codes of each group, so the numbering is stable across runs. The
+file below holds all Dutch subdivisions, from one cached request.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">regional_csv_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tempfile</span><span class="o">.</span><span class="n">gettempdir</span><span class="p">())</span> <span class="o">/</span> <span class="s2">&quot;openstef_school_holidays_nl_regional_2024_2025.csv&quot;</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">regional_csv_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+    <span class="n">SchoolHolidayFeatureAdder</span><span class="p">(</span><span class="n">country_code</span><span class="o">=</span><span class="s2">&quot;NL&quot;</span><span class="p">,</span> <span class="n">regional_groups</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">export_csv</span><span class="p">(</span>
+        <span class="n">regional_csv_path</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">date</span><span class="p">(</span><span class="mi">2024</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="n">date</span><span class="p">(</span><span class="mi">2025</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">31</span><span class="p">)</span>
+    <span class="p">)</span>
+
+<span class="n">regional_holidays</span> <span class="o">=</span> <span class="n">SchoolHolidayFeatureAdder</span><span class="o">.</span><span class="n">from_csv</span><span class="p">(</span><span class="n">regional_csv_path</span><span class="p">,</span> <span class="n">country_code</span><span class="o">=</span><span class="s2">&quot;NL&quot;</span><span class="p">,</span> <span class="n">regional_groups</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">group_members</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">period</span><span class="o">.</span><span class="n">group_code</span><span class="p">:</span> <span class="n">period</span><span class="o">.</span><span class="n">subdivisions</span> <span class="k">for</span> <span class="n">period</span> <span class="ow">in</span> <span class="n">regional_holidays</span><span class="o">.</span><span class="n">holidays</span> <span class="k">if</span> <span class="n">period</span><span class="o">.</span><span class="n">group_code</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+<span class="p">}</span>
+<span class="k">for</span> <span class="n">code</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">group_members</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="nb">int</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;is_school_holiday_</span><span class="si">{</span><span class="n">code</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">group_members</span><span class="p">[</span><span class="n">code</span><span class="p">])</span><span class="si">}</span><span class="s2"> subdivisions </span><span class="si">{</span><span class="n">group_members</span><span class="p">[</span><span class="n">code</span><span class="p">][:</span><span class="mi">6</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>is_school_holiday_0: 126 subdivisions [&#39;NL-DR&#39;, &#39;NL-DR-AH&#39;, &#39;NL-DR-AS&#39;, &#39;NL-DR-BO&#39;, &#39;NL-DR-CO&#39;, &#39;NL-DR-DW&#39;]
+is_school_holiday_1: 112 subdivisions [&#39;NL-FL&#39;, &#39;NL-FL-ZE&#39;, &#39;NL-GE&#39;, &#39;NL-GE-AA&#39;, &#39;NL-GE-AP&#39;, &#39;NL-GE-BA&#39;]
+is_school_holiday_2: 127 subdivisions [&#39;NL-GE&#39;, &#39;NL-GE-AR&#39;, &#39;NL-GE-BD&#39;, &#39;NL-GE-BE&#39;, &#39;NL-GE-DB&#39;, &#39;NL-GE-DR&#39;]
+</pre></div>
+</div>
+</div>
+</div>
+<p>We fit one regional model and compare it with the baseline and the <code class="docutils literal notranslate"><span class="pre">NL-NH</span></code> model on the
+Christmas week.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">regional_config</span> <span class="o">=</span> <span class="n">SchoolHolidayConfig</span><span class="p">(</span><span class="n">country_code</span><span class="o">=</span><span class="s2">&quot;NL&quot;</span><span class="p">,</span> <span class="n">regional_groups</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">csv_path</span><span class="o">=</span><span class="n">regional_csv_path</span><span class="p">)</span>
+<span class="n">regional_workflow</span> <span class="o">=</span> <span class="n">build_workflow</span><span class="p">(</span><span class="s2">&quot;christmas_gblinear_regional&quot;</span><span class="p">,</span> <span class="n">school_holidays</span><span class="o">=</span><span class="n">regional_config</span><span class="p">)</span>
+<span class="n">regional_workflow</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">)</span>
+<span class="n">regional_forecast</span><span class="p">:</span> <span class="n">ForecastDataset</span> <span class="o">=</span> <span class="n">regional_workflow</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">predict_dataset</span><span class="p">,</span> <span class="n">forecast_start</span><span class="o">=</span><span class="n">forecast_start</span><span class="p">)</span>
+
+<span class="n">regional_summary</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;Baseline&quot;</span><span class="p">:</span> <span class="n">score</span><span class="p">(</span><span class="n">baseline_forecast</span><span class="p">,</span> <span class="n">actual</span><span class="p">),</span>
+        <span class="s2">&quot;NL-NH holidays&quot;</span><span class="p">:</span> <span class="n">score</span><span class="p">(</span><span class="n">holiday_forecast</span><span class="p">,</span> <span class="n">actual</span><span class="p">),</span>
+        <span class="s2">&quot;Regional groups&quot;</span><span class="p">:</span> <span class="n">score</span><span class="p">(</span><span class="n">regional_forecast</span><span class="p">,</span> <span class="n">actual</span><span class="p">),</span>
+    <span class="p">}</span>
+<span class="p">)</span><span class="o">.</span><span class="n">T</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">regional_summary</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">to_string</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:28,834][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:28,977][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:30,134][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>                   rMAE   rCRPS
+Baseline         0.3301  0.2404
+NL-NH holidays   0.2729  0.2042
+Regional groups  0.2710  0.2054
+</pre></div>
+</div>
+</div>
+</div>
+<p>To check that this is not noise, we repeat the regional fit for the same five seeds and compare
+each fit with the baseline fit that used the same seed in the variance check above.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">regional_rows</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">seed</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+    <span class="n">workflow</span> <span class="o">=</span> <span class="n">build_workflow</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;christmas_gblinear_regional_seed</span><span class="si">{</span><span class="n">seed</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">regional_config</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
+    <span class="n">workflow</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train_dataset</span><span class="p">)</span>
+    <span class="n">row</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;seed&quot;</span><span class="p">:</span> <span class="n">seed</span><span class="p">}</span>
+    <span class="k">for</span> <span class="n">metric</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">score</span><span class="p">(</span><span class="n">workflow</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">predict_dataset</span><span class="p">,</span> <span class="n">forecast_start</span><span class="o">=</span><span class="n">forecast_start</span><span class="p">),</span> <span class="n">actual</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">row</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;regional_</span><span class="si">{</span><span class="n">metric</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+    <span class="n">regional_rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+
+<span class="n">regional_fits</span> <span class="o">=</span> <span class="n">fit_results</span><span class="p">[[</span><span class="s2">&quot;seed&quot;</span><span class="p">,</span> <span class="s2">&quot;baseline_rMAE&quot;</span><span class="p">,</span> <span class="s2">&quot;baseline_rCRPS&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">regional_rows</span><span class="p">),</span> <span class="n">on</span><span class="o">=</span><span class="s2">&quot;seed&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">metric</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;rMAE&quot;</span><span class="p">,</span> <span class="s2">&quot;rCRPS&quot;</span><span class="p">]:</span>
+    <span class="n">regional_fits</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">metric</span><span class="si">}</span><span class="s2">_difference&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">regional_fits</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;regional_</span><span class="si">{</span><span class="n">metric</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">regional_fits</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;baseline_</span><span class="si">{</span><span class="n">metric</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">regional_fits</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">metric</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;rMAE&quot;</span><span class="p">,</span> <span class="s2">&quot;rCRPS&quot;</span><span class="p">]:</span>
+    <span class="n">difference</span> <span class="o">=</span> <span class="n">regional_fits</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">metric</span><span class="si">}</span><span class="s2">_difference&quot;</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">metric</span><span class="si">}</span><span class="s2"> difference (regional groups minus baseline): &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;mean </span><span class="si">{</span><span class="n">difference</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, std </span><span class="si">{</span><span class="n">difference</span><span class="o">.</span><span class="n">std</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;regional better in </span><span class="si">{</span><span class="p">(</span><span class="n">difference</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="si">}</span><span class="s2"> of </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">difference</span><span class="p">)</span><span class="si">}</span><span class="s2"> fits&quot;</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:30,482][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:30,616][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:31,692][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:32,025][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:32,160][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:33,346][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:33,689][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:33,830][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:35,104][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:35,434][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:35,570][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:36,574][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:36,910][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:37,042][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:56:38,194][INFO] lag fallback applied
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span> seed  baseline_rMAE  baseline_rCRPS  regional_rMAE  regional_rCRPS  rMAE_difference  rCRPS_difference
+    0         0.3301          0.2404         0.2710          0.2054          -0.0591           -0.0350
+    1         0.3277          0.2387         0.2747          0.2083          -0.0530           -0.0305
+    2         0.3351          0.2440         0.2760          0.2090          -0.0591           -0.0349
+    3         0.3326          0.2419         0.2741          0.2075          -0.0585           -0.0343
+    4         0.3300          0.2404         0.2717          0.2058          -0.0583           -0.0345
+
+rMAE difference (regional groups minus baseline): mean -0.0576, std 0.0026, regional better in 5 of 5 fits
+rCRPS difference (regional groups minus baseline): mean -0.0339, std 0.0019, regional better in 5 of 5 fits
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="next-steps">
+<h2>Next steps<a class="headerlink" href="#next-steps" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="feature_engineering.html"><span class="doc">Feature Engineering for Energy Forecasting</span></a> — the school holiday transform and the
+one-hot option for each holiday name.</p></li>
+<li><p><a class="reference internal" href="forecasting_quickstart.html"><span class="doc">Forecasting Quickstart</span></a> — the baseline workflow without holidays.</p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="feature_engineering.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Feature Engineering for Energy Forecasting</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="ensemble_forecasting.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Ensemble Forecasting</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal" tabindex="-1"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#load-the-dataset-and-define-the-windows">Load the dataset and define the windows</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#export-the-school-holidays-once">Export the school holidays once</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#configure-the-two-workflows">Configure the two workflows</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#train-both-models">Train both models</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#forecast-the-christmas-week">Forecast the Christmas week</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compare-the-two-forecasts">Compare the two forecasts</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#visualize-the-comparison">Visualize the comparison</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#is-the-difference-more-than-noise">Is the difference more than noise?</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#placebo-a-normal-school-week">Placebo: a normal school week</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#regional-groups-when-the-region-is-unknown">Regional groups when the region is unknown</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#next-steps">Next steps</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/OpenSTEF/openstef/edit/main/docs/source/tutorials/school_holiday_forecasting.py">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2017-2026 Contributors to the OpenSTEF project.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.1.
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.24.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

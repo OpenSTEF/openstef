@@ -62,7 +62,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Hyperparameter Tuning with Optuna" href="hyperparameter_tuning_with_optuna.html" />
-    <link rel="prev" title="Feature Engineering for Energy Forecasting" href="feature_engineering.html" />
+    <link rel="prev" title="School Holidays and a Christmas Forecast" href="school_holiday_forecasting.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
@@ -406,6 +406,7 @@
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="custom_pipeline.html">Custom Pipeline</a></li>
 <li class="toctree-l1"><a class="reference internal" href="feature_engineering.html">Feature Engineering</a></li>
+<li class="toctree-l1"><a class="reference internal" href="school_holiday_forecasting.html">School Holidays and a Christmas Forecast</a></li>
 <li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">Ensemble Forecasting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="hyperparameter_tuning_with_optuna.html">Hyperparameter Tuning</a></li>
 <li class="toctree-l1"><a class="reference internal" href="foundation_model_forecasting_quickstart.html">Foundation Model Forecasting Quickstart</a></li>
@@ -668,19 +669,19 @@ Combiner:       lgbm
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 09:45:00,249][WARNING] No aggregation functions specified. Skipping fit.
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:54:17,033][WARNING] No aggregation functions specified. Skipping fit.
 </pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 09:45:00,250][WARNING] No aggregation functions specified. Returning original data.
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:54:17,034][WARNING] No aggregation functions specified. Returning original data.
 </pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 09:45:00,356][WARNING] No aggregation functions specified. Returning original data.
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:54:17,125][WARNING] No aggregation functions specified. Returning original data.
 </pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 09:45:00,462][WARNING] No aggregation functions specified. Returning original data.
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:54:17,215][WARNING] No aggregation functions specified. Returning original data.
 </pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 09:45:00,818][WARNING] No aggregation functions specified. Returning original data.
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:54:17,530][WARNING] No aggregation functions specified. Returning original data.
 </pre></div>
 </div>
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Ensemble trained successfully
@@ -706,10 +707,10 @@ Per-model validation R2:
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 09:45:02,290][WARNING] No aggregation functions specified. Returning original data.
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:54:18,767][WARNING] No aggregation functions specified. Returning original data.
 </pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 09:45:02,364][WARNING] No aggregation functions specified. Returning original data.
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:54:18,829][WARNING] No aggregation functions specified. Returning original data.
 </pre></div>
 </div>
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Forecast rows: 672
@@ -785,7 +786,7 @@ individually and compare their forecasts.</p>
 </div>
 </details>
 <div class="cell_output docutils container">
-<img alt="../_images/710ff761a72b204b08ab2d5dd25eeb55a956ad6befd8f4561aed002eea2372b6.png" src="../_images/710ff761a72b204b08ab2d5dd25eeb55a956ad6befd8f4561aed002eea2372b6.png" />
+<img alt="../_images/e6a9dc4c7bf9ad139ec470a87bd4400ede629ed1e1556f6f86bea616ffff9a9e.png" src="../_images/e6a9dc4c7bf9ad139ec470a87bd4400ede629ed1e1556f6f86bea616ffff9a9e.png" />
 </div>
 </div>
 </section>
@@ -819,8 +820,8 @@ assigned to each model during forecasting.</p></li>
 <div class="cell_output docutils container">
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Combiner feature importances (per quantile):
           quantile_P50  quantile_P10  quantile_P90
-gblinear      0.488333         0.485      0.493333
-lgbm          0.511667         0.515      0.506667
+gblinear      0.486667           0.5      0.483333
+lgbm          0.513333           0.5      0.516667
 </pre></div>
 </div>
 </div>
@@ -861,13 +862,13 @@ the combiner assigns to each model at each point in time during forecasting.</p>
 </div>
 </details>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 09:45:06,816][WARNING] No aggregation functions specified. Returning original data.
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:54:22,630][WARNING] No aggregation functions specified. Returning original data.
 </pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 09:45:06,896][WARNING] No aggregation functions specified. Returning original data.
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 15:54:22,691][WARNING] No aggregation functions specified. Returning original data.
 </pre></div>
 </div>
-<img alt="../_images/cf5b2e37e0100b4b0bd89e207e7d8e5c6e8f43924aa1e6e10b7737614948a728.png" src="../_images/cf5b2e37e0100b4b0bd89e207e7d8e5c6e8f43924aa1e6e10b7737614948a728.png" />
+<img alt="../_images/4fb820c6cc6e10563832fd0d90f63eda42a94e761b468ff2046807a3c9002fc4.png" src="../_images/4fb820c6cc6e10563832fd0d90f63eda42a94e761b468ff2046807a3c9002fc4.png" />
 </div>
 </div>
 <p>The stacked area chart reveals <em>when</em> the combiner trusts each model.
@@ -909,7 +910,7 @@ implementation from <code class="docutils literal notranslate"><span class="pre"
 ------------ --------
 lgbm           0.1104
 gblinear       0.0928
-Ensemble       0.0944
+Ensemble       0.0942
 </pre></div>
 </div>
 </div>
@@ -942,12 +943,12 @@ estimates for more reliable confidence intervals.</p></li>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="feature_engineering.html"
+       href="school_holiday_forecasting.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Feature Engineering for Energy Forecasting</p>
+        <p class="prev-next-title">School Holidays and a Christmas Forecast</p>
       </div>
     </a>
     <a class="right-next"

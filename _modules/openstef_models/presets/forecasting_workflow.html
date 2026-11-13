@@ -849,6 +849,7 @@ window.runMermaid = runMermaid;</script>
     <span class="n">DatetimeFeaturesAdder</span><span class="p">,</span>
     <span class="n">HolidayFeatureAdder</span><span class="p">,</span>
     <span class="n">RollingAggregatesAdder</span><span class="p">,</span>
+    <span class="n">SchoolHolidayConfig</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.transforms.time_domain.lags_adder</span><span class="w"> </span><span class="kn">import</span> <span class="n">LagsAdder</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_models.transforms.time_domain.rolling_aggregates_adder</span><span class="w"> </span><span class="kn">import</span> <span class="n">AggregationFunction</span>
@@ -956,6 +957,10 @@ window.runMermaid = runMermaid;</script>
     <span class="n">location</span><span class="p">:</span> <span class="n">LocationConfig</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
         <span class="n">default</span><span class="o">=</span><span class="n">LocationConfig</span><span class="p">(),</span>
         <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Location information for the forecasting workflow.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">school_holidays</span><span class="p">:</span> <span class="n">SchoolHolidayConfig</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Opt-in school holiday features. None disables them.&quot;</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="c1"># Data properties</span>
@@ -1239,6 +1244,7 @@ window.runMermaid = runMermaid;</script>
             <span class="o">*</span><span class="n">feature_aligners</span><span class="p">,</span>
             <span class="o">*</span><span class="n">feature_adders</span><span class="p">,</span>
             <span class="n">HolidayFeatureAdder</span><span class="p">(</span><span class="n">country_code</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">location</span><span class="o">.</span><span class="n">country_code</span><span class="p">),</span>
+            <span class="o">*</span><span class="p">([</span><span class="n">config</span><span class="o">.</span><span class="n">school_holidays</span><span class="o">.</span><span class="n">create_transform</span><span class="p">()]</span> <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">school_holidays</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]),</span>
             <span class="n">DatetimeFeaturesAdder</span><span class="p">(</span><span class="n">onehot_encode</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
             <span class="o">*</span><span class="n">nan_outlier_handlers</span><span class="p">,</span>
             <span class="o">*</span><span class="n">feature_standardizers</span><span class="p">,</span>
@@ -1262,6 +1268,7 @@ window.runMermaid = runMermaid;</script>
             <span class="o">*</span><span class="n">feature_aligners</span><span class="p">,</span>
             <span class="o">*</span><span class="n">feature_adders</span><span class="p">,</span>
             <span class="n">HolidayFeatureAdder</span><span class="p">(</span><span class="n">country_code</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">location</span><span class="o">.</span><span class="n">country_code</span><span class="p">),</span>
+            <span class="o">*</span><span class="p">([</span><span class="n">config</span><span class="o">.</span><span class="n">school_holidays</span><span class="o">.</span><span class="n">create_transform</span><span class="p">()]</span> <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">school_holidays</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]),</span>
             <span class="n">DatetimeFeaturesAdder</span><span class="p">(</span><span class="n">onehot_encode</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
             <span class="o">*</span><span class="n">feature_standardizers</span><span class="p">,</span>
         <span class="p">]</span>
@@ -1283,6 +1290,7 @@ window.runMermaid = runMermaid;</script>
             <span class="o">*</span><span class="n">feature_aligners</span><span class="p">,</span>
             <span class="o">*</span><span class="n">feature_adders</span><span class="p">,</span>
             <span class="n">HolidayFeatureAdder</span><span class="p">(</span><span class="n">country_code</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">location</span><span class="o">.</span><span class="n">country_code</span><span class="p">),</span>
+            <span class="o">*</span><span class="p">([</span><span class="n">config</span><span class="o">.</span><span class="n">school_holidays</span><span class="o">.</span><span class="n">create_transform</span><span class="p">()]</span> <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">school_holidays</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]),</span>
             <span class="n">DatetimeFeaturesAdder</span><span class="p">(</span><span class="n">onehot_encode</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
             <span class="o">*</span><span class="n">feature_standardizers</span><span class="p">,</span>
         <span class="p">]</span>
@@ -1303,6 +1311,7 @@ window.runMermaid = runMermaid;</script>
             <span class="o">*</span><span class="n">checks</span><span class="p">,</span>
             <span class="o">*</span><span class="n">feature_aligners</span><span class="p">,</span>
             <span class="o">*</span><span class="n">feature_adders</span><span class="p">,</span>
+            <span class="o">*</span><span class="p">([</span><span class="n">config</span><span class="o">.</span><span class="n">school_holidays</span><span class="o">.</span><span class="n">create_transform</span><span class="p">()]</span> <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">school_holidays</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[]),</span>
             <span class="o">*</span><span class="n">feature_standardizers</span><span class="p">,</span>
             <span class="n">Imputer</span><span class="p">(</span>
                 <span class="n">selection</span><span class="o">=</span><span class="n">Exclude</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">target_column</span><span class="p">),</span>
