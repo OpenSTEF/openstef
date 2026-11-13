@@ -107,6 +107,19 @@ StackingCombiner
 
 The :class:`~openstef_meta.models.forecast_combiners.stacking_combiner.StackingCombiner` treats base forecaster outputs as features for a second-stage regression model. A template :class:`~openstef_models.models.forecasting.forecaster.Forecaster` is cloned for each quantile, and each clone learns to map the vector of base predictions to the final target value. This is more expressive than weighted averaging (the meta-regressor can learn non-linear transformations of base predictions) but requires more training data to avoid overfitting.
 
+Inspecting Ensemble Behavior
+-----------------------------
+
+Understanding *why* the ensemble produced a given forecast is as important as the forecast itself. The :meth:`~openstef_meta.models.ensemble_forecasting_model.EnsembleForecastingModel.predict_with_contributions` method generates both the forecast and per-model contributions in a single pass, avoiding redundant computation:
+
+.. code-block:: python
+
+   forecast, contributions = ensemble_model.predict_with_contributions(data)
+
+For the ``WeightsCombiner``, the contributions dataset contains per-model selection weights (summing to 1.0 at each timestep). :class:`~openstef_models.explainability.ModelContributionsPlotter` visualizes these as a stacked area plot, showing how the combiner distributes trust across base models over time. This makes it easy to verify that the ensemble shifts toward the linear model during extrapolation periods and toward tree-based models during stable periods.
+
+See :doc:`/tutorials/ensemble_forecasting` for a worked example of generating and plotting model contributions.
+
 Configuration
 -------------
 
