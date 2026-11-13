@@ -151,7 +151,10 @@ from openstef_models.presets.forecasting_workflow import GBLinearForecaster
 from openstef_models.workflows import CustomForecastingWorkflow
 
 
-def build_workflow(model_id: str, school_holidays: SchoolHolidayConfig | None) -> CustomForecastingWorkflow:
+def build_workflow(
+    model_id: str, school_holidays: SchoolHolidayConfig | None, random_state: int = 0
+) -> CustomForecastingWorkflow:
+    # coord_descent is deterministic for a given seed. The default shotgun updater is not.
     return create_forecasting_workflow(
         config=ForecastingWorkflowConfig(
             model_id=model_id,
@@ -167,7 +170,9 @@ def build_workflow(model_id: str, school_holidays: SchoolHolidayConfig | None) -
             school_holidays=school_holidays,
             verbosity=0,
             mlflow_storage=None,
-            gblinear_hyperparams=GBLinearForecaster.HyperParams(n_steps=50),
+            gblinear_hyperparams=GBLinearForecaster.HyperParams(
+                n_steps=50, updater="coord_descent", random_state=random_state
+            ),
         )
     )
 
@@ -302,20 +307,19 @@ fig.show()
 # %% [markdown]
 # ## Is the difference more than noise?
 #
-# GBLinear's default `shuffle` feature selector is random, and the forecaster does not
-# pass `random_state` through to XGBoost. Each fit is therefore a fresh random draw, and
-# repeating a fit can change its scores. We fit both variants five times and compare the
-# paired difference in rMAE and rCRPS on the forecast week. The spread across fits shows how
-# much of a difference is noise.
+# A single fit can differ from another only because of its random seed. We refit both
+# variants for five seeds, using the same seed for the baseline and the holiday model so each
+# pair differs only in the school-holiday features. The spread of the paired difference across
+# seeds shows how much of the gain is run variance.
 
 # %%
 import numpy as np
 
 fit_rows = []
-for fit in range(5):
-    row: dict[str, float] = {"fit": fit}
+for seed in range(5):
+    row: dict[str, float] = {"seed": seed}
     for label, school_holidays in [("baseline", None), ("school_holidays", holiday_config)]:
-        workflow = build_workflow(f"christmas_gblinear_{label}_fit{fit}", school_holidays)
+        workflow = build_workflow(f"christmas_gblinear_{label}_seed{seed}", school_holidays, random_state=seed)
         workflow.fit(train_dataset)
         for metric, value in score(workflow.predict(predict_dataset, forecast_start=forecast_start), actual).items():
             row[f"{label}_{metric}"] = value
@@ -334,8 +338,8 @@ for metric in ["rMAE", "rCRPS"]:
     )
 
 # %% tags=["remove-cell"]
-assert len(fit_results) == 5, "Expected one row per fit"
-assert np.isfinite(fit_results.drop(columns="fit").to_numpy()).all(), "Metric values should be finite"
+assert len(fit_results) == 5, "Expected one row per seed"
+assert np.isfinite(fit_results.drop(columns="seed").to_numpy()).all(), "Metric values should be finite"
 
 # %% [markdown]
 # ## Placebo: a normal school week
@@ -343,7 +347,7 @@ assert np.isfinite(fit_results.drop(columns="fit").to_numpy()).all(), "Metric va
 # If the gain above comes from the holiday, it should not appear in a week with no holiday.
 # We retrain both models on data up to 9 December 2024 and forecast 9 to 16 December, a normal
 # school week. Training still includes the autumn holiday, but not the Christmas one. We run the
-# same five paired fits.
+# same five paired seeds.
 
 # %%
 placebo_start = datetime.fromisoformat("2024-12-09T00:00:00Z")
@@ -353,10 +357,10 @@ placebo_predict = dataset.filter_by_range(start=placebo_start - timedelta(days=1
 placebo_actual = placebo_predict.data["load"].loc[placebo_start:placebo_end].rename("actual")
 
 placebo_rows = []
-for fit in range(5):
-    row: dict[str, float] = {"fit": fit}
+for seed in range(5):
+    row: dict[str, float] = {"seed": seed}
     for label, school_holidays in [("baseline", None), ("school_holidays", holiday_config)]:
-        workflow = build_workflow(f"placebo_gblinear_{label}_fit{fit}", school_holidays)
+        workflow = build_workflow(f"placebo_gblinear_{label}_seed{seed}", school_holidays, random_state=seed)
         workflow.fit(placebo_train)
         forecast = workflow.predict(placebo_predict, forecast_start=placebo_start)
         for metric, value in score(forecast, placebo_actual).items():
@@ -379,26 +383,104 @@ for metric in ["rMAE", "rCRPS"]:
     )
 
 # %% tags=["remove-cell"]
-assert len(placebo_results) == 5, "Expected one row per placebo fit"
-assert np.isfinite(placebo_results.drop(columns="fit").to_numpy()).all(), "Placebo metric values should be finite"
+assert len(placebo_results) == 5, "Expected one row per placebo seed"
+assert np.isfinite(placebo_results.drop(columns="seed").to_numpy()).all(), "Placebo metric values should be finite"
 
 # %% [markdown]
-# ## What the comparison shows
+# ## Regional groups when the region is unknown
 #
+# Choosing `NL-NH` assumes we know the region of the feeder. When that is not known, set
+# `regional_groups=True`. The transform then adds one 0/1 column per group of subdivisions that
+# share a holiday calendar, and the model learns which group matters for this feeder. Columns are
+# numbered by the sorted subdivision codes of each group, so the numbering is stable across runs. The
+# file below holds all Dutch subdivisions, from one cached request.
+
+# %%
+regional_csv_path = Path(tempfile.gettempdir()) / "openstef_school_holidays_nl_regional_2024_2025.csv"
+if not regional_csv_path.exists():
+    SchoolHolidayFeatureAdder(country_code="NL", regional_groups=True).export_csv(
+        regional_csv_path, start=date(2024, 1, 1), end=date(2025, 12, 31)
+    )
+
+regional_holidays = SchoolHolidayFeatureAdder.from_csv(regional_csv_path, country_code="NL", regional_groups=True)
+group_members = {
+    period.group_code: period.subdivisions for period in regional_holidays.holidays if period.group_code is not None
+}
+for code in sorted(group_members, key=int):
+    print(f"is_school_holiday_{code}: {len(group_members[code])} subdivisions {group_members[code][:6]}")
+
+# %% [markdown]
+# We fit one regional model and compare it with the baseline and the `NL-NH` model on the
+# Christmas week.
+
+# %%
+regional_config = SchoolHolidayConfig(country_code="NL", regional_groups=True, csv_path=regional_csv_path)
+regional_workflow = build_workflow("christmas_gblinear_regional", school_holidays=regional_config)
+regional_workflow.fit(train_dataset)
+regional_forecast: ForecastDataset = regional_workflow.predict(predict_dataset, forecast_start=forecast_start)
+
+regional_summary = pd.DataFrame(
+    {
+        "Baseline": score(baseline_forecast, actual),
+        "NL-NH holidays": score(holiday_forecast, actual),
+        "Regional groups": score(regional_forecast, actual),
+    }
+).T
+print(regional_summary.round(4).to_string())
+
+# %% [markdown]
+# To check that this is not noise, we repeat the regional fit for the same five seeds and compare
+# each fit with the baseline fit that used the same seed in the variance check above.
+
+# %%
+regional_rows = []
+for seed in range(5):
+    workflow = build_workflow(f"christmas_gblinear_regional_seed{seed}", regional_config, random_state=seed)
+    workflow.fit(train_dataset)
+    row: dict[str, float] = {"seed": seed}
+    for metric, value in score(workflow.predict(predict_dataset, forecast_start=forecast_start), actual).items():
+        row[f"regional_{metric}"] = value
+    regional_rows.append(row)
+
+regional_fits = fit_results[["seed", "baseline_rMAE", "baseline_rCRPS"]].merge(pd.DataFrame(regional_rows), on="seed")
+for metric in ["rMAE", "rCRPS"]:
+    regional_fits[f"{metric}_difference"] = regional_fits[f"regional_{metric}"] - regional_fits[f"baseline_{metric}"]
+print(regional_fits.round(4).to_string(index=False))
+print()
+for metric in ["rMAE", "rCRPS"]:
+    difference = regional_fits[f"{metric}_difference"]
+    print(
+        f"{metric} difference (regional groups minus baseline): "
+        f"mean {difference.mean():.4f}, std {difference.std():.4f}, "
+        f"regional better in {(difference < 0).sum()} of {len(difference)} fits"
+    )
+
+# %% tags=["remove-cell"]
+assert len(regional_fits) == 5, "Expected one row per regional seed"
+assert np.isfinite(regional_fits.drop(columns="seed").to_numpy()).all(), "Regional metric values should be finite"
+
 # - **In the Christmas week, the holiday feature helps.** The school-holiday forecast has a lower
-#   rMAE (about 0.28 against 0.33) and rCRPS (about 0.21 against 0.24) than the baseline. Across
-#   the five paired fits, the holiday variant was better on both metrics every time. The mean rMAE
-#   gap was about 0.05.
+#   rMAE (about 0.278 against 0.332) and rCRPS (about 0.209 against 0.243) than the baseline. Across
+#   five paired seeds, the holiday variant was better on both metrics every time. The mean rMAE
+#   gap was about 0.059.
+# - **Regional groups recover most of the gain without picking a province.** On seed 0, the
+#   regional model scores about the same as the `NL-NH` model: rMAE 0.277 against 0.278 and
+#   rCRPS 0.210 against 0.209. Across the five seeds, the regional gain over the baseline is
+#   about 0.001 smaller in rMAE (-0.058 against -0.059) and about 0.0025 smaller in rCRPS (-0.034
+#   against -0.037). The regional model beat the baseline on both metrics in all five seeds. This
+#   feeder is one case, so do not read it as a general rule.
 # - **In a normal school week, the holiday feature hurts a little.** In the placebo week, the
-#   holiday variant has a higher rMAE (about 0.276 against 0.270, mean difference about +0.006).
-#   It was worse in all five fits, and the rCRPS gap is also positive (about +0.003). So the
-#   Christmas gain is not a general improvement from extra features.
-# - **Run-to-run noise is small compared with both effects.** The fit-to-fit spread of the
-#   difference is about 0.001 to 0.002 in both weeks. The effects are about 0.05 and 0.006, so
-#   random feature selection does not explain either result. The exact numbers change slightly on
-#   each execution because GBLinear's feature selector is random.
+#   holiday variant has a higher rMAE (mean difference about +0.003) and rCRPS (about +0.002). It
+#   was worse in all five seeds. The gap is small but consistent in sign, so the Christmas gain is
+#   not a general improvement from extra features.
+# - **Run-to-run noise is small compared with both effects.** The seed-to-seed standard deviation
+#   of the paired rMAE difference is about 0.0025 in the Christmas week and about 0.0010 in the
+#   placebo week. The Christmas effect (about 0.059) is far larger than that spread. The placebo
+#   effect (about 0.003) is about three standard deviations, so it is consistent but small. The
+#   notebook uses `coord_descent`, which is deterministic for a fixed seed, so re-running it gives
+#   the same numbers. The default `shotgun` updater is not used here.
 # - **The baseline misses the holiday drop.** In the Christmas week, the school-holiday forecast
-#   sits on average about 50 kW below the baseline, with a largest gap of over 70 kW. The
+#   sits on average about 55 kW below the baseline, with a largest gap of over 70 kW. The
 #   baseline has no information about when the holiday starts, so this gap is consistent with the
 #   feature capturing the Christmas drop. This notebook does not isolate that cause.
 #

@@ -227,7 +227,9 @@ fig.show()
 # calendars. Dates come from the [OpenHolidays API](https://openholidaysapi.org),
 # which is fetched once during training and can be exported to CSV, so
 # forecasts never call the API. Set `one_hot_by_name=True` to also get one
-# column per holiday name (for example `is_school_holiday_may_holidays`).
+# column per holiday name (for example `is_school_holiday_may_holidays`), or
+# `regional_groups=True` to get one column per regional calendar when the
+# region of a location is unknown.
 #
 # **Why for energy forecasting:** Schools close for weeks at a time, which
 # changes daytime load in households and in businesses that depend on school
@@ -275,6 +277,62 @@ named_holidays = SchoolHolidayFeatureAdder.from_csv(
 named_result = named_holidays.transform(holiday_window)
 print(f"One-hot columns in window: {named_holidays.features_added()[1:]}")
 print(named_result.data[named_holidays.features_added()[1:]].sum().to_string())
+
+# %% [markdown]
+# **Regional groups:** When you don't know which region a location belongs to,
+# set `regional_groups=True`. The transform then adds one column per group of
+# subdivisions that share a holiday calendar, and the model learns which group
+# matters for each location. The export below fetches all Dutch subdivisions in
+# one request. The plot shows each group over 2024. Each row lists its provinces.
+# The north and south provinces follow different calendars, so their rows light
+# up at different times.
+
+# %%
+regional_csv_path = Path(tempfile.gettempdir()) / "openstef_school_holidays_nl_regional_2024.csv"
+SchoolHolidayFeatureAdder(country_code="NL", regional_groups=True).export_csv(
+    regional_csv_path, start=date(2024, 1, 1), end=date(2024, 12, 31)
+)
+regional_holidays = SchoolHolidayFeatureAdder.from_csv(regional_csv_path, country_code="NL", regional_groups=True)
+
+# Transform the whole of 2024 at hourly resolution, then keep one value per day.
+year_index = pd.date_range("2024-01-01", "2024-12-31 23:00", freq="1h", tz="UTC")
+year = TimeSeriesDataset(data=pd.DataFrame({"load": 0.0}, index=year_index), sample_interval=timedelta(hours=1))
+regional_columns = regional_holidays.features_added()
+daily = regional_holidays.transform(year).data[regional_columns].resample("D").max()
+
+# Province codes per group, read from the public holiday periods. Group numbers
+# depend on the export, so read the province list rather than the number.
+group_provinces: dict[str, set[str]] = {}
+for period in regional_holidays.holidays:
+    if period.group_code is not None:
+        group_provinces.setdefault(period.group_code, set()).update(
+            code.removeprefix("NL-") for code in period.subdivisions if len(code) == 5
+        )
+
+labels = [
+    f"{column}: {', '.join(sorted(group_provinces[column.removeprefix('is_school_holiday_')]))}"
+    for column in regional_columns
+]
+fig = go.Figure(
+    go.Heatmap(
+        z=daily.T.to_numpy(),
+        x=daily.index,
+        y=labels,
+        zmin=0,
+        zmax=1,
+        colorscale=[[0, "white"], [1, "#1f77b4"]],
+        showscale=False,
+    )
+)
+fig.update_layout(
+    title="Regional school holiday groups, 2024 (blue = holiday)",
+    template="plotly_white",
+    height=280,
+    yaxis={"automargin": True},
+)
+fig.show()
+print("Holiday days in 2024 per group:")
+print(daily.sum().astype(int).to_string())
 
 # %% [markdown]
 # ### {class}`~openstef_models.transforms.time_domain.LagsAdder`
