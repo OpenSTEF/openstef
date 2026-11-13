@@ -553,3 +553,46 @@ class SchoolHolidayFeatureAdder(BaseConfig, TimeSeriesTransform):
     def _name_slug(name: str) -> str:
         ascii_name = unicodedata.normalize("NFKD", name).encode("ascii", "ignore").decode()
         return re.sub(r"[^a-z0-9]+", "_", ascii_name.lower()).strip("_") or "unnamed"
+
+
+class SchoolHolidayConfig(BaseConfig):
+    """Opt-in configuration for school holiday features.
+
+    Set on a workflow config to add school holiday features. Holidays are fetched once during fit, or read from
+    csv_path, and then frozen in the model checkpoint so the feature set stays stable.
+    """
+
+    country_code: CountryAlpha2 = Field(description="Country code for school holidays, for example 'NL'.")
+    subdivision_code: str | None = Field(
+        default=None,
+        description="ISO 3166-2 subdivision code for regional school holidays, for example 'NL-NH'.",
+    )
+    years_ahead: int = Field(
+        default=2,
+        ge=0,
+        description="Number of years after the training period for which holidays are fetched in fit.",
+    )
+    feature_name: str = Field(default="is_school_holiday", description="Name of the feature column added.")
+    one_hot_by_name: bool = Field(
+        default=False,
+        description="Also add one 0/1 column per holiday name, named '<feature_name>_<name slug>'.",
+    )
+    csv_path: Path | None = Field(
+        default=None,
+        description="CSV written by SchoolHolidayFeatureAdder.export_csv. If set, fit reads it instead of the API.",
+    )
+
+    def create_transform(self) -> SchoolHolidayFeatureAdder:
+        """Create a new school holiday transform with this configuration.
+
+        Returns:
+            A fresh, unfitted SchoolHolidayFeatureAdder. Each workflow gets its own instance.
+        """
+        return SchoolHolidayFeatureAdder(
+            country_code=self.country_code,
+            subdivision_code=self.subdivision_code,
+            years_ahead=self.years_ahead,
+            feature_name=self.feature_name,
+            one_hot_by_name=self.one_hot_by_name,
+            csv_path=self.csv_path,
+        )
