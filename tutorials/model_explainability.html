@@ -422,6 +422,7 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../benchmarks/liander2024/README.html">Liander 2024</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../benchmarks/liander2024/run_xgboost_gblinear_benchmark.html">XGBoost &amp; GBLinear</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../benchmarks/liander2024/run_ensemble_benchmark.html">Ensemble Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks/liander2024/run_chronos2_benchmark.html">Chronos-2 (zero-shot)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../benchmarks/liander2024/compare_benchmark_runs.html">Compare Results</a></li>
 </ul>
 </details></li>
@@ -569,9 +570,9 @@ model on 45 days of Liander data.</p>
 <div class="cell_output docutils container">
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Training complete.
    quantile        R2  observed_probability
-0       0.5  0.411194              0.151157
-1       0.1 -0.994617              0.010185
-2       0.9  0.732076              0.386806
+0       0.5  0.413006              0.151620
+1       0.1 -0.989669              0.009954
+2       0.9  0.727736              0.387500
 </pre></div>
 </div>
 </div>
@@ -603,7 +604,7 @@ tiles represent more influential features.</p>
 </div>
 </details>
 <div class="cell_output docutils container">
-<img alt="../_images/48bbaeaf8e0bed9305989824bb534fd66a70ad219c88ef9bdffa7c2ce587f99d.png" src="../_images/48bbaeaf8e0bed9305989824bb534fd66a70ad219c88ef9bdffa7c2ce587f99d.png" />
+<img alt="../_images/4dbbd22b55420f60a4946178f2d65b674e21c5cb2897c0d4e851e84f6cb0ffac.png" src="../_images/4dbbd22b55420f60a4946178f2d65b674e21c5cb2897c0d4e851e84f6cb0ffac.png" />
 </div>
 </div>
 </section>
@@ -653,7 +654,7 @@ The prediction line overlays the total.</p>
 </div>
 </details>
 <div class="cell_output docutils container">
-<img alt="../_images/92d926165899a0b6d692535fdf42aaf5e51a0eeeeea539e63e87c1936918045e.png" src="../_images/92d926165899a0b6d692535fdf42aaf5e51a0eeeeea539e63e87c1936918045e.png" />
+<img alt="../_images/4c84301e14b3db5d4b493c481ba0bdc05deadebfb4eaadda2ee682408178befc.png" src="../_images/4c84301e14b3db5d4b493c481ba0bdc05deadebfb4eaadda2ee682408178befc.png" />
 </div>
 </div>
 </section>
@@ -679,7 +680,7 @@ features dominate unexpectedly, consider adjusting the pipeline via
 </div>
 </details>
 <div class="cell_output docutils container">
-<img alt="../_images/5b4483a8e8777a1e495a397321b6535f839fa3fb44d315e1768ae8895dc97b03.png" src="../_images/5b4483a8e8777a1e495a397321b6535f839fa3fb44d315e1768ae8895dc97b03.png" />
+<img alt="../_images/8e4d412c2c727ff37a5754fcc4528236f5fc619f829b44bcafa3988d83133c4d.png" src="../_images/8e4d412c2c727ff37a5754fcc4528236f5fc619f829b44bcafa3988d83133c4d.png" />
 </div>
 </div>
 </section>
@@ -703,7 +704,7 @@ from the final value.</p>
 </div>
 </details>
 <div class="cell_output docutils container">
-<img alt="../_images/a8ed5ad870efe13ff839acd6372f0ab87888025689f0f94b2abdc8eac564cd0d.png" src="../_images/a8ed5ad870efe13ff839acd6372f0ab87888025689f0f94b2abdc8eac564cd0d.png" />
+<img alt="../_images/9febaff6103b0c1f640fcfac0ac4dee57d4207dce01bf8632144a27e512493da.png" src="../_images/9febaff6103b0c1f640fcfac0ac4dee57d4207dce01bf8632144a27e512493da.png" />
 </div>
 </div>
 </section>
@@ -747,25 +748,25 @@ The plot defaults to P50 when no quantile is specified.</p>
 </div>
 </details>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 09:09:42,461][WARNING] No aggregation functions specified. Skipping fit.
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 09:46:26,618][WARNING] No aggregation functions specified. Skipping fit.
 </pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 09:09:42,462][WARNING] No aggregation functions specified. Returning original data.
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 09:46:26,618][WARNING] No aggregation functions specified. Returning original data.
 </pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 09:09:42,558][WARNING] No aggregation functions specified. Returning original data.
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 09:46:26,720][WARNING] No aggregation functions specified. Returning original data.
 </pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 09:09:42,659][WARNING] No aggregation functions specified. Returning original data.
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 09:46:26,825][WARNING] No aggregation functions specified. Returning original data.
 </pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 09:09:43,799][WARNING] No aggregation functions specified. Returning original data.
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 09:46:27,991][WARNING] No aggregation functions specified. Returning original data.
 </pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 09:09:44,377][WARNING] No aggregation functions specified. Returning original data.
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 09:46:28,603][WARNING] No aggregation functions specified. Returning original data.
 </pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 09:09:44,455][WARNING] No aggregation functions specified. Returning original data.
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 09:46:28,684][WARNING] No aggregation functions specified. Returning original data.
 </pre></div>
 </div>
 </div>
@@ -784,7 +785,7 @@ The plot defaults to P50 when no quantile is specified.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../_images/79aa9ae1b3e7e55f862664addc80a705d85b66fc908eb627cfc958c98a8540ce.png" src="../_images/79aa9ae1b3e7e55f862664addc80a705d85b66fc908eb627cfc958c98a8540ce.png" />
+<img alt="../_images/9a7ade103cbca644e6968d19900164b9bf2a9225de625c71ba3217fefed31e11.png" src="../_images/9a7ade103cbca644e6968d19900164b9bf2a9225de625c71ba3217fefed31e11.png" />
 </div>
 </div>
 </section>

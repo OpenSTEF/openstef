@@ -422,6 +422,7 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../benchmarks/liander2024/README.html">Liander 2024</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../benchmarks/liander2024/run_xgboost_gblinear_benchmark.html">XGBoost &amp; GBLinear</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../benchmarks/liander2024/run_ensemble_benchmark.html">Ensemble Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks/liander2024/run_chronos2_benchmark.html">Chronos-2 (zero-shot)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../benchmarks/liander2024/compare_benchmark_runs.html">Compare Results</a></li>
 </ul>
 </details></li>
@@ -610,7 +611,7 @@ the files, so this validates the wiring without a model present.</p>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2026-11-13 09:08:56.902736726 [W:onnxruntime:Default, device_discovery.cc:95 GetPciBusId] Skipping pci_bus_id for PCI path at &quot;/sys/devices/LNXSYSTM:00/LNXSYBUS:00/ACPI0004:00/MSFT1000:00/5620e0c7-8062-4dce-aeb7-520c7ef76171&quot; because filename &quot;5620e0c7-8062-4dce-aeb7-520c7ef76171&quot; did not match expected pattern of [0-9a-f]+:[0-9a-f]+:[0-9a-f]+[.][0-9a-f]+
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2026-11-13 09:45:39.863621361 [W:onnxruntime:Default, device_discovery.cc:95 GetPciBusId] Skipping pci_bus_id for PCI path at &quot;/sys/devices/LNXSYSTM:00/LNXSYBUS:00/ACPI0004:00/MSFT1000:00/5620e0c7-8062-4dce-aeb7-520c7ef76171&quot; because filename &quot;5620e0c7-8062-4dce-aeb7-520c7ef76171&quot; did not match expected pattern of [0-9a-f]+:[0-9a-f]+:[0-9a-f]+[.][0-9a-f]+
 </pre></div>
 </div>
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>kind=&#39;local&#39; path=PosixPath(&#39;artifacts/chronos-2.onnx&#39;) metadata_path=PosixPath(&#39;artifacts/chronos-2.metadata.json&#39;)
@@ -710,28 +711,28 @@ including this docs build, then forecast one short window to confirm the wiring 
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 09:08:57,689][INFO] HTTP Request: HEAD https://huggingface.co/OpenSTEF/chronos-2-small-onnx/resolve/d7743f169215d59270490bfc096bc9454821e8ef/chronos-2-small.onnx &quot;HTTP/1.1 302 Found&quot;
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 09:45:40,719][INFO] HTTP Request: HEAD https://huggingface.co/OpenSTEF/chronos-2-small-onnx/resolve/d7743f169215d59270490bfc096bc9454821e8ef/chronos-2-small.onnx &quot;HTTP/1.1 302 Found&quot;
 </pre></div>
 </div>
 <div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
 </pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 09:08:57,738][INFO] HTTP Request: GET https://huggingface.co/api/models/OpenSTEF/chronos-2-small-onnx/xet-read-token/d7743f169215d59270490bfc096bc9454821e8ef &quot;HTTP/1.1 200 OK&quot;
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 09:45:40,783][INFO] HTTP Request: GET https://huggingface.co/api/models/OpenSTEF/chronos-2-small-onnx/xet-read-token/d7743f169215d59270490bfc096bc9454821e8ef &quot;HTTP/1.1 200 OK&quot;
 </pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 09:08:59,856][INFO] HTTP Request: HEAD https://huggingface.co/OpenSTEF/chronos-2-small-onnx/resolve/d7743f169215d59270490bfc096bc9454821e8ef/chronos-2-small.metadata.json &quot;HTTP/1.1 307 Temporary Redirect&quot;
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 09:45:42,981][INFO] HTTP Request: HEAD https://huggingface.co/OpenSTEF/chronos-2-small-onnx/resolve/d7743f169215d59270490bfc096bc9454821e8ef/chronos-2-small.metadata.json &quot;HTTP/1.1 307 Temporary Redirect&quot;
 </pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 09:08:59,872][INFO] HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/OpenSTEF/chronos-2-small-onnx/d7743f169215d59270490bfc096bc9454821e8ef/chronos-2-small.metadata.json?%2FOpenSTEF%2Fchronos-2-small-onnx%2Fresolve%2Fd7743f169215d59270490bfc096bc9454821e8ef%2Fchronos-2-small.metadata.json=&amp;etag=%225b275da15d36465e7521f2f25424ae2a59fb5cc5%22 &quot;HTTP/1.1 200 OK&quot;
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 09:45:42,998][INFO] HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/OpenSTEF/chronos-2-small-onnx/d7743f169215d59270490bfc096bc9454821e8ef/chronos-2-small.metadata.json?%2FOpenSTEF%2Fchronos-2-small-onnx%2Fresolve%2Fd7743f169215d59270490bfc096bc9454821e8ef%2Fchronos-2-small.metadata.json=&amp;etag=%225b275da15d36465e7521f2f25424ae2a59fb5cc5%22 &quot;HTTP/1.1 200 OK&quot;
 </pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 09:08:59,889][INFO] HTTP Request: GET https://huggingface.co/api/resolve-cache/models/OpenSTEF/chronos-2-small-onnx/d7743f169215d59270490bfc096bc9454821e8ef/chronos-2-small.metadata.json?%2FOpenSTEF%2Fchronos-2-small-onnx%2Fresolve%2Fd7743f169215d59270490bfc096bc9454821e8ef%2Fchronos-2-small.metadata.json=&amp;etag=%225b275da15d36465e7521f2f25424ae2a59fb5cc5%22 &quot;HTTP/1.1 200 OK&quot;
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 09:45:43,015][INFO] HTTP Request: GET https://huggingface.co/api/resolve-cache/models/OpenSTEF/chronos-2-small-onnx/d7743f169215d59270490bfc096bc9454821e8ef/chronos-2-small.metadata.json?%2FOpenSTEF%2Fchronos-2-small-onnx%2Fresolve%2Fd7743f169215d59270490bfc096bc9454821e8ef%2Fchronos-2-small.metadata.json=&amp;etag=%225b275da15d36465e7521f2f25424ae2a59fb5cc5%22 &quot;HTTP/1.1 200 OK&quot;
 </pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 09:08:59,890][INFO] Using explicit execution-provider chain [&#39;CPUExecutionProvider&#39;] for checkpoint &#39;chronos2&#39;.
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 09:45:43,017][INFO] Using explicit execution-provider chain [&#39;CPUExecutionProvider&#39;] for checkpoint &#39;chronos2&#39;.
 </pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 09:09:00,087][INFO] ONNX Runtime session built; realized providers: [&#39;CPUExecutionProvider&#39;].
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[2026-11-13 09:45:43,242][INFO] ONNX Runtime session built; realized providers: [&#39;CPUExecutionProvider&#39;].
 </pre></div>
 </div>
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>is_fitted: True  quantiles: [0.5]

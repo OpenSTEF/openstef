@@ -424,6 +424,7 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../benchmarks/liander2024/README.html">Liander 2024</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../benchmarks/liander2024/run_xgboost_gblinear_benchmark.html">XGBoost &amp; GBLinear</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../benchmarks/liander2024/run_ensemble_benchmark.html">Ensemble Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../benchmarks/liander2024/run_chronos2_benchmark.html">Chronos-2 (zero-shot)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../benchmarks/liander2024/compare_benchmark_runs.html">Compare Results</a></li>
 </ul>
 </details></li>
@@ -616,8 +617,8 @@ level.</p>
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Calibration before isotonic correction:
 quantile  expected  observed     error
      P10       0.1  0.025298 -0.074702
-     P50       0.5  0.098214 -0.401786
-     P90       0.9  0.305060 -0.594940
+     P50       0.5  0.101190 -0.398810
+     P90       0.9  0.306548 -0.593452
 </pre></div>
 </div>
 </div>
@@ -724,9 +725,9 @@ the effect of the asymmetric corrections.</p>
 </div>
 <div class="cell_output docutils container">
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>quantile  expected  observed (before)  observed (isotonic)  observed (conformalized)  error (before)  error (isotonic)  error (conformalized)
-     P10       0.1           0.025298             0.081845                  0.108631       -0.074702         -0.018155               0.008631
-     P50       0.5           0.098214             0.409226                  0.101190       -0.401786         -0.090774              -0.398810
-     P90       0.9           0.305060             0.921131                  0.901786       -0.594940          0.021131               0.001786
+     P10       0.1           0.025298             0.083333                  0.110119       -0.074702         -0.016667               0.010119
+     P50       0.5           0.101190             0.415179                  0.099702       -0.398810         -0.084821              -0.400298
+     P90       0.9           0.306548             0.922619                  0.900298       -0.593452          0.022619               0.000298
 </pre></div>
 </div>
 </div>
@@ -798,7 +799,7 @@ the effect of the asymmetric corrections.</p>
 </div>
 </details>
 <div class="cell_output docutils container">
-<img alt="../_images/31a5e6c8bfe131e1a5c95e25dbca6f5d58253e220cd194abf405c5bdb0eb72fa.png" src="../_images/31a5e6c8bfe131e1a5c95e25dbca6f5d58253e220cd194abf405c5bdb0eb72fa.png" />
+<img alt="../_images/0058f90db3a8cbe80ffcd3f7a06bc083f63c6e0e8f61bfbbc07ec9b6a1e3547f.png" src="../_images/0058f90db3a8cbe80ffcd3f7a06bc083f63c6e0e8f61bfbbc07ec9b6a1e3547f.png" />
 </div>
 </div>
 <p>Points closer to the diagonal indicate better calibration. Isotonic regression
