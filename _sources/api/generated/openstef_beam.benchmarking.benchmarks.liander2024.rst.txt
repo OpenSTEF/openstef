@@ -41,6 +41,7 @@ Classes
    :template: custom_class_noindex.rst
 
    Liander2024TargetProvider
+   SimpleTargetProvider[BenchmarkTarget, list[Liander2024Category]]
 
 
 
