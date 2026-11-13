@@ -55,6 +55,7 @@ from openstef_models.transforms.time_domain import (
     DatetimeFeaturesAdder,
     HolidayFeatureAdder,
     RollingAggregatesAdder,
+    SchoolHolidayConfig,
 )
 from openstef_models.transforms.time_domain.lags_adder import LagsAdder
 from openstef_models.transforms.time_domain.rolling_aggregates_adder import AggregationFunction
@@ -157,6 +158,10 @@ class ForecastingWorkflowConfig(BaseConfig):  # PredictionJob
     location: LocationConfig = Field(
         default=LocationConfig(),
         description="Location information for the forecasting workflow.",
+    )
+    school_holidays: SchoolHolidayConfig | None = Field(
+        default=None,
+        description="Opt-in school holiday features. None disables them.",
     )
 
     # Data properties
@@ -437,6 +442,7 @@ def create_forecasting_workflow(
             *feature_aligners,
             *feature_adders,
             HolidayFeatureAdder(country_code=config.location.country_code),
+            *([config.school_holidays.create_transform()] if config.school_holidays is not None else []),
             DatetimeFeaturesAdder(onehot_encode=False),
             *nan_outlier_handlers,
             *feature_standardizers,
@@ -460,6 +466,7 @@ def create_forecasting_workflow(
             *feature_aligners,
             *feature_adders,
             HolidayFeatureAdder(country_code=config.location.country_code),
+            *([config.school_holidays.create_transform()] if config.school_holidays is not None else []),
             DatetimeFeaturesAdder(onehot_encode=False),
             *feature_standardizers,
         ]
@@ -481,6 +488,7 @@ def create_forecasting_workflow(
             *feature_aligners,
             *feature_adders,
             HolidayFeatureAdder(country_code=config.location.country_code),
+            *([config.school_holidays.create_transform()] if config.school_holidays is not None else []),
             DatetimeFeaturesAdder(onehot_encode=False),
             *feature_standardizers,
         ]
@@ -501,6 +509,7 @@ def create_forecasting_workflow(
             *checks,
             *feature_aligners,
             *feature_adders,
+            *([config.school_holidays.create_transform()] if config.school_holidays is not None else []),
             *feature_standardizers,
             Imputer(
                 selection=Exclude(config.target_column),

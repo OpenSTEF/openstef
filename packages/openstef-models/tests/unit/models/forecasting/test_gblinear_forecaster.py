@@ -27,6 +27,22 @@ def base_config() -> GBLinearForecaster:
     )
 
 
+def test_gblinear_forecaster__random_state_reaches_xgboost() -> None:
+    # Arrange
+    forecaster = GBLinearForecaster(
+        horizons=[LeadTime(timedelta(days=1))],
+        quantiles=[Q(0.5)],
+        hyperparams=GBLinearHyperParams(random_state=7),
+        verbosity=0,
+    )
+
+    # Act
+    seed = forecaster._gblinear_model.get_params()["random_state"]
+
+    # Assert
+    assert seed == 7
+
+
 def test_gblinear_forecaster__fit_predict(
     sample_forecast_input_dataset: ForecastInputDataset,
     base_config: GBLinearForecaster,

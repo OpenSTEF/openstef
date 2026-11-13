@@ -4612,8 +4612,10 @@ dependencies = [
     { name = "openstef-core" },
     { name = "pvlib" },
     { name = "pycountry" },
+    { name = "requests" },
     { name = "scikit-learn" },
     { name = "scipy" },
+    { name = "urllib3" },
 ]
 
 [package.optional-dependencies]
@@ -4641,8 +4643,10 @@ requires-dist = [
     { name = "optuna", marker = "extra == 'tuning'", specifier = ">=4.7" },
     { name = "pvlib", specifier = ">=0.13" },
     { name = "pycountry", specifier = ">=24.6.1" },
+    { name = "requests", specifier = ">=2.32" },
     { name = "scikit-learn", specifier = ">=1.7.1,<2" },
     { name = "scipy", specifier = ">=1.16.3,<2" },
+    { name = "urllib3", specifier = ">=2.2" },
     { name = "xgboost", marker = "sys_platform == 'darwin' and extra == 'xgb-cpu'", specifier = ">=3.2,<4" },
     { name = "xgboost", marker = "extra == 'xgb-gpu'", specifier = ">=3.2,<4" },
     { name = "xgboost-cpu", marker = "(sys_platform == 'linux' and extra == 'xgb-cpu') or (sys_platform == 'win32' and extra == 'xgb-cpu')", specifier = ">=3.2,<4" },
