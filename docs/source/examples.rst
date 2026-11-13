@@ -43,6 +43,8 @@ Training & Forecasting
      - Build a forecasting workflow from scratch with custom transforms, feature selection, and callbacks.
    * - :doc:`Feature Engineering <tutorials/feature_engineering>`
      - Explore transforms by domain, apply them individually, and compose preprocessing pipelines.
+   * - :doc:`School Holidays and a Christmas Forecast <tutorials/school_holiday_forecasting>`
+     - Export school holidays to CSV once, enable school holiday features, and compare forecasts with and without them over the Christmas break.
    * - :doc:`Ensemble Forecasting <tutorials/ensemble_forecasting>`
      - Combine multiple models into an ensemble for improved accuracy and robustness.
    * - :doc:`Hyperparameter Tuning <tutorials/hyperparameter_tuning_with_optuna>`
@@ -116,6 +118,7 @@ Workshop
 
    Custom Pipeline <tutorials/custom_pipeline>
    Feature Engineering <tutorials/feature_engineering>
+   School Holidays and a Christmas Forecast <tutorials/school_holiday_forecasting>
    Ensemble Forecasting <tutorials/ensemble_forecasting>
    Hyperparameter Tuning <tutorials/hyperparameter_tuning_with_optuna>
    Foundation Model Forecasting Quickstart <tutorials/foundation_model_forecasting_quickstart>
