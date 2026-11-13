@@ -19,6 +19,7 @@ from unittest.mock import patch
 import pandas as pd
 import pytest
 from pydantic import Field
+from pydantic_extra_types.country import CountryAlpha2
 
 from openstef_core.datasets import TimeSeriesDataset
 from openstef_core.exceptions import ConfigurationError, NotFittedError
@@ -425,7 +426,7 @@ class TestSchoolHolidayFeatureAdder:
         SchoolHolidayFeatureAdder(country_code="NL", client=_RecordingClient(periods=[_summer()])).export_csv(
             path, start=date(2025, 1, 1), end=date(2025, 12, 31)
         )
-        loaded = SchoolHolidayFeatureAdder.from_csv(path, country_code="NL")
+        loaded = SchoolHolidayFeatureAdder.from_csv(path, country_code=CountryAlpha2("NL"))
 
         # Act / Assert
         with patch("urllib.request.urlopen", side_effect=AssertionError("network access")):
@@ -507,7 +508,9 @@ class TestSchoolHolidayCsv:
 
         # Act
         with patch("urllib.request.urlopen", side_effect=AssertionError("network access")):
-            loaded = SchoolHolidayFeatureAdder.from_csv(path, country_code="NL", subdivision_code=subdivision_code)
+            loaded = SchoolHolidayFeatureAdder.from_csv(
+                path, country_code=CountryAlpha2("NL"), subdivision_code=subdivision_code
+            )
             result = loaded.transform(_dataset("2025-06-30", periods=5))
 
         # Assert
@@ -528,7 +531,7 @@ class TestSchoolHolidayCsv:
 
         # Act
         with patch("urllib.request.urlopen", side_effect=AssertionError("network access")):
-            loaded = SchoolHolidayFeatureAdder.from_csv(path, country_code="NL", one_hot_by_name=True)
+            loaded = SchoolHolidayFeatureAdder.from_csv(path, country_code=CountryAlpha2("NL"), one_hot_by_name=True)
             result = loaded.transform(_dataset("2025-04-30", periods=5))
 
         # Assert
@@ -546,7 +549,7 @@ class TestSchoolHolidayCsv:
         SchoolHolidayFeatureAdder(country_code="NL", client=client).export_csv(
             path, start=date(2025, 1, 1), end=date(2025, 12, 31)
         )
-        loaded = SchoolHolidayFeatureAdder.from_csv(path, country_code="NL", one_hot_by_name=True)
+        loaded = SchoolHolidayFeatureAdder.from_csv(path, country_code=CountryAlpha2("NL"), one_hot_by_name=True)
 
         # Act
         restored = pickle.loads(pickle.dumps(loaded))  # noqa: S301
@@ -580,7 +583,9 @@ class TestSchoolHolidayCsv:
 
         # Act / Assert
         with pytest.raises(ConfigurationError, match="was exported for"):
-            SchoolHolidayFeatureAdder.from_csv(path, country_code=load_country, subdivision_code=load_subdivision)
+            SchoolHolidayFeatureAdder.from_csv(
+                path, country_code=CountryAlpha2(load_country), subdivision_code=load_subdivision
+            )
 
     def test_export_without_holidays_loads_empty_fitted_transform(self, tmp_path: Path) -> None:
         # Arrange
@@ -591,7 +596,7 @@ class TestSchoolHolidayCsv:
 
         # Act
         with patch("urllib.request.urlopen", side_effect=AssertionError("network access")):
-            loaded = SchoolHolidayFeatureAdder.from_csv(path, country_code="NL")
+            loaded = SchoolHolidayFeatureAdder.from_csv(path, country_code=CountryAlpha2("NL"))
             result = loaded.transform(_dataset("2025-01-15", periods=3))
 
         # Assert
@@ -609,7 +614,7 @@ class TestSchoolHolidayCsv:
         path.write_text("country_code,subdivision_code,covered_from,covered_until,start_date,end_date,name\n")
 
         # Act
-        loaded = SchoolHolidayFeatureAdder.from_csv(path, country_code="NL")
+        loaded = SchoolHolidayFeatureAdder.from_csv(path, country_code=CountryAlpha2("NL"))
         with caplog.at_level(logging.WARNING):
             result = loaded.transform(_dataset("2025-01-15", periods=3))
 
@@ -626,7 +631,7 @@ class TestSchoolHolidayCsv:
         path.write_text("")
 
         # Act
-        loaded = SchoolHolidayFeatureAdder.from_csv(path, country_code="NL")
+        loaded = SchoolHolidayFeatureAdder.from_csv(path, country_code=CountryAlpha2("NL"))
 
         # Assert
         assert loaded.is_fitted
@@ -643,7 +648,7 @@ class TestSchoolHolidayCsv:
 
         # Act / Assert
         with pytest.raises(ConfigurationError, match="not a school holiday export"):
-            SchoolHolidayFeatureAdder.from_csv(path, country_code="NL")
+            SchoolHolidayFeatureAdder.from_csv(path, country_code=CountryAlpha2("NL"))
 
     def test_from_csv_rejects_missing_columns(self, tmp_path: Path) -> None:
         # Arrange
@@ -652,7 +657,7 @@ class TestSchoolHolidayCsv:
 
         # Act / Assert
         with pytest.raises(ConfigurationError, match="not a school holiday export"):
-            SchoolHolidayFeatureAdder.from_csv(path, country_code="NL")
+            SchoolHolidayFeatureAdder.from_csv(path, country_code=CountryAlpha2("NL"))
 
     def test_fit_reads_csv_path_without_contacting_client(self, tmp_path: Path) -> None:
         # Arrange
