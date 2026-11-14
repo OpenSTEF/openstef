@@ -75,6 +75,39 @@ behind the same :class:`~openstef_models.models.forecasting.forecaster.Forecaste
 as every other OpenSTEF model, so it plugs into the same workflows and backtesting. Chronos-2
 is the first model family in the package; others can be added behind the same interface.
 
+Pluggable inference backends
+----------------------------
+
+The default backend runs the checkpoint locally with ONNX Runtime. That is not a
+hard requirement of the workflow: the ``backend`` field accepts a ready
+:class:`~openstef_foundation_models.inference.backend.InferenceBackend`. When it is
+left as ``None``, the workflow builds the default ONNX backend from ``checkpoint``.
+This lets a deployment use a remote runtime such as KServe without copying or
+modifying the preset:
+
+.. code-block:: python
+
+   from openstef_foundation_models.presets import ForecastingWorkflowConfig
+
+   config = ForecastingWorkflowConfig(backend=my_kserve_backend)
+
+For non-default ONNX providers or session options, build the backend with
+:class:`~openstef_foundation_models.presets.forecasting_workflow.OnnxBackendConfig`
+and pass the result in:
+
+.. code-block:: python
+
+   from openstef_foundation_models.presets import ForecastingWorkflowConfig, OnnxBackendConfig
+
+   backend = OnnxBackendConfig(providers=[...]).build(checkpoint)
+   config = ForecastingWorkflowConfig(checkpoint=checkpoint, backend=backend)
+
+.. note::
+
+   A ready backend is a Python object and is not represented in YAML/JSON. Leave
+   ``backend`` unset to keep a config serializable; the default ONNX backend is
+   then built at factory time.
+
 .. note::
 
    For the trainable models this sits alongside, see :doc:`models`. To compare a foundation

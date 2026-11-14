@@ -158,8 +158,8 @@ workflow = create_forecasting_workflow(
         ),
         # No `backend` override: the default provider policy reads the checkpoint
         # metadata (precision, static shapes) and the host to pick a performant
-        # chain automatically. Pass an explicit `backend=OnnxBackendConfig(...)`
-        # only to force a specific chain.
+        # chain automatically. To force a chain, build it with
+        # `OnnxBackendConfig(...).build(checkpoint)` and pass the resulting backend.
     )
 )
 

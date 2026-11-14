@@ -5,11 +5,13 @@
 """Unit tests for the foundation-model forecasting preset and factory."""
 
 import importlib
+import warnings
 from collections.abc import Mapping
 from pathlib import Path
 
 import numpy as np
 import pytest
+from pydantic import ValidationError
 
 import openstef_foundation_models.inference.onnx_backend as onnx_module
 from openstef_core.types import LeadTime, Quantile
@@ -119,6 +121,58 @@ def test_create_forecasting_workflow_selects_all_features_by_default(
     selector = workflow.model.preprocessing.transforms[0]
     assert isinstance(selector, Selector)
     assert selector.selection == FeatureSelection.ALL
+
+
+def test_existing_backend_instance_is_accepted() -> None:
+    """A ready InferenceBackend can be passed without a config wrapper."""
+    # Arrange
+    backend = StubBackend(_metadata())
+    config = ForecastingWorkflowConfig(
+        checkpoint=LocalCheckpoint(path=Path("chronos-2.onnx")),
+        backend=backend,
+    )
+
+    # Act
+    workflow = create_forecasting_workflow(config)
+
+    # Assert
+    forecaster = workflow.model.forecaster
+    assert isinstance(forecaster, Chronos2Forecaster)
+    assert forecaster.backend is backend
+
+
+def test_invalid_backend_config_is_rejected() -> None:
+    """An object that is not an InferenceBackend must not pass validation."""
+    with pytest.raises(ValidationError):
+        ForecastingWorkflowConfig(backend=object())
+
+
+def test_default_backend_is_none_and_built_from_checkpoint(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The default config leaves backend unset and builds ONNX at factory time."""
+    # Arrange
+    backend = StubBackend(_metadata())
+    monkeypatch.setattr(OnnxBackendConfig, "build", lambda _self, _checkpoint: backend)
+    config = ForecastingWorkflowConfig(
+        checkpoint=LocalCheckpoint(path=Path("chronos-2.onnx")),
+    )
+
+    # Act
+    workflow = create_forecasting_workflow(config)
+
+    # Assert
+    assert config.backend is None
+    assert workflow.model.forecaster.backend is backend
+
+
+def test_backend_field_has_a_json_schema() -> None:
+    """Ready backend objects still appear in generated configuration schemas."""
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        schema = ForecastingWorkflowConfig.model_json_schema()
+
+    assert schema["properties"]["backend"]["type"] == ["object", "null"]
 
 
 def test_onnx_backend_config_build_resolves_checkpoint_and_passes_options(
