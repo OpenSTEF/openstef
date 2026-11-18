@@ -3,18 +3,24 @@
 # SPDX-License-Identifier: MPL-2.0
 
 from datetime import datetime, timedelta
+from typing import cast
 from unittest.mock import patch
 
+import numpy as np
 import pandas as pd
 import pytest
 
 from openstef_beam.evaluation.metric_providers import (
+    CRPSSProvider,
+    CRPSSSampleWeightedProvider,
+    MetricProvider,
     RCSProvider,
     RIQDProvider,
     RMAEPeakHoursProvider,
 )
-from openstef_core.datasets import ForecastDataset
-from openstef_core.types import Quantile
+from openstef_beam.evaluation.models import Filtering
+from openstef_core.datasets import ForecastDataset, ForecastInputDataset
+from openstef_core.types import AvailableAt, LeadTime, Quantile
 
 
 @pytest.mark.parametrize(
@@ -193,3 +199,103 @@ def test_rcs_provider_symmetric_quantile_logic(
     # Verify that skipped quantiles are not in the results
     for skipped_quantile in expected_skipped:
         assert Quantile(skipped_quantile) not in result
+
+
+def _skill_subset() -> ForecastDataset:
+    """Median-only forecast, so that CRPS reduces to the mean absolute error."""
+    index = pd.date_range(datetime.fromisoformat("2025-05-16T00:00:00"), periods=4, freq="1h")
+    return ForecastDataset(
+        data=pd.DataFrame({"load": [0.0, 10.0, 0.0, 10.0], "quantile_P50": [4.0, 9.0, 4.0, 9.0]}, index=index),
+        target_column="load",
+        sample_interval=timedelta(hours=1),
+    )
+
+
+def _skill_ground_truth(subset: ForecastDataset) -> ForecastInputDataset:
+    """Two weeks of constant load of 5.0 before the subset, so the reference forecast is 5.0 everywhere."""
+    history_index = pd.date_range(
+        datetime.fromisoformat("2025-05-01T00:00:00"), subset.index[0], freq="1h", inclusive="left"
+    )
+    load = pd.concat([pd.Series(5.0, index=history_index), cast(pd.Series, subset.target_series)])
+    return ForecastInputDataset(
+        data=load.to_frame("load"), sample_interval=subset.sample_interval, target_column="load"
+    )
+
+
+@pytest.mark.parametrize(
+    ("reference_filtering", "expected"),
+    [
+        # Cutoff 2025-05-02T06:00 (i=30); context (04:00, 06:00] holds 29 and 30
+        pytest.param(LeadTime.from_string("PT6H"), 29.5, id="lead_time"),
+        # Cutoff 2025-05-01T06:00 (i=6); context (04:00, 06:00] holds 5 and 6
+        pytest.param(AvailableAt.from_string("D-1T0600"), 5.5, id="available_at"),
+        # Cutoff 2025-05-01T00:00 is the first measurement; 1 of 2 required samples
+        pytest.param(LeadTime.from_string("PT36H"), np.nan, id="insufficient_history"),
+    ],
+)
+def test_reference_forecast_uses_rolling_quantile_at_cutoff(reference_filtering: Filtering, expected: float) -> None:
+    # Arrange: hourly measurements whose value equals the hours since the start
+    measurement_index = pd.date_range(datetime.fromisoformat("2025-05-01T00:00:00"), periods=49, freq="1h")
+    measurements = pd.Series(np.arange(49, dtype=float), index=measurement_index)
+    provider = CRPSSProvider(
+        reference_filtering=reference_filtering, context_length=timedelta(hours=2), minimum_coverage=1.0
+    )
+
+    # Act
+    reference = provider.reference_forecast(
+        measurements=measurements,
+        index=pd.DatetimeIndex([datetime.fromisoformat("2025-05-02T12:00:00")]),
+        sample_interval=timedelta(hours=1),
+        quantiles=[Quantile(0.5)],
+    )
+
+    # Assert
+    np.testing.assert_array_equal(reference.to_numpy(), [[expected]])
+
+
+@pytest.mark.parametrize(
+    ("provider", "metric_name", "expected"),
+    [
+        # Errors of [4, 1, 4, 1] average to 2.5 against a reference error of 5.0
+        pytest.param(CRPSSProvider(), "CRPSS", 50.0, id="unweighted"),
+        # Weights of [0.1, 1, 0.1, 1] relative to the reference scale of 5.0 favour the high load samples
+        pytest.param(CRPSSSampleWeightedProvider(), "CRPSS_sample_weighted", 74.545455, id="sample_weighted"),
+    ],
+)
+def test_crpss_providers_score_forecast_against_reference_from_ground_truth(
+    provider: MetricProvider, metric_name: str, expected: float
+) -> None:
+    # Arrange
+    subset = _skill_subset()
+
+    # Act
+    result = provider(subset, _skill_ground_truth(subset))
+
+    # Assert
+    assert result["global"][metric_name] == pytest.approx(expected)
+
+
+@pytest.mark.parametrize(
+    ("provider", "metric_name"),
+    [
+        pytest.param(CRPSSProvider(), "CRPSS", id="unweighted"),
+        pytest.param(CRPSSSampleWeightedProvider(), "CRPSS_sample_weighted", id="sample_weighted"),
+    ],
+)
+@pytest.mark.parametrize("with_ground_truth", [pytest.param(True, id="no_history"), pytest.param(False, id="none")])
+def test_crpss_providers_return_nan_without_measurement_history(
+    provider: MetricProvider, metric_name: str, with_ground_truth: bool
+) -> None:
+    # Arrange: ground truth without history before the reference cutoff, or no ground truth at all
+    subset = _skill_subset()
+    ground_truth = (
+        ForecastInputDataset(data=subset.data[["load"]], sample_interval=subset.sample_interval, target_column="load")
+        if with_ground_truth
+        else None
+    )
+
+    # Act
+    result = provider(subset, ground_truth)
+
+    # Assert
+    assert np.isnan(result["global"][metric_name])

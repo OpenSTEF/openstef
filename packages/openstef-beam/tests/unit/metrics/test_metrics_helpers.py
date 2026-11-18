@@ -7,7 +7,7 @@ from collections.abc import Sequence
 import numpy as np
 import pytest
 
-from openstef_beam.metrics.metrics_helpers import represented_interval_weights
+from openstef_beam.metrics.metrics_helpers import represented_interval_weights, skill_score
 from openstef_core.types import Q
 
 
@@ -29,3 +29,44 @@ def test_represented_interval_weights(quantiles: Sequence[float], expected: Sequ
     # Assert
     assert np.allclose(weights, expected)
     assert np.isclose(weights.sum(), 1.0)  # weights form a partition of the unit interval
+
+
+@pytest.mark.parametrize(
+    ("score", "reference_score", "expected"),
+    [
+        # A perfect forecast has no error left to remove, so all of the reference error is skill.
+        pytest.param(0.0, 2.0, 100.0, id="perfect_forecast"),
+        # Matching the reference forecast means no skill was added.
+        pytest.param(2.0, 2.0, 0.0, id="equal_to_reference"),
+        # Halving the reference error is half of the way towards a perfect forecast.
+        pytest.param(1.0, 2.0, 50.0, id="twice_as_accurate"),
+        # Doubling the reference error is as far below the reference as a perfect forecast is above it.
+        pytest.param(4.0, 2.0, -100.0, id="worse_than_reference"),
+        # A reference without error cannot be improved upon, so skill is undefined.
+        pytest.param(1.0, 0.0, np.nan, id="zero_reference"),
+        pytest.param(np.nan, 2.0, np.nan, id="nan_score"),
+        pytest.param(1.0, np.nan, np.nan, id="nan_reference"),
+    ],
+)
+def test_skill_score_returns_expected_value(score: float, reference_score: float, expected: float) -> None:
+    # Arrange: score pairs are supplied by the parametrization
+
+    # Act
+    result = skill_score(score, reference_score)
+
+    # Assert
+    if np.isnan(expected):
+        assert np.isnan(result)
+    else:
+        assert result == pytest.approx(expected)
+
+
+def test_skill_score_returns_fraction_when_percentage_disabled() -> None:
+    # Arrange
+    score, reference_score = 1.0, 2.0
+
+    # Act
+    result = skill_score(score, reference_score, as_percentage=False)
+
+    # Assert
+    assert result == pytest.approx(0.5)

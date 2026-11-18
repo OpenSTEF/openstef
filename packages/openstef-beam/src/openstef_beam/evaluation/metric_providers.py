@@ -9,6 +9,8 @@ for probabilistic forecasts. Each provider handles specific metric types
 and can be configured to work with specific quantiles or all available quantiles.
 """
 
+import math
+from datetime import timedelta
 from typing import Literal, cast, override
 
 import numpy as np
@@ -18,6 +20,7 @@ from pydantic import Field
 
 from openstef_beam.evaluation.evaluation_helper import compute_symmetric_quantile_metrics
 from openstef_beam.evaluation.models.subset import MetricsDict, QuantileMetricsDict
+from openstef_beam.evaluation.models.window import Filtering
 from openstef_beam.metrics import (
     completeness,
     confusion_matrix,
@@ -36,8 +39,8 @@ from openstef_beam.metrics import (
     rmae,
 )
 from openstef_core.base_model import BaseConfig
-from openstef_core.datasets import ForecastDataset
-from openstef_core.types import Quantile
+from openstef_core.datasets import ForecastDataset, ForecastInputDataset
+from openstef_core.types import AvailableAt, Quantile
 from openstef_core.utils.invariants import not_none
 
 type MetricDirection = Literal["higher_is_better", "lower_is_better"]
@@ -83,7 +86,9 @@ class MetricProvider(BaseConfig):
         description="List of quantiles to compute metrics for. If None, all quantiles are processed.",
     )
 
-    def __call__(self, subset: ForecastDataset, reference: ForecastDataset | None = None) -> QuantileMetricsDict:
+    def __call__(
+        self, subset: ForecastDataset, ground_truth: ForecastInputDataset | None = None
+    ) -> QuantileMetricsDict:
         """Process an evaluation subset and return metrics.
 
         Extracts predictions and ground truth from the subset, then computes
@@ -91,12 +96,12 @@ class MetricProvider(BaseConfig):
 
         Args:
             subset: Evaluation subset containing predictions and ground truth data.
-            reference: Optional aligned reference; ignored if unused by the provider.
+            ground_truth: Full measurement history; ignored if unused by the provider.
 
         Returns:
             QuantileMetricsDict mapping quantile keys to computed metric values.
         """
-        _ = reference
+        _ = ground_truth
         y_true: npt.NDArray[np.floating] = cast(
             pd.DataFrame, not_none(subset.target_series)
         ).to_numpy()  # type workaround
@@ -366,41 +371,112 @@ class RCRPSSampleWeightedProvider(MetricProvider):
 
 
 class CRPSSProvider(MetricProvider):
-    """CRPS skill score relative to a reference forecast."""
+    """CRPS skill score relative to a rolling-quantile reference forecast.
+
+    The reference forecast for a timestamp consists of the quantiles of the measurements in the
+    ``context_length`` before its cutoff, where the cutoff follows from ``reference_filtering``:
+    ``AvailableAt`` gives the same cutoff as ``filter_by_available_at`` (e.g. D-1 06:00) and
+    ``LeadTime`` gives a cutoff of ``timestamp - lead_time``. Measurements are considered
+    available at their own timestamp.
+
+    Example:
+        >>> from openstef_core.types import LeadTime
+        >>> provider = CRPSSProvider(reference_filtering=LeadTime.from_string("PT48H"))
+    """
+
+    reference_filtering: Filtering = Field(
+        default=AvailableAt.from_string("D-1T0600"),
+        description="Cutoff of the measurement history used for the reference forecast.",
+    )
+    context_length: timedelta = Field(
+        default=timedelta(days=14),
+        description="Length of the measurement history used for each reference forecast.",
+    )
+    minimum_coverage: float = Field(
+        default=0.9,
+        ge=0.0,
+        le=1.0,
+        description="Minimum fraction of expected context samples; references with less coverage are NaN.",
+    )
 
     @property
     @override
     def metric_names(self) -> frozenset[str]:
         return frozenset({"CRPSS"})
 
+    def reference_forecast(
+        self,
+        measurements: pd.Series,
+        index: pd.DatetimeIndex,
+        sample_interval: timedelta,
+        quantiles: list[Quantile],
+    ) -> pd.DataFrame:
+        """Rolling quantiles of the measurements, evaluated at the cutoff of each timestamp.
+
+        Args:
+            measurements: Measurement history; missing values are excluded from the context.
+            index: Timestamps to forecast.
+            sample_interval: Sample interval of the measurements.
+            quantiles: Quantiles to forecast.
+
+        Returns:
+            Reference quantiles indexed like ``index``; NaN where the context coverage is too low.
+        """
+        measurements = measurements.sort_index()
+        grid = measurements.reindex(pd.date_range(measurements.index[0], measurements.index[-1], freq=sample_interval))
+        rolling = grid.rolling(
+            window=self.context_length,
+            min_periods=max(1, math.ceil(self.minimum_coverage * self.context_length / sample_interval)),
+        )
+        rolling_quantiles = pd.DataFrame({quantile.format(): rolling.quantile(quantile) for quantile in quantiles})
+
+        filtering = self.reference_filtering
+        cutoffs = filtering.apply_index(index) if isinstance(filtering, AvailableAt) else index - filtering.value
+        # ffill only fills cutoffs between grid points; NaN contexts stay NaN
+        reference = rolling_quantiles.reindex(cutoffs, method="ffill")
+        reference.index = index
+        return reference
+
     @override
-    def __call__(self, subset: ForecastDataset, reference: ForecastDataset | None = None) -> QuantileMetricsDict:
-        """Compute global CRPSS against the reference forecast."""
-        if reference is None:
+    def __call__(
+        self, subset: ForecastDataset, ground_truth: ForecastInputDataset | None = None
+    ) -> QuantileMetricsDict:
+        """Compute global CRPSS against the reference forecast built from the ground truth."""
+        if ground_truth is None:
             return {"global": {"CRPSS": float("NaN")}}
 
         y_true: npt.NDArray[np.floating] = cast(pd.DataFrame, not_none(subset.target_series)).to_numpy()
+        reference = self.reference_forecast(
+            measurements=ground_truth.target_series,
+            index=subset.index,
+            sample_interval=subset.sample_interval,
+            quantiles=subset.quantiles,
+        )
 
         return {
             "global": {
                 "CRPSS": crpss(
                     y_true=y_true,
                     y_pred=subset.quantiles_data.to_numpy(),
-                    y_reference=reference.quantiles_data.to_numpy(),
+                    y_reference=reference.to_numpy(),
                     quantiles=subset.quantiles,
                 )
             }
         }
 
 
-class CRPSSSampleWeightedProvider(MetricProvider):
-    """CRPSS with sample weights scaled to an absolute reference-context quantile."""
+class CRPSSSampleWeightedProvider(CRPSSProvider):
+    """CRPSS with sample weights scaled to a rolling absolute quantile of the reference context."""
 
     @property
     @override
     def metric_names(self) -> frozenset[str]:
         return frozenset({"CRPSS_sample_weighted"})
 
+    weight_scale_quantile: Quantile = Field(
+        default=Quantile(0.99),
+        description="Quantile of the absolute reference context used to scale sample weights.",
+    )
     a_min: float = Field(
         default=0.1,
         description="Minimum sample weight.",
@@ -415,13 +491,27 @@ class CRPSSSampleWeightedProvider(MetricProvider):
     )
 
     @override
-    def __call__(self, subset: ForecastDataset, reference: ForecastDataset | None = None) -> QuantileMetricsDict:
-        """Compute global sample-weighted CRPSS."""
-        if reference is None:
+    def __call__(
+        self, subset: ForecastDataset, ground_truth: ForecastInputDataset | None = None
+    ) -> QuantileMetricsDict:
+        """Compute global sample-weighted CRPSS against the reference forecast built from the ground truth."""
+        if ground_truth is None:
             return {"global": {"CRPSS_sample_weighted": float("NaN")}}
 
         y_true: npt.NDArray[np.floating] = cast(pd.DataFrame, not_none(subset.target_series)).to_numpy()
-        weight_scale = cast(pd.Series, not_none(reference.target_series)).to_numpy()
+        measurements = ground_truth.target_series
+        reference = self.reference_forecast(
+            measurements=measurements,
+            index=subset.index,
+            sample_interval=subset.sample_interval,
+            quantiles=subset.quantiles,
+        )
+        weight_scale = self.reference_forecast(
+            measurements=measurements.abs(),
+            index=subset.index,
+            sample_interval=subset.sample_interval,
+            quantiles=[self.weight_scale_quantile],
+        ).to_numpy()[:, 0]
 
         sample_weights = np.clip(
             np.abs(y_true / weight_scale) ** self.exponent,
@@ -434,7 +524,7 @@ class CRPSSSampleWeightedProvider(MetricProvider):
                 "CRPSS_sample_weighted": crpss(
                     y_true=y_true,
                     y_pred=subset.quantiles_data.to_numpy(),
-                    y_reference=reference.quantiles_data.to_numpy(),
+                    y_reference=reference.to_numpy(),
                     quantiles=subset.quantiles,
                     sample_weights=sample_weights,
                 )
@@ -547,7 +637,9 @@ class RMAEPeakHoursProvider(MetricProvider):
     )
 
     @override
-    def __call__(self, subset: ForecastDataset, reference: ForecastDataset | None = None) -> QuantileMetricsDict:
+    def __call__(
+        self, subset: ForecastDataset, ground_truth: ForecastInputDataset | None = None
+    ) -> QuantileMetricsDict:
         """Process an evaluation subset and return metrics.
 
         Extracts predictions and ground truth from the subset, then computes
@@ -555,11 +647,12 @@ class RMAEPeakHoursProvider(MetricProvider):
 
         Args:
             subset: Evaluation subset containing predictions and ground truth data.
-            reference: Unused by this provider.
+            ground_truth: Unused by this provider.
 
         Returns:
             QuantileMetricsDict mapping peak/off-peak periods to computed metric values.
         """
+        _ = ground_truth
         y_true: npt.NDArray[np.floating] = cast(pd.DataFrame, not_none(subset.target_series)).to_numpy()
         y_pred: npt.NDArray[np.floating] = subset.quantiles_data.to_numpy()
 

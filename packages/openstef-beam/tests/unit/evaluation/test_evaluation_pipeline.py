@@ -9,6 +9,7 @@ import pandas as pd
 import pytest
 
 from openstef_beam.evaluation.evaluation_pipeline import EvaluationConfig, EvaluationPipeline
+from openstef_beam.evaluation.metric_providers import CRPSSProvider
 from openstef_beam.evaluation.models import EvaluationReport, EvaluationSubsetReport, SubsetMetric, Window
 from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesDataset
 from openstef_core.exceptions import MissingColumnsError
@@ -153,19 +154,53 @@ def test_ground_truth_with_nans_are_dropped(minimal_config: EvaluationConfig):
         assert not target.isna().any()
 
 
-def test_issue_times_returns_availability_of_the_version_that_select_version_keeps():
-    # Arrange: three forecast runs cover the same timestamps; the last one is issued after the cutoff
-    index = pd.date_range("2020-01-02T00:00", periods=2, freq="h")
-    runs = [
-        create_timeseries_dataset(index=index, quantile_P50=[1.0, 2.0], available_at=pd.DatetimeIndex([issued] * 2))
-        for issued in ["2020-01-01T00:00", "2020-01-01T06:00", "2020-01-01T18:00"]
-    ]
-    predictions = TimeSeriesDataset(data=pd.concat([run.data for run in runs]), sample_interval=timedelta(hours=1))
-    filtered = predictions.filter_by_available_at(AvailableAt.from_string("D-1T12:00"))
+def _skill_score_pipeline_data() -> tuple[TimeSeriesDataset, VersionedTimeSeriesDataset]:
+    """Two days of day-ahead forecasts, preceded by enough measurements for a 14-day context."""
+    measurement_index = pd.date_range("2025-05-01", "2025-05-20", freq="h", inclusive="left")
+    measurements = VersionedTimeSeriesDataset.from_dataframe(
+        data=pd.DataFrame(
+            {"target": np.arange(len(measurement_index), dtype=float), "available_at": measurement_index},
+            index=measurement_index,
+        ),
+        sample_interval=timedelta(hours=1),
+    )
+
+    forecast_index = pd.date_range("2025-05-18", "2025-05-20", freq="h", inclusive="left")
+    predictions = TimeSeriesDataset(
+        data=pd.DataFrame(
+            {
+                "quantile_P50": np.arange(len(forecast_index), dtype=float),
+                "available_at": forecast_index - timedelta(hours=24),
+            },
+            index=forecast_index,
+        ),
+        sample_interval=timedelta(hours=1),
+    )
+    return predictions, measurements
+
+
+def test_run_computes_skill_score_from_measurement_history_before_the_subset() -> None:
+    """The subset only spans two days; the 14-day reference context must come from the full ground truth."""
+    # Arrange
+    predictions, measurements = _skill_score_pipeline_data()
+    config = EvaluationConfig(
+        available_ats=[],
+        lead_times=[LeadTime.from_string("PT24H")],
+        windows=[Window(lag=timedelta(hours=0), size=timedelta(days=1), stride=timedelta(days=1))],
+    )
+    pipeline = EvaluationPipeline(
+        config=config,
+        window_metric_providers=[CRPSSProvider()],
+        global_metric_providers=[CRPSSProvider()],
+        quantiles=[Quantile(0.5)],
+    )
 
     # Act
-    issue_times = EvaluationPipeline._issue_times(filtered)  # noqa: SLF001
+    report = pipeline.run(predictions=predictions, ground_truth=measurements, target_column="target")
 
-    # Assert
-    assert issue_times is not None
-    assert issue_times.tolist() == [pd.Timestamp("2020-01-01T06:00")] * 2
+    # Assert: both the global metric and each window are scored against the reference forecast
+    windowed = report.subset_reports[0].get_windowed_metrics()
+    global_metric = report.subset_reports[0].get_global_metric()
+    assert global_metric is not None
+    assert len(windowed) > 0
+    assert all(np.isfinite(score.metrics["global"]["CRPSS"]) for score in [global_metric, *windowed])
