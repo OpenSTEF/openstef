@@ -826,7 +826,7 @@ window.runMermaid = runMermaid;</script>
     <span class="k">raise</span> <span class="n">MissingExtraError</span><span class="p">(</span><span class="s2">&quot;onnxruntime&quot;</span><span class="p">,</span> <span class="s2">&quot;openstef-foundation-models&quot;</span><span class="p">,</span> <span class="n">install_extra</span><span class="o">=</span><span class="s2">&quot;cpu&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
 
 <span class="c1"># onnxruntime-gpu ships the CUDA execution-provider plugin but loads the CUDA/cuDNN</span>
-<span class="c1"># runtime (the nvidia-*-cu12 wheels the [gpu] extra pulls) lazily at session creation.</span>
+<span class="c1"># runtime (the nvidia-*-cu13 wheels the [gpu] extra pulls) lazily at session creation.</span>
 <span class="c1"># preload_dlls() loads them from the nvidia site-packages so the CUDA provider can be</span>
 <span class="c1"># realized without a system CUDA install or LD_LIBRARY_PATH. It is a no-op on the CPU</span>
 <span class="c1"># runtime; the guard covers onnxruntime &lt; 1.21, which predates the API.</span>
