@@ -44,17 +44,19 @@ optional-dependencies.cpu = [
   "onnxruntime>=1.20",
 ]
 # onnxruntime-gpu ships only the CUDA execution-provider plugin, not the CUDA/cuDNN
-# runtime it loads at session creation. We pull the matching nvidia CUDA-12 / cuDNN-9
+# runtime it loads at session creation. We pull the matching nvidia CUDA-13 / cuDNN-9
 # wheels explicitly (rather than via onnxruntime-gpu's own [cuda,cudnn] extras, whose
-# nested-extra markers don't resolve through our conflicting cpu/gpu extras); >=1.21
-# auto-preloads them from site-packages, so GPU works without a system CUDA install.
+# nested-extra markers don't resolve through our conflicting cpu/gpu extras). onnxruntime-gpu
+# 1.27+ is built against CUDA 13, so the CUDA 12 wheels must not be used with it. The
+# wheels are auto-preloaded from site-packages, so GPU works without a system CUDA install.
 optional-dependencies.gpu = [
-  "nvidia-cublas-cu12>=12,<13",
-  "nvidia-cuda-runtime-cu12>=12,<13",
-  "nvidia-cudnn-cu12>=9,<10",
-  "nvidia-cufft-cu12>=11,<12",
-  "nvidia-curand-cu12>=10,<11",
-  "onnxruntime-gpu>=1.21",
+  "nvidia-cublas>=13,<14",
+  "nvidia-cuda-nvrtc>=13,<14",
+  "nvidia-cuda-runtime>=13,<14",
+  "nvidia-cudnn-cu13>=9,<10",
+  "nvidia-cufft>=12,<13",
+  "nvidia-curand>=10,<11",
+  "onnxruntime-gpu>=1.27",
 ]
 urls.Documentation = "https://openstef.github.io/openstef/index.html"
 urls.Homepage = "https://lfenergy.org/projects/openstef/"
