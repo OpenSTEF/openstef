@@ -21,9 +21,9 @@ or pass a :class:`~openstef_foundation_models.models.checkpoint.LocalCheckpoint`
 to run a file already on disk.
 """
 
-from typing import Literal, assert_never
+from typing import Annotated, Literal, assert_never
 
-from pydantic import Field
+from pydantic import ConfigDict, Field, WithJsonSchema
 
 from openstef_core.base_model import BaseConfig
 from openstef_core.mixins import TransformPipeline
@@ -54,6 +54,10 @@ class OnnxBackendConfig(BaseConfig):
     Holds only *how* to run the model (execution providers, session options), not
     *which* weights: the checkpoint is supplied to :meth:`build` by the caller, so
     the same compute settings can run different checkpoints.
+
+    This is a helper for callers that need to construct an ONNX backend with
+    non-default compute settings. The default workflow builds an ONNX backend
+    directly from :attr:`ForecastingWorkflowConfig.checkpoint`.
     """
 
     kind: Literal["onnx"] = Field(default="onnx", description="Discriminator tag for backend type.")
@@ -96,10 +100,18 @@ class OnnxBackendConfig(BaseConfig):
         )
 
 
-#: A backend configuration. Currently ONNX-only; kept as a named type so the
-#: workflow config and factory can grow to a discriminated union of backends
-#: without changing their public signatures.
-BackendConfig = OnnxBackendConfig
+#: A ready backend accepted by :class:`ForecastingWorkflowConfig`. The explicit
+#: JSON schema keeps the arbitrary protocol type representable in generated
+#: configuration docs.
+BackendField = Annotated[
+    InferenceBackend | None,
+    WithJsonSchema(
+        {
+            "type": ["object", "null"],
+            "description": "A ready InferenceBackend, or None to build the default ONNX backend from the checkpoint.",
+        }
+    ),
+]
 
 
 class ForecastingWorkflowConfig(BaseConfig):
@@ -108,9 +120,16 @@ class ForecastingWorkflowConfig(BaseConfig):
     Selects a model family and the checkpoint that backs it, the requested
     quantiles and horizons, the target column, and the columns to keep before
     forecasting. Every kept non-target column is treated as a known covariate, so
-    weather forecasts condition the prediction. Compute settings (execution
-    providers, session options) live on the nested :attr:`backend` config.
+    weather forecasts condition the prediction.
+
+    ``backend`` accepts a ready
+    :class:`~openstef_foundation_models.inference.backend.InferenceBackend`.
+    When it is ``None``, the workflow builds the default ONNX backend from
+    :attr:`checkpoint`. Callers that need non-default ONNX compute settings can
+    build the backend with :class:`OnnxBackendConfig` and pass the result in.
     """
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     model: Literal["chronos2"] = Field(default="chronos2", description="Foundation model family to use.")
     checkpoint: CheckpointRef = Field(
@@ -138,9 +157,10 @@ class ForecastingWorkflowConfig(BaseConfig):
         "is forwarded to the model as a known covariate. Must include the target column.",
     )
 
-    backend: BackendConfig = Field(
-        default_factory=OnnxBackendConfig,
-        description="Inference backend (compute) configuration: execution providers and session options.",
+    backend: BackendField = Field(
+        default=None,
+        description="Ready inference backend. When omitted, the workflow builds the default ONNX backend "
+        "from `checkpoint`.",
     )
 
     chronos2_hyperparams: Chronos2HyperParams = Field(
@@ -174,7 +194,9 @@ def create_forecasting_workflow(config: ForecastingWorkflowConfig) -> CustomFore
     """
     match config.model:
         case "chronos2":
-            model_backend = config.backend.build(config.checkpoint)
+            model_backend = config.backend
+            if model_backend is None:
+                model_backend = OnnxBackendConfig().build(config.checkpoint)
             forecaster = Chronos2Forecaster(
                 backend=model_backend,
                 quantiles=config.quantiles,
@@ -200,7 +222,6 @@ def create_forecasting_workflow(config: ForecastingWorkflowConfig) -> CustomFore
 
 
 __all__ = [
-    "BackendConfig",
     "ForecastingWorkflowConfig",
     "OnnxBackendConfig",
     "create_forecasting_workflow",
