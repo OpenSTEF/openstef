@@ -213,25 +213,34 @@ a resolver refuses to install both at once.
 
    * - Package
      - CPU (default)
-     - GPU (CUDA; Linux/Windows)
+     - GPU (CUDA 13; Linux/Windows)
    * - ``openstef-foundation-models``
      - ``[cpu]`` (onnxruntime)
-     - ``[gpu]`` (onnxruntime-gpu)
+     - ``[gpu]`` (onnxruntime-gpu + NVIDIA CUDA 13 / cuDNN 9 wheels)
    * - ``openstef-models``
      - ``[xgb-cpu]``
      - ``[xgb-gpu]``
+
+.. warning::
+
+   The ``[gpu]`` extra for ``openstef-foundation-models`` now installs NVIDIA CUDA 13
+   wheels (previously CUDA 12). If your environment or hardware only supports CUDA 12,
+   you may need to pin an older version of ``openstef-foundation-models`` or update your
+   CUDA toolkit.
 
 .. code-block:: bash
 
     # CPU build (works on every platform; the flavour the meta-package ships)
     pip install "openstef-foundation-models[cpu]"
 
-    # GPU build (CUDA-enabled Linux or Windows only)
+    # GPU build (CUDA 13; Linux or Windows only)
     pip install "openstef-foundation-models[gpu]"
 
 The ``openstef`` meta-package (and its ``[all]`` extra) always selects the CPU builds.
-For GPU, install the component package directly with its ``[gpu]`` extra. GPU wheels are
-published for Linux and Windows with CUDA; there is no GPU build for macOS.
+For GPU, install the component package directly with its ``[gpu]`` extra. The ``[gpu]``
+extra pulls the matching NVIDIA CUDA 13 and cuDNN 9 wheels automatically, so no system
+CUDA install is required. GPU wheels are published for Linux and Windows; there is no
+GPU build for macOS.
 
 Feature extras are additive — combine as many as you need:
 
@@ -280,7 +289,7 @@ A plain ``uv sync`` installs the default ``dev`` group: every workspace package 
 editable mode plus the full toolbelt (test, lint, type-check, notebooks, docs). One
 command, no ``--all-groups`` or ``--all-packages`` needed.
 
-For a GPU development environment (CUDA; Linux/Windows), swap the runtime flavour:
+For a GPU development environment (CUDA 13; Linux/Windows), swap the runtime flavour:
 
 .. code-block:: bash
 
