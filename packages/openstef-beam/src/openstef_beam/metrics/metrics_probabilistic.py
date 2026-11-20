@@ -22,7 +22,7 @@ import numpy as np
 import numpy.typing as npt
 
 from openstef_beam.metrics.metrics_deterministic import pinball_loss
-from openstef_beam.metrics.metrics_helpers import represented_interval_weights
+from openstef_beam.metrics.metrics_helpers import represented_interval_weights, skill_score
 from openstef_core.types import Quantile
 
 _Q_05 = Quantile(0.05)
@@ -152,6 +152,48 @@ def rcrps(
         return float("NaN")
 
     return float(crps(y_true, y_pred, quantiles, sample_weights, method=method) / y_range)
+
+
+def crpss(
+    y_true: npt.NDArray[np.floating],
+    y_pred: npt.NDArray[np.floating],
+    y_reference: npt.NDArray[np.floating],
+    quantiles: list[Quantile],
+    sample_weights: npt.NDArray[np.floating] | None = None,
+    method: QuantileWeightingMethod = "interval",
+) -> float:
+    """Calculate the Continuous Ranked Probability Skill Score (CRPSS).
+
+    The CRPSS expresses the CRPS of a forecast relative to the CRPS of a reference
+    forecast, so forecast quality is measured as the improvement over a baseline
+    rather than on a scale that depends on the evaluated period.
+
+    Args:
+        y_true: Observed values with shape (num_samples,).
+        y_pred: Predicted quantiles with shape (num_samples, num_quantiles).
+        y_reference: Reference predictions with shape (num_samples, num_quantiles).
+        quantiles: Quantile levels with shape (num_quantiles,). Must be sorted
+            in ascending order and contain values in [0, 1].
+        sample_weights: Optional weights for each sample with shape (num_samples,).
+        method: Quantile weighting scheme to use, either "interval" (default) or "uniform".
+
+    Returns:
+        The skill over the reference forecast as a percentage. Returns NaN if the
+        reference forecast is unavailable or perfect.
+
+    Example:
+        A forecast twice as accurate as its reference
+
+        >>> import numpy as np
+        >>> y_true = np.array([0.0, 10.0])
+        >>> quantiles = [Quantile(0.5)]
+        >>> crpss(y_true, np.array([[1.0], [9.0]]), np.array([[2.0], [8.0]]), quantiles)
+        50.0
+    """
+    return skill_score(
+        score=crps(y_true, y_pred, quantiles, sample_weights, method=method),
+        reference_score=crps(y_true, y_reference, quantiles, sample_weights, method=method),
+    )
 
 
 def observed_probability(

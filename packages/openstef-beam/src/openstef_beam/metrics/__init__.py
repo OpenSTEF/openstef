@@ -33,8 +33,12 @@ from openstef_beam.metrics.metrics_deterministic import (
     riqd,
     rmae,
 )
+from openstef_beam.metrics.metrics_helpers import (
+    skill_score,
+)
 from openstef_beam.metrics.metrics_probabilistic import (
     crps,
+    crpss,
     mean_absolute_calibration_error,
     observed_probability,
     rcrps,
@@ -46,6 +50,7 @@ __all__ = [
     "completeness",
     "confusion_matrix",
     "crps",
+    "crpss",
     "fbeta",
     "mae",
     "mape",
@@ -59,4 +64,5 @@ __all__ = [
     "relative_pinball_loss",
     "riqd",
     "rmae",
+    "skill_score",
 ]
