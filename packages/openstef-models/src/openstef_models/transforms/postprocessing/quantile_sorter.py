@@ -64,10 +64,20 @@ class QuantileSorter(Transform[ForecastDataset, ForecastDataset]):
     def transform(self, data: ForecastDataset) -> ForecastDataset:
         quantile_columns = [quantile.format() for quantile in sorted(data.quantiles)]
 
-        # Replace quantile with their sorted values
+        # Sort the finite values without moving missing quantiles to other probability levels.
         predictions = data.data.copy(deep=False)
+        quantile_data = predictions[quantile_columns]
+        values = quantile_data.to_numpy()
+        valid = np.isfinite(quantile_data.to_numpy(dtype=float, na_value=np.nan))
+        if valid.all():
+            sorted_values = np.sort(values, axis=1)
+        else:
+            sorted_values = values.copy()
+            for row, valid_row in zip(sorted_values, valid, strict=True):
+                row[valid_row] = np.sort(row[valid_row])
+
         predictions[quantile_columns] = pd.DataFrame(
-            data=np.sort(predictions[quantile_columns].values, axis=1),
+            data=sorted_values,
             index=data.index,
             columns=quantile_columns,
         )

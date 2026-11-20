@@ -49,7 +49,7 @@ from openstef_models.transforms.general import (
     Selector,
     Shifter,
 )
-from openstef_models.transforms.postprocessing import ConfidenceIntervalApplicator, QuantileSorter
+from openstef_models.transforms.postprocessing import QuantileMoments, QuantileSorter
 from openstef_models.transforms.time_domain import (
     CyclicFeaturesAdder,
     DatetimeFeaturesAdder,
@@ -453,13 +453,6 @@ def create_forecasting_workflow(
             hyperparams=config.xgboost_hyperparams,
             verbosity=config.verbosity,
         )
-        postprocessing = [
-            QuantileSorter(),
-            ConfidenceIntervalApplicator(
-                quantiles=config.quantiles,
-                add_quantiles_from_std=False,
-            ),
-        ]
     elif config.model == "lgbmlinear":
         preprocessing = [
             *checks,
@@ -475,13 +468,6 @@ def create_forecasting_workflow(
             horizons=config.horizons,
             hyperparams=config.lgbmlinear_hyperparams,
         )
-        postprocessing = [
-            QuantileSorter(),
-            ConfidenceIntervalApplicator(
-                quantiles=config.quantiles,
-                add_quantiles_from_std=False,
-            ),
-        ]
     elif config.model == "lgbm":
         preprocessing = [
             *checks,
@@ -497,13 +483,6 @@ def create_forecasting_workflow(
             horizons=config.horizons,
             hyperparams=config.lgbm_hyperparams,
         )
-        postprocessing = [
-            QuantileSorter(),
-            ConfidenceIntervalApplicator(
-                quantiles=config.quantiles,
-                add_quantiles_from_std=False,
-            ),
-        ]
     elif config.model == "gblinear":
         preprocessing = [
             *checks,
@@ -526,13 +505,6 @@ def create_forecasting_workflow(
             hyperparams=config.gblinear_hyperparams,
             verbosity=config.verbosity,
         )
-        postprocessing = [
-            QuantileSorter(),
-            ConfidenceIntervalApplicator(
-                quantiles=config.quantiles,
-                add_quantiles_from_std=False,
-            ),
-        ]
     elif config.model == "median":
         preprocessing = [
             LagsAdder(
@@ -546,12 +518,6 @@ def create_forecasting_workflow(
             quantiles=config.quantiles,
             horizons=config.horizons,
         )
-        postprocessing = [
-            ConfidenceIntervalApplicator(
-                quantiles=config.quantiles,
-                add_quantiles_from_std=False,
-            ),
-        ]
     elif config.model == "constant_quantile":
         preprocessing = [
             CompletenessChecker(
@@ -563,12 +529,6 @@ def create_forecasting_workflow(
             quantiles=config.quantiles,
             horizons=config.horizons,
         )
-        postprocessing = [
-            ConfidenceIntervalApplicator(
-                quantiles=config.quantiles,
-                add_quantiles_from_std=False,
-            ),
-        ]
     elif config.model == "flatliner":
         preprocessing = []
         forecaster = FlatlinerForecaster(
@@ -577,14 +537,6 @@ def create_forecasting_workflow(
             predict_median=config.predict_nonzero_flatliner,
             median_window=config.flatliner_threshold,
         )
-        postprocessing = [
-            QuantileSorter(),
-            ConfidenceIntervalApplicator(
-                quantiles=config.quantiles,
-                add_quantiles_from_std=False,
-            ),
-        ]
-
     else:
         msg = f"Unsupported model type: {config.model}"
         raise ValueError(msg)
@@ -623,7 +575,7 @@ def create_forecasting_workflow(
         model=ForecastingModel(
             preprocessing=TransformPipeline(transforms=preprocessing),
             forecaster=forecaster,
-            postprocessing=TransformPipeline(transforms=postprocessing),
+            postprocessing=TransformPipeline(transforms=[QuantileSorter(), QuantileMoments()]),
             target_column=config.target_column,
             data_splitter=config.data_splitter,
             cutoff_history=config.cutoff_history,

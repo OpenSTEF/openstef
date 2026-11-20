@@ -10,7 +10,7 @@ validation to catch data quality issues early.
 """
 
 from datetime import datetime, timedelta
-from typing import Self, cast, override
+from typing import ClassVar, Self, cast, override
 
 import numpy as np
 import pandas as pd
@@ -218,7 +218,7 @@ class ForecastDataset(TimeSeriesDataset):
     forecasts with uncertainty quantification.
 
     Invariants:
-        - All columns must be valid quantile strings (e.g., 'quantile_P10')
+        - Forecast quantile columns use valid quantile strings (e.g., 'quantile_P10')
         - Inherits all TimeSeriesDataset guarantees (sorted timestamps, consistent intervals)
 
     Attrs:
@@ -250,6 +250,7 @@ class ForecastDataset(TimeSeriesDataset):
     forecast_start: datetime
     quantiles: list[Quantile]
     target_column: str
+    forecast_mean_column: ClassVar[str] = "forecast_mean"
 
     @override
     def __init__(
@@ -281,7 +282,7 @@ class ForecastDataset(TimeSeriesDataset):
             check_frequency=check_frequency,
         )
 
-        exclude_columns = {target_column, standard_deviation_column}
+        exclude_columns = {self.target_column, self.standard_deviation_column, self.forecast_mean_column}
         quantile_feature_names = [col for col in self.feature_names if col not in exclude_columns]
         if not all(Quantile.is_valid_quantile_string(col) for col in quantile_feature_names):
             raise ValueError("All feature names must be valid quantile strings.")
