@@ -276,7 +276,7 @@ def test_reference_forecast_counts_missing_grid_timestamps_as_insufficient_cover
     )
 
     # Assert: the reindexed NaN at 01:00 means the complete context is unavailable.
-    assert np.isnan(reference.iloc[0, 0])
+    assert np.isnan(cast(float, reference.iloc[0, 0]))
 
 
 @pytest.mark.parametrize(
