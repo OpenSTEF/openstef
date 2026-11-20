@@ -4,6 +4,10 @@
 
 """Tests for datetime utilities."""
 
+import os
+import sys
+import time as time_module
+from collections.abc import Iterator
 from datetime import UTC, datetime, time, timedelta, timezone
 from typing import Literal
 
@@ -60,6 +64,68 @@ from openstef_core.utils.datetime import align_datetime, align_datetime_to_time
     ],
 )
 def test_align_datetime_naive(
+    timestamp: datetime, interval: timedelta, mode: Literal["ceil", "floor"], expected: datetime
+):
+    # Arrange / Act
+    result = align_datetime(timestamp, interval, mode)
+
+    # Assert
+    assert result == expected
+    assert result.tzinfo is None
+
+
+@pytest.fixture
+def local_timezone_ist() -> Iterator[None]:
+    """Run a test with the process timezone set to UTC+05:30 (no DST)."""
+    if sys.platform == "win32":
+        pytest.skip("time.tzset is not available on Windows")
+
+    previous = os.environ.get("TZ")
+    os.environ["TZ"] = "IST-5:30"
+    time_module.tzset()
+    yield
+    if previous is None:
+        os.environ.pop("TZ", None)
+    else:
+        os.environ["TZ"] = previous
+    time_module.tzset()
+
+
+@pytest.mark.parametrize(
+    ("timestamp", "interval", "mode", "expected"),
+    [
+        pytest.param(
+            datetime.fromisoformat("2020-01-01T10:15:00"),
+            timedelta(hours=1),
+            "ceil",
+            datetime.fromisoformat("2020-01-01T11:00:00"),
+            id="ceil_hour",
+        ),
+        pytest.param(
+            datetime.fromisoformat("2020-01-01T10:00:00"),
+            timedelta(hours=1),
+            "ceil",
+            datetime.fromisoformat("2020-01-01T10:00:00"),
+            id="ceil_already_aligned",
+        ),
+        pytest.param(
+            datetime.fromisoformat("2020-01-01T10:45:00"),
+            timedelta(hours=1),
+            "floor",
+            datetime.fromisoformat("2020-01-01T10:00:00"),
+            id="floor_hour",
+        ),
+        pytest.param(
+            datetime.fromisoformat("2020-01-01T10:07:30"),
+            timedelta(minutes=15),
+            "ceil",
+            datetime.fromisoformat("2020-01-01T10:15:00"),
+            id="ceil_15_minutes",
+        ),
+    ],
+)
+@pytest.mark.usefixtures("local_timezone_ist")
+def test_align_datetime_naive_ignores_local_utc_offset(
     timestamp: datetime, interval: timedelta, mode: Literal["ceil", "floor"], expected: datetime
 ):
     # Arrange / Act
