@@ -105,6 +105,11 @@ class LGBMHyperParams(HyperParams):
         "increase memory. Only for hist tree_method.",
     )
 
+    importance_type: Literal["split", "gain"] = Field(
+        default="split",
+        description="Feature importance type: 'split' counts feature use, while 'gain' sums the gains of splits.",
+    )
+
     # Subsampling Parameters
     colsample_bytree: float = Field(
         default=1.0,
@@ -214,6 +219,7 @@ class LGBMForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
             # Core parameters
             "linear_tree": False,
             "objective": "quantile",
+            "importance_type": self.hyperparams.importance_type,
             "n_estimators": self.hyperparams.n_estimators,
             "learning_rate": self.hyperparams.learning_rate,
             "max_depth": self.hyperparams.max_depth,
