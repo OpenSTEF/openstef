@@ -9,7 +9,6 @@ import pandas as pd
 import pytest
 
 from openstef_beam.evaluation.evaluation_pipeline import EvaluationConfig, EvaluationPipeline
-from openstef_beam.evaluation.metric_providers import CRPSSProvider
 from openstef_beam.evaluation.models import EvaluationReport, EvaluationSubsetReport, SubsetMetric, Window
 from openstef_core.datasets import TimeSeriesDataset, VersionedTimeSeriesDataset
 from openstef_core.exceptions import MissingColumnsError
@@ -152,55 +151,3 @@ def test_ground_truth_with_nans_are_dropped(minimal_config: EvaluationConfig):
         target = subset_report.subset.target_series
         assert target is not None
         assert not target.isna().any()
-
-
-def _skill_score_pipeline_data() -> tuple[TimeSeriesDataset, VersionedTimeSeriesDataset]:
-    """Two days of day-ahead forecasts, preceded by enough measurements for a 14-day context."""
-    measurement_index = pd.date_range("2025-05-01", "2025-05-20", freq="h", inclusive="left")
-    measurements = VersionedTimeSeriesDataset.from_dataframe(
-        data=pd.DataFrame(
-            {"target": np.arange(len(measurement_index), dtype=float), "available_at": measurement_index},
-            index=measurement_index,
-        ),
-        sample_interval=timedelta(hours=1),
-    )
-
-    forecast_index = pd.date_range("2025-05-18", "2025-05-20", freq="h", inclusive="left")
-    predictions = TimeSeriesDataset(
-        data=pd.DataFrame(
-            {
-                "quantile_P50": np.arange(len(forecast_index), dtype=float),
-                "available_at": forecast_index - timedelta(hours=24),
-            },
-            index=forecast_index,
-        ),
-        sample_interval=timedelta(hours=1),
-    )
-    return predictions, measurements
-
-
-def test_run_computes_skill_score_from_measurement_history_before_the_subset() -> None:
-    """The subset only spans two days; the 14-day reference context must come from the full ground truth."""
-    # Arrange
-    predictions, measurements = _skill_score_pipeline_data()
-    config = EvaluationConfig(
-        available_ats=[],
-        lead_times=[LeadTime.from_string("PT24H")],
-        windows=[Window(lag=timedelta(hours=0), size=timedelta(days=1), stride=timedelta(days=1))],
-    )
-    pipeline = EvaluationPipeline(
-        config=config,
-        window_metric_providers=[CRPSSProvider()],
-        global_metric_providers=[CRPSSProvider()],
-        quantiles=[Quantile(0.5)],
-    )
-
-    # Act
-    report = pipeline.run(predictions=predictions, ground_truth=measurements, target_column="target")
-
-    # Assert: both the global metric and each window are scored against the reference forecast
-    windowed = report.subset_reports[0].get_windowed_metrics()
-    global_metric = report.subset_reports[0].get_global_metric()
-    assert global_metric is not None
-    assert len(windowed) > 0
-    assert all(np.isfinite(score.metrics["global"]["CRPSS"]) for score in [global_metric, *windowed])

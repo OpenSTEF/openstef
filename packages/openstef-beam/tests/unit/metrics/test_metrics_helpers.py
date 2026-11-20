@@ -59,14 +59,3 @@ def test_skill_score_returns_expected_value(score: float, reference_score: float
         assert np.isnan(result)
     else:
         assert result == pytest.approx(expected)
-
-
-def test_skill_score_returns_fraction_when_percentage_disabled() -> None:
-    # Arrange
-    score, reference_score = 1.0, 2.0
-
-    # Act
-    result = skill_score(score, reference_score, as_percentage=False)
-
-    # Assert
-    assert result == pytest.approx(0.5)

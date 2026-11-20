@@ -384,6 +384,11 @@ class CRPSSProvider(MetricProvider):
         >>> provider = CRPSSProvider(reference_filtering=LeadTime.from_string("PT48H"))
     """
 
+    @property
+    @override
+    def metric_names(self) -> frozenset[str]:
+        return frozenset({"CRPSS"})
+
     reference_filtering: Filtering = Field(
         default=AvailableAt.from_string("D-1T0600"),
         description="Cutoff of the measurement history used for the reference forecast.",
@@ -394,15 +399,8 @@ class CRPSSProvider(MetricProvider):
     )
     minimum_coverage: float = Field(
         default=0.9,
-        ge=0.0,
-        le=1.0,
         description="Minimum fraction of expected context samples; references with less coverage are NaN.",
     )
-
-    @property
-    @override
-    def metric_names(self) -> frozenset[str]:
-        return frozenset({"CRPSS"})
 
     def reference_forecast(
         self,
@@ -422,7 +420,12 @@ class CRPSSProvider(MetricProvider):
         Returns:
             Reference quantiles indexed like ``index``; NaN where the context coverage is too low.
         """
-        measurements = measurements.sort_index()
+        filtering = self.reference_filtering
+        cutoffs = filtering.apply_index(index) if isinstance(filtering, AvailableAt) else index - filtering.value
+        measurements = measurements.loc[max(measurements.index[0], cutoffs.min() - self.context_length) : cutoffs.max()]
+        if measurements.empty:
+            return pd.DataFrame(np.nan, index=index, columns=[quantile.format() for quantile in quantiles])
+
         grid = measurements.reindex(pd.date_range(measurements.index[0], measurements.index[-1], freq=sample_interval))
         rolling = grid.rolling(
             window=self.context_length,
@@ -430,8 +433,6 @@ class CRPSSProvider(MetricProvider):
         )
         rolling_quantiles = pd.DataFrame({quantile.format(): rolling.quantile(quantile) for quantile in quantiles})
 
-        filtering = self.reference_filtering
-        cutoffs = filtering.apply_index(index) if isinstance(filtering, AvailableAt) else index - filtering.value
         # ffill only fills cutoffs between grid points; NaN contexts stay NaN
         reference = rolling_quantiles.reindex(cutoffs, method="ffill")
         reference.index = index

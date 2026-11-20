@@ -273,7 +273,7 @@ class EvaluationPipeline:
         Applies window-specific metrics to each time window and adds a global
         evaluation across the entire subset. Each window generates one SubsetMetric
         per timestamp, plus one global metric. The full ground truth is passed to
-        providers that need measurement history, such as skill scores.
+        providers that need measurement history.
 
         Returns:
             List of SubsetMetric objects containing computed metrics for each window
