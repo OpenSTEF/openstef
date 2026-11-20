@@ -657,7 +657,7 @@ class RMAEPeakHoursProvider(MetricProvider):
         y_true: npt.NDArray[np.floating] = cast(pd.DataFrame, not_none(subset.target_series)).to_numpy()
         y_pred: npt.NDArray[np.floating] = subset.quantiles_data.to_numpy()
 
-        hours = subset.index.hour
+        hours = subset.index.to_series().dt.hour.to_numpy()
         peak_hours_mask = (hours >= self.start_peak_hours) & (hours < self.end_peak_hours)
 
         y_true = y_true[peak_hours_mask]
@@ -933,6 +933,8 @@ class RelativePinballLossProvider(MetricProvider):
 
 
 __all__ = [
+    "CRPSSProvider",
+    "CRPSSSampleWeightedProvider",
     "MAPEProvider",
     "MeanAbsoluteCalibrationErrorProvider",
     "MetricDirection",

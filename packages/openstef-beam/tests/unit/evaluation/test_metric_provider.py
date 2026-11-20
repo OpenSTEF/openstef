@@ -308,9 +308,7 @@ def test_crpss_providers_score_forecast_against_reference_from_ground_truth(
         pytest.param(CRPSSSampleWeightedProvider(), "CRPSS_sample_weighted", id="sample_weighted"),
     ],
 )
-def test_crpss_providers_return_nan_when_ground_truth_is_missing(
-    provider: MetricProvider, metric_name: str
-) -> None:
+def test_crpss_providers_return_nan_when_ground_truth_is_missing(provider: MetricProvider, metric_name: str) -> None:
     # Arrange
     subset = _skill_subset()
 
