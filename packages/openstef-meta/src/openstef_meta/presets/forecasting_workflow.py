@@ -7,6 +7,7 @@
 Mimics OpenSTEF-models forecasting workflow with ensemble capabilities.
 """
 
+import re
 from collections.abc import Sequence
 from datetime import timedelta
 from typing import TYPE_CHECKING, Literal, cast
@@ -61,6 +62,7 @@ from openstef_models.transforms.time_domain import (
     DatetimeFeaturesAdder,
     HolidayFeatureAdder,
     RollingAggregatesAdder,
+    SchoolHolidayConfig,
 )
 from openstef_models.transforms.time_domain.lags_adder import LagsAdder
 from openstef_models.transforms.time_domain.rolling_aggregates_adder import AggregationFunction
@@ -71,7 +73,7 @@ from openstef_models.transforms.weather_domain import (
     RadiationDerivedFeaturesAdder,
 )
 from openstef_models.utils.data_split import DataSplitter
-from openstef_models.utils.feature_selection import Exclude, FeatureSelection, Include
+from openstef_models.utils.feature_selection import Exclude, ExcludeRegex, FeatureSelection, Include
 from openstef_models.workflows.callbacks import ModelPerformanceCallback
 from openstef_models.workflows.custom_forecasting_workflow import (
     CustomForecastingWorkflow,
@@ -114,6 +116,10 @@ class EnsembleForecastingWorkflowConfig(BaseConfig):
     location: LocationConfig = Field(
         default=LocationConfig(),
         description="Location information for the forecasting workflow.",
+    )
+    school_holidays: SchoolHolidayConfig | None = Field(
+        default=None,
+        description="Opt-in school holiday features. None disables them.",
     )
 
     # Forecaster hyperparameters
@@ -445,6 +451,15 @@ def _build_forecasters(
                         exclude=set(HolidayFeatureAdder(country_code=config.location.country_code).features_added())
                     )
                 ),
+                *(
+                    [
+                        Selector(
+                            selection=ExcludeRegex(f"^{re.escape(config.school_holidays.feature_name)}"),
+                        )
+                    ]
+                    if config.school_holidays is not None
+                    else []
+                ),
                 Selector(
                     selection=FeatureSelection(exclude=set(DatetimeFeaturesAdder(onehot_encode=False).features_added()))
                 ),
@@ -549,6 +564,7 @@ def create_ensemble_forecasting_workflow(config: EnsembleForecastingWorkflowConf
             *config.shifters,
             *_feature_adders(config),
             HolidayFeatureAdder(country_code=config.location.country_code),
+            *([config.school_holidays.create_transform()] if config.school_holidays is not None else []),
             DatetimeFeaturesAdder(onehot_encode=False),
             *_feature_standardizers(config),
         ]

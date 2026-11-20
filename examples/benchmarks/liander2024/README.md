@@ -22,5 +22,6 @@ uv run python -m examples.benchmarks.liander2024.run_xgboost_gblinear_benchmark
 
 XGBoost & GBLinear <run_xgboost_gblinear_benchmark>
 Ensemble Models <run_ensemble_benchmark>
+Chronos-2 (zero-shot) <run_chronos2_benchmark>
 Compare Results <compare_benchmark_runs>
 ```

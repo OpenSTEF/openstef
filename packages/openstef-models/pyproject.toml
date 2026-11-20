@@ -32,8 +32,10 @@ dependencies = [
   "openstef-core>=4,<5",
   "pvlib>=0.13",
   "pycountry>=24.6.1",
+  "requests>=2.32",
   "scikit-learn>=1.7.1,<2",
   "scipy>=1.16.3,<2",
+  "urllib3>=2.2",
 ]
 optional-dependencies.lgbm = [
   "lightgbm>=4.6",

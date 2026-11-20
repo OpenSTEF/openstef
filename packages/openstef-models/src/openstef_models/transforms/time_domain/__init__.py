@@ -17,6 +17,11 @@ from openstef_models.transforms.time_domain.datetime_features_adder import (
 from openstef_models.transforms.time_domain.holiday_features_adder import HolidayFeatureAdder
 from openstef_models.transforms.time_domain.lags_adder import LagsAdder
 from openstef_models.transforms.time_domain.rolling_aggregates_adder import RollingAggregatesAdder
+from openstef_models.transforms.time_domain.school_holiday_features_adder import (
+    SchoolHolidayConfig,
+    SchoolHolidayFeatureAdder,
+    SchoolHolidayRow,
+)
 from openstef_models.transforms.time_domain.versioned_lags_adder import VersionedLagsAdder
 
 __all__ = [
@@ -25,5 +30,8 @@ __all__ = [
     "HolidayFeatureAdder",
     "LagsAdder",
     "RollingAggregatesAdder",
+    "SchoolHolidayConfig",
+    "SchoolHolidayFeatureAdder",
+    "SchoolHolidayRow",
     "VersionedLagsAdder",
 ]
