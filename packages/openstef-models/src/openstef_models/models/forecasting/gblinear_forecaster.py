@@ -199,6 +199,7 @@ class GBLinearForecaster(Forecaster, ExplainableForecaster, ContributionsMixin):
             reg_alpha=self.hyperparams.reg_alpha,
             reg_lambda=self.hyperparams.reg_lambda,
             # Boosting structure control
+            random_state=self.hyperparams.random_state,
             feature_selector=self.hyperparams.feature_selector,
             updater=self.hyperparams.updater,
             quantile_alpha=sorted([float(q) for q in self.quantiles]),

@@ -10,6 +10,7 @@ serialization with automatic state migration.
 """
 
 import warnings
+from collections.abc import Mapping
 from typing import ClassVar, TypedDict, cast, override
 
 from openstef_core.types import Any
@@ -42,7 +43,7 @@ class Stateful:
     _VERSION: ClassVar[int] = 1
 
     @override
-    def __getstate__(self) -> VersionedState:
+    def __getstate__(self) -> Mapping[str, Any]:
         """Serialize object state with version metadata.
 
         Returns:

@@ -42,7 +42,6 @@ def test_median_returns_median():
         ),
         sample_interval=training_input_data.sample_interval,
     )
-    expected_result.index.freq = None  # ty: ignore[invalid-assignment]
 
     config = MedianForecaster(quantiles=[Q(0.5)], horizons=[LeadTime.from_string("PT36H")])
     model = config
@@ -82,7 +81,6 @@ def test_median_handles_some_missing_data():
         ),
         sample_interval=training_input_data.sample_interval,
     )
-    expected_result.index.freq = None  # ty: ignore[invalid-assignment]
 
     config = MedianForecaster(quantiles=[Q(0.5)], horizons=[LeadTime.from_string("PT3M")])
     model = config
@@ -122,7 +120,6 @@ def test_median_handles_missing_data_for_some_horizons():
         ),
         sample_interval=training_input_data.sample_interval,
     )
-    expected_result.index.freq = None  # ty: ignore[invalid-assignment]
 
     config = MedianForecaster(quantiles=[Q(0.5)], horizons=[LeadTime.from_string("PT3M")])
     model = config
@@ -207,7 +204,6 @@ def test_median_uses_lag_features_if_available():
         ),
         sample_interval=training_input_data.sample_interval,
     )
-    expected_result.index.freq = None  # ty: ignore[invalid-assignment]
 
     config = MedianForecaster(quantiles=[Q(0.5)], horizons=[LeadTime.from_string("PT3M")])
     model = config

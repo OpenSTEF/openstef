@@ -60,25 +60,26 @@ logger = setup_notebook_logging(
 # # CPU (what the meta-package installs by default)
 # pip install "openstef-foundation-models[cpu]"
 #
-# # NVIDIA CUDA GPU: installs onnxruntime-gpu plus the pinned NVIDIA CUDA 12 / cuDNN 9
+# # NVIDIA CUDA GPU: installs onnxruntime-gpu plus the pinned NVIDIA CUDA 13 / cuDNN 9
 # # wheels, so no system CUDA install is required.
 # pip install "openstef-foundation-models[gpu]"
 #
-# # Add TensorRT (only if you pin TensorRTProvider): the CUDA 12 runtime on top of [gpu].
-# pip install "openstef-foundation-models[gpu]" tensorrt-cu12
+# # Add TensorRT (only if you pin TensorRTProvider): the CUDA 13 runtime on top of [gpu].
+# pip install "openstef-foundation-models[gpu]" tensorrt-cu13
 # ```
 #
 # `[cpu]` installs only `onnxruntime`. `[gpu]` is heavier: `onnxruntime-gpu` carries the CUDA
 # execution-provider plugin but not the CUDA runtime it loads at session creation, so the
-# extra also pulls the matching NVIDIA CUDA 12 and cuDNN 9 wheels and no system CUDA install
+# extra also pulls the matching NVIDIA CUDA 13 and cuDNN 9 wheels and no system CUDA install
 # is required:
 #
 # - `onnxruntime-gpu` (the CUDA execution provider)
-# - `nvidia-cuda-runtime-cu12`
-# - `nvidia-cublas-cu12`
-# - `nvidia-cufft-cu12`
-# - `nvidia-curand-cu12`
-# - `nvidia-cudnn-cu12`
+# - `nvidia-cuda-runtime`
+# - `nvidia-cuda-nvrtc`
+# - `nvidia-cublas`
+# - `nvidia-cufft`
+# - `nvidia-curand`
+# - `nvidia-cudnn-cu13`
 #
 # These are Linux and Windows x86-64 wheels. Apple Silicon and AMD GPUs use `[cpu]` (see the
 # hardware table below), so they never install the CUDA wheels.
@@ -152,7 +153,7 @@ print(local_config.checkpoint)
 #
 # | Hardware | Install | Provider chosen | Notes |
 # | --- | --- | --- | --- |
-# | NVIDIA GPU | `[gpu]` | CUDA, then CPU | Fastest option. The extra installs the CUDA 12 / cuDNN 9 wheels. |
+# | NVIDIA GPU | `[gpu]` | CUDA, then CPU | Fastest option. The extra installs the CUDA 13 / cuDNN 9 wheels. |
 # | Apple Silicon | `[cpu]` | CoreML, then CPU | Needs a static-shape checkpoint (`CheckpointVariant.STATIC` or `recommended()`). |
 # | AMD GPU | `[cpu]` | CPU | No supported GPU provider today, so it runs on CPU. See "Extend the backend" below. |
 # | CPU only | `[cpu]` | CPU | Prefer `Chronos2.SMALL`, and an `int8` checkpoint where one is published. |

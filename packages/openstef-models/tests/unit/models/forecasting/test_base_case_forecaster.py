@@ -102,7 +102,7 @@ def test_base_case_forecaster__weekly_pattern_repetition(
 
     # Assert - Simple check: Are we getting 300s (correct) or 200s (wrong)?
     np.testing.assert_array_equal(
-        actual=result.median_series.iloc[[0, 1, 23]].to_numpy(),  # type: ignore
+        actual=result.median_series.iloc[[0, 1, 23]].to_numpy(),
         desired=np.array([300.0, 301.0, 323.0]),
     )
 
