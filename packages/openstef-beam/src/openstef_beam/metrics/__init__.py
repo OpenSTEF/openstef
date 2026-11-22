@@ -32,6 +32,8 @@ from openstef_beam.metrics.metrics_deterministic import (
     relative_pinball_loss,
     riqd,
     rmae,
+    rmse,
+    rrmse,
 )
 from openstef_beam.metrics.metrics_probabilistic import (
     crps,
@@ -59,4 +61,6 @@ __all__ = [
     "relative_pinball_loss",
     "riqd",
     "rmae",
+    "rmse",
+    "rrmse",
 ]
