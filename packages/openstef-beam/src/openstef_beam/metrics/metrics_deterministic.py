@@ -192,6 +192,128 @@ def rmae(
     return float(rmae)
 
 
+def rmse(
+    y_true: npt.NDArray[np.floating],
+    y_pred: npt.NDArray[np.floating],
+    *,
+    sample_weights: npt.NDArray[np.floating] | None = None,
+    allow_nan: bool = False,
+) -> float:
+    """Calculate the Root Mean Squared Error (RMSE).
+
+    RMSE is the square root of the average squared error. Because errors are squared
+    before averaging, large errors weigh more than in the MAE, which makes RMSE more
+    sensitive to occasional large misses such as a missed peak. It is expressed in the
+    same units as the data.
+
+    Args:
+        y_true: Ground truth values with shape (num_samples,).
+        y_pred: Predicted values with shape (num_samples,).
+        sample_weights: Optional weights for each sample with shape (num_samples,).
+            If None, all samples are weighted equally.
+        allow_nan: If True, allows NaN values in y_true and y_pred, which will be
+            ignored in the RMSE calculation. If False, any NaN values will result in a NaN RMSE.
+
+    Returns:
+        The Root Mean Squared Error as a float.
+
+    Example:
+        Basic usage with energy load data
+
+        >>> import numpy as np
+        >>> y_true = np.array([100, 120, 110, 130, 105])
+        >>> y_pred = np.array([98, 122, 108, 132, 107])
+        >>> rmse(y_true, y_pred)
+        2.0
+    """
+    # Ensure inputs are numpy arrays
+    y_true = np.array(y_true)
+    y_pred = np.array(y_pred)
+    if y_true.size == 0 or y_pred.size == 0:
+        return float("NaN")
+
+    # Calculate squared errors
+    se = (y_true - y_pred) ** 2
+
+    # Drop NaN errors if allow_nan is True, together with their weights
+    if allow_nan:
+        mask = ~np.isnan(se)
+        se = se[mask]
+        if sample_weights is not None:
+            sample_weights = np.asarray(sample_weights)[mask]
+        if se.size == 0:
+            return float("NaN")
+
+    return float(np.sqrt(np.average(se, weights=sample_weights)))
+
+
+def rrmse(
+    y_true: npt.NDArray[np.floating],
+    y_pred: npt.NDArray[np.floating],
+    *,
+    lower_quantile: Quantile = _Q_05,
+    upper_quantile: Quantile = _Q_95,
+    norm_value: float | None = None,
+    allow_nan: bool = False,
+    sample_weights: npt.NDArray[np.floating] | None = None,
+) -> float:
+    """Calculate the relative Root Mean Squared Error (rRMSE) using percentiles for range calculation.
+
+    The rRMSE normalizes the RMSE in the same way as :func:`rmae` normalizes the MAE:
+    by default by the range of true values between two quantiles, or by norm_value
+    when it is provided. This makes it scale-invariant and comparable across targets.
+
+    Args:
+        y_true: Ground truth values with shape (num_samples,).
+        y_pred: Predicted values with shape (num_samples,).
+        lower_quantile: Lower quantile for range calculation. Must be in [0, 1].
+        upper_quantile: Upper quantile for range calculation. Must be in [0, 1]
+            and greater than lower_quantile.
+        norm_value: Optional pre-calculated normalization value. If provided, it will be used
+            directly instead of calculating the range from quantiles.
+        allow_nan: If True, allows NaN values in y_true and y_pred, which will be
+            ignored in the rRMSE calculation. If False, any NaN values will result in a NaN rRMSE.
+        sample_weights: Optional weights for each sample with shape (num_samples,).
+            If None, all samples are weighted equally.
+
+    Returns:
+        The relative Root Mean Squared Error as a float. Returns NaN if the range
+        between quantiles is zero.
+
+    Example:
+        Basic usage with energy load data
+
+        >>> import numpy as np
+        >>> y_true = np.array([100, 120, 110, 130, 105])
+        >>> y_pred = np.array([98, 122, 108, 135, 107])
+        >>> error = rrmse(y_true, y_pred)
+        >>> round(error, 3)
+        0.106
+    """
+    # Ensure inputs are numpy arrays
+    y_true = np.array(y_true)
+    y_pred = np.array(y_pred)
+    if y_true.size == 0 or y_pred.size == 0:
+        return float("NaN")
+
+    rmse_value = rmse(y_true, y_pred, sample_weights=sample_weights, allow_nan=allow_nan)
+    if np.isnan(rmse_value):
+        return float("NaN")
+
+    # Calculate range using quantile, ignoring missing true values if allow_nan is True
+    if norm_value is not None:
+        y_range = norm_value
+    else:
+        quantile = np.nanquantile if allow_nan else np.quantile
+        y_range = quantile(y_true, q=upper_quantile) - quantile(y_true, q=lower_quantile)
+
+    # Avoid division by zero if range is zero
+    if y_range == 0:
+        return float("NaN")
+
+    return float(rmse_value / y_range)
+
+
 def mape(
     y_true: npt.NDArray[np.floating],
     y_pred: npt.NDArray[np.floating],

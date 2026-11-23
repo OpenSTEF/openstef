@@ -12,6 +12,8 @@ from openstef_beam.evaluation.metric_providers import (
     RCSProvider,
     RIQDProvider,
     RMAEPeakHoursProvider,
+    RMSEProvider,
+    RRMSEProvider,
 )
 from openstef_core.datasets import ForecastDataset
 from openstef_core.types import Quantile
@@ -193,3 +195,40 @@ def test_rcs_provider_symmetric_quantile_logic(
     # Verify that skipped quantiles are not in the results
     for skipped_quantile in expected_skipped:
         assert Quantile(skipped_quantile) not in result
+
+
+def _p50_forecast_subset(load: list[float], p50: list[float]) -> ForecastDataset:
+    times = pd.date_range("2025-01-01", periods=len(load), freq="15min")
+    return ForecastDataset(
+        data=pd.DataFrame(
+            {"load": load, "quantile_P50": p50, "horizon": timedelta(hours=24)},
+            index=times,
+        ),
+        target_column="load",
+        sample_interval=timedelta(minutes=15),
+    )
+
+
+def test_rmse_provider_reports_rmse_for_each_quantile():
+    # Arrange
+    subset = _p50_forecast_subset(load=[0.0, 0.0, 0.0, 0.0], p50=[1.0, -1.0, 3.0, -3.0])
+
+    # Act
+    result = RMSEProvider()(subset)
+
+    # Assert
+    # sqrt((1 + 1 + 9 + 9) / 4) = sqrt(5)
+    assert result[Quantile(0.5)]["RMSE"] == pytest.approx(5**0.5)
+
+
+def test_rrmse_provider_normalizes_by_quantile_range():
+    # Arrange
+    subset = _p50_forecast_subset(load=[0.0, 10.0, 20.0, 40.0], p50=[2.0, 12.0, 22.0, 42.0])
+    provider = RRMSEProvider(lower_quantile=Quantile(0.0), upper_quantile=Quantile(1.0))
+
+    # Act
+    result = provider(subset)
+
+    # Assert
+    # RMSE of 2 over a range of 40
+    assert result[Quantile(0.5)]["rRMSE"] == pytest.approx(0.05)

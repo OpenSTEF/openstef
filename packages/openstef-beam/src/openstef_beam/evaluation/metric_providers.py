@@ -33,6 +33,8 @@ from openstef_beam.metrics import (
     relative_pinball_loss,
     riqd,
     rmae,
+    rmse,
+    rrmse,
 )
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import ForecastDataset
@@ -437,6 +439,82 @@ class RMAEProvider(MetricProvider):
         }
 
 
+class RMSEProvider(MetricProvider):
+    """Provides Root Mean Squared Error metrics.
+
+    Computes the square root of the average squared error between predictions
+    and true values. Penalizes large errors more than MAE.
+    """
+
+    @property
+    @override
+    def metric_names(self) -> frozenset[str]:
+        return frozenset({"RMSE"})
+
+    allow_nan: bool = Field(
+        default=True,
+        description="Whether to allow NaN values in input. If False, NaN value will result in NaN metric output.",
+    )
+
+    @override
+    def compute_deterministic(
+        self,
+        y_true: npt.NDArray[np.floating],
+        y_pred: npt.NDArray[np.floating],
+        quantile: Quantile,
+    ) -> MetricsDict:
+        return {"RMSE": rmse(y_true=y_true, y_pred=y_pred, allow_nan=self.allow_nan)}
+
+
+class RRMSEProvider(MetricProvider):
+    """Provides Relative Root Mean Squared Error metrics.
+
+    Normalizes RMSE using specified quantile bounds to make errors
+    comparable across different scales.
+    """
+
+    @property
+    @override
+    def metric_names(self) -> frozenset[str]:
+        return frozenset({"rRMSE"})
+
+    lower_quantile: Quantile = Field(
+        default=Quantile(0.01),
+        description="Lower quantile bound for rRMSE normalization.",
+    )
+    upper_quantile: Quantile = Field(
+        default=Quantile(0.99),
+        description="Upper quantile bound for rRMSE normalization.",
+    )
+    norm_value: float | None = Field(
+        default=None,
+        description="Optional pre-calculated normalization value. If provided, it will be used directly instead "
+        "of calculating the range from quantiles.",
+    )
+    allow_nan: bool = Field(
+        default=False,
+        description="Whether to allow NaN values in input. If False, NaN value will result in NaN metric output.",
+    )
+
+    @override
+    def compute_deterministic(
+        self,
+        y_true: npt.NDArray[np.floating],
+        y_pred: npt.NDArray[np.floating],
+        quantile: Quantile,
+    ) -> MetricsDict:
+        return {
+            "rRMSE": rrmse(
+                y_true=y_true,
+                y_pred=y_pred,
+                lower_quantile=self.lower_quantile,
+                upper_quantile=self.upper_quantile,
+                norm_value=self.norm_value,
+                allow_nan=self.allow_nan,
+            )
+        }
+
+
 class RMAEPeakHoursProvider(MetricProvider):
     """Provides Relative Mean Absolute Error metrics for peak hours only (8:00-20:00).
 
@@ -770,5 +848,7 @@ __all__ = [
     "RIQDProvider",
     "RMAEPeakHoursProvider",
     "RMAEProvider",
+    "RMSEProvider",
+    "RRMSEProvider",
     "RelativePinballLossProvider",
 ]

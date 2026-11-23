@@ -21,6 +21,8 @@ from openstef_beam.metrics import (
     relative_pinball_loss,
     riqd,
     rmae,
+    rmse,
+    rrmse,
 )
 from openstef_core.types import Quantile
 
@@ -745,3 +747,104 @@ def test_r2_constant_target():
 
     assert r2(y_true, y_true) == pytest.approx(1.0)
     assert r2(y_true, np.array([5.0, 5.0, 6.0])) == pytest.approx(0.0)
+
+
+@pytest.mark.parametrize(
+    ("y_true", "y_pred", "sample_weights", "expected"),
+    [
+        pytest.param([1, 2, 3], [1, 2, 3], None, 0.0, id="identical_arrays"),
+        pytest.param([0, 0, 0, 0], [1, -1, 3, -3], None, 5**0.5, id="squares_before_averaging"),
+        pytest.param([0, 0], [1, 3], [3.0, 1.0], 3**0.5, id="weighted"),
+    ],
+)
+def test_rmse_various(
+    y_true: Sequence[float],
+    y_pred: Sequence[float],
+    sample_weights: Sequence[float] | None,
+    expected: float,
+) -> None:
+    # Arrange
+    weights = None if sample_weights is None else np.array(sample_weights)
+
+    # Act
+    result = rmse(np.array(y_true), np.array(y_pred), sample_weights=weights)
+
+    # Assert
+    assert result == pytest.approx(expected)
+
+
+def test_rmse_is_at_least_mae() -> None:
+    # Arrange
+    y_true = np.array([0.0, 0.0, 0.0, 0.0])
+    y_pred = np.array([0.0, 0.0, 0.0, 4.0])
+
+    # Act
+    rmse_value = rmse(y_true, y_pred)
+    mae_value = mae(y_true, y_pred)
+
+    # Assert
+    # One large miss: MAE is 1, RMSE is 2
+    assert mae_value == pytest.approx(1.0)
+    assert rmse_value == pytest.approx(2.0)
+
+
+def test_rmse_allow_nan_drops_nan_samples_and_their_weights() -> None:
+    # Arrange
+    y_true = np.array([0.0, np.nan, 0.0])
+    y_pred = np.array([1.0, 5.0, 3.0])
+    sample_weights = np.array([3.0, 10.0, 1.0])
+
+    # Act
+    result_allow_nan = rmse(y_true, y_pred, sample_weights=sample_weights, allow_nan=True)
+    result_disallow_nan = rmse(y_true, y_pred, sample_weights=sample_weights, allow_nan=False)
+
+    # Assert
+    # Remaining squared errors (1, 9) with weights (3, 1): sqrt(12 / 4)
+    assert result_allow_nan == pytest.approx(3**0.5)
+    assert np.isnan(result_disallow_nan)
+
+
+@pytest.mark.parametrize(
+    ("y_true", "y_pred", "lower_quantile", "upper_quantile", "norm_value", "expected"),
+    [
+        pytest.param([0, 10, 20, 40], [2, 12, 22, 42], 0.0, 1.0, None, 0.05, id="quantile_range"),
+        pytest.param([0, 10, 20, 40], [2, 12, 22, 42], 0.0, 1.0, 4.0, 0.5, id="norm_value"),
+        pytest.param([1, 1, 1], [1, 2, 1], 0.05, 0.95, None, np.nan, id="constant_array_nan"),
+        pytest.param([], [], 0.05, 0.95, None, np.nan, id="empty"),
+    ],
+)
+def test_rrmse_various(
+    y_true: Sequence[float],
+    y_pred: Sequence[float],
+    lower_quantile: float,
+    upper_quantile: float,
+    norm_value: float | None,
+    expected: float,
+) -> None:
+    # Act
+    result = rrmse(
+        np.array(y_true),
+        np.array(y_pred),
+        lower_quantile=Quantile(lower_quantile),
+        upper_quantile=Quantile(upper_quantile),
+        norm_value=norm_value,
+    )
+
+    # Assert
+    if np.isnan(expected):
+        assert np.isnan(result)
+    else:
+        assert result == pytest.approx(expected)
+
+
+def test_rrmse_allow_nan_ignores_missing_true_values_in_range() -> None:
+    # Arrange
+    y_true = np.array([0.0, 10.0, np.nan, 40.0])
+    y_pred = np.array([2.0, 12.0, 5.0, 42.0])
+
+    # Act
+    result = rrmse(y_true, y_pred, lower_quantile=Quantile(0.0), upper_quantile=Quantile(1.0), allow_nan=True)
+
+    # Assert
+    # RMSE over the three valid samples is 2, range of valid true values is 40
+    assert result == pytest.approx(0.05)
