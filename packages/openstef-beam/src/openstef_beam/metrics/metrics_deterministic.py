@@ -99,10 +99,16 @@ def mae(
     # Calculate absolute errors
     ae = np.abs(y_true - y_pred)
 
-    # Create a mask to ignore NaN values if allow_nan is True
-    mask = ~np.isnan(ae) if allow_nan else np.ones_like(ae, dtype=bool)
+    # Drop NaN errors if allow_nan is True, together with their weights
+    if allow_nan:
+        mask = ~np.isnan(ae)
+        ae = ae[mask]
+        if sample_weights is not None:
+            sample_weights = np.asarray(sample_weights)[mask]
+        if ae.size == 0:
+            return float("NaN")
 
-    return float(np.average(ae[mask], weights=sample_weights))
+    return float(np.average(ae, weights=sample_weights))
 
 
 def rmae(
@@ -166,12 +172,15 @@ def rmae(
 
     # Calculate MAE
     mae_value = mae(y_true, y_pred, sample_weights=sample_weights, allow_nan=allow_nan)
+    if np.isnan(mae_value):
+        return float("NaN")
 
-    # Calculate range using quantile
+    # Calculate range using quantile, ignoring missing true values if allow_nan is True
     if norm_value is not None:
         y_range = norm_value
     else:
-        y_range = np.quantile(y_true, q=upper_quantile) - np.quantile(y_true, q=lower_quantile)
+        quantile = np.nanquantile if allow_nan else np.quantile
+        y_range = quantile(y_true, q=upper_quantile) - quantile(y_true, q=lower_quantile)
 
     # Avoid division by zero if range is zero
     if y_range == 0:

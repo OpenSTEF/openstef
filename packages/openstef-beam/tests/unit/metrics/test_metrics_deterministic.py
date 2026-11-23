@@ -12,6 +12,7 @@ from openstef_beam.metrics import (
     PrecisionRecall,
     confusion_matrix,
     fbeta,
+    mae,
     mape,
     pinball_loss,
     precision_recall,
@@ -162,6 +163,74 @@ def test_rmae_allow_nan(y_true: Sequence[float], y_pred: Sequence[float]) -> Non
     # Assert
     assert not np.isnan(result_allow_nan), "Expected a valid number when allow_nan=True but got NaN"
     assert np.isnan(result_disallow_nan), f"Expected NaN when allow_nan=False but got {result_disallow_nan}"
+
+
+def test_mae_allow_nan_drops_weights_of_nan_samples() -> None:
+    # Arrange
+    y_true = np.array([1.0, 2.0, np.nan, 4.0])
+    y_pred = np.array([2.0, 2.0, 3.0, 8.0])
+    sample_weights = np.array([1.0, 1.0, 5.0, 2.0])
+
+    # Act
+    result = mae(y_true, y_pred, sample_weights=sample_weights, allow_nan=True)
+
+    # Assert
+    # Remaining errors (1, 0, 4) with weights (1, 1, 2): (1 + 0 + 8) / 4
+    assert result == pytest.approx(2.25)
+
+
+@pytest.mark.parametrize(
+    "sample_weights",
+    [
+        pytest.param(None, id="no_weights"),
+        pytest.param([1.0, 2.0], id="with_weights"),
+    ],
+)
+def test_mae_allow_nan_returns_nan_when_all_samples_are_nan(sample_weights: Sequence[float] | None) -> None:
+    # Arrange
+    y_true = np.array([np.nan, 1.0])
+    y_pred = np.array([1.0, np.nan])
+    weights = None if sample_weights is None else np.array(sample_weights)
+
+    # Act
+    result = mae(y_true, y_pred, sample_weights=weights, allow_nan=True)
+
+    # Assert
+    assert np.isnan(result)
+
+
+def test_rmae_allow_nan_ignores_missing_true_values_in_range() -> None:
+    # Arrange
+    y_true = np.array([0.0, 10.0, np.nan, 20.0])
+    y_pred = np.array([1.0, 11.0, 5.0, 21.0])
+
+    # Act
+    result = rmae(y_true, y_pred, lower_quantile=Quantile(0.0), upper_quantile=Quantile(1.0), allow_nan=True)
+
+    # Assert
+    # MAE over the three valid samples is 1, range of valid true values is 20
+    assert result == pytest.approx(0.05)
+
+
+def test_rmae_allow_nan_with_sample_weights() -> None:
+    # Arrange
+    y_true = np.array([0.0, 10.0, np.nan, 20.0])
+    y_pred = np.array([1.0, 13.0, 5.0, 21.0])
+    sample_weights = np.array([1.0, 2.0, 3.0, 1.0])
+
+    # Act
+    result = rmae(
+        y_true,
+        y_pred,
+        lower_quantile=Quantile(0.0),
+        upper_quantile=Quantile(1.0),
+        sample_weights=sample_weights,
+        allow_nan=True,
+    )
+
+    # Assert
+    # Weighted MAE: (1 * 1 + 3 * 2 + 1 * 1) / 4 = 2, range 20
+    assert result == pytest.approx(0.1)
 
 
 @pytest.mark.parametrize(
