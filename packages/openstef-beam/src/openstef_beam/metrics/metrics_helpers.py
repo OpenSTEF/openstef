@@ -8,8 +8,26 @@ from collections.abc import Sequence
 
 import numpy as np
 import numpy.typing as npt
+from pydantic import Field
 
+from openstef_core.base_model import BaseConfig
 from openstef_core.types import Quantile
+
+
+class SampleWeighter(BaseConfig):
+    """Weights samples by their magnitude relative to a scale, clipped to ``[a_min, a_max]``."""
+
+    a_min: float = Field(default=0.1, description="Minimum sample weight.")
+    a_max: float = Field(default=1.0, description="Maximum sample weight.")
+    exponent: float = Field(default=1.0, description="Exponent for sample weight calculation.")
+
+    def calculate_weights(
+        self,
+        values: npt.NDArray[np.floating],
+        scale: float | npt.NDArray[np.floating],
+    ) -> npt.NDArray[np.floating]:
+        """Calculate weights for ``values`` given a scalar or per-sample ``scale``."""
+        return np.clip(np.abs(values / scale) ** self.exponent, a_min=self.a_min, a_max=self.a_max)
 
 
 def equals_zero(number: float) -> bool:

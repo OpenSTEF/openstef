@@ -9,7 +9,6 @@ for probabilistic forecasts. Each provider handles specific metric types
 and can be configured to work with specific quantiles or all available quantiles.
 """
 
-import math
 from datetime import timedelta
 from typing import Literal, cast, override
 
@@ -17,8 +16,13 @@ import numpy as np
 import numpy.typing as npt
 import pandas as pd
 from pydantic import Field
+from typing_extensions import deprecated
 
-from openstef_beam.evaluation.evaluation_helper import compute_symmetric_quantile_metrics
+from openstef_beam.evaluation.evaluation_helper import (
+    ReferenceForecastBuilder,
+    compute_symmetric_quantile_metrics,
+    rolling_quantile_reference_forecast,
+)
 from openstef_beam.evaluation.models.subset import MetricsDict, QuantileMetricsDict
 from openstef_beam.evaluation.models.window import Filtering
 from openstef_beam.metrics import (
@@ -38,6 +42,7 @@ from openstef_beam.metrics import (
     riqd,
     rmae,
 )
+from openstef_beam.metrics.metrics_helpers import SampleWeighter
 from openstef_core.base_model import BaseConfig
 from openstef_core.datasets import ForecastDataset, ForecastInputDataset
 from openstef_core.types import AvailableAt, Quantile
@@ -259,7 +264,12 @@ class RCRPSProvider(MetricProvider):
     @property
     @override
     def metric_names(self) -> frozenset[str]:
-        return frozenset({"rCRPS"})
+        return frozenset({self.metric_name})
+
+    metric_name: str = Field(
+        default="rCRPS",
+        description="Name used for the rCRPS result.",
+    )
 
     lower_quantile: Quantile = Field(
         default=Quantile(0.01),
@@ -268,6 +278,10 @@ class RCRPSProvider(MetricProvider):
     upper_quantile: Quantile = Field(
         default=Quantile(0.99),
         description="Upper quantile bound for rCRPS normalization.",
+    )
+    sample_weighter: SampleWeighter | None = Field(
+        default=None,
+        description="Optional sample weighting configuration.",
     )
 
     @override
@@ -287,25 +301,31 @@ class RCRPSProvider(MetricProvider):
         Returns:
             QuantileMetricsDict containing global rCRPS metric value.
         """
+        sample_weights = None
+        if self.sample_weighter is not None:
+            weight_scale = np.quantile(np.abs(y_true), q=self.upper_quantile)
+            sample_weights = self.sample_weighter.calculate_weights(y_true, weight_scale)
+
         return {
             "global": {
-                "rCRPS": rcrps(
+                self.metric_name: rcrps(
                     y_true=y_true,
                     y_pred=y_pred,
                     quantiles=quantiles,
                     lower_quantile=self.lower_quantile,
                     upper_quantile=self.upper_quantile,
+                    sample_weights=sample_weights,
                 )
             }
         }
 
 
+@deprecated(
+    "RCRPSSampleWeightedProvider is deprecated. Use RCRPSProvider with sample_weighter instead.",
+    stacklevel=2,
+)
 class RCRPSSampleWeightedProvider(MetricProvider):
-    """Provides the Relative Continuous Ranked Probability Score.
-
-    Computes rCRPS directly from the full probabilistic forecast without
-    processing individual quantiles.
-    """
+    """Deprecated compatibility facade for weighted rCRPS."""
 
     @property
     @override
@@ -387,7 +407,12 @@ class CRPSSProvider(MetricProvider):
     @property
     @override
     def metric_names(self) -> frozenset[str]:
-        return frozenset({"CRPSS"})
+        return frozenset({self.metric_name})
+
+    metric_name: str = Field(
+        default="CRPSS",
+        description="Name used for the CRPSS result.",
+    )
 
     reference_filtering: Filtering = Field(
         default=AvailableAt.from_string("D-1T0600"),
@@ -401,6 +426,20 @@ class CRPSSProvider(MetricProvider):
         default=0.9,
         description="Minimum fraction of expected context samples; references with less coverage are NaN.",
     )
+    weight_scale_quantile: Quantile = Field(
+        default=Quantile(0.99),
+        description="Quantile of the absolute reference context used to scale sample weights. "
+        "Only used when sample_weighter is set.",
+    )
+    sample_weighter: SampleWeighter | None = Field(
+        default=None,
+        description="Optional sample weighting configuration.",
+    )
+    reference_forecast_builder: ReferenceForecastBuilder = Field(
+        default=rolling_quantile_reference_forecast,
+        exclude=True,
+        description="Callable used to construct the reference forecast.",
+    )
 
     def reference_forecast(
         self,
@@ -408,35 +447,17 @@ class CRPSSProvider(MetricProvider):
         index: pd.DatetimeIndex,
         sample_interval: timedelta,
         quantiles: list[Quantile],
-    ) -> pd.DataFrame:
-        """Rolling quantiles of the measurements, evaluated at the cutoff of each timestamp.
-
-        Args:
-            measurements: Measurement history; missing values are excluded from the context.
-            index: Timestamps to forecast.
-            sample_interval: Sample interval of the measurements.
-            quantiles: Quantiles to forecast.
-
-        Returns:
-            Reference quantiles indexed like ``index``; NaN where the context coverage is too low.
-        """
-        filtering = self.reference_filtering
-        cutoffs = filtering.apply_index(index) if isinstance(filtering, AvailableAt) else index - filtering.value
-        measurements = measurements.loc[max(measurements.index[0], cutoffs.min() - self.context_length) : cutoffs.max()]
-        if measurements.empty:
-            return pd.DataFrame(np.nan, index=index, columns=[quantile.format() for quantile in quantiles])
-
-        grid = measurements.reindex(pd.date_range(measurements.index[0], measurements.index[-1], freq=sample_interval))
-        rolling = grid.rolling(
-            window=self.context_length,
-            min_periods=max(1, math.ceil(self.minimum_coverage * self.context_length / sample_interval)),
+    ) -> ForecastDataset:
+        """Build the configured reference forecast for the requested timestamps."""
+        return self.reference_forecast_builder(
+            measurements=measurements,
+            index=index,
+            sample_interval=sample_interval,
+            quantiles=quantiles,
+            reference_filtering=self.reference_filtering,
+            context_length=self.context_length,
+            minimum_coverage=self.minimum_coverage,
         )
-        rolling_quantiles = pd.DataFrame({quantile.format(): rolling.quantile(quantile) for quantile in quantiles})
-
-        # ffill only fills cutoffs between grid points; NaN contexts stay NaN
-        reference = rolling_quantiles.reindex(cutoffs, method="ffill")
-        reference.index = index
-        return reference
 
     @override
     def __call__(
@@ -444,90 +465,40 @@ class CRPSSProvider(MetricProvider):
     ) -> QuantileMetricsDict:
         """Compute global CRPSS against the reference forecast built from the ground truth."""
         if ground_truth is None:
-            return {"global": {"CRPSS": float("NaN")}}
+            return {"global": {self.metric_name: float("NaN")}}
 
         y_true: npt.NDArray[np.floating] = cast(pd.DataFrame, not_none(subset.target_series)).to_numpy()
-        reference = self.reference_forecast(
+        y_pred = subset.quantiles_data.to_numpy()
+        y_reference = self.reference_forecast(
             measurements=ground_truth.target_series,
             index=subset.index,
             sample_interval=subset.sample_interval,
             quantiles=subset.quantiles,
-        )
+        ).quantiles_data.to_numpy()
+
+        sample_weights = None
+        if self.sample_weighter is not None:
+            weight_scale = self.reference_forecast(
+                measurements=ground_truth.target_series.abs(),
+                index=subset.index,
+                sample_interval=subset.sample_interval,
+                quantiles=[self.weight_scale_quantile],
+            ).quantiles_data.to_numpy()[:, 0]
+            sample_weights = self.sample_weighter.calculate_weights(y_true, weight_scale)
+
+        # Rows lacking measurement history have neither a reference nor a weight scale.
+        valid = ~np.isnan(y_reference).any(axis=1)
+        if not valid.any():
+            return {"global": {self.metric_name: float("NaN")}}
 
         return {
             "global": {
-                "CRPSS": crpss(
-                    y_true=y_true,
-                    y_pred=subset.quantiles_data.to_numpy(),
-                    y_reference=reference.to_numpy(),
+                self.metric_name: crpss(
+                    y_true=y_true[valid],
+                    y_pred=y_pred[valid],
+                    y_reference=y_reference[valid],
                     quantiles=subset.quantiles,
-                )
-            }
-        }
-
-
-class CRPSSSampleWeightedProvider(CRPSSProvider):
-    """CRPSS with sample weights scaled to a rolling absolute quantile of the reference context."""
-
-    @property
-    @override
-    def metric_names(self) -> frozenset[str]:
-        return frozenset({"CRPSS_sample_weighted"})
-
-    weight_scale_quantile: Quantile = Field(
-        default=Quantile(0.99),
-        description="Quantile of the absolute reference context used to scale sample weights.",
-    )
-    a_min: float = Field(
-        default=0.1,
-        description="Minimum sample weight.",
-    )
-    a_max: float = Field(
-        default=1.0,
-        description="Maximum sample weight.",
-    )
-    exponent: float = Field(
-        default=1.0,
-        description="Exponent for sample weight calculation.",
-    )
-
-    @override
-    def __call__(
-        self, subset: ForecastDataset, ground_truth: ForecastInputDataset | None = None
-    ) -> QuantileMetricsDict:
-        """Compute global sample-weighted CRPSS against the reference forecast built from the ground truth."""
-        if ground_truth is None:
-            return {"global": {"CRPSS_sample_weighted": float("NaN")}}
-
-        y_true: npt.NDArray[np.floating] = cast(pd.DataFrame, not_none(subset.target_series)).to_numpy()
-        measurements = ground_truth.target_series
-        reference = self.reference_forecast(
-            measurements=measurements,
-            index=subset.index,
-            sample_interval=subset.sample_interval,
-            quantiles=subset.quantiles,
-        )
-        weight_scale = self.reference_forecast(
-            measurements=measurements.abs(),
-            index=subset.index,
-            sample_interval=subset.sample_interval,
-            quantiles=[self.weight_scale_quantile],
-        ).to_numpy()[:, 0]
-
-        sample_weights = np.clip(
-            np.abs(y_true / weight_scale) ** self.exponent,
-            a_min=self.a_min,
-            a_max=self.a_max,
-        )
-
-        return {
-            "global": {
-                "CRPSS_sample_weighted": crpss(
-                    y_true=y_true,
-                    y_pred=subset.quantiles_data.to_numpy(),
-                    y_reference=reference.to_numpy(),
-                    quantiles=subset.quantiles,
-                    sample_weights=sample_weights,
+                    sample_weights=None if sample_weights is None else sample_weights[valid],
                 )
             }
         }
@@ -934,7 +905,6 @@ class RelativePinballLossProvider(MetricProvider):
 
 __all__ = [
     "CRPSSProvider",
-    "CRPSSSampleWeightedProvider",
     "MAPEProvider",
     "MeanAbsoluteCalibrationErrorProvider",
     "MetricDirection",
@@ -943,6 +913,7 @@ __all__ = [
     "PeakMetricProvider",
     "R2Provider",
     "RCRPSProvider",
+    "RCRPSSampleWeightedProvider",
     "RCSProvider",
     "RIQDProvider",
     "RMAEPeakHoursProvider",

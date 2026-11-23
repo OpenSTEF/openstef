@@ -33,9 +33,7 @@ from openstef_beam.metrics.metrics_deterministic import (
     riqd,
     rmae,
 )
-from openstef_beam.metrics.metrics_helpers import (
-    skill_score,
-)
+from openstef_beam.metrics.metrics_helpers import SampleWeighter, skill_score
 from openstef_beam.metrics.metrics_probabilistic import (
     crps,
     crpss,
@@ -47,6 +45,7 @@ from openstef_beam.metrics.metrics_probabilistic import (
 __all__ = [
     "ConfusionMatrix",
     "PrecisionRecall",
+    "SampleWeighter",
     "completeness",
     "confusion_matrix",
     "crps",

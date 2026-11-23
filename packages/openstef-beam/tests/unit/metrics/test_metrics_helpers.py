@@ -7,7 +7,7 @@ from collections.abc import Sequence
 import numpy as np
 import pytest
 
-from openstef_beam.metrics.metrics_helpers import represented_interval_weights, skill_score
+from openstef_beam.metrics.metrics_helpers import SampleWeighter, represented_interval_weights, skill_score
 from openstef_core.types import Q
 
 
@@ -29,6 +29,27 @@ def test_represented_interval_weights(quantiles: Sequence[float], expected: Sequ
     # Assert
     assert np.allclose(weights, expected)
     assert np.isclose(weights.sum(), 1.0)  # weights form a partition of the unit interval
+
+
+@pytest.mark.parametrize(
+    ("scale", "expected"),
+    [
+        pytest.param(4.0, [0.25, 0.5, 1.0], id="scalar_scale"),
+        pytest.param([2.0, 4.0, 8.0], [0.5, 0.5, 0.5], id="vector_scale"),
+    ],
+)
+def test_sample_weighter_calculate_weights_returns_clipped_weights(
+    scale: float | Sequence[float], expected: Sequence[float]
+) -> None:
+    # Arrange
+    weighter = SampleWeighter()
+    values = np.array([1.0, 2.0, -4.0])
+
+    # Act
+    weights = weighter.calculate_weights(values, np.asarray(scale))
+
+    # Assert
+    assert np.allclose(weights, expected)
 
 
 @pytest.mark.parametrize(
