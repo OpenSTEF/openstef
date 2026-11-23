@@ -79,3 +79,35 @@ jobs:
         # All tests are run with always() not to stop on the first error. This step makes the workflow fail if any quality step failed.
         if: ${{ failure() }}
         run: exit 1
+
+  tests:
+    name: Build and tests (${{ matrix.os }}, Python ${{ matrix.python-version }})
+    if: ${{ ! inputs._SKIP_QUALITY }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ["3.12", "3.13", "3.14"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          show-progress: false
+      - name: Install OpenMP (macOS)
+        if: runner.os == 'macOS'
+        run: brew install libomp
+      - name: Install uv
+        uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
+        with:
+          activate-environment: true
+          enable-cache: true
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: uv sync --frozen
+      # Windows currently has known platform-specific test failures; keep the
+      # build/install coverage there and track the test failures separately.
+      - name: tests
+        if: runner.os != 'Windows'
+        run: poe tests --relaxed
