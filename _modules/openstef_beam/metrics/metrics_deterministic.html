@@ -898,10 +898,16 @@ window.runMermaid = runMermaid;</script>
     <span class="c1"># Calculate absolute errors</span>
     <span class="n">ae</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">y_true</span> <span class="o">-</span> <span class="n">y_pred</span><span class="p">)</span>
 
-    <span class="c1"># Create a mask to ignore NaN values if allow_nan is True</span>
-    <span class="n">mask</span> <span class="o">=</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">ae</span><span class="p">)</span> <span class="k">if</span> <span class="n">allow_nan</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">ae</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+    <span class="c1"># Drop NaN errors if allow_nan is True, together with their weights</span>
+    <span class="k">if</span> <span class="n">allow_nan</span><span class="p">:</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">ae</span><span class="p">)</span>
+        <span class="n">ae</span> <span class="o">=</span> <span class="n">ae</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">sample_weights</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">sample_weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">sample_weights</span><span class="p">)[</span><span class="n">mask</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">ae</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;NaN&quot;</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">ae</span><span class="p">[</span><span class="n">mask</span><span class="p">],</span> <span class="n">weights</span><span class="o">=</span><span class="n">sample_weights</span><span class="p">))</span></div>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">ae</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">sample_weights</span><span class="p">))</span></div>
 
 
 
@@ -968,12 +974,15 @@ window.runMermaid = runMermaid;</script>
 
     <span class="c1"># Calculate MAE</span>
     <span class="n">mae_value</span> <span class="o">=</span> <span class="n">mae</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span> <span class="n">sample_weights</span><span class="o">=</span><span class="n">sample_weights</span><span class="p">,</span> <span class="n">allow_nan</span><span class="o">=</span><span class="n">allow_nan</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">mae_value</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;NaN&quot;</span><span class="p">)</span>
 
-    <span class="c1"># Calculate range using quantile</span>
+    <span class="c1"># Calculate range using quantile, ignoring missing true values if allow_nan is True</span>
     <span class="k">if</span> <span class="n">norm_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">y_range</span> <span class="o">=</span> <span class="n">norm_value</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">y_range</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="n">upper_quantile</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="n">lower_quantile</span><span class="p">)</span>
+        <span class="n">quantile</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanquantile</span> <span class="k">if</span> <span class="n">allow_nan</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">quantile</span>
+        <span class="n">y_range</span> <span class="o">=</span> <span class="n">quantile</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="n">upper_quantile</span><span class="p">)</span> <span class="o">-</span> <span class="n">quantile</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="n">lower_quantile</span><span class="p">)</span>
 
     <span class="c1"># Avoid division by zero if range is zero</span>
     <span class="k">if</span> <span class="n">y_range</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
