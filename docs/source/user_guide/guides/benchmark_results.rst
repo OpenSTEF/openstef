@@ -31,18 +31,12 @@ At a Glance
 
 .. image:: /images/guides/liander2024_rcrps_by_group.png
    :alt: Box plot of rCRPS per model and target group on the Liander 2024 benchmark.
-         The ensemble has the lowest median rCRPS in every group, gblinear is close
-         behind, and xgboost trails.
+         Chronos-2 has the lowest median rCRPS in every group, followed by Chronos-2 
+         small, the ensemble model, GBLinear and XGBoost.
    :align: center
 
 Each box shows the distribution of per-target ``rCRPS`` within a target group (one
 point per target). Lower is better.
-
-.. note::
-
-   This figure covers the **trained classical models** only and predates the
-   foundation-model results. For the zero-shot **Chronos-2** numbers, see the
-   :ref:`tables below <benchmark_tables>`.
 
 **Takeaways**
 
@@ -154,40 +148,40 @@ column is in bold.
      - Solar park
      - Wind park
    * - XGBoost
-     - 0.065
-     - 0.052
-     - 0.062
-     - 0.075
-     - 0.052
-     - 0.089
-   * - GBLinear
-     - 0.051
-     - 0.041
-     - 0.049
-     - 0.059
-     - 0.044
      - 0.070
-   * - Ensemble
+     - 0.057
+     - 0.067
+     - 0.081
+     - 0.056
+     - 0.096
+   * - GBLinear
+     - 0.061
+     - 0.051
+     - 0.059
+     - 0.071
      - 0.049
-     - 0.039
+     - 0.082
+   * - Ensemble
+     - 0.059
+     - 0.048
+     - 0.057
+     - 0.068
      - 0.047
-     - 0.058
-     - 0.037
-     - 0.066
-   * - Chronos-2
-     - **0.044**
-     - **0.035**
-     - **0.042**
-     - **0.050**
-     - **0.036**
-     - **0.063**
+     - 0.080
    * - Chronos-2 (small)
-     - 0.046
-     - 0.038
+     - 0.054
      - 0.044
      - 0.052
-     - 0.039
-     - 0.064
+     - 0.061
+     - 0.046
+     - 0.075
+   * - Chronos-2
+     - **0.051**
+     - **0.041**
+     - **0.049**
+     - **0.058**
+     - **0.043**
+     - **0.074**
 
 .. list-table:: rCRPS - sample-weighted / peak-focused (lower is better)
    :header-rows: 1
@@ -202,40 +196,40 @@ column is in bold.
      - Solar park
      - Wind park
    * - XGBoost
-     - 0.082
-     - 0.056
-     - 0.068
-     - 0.085
-     - 0.113
-     - 0.156
+     - 0.087
+     - 0.061
+     - 0.073
+     - 0.091
+     - 0.121
+     - 0.164
    * - GBLinear
-     - 0.063
-     - 0.045
-     - 0.054
-     - 0.069
      - 0.077
-     - 0.107
+     - 0.056
+     - 0.066
+     - 0.083
+     - 0.100
+     - 0.132
    * - Ensemble
-     - 0.059
-     - 0.042
-     - 0.053
      - 0.067
-     - **0.069**
-     - 0.096
-   * - Chronos-2
-     - **0.051**
-     - **0.036**
-     - **0.043**
-     - **0.053**
-     - **0.069**
-     - **0.093**
+     - 0.049
+     - 0.060
+     - 0.075
+     - **0.078**
+     - **0.109**
    * - Chronos-2 (small)
+     - 0.062
+     - 0.045
      - 0.053
-     - 0.038
-     - 0.046
-     - 0.055
-     - 0.074
-     - 0.094
+     - 0.065
+     - 0.087
+     - 0.110
+   * - Chronos-2
+     - **0.059**
+     - **0.042**
+     - **0.050**
+     - **0.062**
+     - 0.081
+     - **0.109**
 
 .. list-table:: rMAE (P50) - median point forecast (lower is better)
    :header-rows: 1
@@ -250,33 +244,26 @@ column is in bold.
      - Solar park
      - Wind park
    * - XGBoost
-     - 0.084
-     - 0.067
-     - 0.079
-     - 0.095
-     - 0.067
-     - 0.111
-   * - GBLinear
-     - 0.084
+     - 0.082
      - 0.067
      - 0.079
      - 0.094
+     - 0.067
+     - 0.111
+   * - GBLinear
+     - 0.085
+     - 0.072
+     - 0.082
+     - 0.098
      - 0.070
-     - 0.110
+     - 0.113
    * - Ensemble
+     - 0.081
+     - 0.067
      - 0.078
-     - 0.063
-     - 0.074
-     - 0.089
-     - **0.062**
-     - **0.103**
-   * - Chronos-2
-     - **0.072**
-     - **0.058**
-     - **0.069**
-     - **0.082**
-     - **0.062**
-     - **0.103**
+     - 0.093
+     - 0.067
+     - 0.110
    * - Chronos-2 (small)
      - 0.076
      - 0.062
@@ -284,7 +271,13 @@ column is in bold.
      - 0.086
      - 0.066
      - 0.105
-
+   * - Chronos-2
+     - **0.072**
+     - **0.058**
+     - **0.069**
+     - **0.082**
+     - **0.062**
+     - **0.103**
 
 How These Numbers Were Produced
 -------------------------------
@@ -309,8 +302,8 @@ How These Numbers Were Produced
        (no future data leakage).
    * - Evaluation
      - Sequential :doc:`BEAM </user_guide/concepts/beam>` backtest over 2024. rCRPS is computed per target
-       from quantile forecasts (normalization range :math:`P_1`–:math:`P_{99}`), then
-       averaged within each group.
+       from quantile forecasts using interval quantile weighting (normalization range
+       :math:`P_1`–:math:`P_{99}`), then averaged within each group.
 
 For the full methodology — how the backtest prevents leakage and how metrics are
 segmented — see :doc:`BEAM </user_guide/concepts/beam>`. To benchmark your *own* model or data on the same
