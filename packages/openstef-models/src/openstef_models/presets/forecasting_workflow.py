@@ -49,7 +49,7 @@ from openstef_models.transforms.general import (
     Selector,
     Shifter,
 )
-from openstef_models.transforms.postprocessing import QuantileMoments, QuantileSorter
+from openstef_models.transforms.postprocessing import QuantileMomentsAdder, QuantileSorter
 from openstef_models.transforms.time_domain import (
     CyclicFeaturesAdder,
     DatetimeFeaturesAdder,
@@ -575,7 +575,7 @@ def create_forecasting_workflow(
         model=ForecastingModel(
             preprocessing=TransformPipeline(transforms=preprocessing),
             forecaster=forecaster,
-            postprocessing=TransformPipeline(transforms=[QuantileSorter(), QuantileMoments()]),
+            postprocessing=TransformPipeline(transforms=[QuantileSorter(), QuantileMomentsAdder()]),
             target_column=config.target_column,
             data_splitter=config.data_splitter,
             cutoff_history=config.cutoff_history,
