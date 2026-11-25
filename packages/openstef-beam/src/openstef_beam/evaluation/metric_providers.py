@@ -92,7 +92,7 @@ class MetricProvider(BaseConfig):
     )
 
     def __call__(
-        self, subset: ForecastDataset, ground_truth: ForecastInputDataset | None = None
+        self, subset: ForecastDataset, full_ground_truth: ForecastInputDataset | None = None
     ) -> QuantileMetricsDict:
         """Process an evaluation subset and return metrics.
 
@@ -101,12 +101,12 @@ class MetricProvider(BaseConfig):
 
         Args:
             subset: Evaluation subset containing predictions and ground truth data.
-            ground_truth: Full measurement history; ignored if unused by the provider.
+            full_ground_truth: Full measurement history; ignored if unused by the provider.
 
         Returns:
             QuantileMetricsDict mapping quantile keys to computed metric values.
         """
-        _ = ground_truth
+        _ = full_ground_truth
         y_true: npt.NDArray[np.floating] = cast(
             pd.DataFrame, not_none(subset.target_series)
         ).to_numpy()  # type workaround
@@ -461,16 +461,16 @@ class CRPSSProvider(MetricProvider):
 
     @override
     def __call__(
-        self, subset: ForecastDataset, ground_truth: ForecastInputDataset | None = None
+        self, subset: ForecastDataset, full_ground_truth: ForecastInputDataset | None = None
     ) -> QuantileMetricsDict:
         """Compute global CRPSS against the reference forecast built from the ground truth."""
-        if ground_truth is None:
+        if full_ground_truth is None:
             return {"global": {self.metric_name: float("NaN")}}
 
         y_true: npt.NDArray[np.floating] = cast(pd.DataFrame, not_none(subset.target_series)).to_numpy()
         y_pred = subset.quantiles_data.to_numpy()
         y_reference = self.reference_forecast(
-            measurements=ground_truth.target_series,
+            measurements=full_ground_truth.target_series,
             index=subset.index,
             sample_interval=subset.sample_interval,
             quantiles=subset.quantiles,
@@ -479,7 +479,7 @@ class CRPSSProvider(MetricProvider):
         sample_weights = None
         if self.sample_weighter is not None:
             weight_scale = self.reference_forecast(
-                measurements=ground_truth.target_series.abs(),
+                measurements=full_ground_truth.target_series.abs(),
                 index=subset.index,
                 sample_interval=subset.sample_interval,
                 quantiles=[self.weight_scale_quantile],
@@ -610,7 +610,7 @@ class RMAEPeakHoursProvider(MetricProvider):
 
     @override
     def __call__(
-        self, subset: ForecastDataset, ground_truth: ForecastInputDataset | None = None
+        self, subset: ForecastDataset, full_ground_truth: ForecastInputDataset | None = None
     ) -> QuantileMetricsDict:
         """Process an evaluation subset and return metrics.
 
@@ -619,12 +619,12 @@ class RMAEPeakHoursProvider(MetricProvider):
 
         Args:
             subset: Evaluation subset containing predictions and ground truth data.
-            ground_truth: Unused by this provider.
+            full_ground_truth: Unused by this provider.
 
         Returns:
             QuantileMetricsDict mapping peak/off-peak periods to computed metric values.
         """
-        _ = ground_truth
+        _ = full_ground_truth
         y_true: npt.NDArray[np.floating] = cast(pd.DataFrame, not_none(subset.target_series)).to_numpy()
         y_pred: npt.NDArray[np.floating] = subset.quantiles_data.to_numpy()
 
