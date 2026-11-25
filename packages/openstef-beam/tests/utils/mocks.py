@@ -22,7 +22,7 @@ class DummyMetricProvider(MetricProvider):
 
     @override
     def __call__(
-        self, subset: ForecastDataset, ground_truth: ForecastInputDataset | None = None
+        self, subset: ForecastDataset, full_ground_truth: ForecastInputDataset | None = None
     ) -> QuantileMetricsDict:
         # Return metrics for global since test is not using actual quantile data
         result: QuantileMetricsDict = {"global": {"dummy_metric": self.value}}
@@ -36,7 +36,7 @@ class MockMetricsProvider(MetricProvider):
 
     @override
     def __call__(
-        self, subset: ForecastDataset, ground_truth: ForecastInputDataset | None = None
+        self, subset: ForecastDataset, full_ground_truth: ForecastInputDataset | None = None
     ) -> QuantileMetricsDict:
         return self.mocked_result
 
