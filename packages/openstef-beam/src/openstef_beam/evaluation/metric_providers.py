@@ -268,7 +268,7 @@ class RCRPSProvider(MetricProvider):
 
     metric_name: str = Field(
         default="rCRPS",
-        description="Name used for the rCRPS result.",
+        description="Name used for the rCRPS result. Configurable for weighted variant.",
     )
 
     lower_quantile: Quantile = Field(
@@ -411,7 +411,7 @@ class CRPSSProvider(MetricProvider):
 
     metric_name: str = Field(
         default="CRPSS",
-        description="Name used for the CRPSS result.",
+        description="Name used for the CRPSS result. Configurable for weighted variant.",
     )
 
     reference_filtering: Filtering = Field(
