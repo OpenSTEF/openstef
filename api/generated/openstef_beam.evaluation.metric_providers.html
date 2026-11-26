@@ -61,7 +61,7 @@
     <link rel="icon" href="../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="MAPEProvider" href="openstef_beam.evaluation.metric_providers.MAPEProvider.html" />
+    <link rel="next" title="CRPSSProvider" href="openstef_beam.evaluation.metric_providers.CRPSSProvider.html" />
     <link rel="prev" title="iterate_subsets_by_window" href="openstef_beam.evaluation.window_iterators.iterate_subsets_by_window.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
@@ -849,10 +849,13 @@
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_beam.metrics.metrics_helpers.html">metrics_helpers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.metrics.metrics_helpers.equals_zero.html">equals_zero</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.metrics.metrics_helpers.represented_interval_weights.html">represented_interval_weights</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.metrics.metrics_helpers.skill_score.html">skill_score</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.metrics.metrics_helpers.SampleWeighter.html">SampleWeighter</a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_beam.metrics.metrics_probabilistic.html">metrics_probabilistic</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.metrics.metrics_probabilistic.crps.html">crps</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.metrics.metrics_probabilistic.crpss.html">crpss</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.metrics.metrics_probabilistic.mean_absolute_calibration_error.html">mean_absolute_calibration_error</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.metrics.metrics_probabilistic.mean_pinball_loss.html">mean_pinball_loss</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.metrics.metrics_probabilistic.observed_probability.html">observed_probability</a></li>
@@ -862,6 +865,7 @@
 <li class="toctree-l3"><a class="reference internal" href="openstef_beam.metrics.completeness.html">completeness</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_beam.metrics.confusion_matrix.html">confusion_matrix</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_beam.metrics.crps.html">crps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="openstef_beam.metrics.crpss.html">crpss</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_beam.metrics.fbeta.html">fbeta</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_beam.metrics.mae.html">mae</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_beam.metrics.mape.html">mape</a></li>
@@ -875,8 +879,10 @@
 <li class="toctree-l3"><a class="reference internal" href="openstef_beam.metrics.relative_pinball_loss.html">relative_pinball_loss</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_beam.metrics.riqd.html">riqd</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_beam.metrics.rmae.html">rmae</a></li>
+<li class="toctree-l3"><a class="reference internal" href="openstef_beam.metrics.skill_score.html">skill_score</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_beam.metrics.ConfusionMatrix.html">ConfusionMatrix</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_beam.metrics.PrecisionRecall.html">PrecisionRecall</a></li>
+<li class="toctree-l3"><a class="reference internal" href="openstef_beam.metrics.SampleWeighter.html">SampleWeighter</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="openstef_beam.backtesting.html">backtesting</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -975,6 +981,7 @@
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="openstef_beam.evaluation.html">evaluation</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_beam.evaluation.evaluation_helper.html">evaluation_helper</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.evaluation_helper.compute_symmetric_quantile_metrics.html">compute_symmetric_quantile_metrics</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.evaluation_helper.rolling_quantile_reference_forecast.html">rolling_quantile_reference_forecast</a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_beam.evaluation.evaluation_pipeline.html">evaluation_pipeline</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -998,6 +1005,7 @@
 </ul>
 </details></li>
 <li class="toctree-l3 current active has-children"><a aria-current="page" class="current reference internal" href="#">metric_providers</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.metric_providers.CRPSSProvider.html">CRPSSProvider</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.metric_providers.MAPEProvider.html">MAPEProvider</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.metric_providers.MeanAbsoluteCalibrationErrorProvider.html">MeanAbsoluteCalibrationErrorProvider</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.metric_providers.MetricProvider.html">MetricProvider</a></li>
@@ -1005,6 +1013,7 @@
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.metric_providers.PeakMetricProvider.html">PeakMetricProvider</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.metric_providers.R2Provider.html">R2Provider</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.metric_providers.RCRPSProvider.html">RCRPSProvider</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.metric_providers.RCRPSSampleWeightedProvider.html">RCRPSSampleWeightedProvider</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.metric_providers.RCSProvider.html">RCSProvider</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.metric_providers.RIQDProvider.html">RIQDProvider</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.metric_providers.RMAEPeakHoursProvider.html">RMAEPeakHoursProvider</a></li>
@@ -1286,26 +1295,32 @@ and can be configured to work with specific quantiles or all available quantiles
 <h2>Classes<a class="headerlink" href="#classes" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">MAPEProvider</span></code>(*[, quantiles])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">CRPSSProvider</span></code>(*, quantiles, metric_name, ...)</p></td>
+<td><p>CRPS skill score relative to a rolling-quantile reference forecast.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">MAPEProvider</span></code>(*[, quantiles])</p></td>
 <td><p>Provides Mean Absolute Percentage Error metrics.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">MeanAbsoluteCalibrationErrorProvider</span></code>(*[, ...])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">MeanAbsoluteCalibrationErrorProvider</span></code>(*[, ...])</p></td>
 <td><p>Provides quantile calibration metrics.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">MetricProvider</span></code>(*[, quantiles])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">MetricProvider</span></code>(*[, quantiles])</p></td>
 <td><p>Base class for forecast metric computation.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ObservedProbabilityProvider</span></code>(*[, quantiles])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ObservedProbabilityProvider</span></code>(*[, quantiles])</p></td>
 <td><p>Provides observed probability metrics.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">PeakMetricProvider</span></code>(*[, quantiles, ...])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">PeakMetricProvider</span></code>(*[, quantiles, ...])</p></td>
 <td><p>Provides metrics for peak detection performance.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">R2Provider</span></code>(*[, quantiles])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">R2Provider</span></code>(*[, quantiles])</p></td>
 <td><p>Provides R² (coefficient of determination) metrics.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">RCRPSProvider</span></code>(*[, quantiles, ...])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">RCRPSProvider</span></code>(*[, quantiles, metric_name, ...])</p></td>
 <td><p>Provides the Relative Continuous Ranked Probability Score.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">RCRPSSampleWeightedProvider</span></code>(*[, quantiles, ...])</p></td>
+<td><p>Deprecated compatibility facade for weighted rCRPS.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">RCSProvider</span></code>(*[, quantiles])</p></td>
 <td><p>Provides Regression Coverage Score metrics.</p></td>
@@ -1348,11 +1363,11 @@ and can be configured to work with specific quantiles or all available quantiles
       </div>
     </a>
     <a class="right-next"
-       href="openstef_beam.evaluation.metric_providers.MAPEProvider.html"
+       href="openstef_beam.evaluation.metric_providers.CRPSSProvider.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">MAPEProvider</p>
+        <p class="prev-next-title">CRPSSProvider</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

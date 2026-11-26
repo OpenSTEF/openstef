@@ -816,7 +816,7 @@ window.runMermaid = runMermaid;</script>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">npt</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.metrics.metrics_deterministic</span><span class="w"> </span><span class="kn">import</span> <span class="n">pinball_loss</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.metrics.metrics_helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">represented_interval_weights</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.metrics.metrics_helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">represented_interval_weights</span><span class="p">,</span> <span class="n">skill_score</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Quantile</span>
 
 <span class="n">_Q_05</span> <span class="o">=</span> <span class="n">Quantile</span><span class="p">(</span><span class="mf">0.05</span><span class="p">)</span>
@@ -951,6 +951,51 @@ window.runMermaid = runMermaid;</script>
         <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;NaN&quot;</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">crps</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span> <span class="n">quantiles</span><span class="p">,</span> <span class="n">sample_weights</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">)</span> <span class="o">/</span> <span class="n">y_range</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="crpss">
+<a class="viewcode-back" href="../../../api/generated/openstef_beam.metrics.metrics_probabilistic.crpss.html#openstef_beam.metrics.crpss">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">crpss</span><span class="p">(</span>
+    <span class="n">y_true</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
+    <span class="n">y_pred</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
+    <span class="n">y_reference</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
+    <span class="n">quantiles</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Quantile</span><span class="p">],</span>
+    <span class="n">sample_weights</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">method</span><span class="p">:</span> <span class="n">QuantileWeightingMethod</span> <span class="o">=</span> <span class="s2">&quot;interval&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate the Continuous Ranked Probability Skill Score (CRPSS).</span>
+
+<span class="sd">    The CRPSS expresses the CRPS of a forecast relative to the CRPS of a reference</span>
+<span class="sd">    forecast, so forecast quality is measured as the improvement over a baseline</span>
+<span class="sd">    rather than on a scale that depends on the evaluated period.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        y_true: Observed values with shape (num_samples,).</span>
+<span class="sd">        y_pred: Predicted quantiles with shape (num_samples, num_quantiles).</span>
+<span class="sd">        y_reference: Reference predictions with shape (num_samples, num_quantiles).</span>
+<span class="sd">        quantiles: Quantile levels with shape (num_quantiles,). Must be sorted</span>
+<span class="sd">            in ascending order and contain values in [0, 1].</span>
+<span class="sd">        sample_weights: Optional weights for each sample with shape (num_samples,).</span>
+<span class="sd">        method: Quantile weighting scheme to use, either &quot;interval&quot; (default) or &quot;uniform&quot;.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The skill over the reference forecast as a percentage. Returns NaN if the</span>
+<span class="sd">        reference forecast is unavailable or perfect.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        A forecast twice as accurate as its reference</span>
+
+<span class="sd">        &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">        &gt;&gt;&gt; y_true = np.array([0.0, 10.0])</span>
+<span class="sd">        &gt;&gt;&gt; quantiles = [Quantile(0.5)]</span>
+<span class="sd">        &gt;&gt;&gt; crpss(y_true, np.array([[1.0], [9.0]]), np.array([[2.0], [8.0]]), quantiles)</span>
+<span class="sd">        50.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">skill_score</span><span class="p">(</span>
+        <span class="n">score</span><span class="o">=</span><span class="n">crps</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span> <span class="n">quantiles</span><span class="p">,</span> <span class="n">sample_weights</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">),</span>
+        <span class="n">reference_score</span><span class="o">=</span><span class="n">crps</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_reference</span><span class="p">,</span> <span class="n">quantiles</span><span class="p">,</span> <span class="n">sample_weights</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">),</span>
+    <span class="p">)</span></div>
 
 
 

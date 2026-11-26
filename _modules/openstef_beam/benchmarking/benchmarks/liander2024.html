@@ -823,9 +823,9 @@ window.runMermaid = runMermaid;</script>
     <span class="n">MetricProvider</span><span class="p">,</span>
     <span class="n">PeakMetricProvider</span><span class="p">,</span>
     <span class="n">RCRPSProvider</span><span class="p">,</span>
-    <span class="n">RCRPSSampleWeightedProvider</span><span class="p">,</span>
     <span class="n">RMAEProvider</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">SampleWeighter</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">AvailableAt</span><span class="p">,</span> <span class="n">Quantile</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.utils.path</span><span class="w"> </span><span class="kn">import</span> <span class="n">safe_path_join</span>
 
@@ -880,7 +880,12 @@ window.runMermaid = runMermaid;</script>
                 <span class="n">limit_neg</span><span class="o">=</span><span class="n">target</span><span class="o">.</span><span class="n">lower_limit</span> <span class="k">if</span> <span class="n">target</span><span class="o">.</span><span class="n">lower_limit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mf">0.0</span><span class="p">,</span>
                 <span class="n">beta</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
             <span class="p">),</span>
-            <span class="n">RCRPSSampleWeightedProvider</span><span class="p">(</span><span class="n">lower_quantile</span><span class="o">=</span><span class="n">Quantile</span><span class="p">(</span><span class="mf">0.01</span><span class="p">),</span> <span class="n">upper_quantile</span><span class="o">=</span><span class="n">Quantile</span><span class="p">(</span><span class="mf">0.99</span><span class="p">)),</span>
+            <span class="n">RCRPSProvider</span><span class="p">(</span>
+                <span class="n">lower_quantile</span><span class="o">=</span><span class="n">Quantile</span><span class="p">(</span><span class="mf">0.01</span><span class="p">),</span>
+                <span class="n">upper_quantile</span><span class="o">=</span><span class="n">Quantile</span><span class="p">(</span><span class="mf">0.99</span><span class="p">),</span>
+                <span class="n">metric_name</span><span class="o">=</span><span class="s2">&quot;rCRPS_sample_weighted&quot;</span><span class="p">,</span>
+                <span class="n">sample_weighter</span><span class="o">=</span><span class="n">SampleWeighter</span><span class="p">(),</span>
+            <span class="p">),</span>
         <span class="p">]</span></div>
 
 

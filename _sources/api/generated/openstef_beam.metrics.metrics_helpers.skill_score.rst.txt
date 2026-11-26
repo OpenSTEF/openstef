@@ -1,0 +1,10 @@
+.. SPDX-FileCopyrightText: 2025 Contributors to the OpenSTEF project <openstef@lfenergy.org>
+..
+.. SPDX-License-Identifier: MPL-2.0
+
+skill_score
+===========
+
+.. currentmodule:: openstef_beam.metrics.metrics_helpers
+
+.. autofunction:: skill_score

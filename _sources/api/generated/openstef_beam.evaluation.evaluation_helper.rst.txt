@@ -30,6 +30,7 @@ Functions
    :template: custom_function.rst
 
    compute_symmetric_quantile_metrics
+   rolling_quantile_reference_forecast
 
 
 

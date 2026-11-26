@@ -31,7 +31,18 @@ Functions
 
    equals_zero
    represented_interval_weights
+   skill_score
 
+
+
+Classes
+-------
+
+.. autosummary::
+   :toctree: .
+   :template: custom_class_noindex.rst
+
+   SampleWeighter
 
 
 

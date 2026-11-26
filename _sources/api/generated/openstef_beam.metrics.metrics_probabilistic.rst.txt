@@ -30,6 +30,7 @@ Functions
    :template: custom_function.rst
 
    crps
+   crpss
    mean_absolute_calibration_error
    mean_pinball_loss
    observed_probability

@@ -803,18 +803,26 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">and can be configured to work with specific quantiles or all available quantiles.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">timedelta</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">cast</span><span class="p">,</span> <span class="n">override</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">npt</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">Field</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">deprecated</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.evaluation.evaluation_helper</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_symmetric_quantile_metrics</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.evaluation.evaluation_helper</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ReferenceForecastBuilder</span><span class="p">,</span>
+    <span class="n">compute_symmetric_quantile_metrics</span><span class="p">,</span>
+    <span class="n">rolling_quantile_reference_forecast</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.evaluation.models.subset</span><span class="w"> </span><span class="kn">import</span> <span class="n">MetricsDict</span><span class="p">,</span> <span class="n">QuantileMetricsDict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.evaluation.models.window</span><span class="w"> </span><span class="kn">import</span> <span class="n">Filtering</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">completeness</span><span class="p">,</span>
     <span class="n">confusion_matrix</span><span class="p">,</span>
+    <span class="n">crpss</span><span class="p">,</span>
     <span class="n">fbeta</span><span class="p">,</span>
     <span class="n">mae</span><span class="p">,</span>
     <span class="n">mape</span><span class="p">,</span>
@@ -828,9 +836,10 @@ window.runMermaid = runMermaid;</script>
     <span class="n">riqd</span><span class="p">,</span>
     <span class="n">rmae</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.metrics.metrics_helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">SampleWeighter</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.base_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseConfig</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">ForecastDataset</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Quantile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">ForecastDataset</span><span class="p">,</span> <span class="n">ForecastInputDataset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">AvailableAt</span><span class="p">,</span> <span class="n">Quantile</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.utils.invariants</span><span class="w"> </span><span class="kn">import</span> <span class="n">not_none</span>
 
 <span class="nb">type</span> <span class="n">MetricDirection</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;higher_is_better&quot;</span><span class="p">,</span> <span class="s2">&quot;lower_is_better&quot;</span><span class="p">]</span>
@@ -880,7 +889,9 @@ window.runMermaid = runMermaid;</script>
 
 <div class="viewcode-block" id="MetricProvider.__call__">
 <a class="viewcode-back" href="../../../api/generated/openstef_beam.evaluation.metric_providers.MetricProvider.html#openstef_beam.evaluation.metric_providers.MetricProvider.__call__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">ForecastDataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QuantileMetricsDict</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">ForecastDataset</span><span class="p">,</span> <span class="n">full_ground_truth</span><span class="p">:</span> <span class="n">ForecastInputDataset</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QuantileMetricsDict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Process an evaluation subset and return metrics.</span>
 
 <span class="sd">        Extracts predictions and ground truth from the subset, then computes</span>
@@ -888,10 +899,12 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">        Args:</span>
 <span class="sd">            subset: Evaluation subset containing predictions and ground truth data.</span>
+<span class="sd">            full_ground_truth: Full measurement history; ignored if unused by the provider.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            QuantileMetricsDict mapping quantile keys to computed metric values.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_</span> <span class="o">=</span> <span class="n">full_ground_truth</span>
         <span class="n">y_true</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span>
             <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">not_none</span><span class="p">(</span><span class="n">subset</span><span class="o">.</span><span class="n">target_series</span><span class="p">)</span>
         <span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>  <span class="c1"># type workaround</span>
@@ -1065,7 +1078,12 @@ window.runMermaid = runMermaid;</script>
     <span class="nd">@property</span>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">metric_names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="nb">frozenset</span><span class="p">({</span><span class="s2">&quot;rCRPS&quot;</span><span class="p">})</span>
+        <span class="k">return</span> <span class="nb">frozenset</span><span class="p">({</span><span class="bp">self</span><span class="o">.</span><span class="n">metric_name</span><span class="p">})</span>
+
+    <span class="n">metric_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;rCRPS&quot;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Name used for the rCRPS result. Configurable for weighted variant.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
 
     <span class="n">lower_quantile</span><span class="p">:</span> <span class="n">Quantile</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
         <span class="n">default</span><span class="o">=</span><span class="n">Quantile</span><span class="p">(</span><span class="mf">0.01</span><span class="p">),</span>
@@ -1074,6 +1092,10 @@ window.runMermaid = runMermaid;</script>
     <span class="n">upper_quantile</span><span class="p">:</span> <span class="n">Quantile</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
         <span class="n">default</span><span class="o">=</span><span class="n">Quantile</span><span class="p">(</span><span class="mf">0.99</span><span class="p">),</span>
         <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Upper quantile bound for rCRPS normalization.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">sample_weighter</span><span class="p">:</span> <span class="n">SampleWeighter</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Optional sample weighting configuration.&quot;</span><span class="p">,</span>
     <span class="p">)</span>
 
 <div class="viewcode-block" id="RCRPSProvider.compute_probabilistic">
@@ -1095,14 +1117,20 @@ window.runMermaid = runMermaid;</script>
 <span class="sd">        Returns:</span>
 <span class="sd">            QuantileMetricsDict containing global rCRPS metric value.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sample_weights</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_weighter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">weight_scale</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">y_true</span><span class="p">),</span> <span class="n">q</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">upper_quantile</span><span class="p">)</span>
+            <span class="n">sample_weights</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_weighter</span><span class="o">.</span><span class="n">calculate_weights</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">weight_scale</span><span class="p">)</span>
+
         <span class="k">return</span> <span class="p">{</span>
             <span class="s2">&quot;global&quot;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s2">&quot;rCRPS&quot;</span><span class="p">:</span> <span class="n">rcrps</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">metric_name</span><span class="p">:</span> <span class="n">rcrps</span><span class="p">(</span>
                     <span class="n">y_true</span><span class="o">=</span><span class="n">y_true</span><span class="p">,</span>
                     <span class="n">y_pred</span><span class="o">=</span><span class="n">y_pred</span><span class="p">,</span>
                     <span class="n">quantiles</span><span class="o">=</span><span class="n">quantiles</span><span class="p">,</span>
                     <span class="n">lower_quantile</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lower_quantile</span><span class="p">,</span>
                     <span class="n">upper_quantile</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">upper_quantile</span><span class="p">,</span>
+                    <span class="n">sample_weights</span><span class="o">=</span><span class="n">sample_weights</span><span class="p">,</span>
                 <span class="p">)</span>
             <span class="p">}</span>
         <span class="p">}</span></div>
@@ -1110,12 +1138,14 @@ window.runMermaid = runMermaid;</script>
 
 
 
+<div class="viewcode-block" id="RCRPSSampleWeightedProvider">
+<a class="viewcode-back" href="../../../api/generated/openstef_beam.evaluation.metric_providers.RCRPSSampleWeightedProvider.html#openstef_beam.evaluation.metric_providers.RCRPSSampleWeightedProvider">[docs]</a>
+<span class="nd">@deprecated</span><span class="p">(</span>
+    <span class="s2">&quot;RCRPSSampleWeightedProvider is deprecated. Use RCRPSProvider with sample_weighter instead.&quot;</span><span class="p">,</span>
+    <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">RCRPSSampleWeightedProvider</span><span class="p">(</span><span class="n">MetricProvider</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Provides the Relative Continuous Ranked Probability Score.</span>
-
-<span class="sd">    Computes rCRPS directly from the full probabilistic forecast without</span>
-<span class="sd">    processing individual quantiles.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Deprecated compatibility facade for weighted rCRPS.&quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
     <span class="nd">@override</span>
@@ -1143,6 +1173,8 @@ window.runMermaid = runMermaid;</script>
         <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Exponent for sample weight calculation.&quot;</span><span class="p">,</span>
     <span class="p">)</span>
 
+<div class="viewcode-block" id="RCRPSSampleWeightedProvider.compute_probabilistic">
+<a class="viewcode-back" href="../../../api/generated/openstef_beam.evaluation.metric_providers.RCRPSSampleWeightedProvider.html#openstef_beam.evaluation.metric_providers.RCRPSSampleWeightedProvider.compute_probabilistic">[docs]</a>
     <span class="nd">@override</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">compute_probabilistic</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -1177,7 +1209,132 @@ window.runMermaid = runMermaid;</script>
                     <span class="n">sample_weights</span><span class="o">=</span><span class="n">sample_weights</span><span class="p">,</span>
                 <span class="p">)</span>
             <span class="p">}</span>
-        <span class="p">}</span>
+        <span class="p">}</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="CRPSSProvider">
+<a class="viewcode-back" href="../../../api/generated/openstef_beam.evaluation.metric_providers.CRPSSProvider.html#openstef_beam.evaluation.metric_providers.CRPSSProvider">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CRPSSProvider</span><span class="p">(</span><span class="n">MetricProvider</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;CRPS skill score relative to a rolling-quantile reference forecast.</span>
+
+<span class="sd">    The reference forecast for a timestamp consists of the quantiles of the measurements in the</span>
+<span class="sd">    ``context_length`` before its cutoff, where the cutoff follows from ``reference_filtering``:</span>
+<span class="sd">    ``AvailableAt`` gives the same cutoff as ``filter_by_available_at`` (e.g. D-1 06:00) and</span>
+<span class="sd">    ``LeadTime`` gives a cutoff of ``timestamp - lead_time``. Measurements are considered</span>
+<span class="sd">    available at their own timestamp.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        &gt;&gt;&gt; from openstef_core.types import LeadTime</span>
+<span class="sd">        &gt;&gt;&gt; provider = CRPSSProvider(reference_filtering=LeadTime.from_string(&quot;PT48H&quot;))</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@override</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">metric_names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="nb">frozenset</span><span class="p">({</span><span class="bp">self</span><span class="o">.</span><span class="n">metric_name</span><span class="p">})</span>
+
+    <span class="n">metric_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;CRPSS&quot;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Name used for the CRPSS result. Configurable for weighted variant.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">reference_filtering</span><span class="p">:</span> <span class="n">Filtering</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">AvailableAt</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="s2">&quot;D-1T0600&quot;</span><span class="p">),</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Cutoff of the measurement history used for the reference forecast.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">context_length</span><span class="p">:</span> <span class="n">timedelta</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">14</span><span class="p">),</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Length of the measurement history used for each reference forecast.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">minimum_coverage</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Minimum fraction of expected context samples; references with less coverage are NaN.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">weight_scale_quantile</span><span class="p">:</span> <span class="n">Quantile</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">Quantile</span><span class="p">(</span><span class="mf">0.99</span><span class="p">),</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Quantile of the absolute reference context used to scale sample weights. &quot;</span>
+        <span class="s2">&quot;Only used when sample_weighter is set.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">sample_weighter</span><span class="p">:</span> <span class="n">SampleWeighter</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Optional sample weighting configuration.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">reference_forecast_builder</span><span class="p">:</span> <span class="n">ReferenceForecastBuilder</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">rolling_quantile_reference_forecast</span><span class="p">,</span>
+        <span class="n">exclude</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Callable used to construct the reference forecast.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+<div class="viewcode-block" id="CRPSSProvider.reference_forecast">
+<a class="viewcode-back" href="../../../api/generated/openstef_beam.evaluation.metric_providers.CRPSSProvider.html#openstef_beam.evaluation.metric_providers.CRPSSProvider.reference_forecast">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reference_forecast</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">measurements</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
+        <span class="n">index</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">,</span>
+        <span class="n">sample_interval</span><span class="p">:</span> <span class="n">timedelta</span><span class="p">,</span>
+        <span class="n">quantiles</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Quantile</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ForecastDataset</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Build the configured reference forecast for the requested timestamps.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">reference_forecast_builder</span><span class="p">(</span>
+            <span class="n">measurements</span><span class="o">=</span><span class="n">measurements</span><span class="p">,</span>
+            <span class="n">index</span><span class="o">=</span><span class="n">index</span><span class="p">,</span>
+            <span class="n">sample_interval</span><span class="o">=</span><span class="n">sample_interval</span><span class="p">,</span>
+            <span class="n">quantiles</span><span class="o">=</span><span class="n">quantiles</span><span class="p">,</span>
+            <span class="n">reference_filtering</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">reference_filtering</span><span class="p">,</span>
+            <span class="n">context_length</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">context_length</span><span class="p">,</span>
+            <span class="n">minimum_coverage</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">minimum_coverage</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CRPSSProvider.__call__">
+<a class="viewcode-back" href="../../../api/generated/openstef_beam.evaluation.metric_providers.CRPSSProvider.html#openstef_beam.evaluation.metric_providers.CRPSSProvider.__call__">[docs]</a>
+    <span class="nd">@override</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">ForecastDataset</span><span class="p">,</span> <span class="n">full_ground_truth</span><span class="p">:</span> <span class="n">ForecastInputDataset</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QuantileMetricsDict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute global CRPSS against the reference forecast built from the ground truth.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">full_ground_truth</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;global&quot;</span><span class="p">:</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">metric_name</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;NaN&quot;</span><span class="p">)}}</span>
+
+        <span class="n">y_true</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">not_none</span><span class="p">(</span><span class="n">subset</span><span class="o">.</span><span class="n">target_series</span><span class="p">))</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+        <span class="n">y_pred</span> <span class="o">=</span> <span class="n">subset</span><span class="o">.</span><span class="n">quantiles_data</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+        <span class="n">y_reference</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reference_forecast</span><span class="p">(</span>
+            <span class="n">measurements</span><span class="o">=</span><span class="n">full_ground_truth</span><span class="o">.</span><span class="n">target_series</span><span class="p">,</span>
+            <span class="n">index</span><span class="o">=</span><span class="n">subset</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+            <span class="n">sample_interval</span><span class="o">=</span><span class="n">subset</span><span class="o">.</span><span class="n">sample_interval</span><span class="p">,</span>
+            <span class="n">quantiles</span><span class="o">=</span><span class="n">subset</span><span class="o">.</span><span class="n">quantiles</span><span class="p">,</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">quantiles_data</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+
+        <span class="n">sample_weights</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_weighter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">weight_scale</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reference_forecast</span><span class="p">(</span>
+                <span class="n">measurements</span><span class="o">=</span><span class="n">full_ground_truth</span><span class="o">.</span><span class="n">target_series</span><span class="o">.</span><span class="n">abs</span><span class="p">(),</span>
+                <span class="n">index</span><span class="o">=</span><span class="n">subset</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+                <span class="n">sample_interval</span><span class="o">=</span><span class="n">subset</span><span class="o">.</span><span class="n">sample_interval</span><span class="p">,</span>
+                <span class="n">quantiles</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">weight_scale_quantile</span><span class="p">],</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">quantiles_data</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()[:,</span> <span class="mi">0</span><span class="p">]</span>
+            <span class="n">sample_weights</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_weighter</span><span class="o">.</span><span class="n">calculate_weights</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">weight_scale</span><span class="p">)</span>
+
+        <span class="c1"># Rows lacking measurement history have neither a reference nor a weight scale.</span>
+        <span class="n">valid</span> <span class="o">=</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">y_reference</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">valid</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;global&quot;</span><span class="p">:</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">metric_name</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;NaN&quot;</span><span class="p">)}}</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;global&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">metric_name</span><span class="p">:</span> <span class="n">crpss</span><span class="p">(</span>
+                    <span class="n">y_true</span><span class="o">=</span><span class="n">y_true</span><span class="p">[</span><span class="n">valid</span><span class="p">],</span>
+                    <span class="n">y_pred</span><span class="o">=</span><span class="n">y_pred</span><span class="p">[</span><span class="n">valid</span><span class="p">],</span>
+                    <span class="n">y_reference</span><span class="o">=</span><span class="n">y_reference</span><span class="p">[</span><span class="n">valid</span><span class="p">],</span>
+                    <span class="n">quantiles</span><span class="o">=</span><span class="n">subset</span><span class="o">.</span><span class="n">quantiles</span><span class="p">,</span>
+                    <span class="n">sample_weights</span><span class="o">=</span><span class="kc">None</span> <span class="k">if</span> <span class="n">sample_weights</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">sample_weights</span><span class="p">[</span><span class="n">valid</span><span class="p">],</span>
+                <span class="p">)</span>
+            <span class="p">}</span>
+        <span class="p">}</span></div>
+</div>
+
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">MAEProvider</span><span class="p">(</span><span class="n">MetricProvider</span><span class="p">):</span>
@@ -1295,7 +1452,9 @@ window.runMermaid = runMermaid;</script>
 <div class="viewcode-block" id="RMAEPeakHoursProvider.__call__">
 <a class="viewcode-back" href="../../../api/generated/openstef_beam.evaluation.metric_providers.RMAEPeakHoursProvider.html#openstef_beam.evaluation.metric_providers.RMAEPeakHoursProvider.__call__">[docs]</a>
     <span class="nd">@override</span>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">ForecastDataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QuantileMetricsDict</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">subset</span><span class="p">:</span> <span class="n">ForecastDataset</span><span class="p">,</span> <span class="n">full_ground_truth</span><span class="p">:</span> <span class="n">ForecastInputDataset</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QuantileMetricsDict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Process an evaluation subset and return metrics.</span>
 
 <span class="sd">        Extracts predictions and ground truth from the subset, then computes</span>
@@ -1303,14 +1462,16 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">        Args:</span>
 <span class="sd">            subset: Evaluation subset containing predictions and ground truth data.</span>
+<span class="sd">            full_ground_truth: Unused by this provider.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            QuantileMetricsDict mapping peak/off-peak periods to computed metric values.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_</span> <span class="o">=</span> <span class="n">full_ground_truth</span>
         <span class="n">y_true</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">not_none</span><span class="p">(</span><span class="n">subset</span><span class="o">.</span><span class="n">target_series</span><span class="p">))</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
         <span class="n">y_pred</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">=</span> <span class="n">subset</span><span class="o">.</span><span class="n">quantiles_data</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
 
-        <span class="n">hours</span> <span class="o">=</span> <span class="n">subset</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">hour</span>
+        <span class="n">hours</span> <span class="o">=</span> <span class="n">subset</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">to_series</span><span class="p">()</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">hour</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
         <span class="n">peak_hours_mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">hours</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_peak_hours</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">hours</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_peak_hours</span><span class="p">)</span>
 
         <span class="n">y_true</span> <span class="o">=</span> <span class="n">y_true</span><span class="p">[</span><span class="n">peak_hours_mask</span><span class="p">]</span>
@@ -1633,6 +1794,7 @@ window.runMermaid = runMermaid;</script>
 
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;CRPSSProvider&quot;</span><span class="p">,</span>
     <span class="s2">&quot;MAPEProvider&quot;</span><span class="p">,</span>
     <span class="s2">&quot;MeanAbsoluteCalibrationErrorProvider&quot;</span><span class="p">,</span>
     <span class="s2">&quot;MetricDirection&quot;</span><span class="p">,</span>
@@ -1641,6 +1803,7 @@ window.runMermaid = runMermaid;</script>
     <span class="s2">&quot;PeakMetricProvider&quot;</span><span class="p">,</span>
     <span class="s2">&quot;R2Provider&quot;</span><span class="p">,</span>
     <span class="s2">&quot;RCRPSProvider&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;RCRPSSampleWeightedProvider&quot;</span><span class="p">,</span>
     <span class="s2">&quot;RCSProvider&quot;</span><span class="p">,</span>
     <span class="s2">&quot;RIQDProvider&quot;</span><span class="p">,</span>
     <span class="s2">&quot;RMAEPeakHoursProvider&quot;</span><span class="p">,</span>

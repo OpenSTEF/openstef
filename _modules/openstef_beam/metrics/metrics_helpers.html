@@ -802,20 +802,89 @@ window.runMermaid = runMermaid;</script>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">npt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">Field</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.base_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseConfig</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Quantile</span>
 
 
+<div class="viewcode-block" id="SampleWeighter">
+<a class="viewcode-back" href="../../../api/generated/openstef_beam.metrics.metrics_helpers.SampleWeighter.html#openstef_beam.metrics.SampleWeighter">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SampleWeighter</span><span class="p">(</span><span class="n">BaseConfig</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Weights samples by their magnitude relative to a scale, clipped to ``[a_min, a_max]``.&quot;&quot;&quot;</span>
+
+    <span class="n">a_min</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Minimum sample weight.&quot;</span><span class="p">)</span>
+    <span class="n">a_max</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Maximum sample weight.&quot;</span><span class="p">)</span>
+    <span class="n">exponent</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Exponent for sample weight calculation.&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SampleWeighter.calculate_weights">
+<a class="viewcode-back" href="../../../api/generated/openstef_beam.metrics.metrics_helpers.SampleWeighter.html#openstef_beam.metrics.SampleWeighter.calculate_weights">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate_weights</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">values</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
+        <span class="n">scale</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate weights for ``values`` given a scalar or per-sample ``scale``.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">values</span> <span class="o">/</span> <span class="n">scale</span><span class="p">)</span> <span class="o">**</span> <span class="bp">self</span><span class="o">.</span><span class="n">exponent</span><span class="p">,</span> <span class="n">a_min</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">a_min</span><span class="p">,</span> <span class="n">a_max</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">a_max</span><span class="p">)</span></div>
+</div>
+
+
+
 <div class="viewcode-block" id="equals_zero">
-<a class="viewcode-back" href="../../../api/generated/openstef_beam.metrics.metrics_helpers.equals_zero.html#openstef_beam.metrics.metrics_helpers.equals_zero">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/openstef_beam.metrics.metrics_helpers.equals_zero.html#openstef_beam.metrics.equals_zero">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">equals_zero</span><span class="p">(</span><span class="n">number</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if a floating-point number is effectively zero, considering floating-point precision.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">number</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-09</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-09</span><span class="p">))</span></div>
 
 
 
+<div class="viewcode-block" id="skill_score">
+<a class="viewcode-back" href="../../../api/generated/openstef_beam.metrics.skill_score.html#openstef_beam.metrics.skill_score">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">skill_score</span><span class="p">(</span><span class="n">score</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">reference_score</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">as_percentage</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate the skill of a score relative to a reference score.</span>
+
+<span class="sd">    A skill score expresses how much better a forecast is than a reference forecast.</span>
+<span class="sd">    It is only meaningful for non-negative metrics where lower values are better,</span>
+<span class="sd">    such as CRPS or MAE.</span>
+
+<span class="sd">    Interpretation:</span>
+
+<span class="sd">    - Equal to the reference: 0</span>
+<span class="sd">    - Perfect forecast (score of 0): 1 (or 100%)</span>
+<span class="sd">    - Twice as accurate as the reference: 0.5 (or 50%)</span>
+<span class="sd">    - Worse than the reference: negative</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        score: The score of the evaluated forecast.</span>
+<span class="sd">        reference_score: The score of the reference forecast.</span>
+<span class="sd">        as_percentage: Whether to express the result as a percentage instead of a fraction.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The skill score. Returns NaN if either input is NaN or if the reference</span>
+<span class="sd">        score is zero.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        Compare a forecast against a reference forecast</span>
+
+<span class="sd">        &gt;&gt;&gt; skill_score(0.5, 1.0)</span>
+<span class="sd">        50.0</span>
+<span class="sd">        &gt;&gt;&gt; skill_score(1.0, 1.0)</span>
+<span class="sd">        0.0</span>
+<span class="sd">        &gt;&gt;&gt; skill_score(2.0, 1.0)</span>
+<span class="sd">        -100.0</span>
+<span class="sd">        &gt;&gt;&gt; skill_score(0.5, 1.0, as_percentage=False)</span>
+<span class="sd">        0.5</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">score</span><span class="p">)</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">reference_score</span><span class="p">)</span> <span class="ow">or</span> <span class="n">equals_zero</span><span class="p">(</span><span class="n">reference_score</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;NaN&quot;</span><span class="p">)</span>
+
+    <span class="n">skill</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">score</span> <span class="o">/</span> <span class="n">reference_score</span>
+    <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">skill</span> <span class="o">*</span> <span class="mf">100.0</span><span class="p">)</span> <span class="k">if</span> <span class="n">as_percentage</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="n">skill</span><span class="p">)</span></div>
+
+
+
 <div class="viewcode-block" id="represented_interval_weights">
-<a class="viewcode-back" href="../../../api/generated/openstef_beam.metrics.metrics_helpers.represented_interval_weights.html#openstef_beam.metrics.metrics_helpers.represented_interval_weights">[docs]</a>
+<a class="viewcode-back" href="../../../api/generated/openstef_beam.metrics.metrics_helpers.represented_interval_weights.html#openstef_beam.metrics.represented_interval_weights">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">represented_interval_weights</span><span class="p">(</span>
     <span class="n">quantiles</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Quantile</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">npt</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]:</span>

@@ -62,7 +62,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="backtest_callback" href="openstef_beam.backtesting.backtest_callback.html" />
-    <link rel="prev" title="PrecisionRecall" href="openstef_beam.metrics.PrecisionRecall.html" />
+    <link rel="prev" title="SampleWeighter" href="openstef_beam.metrics.SampleWeighter.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
@@ -849,10 +849,13 @@
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_beam.metrics.metrics_helpers.html">metrics_helpers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.metrics.metrics_helpers.equals_zero.html">equals_zero</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.metrics.metrics_helpers.represented_interval_weights.html">represented_interval_weights</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.metrics.metrics_helpers.skill_score.html">skill_score</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.metrics.metrics_helpers.SampleWeighter.html">SampleWeighter</a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_beam.metrics.metrics_probabilistic.html">metrics_probabilistic</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.metrics.metrics_probabilistic.crps.html">crps</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.metrics.metrics_probabilistic.crpss.html">crpss</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.metrics.metrics_probabilistic.mean_absolute_calibration_error.html">mean_absolute_calibration_error</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.metrics.metrics_probabilistic.mean_pinball_loss.html">mean_pinball_loss</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.metrics.metrics_probabilistic.observed_probability.html">observed_probability</a></li>
@@ -862,6 +865,7 @@
 <li class="toctree-l3"><a class="reference internal" href="openstef_beam.metrics.completeness.html">completeness</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_beam.metrics.confusion_matrix.html">confusion_matrix</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_beam.metrics.crps.html">crps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="openstef_beam.metrics.crpss.html">crpss</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_beam.metrics.fbeta.html">fbeta</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_beam.metrics.mae.html">mae</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_beam.metrics.mape.html">mape</a></li>
@@ -875,8 +879,10 @@
 <li class="toctree-l3"><a class="reference internal" href="openstef_beam.metrics.relative_pinball_loss.html">relative_pinball_loss</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_beam.metrics.riqd.html">riqd</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_beam.metrics.rmae.html">rmae</a></li>
+<li class="toctree-l3"><a class="reference internal" href="openstef_beam.metrics.skill_score.html">skill_score</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_beam.metrics.ConfusionMatrix.html">ConfusionMatrix</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_beam.metrics.PrecisionRecall.html">PrecisionRecall</a></li>
+<li class="toctree-l3"><a class="reference internal" href="openstef_beam.metrics.SampleWeighter.html">SampleWeighter</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 current active has-children"><a aria-current="page" class="current reference internal" href="#">backtesting</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -975,6 +981,7 @@
 <li class="toctree-l2 has-children"><a class="reference internal" href="openstef_beam.evaluation.html">evaluation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_beam.evaluation.evaluation_helper.html">evaluation_helper</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.evaluation_helper.compute_symmetric_quantile_metrics.html">compute_symmetric_quantile_metrics</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.evaluation_helper.rolling_quantile_reference_forecast.html">rolling_quantile_reference_forecast</a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_beam.evaluation.evaluation_pipeline.html">evaluation_pipeline</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -998,6 +1005,7 @@
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_beam.evaluation.metric_providers.html">metric_providers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.metric_providers.CRPSSProvider.html">CRPSSProvider</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.metric_providers.MAPEProvider.html">MAPEProvider</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.metric_providers.MeanAbsoluteCalibrationErrorProvider.html">MeanAbsoluteCalibrationErrorProvider</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.metric_providers.MetricProvider.html">MetricProvider</a></li>
@@ -1005,6 +1013,7 @@
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.metric_providers.PeakMetricProvider.html">PeakMetricProvider</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.metric_providers.R2Provider.html">R2Provider</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.metric_providers.RCRPSProvider.html">RCRPSProvider</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.metric_providers.RCRPSSampleWeightedProvider.html">RCRPSSampleWeightedProvider</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.metric_providers.RCSProvider.html">RCSProvider</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.metric_providers.RIQDProvider.html">RIQDProvider</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.metric_providers.RMAEPeakHoursProvider.html">RMAEPeakHoursProvider</a></li>
@@ -1347,12 +1356,12 @@ and predictions are made with only past data available.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="openstef_beam.metrics.PrecisionRecall.html"
+       href="openstef_beam.metrics.SampleWeighter.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">PrecisionRecall</p>
+        <p class="prev-next-title">SampleWeighter</p>
       </div>
     </a>
     <a class="right-next"

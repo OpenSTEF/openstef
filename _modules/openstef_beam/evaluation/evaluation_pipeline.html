@@ -946,10 +946,17 @@ window.runMermaid = runMermaid;</script>
         <span class="k">if</span> <span class="n">missing_quantiles</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">MissingColumnsError</span><span class="p">(</span><span class="n">missing_columns</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">missing_quantiles</span><span class="p">))</span>
 
+        <span class="n">ground_truth_data</span> <span class="o">=</span> <span class="n">ForecastInputDataset</span><span class="o">.</span><span class="n">from_timeseries</span><span class="p">(</span>
+            <span class="n">dataset</span><span class="o">=</span><span class="n">ground_truth</span><span class="o">.</span><span class="n">select_version</span><span class="p">(),</span>
+            <span class="n">target_column</span><span class="o">=</span><span class="n">target_column</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="c1"># Drop nans from ground truth to ensure clean join with predictions</span>
+        <span class="n">ground_truth_data</span> <span class="o">=</span> <span class="n">ground_truth_data</span><span class="o">.</span><span class="n">pipe_pandas</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">dropna</span><span class="p">)</span>
+
         <span class="n">subsets</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">EvaluationSubsetReport</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">filtering</span><span class="p">,</span> <span class="n">subset</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iterate_subsets</span><span class="p">(</span>
             <span class="n">predictions</span><span class="o">=</span><span class="n">predictions</span><span class="p">,</span>
-            <span class="n">ground_truth</span><span class="o">=</span><span class="n">ground_truth</span><span class="p">,</span>
+            <span class="n">ground_truth_data</span><span class="o">=</span><span class="n">ground_truth_data</span><span class="p">,</span>
             <span class="n">evaluation_mask</span><span class="o">=</span><span class="n">evaluation_mask</span><span class="p">,</span>
             <span class="n">target_column</span><span class="o">=</span><span class="n">target_column</span><span class="p">,</span>
         <span class="p">):</span>
@@ -959,6 +966,7 @@ window.runMermaid = runMermaid;</script>
 
             <span class="n">subset_metrics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evaluate_subset</span><span class="p">(</span>
                 <span class="n">subset</span><span class="o">=</span><span class="n">subset</span><span class="p">,</span>
+                <span class="n">ground_truth</span><span class="o">=</span><span class="n">ground_truth_data</span><span class="p">,</span>
                 <span class="n">reference_date</span><span class="o">=</span><span class="n">reference_date</span><span class="p">,</span>
             <span class="p">)</span>
 
@@ -1017,24 +1025,15 @@ window.runMermaid = runMermaid;</script>
     <span class="k">def</span><span class="w"> </span><span class="nf">_iterate_subsets</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">predictions</span><span class="p">:</span> <span class="n">TimeSeriesMixin</span><span class="p">,</span>
-        <span class="n">ground_truth</span><span class="p">:</span> <span class="n">TimeSeriesMixin</span><span class="p">,</span>
+        <span class="n">ground_truth_data</span><span class="p">:</span> <span class="n">ForecastInputDataset</span><span class="p">,</span>
         <span class="n">target_column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">evaluation_mask</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">Filtering</span><span class="p">,</span> <span class="n">ForecastDataset</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Yields evaluation subsets filtered by available_at and lead_time.</span>
 
-<span class="sd">        For ground truth, the data with the latest lead time is used.</span>
-
 <span class="sd">        Yields:</span>
 <span class="sd">            Tuples of (filter_criteria, evaluation_subset)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">ground_truth_data</span> <span class="o">=</span> <span class="n">ForecastInputDataset</span><span class="o">.</span><span class="n">from_timeseries</span><span class="p">(</span>
-            <span class="n">dataset</span><span class="o">=</span><span class="n">ground_truth</span><span class="o">.</span><span class="n">select_version</span><span class="p">(),</span>
-            <span class="n">target_column</span><span class="o">=</span><span class="n">target_column</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="c1"># Drop nans from ground truth to ensure clean join with predictions</span>
-        <span class="n">ground_truth_data</span> <span class="o">=</span> <span class="n">ground_truth_data</span><span class="o">.</span><span class="n">pipe_pandas</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">dropna</span><span class="p">)</span>
-
         <span class="k">for</span> <span class="n">available_at</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">available_ats</span><span class="p">:</span>
             <span class="n">predictions_filtered</span> <span class="o">=</span> <span class="n">predictions</span><span class="o">.</span><span class="n">filter_by_available_at</span><span class="p">(</span><span class="n">available_at</span><span class="o">=</span><span class="n">available_at</span><span class="p">)</span><span class="o">.</span><span class="n">select_version</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">evaluation_mask</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -1074,13 +1073,15 @@ window.runMermaid = runMermaid;</script>
     <span class="k">def</span><span class="w"> </span><span class="nf">_evaluate_subset</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">subset</span><span class="p">:</span> <span class="n">ForecastDataset</span><span class="p">,</span>
+        <span class="n">ground_truth</span><span class="p">:</span> <span class="n">ForecastInputDataset</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">reference_date</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">SubsetMetric</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Computes metrics for a given evaluation subset.</span>
 
 <span class="sd">        Applies window-specific metrics to each time window and adds a global</span>
 <span class="sd">        evaluation across the entire subset. Each window generates one SubsetMetric</span>
-<span class="sd">        per timestamp, plus one global metric.</span>
+<span class="sd">        per timestamp, plus one global metric. The full ground truth is passed to</span>
+<span class="sd">        providers that need measurement history.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            List of SubsetMetric objects containing computed metrics for each window</span>
@@ -1096,7 +1097,7 @@ window.runMermaid = runMermaid;</script>
                             <span class="n">window</span><span class="o">=</span><span class="n">window</span><span class="p">,</span>
                             <span class="n">timestamp</span><span class="o">=</span><span class="n">window_timestamp</span><span class="p">,</span>
                             <span class="n">metrics</span><span class="o">=</span><span class="n">merge_quantile_metrics</span><span class="p">(</span>
-                                <span class="p">[</span><span class="n">provider</span><span class="p">(</span><span class="n">window_subset</span><span class="p">)</span> <span class="k">for</span> <span class="n">provider</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">window_metric_providers</span><span class="p">]</span>
+                                <span class="p">[</span><span class="n">provider</span><span class="p">(</span><span class="n">window_subset</span><span class="p">,</span> <span class="n">ground_truth</span><span class="p">)</span> <span class="k">for</span> <span class="n">provider</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">window_metric_providers</span><span class="p">]</span>
                             <span class="p">),</span>
                         <span class="p">)</span>
                         <span class="k">for</span> <span class="n">window_timestamp</span><span class="p">,</span> <span class="n">window_subset</span> <span class="ow">in</span> <span class="n">iterate_subsets_by_window</span><span class="p">(</span>
@@ -1114,7 +1115,9 @@ window.runMermaid = runMermaid;</script>
                 <span class="n">SubsetMetric</span><span class="p">(</span>
                     <span class="n">window</span><span class="o">=</span><span class="s2">&quot;global&quot;</span><span class="p">,</span>
                     <span class="n">timestamp</span><span class="o">=</span><span class="n">cast</span><span class="p">(</span><span class="s2">&quot;pd.Series[pd.Timestamp]&quot;</span><span class="p">,</span> <span class="n">subset</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">to_pydatetime</span><span class="p">(),</span>
-                    <span class="n">metrics</span><span class="o">=</span><span class="n">merge_quantile_metrics</span><span class="p">([</span><span class="n">provider</span><span class="p">(</span><span class="n">subset</span><span class="p">)</span> <span class="k">for</span> <span class="n">provider</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_metric_providers</span><span class="p">]),</span>
+                    <span class="n">metrics</span><span class="o">=</span><span class="n">merge_quantile_metrics</span><span class="p">(</span>
+                        <span class="p">[</span><span class="n">provider</span><span class="p">(</span><span class="n">subset</span><span class="p">,</span> <span class="n">ground_truth</span><span class="p">)</span> <span class="k">for</span> <span class="n">provider</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_metric_providers</span><span class="p">]</span>
+                    <span class="p">),</span>
                 <span class="p">)</span>
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">windowed_metrics</span></div>

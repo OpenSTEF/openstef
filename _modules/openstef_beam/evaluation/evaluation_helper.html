@@ -798,16 +798,52 @@ window.runMermaid = runMermaid;</script>
 
 <span class="sd">&quot;&quot;&quot;Helper functions shared between evaluation metric providers.&quot;&quot;&quot;</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Sequence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">timedelta</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">npt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.evaluation.models.subset</span><span class="w"> </span><span class="kn">import</span> <span class="n">QuantileMetricsDict</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Quantile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_beam.evaluation.models.window</span><span class="w"> </span><span class="kn">import</span> <span class="n">Filtering</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">ForecastDataset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openstef_core.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">AvailableAt</span><span class="p">,</span> <span class="n">Quantile</span>
 
 <span class="nb">type</span> <span class="n">SymmetricQuantileMetric</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span>
+<span class="nb">type</span> <span class="n">ReferenceForecastBuilder</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">ForecastDataset</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="rolling_quantile_reference_forecast">
+<a class="viewcode-back" href="../../../api/generated/openstef_beam.evaluation.evaluation_helper.rolling_quantile_reference_forecast.html#openstef_beam.evaluation.evaluation_helper.rolling_quantile_reference_forecast">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">rolling_quantile_reference_forecast</span><span class="p">(</span>
+    <span class="n">measurements</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
+    <span class="n">index</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">,</span>
+    <span class="n">sample_interval</span><span class="p">:</span> <span class="n">timedelta</span><span class="p">,</span>
+    <span class="n">quantiles</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Quantile</span><span class="p">],</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">reference_filtering</span><span class="p">:</span> <span class="n">Filtering</span><span class="p">,</span>
+    <span class="n">context_length</span><span class="p">:</span> <span class="n">timedelta</span><span class="p">,</span>
+    <span class="n">minimum_coverage</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ForecastDataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build a rolling quantile forecast from sorted, NaN-free measurements.&quot;&quot;&quot;</span>
+    <span class="n">cutoffs</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">reference_filtering</span><span class="o">.</span><span class="n">apply_index</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">reference_filtering</span><span class="p">,</span> <span class="n">AvailableAt</span><span class="p">)</span>
+        <span class="k">else</span> <span class="n">index</span> <span class="o">-</span> <span class="n">reference_filtering</span><span class="o">.</span><span class="n">value</span>
+    <span class="p">)</span>
+    <span class="n">context</span> <span class="o">=</span> <span class="n">measurements</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">cutoffs</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">-</span> <span class="n">context_length</span> <span class="p">:</span> <span class="n">cutoffs</span><span class="o">.</span><span class="n">max</span><span class="p">()]</span>
+    <span class="c1"># Rolling windows end at existing index points, so add the cutoffs as NaN points.</span>
+    <span class="n">context</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">cutoffs</span><span class="o">.</span><span class="n">unique</span><span class="p">()))</span>
+    <span class="n">rolling</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span>
+        <span class="n">window</span><span class="o">=</span><span class="n">context_length</span><span class="p">,</span>
+        <span class="n">min_periods</span><span class="o">=</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">minimum_coverage</span> <span class="o">*</span> <span class="n">context_length</span> <span class="o">/</span> <span class="n">sample_interval</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">reference</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="n">quantile</span><span class="o">.</span><span class="n">format</span><span class="p">():</span> <span class="n">rolling</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">quantile</span><span class="p">)</span> <span class="k">for</span> <span class="n">quantile</span> <span class="ow">in</span> <span class="n">quantiles</span><span class="p">})</span>
+    <span class="k">return</span> <span class="n">ForecastDataset</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">reference</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">cutoffs</span><span class="p">]</span><span class="o">.</span><span class="n">set_axis</span><span class="p">(</span><span class="n">index</span><span class="p">),</span> <span class="n">sample_interval</span><span class="o">=</span><span class="n">sample_interval</span><span class="p">)</span></div>
+
 
 
 <div class="viewcode-block" id="compute_symmetric_quantile_metrics">
@@ -876,7 +912,11 @@ window.runMermaid = runMermaid;</script>
 
 
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;compute_symmetric_quantile_metrics&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;ReferenceForecastBuilder&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;compute_symmetric_quantile_metrics&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;rolling_quantile_reference_forecast&quot;</span><span class="p">,</span>
+<span class="p">]</span>
 </pre></div>
 
                 </article>

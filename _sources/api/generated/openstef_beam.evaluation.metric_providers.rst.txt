@@ -30,6 +30,7 @@ Classes
    :toctree: .
    :template: custom_class_noindex.rst
 
+   CRPSSProvider
    MAPEProvider
    MeanAbsoluteCalibrationErrorProvider
    MetricProvider
@@ -37,6 +38,7 @@ Classes
    PeakMetricProvider
    R2Provider
    RCRPSProvider
+   RCRPSSampleWeightedProvider
    RCSProvider
    RIQDProvider
    RMAEPeakHoursProvider

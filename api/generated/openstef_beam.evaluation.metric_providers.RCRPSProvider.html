@@ -61,7 +61,7 @@
     <link rel="icon" href="../../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="RCSProvider" href="openstef_beam.evaluation.metric_providers.RCSProvider.html" />
+    <link rel="next" title="RCRPSSampleWeightedProvider" href="openstef_beam.evaluation.metric_providers.RCRPSSampleWeightedProvider.html" />
     <link rel="prev" title="R2Provider" href="openstef_beam.evaluation.metric_providers.R2Provider.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
@@ -849,10 +849,13 @@
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_beam.metrics.metrics_helpers.html">metrics_helpers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.metrics.metrics_helpers.equals_zero.html">equals_zero</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.metrics.metrics_helpers.represented_interval_weights.html">represented_interval_weights</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.metrics.metrics_helpers.skill_score.html">skill_score</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.metrics.metrics_helpers.SampleWeighter.html">SampleWeighter</a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_beam.metrics.metrics_probabilistic.html">metrics_probabilistic</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.metrics.metrics_probabilistic.crps.html">crps</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.metrics.metrics_probabilistic.crpss.html">crpss</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.metrics.metrics_probabilistic.mean_absolute_calibration_error.html">mean_absolute_calibration_error</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.metrics.metrics_probabilistic.mean_pinball_loss.html">mean_pinball_loss</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.metrics.metrics_probabilistic.observed_probability.html">observed_probability</a></li>
@@ -862,6 +865,7 @@
 <li class="toctree-l3"><a class="reference internal" href="openstef_beam.metrics.completeness.html">completeness</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_beam.metrics.confusion_matrix.html">confusion_matrix</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_beam.metrics.crps.html">crps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="openstef_beam.metrics.crpss.html">crpss</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_beam.metrics.fbeta.html">fbeta</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_beam.metrics.mae.html">mae</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_beam.metrics.mape.html">mape</a></li>
@@ -875,8 +879,10 @@
 <li class="toctree-l3"><a class="reference internal" href="openstef_beam.metrics.relative_pinball_loss.html">relative_pinball_loss</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_beam.metrics.riqd.html">riqd</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_beam.metrics.rmae.html">rmae</a></li>
+<li class="toctree-l3"><a class="reference internal" href="openstef_beam.metrics.skill_score.html">skill_score</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_beam.metrics.ConfusionMatrix.html">ConfusionMatrix</a></li>
 <li class="toctree-l3"><a class="reference internal" href="openstef_beam.metrics.PrecisionRecall.html">PrecisionRecall</a></li>
+<li class="toctree-l3"><a class="reference internal" href="openstef_beam.metrics.SampleWeighter.html">SampleWeighter</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="openstef_beam.backtesting.html">backtesting</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -975,6 +981,7 @@
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="openstef_beam.evaluation.html">evaluation</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_beam.evaluation.evaluation_helper.html">evaluation_helper</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.evaluation_helper.compute_symmetric_quantile_metrics.html">compute_symmetric_quantile_metrics</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.evaluation_helper.rolling_quantile_reference_forecast.html">rolling_quantile_reference_forecast</a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="openstef_beam.evaluation.evaluation_pipeline.html">evaluation_pipeline</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -998,6 +1005,7 @@
 </ul>
 </details></li>
 <li class="toctree-l3 current active has-children"><a class="reference internal" href="openstef_beam.evaluation.metric_providers.html">metric_providers</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.metric_providers.CRPSSProvider.html">CRPSSProvider</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.metric_providers.MAPEProvider.html">MAPEProvider</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.metric_providers.MeanAbsoluteCalibrationErrorProvider.html">MeanAbsoluteCalibrationErrorProvider</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.metric_providers.MetricProvider.html">MetricProvider</a></li>
@@ -1005,6 +1013,7 @@
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.metric_providers.PeakMetricProvider.html">PeakMetricProvider</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.metric_providers.R2Provider.html">R2Provider</a></li>
 <li class="toctree-l4 current active"><a aria-current="page" class="current reference internal" href="#">RCRPSProvider</a></li>
+<li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.metric_providers.RCRPSSampleWeightedProvider.html">RCRPSSampleWeightedProvider</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.metric_providers.RCSProvider.html">RCSProvider</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.metric_providers.RIQDProvider.html">RIQDProvider</a></li>
 <li class="toctree-l4"><a class="reference internal" href="openstef_beam.evaluation.metric_providers.RMAEPeakHoursProvider.html">RMAEPeakHoursProvider</a></li>
@@ -1283,7 +1292,7 @@
 <h1>RCRPSProvider<a class="headerlink" href="#rcrpsprovider" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">openstef_beam.evaluation.metric_providers.</span></span><span class="sig-name descname"><span class="pre">RCRPSProvider</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantiles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.15)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="openstef_core.types.Quantile.html#openstef_core.types.Quantile" title="openstef_core.types.Quantile"><span class="pre">Quantile</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lower_quantile</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="openstef_core.types.Quantile.html#openstef_core.types.Quantile" title="openstef_core.types.Quantile"><span class="pre">Quantile</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper_quantile</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="openstef_core.types.Quantile.html#openstef_core.types.Quantile" title="openstef_core.types.Quantile"><span class="pre">Quantile</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.99</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/openstef_beam/evaluation/metric_providers.html#RCRPSProvider"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">openstef_beam.evaluation.metric_providers.</span></span><span class="sig-name descname"><span class="pre">RCRPSProvider</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantiles</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.15)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="openstef_core.types.Quantile.html#openstef_core.types.Quantile" title="openstef_core.types.Quantile"><span class="pre">Quantile</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'rCRPS'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lower_quantile</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="openstef_core.types.Quantile.html#openstef_core.types.Quantile" title="openstef_core.types.Quantile"><span class="pre">Quantile</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper_quantile</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="openstef_core.types.Quantile.html#openstef_core.types.Quantile" title="openstef_core.types.Quantile"><span class="pre">Quantile</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.99</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weighter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="openstef_beam.metrics.SampleWeighter.html#openstef_beam.metrics.SampleWeighter" title="openstef_beam.metrics.metrics_helpers.SampleWeighter"><span class="pre">SampleWeighter</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/openstef_beam/evaluation/metric_providers.html#RCRPSProvider"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MetricProvider</span></code></p>
 <p>Provides the Relative Continuous Ranked Probability Score.</p>
 <p>Computes rCRPS directly from the full probabilistic forecast without
@@ -1292,8 +1301,10 @@ processing individual quantiles.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>quantiles</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference internal" href="openstef_core.types.Quantile.html#openstef_core.types.Quantile" title="openstef_core.types.Quantile"><code class="xref py py-class docutils literal notranslate"><span class="pre">Quantile</span></code></a>] | <span class="highlight sphinx_autodoc_typehints-value"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="kc"><span class="pre">None</span></span></code></a></span></span>)</p></li>
+<li><p><strong>metric_name</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>)</p></li>
 <li><p><strong>lower_quantile</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="openstef_core.types.Quantile.html#openstef_core.types.Quantile" title="openstef_core.types.Quantile"><code class="xref py py-class docutils literal notranslate"><span class="pre">Quantile</span></code></a></span>)</p></li>
 <li><p><strong>upper_quantile</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="openstef_core.types.Quantile.html#openstef_core.types.Quantile" title="openstef_core.types.Quantile"><code class="xref py py-class docutils literal notranslate"><span class="pre">Quantile</span></code></a></span>)</p></li>
+<li><p><strong>sample_weighter</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="openstef_beam.metrics.SampleWeighter.html#openstef_beam.metrics.SampleWeighter" title="openstef_beam.metrics.metrics_helpers.SampleWeighter"><code class="xref py py-class docutils literal notranslate"><span class="pre">SampleWeighter</span></code></a> | <span class="highlight sphinx_autodoc_typehints-value"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="kc"><span class="pre">None</span></span></code></a></span></span>)</p></li>
 </ul>
 </dd>
 </dl>
@@ -1312,12 +1323,22 @@ processing individual quantiles.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">metric_name</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><span class="pre">str</span></a></span></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
 <span class="sig-name descname"><span class="pre">lower_quantile</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="openstef_core.types.Quantile.html#openstef_core.types.Quantile" title="openstef_core.types.Quantile"><span class="pre">Quantile</span></a></span></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py">
 <span class="sig-name descname"><span class="pre">upper_quantile</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="openstef_core.types.Quantile.html#openstef_core.types.Quantile" title="openstef_core.types.Quantile"><span class="pre">Quantile</span></a></span></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">sample_weighter</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="openstef_beam.metrics.SampleWeighter.html#openstef_beam.metrics.SampleWeighter" title="openstef_beam.metrics.metrics_helpers.SampleWeighter"><span class="pre">SampleWeighter</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><span class="pre">None</span></a></span></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -1374,11 +1395,11 @@ processing individual quantiles.</p>
       </div>
     </a>
     <a class="right-next"
-       href="openstef_beam.evaluation.metric_providers.RCSProvider.html"
+       href="openstef_beam.evaluation.metric_providers.RCRPSSampleWeightedProvider.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">RCSProvider</p>
+        <p class="prev-next-title">RCRPSSampleWeightedProvider</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
