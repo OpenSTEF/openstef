@@ -11,7 +11,7 @@ from openstef_beam.backtesting.backtest_forecaster import BacktestForecasterConf
 from openstef_beam.backtesting.restricted_horizon_timeseries import RestrictedHorizonVersionedTimeSeries
 from openstef_beam.benchmarking import BenchmarkTarget, TargetProvider
 from openstef_beam.evaluation.metric_providers import MetricProvider, QuantileMetricsDict
-from openstef_core.datasets import ForecastDataset, TimeSeriesDataset, VersionedTimeSeriesDataset
+from openstef_core.datasets import ForecastDataset, ForecastInputDataset, TimeSeriesDataset, VersionedTimeSeriesDataset
 from openstef_core.types import Q, Quantile
 
 
@@ -21,7 +21,9 @@ class DummyMetricProvider(MetricProvider):
     value: float = 1.0
 
     @override
-    def __call__(self, subset: ForecastDataset) -> QuantileMetricsDict:
+    def __call__(
+        self, subset: ForecastDataset, full_ground_truth: ForecastInputDataset | None = None
+    ) -> QuantileMetricsDict:
         # Return metrics for global since test is not using actual quantile data
         result: QuantileMetricsDict = {"global": {"dummy_metric": self.value}}
         return result
@@ -33,7 +35,9 @@ class MockMetricsProvider(MetricProvider):
     mocked_result: QuantileMetricsDict
 
     @override
-    def __call__(self, subset: ForecastDataset) -> QuantileMetricsDict:
+    def __call__(
+        self, subset: ForecastDataset, full_ground_truth: ForecastInputDataset | None = None
+    ) -> QuantileMetricsDict:
         return self.mocked_result
 
 
