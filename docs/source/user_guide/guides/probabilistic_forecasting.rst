@@ -256,12 +256,15 @@ Key metrics for probabilistic forecast quality include:
 - **Regression Coverage Score (RCS)**: the fraction of actual values inside a prediction interval such as P10-P90
 - **Sharpness**: the width of prediction intervals (narrower is better, given proper calibration)
 - **Pinball loss**: the proper scoring rule for quantile forecasts, penalizing both miscalibration and lack of sharpness
+- **CRPS** (:func:`~openstef_beam.metrics.crps`): the Continuous Ranked Probability Score, computed as twice the weighted average of pinball losses across all quantile levels. Summarizes the full predictive distribution into a single score.
+- **rCRPS** (:func:`~openstef_beam.metrics.rcrps`): CRPS normalized by the range between a lower and upper quantile of the actuals, making scores comparable across targets with different scales.
+- **CRPSS** (:func:`~openstef_beam.metrics.crpss`): the CRPS Skill Score, which measures improvement of a probabilistic forecast relative to a reference forecast. A score of 1.0 indicates a perfect forecast; 0.0 means no improvement over the reference. Use :func:`~openstef_beam.metrics.skill_score` for the general-purpose skill score computation.
 
-See :doc:`/user_guide/guides/backtesting_tutorial` for how to evaluate forecast quality on historical data.
+See :doc:`/user_guide/guides/backtesting` for how to evaluate forecast quality on historical data.
 
 .. seealso::
 
    - :doc:`/user_guide/guides/forecasting` for the overall forecasting workflow (fitting, predicting, model selection).
    - :doc:`/user_guide/concepts/models` for understanding how different model types compare.
-   - :doc:`/user_guide/guides/backtesting_tutorial` for evaluating forecast performance systematically.
+   - :doc:`/user_guide/guides/backtesting` for evaluating forecast performance systematically.
    - :doc:`/user_guide/guides/reliability_fallback` for operational concerns like fallback behavior when data is missing.
