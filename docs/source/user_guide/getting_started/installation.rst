@@ -413,6 +413,15 @@ Staying Updated
 
 OpenSTEF follows semantic versioning. To stay updated with the latest releases:
 
+.. warning::
+
+   Models trained with a previous OpenSTEF major version are not compatible with newer
+   major versions. After a major-version upgrade (e.g. 3.x to 4.x), you must retrain
+   all models. Loading an incompatible model raises
+   :class:`~openstef_core.versioning.OpenSTEFVersionCompatibilityError` with the
+   originating run ID and version details. You can check compatibility programmatically
+   with :func:`~openstef_core.versioning.is_openstef_compatible`.
+
 .. tab-set::
 
     .. tab-item:: pip
