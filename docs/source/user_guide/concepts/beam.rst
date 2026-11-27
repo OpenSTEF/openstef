@@ -137,9 +137,10 @@ three dimensions. Each dimension answers a different operational question:
   and model drift mean that aggregate metrics can hide periods of poor performance.
 
 **Configurable metrics.** Metrics are supplied as provider objects. BEAM includes
-providers such as ``RMAEProvider`` (Relative Mean Absolute Error) and ``RCRPSProvider``
-(Relative Continuous Ranked Probability Score) for probabilistic evaluation. Interval
-metrics such as ``RCSProvider`` and
+providers such as ``RMAEProvider`` (Relative Mean Absolute Error), ``RCRPSProvider``
+(Relative Continuous Ranked Probability Score) for probabilistic evaluation, and
+``CRPSSProvider`` (Continuous Ranked Probability Skill Score) for measuring forecast
+improvement over a reference baseline. Interval metrics such as ``RCSProvider`` and
 ``RIQDProvider`` help assess quantile calibration and sharpness for symmetric
 quantile ranges. You can implement custom providers to add domain-specific metrics.
 
@@ -147,27 +148,11 @@ quantile ranges. You can implement custom providers to add domain-specific metri
 
    from openstef_beam.evaluation import EvaluationConfig, EvaluationPipeline
    from openstef_beam.evaluation.metric_providers import (
+       CRPSSProvider,
        RCRPSProvider,
        RCSProvider,
        RMAEProvider,
        RIQDProvider,
-   )
-
-   eval_pipeline = EvaluationPipeline(
-       config=EvaluationConfig(),
-       quantiles=forecaster.quantiles,
-       window_metric_providers=[
-           RMAEProvider(),
-           RCRPSProvider(),
-           RCSProvider(),
-           RIQDProvider(),
-       ],
-       global_metric_providers=[
-           RMAEProvider(),
-           RCRPSProvider(),
-           RCSProvider(),
-           RIQDProvider(),
-       ],
    )
 
 The output is an :class:`~openstef_beam.evaluation.EvaluationReport` containing per-subset
