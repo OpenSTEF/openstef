@@ -161,7 +161,7 @@ Base Case forecasters, which produce only a single quantile.
      - Multi
      - Partial
    * - Ensemble (via openstef-meta)
-     - Complementary model combination
+     - Complementary model combination; inspectable per-model weights
      - Best accuracy
      - Multi
      - Partial
@@ -197,7 +197,12 @@ extrapolation.
 **Best accuracy (production)**: Use the **Ensemble** approach (available via
 openstef-meta). Combining tree-based and linear forecasters exploits their
 complementary strengths - trees capture non-linear interactions while linear models
-provide extrapolation capability and stability.
+provide extrapolation capability and stability. The ensemble's learned per-model
+weights are fully inspectable: use
+:meth:`~openstef_models.models.EnsembleForecastingModel.predict_with_contributions` to
+obtain forecasts and weight breakdowns in a single pass, and
+:class:`~openstef_models.explainability.ModelContributionsPlotter` to visualize how the
+combiner distributes weight across base models over time.
 
 **Stable/predictable loads**: The Median forecaster provides a robust baseline with
 minimal complexity. Useful for loads with very low variance or as a sanity-check
