@@ -25,7 +25,7 @@ jobs:
           fetch-depth: 0 # full history gives Sonar accurate new-code / blame info
           show-progress: false # very verbose for not much
       - name: Install uv
-        uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
+        uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
         # uv is needed for qa and deploy, so is kinda always needed. No need to skip it.
         with:
           activate-environment: true
@@ -70,7 +70,7 @@ jobs:
       # Skipped on fork PRs, which cannot access the SONAR_TOKEN secret.
       - name: SonarCloud scan
         if: ${{ ! inputs._SKIP_QUALITY && !cancelled() && (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository) }}
-        uses: SonarSource/sonarqube-scan-action@4d1dc0c91ee400dcf8a6dddf2f705ac36542e304 # v8.4.0
+        uses: SonarSource/sonarqube-scan-action@70bad232163b09d998ea0707ee80c0ec80798c16 # v8.5.1
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: https://sonarcloud.io
@@ -99,7 +99,7 @@ jobs:
         if: runner.os == 'macOS'
         run: brew install libomp
       - name: Install uv
-        uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
+        uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
         with:
           activate-environment: true
           enable-cache: true
