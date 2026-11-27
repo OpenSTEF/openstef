@@ -218,7 +218,7 @@ class ForecastDataset(TimeSeriesDataset):
     forecasts with uncertainty quantification.
 
     Invariants:
-        - All columns must be valid quantile strings (e.g., 'quantile_P10')
+        - Forecast quantile columns use valid quantile strings (e.g., 'quantile_P10')
         - Inherits all TimeSeriesDataset guarantees (sorted timestamps, consistent intervals)
 
     Attrs:
@@ -264,6 +264,7 @@ class ForecastDataset(TimeSeriesDataset):
         is_sorted: bool = False,
         check_frequency: bool = False,
         standard_deviation_column: str = "stdev",
+        forecast_mean_column: str = "forecast_mean",
     ) -> None:
         if "forecast_start" in data.attrs:
             self.forecast_start = datetime.fromisoformat(data.attrs["forecast_start"])
@@ -271,6 +272,7 @@ class ForecastDataset(TimeSeriesDataset):
             self.forecast_start = forecast_start if forecast_start is not None else data.index.min().to_pydatetime()
         self.target_column = data.attrs.get("target_column", target_column)
         self.standard_deviation_column = data.attrs.get("standard_deviation_column", standard_deviation_column)
+        self.forecast_mean_column = data.attrs.get("forecast_mean_column", forecast_mean_column)
 
         super().__init__(
             data=data,
@@ -281,7 +283,7 @@ class ForecastDataset(TimeSeriesDataset):
             check_frequency=check_frequency,
         )
 
-        exclude_columns = {target_column, standard_deviation_column}
+        exclude_columns = {self.target_column, self.standard_deviation_column, self.forecast_mean_column}
         quantile_feature_names = [col for col in self.feature_names if col not in exclude_columns]
         if not all(Quantile.is_valid_quantile_string(col) for col in quantile_feature_names):
             raise ValueError("All feature names must be valid quantile strings.")
@@ -393,6 +395,7 @@ class ForecastDataset(TimeSeriesDataset):
         df.attrs["target_column"] = self.target_column
         df.attrs["forecast_start"] = self.forecast_start.isoformat()
         df.attrs["standard_deviation_column"] = self.standard_deviation_column
+        df.attrs["forecast_mean_column"] = self.forecast_mean_column
         return df
 
     @classmethod

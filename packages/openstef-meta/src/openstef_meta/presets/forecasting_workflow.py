@@ -56,7 +56,7 @@ from openstef_models.transforms.general import (
 from openstef_models.transforms.general.imputer import Imputer
 from openstef_models.transforms.general.nan_dropper import NaNDropper
 from openstef_models.transforms.general.selector import Selector
-from openstef_models.transforms.postprocessing import ConfidenceIntervalApplicator, QuantileSorter
+from openstef_models.transforms.postprocessing import QuantileMomentsAdder, QuantileSorter
 from openstef_models.transforms.time_domain import (
     CyclicFeaturesAdder,
     DatetimeFeaturesAdder,
@@ -586,19 +586,10 @@ def create_ensemble_forecasting_workflow(config: EnsembleForecastingWorkflowConf
         ]
     )
 
-    # Postprocessing
-    common_postprocessing: TransformPipeline[ForecastDataset] = TransformPipeline(
-        transforms=[
-            QuantileSorter(),
-        ]
-    )
-
-    model_specific_postprocessing: TransformPipeline[ForecastDataset] = TransformPipeline(transforms=[])
-
+    # Correct crossings in base forecasts and in the final combiner forecast.
+    model_specific_postprocessing: TransformPipeline[ForecastDataset] = TransformPipeline(transforms=[QuantileSorter()])
     combiner_postprocessing: TransformPipeline[ForecastDataset] = TransformPipeline(
-        transforms=[
-            ConfidenceIntervalApplicator(quantiles=config.quantiles, add_quantiles_from_std=False),
-        ]
+        transforms=[QuantileSorter(), QuantileMomentsAdder()]
     )
 
     tags = {
@@ -638,7 +629,6 @@ def create_ensemble_forecasting_workflow(config: EnsembleForecastingWorkflowConf
             preprocessing=common_preprocessing,
             model_specific_preprocessing=model_specific_preprocessing,
             combiner_preprocessing=combiner_preprocessing,
-            postprocessing=common_postprocessing,
             model_specific_postprocessing=model_specific_postprocessing,
             combiner_postprocessing=combiner_postprocessing,
             forecasters=forecasters,
