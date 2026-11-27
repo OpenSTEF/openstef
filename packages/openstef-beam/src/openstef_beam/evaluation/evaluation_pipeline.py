@@ -142,10 +142,17 @@ class EvaluationPipeline:
         if missing_quantiles:
             raise MissingColumnsError(missing_columns=list(missing_quantiles))
 
+        ground_truth_data = ForecastInputDataset.from_timeseries(
+            dataset=ground_truth.select_version(),
+            target_column=target_column,
+        )
+        # Drop nans from ground truth to ensure clean join with predictions
+        ground_truth_data = ground_truth_data.pipe_pandas(pd.DataFrame.dropna)
+
         subsets: list[EvaluationSubsetReport] = []
         for filtering, subset in self._iterate_subsets(
             predictions=predictions,
-            ground_truth=ground_truth,
+            ground_truth_data=ground_truth_data,
             evaluation_mask=evaluation_mask,
             target_column=target_column,
         ):
@@ -155,6 +162,7 @@ class EvaluationPipeline:
 
             subset_metrics = self._evaluate_subset(
                 subset=subset,
+                ground_truth=ground_truth_data,
                 reference_date=reference_date,
             )
 
@@ -209,24 +217,15 @@ class EvaluationPipeline:
     def _iterate_subsets(
         self,
         predictions: TimeSeriesMixin,
-        ground_truth: TimeSeriesMixin,
+        ground_truth_data: ForecastInputDataset,
         target_column: str,
         evaluation_mask: pd.DatetimeIndex | None = None,
     ) -> Iterator[tuple[Filtering, ForecastDataset]]:
         """Yields evaluation subsets filtered by available_at and lead_time.
 
-        For ground truth, the data with the latest lead time is used.
-
         Yields:
             Tuples of (filter_criteria, evaluation_subset)
         """
-        ground_truth_data = ForecastInputDataset.from_timeseries(
-            dataset=ground_truth.select_version(),
-            target_column=target_column,
-        )
-        # Drop nans from ground truth to ensure clean join with predictions
-        ground_truth_data = ground_truth_data.pipe_pandas(pd.DataFrame.dropna)
-
         for available_at in self.config.available_ats:
             predictions_filtered = predictions.filter_by_available_at(available_at=available_at).select_version()
             if evaluation_mask is not None:
@@ -266,13 +265,15 @@ class EvaluationPipeline:
     def _evaluate_subset(
         self,
         subset: ForecastDataset,
+        ground_truth: ForecastInputDataset | None = None,
         reference_date: datetime | None = None,
     ) -> list[SubsetMetric]:
         """Computes metrics for a given evaluation subset.
 
         Applies window-specific metrics to each time window and adds a global
         evaluation across the entire subset. Each window generates one SubsetMetric
-        per timestamp, plus one global metric.
+        per timestamp, plus one global metric. The full ground truth is passed to
+        providers that need measurement history.
 
         Returns:
             List of SubsetMetric objects containing computed metrics for each window
@@ -288,7 +289,7 @@ class EvaluationPipeline:
                             window=window,
                             timestamp=window_timestamp,
                             metrics=merge_quantile_metrics(
-                                [provider(window_subset) for provider in self.window_metric_providers]
+                                [provider(window_subset, ground_truth) for provider in self.window_metric_providers]
                             ),
                         )
                         for window_timestamp, window_subset in iterate_subsets_by_window(
@@ -306,7 +307,9 @@ class EvaluationPipeline:
                 SubsetMetric(
                     window="global",
                     timestamp=cast("pd.Series[pd.Timestamp]", subset.index).min().to_pydatetime(),
-                    metrics=merge_quantile_metrics([provider(subset) for provider in self.global_metric_providers]),
+                    metrics=merge_quantile_metrics(
+                        [provider(subset, ground_truth) for provider in self.global_metric_providers]
+                    ),
                 )
             )
         return windowed_metrics

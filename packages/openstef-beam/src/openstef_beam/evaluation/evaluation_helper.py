@@ -4,16 +4,49 @@
 
 """Helper functions shared between evaluation metric providers."""
 
+import math
 from collections.abc import Callable, Sequence
+from datetime import timedelta
 from typing import Any
 
 import numpy as np
 import numpy.typing as npt
+import pandas as pd
 
 from openstef_beam.evaluation.models.subset import QuantileMetricsDict
-from openstef_core.types import Quantile
+from openstef_beam.evaluation.models.window import Filtering
+from openstef_core.datasets import ForecastDataset
+from openstef_core.types import AvailableAt, Quantile
 
 type SymmetricQuantileMetric = Callable[..., float]
+type ReferenceForecastBuilder = Callable[..., ForecastDataset]
+
+
+def rolling_quantile_reference_forecast(
+    measurements: pd.Series,
+    index: pd.DatetimeIndex,
+    sample_interval: timedelta,
+    quantiles: list[Quantile],
+    *,
+    reference_filtering: Filtering,
+    context_length: timedelta,
+    minimum_coverage: float,
+) -> ForecastDataset:
+    """Build a rolling quantile forecast from sorted, NaN-free measurements."""
+    cutoffs = (
+        reference_filtering.apply_index(index)
+        if isinstance(reference_filtering, AvailableAt)
+        else index - reference_filtering.value
+    )
+    context = measurements.loc[cutoffs.min() - context_length : cutoffs.max()]
+    # Rolling windows end at existing index points, so add the cutoffs as NaN points.
+    context = context.reindex(context.index.union(cutoffs.unique()))
+    rolling = context.rolling(
+        window=context_length,
+        min_periods=math.ceil(minimum_coverage * context_length / sample_interval),
+    )
+    reference = pd.DataFrame({quantile.format(): rolling.quantile(quantile) for quantile in quantiles})
+    return ForecastDataset(data=reference.loc[cutoffs].set_axis(index), sample_interval=sample_interval)
 
 
 def compute_symmetric_quantile_metrics(
@@ -79,4 +112,8 @@ def compute_symmetric_quantile_metrics(
     return metrics
 
 
-__all__ = ["compute_symmetric_quantile_metrics"]
+__all__ = [
+    "ReferenceForecastBuilder",
+    "compute_symmetric_quantile_metrics",
+    "rolling_quantile_reference_forecast",
+]

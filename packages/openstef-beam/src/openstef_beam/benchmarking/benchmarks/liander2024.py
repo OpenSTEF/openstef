@@ -29,9 +29,9 @@ from openstef_beam.evaluation.metric_providers import (
     MetricProvider,
     PeakMetricProvider,
     RCRPSProvider,
-    RCRPSSampleWeightedProvider,
     RMAEProvider,
 )
+from openstef_beam.metrics import SampleWeighter
 from openstef_core.types import AvailableAt, Quantile
 from openstef_core.utils.path import safe_path_join
 
@@ -79,7 +79,12 @@ class Liander2024TargetProvider(SimpleTargetProvider[BenchmarkTarget, list[Liand
                 limit_neg=target.lower_limit if target.lower_limit is not None else 0.0,
                 beta=2,
             ),
-            RCRPSSampleWeightedProvider(lower_quantile=Quantile(0.01), upper_quantile=Quantile(0.99)),
+            RCRPSProvider(
+                lower_quantile=Quantile(0.01),
+                upper_quantile=Quantile(0.99),
+                metric_name="rCRPS_sample_weighted",
+                sample_weighter=SampleWeighter(),
+            ),
         ]
 
     @override
